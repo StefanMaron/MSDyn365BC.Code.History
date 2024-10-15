@@ -60,7 +60,7 @@ page 2352 "BC O365 Country/Region List"
         CountryRegion: Record "Country/Region";
     begin
         DeleteAll();
-        if CountryRegion.FindSet then
+        if CountryRegion.FindSet() then
             repeat
                 Code := CountryRegion.Code;
                 Name := CountryRegion.GetNameInCurrentLanguage;

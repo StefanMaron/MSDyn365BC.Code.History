@@ -209,7 +209,7 @@ codeunit 139027 "Test Background Posting"
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
         WasJobPosted: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Set up documents to be posted with a category different than the category
         // filter on the job queue, so that the job queue will not pick up the job.
@@ -247,7 +247,7 @@ codeunit 139027 "Test Background Posting"
         BackgroundSessionsTestLib: Codeunit "Background Sessions Test Lib";
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
     begin
-        Initialize;
+        Initialize();
 
         // Set up documents to be posted with the same category different as the filter
         // on the job queue, so that the job queue will pick up the job.
@@ -281,7 +281,7 @@ codeunit 139027 "Test Background Posting"
         PurchPostViaJobQueue: Codeunit "Purchase Post via Job Queue";
         WasJobPosted: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Set up documents to be posted with a category different than the category
         // filter on the job queue, so that the job queue will not pick up the job.
@@ -317,7 +317,7 @@ codeunit 139027 "Test Background Posting"
         PurchHeader: Record "Purchase Header";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Set up documents to be posted with the same category different as the filter
         // on the job queue, so that the job queue will pick up the job.
@@ -337,7 +337,7 @@ codeunit 139027 "Test Background Posting"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
     begin
-        Initialize;
+        Initialize();
 
         SalesSetup.Get();
         SalesSetup."Notify On Success" := true;
@@ -367,7 +367,7 @@ codeunit 139027 "Test Background Posting"
         BackgroundSessionsTestLib: Codeunit "Background Sessions Test Lib";
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
     begin
-        Initialize;
+        Initialize();
 
         SalesSetup.Get();
         SalesSetup."Notify On Success" := false;
@@ -386,7 +386,7 @@ codeunit 139027 "Test Background Posting"
         RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
         RecordLink.SetRange(Notify, true);
-        asserterror RecordLink.FindFirst;
+        asserterror RecordLink.FindFirst();
         Assert.AreEqual(0, RecordLink.Count, 'Did not expect any notifications, as "Notify On Success" is set to FALSE');
     end;
 
@@ -399,7 +399,7 @@ codeunit 139027 "Test Background Posting"
         PurchSetup: Record "Purchases & Payables Setup";
         PurchPostViaJobQueue: Codeunit "Purchase Post via Job Queue";
     begin
-        Initialize;
+        Initialize();
 
         PurchSetup.Get();
         PurchSetup."Notify On Success" := true;
@@ -428,7 +428,7 @@ codeunit 139027 "Test Background Posting"
         BackgroundSessionsTestLib: Codeunit "Background Sessions Test Lib";
         PurchPostViaJobQueue: Codeunit "Purchase Post via Job Queue";
     begin
-        Initialize;
+        Initialize();
 
         PurchSetup.Get();
         PurchSetup."Notify On Success" := false;
@@ -447,7 +447,7 @@ codeunit 139027 "Test Background Posting"
         RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
         RecordLink.SetRange(Notify, true);
-        asserterror RecordLink.FindFirst;
+        asserterror RecordLink.FindFirst();
         Assert.AreEqual(0, RecordLink.Count, 'Did not expect any notifications, as "Notify On Success" is set to FALSE');
     end;
 
@@ -458,7 +458,7 @@ codeunit 139027 "Test Background Posting"
     var
         PurchHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup(true, true);
         CreatePurchaseOrderAndPostUsingPage(PurchHeader);
 
@@ -474,7 +474,7 @@ codeunit 139027 "Test Background Posting"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         UpdateSalesReceivableSetup(true, true);
         CreateSalesOrderAndPostUsingPage(SalesHeader);
 
@@ -666,7 +666,7 @@ codeunit 139027 "Test Background Posting"
             SetView('SORTING(Link ID) ORDER(Descending)');
             SetRange(Type, Type::Note);
             SetRange(Notify, true);
-            FindFirst;
+            FindFirst();
             CalcFields(Note);
             Note.CreateInStream(NoteInStream);
         end;
@@ -697,7 +697,7 @@ codeunit 139027 "Test Background Posting"
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
         NoOfJQLogEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader); // background session created
@@ -726,7 +726,7 @@ codeunit 139027 "Test Background Posting"
         LibraryVariableStorage.Dequeue(Value);
         TableCaption := Value;
         DataPrivacyEntities.SetRange("Table Caption", TableCaption);
-        DataPrivacyEntities.FindFirst;
+        DataPrivacyEntities.FindFirst();
         DataSubject.GotoRecord(DataPrivacyEntities);
         DataSubject.OK.Invoke;
     end;

@@ -41,7 +41,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         // [THEN] Notifications get created for approvers.
 
         // Setup
-        Initialize;
+        Initialize();
         EnableOverdueWorkflow;
 
         LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowPurchaseDoc, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
@@ -89,9 +89,9 @@ codeunit 134186 "WF Demo Overdue Notifications"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Overdue Notifications");
         LibraryERMCountryData.InitializeCountry;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Overdue Notifications");
@@ -185,7 +185,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         Workflow: Record Workflow;
     begin
         Workflow.SetRange(Enabled, true);
-        if Workflow.FindSet then
+        if Workflow.FindSet() then
             repeat
                 Workflow.Validate(Enabled, false);
                 Workflow.Modify(true);
@@ -204,7 +204,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         Evaluate(DueDateFormula, '<' + Format(DueDateDelay) + 'D>');
         WorkflowStepArgument.Get(WorkflowStep.Argument);

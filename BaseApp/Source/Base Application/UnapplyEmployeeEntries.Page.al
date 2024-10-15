@@ -169,20 +169,23 @@ page 625 "Unapply Employee Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(NothingToApplyErr);
                     if not Confirm(UnapplyEntriesQst, false) then
                         exit;
 
-                    EmplEntryApplyPostedEntries.PostUnApplyEmployee(DtldEmplLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    EmplEntryApplyPostedEntries.PostUnApplyEmployee(DtldEmplLedgEntry2, ApplyUnapplyParameters);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll();
+                    Rec.DeleteAll();
                     Message(EntriesUnappliedMsg);
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(Preview)
@@ -197,12 +200,15 @@ page 625 "Unapply Employee Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(NothingToApplyErr);
 
-                    EmplEntryApplyPostedEntries.PreviewUnapply(DtldEmplLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    EmplEntryApplyPostedEntries.PreviewUnapply(DtldEmplLedgEntry2, ApplyUnapplyParameters);
                 end;
             }
         }

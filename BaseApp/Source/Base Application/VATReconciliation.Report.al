@@ -111,7 +111,7 @@ report 13620 "VAT Reconciliation"
                 if "VAT Amount" <> 0 then begin
                     VATEntry.SetRange("Transaction No.", "Transaction No.");
                     VATEntry.SetRange(Amount, "VAT Amount");
-                    VATEntry.FindFirst;
+                    VATEntry.FindFirst();
                     if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
                         BaseAmountRevCharges := VATEntry.Base;
                         SalesVATRevCharges := VATEntry.Amount;

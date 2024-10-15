@@ -33,7 +33,7 @@ codeunit 5057 "VendCont-Update"
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Vendor);
             SetRange("No.", Vend."No.");
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
@@ -151,7 +151,7 @@ codeunit 5057 "VendCont-Update"
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
         ContBusRel.SetRange("No.", Vend."No.");
-        if ContBusRel.FindFirst then
+        if ContBusRel.FindFirst() then
             if ContComp.Get(ContBusRel."Contact No.") then
                 with Cont do begin
                     Init;
@@ -178,7 +178,7 @@ codeunit 5057 "VendCont-Update"
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Vendor);
             SetRange("No.", VendorNo);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             if not Contact.Get("Contact No.") then
                 exit(true);

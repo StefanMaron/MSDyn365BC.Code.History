@@ -31,7 +31,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         SalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -48,7 +48,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         SalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -65,7 +65,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         SalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -82,7 +82,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         SalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -112,7 +112,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Released Sales Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedSalesDocumentWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -129,7 +129,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedSalesDocumentWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -146,7 +146,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Released Sales Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedSalesDocumentWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -163,7 +163,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Sales Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedSalesDocumentWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -191,7 +191,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Sales Invoice Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedSalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -208,7 +208,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Sales Invoice Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedSalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -225,7 +225,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Sales Invoice Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedSalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -242,7 +242,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Sales Invoice Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedSalesStatisticsWithVAT(TempSalesLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -275,7 +275,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Sales Line after Releasing Sales Order. VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmountVATSalesDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, false);
     end;
@@ -288,7 +288,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Sales Line after Releasing Sales Order. VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmountVATSalesDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, false);
     end;
@@ -301,7 +301,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Sales Line after Releasing Sales Order. VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmountVATSalesDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, true);
     end;
@@ -314,7 +314,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Sales Line after Releasing Sales Order. VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmountVATSalesDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, true);
     end;
@@ -342,7 +342,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Sales Line when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATPostedSalesDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, false);
     end;
@@ -355,7 +355,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Sales Line when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATPostedSalesDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, false);
     end;
@@ -368,7 +368,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Sales Line when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATPostedSalesDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, true);
     end;
@@ -381,7 +381,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Sales Line when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATPostedSalesDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, true);
     end;
@@ -413,7 +413,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -430,7 +430,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -447,7 +447,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -464,7 +464,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -495,7 +495,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Released Purchase Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedPurchDocumentWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -512,7 +512,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedPurchDocumentWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -529,7 +529,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Released Purchase Order Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedPurchDocumentWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -546,7 +546,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Purchase Order Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ReleasedPurchDocumentWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -574,7 +574,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Purchase Invoice Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedPurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -591,7 +591,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Purchase Invoice Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedPurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, false);
 
@@ -608,7 +608,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Purchase Invoice Statistics when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedPurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -625,7 +625,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Amount on Posted Purchase Invoice Statistics when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         PostedPurchStatisticsWithVAT(TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, true);
 
@@ -658,7 +658,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Line after Releasing Purchase Order. VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmtVATPurchDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, false);
     end;
@@ -671,7 +671,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Line after Releasing Purchase Order. VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmtVATPurchDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, false);
     end;
@@ -684,7 +684,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Line after Releasing Purchase Order. VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmtVATPurchDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, true);
     end;
@@ -697,7 +697,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Line after Releasing Purchase Order. VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmtVATPurchDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, true);
     end;
@@ -725,7 +725,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Purchase Line when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroAmtVATPurchDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, false);
     end;
@@ -738,7 +738,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Purchase Line when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATOnPostedPurchDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, false);
     end;
@@ -751,7 +751,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Purchase Line when VAT Tolerance % greater than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeHighVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATOnPostedPurchDocument(VATTolerancePct, PaymentDiscountPct, PaymentDiscountPct, true);
     end;
@@ -764,7 +764,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PaymentDiscountPct: Decimal;
     begin
         // Check VAT Base, Outstanding Amount on Posted Purchase Line when VAT Tolerance % less than Payment Discount %.
-        Initialize;
+        Initialize();
         ComputeLowVATTolerancePct(VATTolerancePct, PaymentDiscountPct);
         ZeroVATOnPostedPurchDocument(VATTolerancePct, PaymentDiscountPct, VATTolerancePct, true);
     end;
@@ -798,7 +798,7 @@ codeunit 134042 "ERM VAT Tolerance"
         // Credit Memo for same amount using Apply To Oldest method.
 
         // Setup: Create a General Journal Line with LibraryRandom used for Random Amount of Invoice type and post it.
-        Initialize;
+        Initialize();
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -830,7 +830,7 @@ codeunit 134042 "ERM VAT Tolerance"
         // [FEATURE] [Reverse Charge VAT]
         // [SCENARIO 375142] VAT Base Amount for Reverse Charge VAT should be lowered with VAT Tolerance %
 
-        Initialize;
+        Initialize();
         SetupReverseChargeVATPostingSetupWithVATTolerance(VATPostingSetup, DiscountPct, VATTolerancePct);
 
         // [GIVEN] Purchase Invoice with Amount = 100, Reverse Charge VAT % = 25, "VAT Tolerance %" = 3, "Pmt. Discount %" = 5
@@ -849,14 +849,14 @@ codeunit 134042 "ERM VAT Tolerance"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tolerance");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tolerance");
         // Need to use the following setups to prevent localization test failures.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1067,9 +1067,9 @@ codeunit 134042 "ERM VAT Tolerance"
         // Not using Library Item Finder method to make this funtion World ready.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATId);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         Item.SetRange(Blocked, false);
-        Item.FindFirst;
+        Item.FindFirst();
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2)); // Using Random for Random Decimal value.
         Item.Validate("Unit Price", Item."Last Direct Cost");
@@ -1091,7 +1091,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1171,7 +1171,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField(Amount, Amount);
         CustLedgerEntry.TestField("Pmt. Discount Date", PmtDiscountDate);
@@ -1182,7 +1182,7 @@ codeunit 134042 "ERM VAT Tolerance"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         Assert.AreNearlyEqual(
           VATBaseAmount, PurchInvLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, PurchInvLine.FieldCaption("VAT Base Amount"), VATBaseAmount, PurchInvLine.TableCaption));
@@ -1198,7 +1198,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, Amount);
     end;
 
@@ -1208,7 +1208,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
@@ -1217,7 +1217,7 @@ codeunit 134042 "ERM VAT Tolerance"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
           VATBaseAmount, SalesInvoiceLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, SalesInvoiceLine.FieldCaption("VAT Base Amount"), VATBaseAmount, SalesInvoiceLine.TableCaption));
@@ -1378,7 +1378,7 @@ codeunit 134042 "ERM VAT Tolerance"
         VATAmountLine: Record "VAT Amount Line";
     begin
         VATAmountLine.SetRange("VAT Identifier", VATId);
-        VATAmountLine.FindFirst;
+        VATAmountLine.FindFirst();
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));

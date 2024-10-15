@@ -66,7 +66,7 @@ table 5404 "Item Unit of Measure"
                         repeat
                             CheckQtyPerUoMPrecision(ItemUoM, Rec."Qty. Rounding Precision");
                         until (ItemUoM.Next() = 0);
-                    Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPercisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", "Item No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
+                    Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPercisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", Item.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
                 end;
             end;
         }
@@ -210,7 +210,7 @@ table 5404 "Item Unit of Measure"
     begin
         WhseEntry.SetRange("Item No.", "Item No.");
         WhseEntry.SetRange("Unit of Measure Code", xRec.Code);
-        if Location.FindSet then
+        if Location.FindSet() then
             repeat
                 if Bin.Get(Location.Code, Location."Adjustment Bin Code") then begin
                     WhseEntry.SetRange("Zone Code", Bin."Zone Code");

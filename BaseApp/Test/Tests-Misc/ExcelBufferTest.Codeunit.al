@@ -314,7 +314,7 @@ codeunit 139011 "Excel Buffer Test"
         SheetName := 'Update Test';
         ExcelFile := DumpDataToExcelFile(TempWriteExcelBuffer, SheetName, '');
 
-        TempWriteExcelBuffer.FindLast;
+        TempWriteExcelBuffer.FindLast();
         Value := 123.567;
         RowNo := TempWriteExcelBuffer."Row No." + 1;
         ColumnNo := TempWriteExcelBuffer."Column No." + 1;
@@ -414,7 +414,7 @@ codeunit 139011 "Excel Buffer Test"
         TempExcelBuffer.ReadSheet;
         TempExcelBuffer.SetRange("Row No.", 1);
         TempExcelBuffer.SetRange("Column No.", 1);
-        TempExcelBuffer.FindFirst;
+        TempExcelBuffer.FindFirst();
         Assert.AreEqual('New Value', TempExcelBuffer."Cell Value as Text", 'Excel file was not updated');
 
         // Tear Down
@@ -435,7 +435,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile := DumpDataToExcelFile(TempWriteExcelBuffer, SheetName, '');
 
         Clear(TempWriteExcelBuffer);
-        TempWriteExcelBuffer.FindLast;
+        TempWriteExcelBuffer.FindLast();
         TempWriteExcelBuffer.Delete();
 
         ValidateExcelFile(TempWriteExcelBuffer, ExcelFile, SheetName);
@@ -456,7 +456,7 @@ codeunit 139011 "Excel Buffer Test"
         Assert.IsFalse(HasError, 'The ExportBudgetFilterToFormula failed to export filters');
 
         Clear(TempWriteExcelBuffer);
-        TempWriteExcelBuffer.FindLast;
+        TempWriteExcelBuffer.FindLast();
         TempWriteExcelBuffer.Delete();
     end;
 
@@ -516,7 +516,7 @@ codeunit 139011 "Excel Buffer Test"
         // [FEATURE] [UT] [UI] [Name/Value Lookup]
         // [SCENARIO 363552] "Name/Value Lookup" page should be not editable
         NameValueLookupPage.Trap;
-        NameValueLookupPage.OpenNew;
+        NameValueLookupPage.OpenNew();
         Assert.IsFalse(NameValueLookupPage.Editable, '');
     end;
 
@@ -536,7 +536,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile := DumpDataToExcelFile(ExcelBuffer, SheetNameTok, '');
 
         // [GIVEN] Updated excel buffer of cell from step above with value = ''
-        ExcelBuffer.FindLast;
+        ExcelBuffer.FindLast();
         ExcelBuffer."Cell Value as Text" := '';
         ExcelBuffer.Modify();
 
@@ -568,7 +568,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile := DumpDataToExcelFile(ExcelBuffer, SheetNameTok, '');
 
         // [GIVEN] Updated excel buffer of cell from step above with value = ''
-        ExcelBuffer.FindLast;
+        ExcelBuffer.FindLast();
         ExpectedResult := ExcelBuffer."Cell Value as Text";
         ExcelBuffer."Cell Value as Text" := '';
         ExcelBuffer.Modify();
@@ -604,8 +604,8 @@ codeunit 139011 "Excel Buffer Test"
             TempExcelBuffer.Init();
             TempExcelBuffer.Validate("Row No.", Index);
             TempExcelBuffer.Validate("Column No.", Index);
-            TempExcelBuffer."Cell Value as Text" := LibraryUtility.GenerateGUID;
-            ExpectedResult[Index] := LibraryUtility.GenerateGUID;
+            TempExcelBuffer."Cell Value as Text" := LibraryUtility.GenerateGUID();
+            ExpectedResult[Index] := LibraryUtility.GenerateGUID();
             TempExcelBuffer.Comment := CopyStr(ExpectedResult[Index], 1, MaxStrLen(TempExcelBuffer.Comment));
             TempExcelBuffer.Insert();
         end;
@@ -676,14 +676,14 @@ codeunit 139011 "Excel Buffer Test"
         // [THEN] Entries count should be 3
         Assert.AreEqual(3, TempExcelBuffer.Count, 'Sheet count check failed');
         // [THEN] First entry value should be 1
-        TempExcelBuffer.FindFirst;
+        TempExcelBuffer.FindFirst();
         Assert.AreEqual('1', TempExcelBuffer."Cell Value as Text", 'First entry value check failed');
         // [WHEN] Second sheet is read
         TempExcelBuffer.ReadSheetContinous('Sheet2', true);
         // [THEN] Entries count should be 3
         Assert.AreEqual(3, TempExcelBuffer.Count, 'Sheet count check failed');
         // [THEN] First entry value should be 4
-        TempExcelBuffer.FindFirst;
+        TempExcelBuffer.FindFirst();
         Assert.AreEqual('4', TempExcelBuffer."Cell Value as Text", 'First entry value check failed');
     end;
 
@@ -713,7 +713,7 @@ codeunit 139011 "Excel Buffer Test"
         // [THEN] Entries count should be 1
         Assert.AreEqual(1, TempExcelBuffer.Count, 'Sheet count check failed');
         // [THEN] First entry value should be 'Test'
-        TempExcelBuffer.FindFirst;
+        TempExcelBuffer.FindFirst();
         Assert.AreEqual('Test', TempExcelBuffer."Cell Value as Text", 'First entry value check failed');
     end;
 
@@ -977,8 +977,8 @@ codeunit 139011 "Excel Buffer Test"
 
         Assert.AreEqual(WriteExcelBuffer.Count, TempReadExcelBuffer.Count, 'Both tables should have the same count');
 
-        WriteExcelBuffer.FindFirst;
-        TempReadExcelBuffer.FindFirst;
+        WriteExcelBuffer.FindFirst();
+        TempReadExcelBuffer.FindFirst();
         repeat
             Assert.AreEqual(WriteExcelBuffer."Row No.", TempReadExcelBuffer."Row No.", 'Both Tables should point to the same row');
             Assert.AreEqual(WriteExcelBuffer."Column No.", TempReadExcelBuffer."Column No.", 'Both Tables should point to the same column');

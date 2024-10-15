@@ -65,7 +65,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         Initialize(false);
         CreateItemWithReserveAlways(Item);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Quantity := LibraryRandom.RandDec(10, 2);
 
         UpdateItemInventory(Item."No.", Quantity * 2);
@@ -82,7 +82,7 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", Item."No.");
         Assert.AreEqual(1, SalesLine.Count, NumberofLineErr);  // Value is important for Test.
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
@@ -103,7 +103,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibrarySales.SetStockoutWarning(false);
 
         CreateItemWithReserveAlways(Item);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Quantity := LibraryRandom.RandDec(10, 2);
 
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, Item."No.", Quantity);
@@ -119,7 +119,7 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", Item."No.");
         Assert.AreEqual(1, SalesLine.Count, NumberofLineErr);  // Value is important for Test.
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
@@ -197,7 +197,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         UnitCostOnItemCard := LibraryRandom.RandDec(100, 2);
         UnitPriceOnItemCard := LibraryRandom.RandDec(100, 2);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Update item with 3 UOMs,variant code  and Unit price.
         UpdateChildItem(Item, UnitOfMeasure.Code, UnitPriceOnItemCard, UnitCostOnItemCard);
@@ -318,7 +318,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         UnitCostOnItemCard := LibraryRandom.RandDec(100, 2);
         UnitPriceOnItemCard := LibraryRandom.RandDec(100, 2);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // Update item with 3 UOMs,variant code  and Unit price.
         UpdateChildItem(Item, UnitOfMeasure.Code, UnitPriceOnItemCard, UnitCostOnItemCard);
@@ -384,7 +384,7 @@ codeunit 137062 "SCM Sales & Receivables"
         ItemBudgetName.SetRange("Analysis Area", ItemBudgetName."Analysis Area"::Sales);
         ItemBudgetName.SetFilter("Budget Dimension 1 Code", '<> %1', '');
         ItemBudgetName.SetFilter("Budget Dimension 2 Code", '<> %1', '');
-        ItemBudgetName.FindFirst;
+        ItemBudgetName.FindFirst();
 
         DimensionCode3 := ItemBudgetName."Budget Dimension 1 Code";
         DimensionCode4 := ItemBudgetName."Budget Dimension 2 Code";
@@ -403,7 +403,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID);
+          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID());
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         VerifyDimension(ItemBudgetEntry, 1, DimensionValue.Code, DimensionValue2.Code);  // Value is important for Test.
@@ -448,7 +448,7 @@ codeunit 137062 "SCM Sales & Receivables"
         ItemBudgetName.SetRange("Analysis Area", ItemBudgetName."Analysis Area"::Sales);
         ItemBudgetName.SetFilter("Budget Dimension 1 Code", '<> %1', '');
         ItemBudgetName.SetFilter("Budget Dimension 2 Code", '<> %1', '');
-        ItemBudgetName.FindFirst;
+        ItemBudgetName.FindFirst();
 
         DimensionCode3 := ItemBudgetName."Budget Dimension 1 Code";
         DimensionCode4 := ItemBudgetName."Budget Dimension 2 Code";
@@ -467,7 +467,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID);
+          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID());
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         // Value is important for Test.
@@ -667,7 +667,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Post Ship and Invoice the Sales Order.
         SalesHeader2.SetRange("Document Type", SalesHeader2."Document Type"::Order);
         SalesHeader2.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesHeader2.FindFirst;
+        SalesHeader2.FindFirst();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, true, true);
 
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
@@ -702,7 +702,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         Initialize(false);
         LibraryInventory.CreateItem(Item);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // Create a blanket order.
         CreatePurchaseDocument(
@@ -719,7 +719,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Post Receive and invoice of Purch Order.
         PurchaseHeader2.SetRange("Document Type", PurchaseHeader2."Document Type"::Order);
         PurchaseHeader2.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader2.FindFirst;
+        PurchaseHeader2.FindFirst();
         PurchaseHeader2.Validate("Vendor Invoice No.", PurchaseHeader2."No.");
         PurchaseHeader2.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
@@ -731,7 +731,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader3, PurchaseHeader3."Document Type"::"Return Order", PurchaseHeader2."Buy-from Vendor No.");
         PurchInvHeader.SetRange("Order No.", PurchaseHeader2."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         LibraryPurchase.CopyPurchaseDocument(
             PurchaseHeader3, "Purchase Document Type From"::"Posted Invoice", PurchInvHeader."No.", true, false);
 
@@ -1068,7 +1068,7 @@ codeunit 137062 "SCM Sales & Receivables"
         CustomerNo: Code[20];
         DocumentNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Create Sales Invoice.
         CreateSalesDocument(
@@ -1093,7 +1093,7 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         NewLineDiscountPercent := SalesLine."Line Discount %";
         NewUnitPrice := SalesLine."Unit Price";
         NewLineDiscountAmount := SalesLine."Line Discount Amount";
@@ -1109,7 +1109,7 @@ codeunit 137062 "SCM Sales & Receivables"
         VendorNo: Code[20];
         OldPurchInvoiceNo: Code[20];
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // Create purchase invoice.
         CreatePurchaseInvoiceHeader(PurchaseHeader, VendorNo);
@@ -1127,7 +1127,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create a Credit Memo and copy document from old Posted Invoice.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         PurchInvHeader.SetRange("Pre-Assigned No.", OldPurchInvoiceNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
         LibraryPurchase.CopyPurchaseDocument(
             PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PurchInvHeader."No.", true, false);
 
@@ -1135,7 +1135,7 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         NewLineDiscountPercent := PurchaseLine."Line Discount %";
         NewUnitCost := PurchaseLine."Direct Unit Cost";
         NewLineDiscountAmount := PurchaseLine."Line Discount Amount";
@@ -1258,7 +1258,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         ItemBudgetName.SetRange("Analysis Area", ItemBudgetName."Analysis Area"::Sales);
         ItemBudgetName.SetRange(Blocked, false);
-        ItemBudgetName.FindFirst;
+        ItemBudgetName.FindFirst();
         exit(ItemBudgetName.Name);
     end;
 
@@ -1291,7 +1291,7 @@ codeunit 137062 "SCM Sales & Receivables"
     local procedure CreateItemWithAutoText(var Item: Record Item; var ItemExtText: Text[100])
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate(Description, LibraryUtility.GenerateGUID);
+        Item.Validate(Description, LibraryUtility.GenerateGUID());
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
         CreateItemExtendedText(Item."No.", ItemExtText);
@@ -1304,7 +1304,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
         ExtText := ExtendedTextLine.Text;
     end;
@@ -1381,7 +1381,7 @@ codeunit 137062 "SCM Sales & Receivables"
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
     begin
         SalesShipmentHeader.SetRange("Order No.", OrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure VerifyDimension(var ItemBudgetEntry: Record "Item Budget Entry"; TotalNoOfRecords: Integer; DepartmentCodes: Text[250]; ProjectCodes: Text[250])
@@ -1407,10 +1407,10 @@ codeunit 137062 "SCM Sales & Receivables"
         ExpectedUnitPrice: Decimal;
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
         PurchasePrice.SetRange("Item No.", ItemNo);
-        PurchasePrice.FindLast;
+        PurchasePrice.FindLast();
         PurchaseLine.TestField("Variant Code", PurchasePrice."Variant Code");
         if PurchasePrice."Unit of Measure Code" = UnitOfMeasureCode then
             ExpectedUnitPrice := UnitPurchPrice;
@@ -1447,10 +1447,10 @@ codeunit 137062 "SCM Sales & Receivables"
         ExpectedUnitPrice: Decimal;
     begin
         SalesLine.SetRange("No.", ItemNo);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
         SalesPrice.SetRange("Item No.", ItemNo);
-        SalesPrice.FindLast;
+        SalesPrice.FindLast();
         SalesLine.TestField("Variant Code", SalesPrice."Variant Code");
         if SalesPrice."Unit of Measure Code" = UnitOfMeasureCode then
             ExpectedUnitPrice := UnitSalesPrice;
@@ -1505,10 +1505,10 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify that the Value of "Sales Amount (Actual)" field in Value Entries matches the value of "Amount" on Posted Sales Invoice line.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         ValueEntry.SetRange("Document No.", SalesInvoiceLine."Document No.");
         ValueEntry.SetRange("Document Line No.", SalesInvoiceLine."Line No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Sales Amount (Actual)", SalesInvoiceLine.Amount);
     end;
 
@@ -1519,7 +1519,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Verify Item Reference No. in Item Ledger Entry for Posted Receipt.
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item Reference No.", ReferenceNo);
     end;
 
@@ -1531,7 +1531,7 @@ codeunit 137062 "SCM Sales & Receivables"
         WarehouseEntry.SetRange("Reference No.", ReferenceNo);
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindFirst;
+        WarehouseEntry.FindFirst();
         WarehouseEntry.TestField(Quantity, Quantity);
     end;
 

@@ -847,7 +847,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DefaultDimension.SetRange("No.", No);
         DefaultDimension.SetRange("Dimension Code", DefaultDim);
         DefaultDimension.SetRange("Dimension Value Code", DefaultDimValue);
-        if not DefaultDimension.FindFirst then
+        if not DefaultDimension.FindFirst() then
             LibraryDim.CreateDefaultDimension(DefaultDimension, TableID, No, DefaultDim, DefaultDimValue)
             ;
     end;
@@ -909,7 +909,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         AdjACYReport.InitializeRequest('S58505-1', ACYAcc);
         AdjACYReport.UseRequestPage(false);
-        AdjACYReport.RunModal;
+        AdjACYReport.RunModal();
     end;
 
     [Test]
@@ -1172,7 +1172,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenPostingSetup2.Modify(true);
 
         // Setup No series for prepayment invoice
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         SalesReceivableSetup.Get();
         SalesReceivableSetup.Validate("Posted Prepmt. Inv. Nos.", NoSeries.Code);
         SalesReceivableSetup.Modify(true);
@@ -1301,7 +1301,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenPostingSetup2.Modify(true);
 
         // Setup No series for prepayment invoice
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         PurchasePaybleSetup.Get();
         PurchasePaybleSetup.Validate("Posted Prepmt. Inv. Nos.", NoSeries.Code);
         PurchasePaybleSetup.Modify(true);
@@ -2244,7 +2244,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // test cleanup
         VatPostingSetup.SetRange("VAT Calculation Type", VatPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VatPostingSetup.SetFilter("VAT %", '<>0');
-        VatPostingSetup.FindFirst;
+        VatPostingSetup.FindFirst();
         VatPostingSetup.Validate("Adjust for Payment Discount", false);
         VatPostingSetup.Modify(true);
 
@@ -2417,7 +2417,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // test cleanup
         VATpostingSetup.SetRange("VAT Calculation Type", VATpostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATpostingSetup.SetFilter("VAT %", '<>0');
-        VATpostingSetup.FindFirst;
+        VATpostingSetup.FindFirst();
         VATpostingSetup.Validate("Adjust for Payment Discount", false);
         VATpostingSetup.Modify(true);
 
@@ -2590,7 +2590,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         FindFixedAsset(FixedAsset);
         AssetNo := FixedAsset."No.";
         FADepreciationBook.SetRange("FA No.", AssetNo);
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         FindFAPostingGroup(FAPostingGroup, FADepreciationBook."FA Posting Group");
         AcquisitionCostAcc := FAPostingGroup."Acquisition Cost Account";
     end;
@@ -2625,7 +2625,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Find VAT Bus Posting Group through Gen Bus Posting Group
         GenBusPostingGroup.SetRange(Code, GenBusPostingGrp);
-        GenBusPostingGroup.FindFirst;
+        GenBusPostingGroup.FindFirst();
         VATBusPostingGroup := GenBusPostingGroup."Def. VAT Bus. Posting Group";
 
         // Create GL account to be used as purchase VAT account
@@ -2688,6 +2688,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ReversalEntry: Record "Reversal Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenBusPostingGroup: Record "Gen. Business Posting Group";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
         LineAmt: Decimal;
         VATPct: Decimal;
@@ -2716,7 +2717,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Find VAT Bus Posting Group through Gen Bus Posting Group
         GenBusPostingGroup.SetRange(Code, GenBusPostingGrp);
-        GenBusPostingGroup.FindFirst;
+        GenBusPostingGroup.FindFirst();
         VATBusPostingGroup := GenBusPostingGroup."Def. VAT Bus. Posting Group";
 
         // Create VAT product group Full
@@ -2770,7 +2771,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(VATEntry.Count = 1, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 1, VATEntry.Count));
 
         // For validation of unrealized VAT
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         UnrealizedVATEntryNo := VATEntry."Entry No.";
         // Validate base and VAT Amount on VAT entry and VAT link
         ValidateVATEntry(GLRegister, 0, 0, 0);
@@ -2810,8 +2811,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgerEntry."Entry No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
         DtldVendLedgEntry.FindLast();
-        VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, VendLedgerEntry."Document No.",
-          VendLedgerEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := VendLedgerEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := VendLedgerEntry."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, ApplyUnapplyParameters);
 
         GLRegister.FindLast();
 
@@ -3224,7 +3226,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        if not VATPostingSetup.FindFirst then begin
+        if not VATPostingSetup.FindFirst() then begin
             VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
             VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
             VATPostingSetup.Insert(true);
@@ -3446,12 +3448,12 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         Dimension.Reset();
         Dimension.SetRange(Blocked, false);
-        Dimension.FindFirst;
+        Dimension.FindFirst();
 
         DimensionValue.Reset();
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
     end;
 
     local procedure FindLineDim(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value"; DimCode: Code[20])
@@ -3459,35 +3461,35 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Dimension.Reset();
         Dimension.SetRange(Blocked, false);
         Dimension.SetFilter(Code, '<>' + DimCode);
-        Dimension.FindFirst;
+        Dimension.FindFirst();
 
         DimensionValue.Reset();
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
     end;
 
     local procedure FindFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
     end;
 
     local procedure FindFAPostingGroup(var FAPostingGroup: Record "FA Posting Group"; FAPostingGrp: Code[20])
     begin
         FAPostingGroup.SetRange(Code, FAPostingGrp);
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
     end;
 
     local procedure FindGenBusPostingGroup(var GenBusPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetup: Record "VAT Posting Setup")
     begin
         GenBusPostingGroup.SetRange("Def. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GenBusPostingGroup.SetRange("Auto Insert Default", true);
-        GenBusPostingGroup.FindFirst;
+        GenBusPostingGroup.FindFirst();
     end;
 
     local procedure FindCustPostingGroup(var CustPostingGroup: Record "Customer Posting Group")
     begin
-        CustPostingGroup.FindFirst;
+        CustPostingGroup.FindFirst();
     end;
 
     local procedure FindDiffGenProdPostingGroup(var GenProdPostingGroup: Record "Gen. Product Posting Group"; VATProdPostingCroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
@@ -3495,7 +3497,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenProdPostingGroup.SetRange("Def. VAT Prod. Posting Group", VATProdPostingCroupCode);
         GenProdPostingGroup.SetRange("Auto Insert Default", true);
         GenProdPostingGroup.SetFilter(Code, '<>' + GenProdPostingGroupCode);
-        GenProdPostingGroup.FindFirst;
+        GenProdPostingGroup.FindFirst();
     end;
 
     local procedure FindPostingSetup(var GenPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
@@ -3509,7 +3511,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Build Filter for Gen. Business Posting Group.
         GenBusPostingGroup.SetFilter("Def. VAT Bus. Posting Group", '<>%1', '');
         GenBusPostingGroup.SetRange("Auto Insert Default", true);
-        if GenBusPostingGroup.FindSet then
+        if GenBusPostingGroup.FindSet() then
             repeat
                 GenBusPostingGroupFilter := UpdateFilter(GenBusPostingGroupFilter, GenBusPostingGroup.Code);
             until GenBusPostingGroup.Next = 0;
@@ -3517,7 +3519,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Build Filter for Gen. Product Posting Group.
         GenProdPostingGroup.SetFilter("Def. VAT Prod. Posting Group", '<>%1', '');
         GenProdPostingGroup.SetRange("Auto Insert Default", true);
-        if GenProdPostingGroup.FindSet then
+        if GenProdPostingGroup.FindSet() then
             repeat
                 GenProdPostingGroupFilter := UpdateFilter(GenProdPostingGroupFilter, GenProdPostingGroup.Code);
             until GenProdPostingGroup.Next = 0;
@@ -3526,7 +3528,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         SetupFound := false;
         GenPostingSetup.SetFilter("Gen. Bus. Posting Group", GenBusPostingGroupFilter);
         GenPostingSetup.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
-        if GenPostingSetup.FindSet then
+        if GenPostingSetup.FindSet() then
             repeat
                 GenBusPostingGroup.Get(GenPostingSetup."Gen. Bus. Posting Group");
                 GenProdPostingGroup.Get(GenPostingSetup."Gen. Prod. Posting Group");
@@ -3621,10 +3623,10 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         BankAccPostingGroup: Record "Bank Account Posting Group";
     begin
         BankAccount.SetRange("Currency Code", '');
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         BankAcc := BankAccount."No.";
         BankAccPostingGroup.SetRange(Code, BankAccount."Bank Acc. Posting Group");
-        BankAccPostingGroup.FindFirst;
+        BankAccPostingGroup.FindFirst();
         GLBankAccNo := BankAccPostingGroup."G/L Account No.";
     end;
 
@@ -3666,7 +3668,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CustPmtDiscCreditAcc := CustPostingGroup."Payment Disc. Credit Acc.";
         CustPmtDiscDebitAcc := CustPostingGroup."Payment Disc. Debit Acc.";
 
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         VendPostingGrp := VendorPostingGroup.Code;
         PayableAcc := VendorPostingGroup."Payables Account";
         VendPmtDiscCreditAcc := VendorPostingGroup."Payment Disc. Credit Acc.";
@@ -3676,12 +3678,12 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenProdPostingGroup1.Get(GenPostingSetup1."Gen. Prod. Posting Group");
         SalesAcc1 := GenPostingSetup1."Sales Account";
         if GenPostingSetup1."Sales Line Disc. Account" = '' then
-            GenPostingSetup1."Sales Line Disc. Account" := LibraryERM.CreateGLAccountNo;
+            GenPostingSetup1."Sales Line Disc. Account" := LibraryERM.CreateGLAccountNo();
         SalesLineDiscAcc1 := GenPostingSetup1."Sales Line Disc. Account";
         SalesInvDiscAcc1 := GenPostingSetup1."Sales Inv. Disc. Account";
         PurchAcc1 := GenPostingSetup1."Purch. Account";
         if GenPostingSetup1."Purch. Line Disc. Account" = '' then
-            GenPostingSetup1."Purch. Line Disc. Account" := LibraryERM.CreateGLAccountNo;
+            GenPostingSetup1."Purch. Line Disc. Account" := LibraryERM.CreateGLAccountNo();
         PurchLineDiscAcc1 := GenPostingSetup1."Purch. Line Disc. Account";
         PurchInvDiscAcc1 := GenPostingSetup1."Purch. Inv. Disc. Account";
 
@@ -3712,10 +3714,10 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.SetRange(Recurring, false);
         GenJnlTemplate.SetFilter("No. Series", '<>''''');
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         JournalTemplate := GenJnlTemplate.Name;
         GenJnlBatch.SetRange("Journal Template Name", JournalTemplate);
-        GenJnlBatch.FindFirst;
+        GenJnlBatch.FindFirst();
         JournalBatch := GenJnlBatch.Name;
     end;
 
@@ -3756,7 +3758,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GLAmount := 0;
         GLVATLink.SetRange("VAT Entry No.", VATEntry."Entry No.");
 
-        if GLVATLink.FindSet then begin
+        if GLVATLink.FindSet() then begin
             repeat
                 GLVatLink2.SetRange("G/L Entry No.", GLVATLink."G/L Entry No.");
                 GLVatLink2.FindSet();
@@ -3815,11 +3817,11 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         FindGenBusPostingGroup(GenBusPostingGroup, VATPostingSetup);
         GenProdPostingGroup.SetRange("Def. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenProdPostingGroup.SetRange("Auto Insert Default", true);
-        if not GenProdPostingGroup.FindFirst then begin
+        if not GenProdPostingGroup.FindFirst() then begin
             CreateGenProdPostGroupWithDefVAT(GenProdPostingGroup, VATPostingSetup);
             CreateGLAccWithGenPostingSetup(GenBusPostingGroup.Code, GenProdPostingGroup.Code);
             LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusPostingGroup.Code, GenProdPostingGroup.Code);
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
         end
     end;
 

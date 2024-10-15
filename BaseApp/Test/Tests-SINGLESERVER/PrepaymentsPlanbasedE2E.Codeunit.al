@@ -34,7 +34,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
@@ -66,7 +66,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
@@ -99,7 +99,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -148,7 +148,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as an Essential ISV Emb User
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
@@ -181,7 +181,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Team Member ISV Emb
 
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -231,7 +231,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as an Device ISV Emb User
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
@@ -263,7 +263,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -295,7 +295,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -328,7 +328,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -375,7 +375,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Essential ISV Emb
 
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -407,7 +407,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PostedPurchaseInvoiceNo: Code[20];
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Team Member ISV Emb
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -456,7 +456,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Device ISV Emb
 
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         // [GIVEN] An item
         ItemNo := CreateItem;
@@ -485,7 +485,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Prepayments Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
@@ -497,9 +497,9 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         CreateSalesPrepmtInvNosInSetup;
         SetupNewSalesPrepaymentAccount;
@@ -518,7 +518,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
@@ -534,9 +534,9 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseOrder.PurchLines.New;
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseOrder.PurchLines."No.".SetValue(ItemNo);
@@ -587,7 +587,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseOrder.Post.Invoke;
         if not ExpectFailure then
             PostedPurchaseOrderNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedPurchaseOrderNo));
@@ -598,7 +598,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -611,7 +611,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         VendorCard: TestPage "Vendor Card";
     begin
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
         VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
@@ -628,7 +628,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         CustomerCard: TestPage "Customer Card";
     begin
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
         CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");

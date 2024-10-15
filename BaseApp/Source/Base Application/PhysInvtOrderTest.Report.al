@@ -186,7 +186,7 @@ report 5877 "Phys. Invt. Order - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -268,8 +268,7 @@ report 5877 "Phys. Invt. Order - Test"
                                 AddError(StrSubstNo(MustBeSpecifiedErr, FieldCaption("Inventory Posting Group")));
 
                             if "Phys. Invt. Order Header".GetSamePhysInvtOrderLine(
-                                 "Item No.", "Variant Code",
-                                 "Location Code", "Bin Code",
+                                 "Phys. Invt. Order Line",
                                  ErrorText2,
                                  PhysInvtOrderLine) > 1
                             then
@@ -325,7 +324,7 @@ report 5877 "Phys. Invt. Order - Test"
 
                 PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", "No.");
-                if not PhysInvtOrderLine.FindFirst then
+                if not PhysInvtOrderLine.FindFirst() then
                     AddError(NothingToPostErr);
             end;
         }

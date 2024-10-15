@@ -20,6 +20,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibraryRandom: Codeunit "Library - Random";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         SelectVendErr: Label 'You must select an existing vendor.';
         HelloWordTxt: Label 'Hello World';
@@ -28,7 +29,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();
@@ -47,7 +48,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -76,7 +77,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -105,9 +106,9 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         OldValue: Decimal;
     begin
-        Initialize;
+        Initialize();
 
-        CurrExchRate.FindFirst;
+        CurrExchRate.FindFirst();
 
         LibrarySmallBusiness.CreateVendor(Vend);
         Vend.Validate("Currency Code", CurrExchRate."Currency Code");
@@ -115,12 +116,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::"Credit Memo");
         PurchHeader.SetRange("Buy-from Vendor No.", Vend."No.");
-        PurchHeader.FindFirst;
+        PurchHeader.FindFirst();
         OldValue := PurchHeader."Currency Factor";
 
         // Exercise
@@ -143,7 +144,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchHeader: Record "Purchase Header";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(Vend);
         LibrarySmallBusiness.CreateItem(Item);
@@ -155,12 +156,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         if not UserSetup.Insert() then
             UserSetup.Modify();
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
         PurchaseCreditMemo.Close;
 
         PurchHeader.SetRange("Buy-from Vendor No.", Vend."No.");
-        PurchHeader.FindFirst;
+        PurchHeader.FindFirst();
 
         ResponsibilityCenter.TestField(Code, PurchHeader."Responsibility Center");
 
@@ -185,7 +186,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchLine: Record "Purchase Line";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendor(Vend);
         LibrarySmallBusiness.CreateItem(Item);
@@ -197,7 +198,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         ExtendedTextHeader.Insert(true);
         CreateExtTextLine(ExtendedTextHeader, HelloWordTxt);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         PurchaseCreditMemo.PurchLines.New;
@@ -224,12 +225,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vend: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateVend(Vend);
 
         // Exercise: Select existing Vend.
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         // Verify.
@@ -246,12 +247,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vend: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
         CreateVend(Vend);
         CreateVend(Vend1);
 
         // Exercise: Select existing Vend.
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo.PurchLines.First;
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend1.Name);
@@ -268,14 +269,14 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         VendName: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
 
         // Exercise.
         VendName := CopyStr(Format(CreateGuid), 1, 50);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo.PurchLines.First;
 
         // Verify
@@ -290,13 +291,13 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vend: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vend);
 
         // Exercise: Select existing Vend - second one in the page handler
         LibraryVariableStorage.Enqueue(Vend.Name); // for the Vend list page handler
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(CopyStr(Vend.Name, 2, StrLen(Vend.Name) - 1));
 
         // Verify.
@@ -311,13 +312,13 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vend: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoVendorsSameName(Vend);
 
         // Exercise: Select existing Vend - second one in the page handler
         LibraryVariableStorage.Enqueue(Vend.Name); // for the Vend list page handler
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         asserterror PurchaseCreditMemo."Buy-from Vendor Name".SetValue(CopyStr(Vend.Name, 2, StrLen(Vend.Name) - 1));
         Assert.ExpectedError(SelectVendErr);
     end;
@@ -329,13 +330,13 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vend: Record Vendor;
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateVend(Vend);
         Vend."Payment Terms Code" := '';
         Vend.Modify();
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         PurchaseCreditMemo."Payment Terms Code".AssertEquals('');
@@ -351,11 +352,11 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         ExpectedDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateVend(Vend);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
 
         PaymentTerms.Get(Vend."Payment Terms Code");
@@ -371,9 +372,9 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         Assert.IsTrue(PurchaseCreditMemo."Expected Receipt Date".Enabled,
           Format('Shipment Date should be present on Purch Credit Memo'));
 
@@ -390,7 +391,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         NewName: Text[100];
     begin
         // [SCENARIO 288843] User is able to change document Buy-from Vendor Name after buy-from vendor had been specified when Vendor has "Disable Search by Name" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create purchase credit memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -414,7 +415,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         NewName: Text[100];
     begin
         // [SCENARIO 288843] User is able to change document Buy-from Name after buy-from vendor had been specified when Vendor has "Disable Search by Name" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create purchase credit memo
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
@@ -428,6 +429,30 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         // [THEN] Field "Pay-to Name" value changed to 'XXX'
         PurchaseHeader.TestField("Pay-to Name", NewName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePurchaseHeaderBuyFromNamePurchsSetupDisableSearchByName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        NewName: Text[100];
+    begin
+        // [SCENARIO 362012] User is able to change document Buy-from Vendor Name after buy-from vendor had been specified when Purch Setup has "Disable Search by Name" = TRUE
+        Initialize();
+
+        // [GIVEN] Create purchase credit memo
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+
+        // [GIVEN] Purchase Setup has "Disable Search by Name" = TRUE
+        SetSalesSetupDisableSearchByName(true);
+
+        // [WHEN] "Buy-from Vendor Name" is being changed to 'XXX'
+        NewName := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Buy-from Vendor Name"), DATABASE::"Purchase Header");
+        PurchaseHeader.Validate("Buy-from Vendor Name", NewName);
+
+        // [THEN] Field "Buy-from Vendor Name" value changed to 'XXX'
+        PurchaseHeader.TestField("Buy-from Vendor Name", NewName);
     end;
 
     [Test]
@@ -471,12 +496,13 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Simplify UI Purch.Cr.Memo");
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
         ConfigTemplateHeader.DeleteAll(true);
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -486,14 +512,15 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
         InventorySetup.Modify();
 
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Purch.Cr.Memo");
@@ -516,6 +543,15 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         Vendor.Get(VendorNo);
         Vendor.Validate("Disable Search by Name", true);
         Vendor.Modify();
+    end;
+
+    local procedure SetSalesSetupDisableSearchByName(NewDisableSearchByName: Boolean)
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        PurchSetup.Validate("Disable Search by Name", NewDisableSearchByName);
+        PurchSetup.Modify();
     end;
 
     local procedure VerifyPurchCreditMemoAgainstVend(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vend: Record Vendor)

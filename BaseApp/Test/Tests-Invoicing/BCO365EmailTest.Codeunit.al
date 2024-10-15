@@ -22,7 +22,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can add multiple CC recipients in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [WHEN] The user adds multiple CC recipients
         InsertRecipient('CC1@test.com', O365EmailSetup.RecipientType::CC);
@@ -42,7 +42,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can add multiple BCC recipients in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [WHEN] The user adds multiple BCC recipients
         InsertRecipient('BCC1@test.com', O365EmailSetup.RecipientType::BCC);
@@ -62,7 +62,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can delete CC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] A CC recipient and a BCC recipient setup in email settings
         InsertRecipient('BCC1@test.com', O365EmailSetup.RecipientType::BCC);
@@ -84,7 +84,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can delete BCC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] A CC recipient and a BCC recipient setup in email settings
         InsertRecipient('CC1@test.com', O365EmailSetup.RecipientType::CC);
@@ -106,7 +106,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can modify CC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] An CC recipient in email settings
         InsertRecipient('CC@test.com', O365EmailSetup.RecipientType::CC);
@@ -127,7 +127,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can modify BCC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] An BCC recipient in email settings
         InsertRecipient('BCC2@test.com', O365EmailSetup.RecipientType::BCC);
@@ -148,7 +148,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can insert same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] An CC recipient in email settings
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -167,7 +167,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can delete same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] A same recipient in CC and BCC email settings
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -196,7 +196,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
     begin
         // [SCENARIO] User can modify same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] A same recipient in CC and BCC email setting
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -266,7 +266,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup.SetCurrentKey(Email, RecipientType);
         O365EmailSetup.SetRange(Email, Email);
         O365EmailSetup.SetRange(RecipientType, RecipientType);
-        O365EmailSetup.FindFirst;
+        O365EmailSetup.FindFirst();
         O365EmailSetup.Delete(true);
     end;
 
@@ -277,7 +277,7 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup.SetCurrentKey(Email, RecipientType);
         O365EmailSetup.SetRange(Email, Email);
         O365EmailSetup.SetRange(RecipientType, RecipientType);
-        O365EmailSetup.FindFirst;
+        O365EmailSetup.FindFirst();
         exit(O365EmailSetup.Code);
     end;
 

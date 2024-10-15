@@ -45,7 +45,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
                 end;
 
                 TempEntryNoAmountBuffer.Reset();
-                if TempEntryNoAmountBuffer.FindSet then
+                if TempEntryNoAmountBuffer.FindSet() then
                     repeat
                         FormatPeriod;
                         InsertToBuffer(TempPowerBIChartBuffer);
@@ -71,7 +71,7 @@ codeunit 6306 "PBI Aged Acc. Calc"
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary)
     begin
         with TempPowerBIChartBuffer do begin
-            if FindLast then
+            if FindLast() then
                 ID += 1
             else
                 ID := 1;

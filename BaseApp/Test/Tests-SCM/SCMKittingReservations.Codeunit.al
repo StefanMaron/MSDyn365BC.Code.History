@@ -62,8 +62,8 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Reservations");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -109,7 +109,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyLine: Record "Assembly Line";
     begin
         // Setup. Create Assembly structure.
-        Initialize;
+        Initialize();
         SetupAssemblyData(AssemblyHeader, WorkDate2);
 
         // Exercise. Find a random Assembly Component Line of the specified type.
@@ -271,7 +271,7 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         // Identify the Assembly Lines containing reservations.
         // Prepare the lines for posting.
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 Item.Get(AssemblyLine."No.");
                 Item.CalcFields(Inventory);
@@ -296,7 +296,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ReservationEntry.SetRange("Item No.", ItemNo);
 
         if InitialResQty > InitialInventory then
-            if ReservationEntry.FindSet then begin
+            if ReservationEntry.FindSet() then begin
                 repeat
                     RemainingResQty += Abs(ReservationEntry."Quantity (Base)");
                 until ReservationEntry.Next = 0;
@@ -325,7 +325,7 @@ codeunit 137095 "SCM Kitting - Reservations"
           ExcessSupply, FilterOnVariant, FilterOnLocation, 0, 2);
 
         // Exercise: Reserve for current assembly line, using all available supply lines.
-        if TempReservationEntry.FindSet then
+        if TempReservationEntry.FindSet() then
             repeat
                 TrackingSpecification.InitTrackingSpecification(
                   TempReservationEntry."Source Type",
@@ -435,7 +435,7 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         // Validate: Reservation functions in CU925.
         TempReservationEntry.SetRange("Source Type", 900);
-        TempReservationEntry.FindFirst;
+        TempReservationEntry.FindFirst();
         AssemblyHeader.Get(AssemblyLine."Document Type", TempReservationEntry."Source ID");
 
         if FilterOnLocation or FilterOnVariant or (DueDateDelay <> 0) then begin
@@ -558,7 +558,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AvailToReserve: Decimal;
     begin
         // Setup Reservations.
-        Initialize;
+        Initialize();
 
         LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
 
@@ -1391,7 +1391,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         FullAutoReservation: Boolean;
     begin
         // Setup Reservations.
-        Initialize;
+        Initialize();
         SetupReservations(TempReservationEntry, AssemblyLine, AvailToReserve, Reserve, ExcessSupply,
           FilterOnVariant, FilterOnLocation, DueDateDelay, 2);
 
@@ -1572,7 +1572,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         Item.Get(SalesLine."No.");
@@ -1626,20 +1626,20 @@ codeunit 137095 "SCM Kitting - Reservations"
         SourceID: Code[20];
     begin
         // Setup: Create a Supply - Demand pair between a Sales Line and an Assembly Header.
-        Initialize;
+        Initialize();
 
         SalesHeader.Get(SalesHeader."Document Type"::Order, TestSalesLineReserve(Item.Reserve::Optional, 0, false, false, 0, true));
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         Item.Get(SalesLine."No.");
         Item.CalcFields(Inventory);
 
         FindReservationEntries(ReservationEntry, true, SalesLine."No.", 900, '');
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         PostedQty := ReservationEntry."Quantity (Base)";
         SourceID := ReservationEntry."Source ID";
         InitialResQty := GetReservedQty(ReservationEntry);
@@ -1787,7 +1787,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Purchase Lines] [Purchase Return] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Purchase Lines" page when demand is Purchase Return Order, and supply - Assembly Order
 
-        Initialize;
+        Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, Item."No.", '', GlobalAOSupply, '');
@@ -1809,7 +1809,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Assembly Lines] [Assembly] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Assembly Order, and supply - Production Order
 
-        Initialize;
+        Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         CreateAssemblyOrder(WorkDate2, GlobalAOSupply);
 
@@ -1830,7 +1830,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Lines] [Assembly] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Assembly Order, and supply - Production Order
 
-        Initialize;
+        Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         CreateAssemblyOrder(WorkDate2, GlobalAOSupply);
 
@@ -1852,7 +1852,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Comp.] [Assembly] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Comp." page when demand is Production Order, and supply - Assembly Order
 
-        Initialize;
+        Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', GlobalAOSupply, '');
@@ -1875,7 +1875,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Assembly Lines] [Assembly] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Production Order, and supply - Assembly Order
 
-        Initialize;
+        Initialize();
         GlobalAOSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, Item."No.", '', GlobalAOSupply, '');
@@ -1899,7 +1899,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Comp.] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Comp." page when demand is Production Order, and supply - Production Order
 
-        Initialize;
+        Initialize();
         GlobalPOSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
 
@@ -1926,7 +1926,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Comp.] [Production] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Comp." page when demand is Production Order, and supply - Transfer Order
 
-        Initialize;
+        Initialize();
         GlobalSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
 
@@ -1954,7 +1954,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Transfer Lines] [Production] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Production Order, and supply - Transfer Order
 
-        Initialize;
+        Initialize();
         GlobalSupply := LibraryRandom.RandDec(200, 2);
         LibraryInventory.CreateItem(Item);
 
@@ -1978,7 +1978,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Comp.] [Production] [Reservation]
         // [SCENARIO] Reservation can be cancelled from "Available - Prod. Order Comp." page
 
-        Initialize;
+        Initialize();
         SetupProductionDemandWithProductionSupply(ProdOrderLine);
         LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
         ProdOrderLine.ShowReservation();
@@ -1994,7 +1994,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // [FEATURE] [Available - Prod. Order Comp.] [Production] [Reservation]
         // [SCENARIO] Drill down action in "Available - Prod. Order Comp." page should show full reserved quantity
 
-        Initialize;
+        Initialize();
         SetupProductionDemandWithProductionSupply(ProdOrderLine);
         LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
         ProdOrderLine.ShowReservation();
@@ -2008,7 +2008,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         QtyFactor: Integer;
     begin
         // Setup: Create Assembly structure and order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 0, 1, '', '');
@@ -2050,7 +2050,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 Item.Get(BOMComponent."No.");
                 Item.Validate(Reserve, Reserve);
@@ -2130,7 +2130,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         TempReservationEntry.Reset();
         TempReservationEntry.SetRange("Source Type", SourceType);
-        if TempReservationEntry.FindSet then
+        if TempReservationEntry.FindSet() then
             repeat
                 QtyToReserve := TempReservationEntry."Qty. to Handle (Base)";
 
@@ -2180,19 +2180,19 @@ codeunit 137095 "SCM Kitting - Reservations"
                 AssemblyLine.FieldNo("Location Code"):
                     begin
                         TempReservationEntry.SetFilter("Location Code", '<>%1', AssemblyLine."Location Code");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         AssemblyLineFieldValue := TempReservationEntry."Location Code";
                     end;
                 AssemblyLine.FieldNo("Variant Code"):
                     begin
                         TempReservationEntry.SetFilter("Variant Code", '<>%1', AssemblyLine."Variant Code");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         AssemblyLineFieldValue := TempReservationEntry."Variant Code";
                     end;
                 AssemblyLine.FieldNo("Due Date"):
                     begin
                         TempReservationEntry.SetFilter("Expected Receipt Date", '>%1', AssemblyLine."Due Date");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         AssemblyLineFieldValue := CalcDate('<' + Format(SupplyDelay, 0, '<sign><integer>') + 'D>',
                             TempReservationEntry."Expected Receipt Date");
                         AssemblyLine.SetTestReservationDateConflict(true);
@@ -2240,7 +2240,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 AssemblyHeader.FieldNo("Location Code"):
                     begin
                         TempReservationEntry.SetFilter("Location Code", '<>%1', AssemblyHeader."Location Code");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         AssemblyHeaderFieldValue := TempReservationEntry."Location Code";
                     end;
                 AssemblyHeader.FieldNo("Variant Code"):
@@ -2251,7 +2251,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 AssemblyHeader.FieldNo("Due Date"):
                     begin
                         TempReservationEntry.SetFilter("Expected Receipt Date", '>%1', AssemblyHeader."Due Date");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         AssemblyHeaderFieldValue := CalcDate('<' + Format(SupplyDelay, 0, '<sign><integer>') + 'D>',
                             TempReservationEntry."Expected Receipt Date");
                     end;
@@ -2297,7 +2297,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 SalesLine.FieldNo("Location Code"):
                     begin
                         TempReservationEntry.SetFilter("Location Code", '<>%1', SalesLine."Location Code");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         SalesLineFieldValue := TempReservationEntry."Location Code";
                     end;
                 SalesLine.FieldNo("Variant Code"):
@@ -2308,7 +2308,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                 SalesLine.FieldNo("Shipment Date"):
                     begin
                         TempReservationEntry.SetFilter("Expected Receipt Date", '>%1', SalesLine."Shipment Date");
-                        TempReservationEntry.FindFirst;
+                        TempReservationEntry.FindFirst();
                         SalesLineFieldValue := CalcDate('<' + Format(SupplyDelay, 0, '<sign><integer>') + 'D>',
                             TempReservationEntry."Expected Receipt Date");
                     end;
@@ -2383,7 +2383,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
         AssemblyLine.SetRange("No.", AssemblyLine."No.");
-        AssemblyLine.FindLast;
+        AssemblyLine.FindLast();
     end;
 
     [Normal]
@@ -2429,7 +2429,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ItemLedgerEntry.SetRange("Variant Code", VariantCode);
         ItemLedgerEntry.SetRange("Document No.", ItemJournalLine."Document No.");
         ItemLedgerEntry.SetRange(Quantity, Quantity);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         CreateReservationEntry(TempReservationEntry, ItemNo, VariantCode, LocationCode, Quantity, QtyToReserve, 32,
           Format(ItemLedgerEntry."Entry No."), ItemLedgerEntry."Entry No.", WorkDate2);
 
@@ -2440,7 +2440,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     [Normal]
@@ -2459,7 +2459,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     var
         ReservedQty: Decimal;
     begin
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ReservedQty += ReservationEntry."Quantity (Base)";
             until ReservationEntry.Next = 0;
@@ -2493,7 +2493,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         Assert.AreEqual(TempReservationEntry.Count, ReservationEntry.Count, 'Too many res. for ' + AssemblyLine."Document No.");
 
         // Verify the pairs of reservations entries are consistent.
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ReservationEntry2.Get(ReservationEntry."Entry No.", false);
                 ReservationEntry2.TestField("Source Type", 901);
@@ -2515,7 +2515,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ActualQty: Decimal;
     begin
         TempReservationEntry.SetRange("Source Type", SourceType);
-        if TempReservationEntry.FindSet then begin
+        if TempReservationEntry.FindSet() then begin
             ReservationEntry.Reset();
             ReservationEntry.SetRange(Positive, true);
             ReservationEntry.SetRange("Source Type", TempReservationEntry."Source Type");
@@ -2523,7 +2523,7 @@ codeunit 137095 "SCM Kitting - Reservations"
             ReservationEntry.SetRange("Variant Code", TempReservationEntry."Variant Code");
             ReservationEntry.SetRange("Location Code", TempReservationEntry."Location Code");
             ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
-            if ReservationEntry.FindSet then begin
+            if ReservationEntry.FindSet() then begin
                 Assert.AreEqual(TempReservationEntry.Count, ReservationEntry.Count,
                   'Too many entries for source type ' + Format(SourceType));
                 ExpectedQty := 0;
@@ -2592,7 +2592,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     var
         LastEntryNo: Integer;
     begin
-        if TempReservationEntry.FindLast then
+        if TempReservationEntry.FindLast() then
             LastEntryNo := TempReservationEntry."Entry No.";
 
         TempReservationEntry.Init();
@@ -2717,7 +2717,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         if SourceType <> 0 then
             TempReservationEntry.SetRange("Source Type", SourceType);
 
-        if TempReservationEntry.FindSet then
+        if TempReservationEntry.FindSet() then
             repeat
                 if ((TempReservationEntry."Source Type" <> 32) and (TempReservationEntry."Expected Receipt Date" <= DueDate)) or
                    (TempReservationEntry."Source Type" = 32)

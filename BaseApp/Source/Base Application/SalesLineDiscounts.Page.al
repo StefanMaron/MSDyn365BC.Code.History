@@ -441,14 +441,14 @@ page 7004 "Sales Line Discounts"
                 begin
                     SourceTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 27);
                     Item.SetFilter("No.", CodeFilter);
-                    if not Item.FindFirst then
+                    if not Item.FindFirst() then
                         Clear(Item);
                 end;
             ItemTypeFilter::"Item Discount Group":
                 begin
                     SourceTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 341);
                     ItemDiscGr.SetFilter(Code, CodeFilter);
-                    if not ItemDiscGr.FindFirst then
+                    if not ItemDiscGr.FindFirst() then
                         Clear(ItemDiscGr);
                 end;
         end;
@@ -460,21 +460,21 @@ page 7004 "Sales Line Discounts"
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 18);
                     Cust.SetFilter("No.", SalesCodeFilter);
-                    if Cust.FindFirst then
+                    if Cust.FindFirst() then
                         Description := Cust.Name;
                 end;
             SalesTypeFilter::"Customer Discount Group":
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 340);
                     CustDiscGr.SetFilter(Code, SalesCodeFilter);
-                    if CustDiscGr.FindFirst then
+                    if CustDiscGr.FindFirst() then
                         Description := CustDiscGr.Description;
                 end;
             SalesTypeFilter::Campaign:
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 5071);
                     Campaign.SetFilter("No.", SalesCodeFilter);
-                    if Campaign.FindFirst then
+                    if Campaign.FindFirst() then
                         Description := Campaign.Description;
                 end;
             SalesTypeFilter::"All Customers":

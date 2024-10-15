@@ -147,7 +147,8 @@ table 5373 "CRM Full Synch. Review Line"
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         CRMSynchHelper.OnGetCDSOwnershipModel(OwnershipModel, handled);
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
-        IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
+        if not CRMIntegrationManagement.IsOptionMappingEnabled() then
+            IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
@@ -295,6 +296,11 @@ table 5373 "CRM Full Synch. Review Line"
                     if (not BCRecRef.IsEmpty()) and (CRMUomschedule.Count() > 1) then
                         exit("Initial Synch Recommendation"::"Couple Records");
                 end;
+            'PAYMENT TERMS', 'SHIPPING AGENT', 'SHIPMENT METHOD':
+                    if BCRecRef.IsEmpty() then
+                        exit("Initial Synch Recommendation"::"No Records Found")
+                    else
+                        exit("Initial Synch Recommendation"::"Couple Records");
             else begin
                     if BCRecRef.IsEmpty and CDSRecRef.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
@@ -394,7 +400,7 @@ table 5373 "CRM Full Synch. Review Line"
 
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        if CRMFullSynchReviewLine.FindSet then
+        if CRMFullSynchReviewLine.FindSet() then
             repeat
                 if AreAllParentalJobsFinished(CRMFullSynchReviewLine."Dependency Filter") then begin
                     TempCRMFullSynchReviewLine := CRMFullSynchReviewLine;
@@ -486,7 +492,7 @@ table 5373 "CRM Full Synch. Review Line"
     begin
         CRMFullSynchReviewLine.SetFilter("Session ID", '<>0');
         CRMFullSynchReviewLine.SetRange("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
-        if CRMFullSynchReviewLine.FindSet then
+        if CRMFullSynchReviewLine.FindSet() then
             repeat
                 if CRMFullSynchReviewLine.IsActiveSession then
                     exit(true);
@@ -542,9 +548,9 @@ table 5373 "CRM Full Synch. Review Line"
     procedure GetInitialSynchRecommendationStyleExpression(IntialSynchRecomeendation: Text): Text
     begin
         case IntialSynchRecomeendation of
-            'No Records Found', 'Dependency not satisfied':
+            'Dependency not satisfied':
                 exit('Unfavorable');
-            'Full Synchronization':
+            'Full Synchronization', 'No Records Found':
                 exit('Favorable');
             'Couple Records':
                 exit('Ambiguous')

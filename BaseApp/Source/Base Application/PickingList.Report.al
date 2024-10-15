@@ -148,7 +148,7 @@ report 5752 "Picking List"
                                     TempWhseActivLine.SetRange("Destination Type", "Destination Type");
                                     TempWhseActivLine.SetRange("Destination No.", "Destination No.")
                                 end;
-                                if TempWhseActivLine.FindFirst then begin
+                                if TempWhseActivLine.FindFirst() then begin
                                     TempWhseActivLine."Qty. (Base)" := TempWhseActivLine."Qty. (Base)" + "Qty. (Base)";
                                     TempWhseActivLine."Qty. to Handle" := TempWhseActivLine."Qty. to Handle" + "Qty. to Handle";
                                     TempWhseActivLine."Source No." := '';

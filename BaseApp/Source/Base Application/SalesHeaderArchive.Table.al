@@ -631,6 +631,11 @@ table 5107 "Sales Header Archive"
             Caption = 'Quote Accepted Date';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';

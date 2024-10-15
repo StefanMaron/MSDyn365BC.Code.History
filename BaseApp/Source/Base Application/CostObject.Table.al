@@ -173,13 +173,13 @@ table 1113 "Cost Object"
         DimFilter: Text;
     begin
         CostAccSetup.Get();
-        if CostObject.FindSet then
+        if CostObject.FindSet() then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostObject.Code);
                 DimFilter := DimensionMgt.GetDimSetFilter;
                 if DimFilter <> '' then begin
                     GLEntry.SetFilter("Dimension Set ID", DimFilter);
-                    if GLEntry.FindFirst then
+                    if GLEntry.FindFirst() then
                         EntriesFound := true;
                 end;
 

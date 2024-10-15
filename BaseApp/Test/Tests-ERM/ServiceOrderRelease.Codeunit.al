@@ -61,7 +61,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a Released service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -81,7 +81,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceHeaderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -103,7 +103,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceHeaderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -123,7 +123,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines
         CreateServiceOrder(ServiceHeader);
@@ -145,7 +145,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceItemLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines of type, Item, Resource and G/L entry
         ServiceItemLineNo := CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -165,7 +165,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceItemLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with only service lines of type, Resource and G/L entry
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader);
@@ -185,7 +185,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines with quantity set to 0
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -210,7 +210,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a Released service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -234,7 +234,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine: Record "Service Line";
         QuantityPosted: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines and partially post it
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -271,7 +271,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine: Record "Service Line";
         WarehouseShipment: TestPage "Warehouse Shipment";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location
         LibraryInventory.CreateItem(Item);
@@ -307,7 +307,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipment: TestPage "Warehouse Shipment";
         ServiceItemLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location
         LibraryInventory.CreateItem(Item);
@@ -335,7 +335,7 @@ codeunit 136140 "Service Order Release"
         Item: Record Item;
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create Service order on WHITE Location
         LibraryInventory.CreateItem(Item);
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", LibraryRandom.RandInt(100), WMSFullLocation);
@@ -359,7 +359,7 @@ codeunit 136140 "Service Order Release"
         Item: Record Item;
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, release and Create warehouse shipment
         LibraryInventory.CreateItem(Item);
@@ -385,7 +385,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine: Record "Service Line";
         WarehouseShipmentHeaderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, release and Create warehouse shipment
         LibraryInventory.CreateItem(Item);
@@ -423,7 +423,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and create a whse shipment
         LibraryInventory.CreateItem(Item);
@@ -451,7 +451,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and create a whse shipment
         LibraryInventory.CreateItem(Item);
@@ -476,7 +476,7 @@ codeunit 136140 "Service Order Release"
         Item: Record Item;
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and create a whse shipment
         LibraryInventory.CreateItem(Item);
@@ -507,7 +507,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         WarehouseSourceFilter: Record "Warehouse Source Filter";
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order and Sales order on WHITE Location
         LibraryInventory.CreateItem(Item);
@@ -543,7 +543,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine: Record "Service Line";
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order
         LocationCode := WMSFullLocation;
@@ -577,7 +577,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeaderNo: Code[20];
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create 2 Service orders on WHITE Location and Release them.
         LocationCode := WMSFullLocation;
@@ -630,7 +630,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         I: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location with several service lines(of Item) and Release Service Order
         LocationCode := WMSFullLocation;
@@ -670,7 +670,7 @@ codeunit 136140 "Service Order Release"
         ServiceItemLineNo: Integer;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, Release and Pull the line into a new whse shipment
         LocationCode := WMSFullLocation;
@@ -712,7 +712,7 @@ codeunit 136140 "Service Order Release"
         ServiceLineNo: Integer;
         WarehouseShipmentHeaderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, Release and Pull the line into a new whse shipment
         LocationCode := WMSFullLocation;
@@ -763,7 +763,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, Release and Pull the line into a new whse shipment
         LocationCode := WMSFullLocation;
@@ -794,7 +794,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine: Record "Service Line";
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location, Release and Pull the line into a new whse shipment
         LocationCode := WMSFullLocation;
@@ -832,7 +832,7 @@ codeunit 136140 "Service Order Release"
         WMSLocationCode: Code[10];
         ServiceItemLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order with header on BLUE Location and service lines on WHITE, Release
         NonWMSLocationCode := CreateLocation;
@@ -871,7 +871,7 @@ codeunit 136140 "Service Order Release"
         ServiceItemLineNo: Integer;
         ServiceLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order with service lines on WHITE and new BLUE Location, Release
         NonWMSLocationCode := CreateLocation;
@@ -913,7 +913,7 @@ codeunit 136140 "Service Order Release"
         ServiceItemLineNo: Integer;
         ServiceLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order with service  WHITE Location and a new full WMS location and Release order.
         CreateFullWarehouseLocation(Location);
@@ -950,7 +950,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         DefaultWMSLocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order with service  WHITE Location and a new full WMS location and Release order.
         DefaultWMSLocationCode := WMSFullLocation;
@@ -976,7 +976,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header using Get Source Doc
         LocationCode := WMSFullLocation;
@@ -1015,7 +1015,7 @@ codeunit 136140 "Service Order Release"
         Delta: Integer;
         Index: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location with multiple service lines,Release Service Order with multiple service items
         // One line should have not enough supply
@@ -1071,7 +1071,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeaderNo: array[6] of Code[20];
         NumberOfServiceHeaders: Integer;
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create Multiple Service orders on WHITE Location,Release Service Order.
         // Create Whse Shpment header using Get Source Doc and pull all headers in.
         LocationCode := WMSFullLocation;
@@ -1130,7 +1130,7 @@ codeunit 136140 "Service Order Release"
         SalesHeaderNo: array[6] of Code[20];
         NumberOfHeaders: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create and Release Service orders and sales orders on WHITE Location with multiple service lines
         // Create Whse Shpment header using Get Source Doc and pull all lines in
@@ -1201,7 +1201,7 @@ codeunit 136140 "Service Order Release"
         ServiceItemLineNo: Integer;
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create new customer, service item, Service order on WHITE Location, Release
         LocationCode := WMSFullLocation;
@@ -1239,7 +1239,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create new customer, service item, Service order on WHITE Location, Release
         LocationCode := WMSFullLocation;
@@ -1278,7 +1278,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header.
         // SETUP: Create and Register Pick. Post the Whse Shpment with The Ship option.
@@ -1327,7 +1327,7 @@ codeunit 136140 "Service Order Release"
         LineQuantity: Integer;
         Delta: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location with multiple service lines,Release Service Order with multiple service items
         // SETUP: One line should have not enough supply
@@ -1377,7 +1377,7 @@ codeunit 136140 "Service Order Release"
         SalesHeaderNo: array[6] of Code[20];
         NumberOfHeaders: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create and Release Service orders and sales orders on WHITE Location with multiple service lines
         // Create Whse Shpment header using Get Source Doc and pull all lines in
@@ -1463,7 +1463,7 @@ codeunit 136140 "Service Order Release"
         FirstShipmentQuantity: Integer;
         DeltaQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header.
         LocationCode := WMSFullLocation;
@@ -1489,7 +1489,7 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentHeaderNo := ServiceShipmentHeader."No.";
 
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
@@ -1499,12 +1499,12 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
         Clear(WarehouseEntry);
         GetWarehouseEntries(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.");
-        WarehouseEntry.FindLast;
+        WarehouseEntry.FindLast();
         VerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -DeltaQuantity);
 
         ServiceShipmentHeader.SetFilter("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetFilter("No.", '<>%1', ServiceShipmentHeaderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         LibraryService.UndoShipmentLinesByServiceDocNo(ServiceShipmentHeader."No.");
 
         // VERIFY: Ledger entries are created correctly.
@@ -1551,7 +1551,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         FirstShipmentQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header.
         LocationCode := WMSFullLocation;
@@ -1602,7 +1602,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header.
         // SETUP: Create and Register Pick. Post the Whse Shpment with The Ship option.
@@ -1655,7 +1655,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         InvoiceQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header using Get Source Doc
         LocationCode := WMSFullLocation;
@@ -1680,11 +1680,11 @@ codeunit 136140 "Service Order Release"
         ServiceLine.Modify(true);
 
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentHeaderNo := ServiceShipmentHeader."No.";
 
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeaderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLineNo := ServiceShipmentLine."Line No.";
 
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
@@ -1714,7 +1714,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header
         // SETUP: Create Registe Pick, Post Whse Shpmnt, Undo the posted service shipment
@@ -1767,7 +1767,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         ShippingAgentServicesCode: array[6] of Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Customer with blank shipping details
         LibrarySales.CreateCustomer(Customer);
@@ -1796,7 +1796,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServicesCode: array[6] of Code[10];
         DateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateShippingAgentServices(ShippingAgent, ShippingAgentServicesCode);
@@ -1824,7 +1824,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServicesCode: array[6] of Code[10];
         DateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateShippingAgentServices(ShippingAgent, ShippingAgentServicesCode);
@@ -1852,7 +1852,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServicesCode: array[6] of Code[10];
         DateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Customer with blank shipping details
         DateOffset := LibraryRandom.RandIntInRange(10, 20);
@@ -1882,7 +1882,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServicesCode: array[6] of Code[10];
         DateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Customer with blank shipping details
         DateOffset := LibraryRandom.RandIntInRange(10, 20);
@@ -1912,7 +1912,7 @@ codeunit 136140 "Service Order Release"
         ShippingAgentServicesCode: array[6] of Code[10];
         DateOffset: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Customer with blank shipping details
         DateOffset := LibraryRandom.RandIntInRange(10, 20);
@@ -1952,7 +1952,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeaderNo: array[6] of Code[20];
         NumberOfServiceHeaders: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Multiple Service orders on WHITE Location,Release Service Order.
 
@@ -2044,7 +2044,7 @@ codeunit 136140 "Service Order Release"
         repeat
             Evaluate(ShippingTime, ExpectedWarehouseLineDueDateOffset);
             WarehouseShipmentLine.SetFilter("Source Line No.", Format(ServiceLine."Line No."));
-            WarehouseShipmentLine.FindFirst;
+            WarehouseShipmentLine.FindFirst();
             Assert.AreEqual(CalcDate(ShippingTime, ServiceLine."Needed by Date"), WarehouseShipmentLine."Due Date", 'Due date matches');
 
             Evaluate(ShippingTime, ExpectedServiceLineShippingTimeOffset);
@@ -2107,7 +2107,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure QuantityAvailabilityCalculationsMixedOrdersOnWhiteLocation()
     begin
-        Initialize;
+        Initialize();
         // VERIFY: Quantity Availability Calculations with WHITE Location
         CheckQuantityAvailabilityCalculationsWithMixedOrders(WMSFullLocation, false);
     end;
@@ -2125,7 +2125,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         LineQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create an new Silver location, create a new item.
         // SETUP: Create Supply for that item in the specific location and bin.
@@ -2171,7 +2171,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create an new BLUE location, create a new item.
 
@@ -2205,7 +2205,7 @@ codeunit 136140 "Service Order Release"
         TempServiceLine: Record "Service Line" temporary;
         LineQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create an new Silver location, create a new item.
         // SETUP: Create Supply for that item in the specific location and bin.
@@ -2252,7 +2252,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header using Get Source Doc
         LocationCode := YellowLocationCode;
@@ -2292,7 +2292,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         Quantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on YELLOW Location and Release Service Order, Create Whse Shpment header.
         // SETUP: Create and Register Pick. Post the Whse Shpment with The Ship option.
@@ -2323,7 +2323,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure QuantityAvailabilityCalculationsOnYellowOrders()
     begin
-        Initialize;
+        Initialize();
         // VERIFY: Quantity Availability Calculations with YELLOW Location
         CheckQuantityAvailabilityCalculationsWithMixedOrders(YellowLocationCode, true);
     end;
@@ -2343,7 +2343,7 @@ codeunit 136140 "Service Order Release"
         ServiceItemLineNo: Integer;
         I: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on YELLOW Location with multiple service lines,Release Service Order with multiple service items
         // One line should have not enough supply
@@ -2409,7 +2409,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         FirstShipmentQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Service order on YELLOW Location and Release Service Order, Create Whse Shpment header.
         LocationCode := YellowLocationCode;
@@ -2450,7 +2450,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create an new YELLOW location, create a new item.
 
         LocationCode := YellowLocationCode;
@@ -2479,7 +2479,7 @@ codeunit 136140 "Service Order Release"
         LineQuantity: Integer;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create an new YELLOW location, create a new item.
 
         LocationCode := YellowLocationCode;
@@ -2518,7 +2518,7 @@ codeunit 136140 "Service Order Release"
         LineQuantity: Integer;
         LocationCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create an new YELLOW location, create a new item.
 
         LocationCode := YellowLocationCode;
@@ -2549,7 +2549,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         LineQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         // SETUP: Create an new YELLOW location, create a new item.
         LocationCode := YellowLocationCode;
         LineQuantity := LibraryRandom.RandInt(100);
@@ -2587,7 +2587,7 @@ codeunit 136140 "Service Order Release"
         Quantity: Integer;
         FirstShipmentQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         WarehouseSetup.Get();
         WarehouseSetup.Validate(
           "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
@@ -2630,7 +2630,7 @@ codeunit 136140 "Service Order Release"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create a service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -2648,7 +2648,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure PostServiceInvoiceOnWhiteWithNonItemLines()
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Invoice on WHITE Location with lines of type not item.
         TestPostServiceInvoiceWithNonItemLines(WMSFullLocation);
@@ -2658,7 +2658,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure PostServiceInvoiceOnYellowWithNonItemLines()
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Invoice on Yellow Location with lines of type not item.
         TestPostServiceInvoiceWithNonItemLines(YellowLocationCode);
@@ -2671,7 +2671,7 @@ codeunit 136140 "Service Order Release"
         SilverLocation: Record Location;
         Bin: Record Bin;
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Invoice on Silver Location with lines of type not item.
         CreateSilverLocation(SilverLocation, Bin);
@@ -2682,7 +2682,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure PostServiceCreditMemoOnWhiteWithNonItemLines()
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Credit Memo on WHITE Location with lines of type not item.
         TestPostServiceCreditMemoWithNonItemLines(WMSFullLocation);
@@ -2692,7 +2692,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure PostServiceCreditMemoOnYellowWithNonItemLines()
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Credit Memo on Yellow Location with lines of type not item.
         TestPostServiceCreditMemoWithNonItemLines(YellowLocationCode);
@@ -2705,7 +2705,7 @@ codeunit 136140 "Service Order Release"
         SilverLocation: Record Location;
         Bin: Record Bin;
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Credit Memo on Silver Location with lines of type not item.
         CreateSilverLocation(SilverLocation, Bin);
@@ -2718,7 +2718,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK with empty bin code
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 1, 1, true);
@@ -2731,7 +2731,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 1, 1, false);
@@ -2743,7 +2743,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity out of STOCK
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 1, -1, false);
@@ -2756,7 +2756,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 1, 1, false);
@@ -2768,7 +2768,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity out of STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 1, -1, false);
@@ -2780,7 +2780,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity in Stock and use empty Bin code
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 1, 1, true);
@@ -2793,7 +2793,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 2, 1, false);
@@ -2805,7 +2805,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 2, -1, false);
@@ -2817,7 +2817,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 2, 1, false);
@@ -2829,7 +2829,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit memo for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 2, -1, false);
@@ -2841,7 +2841,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 3, 1, true);
@@ -2854,7 +2854,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 3, 1, false);
@@ -2866,7 +2866,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with quantity out of stock.
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 3, -1, false);
@@ -2879,7 +2879,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity in STOCK with empty bin code
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 3, 1, true);
@@ -2892,7 +2892,7 @@ codeunit 136140 "Service Order Release"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with quantity in STOCK
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 3, 1, false);
@@ -2912,7 +2912,7 @@ codeunit 136140 "Service Order Release"
         LocationCode: Code[10];
         BinCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create Supply for that item in the specific location and bin.
         Quantity := LibraryRandom.RandIntInRange(2, 100);
@@ -2965,7 +2965,7 @@ codeunit 136140 "Service Order Release"
         // Try to partially ship an order with 'Complete' shipping advice and last service line contains only description.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         LocationCode := WMSFullLocation;
         Quantity := LibraryRandom.RandIntInRange(2, 100);
         CreateItemAndUpdateInventory(Item, LocationCode, Quantity);
@@ -3001,7 +3001,7 @@ codeunit 136140 "Service Order Release"
     begin
         // [FEATURE] [Warehouse]
         // [SCENARIO 123577] Resource, G/L Acount, Cost "Qty. to Ship" remains after post Item's Warehouse Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Supply item on WHITE location
         LocationCode := WMSFullLocation;
@@ -3039,7 +3039,7 @@ codeunit 136140 "Service Order Release"
     begin
         // [FEATURE] [Reopen]
         // [SCENATIO 378451] VAT Amount remains after reopen Service Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released service order with service lines
         CreateServiceOrderWithServiceLines(ServiceHeader);
@@ -3066,7 +3066,7 @@ codeunit 136140 "Service Order Release"
     begin
         // [FEATURE] [Warehouse Shipment] [Get Source Documents]
         // [SCENARIO 379395] "Get Source Documents" should not find Source Document when Sevice Lines with Items are completely shipped.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with "Require Shipment".
         CreateLocationWithRequireShip(LocationCode);
@@ -3099,7 +3099,7 @@ codeunit 136140 "Service Order Release"
         // [FEATURE] [Service Order] [Service Shipment] [Shipping Agent Service]
         // [SCENARIO 267371] Empty value of Shipping Agent Service Code must be transferred from Warehouse Shipment to Service Order when Warehouse Shipment is being posted
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location which is set up for Whse Shipment
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
@@ -3155,11 +3155,11 @@ codeunit 136140 "Service Order Release"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Release");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
@@ -3538,14 +3538,14 @@ codeunit 136140 "Service Order Release"
     local procedure FindLocationByCode(var Location: Record Location; LocationCode: Code[10])
     begin
         Location.SetRange(Code, LocationCode);
-        Location.FindFirst;
+        Location.FindFirst();
     end;
 
     local procedure FindFirstServiceLineByServiceHeader(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindServiceLinesByHeaderNo(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -3561,7 +3561,7 @@ codeunit 136140 "Service Order Release"
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         exit(WarehouseActivityLine."No.");
     end;
 
@@ -3571,7 +3571,7 @@ codeunit 136140 "Service Order Release"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         exit(WarehouseReceiptLine."No.");
     end;
 
@@ -3588,13 +3588,13 @@ codeunit 136140 "Service Order Release"
     local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; PreAssignedNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindZonesAndBins(var FirstZone: Record Zone; var FirstBin: Record Bin; LocationCode: Code[10])
@@ -3609,10 +3609,10 @@ codeunit 136140 "Service Order Release"
     begin
         Zone.SetRange("Location Code", LocationCode);
         if NewZone then begin
-            Zone.FindLast;
+            Zone.FindLast();
             Step := -1;
         end else begin
-            Zone.FindFirst;
+            Zone.FindFirst();
             Step := 1;
         end;
         while not ZoneIsPickableNonPickable(Zone, FindPickable) do
@@ -3665,7 +3665,7 @@ codeunit 136140 "Service Order Release"
         LocationWhite: Record Location;
     begin
         LocationWhite.SetRange("Directed Put-away and Pick", true);
-        LocationWhite.FindFirst;
+        LocationWhite.FindFirst();
         exit(LocationWhite.Code);
     end;
 
@@ -3691,7 +3691,7 @@ codeunit 136140 "Service Order Release"
     begin
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("No.", FindWarehouseActivityNo(SourceNo, Type));
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         if Type = Type::"Put-away" then
             PlaceInNonPickableZones(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -3753,7 +3753,7 @@ codeunit 136140 "Service Order Release"
             SetRange("Activity Type", WarehouseActivityHeader.Type);
             SetRange("No.", WarehouseActivityHeader."No.");
             SetRange("Action Type", "Action Type"::Place);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Zone Code", ZoneCode);
                     Validate("Bin Code", BinCode);
@@ -4072,7 +4072,7 @@ codeunit 136140 "Service Order Release"
         ServiceShipmentLine.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLineBeforePosting."Line No.");
-            ServiceShipmentLine.FindLast;  // Find the Shipment Line for the second shipment.
+            ServiceShipmentLine.FindLast();  // Find the Shipment Line for the second shipment.
             ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", TempServiceLineBeforePosting."Qty. to Ship");
             ServiceShipmentLine.TestField(Quantity, -QuantityShipped);
         until TempServiceLineBeforePosting.Next = 0;
@@ -4094,7 +4094,7 @@ codeunit 136140 "Service Order Release"
         ItemLedgerEntry.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         repeat
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
-            ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second action.
+            ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             ItemLedgerEntry.TestField(Quantity, -QuantityShipped);
         until TempServiceLineBeforePosting.Next = 0;
     end;
@@ -4108,12 +4108,12 @@ codeunit 136140 "Service Order Release"
         // the relevant Service Line.
         TempServiceLineBeforePosting.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
         ValueEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             ValueEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
-            ValueEntry.FindLast;
+            ValueEntry.FindLast();
             ValueEntry.TestField("Valued Quantity", -QuantityShipped);
         until TempServiceLineBeforePosting.Next = 0;
     end;
@@ -4127,12 +4127,12 @@ codeunit 136140 "Service Order Release"
         // and Bill-to Customer No.
         TempServiceLineBeforePosting.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             ServiceLedgerEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
-            ServiceLedgerEntry.FindLast;
+            ServiceLedgerEntry.FindLast();
             ServiceLedgerEntry.TestField("No.", TempServiceLineBeforePosting."No.");
             ServiceLedgerEntry.TestField("Posting Date", TempServiceLineBeforePosting."Posting Date");
             ServiceLedgerEntry.TestField("Bill-to Customer No.", TempServiceLineBeforePosting."Bill-to Customer No.");
@@ -4177,7 +4177,7 @@ codeunit 136140 "Service Order Release"
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
         ItemLedgerEntry.SetRange("Order No.", ServiceLine."Document No.");
         ItemLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-        ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second shipment.
+        ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second shipment.
         ItemLedgerEntry.TestField(Quantity, -QuantityShipped);
     end;
 
@@ -4189,11 +4189,11 @@ codeunit 136140 "Service Order Release"
         // Verify that the value ofthe field Valued Quantity of the Value Entry is equal to the value of the Quantity shipped of
         // the relevant Service Line after a shipment has been posted and not invoiced
         ServiceShipmentHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
         ValueEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         ValueEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Valued Quantity", -QuantityShipped);
     end;
 
@@ -4205,12 +4205,12 @@ codeunit 136140 "Service Order Release"
         // Verify that the Service Ledger Entry created corresponds with the relevant Service Line by matching the fields No., Posting Date
         // and Bill-to Customer No. after a shipment has been posted and not invoiced
         ServiceShipmentHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;  // Find the second shipment.
+        ServiceShipmentHeader.FindLast();  // Find the second shipment.
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
 
         ServiceLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-        ServiceLedgerEntry.FindLast;
+        ServiceLedgerEntry.FindLast();
         ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
         ServiceLedgerEntry.TestField("Posting Date", ServiceLine."Posting Date");
         ServiceLedgerEntry.TestField("Bill-to Customer No.", ServiceLine."Bill-to Customer No.");
@@ -4227,7 +4227,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-        ServiceShipmentLine.FindLast;  // Find the Shipment Line for the second shipment.
+        ServiceShipmentLine.FindLast();  // Find the Shipment Line for the second shipment.
         ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", QuantityShipped);
         ServiceShipmentLine.TestField(Quantity, QuantityShipped);
     end;
@@ -4261,7 +4261,7 @@ codeunit 136140 "Service Order Release"
         with ServiceShipmentLine do begin
             SetRange("Order No.", TempServiceLine."Document No.");
             SetRange("Order Line No.", TempServiceLine."Line No.");
-            FindLast;
+            FindLast();
             TestField("Qty. Shipped Not Invoiced", TempServiceLine."Quantity Shipped");
             TestField(Quantity, -QuantityShipped);
         end;

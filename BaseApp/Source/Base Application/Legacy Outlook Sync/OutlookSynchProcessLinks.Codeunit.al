@@ -50,7 +50,7 @@ codeunit 5309 "Outlook Synch. Process Links"
 
         OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("User ID", UserID);
-        if not OSynchUserSetup.FindFirst then
+        if not OSynchUserSetup.FindFirst() then
             exit;
 
         TagName := OResponseXMLTextReader.RootLocalName;
@@ -101,7 +101,7 @@ codeunit 5309 "Outlook Synch. Process Links"
                             OSynchLink.Reset();
                             OSynchLink.SetRange("User ID", UserID);
                             OSynchLink.SetRange("Outlook Entry ID Hash", OEntryIDHash);
-                            if OSynchLink.FindFirst then begin
+                            if OSynchLink.FindFirst() then begin
                                 Evaluate(EntityRecID, Format(OSynchLink."Record ID"));
                                 EntityRecRef.Open(OSynchEntity."Table No.");
                                 if TagName <> 'NewEntryID' then

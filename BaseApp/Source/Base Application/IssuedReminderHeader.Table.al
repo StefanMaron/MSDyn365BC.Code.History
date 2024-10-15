@@ -276,6 +276,11 @@ table 297 "Issued Reminder Header"
             Caption = 'Canceled By Document No.';
             DataClassification = CustomerContent;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -406,7 +411,7 @@ table 297 "Issued Reminder Header"
             if (not HideDialog) and (IssuedReminderHeader.Count > 1) then
                 if Confirm(SuppresSendDialogQst) then
                     HideDialog := true;
-            if IssuedReminderHeader.FindSet then
+            if IssuedReminderHeader.FindSet() then
                 repeat
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
                     IssuedReminderHeaderToSend.SetRecFilter;
@@ -428,7 +433,7 @@ table 297 "Issued Reminder Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure IncrNoPrinted()

@@ -210,7 +210,7 @@ page 7014 "Purchase Line Discounts"
             Description := ''
         else begin
             Vendor.SetFilter("No.", VendNoFilter);
-            if Vendor.FindFirst then
+            if Vendor.FindFirst() then
                 Description := Vendor.Name;
         end;
 

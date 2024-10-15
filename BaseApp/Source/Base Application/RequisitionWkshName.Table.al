@@ -21,18 +21,16 @@ table 245 "Requisition Wksh. Name"
         {
             Caption = 'Description';
         }
-        field(21; "Template Type"; Option)
+        field(21; "Template Type"; Enum "Req. Worksheet Template Type")
         {
-            CalcFormula = Lookup ("Req. Wksh. Template".Type WHERE(Name = FIELD("Worksheet Template Name")));
+            CalcFormula = Lookup("Req. Wksh. Template".Type WHERE(Name = FIELD("Worksheet Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Req.,For. Labor,Planning';
-            OptionMembers = "Req.","For. Labor",Planning;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup ("Req. Wksh. Template".Recurring WHERE(Name = FIELD("Worksheet Template Name")));
+            CalcFormula = Lookup("Req. Wksh. Template".Recurring WHERE(Name = FIELD("Worksheet Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;

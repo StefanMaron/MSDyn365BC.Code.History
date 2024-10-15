@@ -1,4 +1,4 @@
-﻿codeunit 368 "Format Document"
+codeunit 368 "Format Document"
 {
 
     trigger OnRun()

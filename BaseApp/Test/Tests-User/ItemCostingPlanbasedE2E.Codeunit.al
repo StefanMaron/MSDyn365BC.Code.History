@@ -38,7 +38,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta2: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Business Manager
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -84,7 +84,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta2: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as External Accountant
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -127,7 +127,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VarianceGLAccount: Code[20];
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Team Member
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -163,7 +163,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta2: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Essential ISV Emb User
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -206,7 +206,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VarianceGLAccount: Code[20];
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Team Member ISV Emb
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -242,7 +242,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta2: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with LIFO Costing Method as Device ISV Emb User
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -287,7 +287,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Business Manager
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -330,7 +330,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as External Accountant
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -371,7 +371,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         InventoryGLAccount: Code[20];
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Team Member
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -406,7 +406,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Essential ISV Emb User
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -447,7 +447,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         InventoryGLAccount: Code[20];
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Team Member ISV Emb
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -482,7 +482,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         COGSAccountBalanceDelta: Decimal;
     begin
         // [SCENARIO] Purchasing and selling items with Standard Costing Method as Device ISV Emb User
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
 
@@ -533,8 +533,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetAutomaticCostAdjmtAlways;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryTemplates.UpdateTemplatesVATGroups();
 
         IsInitialized := true;
@@ -596,9 +596,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
         InventoryPostingSetup: Record "Inventory Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        InventoryAccount := LibraryERM.CreateGLAccountNo;
-        VarianceAccount := LibraryERM.CreateGLAccountNo;
-        COGSAccount := LibraryERM.CreateGLAccountNo;
+        InventoryAccount := LibraryERM.CreateGLAccountNo();
+        VarianceAccount := LibraryERM.CreateGLAccountNo();
+        COGSAccount := LibraryERM.CreateGLAccountNo();
 
         InventoryPostingSetup.FindSet();
         repeat
@@ -619,9 +619,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseInvoice."Posting Date".SetValue(Date);
 
         CreatePurchaseInvoiceLine(PurchaseInvoice, Format(PurchaseLine.Type::Item), ItemNo, Quantity, DirectUnitCost);
@@ -654,7 +654,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
 
         CreateSalesInvoiceLine(
@@ -708,7 +708,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VendorName: Text[100];
     begin
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(VendorName);
         VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
         VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
@@ -724,7 +724,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CustomerName: Text[100];
     begin
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
         CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
         CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");
@@ -766,7 +766,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Description: Text[100];
     begin
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description));
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(Description);
         ItemCard."Costing Method".SetValue(Item."Costing Method"::LIFO);
         ItemCard."Unit Price".SetValue(UnitPrice);
@@ -781,7 +781,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Description: Text[100];
     begin
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description));
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(Description);
         ItemCard."Costing Method".SetValue(Item."Costing Method"::Standard);
         ItemCard."Standard Cost".SetValue(StandardCost);

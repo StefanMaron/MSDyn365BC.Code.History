@@ -26,12 +26,12 @@ table 7324 "Whse. Put-away Request"
                 if "Document Type" = "Document Type"::Receipt then begin
                     if PostedWhseRcptHeader.Get("Document No.") then
                         PostedWhseRcptList.SetRecord(PostedWhseRcptHeader);
-                    PostedWhseRcptList.RunModal;
+                    PostedWhseRcptList.RunModal();
                     Clear(PostedWhseRcptList);
                 end else begin
                     if WhseInternalPutAwayHeader.Get("Document No.") then
                         WhseInternalPutAwayList.SetRecord(WhseInternalPutAwayHeader);
-                    WhseInternalPutAwayList.RunModal;
+                    WhseInternalPutAwayList.RunModal();
                     Clear(WhseInternalPutAwayList);
                 end;
             end;

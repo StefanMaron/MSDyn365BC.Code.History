@@ -22,7 +22,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                     StdGenJournalLine.SetRange("Journal Template Name", StdGenJournal."Journal Template Name");
                     StdGenJournalLine.SetRange("Standard Journal Code", StdGenJournal.Code);
-                    if StdGenJournalLine.FindSet then
+                    if StdGenJournalLine.FindSet() then
                         repeat
                             CopyGenJnlFromStdJnl(StdGenJournalLine, GenJnlLine);
                             GenJnlLine.Validate("Document Type", DocumentTypes);
@@ -63,7 +63,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                 GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
                 GenJnlLine.SetRange("Journal Batch Name", BatchName);
-                if GenJnlLine.FindLast then
+                if GenJnlLine.FindLast() then
                     LineNo := GenJnlLine."Line No." + 10000
                 else
                     LineNo := 10000;
@@ -254,12 +254,12 @@ report 8610 "Create G/L Acc. Journal Lines"
         LastGenJnlLine.SetRange("Journal Template Name", StdGenJnl."Journal Template Name");
         LastGenJnlLine.SetRange("Journal Batch Name", JnlBatchName);
 
-        if LastGenJnlLine.FindLast then;
+        if LastGenJnlLine.FindLast() then;
 
         GenJnlBatch.SetRange("Journal Template Name", StdGenJnl."Journal Template Name");
         GenJnlBatch.SetRange(Name, JnlBatchName);
 
-        if GenJnlBatch.FindFirst then;
+        if GenJnlBatch.FindFirst() then;
     end;
 
     local procedure CopyGenJnlFromStdJnl(StdGenJnlLine: Record "Standard General Journal Line"; var GenJnlLine: Record "Gen. Journal Line")

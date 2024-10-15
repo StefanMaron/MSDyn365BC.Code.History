@@ -13,6 +13,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -324,7 +325,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldCustLedgEntry(
           DetailedCustLedgEntry, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", BankAccReconciliationLine."Statement No.",
           CustLedgerEntry."Customer No.");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, -ToleranceAmount);
     end;
 
@@ -398,7 +399,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldCustLedgEntry(
           DetailedCustLedgEntry, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", BankAccReconciliationLine."Statement No.",
           CustLedgerEntry."Customer No.");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, -ToleranceAmount);
     end;
 
@@ -470,7 +471,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldCustLedgEntry(
           DetailedCustLedgEntry, DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance",
           BankAccReconciliationLine."Statement No.", CustLedgerEntry."Customer No.");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, -CustLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
@@ -541,7 +542,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldCustLedgEntry(
           DetailedCustLedgEntry, DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance",
           BankAccReconciliationLine."Statement No.", CustLedgerEntry."Customer No.");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, -CustLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
@@ -947,7 +948,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldVendLedgEntry(
           DetailedVendLedgEntry, DetailedVendLedgEntry."Entry Type"::"Payment Tolerance", BankAccReconciliationLine."Statement No.",
           VendLedgerEntry."Vendor No.");
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
         DetailedVendLedgEntry.TestField(Amount, -ToleranceAmount);
     end;
 
@@ -1021,7 +1022,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldVendLedgEntry(
           DetailedVendLedgEntry, DetailedVendLedgEntry."Entry Type"::"Payment Tolerance", BankAccReconciliationLine."Statement No.",
           VendLedgerEntry."Vendor No.");
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
         DetailedVendLedgEntry.TestField(Amount, -ToleranceAmount);
     end;
 
@@ -1093,7 +1094,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldVendLedgEntry(
           DetailedVendLedgEntry, DetailedVendLedgEntry."Entry Type"::"Payment Discount Tolerance",
           BankAccReconciliationLine."Statement No.", VendLedgerEntry."Vendor No.");
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
         DetailedVendLedgEntry.TestField(Amount, -VendLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
@@ -1164,7 +1165,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         FilterPmtDiscToleranceDtldVendLedgEntry(
           DetailedVendLedgEntry, DetailedVendLedgEntry."Entry Type"::"Payment Discount Tolerance",
           BankAccReconciliationLine."Statement No.", VendLedgerEntry."Vendor No.");
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
         DetailedVendLedgEntry.TestField(Amount, -VendLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
@@ -1574,18 +1575,23 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
     end;
 
@@ -1818,7 +1824,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(AllCurrency, '', PaymentTolerance, MaxPaymentToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure VerifyCustLedgEntry(EntryNo: Integer; ExpectedAmount: Decimal)
@@ -1844,7 +1850,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
         AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconciliationLine);
-        AppliedPmtEntry.FindFirst;
+        AppliedPmtEntry.FindFirst();
         AppliedPmtEntry.TestField("Applied Amount", AppliedAmount);
         AppliedPmtEntry.TestField("Applied Pmt. Discount", AppliedPmtDiscount);
     end;

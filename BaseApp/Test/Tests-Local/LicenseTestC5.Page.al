@@ -164,7 +164,7 @@ page 130099 "License Test - C5"
         EntryNo: Integer;
     begin
         EntryNo := 1;
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             EntryNo := GLEntry."Entry No." + 1;
 
         GLEntry."Entry No." := EntryNo;
@@ -179,7 +179,7 @@ page 130099 "License Test - C5"
     begin
         GLAccount.Ascending := Ascending;
         GLAccount.SetRange("Direct Posting", true);
-        if GLAccount.FindFirst then
+        if GLAccount.FindFirst() then
             exit(GLAccount."No.");
         exit('');
     end;
@@ -188,7 +188,7 @@ page 130099 "License Test - C5"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             exit(GLEntry."Transaction No.");
         exit(0);
     end;

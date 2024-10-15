@@ -71,7 +71,7 @@ codeunit 5930 ServAllocationManagement
                 if RepairStatus.Initial then begin
                     Clear(RepairStatus2);
                     RepairStatus2.SetRange(Referred, true);
-                    if RepairStatus2.FindFirst then
+                    if RepairStatus2.FindFirst() then
                         RepairStatusCode := RepairStatus2.Code
                     else
                         Error(
@@ -81,7 +81,7 @@ codeunit 5930 ServAllocationManagement
                     if RepairStatus."In Process" then begin
                         Clear(RepairStatus2);
                         RepairStatus2.SetRange("Partly Serviced", true);
-                        if RepairStatus2.FindFirst then
+                        if RepairStatus2.FindFirst() then
                             RepairStatusCode := RepairStatus2.Code
                         else
                             Error(
@@ -119,7 +119,7 @@ codeunit 5930 ServAllocationManagement
             ServOrderAlloc.SetRange("Document Type", DocumentType);
             ServOrderAlloc.SetRange("Document No.", DocumentNo);
             ServOrderAlloc.SetRange("Service Item Line No.", ServItemLineNo);
-            if not ServOrderAlloc.FindFirst then begin
+            if not ServOrderAlloc.FindFirst() then begin
                 NewServOrderAlloc.Init();
                 NewServOrderAlloc."Document Type" := "Service Document Type".FromInteger(DocumentType);
                 NewServOrderAlloc."Document No." := DocumentNo;

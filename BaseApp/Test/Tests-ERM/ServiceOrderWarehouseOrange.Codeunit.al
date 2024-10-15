@@ -46,7 +46,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         DeleteExistingWhsWorksheetPickLines;
         // execute
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
@@ -77,7 +77,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         // Verify
@@ -97,7 +97,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         // verify
@@ -119,7 +119,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WhseShptRelease: Codeunit "Whse.-Shipment Release";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 4);
         // reopen service order, add new lines and release again
         LibraryService.ReopenServiceDocument(ServiceHeader);
@@ -133,9 +133,9 @@ codeunit 136148 "Service Order Warehouse Orange"
         // execute
         // release warehouse shipment and create pick worksheet again
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WhseShptRelease.Release(WarehouseShipmentHeader);
         InvokeGetWarehouseDocument;
         // Validate result
@@ -153,7 +153,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WhsePickRequest: Record "Whse. Pick Request";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // execute
         CreateAndReleaseWhseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         // validate
@@ -187,7 +187,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -203,7 +203,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -219,7 +219,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -236,7 +236,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -254,7 +254,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceOrderTestPage: TestPage "Service Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // Execute
         ServiceOrderTestPage.OpenEdit;
@@ -273,7 +273,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -290,11 +290,11 @@ codeunit 136148 "Service Order Warehouse Orange"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         Location.SetFilter(Code, '<>%1', ServiceLine."Location Code");
-        Location.FindFirst;
+        Location.FindFirst();
         // validate
         asserterror ServiceLine.Validate("Location Code", Location.Code);
     end;
@@ -309,7 +309,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         NeedDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         NeedDate := ServiceLine."Needed by Date";
@@ -330,7 +330,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -347,7 +347,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         PlanDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         PlanDate := ServiceLine."Planned Delivery Date";
@@ -368,7 +368,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -383,7 +383,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateWhseShptReopenOrder(ServHeader, ServiceLine);
         // validate
@@ -399,7 +399,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         // validate
@@ -417,10 +417,10 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceOrderTestPage: TestPage "Service Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
-        ServiceOrderTestPage.OpenNew;
+        ServiceOrderTestPage.OpenNew();
         ServiceOrderTestPage.GotoRecord(ServHeader);
         // validate
         ServiceOrderTestPage.ServItemLines."Service Lines".Invoke;
@@ -436,7 +436,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
         Commit();
@@ -454,7 +454,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine: Record "Service Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateWhseShptReopenOrder(ServHeader, ServiceLine);
         Commit();
@@ -474,13 +474,13 @@ codeunit 136148 "Service Order Warehouse Orange"
         ItemUOM: Record "Item Unit of Measure";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         ItemUOM.SetRange("Item No.", ServiceLine."No.");
         ItemUOM.SetFilter(Code, '<>%1', ServiceLine."Unit of Measure Code");
         // validate
-        if ItemUOM.FindFirst then
+        if ItemUOM.FindFirst() then
             asserterror ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
     end;
 
@@ -493,13 +493,13 @@ codeunit 136148 "Service Order Warehouse Orange"
         ItemUOM: Record "Item Unit of Measure";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateWhseShptReopenOrder(ServiceHeader, ServiceLine);
         ItemUOM.SetRange("Item No.", ServiceLine."No.");
         ItemUOM.SetFilter(Code, '<>%1', ServiceLine."Unit of Measure Code");
         // validate
-        if ItemUOM.FindFirst then
+        if ItemUOM.FindFirst() then
             asserterror ServiceLine.Validate("Unit of Measure Code", ItemUOM.Code);
     end;
 
@@ -513,13 +513,13 @@ codeunit 136148 "Service Order Warehouse Orange"
         ItemVariant: Record "Item Variant";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, 1);
         ItemVariant.SetRange("Item No.", ServiceLine."No.");
         ItemVariant.SetFilter(Code, '<>%1', ServiceLine."Variant Code");
         // validate
-        if ItemVariant.FindFirst then
+        if ItemVariant.FindFirst() then
             asserterror ServiceLine.Validate("Variant Code", ItemVariant.Code);
     end;
 
@@ -532,13 +532,13 @@ codeunit 136148 "Service Order Warehouse Orange"
         ItemVariant: Record "Item Variant";
     begin
         // Setup
-        Initialize;
+        Initialize();
         // Execute
         CreateWhseShptReopenOrder(ServiceHeader, ServiceLine);
         ItemVariant.SetRange("Item No.", ServiceLine."No.");
         ItemVariant.SetFilter(Code, '<>%1', ServiceLine."Variant Code");
         // validate
-        if ItemVariant.FindFirst then
+        if ItemVariant.FindFirst() then
             asserterror ServiceLine.Validate("Variant Code", ItemVariant.Code);
     end;
 
@@ -548,7 +548,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Invoice on ORANGE Location with lines of type not item.
         TestPostServiceDocumentWithNonItemLines(OrangeLocation, ServiceHeader."Document Type"::Invoice);
@@ -560,7 +560,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post a Service Credit Memo on ORANGE Location with lines of type not item.
         TestPostServiceDocumentWithNonItemLines(OrangeLocation, ServiceHeader."Document Type"::"Credit Memo");
@@ -573,7 +573,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with empty bin code for an item in stock
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 1, true);
@@ -587,7 +587,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with empty bin code
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, 1, false);
@@ -600,7 +600,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service invoice for an Item with empty bin code
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::Invoice, -1, false);
@@ -614,7 +614,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with empty bin code for an item in stock
         asserterror TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 1, true);
@@ -628,7 +628,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with empty bin code
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", 1, false);
@@ -641,7 +641,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     var
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Post service Credit Memo for an Item with empty bin code
         TestPostServiceDocumentWithItem(ServiceHeader."Document Type"::"Credit Memo", -1, false);
@@ -729,7 +729,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
-        VatProductPostingGroup.FindFirst;
+        VatProductPostingGroup.FindFirst();
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := VatProductPostingGroup.Code;
         GenProductPostingGroup."Auto Insert Default" := true;
         GenProductPostingGroup.Modify(true);
@@ -755,7 +755,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         if NumberOfServLines <= 0 then
             exit;
         LibraryInventory.CreateItem(Item);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateServiceItem(ServiceItem, CustomerNo, Item."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -796,9 +796,9 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         CreateAndReleaseServiceOrder(ServiceHeader, ServiceLine, ServiceItemLine, NumberOfServLines);
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     [Normal]
@@ -848,7 +848,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
         WhseWorksheetTemplate.SetRange(Type, WhseWorksheetTemplate.Type::Pick);
-        WhseWorksheetTemplate.FindFirst;
+        WhseWorksheetTemplate.FindFirst();
         LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
     end;
 
@@ -860,7 +860,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         WhseWorksheetTemplate.SetRange("Page ID", PAGE::"Pick Worksheet");
         Assert.AreEqual(1, WhseWorksheetTemplate.Count, StrSubstNo(ERR_MultipleWhseWorksheetTemplate, PickWorksheetPage));
-        if WhseWorksheetTemplate.FindFirst then begin
+        if WhseWorksheetTemplate.FindFirst() then begin
             WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
             WhseWorksheetLine.DeleteAll();
         end;
@@ -871,19 +871,19 @@ codeunit 136148 "Service Order Warehouse Orange"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; PreAssignedNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     [Normal]
@@ -1093,11 +1093,11 @@ codeunit 136148 "Service Order Warehouse Orange"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Orange");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         OrangeLocation := CreateOrangeLocation;
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
@@ -1177,7 +1177,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ItemLedgerEntry.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         repeat
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
-            ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second action.
+            ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             ItemLedgerEntry.TestField(Quantity, -QuantityShipped);
         until TempServiceLineBeforePosting.Next = 0;
     end;

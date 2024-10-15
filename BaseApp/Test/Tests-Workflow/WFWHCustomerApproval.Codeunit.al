@@ -90,7 +90,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
 
         // Exercise - New Customer
@@ -118,7 +118,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The customer request is approved.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibrarySales.CreateCustomer(Customer);
@@ -153,7 +153,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The customer request is cancelled.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibrarySales.CreateCustomer(Customer);
@@ -188,7 +188,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The customer request is rejected.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibrarySales.CreateCustomer(Customer);
@@ -224,7 +224,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -262,7 +262,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] The customer approval requests are canceled and then the customer is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         WorkflowCode := CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -298,7 +298,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] Any sales document using the customer cannot be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibrarySales.CreateCustomer(Customer);
@@ -330,7 +330,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] Any sales document using the customer can be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         MakeCurrentUserAnApprover;
         CreateAndEnableCustomerWorkflowDefinition(UserId);
 
@@ -363,7 +363,7 @@ codeunit 134221 "WFWH Customer Approval"
         // [THEN] Any sales document using the customer can be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableCustomerWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -393,7 +393,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Customer Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record exists, with enabled workflow and a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
@@ -424,7 +424,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerList: TestPage "Customer List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Customer List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record exists, with enabled workflow and a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
@@ -454,7 +454,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Customer Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record exists, with a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
@@ -467,7 +467,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerCard.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -484,7 +484,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerList: TestPage "Customer List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Customer List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer record exists, with a Flow approval request already open.
         LibrarySales.CreateCustomer(Customer);
@@ -497,7 +497,7 @@ codeunit 134221 "WFWH Customer Approval"
         CustomerList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -510,8 +510,8 @@ codeunit 134221 "WFWH Customer Approval"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Customer Approval");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         ClearWorkflowWebhookEntry.DeleteAll();
@@ -547,7 +547,7 @@ codeunit 134221 "WFWH Customer Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         exit(WorkflowWebhookEntry."Workflow Step Instance ID");
     end;
@@ -569,7 +569,7 @@ codeunit 134221 "WFWH Customer Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;

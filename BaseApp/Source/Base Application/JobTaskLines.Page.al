@@ -227,7 +227,7 @@ page 1002 "Job Task Lines"
                         JobPlanningLine.FilterGroup(0);
                         JobPlanningLines.SetJobTaskNoVisible(false);
                         JobPlanningLines.SetTableView(JobPlanningLine);
-                        JobPlanningLines.Run;
+                        JobPlanningLines.Run();
                     end;
                 }
                 action(JobTaskStatistics)
@@ -286,7 +286,7 @@ page 1002 "Job Task Lines"
                         begin
                             CurrPage.SetSelectionFilter(JobTask);
                             JobTaskDimensionsMultiple.SetMultiJobTask(JobTask);
-                            JobTaskDimensionsMultiple.RunModal;
+                            JobTaskDimensionsMultiple.RunModal();
                         end;
                     }
                 }
@@ -309,7 +309,7 @@ page 1002 "Job Task Lines"
                         JobInvoices: Page "Job Invoices";
                     begin
                         JobInvoices.SetPrJobTask(Rec);
-                        JobInvoices.RunModal;
+                        JobInvoices.RunModal();
                     end;
                 }
             }
@@ -472,7 +472,7 @@ page 1002 "Job Task Lines"
                         begin
                             TestField("Job Task Type", "Job Task Type"::Posting);
                             CopyJobPlanningLines.SetToJobTask(Rec);
-                            CopyJobPlanningLines.RunModal;
+                            CopyJobPlanningLines.RunModal();
                         end;
                     }
                     action("Copy Job Planning Lines &to...")
@@ -491,7 +491,7 @@ page 1002 "Job Task Lines"
                         begin
                             TestField("Job Task Type", "Job Task Type"::Posting);
                             CopyJobPlanningLines.SetFromJobTask(Rec);
-                            CopyJobPlanningLines.RunModal;
+                            CopyJobPlanningLines.RunModal();
                         end;
                     }
                 }

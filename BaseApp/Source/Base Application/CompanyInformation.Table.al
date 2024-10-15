@@ -287,6 +287,19 @@ table 79 "Company Information"
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Partner Code';
+            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+
+            trigger OnValidate()
+            begin
+                UpdateICSetup();
+            end;
+#endif
         }
         field(42; "IC Inbox Type"; Option)
         {
@@ -295,43 +308,39 @@ table 79 "Company Information"
             InitValue = Database;
             OptionCaption = 'File Location,Database';
             OptionMembers = "File Location",Database;
+            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
 
             trigger OnValidate()
             begin
                 if "IC Inbox Type" = "IC Inbox Type"::Database then
                     "IC Inbox Details" := '';
+                UpdateICSetup();
             end;
+#endif
         }
         field(43; "IC Inbox Details"; Text[250])
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Inbox Details';
+            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
 
-#if not CLEAN17
-            trigger OnLookup()
-            var
-                FileMgt: Codeunit "File Management";
-                FileName: Text;
-                FileName2: Text;
-                Path: Text;
+#if not CLEAN20
+            trigger OnValidate()
             begin
-                TestField("IC Partner Code");
-                case "IC Inbox Type" of
-                    "IC Inbox Type"::"File Location":
-                        begin
-                            if "IC Inbox Details" = '' then
-                                FileName := StrSubstNo('%1.xml', "IC Partner Code")
-                            else
-                                FileName := "IC Inbox Details" + StrSubstNo('\%1.xml', "IC Partner Code");
-
-                            FileName2 := FileMgt.SaveFileDialog(Text001, FileName, '');
-                            if FileName <> FileName2 then begin
-                                Path := FileMgt.GetDirectoryName(FileName2);
-                                if Path <> '' then
-                                    "IC Inbox Details" := CopyStr(Path, 1, 250);
-                            end;
-                        end;
-                end;
+                UpdateICSetup();
             end;
 #endif
         }
@@ -339,6 +348,19 @@ table 79 "Company Information"
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'Auto. Send Transactions';
+            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+
+            trigger OnValidate()
+            begin
+                UpdateICSetup();
+            end;
+#endif
         }
         field(46; "System Indicator"; Option)
         {
@@ -444,12 +466,10 @@ table 79 "Company Information"
             AccessByPermission = TableData Item = R;
             Caption = 'Check-Avail. Period Calc.';
         }
-        field(5792; "Check-Avail. Time Bucket"; Option)
+        field(5792; "Check-Avail. Time Bucket"; Enum "Analysis Period Type")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Check-Avail. Time Bucket';
-            OptionCaption = 'Day,Week,Month,Quarter,Year';
-            OptionMembers = Day,Week,Month,Quarter,Year;
         }
         field(7600; "Base Calendar Code"; Code[10])
         {
@@ -472,23 +492,9 @@ table 79 "Company Information"
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
             Caption = 'Sync with O365 Bus. profile';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '17.0';
-
-            trigger OnValidate()
-            var
-                GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
-            begin
-                if "Sync with O365 Bus. profile" then
-                    if IsSyncEnabledForOtherCompany then
-                        Error(SyncAlreadyEnabledErr);
-
-                if "Sync with O365 Bus. profile" then
-                    CODEUNIT.Run(CODEUNIT::"Graph Data Setup")
-                else
-                    GraphIntBusinessProfile.UpdateCompanyBusinessProfileId('');
-            end;
+            ObsoleteTag = '20.0';
         }
         field(8000; Id; Guid)
         {
@@ -536,15 +542,11 @@ table 79 "Company Information"
     var
         PostCode: Record "Post Code";
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
-#if not CLEAN17
-        Text001: Label 'File Location for IC files';
-#endif
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
         GLNCheckDigitErr: Label 'The %1 is not valid.';
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
-        SyncAlreadyEnabledErr: Label 'Office 365 Business profile synchronization is already enabled for another company in the system.';
         ContactUsFullTxt: Label 'Questions? Contact us at %1 or %2.', Comment = '%1 = phone number, %2 = email';
         ContactUsShortTxt: Label 'Questions? Contact us at %1.', Comment = '%1 = phone number or email';
         PictureUpdated: Boolean;
@@ -653,7 +655,7 @@ table 79 "Company Information"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition)
         else
             Message(Text002);
@@ -798,19 +800,16 @@ table 79 "Company Information"
         exit('');
     end;
 
+#if not CLEAN20
+    [Obsolete('The functionality is deprecated, the method will be deleted.', '20.0')]
     procedure IsSyncEnabledForOtherCompany() SyncEnabled: Boolean
     var
         CompanyInformation: Record "Company Information";
         Company: Record Company;
     begin
-        Company.SetFilter(Name, '<>%1', CompanyName);
-        if Company.FindSet then
-            repeat
-                CompanyInformation.ChangeCompany(Company.Name);
-                if CompanyInformation.Get then
-                    SyncEnabled := CompanyInformation."Sync with O365 Bus. profile";
-            until (Company.Next() = 0) or SyncEnabled;
+        exit(false);
     end;
+#endif
 
     local procedure SetBrandColorValue()
     var
@@ -822,6 +821,26 @@ table 79 "Company Information"
         end else
             "Brand Color Value" := '';
     end;
+
+#if not CLEAN20
+    local procedure UpdateICSetup()
+    var
+        ICSetup: Record "IC Setup";
+    begin
+        if not ICSetup.Get() then
+            exit;
+
+        if Rec."IC Partner Code" <> xRec."IC Partner Code" then
+            ICSetup."IC Partner Code" := Rec."IC Partner Code";
+        if Rec."IC Inbox Type" <> xRec."IC Inbox Type" then
+            ICSetup."IC Inbox Type" := Rec."IC Inbox Type";
+        if Rec."IC Inbox Details" <> xRec."IC Inbox Details" then
+            ICSetup."IC Inbox Details" := Rec."IC Inbox Details";
+        if Rec."Auto. Send Transactions" <> xRec."Auto. Send Transactions" then
+            ICSetup."Auto. Send Transactions" := Rec."Auto. Send Transactions";
+        ICSetup.Modify();
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)

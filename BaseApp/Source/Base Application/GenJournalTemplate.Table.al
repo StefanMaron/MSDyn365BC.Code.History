@@ -1,4 +1,4 @@
-table 80 "Gen. Journal Template"
+﻿table 80 "Gen. Journal Template"
 {
     Caption = 'Gen. Journal Template';
     LookupPageID = "General Journal Template List";
@@ -289,6 +289,14 @@ table 80 "Gen. Journal Template"
                     GenJnlBatch.ModifyAll("Copy to Posted Jnl. Lines", "Copy to Posted Jnl. Lines");
                 end;
             end;
+        }
+        field(32; "Allow Posting Date From"; Date)
+        {
+            Caption = 'Allow Posting From';
+        }
+        field(33; "Allow Posting Date To"; Date)
+        {
+            Caption = 'Allow Posting To';
         }
     }
 

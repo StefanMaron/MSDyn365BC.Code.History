@@ -158,7 +158,6 @@ page 9853 "Effective Permissions By Set"
         IsTableData: Boolean;
         CurrObjectType: Option;
         CurrObjectID: Integer;
-        BadlyFormattedTextErr: Label '''%1'' is not a valid value for the ''%2'' permission.', Comment = '%1 = The entered value for the permission field;%2 = the caption of the permission field';
         CurrUserID: Guid;
         [InDataSet]
         ReadPermissions: Enum Permission;
@@ -183,7 +182,6 @@ page 9853 "Effective Permissions By Set"
 
     local procedure RefreshDisplayTexts()
     var
-        PermissionManager: Codeunit "Permission Manager";
         IsSourceEntitlement: Boolean;
     begin
         ReadPermissions := EffectivePermissionsMgt.ConvertToPermission("Read Permission");
@@ -220,7 +218,7 @@ page 9853 "Effective Permissions By Set"
 
         DeleteAll();
 
-        if TempPermissionBuffer.FindSet then
+        if TempPermissionBuffer.FindSet() then
             repeat
                 Rec := TempPermissionBuffer;
                 Insert;

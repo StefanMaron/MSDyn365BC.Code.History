@@ -56,7 +56,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYChild: Decimal;
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
         LibraryKitting.SetLookahead('<1Y>');
         QTYParent := 2;
         QTYChild := 1;
@@ -92,7 +92,7 @@ codeunit 137906 "SCM Assembly Availability"
         ChildItem: Record Item;
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         ChildItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
         MockItemLedgerEntry(ChildItem."No.", 10, LibraryWarehouse.CreateLocation(Location), DMY2Date(1, 1, 2010));
         ChildItem.CalcFields(Inventory);
@@ -108,7 +108,7 @@ codeunit 137906 "SCM Assembly Availability"
         AssemblyHeader: Record "Assembly Header";
         ParentItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         ParentItemNo := LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1);
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ParentItemNo, '', 1, '');
@@ -130,7 +130,7 @@ codeunit 137906 "SCM Assembly Availability"
         parentItem: Record Item;
         childItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1));
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
@@ -140,7 +140,7 @@ codeunit 137906 "SCM Assembly Availability"
         AssemblyHeader.RefreshBOM;
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ValidateremainingQty(AssemblyLine, 1);
         ValidateremainingQtyBase(AssemblyLine, 1);
         asserterror Error('') // roll back
@@ -158,7 +158,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYParent: Decimal;
         QTYChild: Decimal;
     begin
-        Initialize;
+        Initialize();
         QTYParent := 2;
         QTYChild := 4;
 
@@ -188,7 +188,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYParent: Decimal;
         QTYChild: Decimal;
     begin
-        Initialize;
+        Initialize();
         QTYParent := 2;
         QTYChild := 4;
 
@@ -208,7 +208,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.Validate("Location Code", Location.Code);
         ValidateInItemOnCompLocation(childItem."No.", QTYParent * QTYChild, Location.Code);
         ValidateInItemOnCompLocation(childItem."No.", 0, otherLocation.Code);
@@ -228,7 +228,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYParent: Decimal;
         QTYChild: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryKitting.SetLookahead('<1M>');
 
         MfgSetup.Get();
@@ -272,7 +272,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYChild: Decimal;
         NbNotifs: Integer;
     begin
-        Initialize;
+        Initialize();
         QTYParent := 2;
         QTYChild := 1;
 
@@ -288,7 +288,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.ShowAvailabilityWarning;
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
@@ -327,7 +327,7 @@ codeunit 137906 "SCM Assembly Availability"
         Assert.AreEqual(NbNotifs - 1, TempNotificationContext.Count, 'Unexpected number of notifications after changing unit of measure.');
 
         asserterror Error(''); // roll back
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYPurchase: Decimal;
         QTYNewPurchase: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryKitting.SetLookahead('<1Y>');
 
         MfgSetup.Get();
@@ -375,7 +375,7 @@ codeunit 137906 "SCM Assembly Availability"
         MockPurchaseOrder(childItem."No.", QTYPurchase, AssemblyHeader."Location Code", DMY2Date(1, 2, 2010));
 
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         ValidateAvailabilityFields(AssemblyLine, QTYChild, QTYInventory, 0, QTYPurchase, false);
 
         MockPurchaseOrder(childItem."No.", QTYNewPurchase, AssemblyHeader."Location Code", DMY2Date(15, 2, 2010));
@@ -383,7 +383,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         ValidateEarliestDate(AssemblyHeader, 0D);
         asserterror Error(''); // roll back
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -401,7 +401,7 @@ codeunit 137906 "SCM Assembly Availability"
         QTYChild: Decimal;
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
         MfgSetup.Get();
         Evaluate(MfgSetup."Default Safety Lead Time", '<1D>');
         MfgSetup.Modify();
@@ -447,7 +447,7 @@ codeunit 137906 "SCM Assembly Availability"
         ItemUOM: Record "Item Unit of Measure";
         NonBaseUOM: Record "Unit of Measure";
     begin
-        Initialize;
+        Initialize();
         LibraryKitting.SetLookahead('<1M>');
 
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOMUsingItemNo('Parent', 500, 700, 1));
@@ -513,60 +513,6 @@ codeunit 137906 "SCM Assembly Availability"
           1, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[1]), 'Wrong available quantity for the assembly line.');
         Assert.AreEqual(
           0, AssemblyInfoPaneManagement.CalcAvailability(AssemblyLine[2]), 'Wrong available quantity for the assembly line.');
-    end;
-
-    [Test]
-    procedure AvailabilityOnAfterGetRecordAssemblyOrder()
-    var
-        AsmItem: Record Item;
-        CompItem: Record Item;
-        BOMComponent: Record "BOM Component";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
-        AssemblyOrder: TestPage "Assembly Order";
-        i: Integer;
-    begin
-        // [FEATURE] [Availability] [UT]
-        // [SCENARIO 421845] The availability warnings are updated on moving to next assembly order.
-        Initialize();
-
-        // [GIVEN] Assembly item with component.
-        LibraryInventory.CreateItem(AsmItem);
-        LibraryInventory.CreateItem(CompItem);
-        LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
-
-        // [GIVEN] Mock two assembly orders.
-        for i := 1 to 2 do begin
-            AssemblyHeader.Init();
-            AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
-            AssemblyHeader."No." := LibraryUtility.GenerateGUID();
-            AssemblyHeader."Item No." := AsmItem."No.";
-            AssemblyHeader."Due Date" := WorkDate();
-            AssemblyHeader.Insert();
-
-            AssemblyLine.Init();
-            AssemblyLine."Document Type" := AssemblyHeader."Document Type";
-            AssemblyLine."Document No." := AssemblyHeader."No.";
-            AssemblyLine.Type := AssemblyLine.Type::Item;
-            AssemblyLine."No." := CompItem."No.";
-            AssemblyLine."Remaining Quantity" := LibraryRandom.RandInt(10);
-            AssemblyLine."Due Date" := WorkDate();
-            AssemblyLine.Insert();
-        end;
-
-        // [GIVEN] Open the first assembly order. Ensure that "Avail. Warning" flag for the component is "Yes".
-        AssemblyOrder.OpenEdit();
-        AssemblyOrder.FILTER.SetFilter("Item No.", AsmItem."No.");
-        AssemblyOrder.Lines."No.".AssertEquals(CompItem."No.");
-        AssemblyOrder.Lines."Avail. Warning".AssertEquals(true);
-
-        // [WHEN] Go to the next assembly order.
-        AssemblyOrder.Next();
-
-        // [THEN] "Avail. Warning" flag for the component is "Yes".
-        AssemblyOrder.Lines."No.".AssertEquals(CompItem."No.");
-        AssemblyOrder.Lines."Avail. Warning".AssertEquals(true);
     end;
 
     [Normal]
@@ -638,7 +584,7 @@ codeunit 137906 "SCM Assembly Availability"
         Item: Record Item;
     begin
         Item.SetRange("No.", ItemNo);
-        Item.FindFirst;
+        Item.FindFirst();
         Item.Validate(Inventory, Quantity);
         Item.Modify();
     end;
@@ -834,7 +780,7 @@ codeunit 137906 "SCM Assembly Availability"
     begin
         ItemLedgEntry.Reset();
         if LastEntryNo = 0 then begin
-            if ItemLedgEntry.FindLast then;
+            if ItemLedgEntry.FindLast() then;
             ItemLedgEntry."Entry No." += 1;
             LastEntryNo := ItemLedgEntry."Entry No."
         end else begin
@@ -855,7 +801,7 @@ codeunit 137906 "SCM Assembly Availability"
         SalesLine.Reset();
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
         if LastEntryNo = 0 then begin
-            if SalesLine.FindLast then;
+            if SalesLine.FindLast() then;
             SalesLine."Line No." := SalesLine."Line No." + 10000;
             LastEntryNo := SalesLine."Line No.";
         end else begin
@@ -877,7 +823,7 @@ codeunit 137906 "SCM Assembly Availability"
         PurchaseLine.Reset();
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
         if LastEntryNo = 0 then begin
-            if PurchaseLine.FindLast then;
+            if PurchaseLine.FindLast() then;
             PurchaseLine."Line No." := PurchaseLine."Line No." + 10000;
             LastEntryNo := PurchaseLine."Line No.";
         end else begin

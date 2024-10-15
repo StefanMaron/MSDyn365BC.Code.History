@@ -326,7 +326,7 @@ page 408 "G/L Balance by Dimension"
                     Clear(MatrixForm);
 
                     MatrixForm.Load(Rec, LineDimCode, ColumnDimCode, MATRIX_ColumnCaptions, MATRIX_PrimaryKeyFirstColInSet, MATRIX_CurrSetLength);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

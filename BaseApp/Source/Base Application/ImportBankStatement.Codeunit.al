@@ -35,7 +35,7 @@ codeunit 1200 "Import Bank Statement"
     begin
         CurrentDataExchLineDef.SetRange("Data Line Tag", ParentPath + '/' + XMLNode.LocalName);
         CurrentDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
-        if CurrentDataExchLineDef.FindFirst then begin
+        if CurrentDataExchLineDef.FindFirst() then begin
             DataExchLineDef := CurrentDataExchLineDef;
             LastGivenLineNo += 1;
             CurrentLineNo := LastGivenLineNo;
@@ -79,7 +79,7 @@ codeunit 1200 "Import Bank Statement"
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchColumnDef.SetRange(Path, Path);
 
-        if DataExchColumnDef.FindFirst then begin
+        if DataExchColumnDef.FindFirst() then begin
             ProgressWindow.Update(1, LineNo);
             if DataExchColumnDef."Use Node Name as Value" then
                 DataExchField.InsertRecXMLField(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, Name,

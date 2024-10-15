@@ -27,7 +27,7 @@ codeunit 136352 "UT T Job Task Line"
     var
         JobWIPTotal: Record "Job WIP Total";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that a Job Task can be deleted and that all Job Planning Lines and Job WIP Totals are deleted as well.
@@ -52,16 +52,16 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationNotBlockedByJobWIPEntry()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, Job Task can be edit for allowed field.
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that a Job Task can be modified:
-        JobTask.Description := LibraryUtility.GenerateGUID;
+        JobTask.Description := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         // Verify that a Job Task can't be modified, when Job WIP Entries exist for the Job.
         MockWIPEntry(Job."No.");
-        JobTask.Description := LibraryUtility.GenerateGUID;
+        JobTask.Description := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         TearDown;
@@ -72,7 +72,7 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationBlockedByJobWIPEntry_JobTaskType()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, "Job Task Type" field cannot be edit.
-        Initialize;
+        Initialize();
 
         // Job with Job Task
         SetUp;
@@ -95,7 +95,7 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationBlockedByJobWIPEntry_WIPTotal()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, "WIP-Total" field cannot be edit.
-        Initialize;
+        Initialize();
 
         // Job with Job Task
         SetUp;
@@ -118,18 +118,18 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationBlockedByJobWIPEntry_JobPostingGroup()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, "Job Posting Group" field cannot be edit.
-        Initialize;
+        Initialize();
 
         // Job with Job Task
         SetUp;
 
         // Verify that "Job Posting Group" can be modified
-        JobTask."Job Posting Group" := LibraryUtility.GenerateGUID;
+        JobTask."Job Posting Group" := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         // Verify that "Job Posting Group" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
-        JobTask."Job Posting Group" := LibraryUtility.GenerateGUID;
+        JobTask."Job Posting Group" := LibraryUtility.GenerateGUID();
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
@@ -141,18 +141,18 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationBlockedByJobWIPEntry_WIPMethod()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, "WIP Method" field cannot be edit.
-        Initialize;
+        Initialize();
 
         // Job with Job Task
         SetUp;
 
         // Verify that "WIP Method" can be modified
-        JobTask."WIP Method" := LibraryUtility.GenerateGUID;
+        JobTask."WIP Method" := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         // Verify that "WIP Method" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
-        JobTask."WIP Method" := LibraryUtility.GenerateGUID;
+        JobTask."WIP Method" := LibraryUtility.GenerateGUID();
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
@@ -164,18 +164,18 @@ codeunit 136352 "UT T Job Task Line"
     procedure ModificationBlockedByJobWIPEntry_Totaling()
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, "Totaling" field cannot be edit.
-        Initialize;
+        Initialize();
 
         // Job with Job Task
         SetUp;
 
         // Verify that "Totaling" can be modified
-        JobTask.Totaling := LibraryUtility.GenerateGUID;
+        JobTask.Totaling := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         // Verify that "Totaling" cannot be modified, when the Job WIP Entry exist for the Job.
         MockWIPEntry(JobTask."Job No.");
-        JobTask.Totaling := LibraryUtility.GenerateGUID;
+        JobTask.Totaling := LibraryUtility.GenerateGUID();
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
@@ -190,23 +190,23 @@ codeunit 136352 "UT T Job Task Line"
         TempJobTask: Record "Job Task" temporary;
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, temporary record of "Job Task" can be modified.
-        Initialize;
+        Initialize();
 
         // Job with temporary Job Task
         LibraryJob.CreateJob(Job);
         TempJobTask."Job No." := Job."No.";
-        TempJobTask."Job Task No." := LibraryUtility.GenerateGUID;
+        TempJobTask."Job Task No." := LibraryUtility.GenerateGUID();
         TempJobTask.Insert();
 
         // Verify that both "Totaling" and "Description" can be modified
-        TempJobTask.Description := LibraryUtility.GenerateGUID;
-        TempJobTask.Totaling := LibraryUtility.GenerateGUID;
+        TempJobTask.Description := LibraryUtility.GenerateGUID();
+        TempJobTask.Totaling := LibraryUtility.GenerateGUID();
         TempJobTask.Modify();
 
         // Verify that both "Totaling" and "Description" can be modified when the Job WIP Entry exist for the Job.
         MockWIPEntry(Job."No.");
-        TempJobTask.Description := LibraryUtility.GenerateGUID;
-        TempJobTask.Totaling := LibraryUtility.GenerateGUID;
+        TempJobTask.Description := LibraryUtility.GenerateGUID();
+        TempJobTask.Totaling := LibraryUtility.GenerateGUID();
         TempJobTask.Modify();
     end;
 
@@ -217,11 +217,11 @@ codeunit 136352 "UT T Job Task Line"
         Value: array[2] of Code[20];
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, Job Task cannot be renamed.
-        Initialize;
+        Initialize();
         SetUp;
 
-        Value[1] := LibraryUtility.GenerateGUID;
-        Value[2] := LibraryUtility.GenerateGUID;
+        Value[1] := LibraryUtility.GenerateGUID();
+        Value[2] := LibraryUtility.GenerateGUID();
 
         // Verify that the Job Task can be renamed
         JobTask.Find;
@@ -246,16 +246,16 @@ codeunit 136352 "UT T Job Task Line"
         Value: array[2] of Code[20];
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, temporary record of "Job Task" can be renamed.
-        Initialize;
+        Initialize();
 
         // Job with temporary Job Task
         LibraryJob.CreateJob(Job);
         TempJobTask."Job No." := Job."No.";
-        TempJobTask."Job Task No." := LibraryUtility.GenerateGUID;
+        TempJobTask."Job Task No." := LibraryUtility.GenerateGUID();
         TempJobTask.Insert();
 
-        Value[1] := LibraryUtility.GenerateGUID;
-        Value[2] := LibraryUtility.GenerateGUID;
+        Value[1] := LibraryUtility.GenerateGUID();
+        Value[2] := LibraryUtility.GenerateGUID();
 
         // Verify that the temporary record "Job Task" can be renamed
         TempJobTask.Rename(Job."No.", Value[1]);
@@ -273,7 +273,7 @@ codeunit 136352 "UT T Job Task Line"
     [Scope('OnPrem')]
     procedure TestJobTaskType()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         with JobTask do begin
@@ -303,11 +303,11 @@ codeunit 136352 "UT T Job Task Line"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Validate that WIP Method is set correctly when WIP-Total is defined.
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         Job."WIP Method" := JobWIPMethod.Code;
         Job.Modify();
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
@@ -332,17 +332,17 @@ codeunit 136352 "UT T Job Task Line"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Verify that WIP Method can be changed when WIP-Total is total.
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         JobTask.Validate("WIP Method", JobWIPMethod.Code);
         Assert.AreEqual(JobWIPMethod.Code, JobTask."WIP Method", 'WIP Method cant be changed, even if WIP Total is total.');
 
         // Verify that WIP Method can't be set when WIP-Total is different from Total.
-        JobWIPMethod.FindLast;
+        JobWIPMethod.FindLast();
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::" ");
         asserterror JobTask.Validate("WIP Method", JobWIPMethod.Code);
 
@@ -356,12 +356,12 @@ codeunit 136352 "UT T Job Task Line"
         JobPlanningLineSet: Record "Job Planning Line";
         RemainingTotalCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         JobPlanningLineSet.SetRange("Job No.", Job."No.");
         JobPlanningLineSet.SetRange("Job Task No.", JobTask."Job Task No.");
-        if JobPlanningLineSet.FindSet then
+        if JobPlanningLineSet.FindSet() then
             repeat
                 RemainingTotalCost += JobPlanningLineSet."Remaining Total Cost (LCY)";
             until JobPlanningLineSet.Next = 0;
@@ -379,12 +379,12 @@ codeunit 136352 "UT T Job Task Line"
         JobPlanningLineSet: Record "Job Planning Line";
         RemainingTotalPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         JobPlanningLineSet.SetRange("Job No.", Job."No.");
         JobPlanningLineSet.SetRange("Job Task No.", JobTask."Job Task No.");
-        if JobPlanningLineSet.FindSet then
+        if JobPlanningLineSet.FindSet() then
             repeat
                 RemainingTotalPrice += JobPlanningLineSet."Remaining Line Amount (LCY)";
             until JobPlanningLineSet.Next = 0;
@@ -403,11 +403,11 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPMethod: Record "Job WIP Method";
         JobWIPTotal: Record "Job WIP Total";
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Test that InitWIPFields initalizes all fields correctly.
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         with JobTask do begin
             "Recognized Sales Amount" := 1;
             "Recognized Costs Amount" := 1;
@@ -464,7 +464,7 @@ codeunit 136352 "UT T Job Task Line"
     begin
         // [FEATURE] [UT] [Job Task] [Purchase Line]
         // [SCENARIO 265274] ApplyPurchLineFilters returns PurchaseLine rec filtered for Order, Job No., Job Task No.
-        Initialize;
+        Initialize();
 
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -489,12 +489,12 @@ codeunit 136352 "UT T Job Task Line"
     begin
         // [FEATURE] [UT] [Job Task] [Purchase Line]
         // [SCENARIO 265274] ApplyPurchLineFilters returns PurchaseLine rec filtered for Order, Job No., Job Task No. = JobTask.Totaling
-        Initialize;
+        Initialize();
 
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask."Job Task Type" := JobTask."Job Task Type"::"End-Total";
-        JobTask.Totaling := LibraryUtility.GenerateGUID;
+        JobTask.Totaling := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
         JobTask.ApplyPurchaseLineFilters(PurchaseLine, JobTask."Job No.", JobTask."Job Task No.");
@@ -516,7 +516,7 @@ codeunit 136352 "UT T Job Task Line"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job Task Line");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Task Line");

@@ -52,7 +52,7 @@ codeunit 5062 SegCriteriaManagement
 
         SegCriteriaLine.LockTable();
         SegCriteriaLine.SetRange("Segment No.", SegmentNo);
-        if SegCriteriaLine.FindLast then
+        if SegCriteriaLine.FindLast() then
             NextLineNo := SegCriteriaLine."Line No." + 1
         else
             NextLineNo := 1;
@@ -95,7 +95,7 @@ codeunit 5062 SegCriteriaManagement
             exit;
 
         SegCriteriaLine.SetRange("Segment No.", SegmentNo);
-        if SegCriteriaLine.FindLast then
+        if SegCriteriaLine.FindLast() then
             NextLineNo := SegCriteriaLine."Line No." + 1
         else
             NextLineNo := 1;
@@ -113,7 +113,7 @@ codeunit 5062 SegCriteriaManagement
         SegCriteriaLine.SetCurrentKey("Segment No.", Type);
         SegCriteriaLine.SetRange("Segment No.", SegmentNo);
         SegCriteriaLine.SetRange(Type, SegCriteriaLine.Type::Action);
-        SegCriteriaLine.FindLast;
+        SegCriteriaLine.FindLast();
         SegCriteriaLine."No. of Filters" := SegCriteriaLine."No. of Filters" + 1;
         OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineModify(SegCriteriaLine);
         SegCriteriaLine.Modify();
@@ -145,7 +145,7 @@ codeunit 5062 SegCriteriaManagement
                       "Profile Questionnaire Code", ProfileQuestionnaireLine."Profile Questionnaire Code");
                     ContProfileAnswer.CopyFilter("Line No.", ProfileQuestionnaireLine."Line No.");
                     if ProfileQuestionnaireLine.Count = 1 then begin
-                        ProfileQuestionnaireLine.FindFirst;
+                        ProfileQuestionnaireLine.FindFirst();
                         exit(SelectStr(1, ContProfileAnswer.GetFilters) + ', ' +
                           ProfileQuestionnaireLine.Question + ': ' + ProfileQuestionnaireLine.Description);
                     end;

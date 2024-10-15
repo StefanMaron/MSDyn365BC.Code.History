@@ -101,7 +101,7 @@ page 121 "G/L Budget Names"
                     Budget: Page Budget;
                 begin
                     Budget.SetBudgetName(Name);
-                    Budget.Run;
+                    Budget.Run();
                 end;
             }
             group(ReportGroup)

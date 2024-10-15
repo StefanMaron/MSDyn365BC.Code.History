@@ -555,7 +555,7 @@ page 9271 "Qualification Overview Matrix"
     begin
         EmployeeQualification.SetRange("Employee No.", "No.");
         EmployeeQualification.SetRange("Qualification Code", MatrixRecords[ColumnID].Code);
-        Qualified := EmployeeQualification.FindFirst;
+        Qualified := EmployeeQualification.FindFirst();
         EmployeeQualification.SetRange("Employee No.");
         EmployeeQualification.SetRange("Qualification Code");
         MATRIX_CellData[ColumnID] := Qualified;

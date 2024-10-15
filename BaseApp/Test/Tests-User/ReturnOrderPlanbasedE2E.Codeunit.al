@@ -28,7 +28,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as business manager
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
@@ -54,7 +54,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as external accountant
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
@@ -80,7 +80,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as team member
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
@@ -89,7 +89,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         asserterror CreateCustomer(TempCustomerDetails);
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Commit();
 
         // [GIVEN] A posted sales invoice
@@ -119,7 +119,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as Essential ISV Emb User
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
@@ -145,7 +145,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as team member ISV Emb
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
@@ -155,7 +155,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Commit();
 
         // [GIVEN] A posted sales invoice
@@ -186,7 +186,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as Device ISV Emb User
-        Initialize;
+        Initialize();
         FindCustomerPostingAndVATSetup(TempCustomerDetails);
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
@@ -212,7 +212,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as business manager
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
@@ -238,7 +238,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as external accountant
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
@@ -265,7 +265,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as team member
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
@@ -274,7 +274,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         asserterror CreateVendor(TempVendorDetails);
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Commit();
 
         // [GIVEN] A posted purchase invoice
@@ -304,7 +304,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as essential ISV emb user
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
@@ -331,7 +331,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as team member ISV Emb
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
@@ -341,7 +341,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Commit();
 
         // [GIVEN] A posted purchase invoice
@@ -372,7 +372,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as Device ISV emb user
-        Initialize;
+        Initialize();
         FindVendorPostingAndVATSetup(TempVendorDetails);
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
@@ -414,11 +414,11 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryPurchase.SetReturnOrderNoSeriesInSetup;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryTemplates.UpdateTemplatesVATGroups();
 
         isInitialized := true;
@@ -453,7 +453,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
         SalesReturnOrderNo := SalesReturnOrder."No.".Value;
@@ -465,7 +465,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         PurchaseReturnOrder."Buy-from Vendor No.".SetValue(VendorNo);
         PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
         PurchaseReturnOrderNo := PurchaseReturnOrder."No.".Value;
@@ -479,7 +479,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer No.".SetValue(CustomerNo);
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesInvoice.SalesLines."No.".SetValue(CreateItem);
@@ -494,7 +494,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor No.".SetValue(VendorNo);
         PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Vendor Invoice No.")));
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
@@ -509,7 +509,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -521,7 +521,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(TempVendorDetails."Gen. Bus. Posting Group");
         VendorCard."VAT Bus. Posting Group".SetValue(TempVendorDetails."VAT Bus. Posting Group");
@@ -536,7 +536,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(TempCustomerDetails."Gen. Bus. Posting Group");
         CustomerCard."VAT Bus. Posting Group".SetValue(TempCustomerDetails."VAT Bus. Posting Group");

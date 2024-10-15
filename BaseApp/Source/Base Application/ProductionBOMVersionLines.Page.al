@@ -196,7 +196,7 @@ page 99000789 "Production BOM Version Lines"
                     ProdBOMWhereUsed.SetProdBOM(ProdBOMHeader, ProdBOMVersion."Starting Date");
                 end;
         end;
-        ProdBOMWhereUsed.Run;
+        ProdBOMWhereUsed.Run();
     end;
 }
 

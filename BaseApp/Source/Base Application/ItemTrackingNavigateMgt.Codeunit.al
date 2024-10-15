@@ -722,7 +722,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetRange("Item No.", ItemLedgEntry."Item No.");
             SetRange("Variant Code", ItemLedgEntry."Variant Code");
             SetRange("Source Line No.", ItemLedgEntry."Document Line No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 RecRef.GetTable(PostedWhseShptLine);
                 InsertBufferRecFromItemLedgEntry;
                 TempPostedWhseShptLine := PostedWhseShptLine;
@@ -746,7 +746,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetRange("Item No.", ItemLedgEntry."Item No.");
             SetRange("Variant Code", ItemLedgEntry."Variant Code");
             SetRange("Source Line No.", ItemLedgEntry."Document Line No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 RecRef.GetTable(PostedWhseRcptLine);
                 InsertBufferRecFromItemLedgEntry;
                 TempPostedWhseRcptLine := PostedWhseRcptLine;
@@ -820,7 +820,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
         ProdOrder.SetRange(Status, ProdOrder.Status::Released, ProdOrder.Status::Finished);
         ProdOrder.SetRange("No.", DocumentNo);
-        if ProdOrder.FindFirst then begin
+        if ProdOrder.FindFirst() then begin
             RecRef.GetTable(ProdOrder);
             InsertBufferRecFromItemLedgEntry;
             TempProdOrder := ProdOrder;

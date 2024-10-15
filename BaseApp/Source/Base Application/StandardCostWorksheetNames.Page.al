@@ -64,7 +64,7 @@ page 5840 "Standard Cost Worksheet Names"
 
     trigger OnOpenPage()
     begin
-        if not StdCostWkshName.FindFirst then begin
+        if not StdCostWkshName.FindFirst() then begin
             StdCostWkshName.Init();
             StdCostWkshName.Name := Text001;
             StdCostWkshName.Description := Text001;

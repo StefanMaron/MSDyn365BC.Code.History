@@ -364,7 +364,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.SetRange(Blocked, false);
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
         GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
@@ -412,10 +412,10 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         with GenPostingSetup do begin
             Get(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group");
-            "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
-            "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-            "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+            "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+            "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+            "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
             Modify(true);
         end;
     end;
@@ -469,7 +469,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with VATEntry do begin
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -479,7 +479,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with CustLedgerEntry do begin
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -489,7 +489,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         with VendLedgerEntry do begin
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Transaction No.");
         end;
     end;
@@ -499,7 +499,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         ReversalEntry: Record "Reversal Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
         exit(GLRegister."No.");
@@ -543,7 +543,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetRange("No.", GLRegisterNo);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
         Assert.AreEqual(true, GLRegister.Reversed, ReverseSignErr);
     end;
 

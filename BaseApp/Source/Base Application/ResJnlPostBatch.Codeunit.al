@@ -92,7 +92,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
 
             // Find next register no.
             ResLedgEntry.LockTable();
-            if ResLedgEntry.FindLast then;
+            if ResLedgEntry.FindLast() then;
             ResReg.LockTable();
             if ResReg.FindLast and (ResReg."To Entry No." = 0) then
                 ResRegNo := ResReg."No."
@@ -184,7 +184,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     ResJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                     ResJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     if ResJnlTemplate."Increment Batch Name" then
-                        if not ResJnlLine3.FindLast then
+                        if not ResJnlLine3.FindLast() then
                             if IncStr("Journal Batch Name") <> '' then begin
                                 ResJnlBatch.Delete();
                                 ResJnlBatch.Name := IncStr("Journal Batch Name");
@@ -193,7 +193,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                             end;
 
                     ResJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                    if (ResJnlBatch."No. Series" = '') and not ResJnlLine3.FindLast then begin
+                    if (ResJnlBatch."No. Series" = '') and not ResJnlLine3.FindLast() then begin
                         ResJnlLine3.Init();
                         ResJnlLine3."Journal Template Name" := "Journal Template Name";
                         ResJnlLine3."Journal Batch Name" := "Journal Batch Name";

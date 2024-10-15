@@ -241,10 +241,10 @@ page 1027 "Job WIP Cockpit"
                     begin
                         Job.Copy(Rec);
                         CurrPage.SetSelectionFilter(Job);
-                        if Job.FindSet then
+                        if Job.FindSet() then
                             repeat
                                 JobWIPWarning.SetRange("Job No.", Job."No.");
-                                if JobWIPWarning.FindSet then
+                                if JobWIPWarning.FindSet() then
                                     repeat
                                         TempJobWIPWarning := JobWIPWarning;
                                         TempJobWIPWarning.Insert();
@@ -347,7 +347,7 @@ page 1027 "Job WIP Cockpit"
                         if Confirm(Text001) then begin
                             Job.Copy(Rec);
                             CurrPage.SetSelectionFilter(Job);
-                            if Job.FindSet then
+                            if Job.FindSet() then
                                 repeat
                                     JobCalculateWIP.DeleteWIP(Job);
                                 until Job.Next() = 0;
@@ -375,10 +375,10 @@ page 1027 "Job WIP Cockpit"
                         if Confirm(Text003) then begin
                             Job.Copy(Rec);
                             CurrPage.SetSelectionFilter(Job);
-                            if Job.FindSet then
+                            if Job.FindSet() then
                                 repeat
                                     JobWIPEntry.SetRange("Job No.", Job."No.");
-                                    if not JobWIPEntry.FindFirst then
+                                    if not JobWIPEntry.FindFirst() then
                                         FailedJobs := FailedJobs + Job."No." + ', '
                                     else
                                         JobCalculateWIP.JobCalcWIP(Job, Job."WIP Posting Date", JobWIPEntry."Document No.");

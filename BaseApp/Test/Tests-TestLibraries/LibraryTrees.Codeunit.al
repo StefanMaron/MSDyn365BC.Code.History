@@ -22,19 +22,19 @@ codeunit 132208 "Library - Trees"
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 LibraryAssembly.ModifyItem(TempItem."No.", true, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
             until TempItem.Next = 0;
 
-        if TempResource.FindSet then
+        if TempResource.FindSet() then
             repeat
                 Resource.Get(TempResource."No.");
                 Resource.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
                 Resource.Modify(true);
             until TempResource.Next = 0;
 
-        if TempWorkCenter.FindSet then
+        if TempWorkCenter.FindSet() then
             repeat
                 WorkCenter.Get(TempWorkCenter."No.");
                 WorkCenter.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
@@ -42,7 +42,7 @@ codeunit 132208 "Library - Trees"
                 WorkCenter.Modify(true);
             until TempWorkCenter.Next = 0;
 
-        if TempMachineCenter.FindSet then
+        if TempMachineCenter.FindSet() then
             repeat
                 MachineCenter.Get(TempMachineCenter."No.");
                 MachineCenter.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
@@ -57,14 +57,14 @@ codeunit 132208 "Library - Trees"
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
     begin
-        if TempWorkCenter.FindSet then
+        if TempWorkCenter.FindSet() then
             repeat
                 WorkCenter.Get(TempWorkCenter."No.");
                 WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
                 WorkCenter.Modify(true);
             until TempWorkCenter.Next = 0;
 
-        if TempMachineCenter.FindSet then
+        if TempMachineCenter.FindSet() then
             repeat
                 MachineCenter.Get(TempMachineCenter."No.");
                 MachineCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
@@ -78,7 +78,7 @@ codeunit 132208 "Library - Trees"
         WorkCenter: Record "Work Center";
         Vendor: Record Vendor;
     begin
-        if TempWorkCenter.FindSet then begin
+        if TempWorkCenter.FindSet() then begin
             TempWorkCenter.Next(LibraryRandom.RandInt(TempWorkCenter.Count));
             WorkCenter.Get(TempWorkCenter."No.");
             LibraryPurchase.CreateSubcontractor(Vendor);
@@ -92,7 +92,7 @@ codeunit 132208 "Library - Trees"
     var
         Item: Record Item;
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 Item.Get(TempItem."No.");
                 Item.Validate("Scrap %", LibraryRandom.RandInt(10));
@@ -106,13 +106,13 @@ codeunit 132208 "Library - Trees"
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 if RoutingHeader.Get(TempItem."Routing No.") then begin
                     RoutingHeader.Validate(Status, RoutingHeader.Status::"Under Development");
                     RoutingHeader.Modify(true);
                     RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             RoutingLine.Validate("Scrap Factor %", LibraryRandom.RandInt(10));
                             RoutingLine.Modify(true);
@@ -129,14 +129,14 @@ codeunit 132208 "Library - Trees"
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMLine: Record "Production BOM Line";
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 if ProdBOMHeader.Get(TempItem."Production BOM No.") then begin
                     ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::"Under Development");
                     ProdBOMHeader.Modify(true);
                     ProdBOMLine.SetRange("Production BOM No.", ProdBOMHeader."No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             ProdBOMLine.Validate("Scrap %", LibraryRandom.RandInt(10));
                             ProdBOMLine.Modify(true);
@@ -152,7 +152,7 @@ codeunit 132208 "Library - Trees"
     var
         MachineCenter: Record "Machine Center";
     begin
-        if TempMachineCenter.FindSet then
+        if TempMachineCenter.FindSet() then
             repeat
                 MachineCenter.Get(TempMachineCenter."No.");
                 MachineCenter.Validate("Scrap %", LibraryRandom.RandInt(10));
@@ -176,7 +176,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     BOMComponent.SetRange("Parent Item No.", Item."No.");
                     BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             LibraryInventory.CreateItemVariant(ItemVariant, BOMComponent."No.");
                             BOMComponent.Validate("Variant Code", ItemVariant.Code);
@@ -191,7 +191,7 @@ codeunit 132208 "Library - Trees"
                     ProdBOMHeader.Modify();
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             LibraryInventory.CreateItemVariant(ItemVariant, ProdBOMLine."No.");
                             ProdBOMLine.Validate("Variant Code", ItemVariant.Code);
@@ -279,7 +279,7 @@ codeunit 132208 "Library - Trees"
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
 
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 BOMComponent.CalcFields("Assembly BOM");
                 if BOMComponent."Assembly BOM" then begin
@@ -367,7 +367,7 @@ codeunit 132208 "Library - Trees"
                     LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, false, false);
                     ProdOrderLine.SetRange(Status, ProductionOrder.Status);
                     ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-                    if ProdOrderLine.FindFirst then begin
+                    if ProdOrderLine.FindFirst() then begin
                         ProdOrderLine.Validate("Variant Code", VariantCode);
                         ProdOrderLine.Modify(true);
                     end;
@@ -408,7 +408,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     BOMComponent.SetRange("Parent Item No.", Item."No.");
                     BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Item1.Get(BOMComponent."No.");
                             LocalRolledUpMaterialCost := 0;
@@ -429,7 +429,7 @@ codeunit 132208 "Library - Trees"
                         until BOMComponent.Next = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Resource.Get(BOMComponent."No.");
 
@@ -457,7 +457,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             Item1.Get(ProdBOMLine."No.");
                             LocalRolledUpMaterialCost := 0;
@@ -479,7 +479,7 @@ codeunit 132208 "Library - Trees"
 
                     RoutingLine.SetRange("Routing No.", Item."Routing No.");
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             WorkCenter.Get(RoutingLine."No.");
                             RolledUpCapacityCost += (RoutingLine."Run Time" + RoutingLine."Setup Time" / LotSize) * WorkCenter."Direct Unit Cost";
@@ -493,7 +493,7 @@ codeunit 132208 "Library - Trees"
                         until RoutingLine.Next = 0;
 
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             MachineCenter.Get(RoutingLine."No.");
                             RolledUpCapacityCost +=
@@ -554,14 +554,14 @@ codeunit 132208 "Library - Trees"
                 begin
                     BOMComponent.SetRange("Parent Item No.", Item."No.");
                     BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Item1.Get(BOMComponent."No.");
                             GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item1);
                         until BOMComponent.Next = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Resource.Get(BOMComponent."No.");
                             TempResource := Resource;
@@ -572,7 +572,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             Item1.Get(ProdBOMLine."No.");
                             GetTree(TempItem, TempResource, TempWorkCenter, TempMachineCenter, Item1);
@@ -580,7 +580,7 @@ codeunit 132208 "Library - Trees"
 
                     RoutingLine.SetRange("Routing No.", Item."Routing No.");
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             WorkCenter.Get(RoutingLine."No.");
                             TempWorkCenter := WorkCenter;
@@ -588,7 +588,7 @@ codeunit 132208 "Library - Trees"
                         until RoutingLine.Next = 0;
 
                     RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             MachineCenter.Get(RoutingLine."No.");
                             TempMachineCenter := MachineCenter;
@@ -623,7 +623,7 @@ codeunit 132208 "Library - Trees"
                 begin
                     BOMComponent.SetRange("Parent Item No.", Item."No.");
                     BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Item1.Get(BOMComponent."No.");
                             LocalRolledUpScrapAmount := 0;
@@ -632,7 +632,7 @@ codeunit 132208 "Library - Trees"
                         until BOMComponent.Next = 0;
 
                     BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-                    if BOMComponent.FindSet then
+                    if BOMComponent.FindSet() then
                         repeat
                             Resource.Get(BOMComponent."No.");
 
@@ -653,7 +653,7 @@ codeunit 132208 "Library - Trees"
 
                     ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
                     ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-                    if ProdBOMLine.FindSet then
+                    if ProdBOMLine.FindSet() then
                         repeat
                             Item1.Get(ProdBOMLine."No.");
                             LocalRolledUpScrapAmount := 0;
@@ -669,7 +669,7 @@ codeunit 132208 "Library - Trees"
                         until ProdBOMLine.Next = 0;
 
                     ProcessedScrapPercentage := 1;
-                    if RoutingLine.FindSet then
+                    if RoutingLine.FindSet() then
                         repeat
                             if RoutingLine.Type = RoutingLine.Type::"Work Center" then begin
                                 WorkCenter.Get(RoutingLine."No.");
@@ -700,7 +700,7 @@ codeunit 132208 "Library - Trees"
         ScrapPercentage: Decimal;
     begin
         ScrapPercentage := 1;
-        if RoutingLine.FindSet then
+        if RoutingLine.FindSet() then
             repeat
                 ScrapPercentage *= 1 + RoutingLine."Scrap Factor %" / 100;
             until RoutingLine.Next = 0;
@@ -740,7 +740,7 @@ codeunit 132208 "Library - Trees"
         if (Item."No." <> '') and (Item."Replenishment System" = Item."Replenishment System"::Assembly) then begin
             BOMComponent.SetRange("Parent Item No.", No);
             BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-            if BOMComponent.FindSet then
+            if BOMComponent.FindSet() then
                 repeat
                     if BOMComponent."No." = LeafItemNo then begin
                         QtyPerParent := BOMComponent."Quantity per";
@@ -764,7 +764,7 @@ codeunit 132208 "Library - Trees"
            (Item."No." <> '') and (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order")
         then begin
             ProdBOMLine.SetRange("Production BOM No.", BOMNo);
-            if ProdBOMLine.FindSet then
+            if ProdBOMLine.FindSet() then
                 repeat
                     if ProdBOMLine.Type = ProdBOMLine.Type::"Production BOM" then
                         QtyPerParent := ProdBOMLine."Quantity per"

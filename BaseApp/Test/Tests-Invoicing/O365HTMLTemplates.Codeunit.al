@@ -41,7 +41,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Estimate cover letter body contains company information data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare company info data and sales quote
         PrepareCompanyInfoScenario(SalesHeader, SalesHeader."Document Type"::Quote);
@@ -69,7 +69,7 @@ codeunit 138929 "O365 HTML Templates"
         EmailBodyText: Text;
     begin
         // [SCENARIO] Estimate cover letter body contains document data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoicing App permissions
         LibraryLowerPermissions.SetInvoiceApp;
@@ -115,7 +115,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Estimate cover letter body contains socials data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare sales quote and set of socials
         PrepareSocialsScenario(SalesHeader, O365SocialNetwork, SalesHeader."Document Type"::Quote);
@@ -140,7 +140,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Socials without URL do not go to estimate cover letter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Run codeunit O365 Sales Initial Setup
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
@@ -172,7 +172,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Socials without URL do not go to estimate cover letter
-        Initialize;
+        Initialize();
 
         // [GIVEN] Run codeunit O365 Sales Initial Setup
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
@@ -183,7 +183,7 @@ codeunit 138929 "O365 HTML Templates"
         // [GIVEN] Set of social networks created with no media ref (or invalid)
         CreateSocials(O365SocialNetwork);
         O365SocialNetwork.ModifyAll("Media Resources Ref", '');
-        O365SocialNetwork.FindFirst;
+        O365SocialNetwork.FindFirst();
         O365SocialNetwork."Media Resources Ref" := 'INVALID';
         O365SocialNetwork.Modify();
 
@@ -206,7 +206,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Draft invoice cover letter body contains address data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare company info data and sales invoice
         PrepareCompanyInfoScenario(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -234,7 +234,7 @@ codeunit 138929 "O365 HTML Templates"
         EmailBodyText: Text;
     begin
         // [SCENARIO] Draft invoice cover letter body contains document data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoicing App permissions
         LibraryLowerPermissions.SetInvoiceApp;
@@ -277,7 +277,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Draft invoice cover letter body contains socials data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare sales invoice and set of socials
         PrepareSocialsScenario(SalesHeader, O365SocialNetwork, SalesHeader."Document Type"::Invoice);
@@ -301,7 +301,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Estimate cover letter body contains address data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with Name, Address, Address 2, Post Code, City, County, Country Code and Phone No.
         InitCompanyInfoData;
@@ -336,7 +336,7 @@ codeunit 138929 "O365 HTML Templates"
         EmailBodyText: Text;
     begin
         // [SCENARIO] Sent invoice cover letter body contains document data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoicing App permissions
         LibraryLowerPermissions.SetInvoiceApp;
@@ -379,7 +379,7 @@ codeunit 138929 "O365 HTML Templates"
         HTMLText: Text;
     begin
         // [SCENARIO] Sent invoice cover letter body contains socials data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Run codeunit O365 Sales Initial Setup
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
@@ -409,7 +409,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 214846] Backslashes used for social url converted to slashes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Socials URL https:\\facebook.com\microsoft where backslashes used instead of slashes
         Url := 'https:\\facebook.com\microsoft';
@@ -432,7 +432,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215922] Missed Socials URL http prefix is added during the URL validation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Socials URL facebook.com/microsoft
         Url := 'facebook.com/microsoft';
@@ -455,7 +455,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215922] Socials URL with http prefix is not changed during the URL validation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Socials URL facebook.com/microsoft
         Url := 'http://facebook.com/microsoft';
@@ -480,7 +480,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc makes proper string for Bmp image
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record with Bmp image
         CreateTempBLOBImage(TempBlob, DummyImageFormat::Bmp);
@@ -505,7 +505,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc makes proper string for Jpeg image
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record with Jpeg image
         CreateTempBLOBImage(TempBlob, DummyImageFormat::Jpeg);
@@ -530,7 +530,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc makes proper string for Png image
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record with Png image
         CreateTempBLOBImage(TempBlob, DummyImageFormat::Png);
@@ -555,7 +555,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc makes proper string for Tiff image
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record with Tiff image
         CreateTempBLOBImage(TempBlob, DummyImageFormat::Tiff);
@@ -580,7 +580,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc returns empty string for empty BLOB
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record with empty blob
 
@@ -605,7 +605,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARO 215330] TempBlob.GetHTMLImgSrc returns empty string for non image BLOB value
-        Initialize;
+        Initialize();
 
         // [GIVEN] TempBlob record which contains some text
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::Windows);
@@ -634,7 +634,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 215925] Unit test for ReplaceBodySentTo function
-        Initialize;
+        Initialize();
 
         // [GIVEN] Run codeunit O365 Sales Initial Setup
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
@@ -675,7 +675,7 @@ codeunit 138929 "O365 HTML Templates"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 216661] Local language values should be displayed correctly
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoicing App permissions
         LibraryLowerPermissions.SetInvoiceApp;
@@ -957,7 +957,7 @@ codeunit 138929 "O365 HTML Templates"
 
     local procedure VerifySocialsPart(var O365SocialNetwork: Record "O365 Social Network"; HTMLText: Text)
     begin
-        if O365SocialNetwork.FindSet then
+        if O365SocialNetwork.FindSet() then
             repeat
                 VerifyValueExists(HTMLText, O365SocialNetwork.Name, O365SocialNetwork.FieldName(Name));
                 VerifyValueExists(HTMLText, O365SocialNetwork.URL, O365SocialNetwork.FieldName(URL));
@@ -966,7 +966,7 @@ codeunit 138929 "O365 HTML Templates"
 
     local procedure VerifyNoSocialsPart(var O365SocialNetwork: Record "O365 Social Network"; HTMLText: Text)
     begin
-        if O365SocialNetwork.FindSet then
+        if O365SocialNetwork.FindSet() then
             repeat
                 VerifyValueDoesNotExist(HTMLText, O365SocialNetwork.Name, O365SocialNetwork.FieldName(Name));
                 VerifyValueDoesNotExist(HTMLText, O365SocialNetwork.URL, O365SocialNetwork.FieldName(URL));

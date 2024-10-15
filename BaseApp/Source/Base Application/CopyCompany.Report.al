@@ -87,7 +87,7 @@ report 357 "Copy Company"
                 ProgressWindow.Close;
                 SetNewNameToNewCompanyInfo;
                 JobQueueManagement.SetRecurringJobsOnHold(NewCompanyName);
-                OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName);
+                OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName, Company);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
             end;
@@ -252,7 +252,7 @@ report 357 "Copy Company"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName: Text[30])
+    local procedure OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName: Text[30]; Company: Record Company)
     begin
     end;
 

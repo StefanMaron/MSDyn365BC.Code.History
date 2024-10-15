@@ -50,12 +50,12 @@ codeunit 136121 "Service Reservation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Reservation");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         Commit();
         BindSubscription(LibraryJobQueue);
@@ -74,7 +74,7 @@ codeunit 136121 "Service Reservation"
         // user tries to make a Reservation.
 
         // 1. Setup: Create a new Item with Reserve as Never, Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Never);
         CreateServiceDocument(ServiceLine, '', Item."No.", ServiceLine."Document Type"::Order);
 
@@ -107,7 +107,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and Post it as Receive.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndPostPurchaseOrder(Item."No.", Quantity);
@@ -132,7 +132,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndReleasePurchaseOrder(Item."No.", Quantity);
@@ -157,7 +157,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Production Order and refresh it. Create a new Service Order - Service
         // Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateFirmPlannedOrder(Item."No.", Quantity);
@@ -197,7 +197,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and Post it as Receive.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndPostPurchaseOrder(Item."No.", Quantity);
@@ -223,7 +223,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndReleasePurchaseOrder(Item."No.", Quantity);
@@ -249,7 +249,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Always, new Production Order and refresh it. Create a new Service Order - Service
         // Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateFirmPlannedOrder(Item."No.", Quantity);
@@ -289,7 +289,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Purchase Order - Purchase Header, Purchase Line and Post it as Receive.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndPostPurchaseOrder(Item."No.", Quantity);
@@ -315,7 +315,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndReleasePurchaseOrder(Item."No.", Quantity);
@@ -341,7 +341,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Production Order and refresh it. Create a new Service Order - Service
         // Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateFirmPlannedOrder(Item."No.", Quantity);
@@ -381,7 +381,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Purchase Order - Purchase Header, Purchase Line and Post it as Receive.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndPostPurchaseOrder(Item."No.", Quantity);
@@ -407,7 +407,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndReleasePurchaseOrder(Item."No.", Quantity);
@@ -433,7 +433,7 @@ codeunit 136121 "Service Reservation"
 
         // Setup: Create a new Item with Reserve as Optional, new Production Order and refresh it. Create a new Service Order -
         // Service Header and Service Line.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateFirmPlannedOrder(Item."No.", Quantity);
@@ -472,7 +472,7 @@ codeunit 136121 "Service Reservation"
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and Post it as Receive.
         // Create a new Service Order - Service Header, Service Item Line and Service Line. Input a Quantity in Service Line that is
         // less than Quantity in Purchase Order and Auto Reserve.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndPostPurchaseOrder(Item."No.", Quantity);
@@ -499,7 +499,7 @@ codeunit 136121 "Service Reservation"
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header, Service Item Line and Service Line. Input a Quantity in Service Line that is
         // less than Quantity in Purchase Order and Auto Reserve.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateReleasePostPurchaseOrder(Item."No.", Quantity);
@@ -527,7 +527,7 @@ codeunit 136121 "Service Reservation"
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header, Service Item Line and Service Line. Input a Quantity in Service Line that is
         // less than Quantity in Purchase Order and Auto Reserve.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateReleaseFirmPlannedOrder(Item."No.", Quantity);
@@ -572,7 +572,7 @@ codeunit 136121 "Service Reservation"
         // Setup: Create a new Item with Reserve as Always, new Purchase Order - Purchase Header, Purchase Line and release it.
         // Create a new Service Order - Service Header, Service Item Line and Service Line. Input a Quantity in Service Line that is
         // less than Quantity in Purchase Order and Auto Reserve.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateAndReleasePurchaseOrder(Item."No.", Quantity);
@@ -600,7 +600,7 @@ codeunit 136121 "Service Reservation"
         // Setup: Create a new Item with Reserve as Always, new Firm Planned Production Order and refresh it. Create a new Service
         // Order - Service Header, Service Item Line and Service Line. Input a Quantity in Service Line that is less than Quantity in
         // Production Order and Auto Reserve.
-        Initialize;
+        Initialize();
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
         LocationCode := CreateFirmPlannedOrder(Item."No.", Quantity);
@@ -624,7 +624,7 @@ codeunit 136121 "Service Reservation"
         // Check that no Entry to Reserve available when there is no source to reserve from.
 
         // 1. Setup: Create Item with Reserve Optional, Create Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         ItemNo := Item."No.";  // Assign Item No. to global variable.
@@ -650,7 +650,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantities on Reservation Page of Service Lines after posting Purchase Order and reservation is optional.
 
         // 1. Setup: Find Customer, Create Item with Reserve Optional, Create and post Purchase Order, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         AssignGlobalVariables(Item."No.");
@@ -682,7 +682,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Find a Customer, Create Item, Create and post Purchase Order.
         // [GIVEN] Service order with service line for item "X" and "X" has been reserved
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Always);
         AssignGlobalVariables(Item."No.");
@@ -698,7 +698,7 @@ codeunit 136121 "Service Reservation"
         // 3. Verify: Verify that Quantity on Service Line is Automatically Reserved. Verification done on Reservation Handler.
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         // [WHEN] Cassie changes item from "X" to "Y"
         asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
 
@@ -722,7 +722,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantities on Reservation Entries Page of Service Lines after posting Purchase Order and reservation is Always.
 
         // 1. Setup: Create Item, Purchase Order with Item Tracking assigned and post it. Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryPurchase.CreateVendor(Vendor);
         QuantityOnServiceLine := LibraryRandom.RandInt(5);  // Taking random integer value.
@@ -756,7 +756,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantities on Reservation Page of Service Lines after posting Purchase Order and Auto Reserving from Reservation.
 
         // 1. Setup: Find Customer, Create Item, Create and post Purchase Order, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         AssignGlobalVariables(Item."No.");
@@ -786,7 +786,7 @@ codeunit 136121 "Service Reservation"
         // Check Item Tracking Quantity on Item Tracking Lines Page after creating Service Order from Service Quote.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create Service Quote with Item Tracking.
-        Initialize;
+        Initialize();
         QuantityOnServiceLine := LibraryRandom.RandInt(5);  // Assigning random integer value.
         Quantity := QuantityOnServiceLine + LibraryRandom.RandInt(10);  // Taking Value greater than QuantityOnServiceLine.
 
@@ -825,7 +825,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantities on Reservation Page after doing Reservation From Current Line on Service Order of the Item having Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create Service Order with Item Tracking.
-        Initialize;
+        Initialize();
         QuantityOnServiceLine := 1;  // Taking Quantity as 1 to reserve specific serial no.
         Quantity := QuantityOnServiceLine + LibraryRandom.RandInt(10);  // Taking Value greater than QuantityOnServiceLine.
 
@@ -862,7 +862,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantity Invoiced after posting a Service Order with Reservation From Current Line and Item has Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create Service Order with Item Tracking and Reservation.
-        Initialize;
+        Initialize();
         QuantityOnServiceLine := 1;  // Taking Quantity as 1 to reserve specific serial no.
         Quantity := QuantityOnServiceLine + LibraryRandom.RandInt(10);  // Taking Value greater than QuantityOnServiceLine.
 
@@ -902,7 +902,7 @@ codeunit 136121 "Service Reservation"
         // Check Quantity Consumed after posting a Service Order with Reservation From Current Line and Item has Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create Service Order with Item Tracking and Reservation.
-        Initialize;
+        Initialize();
         QuantityOnServiceLine := 1;  // Taking Quantity as 1 to reserve specific serial no.
         Quantity := QuantityOnServiceLine + LibraryRandom.RandInt(10);  // Taking Value greater than QuantityOnServiceLine.
 
@@ -945,7 +945,7 @@ codeunit 136121 "Service Reservation"
         // Check that application generates an error on changing Location on Service Lines when Reservation is Always.
 
         // 1. Setup: Find Customer, Create Item with Reserve as Always, Create and post Item Journal Line, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -983,7 +983,7 @@ codeunit 136121 "Service Reservation"
         // Check that application generates an error on changing Type on Service Lines when Reservation is Always.
 
         // 1. Setup: Find Customer, Create Item with Reserve as Always, Create and post Item Journal Line, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -1023,7 +1023,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Find Customer, Create Item with Reserve as Always, Create and post Item Journal Line, Create Service Order and
         // set values on Service Line in ServiceLinePageSetValueHandler.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemWithReserve(Item, Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -1060,7 +1060,7 @@ codeunit 136121 "Service Reservation"
         // Test that the application allows Shipping the Service Order for item having Reserve as Always and Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create Service Order with Item Tracking.
-        Initialize;
+        Initialize();
         ServiceLineQuantity := LibraryRandom.RandInt(5);  // Assigning random integer value.
         Quantity := ServiceLineQuantity + LibraryRandom.RandInt(10);  // Taking Value greater than ServiceLineQuantity.
 
@@ -1103,7 +1103,7 @@ codeunit 136121 "Service Reservation"
         // Test that the application allows posting Service Invoice created from Get Shipment for item having Reservation and Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create and post Item Journal Line, Create and Ship Service Order with Item Tracking.
-        Initialize;
+        Initialize();
         ServiceLineQuantity := LibraryRandom.RandInt(5);  // Assigning random integer value.
         Quantity := ServiceLineQuantity + LibraryRandom.RandInt(10);  // Taking Value greater than ServiceLineQuantity.
 
@@ -1149,7 +1149,7 @@ codeunit 136121 "Service Reservation"
         // Test that the application allows posting Service Credit Memo for item having Item Tracking.
 
         // 1. Setup: Create Item with Serial No, Create Service Credit Memo with Item Tracking.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Assigning random integer value.
         Item.Get(CreateItemWithSerialAndLotNo(Item.Reserve::Optional, ''));
         ItemTrackingAction := ItemTrackingAction::AssignSerialNo;  // Assigning global variables as required in Page Handler
@@ -1179,7 +1179,7 @@ codeunit 136121 "Service Reservation"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO 379722] The Reserve column in Sales Line is not changing when switching the Purchasing Code from one with Drop Shipment to another one without it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Reserve field = "Always".
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Always);
@@ -1218,7 +1218,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation of an Item on Service Line after creating Purchase Order when Reserve type is Always.
 
         // 1. Setup: Create Item with Reserve Always, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Always);
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1250,7 +1250,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation Entry of an Item on Service Line while reserving from Purchase Order and Reserve type is Always.
 
         // 1. Setup: Create Item with Reserve Always, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Always);
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1279,7 +1279,7 @@ codeunit 136121 "Service Reservation"
         // Check different quantities before Reserving Item in Reservation Page when Reserve is optional.
 
         // 1. Setup: Create Item with Reserve optional, Create Purchase Order and assign Lot No., create Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Optional);  // Assign Item No. to Global Variable.
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1311,7 +1311,7 @@ codeunit 136121 "Service Reservation"
         // Check Reserverd Quantity after reserving Item from Available Item Ledger Entries Page opened from Service Line and Item Reserve Policy is Optional.
 
         // 1. Setup: Create Item with Reserve Optional, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Optional);  // Assign Item No. to Global Variable.
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1343,7 +1343,7 @@ codeunit 136121 "Service Reservation"
         // Check Lot No. and Reservation Entry for an Item Reserved from Available Item Ledger Entries Page opened from Service Line.
 
         // 1. Setup: Create Item with Reserve Optional, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Optional);  // Assign Item No. to global variable.
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1378,7 +1378,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation of an Item with Serial No. and Reserve Always on Service Line after creating Purchase Order.
 
         // 1. Setup: Create Item with Reserve Always, Find a Customer and Vendor, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
@@ -1412,7 +1412,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation of an Item with Serial No. and Reserve Always on Service Line after creating Purchase Order.
 
         // 1. Setup: Create Item with Reserve Always, Find a Customer and Vendor, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
@@ -1443,7 +1443,7 @@ codeunit 136121 "Service Reservation"
         // Check Reserverd Quantity on Available Item Ledger Entries Page opened from Service Line and Item with Serial And Lot Nos. and Reserve Optional.
 
         // 1. Setup: Create Item with Reserve Optional, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
@@ -1475,7 +1475,7 @@ codeunit 136121 "Service Reservation"
         // Check Reserverd Quantity on Available Item Ledger Entries Page opened from Service Line and Item with Serial And Lot Nos. and Reserve Optional.
 
         // 1. Setup: Create Item with Reserve Optional, Find a Customer and Vendor, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
@@ -1508,7 +1508,7 @@ codeunit 136121 "Service Reservation"
         // Check Serial No., Lot No., Reservation Entry for an Item Reserved from Available Item Ledger Entries Page opened from Service Line.
 
         // 1. Setup: Create Item with Reserve Optional and Serial No and Lot No Series attached, Create a Purchase Order, Service Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to global variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
@@ -1542,7 +1542,7 @@ codeunit 136121 "Service Reservation"
         // Verify the error message while reserving the Item from Purchase Order to Service Order when Type is Resource on Service Line.
 
         // 1. Setup: Create Purchase Order and Service Order and update Service Line with Type Resource.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
         Resource.Init();
         Resource."No." := ServiceLine."No.";
@@ -1565,7 +1565,7 @@ codeunit 136121 "Service Reservation"
     begin
         // Verify reservation lines when Needed By Date is earlier than Expected Receipt Date on Service Line.
 
-        Initialize;
+        Initialize();
         ServiceOrderReservationWithNeededByDate(-1);  // Take -1 as SignFactor.
 
         // 3. Verify: Verify Reservation window for available Quantity. Verification done in 'NoQuantityOnReservePageHandler'.
@@ -1578,7 +1578,7 @@ codeunit 136121 "Service Reservation"
     begin
         // Verify reservation lines when Needed By Date is later than Expected Receipt Date on Service Line.
 
-        Initialize;
+        Initialize();
         ServiceOrderReservationWithNeededByDate(1);  // Take 1 as SignFactor.
 
         // 3. Verify: Verify Reservation window for available Quantity. Verification done in 'ReservationPageHandler'.
@@ -1591,7 +1591,7 @@ codeunit 136121 "Service Reservation"
         ExpectedReceiptDate: Date;
     begin
         // 1. Setup: Create Purchase Order and Service Order and update Service Line with Needed by Date.
-        Initialize;
+        Initialize();
         ExpectedReceiptDate := CreatePurchaseOrderAndServiceOrder(ServiceLine);
         ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(SignFactor * LibraryRandom.RandInt(5)) + 'D>', ExpectedReceiptDate));  // Use Random to calculate Needed by Date earlier than Expected Receipt Date.
         ServiceLine.Modify(true);
@@ -1614,7 +1614,7 @@ codeunit 136121 "Service Reservation"
         // Verify reservation lines when Location is wrong on Service Line.
 
         // 1. Setup: Create Purchase Order and Service Order and update Service Line with a new location.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
         ServiceLine.Validate("Location Code", FindLocation);
         ServiceLine.Modify(true);
@@ -1639,7 +1639,7 @@ codeunit 136121 "Service Reservation"
         // Verify Reserved Quantity on Reservation window when reserve Item from Service Order to Inventory.
 
         // 1. Setup: Create Item, create and post Item Journal Line for Inventory and create Service Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";  // Assign in global variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Assign Random Quantity in global variable.
@@ -1668,7 +1668,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation error on the Purchase Order page.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandDec(10, 2));  // Taken Random value for Quantity.
@@ -1694,7 +1694,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation error on the Service Lines page.
 
         // 1. Setup: Create and post Purchase Order create Transfer Order and Service Line.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1726,7 +1726,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation on Service Order with Purchase Order and Transfer Order.
 
         // 1. Setup: Create and post Purchase Order, Transfer Order and Service Line.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine);
         OriginalQuantity := PurchaseLine.Quantity;  // Assign in global variable.
         ItemNo := PurchaseLine."No.";  // Assign in global variable.
@@ -1765,7 +1765,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation error on Purchase Order with Service Order.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreateDocumentWithServiceItem(
@@ -1792,7 +1792,7 @@ codeunit 136121 "Service Reservation"
         // Check Reservation without posting of Service Order with Purchase Order.
 
         // 1. Setup: Create and post Purchase Order, Transfer Order and Service Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine);
         OriginalQuantity := PurchaseLine.Quantity;  // Assign in global variable.
         ItemNo := PurchaseLine."No.";  // Assign in global variable.
@@ -1884,7 +1884,7 @@ codeunit 136121 "Service Reservation"
     begin
         // [FEATURE] [Automatic Reservation] [Sales Order]
         // [SCENARIO 363178] Reserved Quantity on Sales Order Subform is set automatically for Automatic Reservation
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Item on Inventory with Reserve = Optional
@@ -1924,7 +1924,7 @@ codeunit 136121 "Service Reservation"
         ItemTrackingCode.SetRange("SN Specific Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Inbound Tracking", SerialNoSpecificTracking);
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", SerialNoSpecificTracking);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1940,7 +1940,7 @@ codeunit 136121 "Service Reservation"
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Item Tracking", ItemTracking);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
     end;
 
     local procedure FindSerialNoFromItemLedgerEntry(ItemNo: Code[20]): Code[20]
@@ -1966,7 +1966,7 @@ codeunit 136121 "Service Reservation"
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetFilter("Document No.", DocumentNo);
         ServiceLine.SetFilter("Bill-to Customer No.", BilltoCustomerNo);  // Do not include lines having only Description.
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure GetServiceInvoiceNo(ServiceHeaderNo: Code[20]): Code[20]
@@ -1974,7 +1974,7 @@ codeunit 136121 "Service Reservation"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeaderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -1983,7 +1983,7 @@ codeunit 136121 "Service Reservation"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeaderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -1992,7 +1992,7 @@ codeunit 136121 "Service Reservation"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeaderNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -2001,7 +2001,7 @@ codeunit 136121 "Service Reservation"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeaderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -2097,7 +2097,7 @@ codeunit 136121 "Service Reservation"
         RefreshProductionOrder.SetTableView(ProductionOrder);
         Commit();
         RefreshProductionOrder.UseRequestPage(false);
-        RefreshProductionOrder.RunModal;
+        RefreshProductionOrder.RunModal();
         exit(ProductionOrder."Location Code");
     end;
 
@@ -2213,7 +2213,7 @@ codeunit 136121 "Service Reservation"
     begin
         Location.SetRange("Use As In-Transit", false);
         Location.SetRange("Bin Mandatory", false);
-        Location.FindFirst;
+        Location.FindFirst();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         PurchaseHeader.Validate("Location Code", Location.Code);
@@ -2275,7 +2275,7 @@ codeunit 136121 "Service Reservation"
         Location2: Record Location;
     begin
         Location2.SetRange("Use As In-Transit", true);
-        Location2.FindFirst;
+        Location2.FindFirst();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, Location.Code, Location2.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, OriginalQuantity);
@@ -2333,7 +2333,7 @@ codeunit 136121 "Service Reservation"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindServiceOrder(QuoteNo: Code[20]): Code[20]
@@ -2343,7 +2343,7 @@ codeunit 136121 "Service Reservation"
         ServiceHeader.Reset();
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Quote No.", QuoteNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         exit(ServiceHeader."No.");
     end;
 
@@ -2352,7 +2352,7 @@ codeunit 136121 "Service Reservation"
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", ItemNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure PostProductionJournal(var ProductionOrder: Record "Production Order")
@@ -2363,13 +2363,13 @@ codeunit 136121 "Service Reservation"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
 
         ProductionJournalMgt.InitSetupValues;
         ProductionJournalMgt.SetTemplateAndBatchName;
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Item No.", ProductionOrder."Source No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post", ItemJournalLine);
     end;
 
@@ -2391,7 +2391,7 @@ codeunit 136121 "Service Reservation"
         ReservationEntry.SetRange("Source Type", DATABASE::"Service Line");
         ReservationEntry.SetRange("Source Subtype", ServiceLine."Document Type");
         ReservationEntry.SetRange("Source ID", ServiceLine."Document No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Item No.", ServiceLine."No.");
         ReservationEntry.TestField("Location Code", ServiceLine."Location Code");
         ReservationEntry.TestField("Quantity (Base)", -Quantity);
@@ -2403,10 +2403,10 @@ codeunit 136121 "Service Reservation"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
         ValueEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item No.", ServiceLine."No.");
         ValueEntry.TestField("Posting Date", ServiceLine."Posting Date");
         ValueEntry.TestField("Source No.", ServiceLine."Customer No.");
@@ -2420,7 +2420,7 @@ codeunit 136121 "Service Reservation"
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
         ServiceLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
         ServiceLedgerEntry.TestField("Posting Date", ServiceLine."Posting Date");
         ServiceLedgerEntry.TestField("Bill-to Customer No.", ServiceLine."Bill-to Customer No.");
@@ -2435,7 +2435,7 @@ codeunit 136121 "Service Reservation"
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
         ItemLedgerEntry.SetRange("Order No.", ServiceLine."Document No.");
         ItemLedgerEntry.SetRange("Document Line No.", ServiceLine."Line No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, -ServiceLine."Qty. to Ship");
     end;
 
@@ -2445,7 +2445,7 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
         ServiceInvoiceLine.SetRange("Line No.", LineNo);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField(Quantity, Quantity);
     end;
 
@@ -2455,7 +2455,7 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceShipmentLine.SetRange("Order No.", DocumentNo);
         ServiceShipmentLine.SetRange("Line No.", LineNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.TestField(Quantity, Quantity);
         ServiceShipmentLine.TestField("Quantity Consumed", Quantity);
     end;
@@ -2466,7 +2466,7 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceShipmentLine.SetRange("Order No.", DocumentNo);
         ServiceShipmentLine.SetRange("Line No.", LineNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.TestField(Quantity, Quantity);
         ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", Quantity);
     end;
@@ -2487,7 +2487,7 @@ codeunit 136121 "Service Reservation"
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(ServiceLine.Quantity, ValueEntry.Count, StrSubstNo(NoOfEntriesError, ValueEntry.TableCaption));
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item No.", ServiceLine."No.");
         ValueEntry.TestField("Posting Date", ServiceLine."Posting Date");
         ValueEntry.TestField("Source No.", ServiceLine."Customer No.");
@@ -2499,7 +2499,7 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
         ServiceCrMemoLine.SetRange("Line No.", LineNo);
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.TestField("No.", ItemNumber);
         ServiceCrMemoLine.TestField(Quantity, Quantity);
     end;

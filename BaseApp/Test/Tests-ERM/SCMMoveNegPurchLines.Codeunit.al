@@ -27,7 +27,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Move Neg. Purch. Lines");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Clear(PurchaseHeaderNo);
 
         // Lazy Setup.
@@ -35,8 +35,8 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Purch. Lines");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Purch. Lines");
@@ -49,7 +49,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         TempPurchaseLine: Record "Purchase Line" temporary;
     begin
         // Setup: Create a Purchase Return Order with negative lines.
-        Initialize;
+        Initialize();
         CreatePurchDocWithMixedLines(PurchaseHeader, TempPurchaseLine, FromDocType, InitialSign);
 
         // Exercise: Run Move Negative Lines to generate a Purchase Order.
@@ -151,7 +151,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         MoveNegPurchaseLines.SetPurchHeader(PurchaseHeader);
         MoveNegPurchaseLines.InitializeRequest(FromDocType, ToDocType, ToDocType);
         MoveNegPurchaseLines.UseRequestPage(false);
-        MoveNegPurchaseLines.RunModal;
+        MoveNegPurchaseLines.RunModal();
         MoveNegPurchaseLines.ShowDocument;
     end;
 
@@ -178,7 +178,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
             TempPurchaseLine.SetRange(Quantity, -PurchaseLine.Quantity);
             TempPurchaseLine.SetRange("Unit of Measure", PurchaseLine."Unit of Measure");
             Assert.AreEqual(1, TempPurchaseLine.Count, 'Too many migrated negative lines!');
-            TempPurchaseLine.FindFirst;
+            TempPurchaseLine.FindFirst();
             TempPurchaseLine.Delete(true);
         until PurchaseLine.Next = 0;
 

@@ -30,7 +30,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         O365LinktoFinancials: TestPage "O365 Link to Financials";
     begin
         // [GIVEN] A clean Invoicing App
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -136,7 +136,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
     local procedure Init()
     begin
         DeleteCompany(EvalCompanyName);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
@@ -193,7 +193,7 @@ codeunit 138956 "O365 BC To D365 BC Tests"
         Company: Record Company;
     begin
         Company.SetRange(Name, CompanyName);
-        if Company.FindFirst then
+        if Company.FindFirst() then
             Company.Delete();
     end;
 

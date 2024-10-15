@@ -102,7 +102,7 @@ page 5134 "Contact Duplicates"
                     ContactDuplicateDetails: Page "Contact Duplicate Details";
                 begin
                     ContactDuplicateDetails.SetContactNo("Contact No.", "Duplicate Contact No.");
-                    ContactDuplicateDetails.Run;
+                    ContactDuplicateDetails.Run();
                 end;
             }
         }

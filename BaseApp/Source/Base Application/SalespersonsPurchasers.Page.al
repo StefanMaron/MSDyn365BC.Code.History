@@ -129,7 +129,7 @@ page 14 "Salespersons/Purchasers"
                         begin
                             CurrPage.SetSelectionFilter(SalespersonPurchaser);
                             DefaultDimMultiple.SetMultiRecord(SalespersonPurchaser, FieldNo(Code));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -341,7 +341,6 @@ page 14 "Salespersons/Purchasers"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this salesperson/purchaser.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -416,11 +415,9 @@ page 14 "Salespersons/Purchasers"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     var
@@ -431,7 +428,6 @@ page 14 "Salespersons/Purchasers"
         CDSIntegrationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

@@ -497,7 +497,7 @@ page 5803 "Revaluation Journal"
                              false)
                         then begin
                             CalcInvtValue.SetItemJnlLine(Rec);
-                            CalcInvtValue.RunModal;
+                            CalcInvtValue.RunModal();
                             Clear(CalcInvtValue);
                         end;
                     end;

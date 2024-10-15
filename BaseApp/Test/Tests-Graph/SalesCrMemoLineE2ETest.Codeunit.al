@@ -52,7 +52,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Call GET on the lines without providing a parent Credit Memo ID.
         // [GIVEN] the credit memo API exposed
-        Initialize;
+        Initialize();
 
         // [WHEN] we GET all the lines without an ID from the web service
         TargetURL := LibraryGraphMgt
@@ -79,14 +79,14 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a unposted Credit Memo
         // [GIVEN] An credit memo with lines.
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo1 := Format(SalesLine."Line No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         LineNo2 := Format(SalesLine."Line No.");
 
         // [WHEN] we GET all the lines with the unposted credit memo ID from the web service
@@ -109,13 +109,13 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a posted Credit Memo
         // [GIVEN] A posted credit memo with lines.
-        Initialize;
+        Initialize();
         CreditMemoID := CreatePostedSalesCreditMemoWithLines(SalesCrMemoHeader);
 
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         LineNo1 := Format(SalesCrMemoLine."Line No.");
-        SalesCrMemoLine.FindLast;
+        SalesCrMemoLine.FindLast();
         LineNo2 := Format(SalesCrMemoLine."Line No.");
 
         // [WHEN] we GET all the lines with the posted credit memo ID from the web service
@@ -139,7 +139,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Credit Memo
         // [GIVEN] An existing unposted credit memo and a valid JSON describing the new credit memo line
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -172,7 +172,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Credit Memo with a sequence number
         // [GIVEN] An existing unposted credit memo and a valid JSON describing the new credit memo line
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -214,12 +214,12 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Credit Memo
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         Assert.AreNotEqual('', CreditMemoID, 'ID should not be empty');
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         SalesQuantity := 4;
@@ -255,12 +255,12 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Credit Memo will fail if sequence is modified
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         Assert.AreNotEqual('', CreditMemoID, 'ID should not be empty');
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         NewSequence := SalesLine."Line No." + 1;
@@ -282,12 +282,12 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] DELETE a line from an unposted Credit Memo
         // [GIVEN] An unposted credit memo with lines
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         Commit();
@@ -316,11 +316,11 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Call DELETE on a line of a posted Credit Memo
         // [GIVEN] A posted credit memo with lines
-        Initialize;
+        Initialize();
         CreditMemoID := CreatePostedSalesCreditMemoWithLines(SalesCrMemoHeader);
 
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         LineNo := SalesCrMemoLine."Line No.";
 
         // [WHEN] we DELETE the first line through the API
@@ -360,7 +360,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [SCENARIO] Create an credit memo both through the client UI and through the API and compare their final values.
         // [GIVEN] An unposted credit memo and a JSON describing the line we want to create
 
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
@@ -404,7 +404,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Creating a line through API should update Discount Pct
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
-        Initialize;
+        Initialize();
         CreateCreditMemoWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -439,7 +439,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should update Discount Pct
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
-        Initialize;
+        Initialize();
         CreateCreditMemoWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -478,7 +478,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
-        Initialize;
+        Initialize();
         CreateCreditMemoWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -517,7 +517,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
-        Initialize;
+        Initialize();
         CreateCreditMemoWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -552,7 +552,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Adding an credit memo through API will keep Discount Amount
         // [GIVEN] An unposted credit memo for customer with credit memo discount amount
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
 
@@ -586,7 +586,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should keep existing Discount Amount
         // [GIVEN] An unposted credit memo for customer with credit memo discount amt
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
 
@@ -616,7 +616,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted credit memo for customer with credit memo discount pct
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         Commit();
 
@@ -643,7 +643,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Getting a line through API lists all possible types
         // [GIVEN] An credit memo with lines of different types
-        Initialize;
+        Initialize();
         CreateCreditMemoWithDifferentLineTypes(SalesHeader, ExpectedNumberOfLines);
 
         Commit();
@@ -675,7 +675,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] Posting a line with description only will get a type item
         // [GIVEN] A post request with description only
-        Initialize;
+        Initialize();
         CreateSalesCreditMemoWithLines(SalesHeader);
 
         Commit();
@@ -693,7 +693,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual('', SalesLine."No.", 'No should be blank');
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::Item, 'Wrong type is set');
 
@@ -717,7 +717,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [FEATURE] [Comment]
         // [SCENARIO] Posting a line with Type Comment and description will make a comment line
         // [GIVEN] A post request with type and description
-        Initialize;
+        Initialize();
         CreateSalesCreditMemoWithLines(SalesHeader);
 
         CreditMemoLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
@@ -735,7 +735,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::" ", 'Wrong type is set');
         Assert.AreEqual('test', SalesLine.Description, 'Wrong description is set');
 
@@ -762,7 +762,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Credit Memo
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         Assert.AreNotEqual('', CreditMemoID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -802,13 +802,13 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Credit Memo
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreateCreditMemoWithDifferentLineTypes(SalesHeader, ExpectedNumberOfLines);
         CreditMemoLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.SystemId);
         SalesLine.SetRange(Type, SalesLine.Type::"Fixed Asset");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.SetRange(Type);
 
         Assert.AreNotEqual('', CreditMemoLineID, 'ID should not be empty');
@@ -847,7 +847,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Credit Memo
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         Assert.AreNotEqual('', CreditMemoID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -910,7 +910,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
 
         SalesCrMemoHeader.Reset();
         SalesCrMemoHeader.SetFilter("No.", NewNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         exit(PostedSalesCreditMemoID);
     end;
@@ -936,7 +936,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer No.".SetValue(CustomerNo);
 
         SalesCreditMemo.SalesLines.Last;
@@ -1012,7 +1012,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then begin
             VATPostingSetup.Init();
             VATPostingSetup."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
@@ -1135,7 +1135,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SetupAmountDiscountTest(var SalesHeader: Record "Sales Header"; var DiscountAmount: Decimal)

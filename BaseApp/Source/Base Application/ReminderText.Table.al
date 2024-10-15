@@ -19,11 +19,9 @@ table 294 "Reminder Text"
             NotBlank = true;
             TableRelation = "Reminder Level"."No." WHERE("Reminder Terms Code" = FIELD("Reminder Terms Code"));
         }
-        field(3; Position; Option)
+        field(3; Position; Enum "Reminder Text Position")
         {
             Caption = 'Position';
-            OptionCaption = 'Beginning,Ending';
-            OptionMembers = Beginning,Ending;
         }
         field(4; "Line No."; Integer)
         {

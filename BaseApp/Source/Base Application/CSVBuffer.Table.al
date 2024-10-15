@@ -160,7 +160,7 @@ table 1234 "CSV Buffer"
         NumberOfColumns: Integer;
     begin
         NumberOfColumns := GetNumberOfColumns;
-        if FindSet then
+        if FindSet() then
             repeat
                 StreamWriter.Write(Value);
                 if "Field No." < NumberOfColumns then
@@ -201,6 +201,27 @@ table 1234 "CSV Buffer"
     begin
         FileManagement.IsAllowedPath(CSVFileName, false);
         StreamReader := StreamReader.StreamReader(CSVFile.OpenRead(CSVFileName), Encoding.Default);
+        Separator := CSVFieldSeparator;
+        CharactersToTrim := CSVCharactersToTrim;
+    end;
+
+    /// <summary>
+    /// Initializes the CSV buffer.
+    /// </summary>
+    /// <remarks>
+    /// No data is inserted into the buffer.
+    /// </remarks>
+    /// <param name="CSVFileName">The name of the file from which to read data.</param>
+    /// <param name="CSVFieldSeparator">The character to use to split the values.</param>
+    /// <param name="CSVCharactersToTrim">Characters to trim from the beginning and the end of the read values.</param>
+    /// <param name="Encoding">The character encoding to use.</param>
+    [Scope('OnPrem')]
+    procedure InitializeReader(CSVFileName: Text; CSVFieldSeparator: Text[1]; CSVCharactersToTrim: Text; Encoding: DotNet Encoding)
+    var
+        FileManagement: Codeunit "File Management";
+    begin
+        FileManagement.IsAllowedPath(CSVFileName, false);
+        StreamReader := StreamReader.StreamReader(CSVFile.OpenRead(CSVFileName), Encoding);
         Separator := CSVFieldSeparator;
         CharactersToTrim := CSVCharactersToTrim;
     end;

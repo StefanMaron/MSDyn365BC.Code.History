@@ -305,7 +305,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             end;
         end;
 
-        if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, OptionValue) then begin
+        if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, DestinationFieldRef, OptionValue) then begin
             NewValue := OptionValue;
             IsValueFound := true;
             NeedsConversion := true;
@@ -395,6 +395,82 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         if DestinationRecordRef.Number() = Database::Vendor then
             CRMSynchHelper.UpdateContactOnModifyVendor(DestinationRecordRef);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Option Synch. Invoke", 'OnAfterModifyOption', '', false, false)]
+    local procedure HandleOnAfterModifyOption(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        RecRef: RecordRef;
+        OptionLabel: Text;
+        DocumentType: Option "Order","Quote","Invoice";
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::FromIntegrationTable then begin
+            RecRef := SourceRecordRef;
+            if CRMOptionMapping.IsCRMRecordRefMapped(SourceRecordRef, CRMOptionMapping) then
+                OptionLabel := CRMOptionMapping.GetRecordRefOptionValue(SourceRecordRef);
+        end else begin
+            RecRef := DestinationRecordRef;
+            CRMOptionMapping.SetRange("Record ID", SourceRecordRef.RecordId);
+            if CRMOptionMapping.FindFirst() then
+                OptionLabel := CRMOptionMapping.GetRecordRefOptionValue(DestinationRecordRef);
+        end;
+
+        if OptionLabel <> '' then begin
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Order, OptionLabel);
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Quote, OptionLabel);
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Invoice, OptionLabel);
+        end;
+    end;
+
+    local procedure UpdateOrInsertDocumentOptionSet(CRMOptionMapping: Record "CRM Option Mapping"; RecRef: RecordRef; DocumentType: Option "Order","Quote","Invoice"; OptionLabel: Text);
+    var
+        EntityName: Text;
+        FieldName: Text;
+        OptionSetMetadataDictionary: Dictionary of [Integer, Text];
+    begin
+        CRMOptionMapping.GetDocumentMetadataInfo(RecRef, DocumentType, EntityName, FieldName);
+        if (EntityName <> '') and (FieldName <> '') then begin
+            OptionSetMetadataDictionary := CDSIntegrationMgt.GetOptionSetMetadata(EntityName, FieldName);
+            if not OptionSetMetadataDictionary.ContainsKey(CRMOptionMapping."Option Value") then
+                CDSIntegrationMgt.InsertOptionSetMetadataWithOptionValue(EntityName, FieldName, OptionLabel, CRMOptionMapping."Option Value")
+            else
+                CDSIntegrationMgt.UpdateOptionSetMetadata(EntityName, FieldName, CRMOptionMapping."Option Value", OptionLabel);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Option Synch. Invoke", 'OnAfterInsertOption', '', false, false)]
+    local procedure HandleOnAfterInsertOption(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        RecRef: RecordRef;
+        OptionLabel: Text;
+        DocumentType: Option "Order","Quote","Invoice";
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::FromIntegrationTable then begin
+            RecRef := SourceRecordRef;
+            if CRMOptionMapping.IsCRMRecordRefMapped(SourceRecordRef, CRMOptionMapping) then
+                OptionLabel := CRMOptionMapping.GetRecordRefOptionValue(SourceRecordRef);
+        end else begin
+            RecRef := DestinationRecordRef;
+            CRMOptionMapping.SetRange("Record ID", SourceRecordRef.RecordId);
+            if CRMOptionMapping.FindFirst() then
+                OptionLabel := CRMOptionMapping.GetRecordRefOptionValue(DestinationRecordRef);
+        end;
+
+        if OptionLabel <> '' then begin
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Order, OptionLabel);
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Quote, OptionLabel);
+            UpdateOrInsertDocumentOptionSet(CRMOptionMapping, RecRef, DocumentType::Invoice, OptionLabel);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnHasCompanyIdField', '', false, false)]

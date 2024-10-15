@@ -61,7 +61,8 @@ page 9121 "Journal Errors Factbox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CheckErrorsInBackground();
+        if BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled() then
+            CheckErrorsInBackground();
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
@@ -123,6 +124,7 @@ page 9121 "Journal Errors Factbox"
     var
         Args: Dictionary of [Text, Text];
     begin
+        BackgroundErrorHandlingMgt.FeatureTelemetryLogUptakeUsed();
         if TaskIdCountErrors <> 0 then
             CurrPage.CancelBackgroundTask(TaskIdCountErrors);
 
@@ -139,6 +141,7 @@ page 9121 "Journal Errors Factbox"
     begin
         TempErrorMessage.Reset();
         TempErrorMessage.SetRange(Duplicate, false);
+        BackgroundErrorHandlingMgt.FeatureTelemetryLogUsage(not TempErrorMessage.IsEmpty, Rec.TableName);
         NumberOfBatchErrors := TempErrorMessage.Count();
         TempErrorMessage.SetRange(Duplicate);
         TempErrorMessage.SetRange("Context Record ID", Rec.RecordId);

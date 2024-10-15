@@ -20,7 +20,7 @@ report 5195 "Create Conts. from Customers"
                 with ContBusRel do begin
                     SetRange("Link to Table", "Link to Table"::Customer);
                     SetRange("No.", Customer."No.");
-                    if FindFirst then
+                    if FindFirst() then
                         CurrReport.Skip();
                 end;
 

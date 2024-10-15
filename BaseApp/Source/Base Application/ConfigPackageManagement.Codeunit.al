@@ -244,7 +244,7 @@
         repeat
             FieldRef := RecRef.Field(TempConfigPackageField."Field ID");
             ConfigPackageData.SetRange("Field ID", TempConfigPackageField."Field ID");
-            if ConfigPackageData.FindFirst then begin
+            if ConfigPackageData.FindFirst() then begin
                 ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
                 UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
                 ValidationFieldID := FieldRef.Number;
@@ -303,7 +303,7 @@
         ConfigPackageRecord.Reset();
         ConfigPackageRecord.SetRange("Package Code", PackageCode);
         ConfigPackageRecord.SetRange("Table ID", TableID);
-        if ConfigPackageRecord.FindLast then
+        if ConfigPackageRecord.FindLast() then
             NextNo := ConfigPackageRecord."No." + 1
         else
             NextNo := 1;
@@ -526,7 +526,7 @@
             ModifyAll(Validated, false);
 
             SetCurrentKey("Package Processing Order", "Processing Order");
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Table Name");
                     if not HideDialog then
@@ -587,30 +587,6 @@
         ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         if ConfigPackageData.FindSet() then
             repeat
-                NoValidateErrors :=
-                  NoValidateErrors and
-                  ValidatePackageDataRelation(
-                    ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
-            until ConfigPackageData.Next() = 0;
-    end;
-
-    [Obsolete('Replaced by ValidateFieldRelationInRecord(). This function is correct for the validation of a single field without record context. Please use ValidateFieldRelationInRecord function in case of record or table wide validation.', '17.0')]
-    [Scope('OnPrem')]
-    procedure ValidateFieldRelation(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table") NoValidateErrors: Boolean
-    var
-        ConfigPackageData: Record "Config. Package Data";
-        ConfigPackageRecord: Record "Config. Package Record";
-        RecRef: RecordRef;
-    begin
-        NoValidateErrors := true;
-        RecRef.Open(ConfigPackageField."Table ID", true);
-
-        ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
-        ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
-        ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
-        if ConfigPackageData.FindSet() then
-            repeat
-                ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
                 NoValidateErrors :=
                   NoValidateErrors and
                   ValidatePackageDataRelation(
@@ -1047,7 +1023,7 @@
         ConfigMgt: Codeunit "Config. Management";
         "Filter": Text;
     begin
-        ConfigLine.FindFirst;
+        ConfigLine.FindFirst();
         ConfigPackage.Get(ConfigLine."Package Code");
         ConfigPackageTable.SetRange("Package Code", ConfigLine."Package Code");
         Filter := ConfigMgt.MakeTableFilter(ConfigLine, false);
@@ -2027,7 +2003,7 @@
             SetRange("Table ID", ConfigPackageRecord."Table ID");
             SetRange("Record No.", ConfigPackageRecord."No.");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ConfigValidateMgt.IsKeyField("Table ID", "Field ID") then
                         exit(true);
@@ -2046,7 +2022,7 @@
         TempValue: BigInteger;
     begin
         ConfigLine.Reset();
-        if not ConfigLine.FindLast then
+        if not ConfigLine.FindLast() then
             exit;
 
         ShiftLineNo := ConfigLine."Line No." + 10000L;
@@ -2056,7 +2032,7 @@
             SetRange("Package Code", ConfigPackageCode);
             SetRange("Table ID", DATABASE::"Config. Line");
             SetRange("Field ID", ConfigLine.FieldNo("Line No."));
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Evaluate(TempValue, Value) then begin
                         Value := Format(TempValue + ShiftLineNo);
@@ -2064,7 +2040,7 @@
                     end;
                 until Next() = 0;
             SetRange("Field ID", ConfigLine.FieldNo("Vertical Sorting"));
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Evaluate(TempValue, Value) then begin
                         Value := Format(TempValue + ShiftVertNo);
@@ -2182,7 +2158,7 @@
         TableRelationsMetadata.SetRange("Table ID", ConfigPackageData."Table ID");
         TableRelationsMetadata.SetRange("Related Table ID", TableID);
         TableRelationsMetadata.SetRange("Related Field No.", FieldNo);
-        if TableRelationsMetadata.FindFirst then begin
+        if TableRelationsMetadata.FindFirst() then begin
             ConfigPackageDataOtherFields.Get(
               ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.", TableRelationsMetadata."Field No.");
             exit(ConfigPackageDataOtherFields.Value);
@@ -2192,7 +2168,7 @@
         TableRelationsMetadata.SetRange("Field No.", FieldNo);
         TableRelationsMetadata.SetRange("Related Table ID", ConfigPackageData."Table ID");
         TableRelationsMetadata.SetRange("Related Field No.");
-        if TableRelationsMetadata.FindFirst then begin
+        if TableRelationsMetadata.FindFirst() then begin
             ConfigPackageDataOtherFields.Get(
               ConfigPackageData."Package Code", ConfigPackageData."Table ID",
               ConfigPackageData."No.", TableRelationsMetadata."Related Field No.");
@@ -2358,7 +2334,7 @@
         MediaIDConfigPackageData.SetRange("Field ID", TempConfigMediaBuffer.FieldNo("Media ID"));
         MediaIDConfigPackageData.SetRange(Value, MediaID);
 
-        if not MediaIDConfigPackageData.FindFirst then
+        if not MediaIDConfigPackageData.FindFirst() then
             exit;
 
         BlobMediaConfigPackageData.SetAutoCalcFields("BLOB Value");

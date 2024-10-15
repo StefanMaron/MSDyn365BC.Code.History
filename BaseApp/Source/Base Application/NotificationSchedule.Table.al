@@ -106,39 +106,21 @@ table 1513 "Notification Schedule"
     trigger OnDelete()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        if not EmailFeature.IsEnabled() then
-            if JobQueueEntry.Get("Last Scheduled Job") then begin
-                JobQueueEntry.Delete(true);
-                ScheduleNow;
-            end;
-
-        if EmailFeature.IsEnabled() then
-            if Rec.Recurrence = Rec.Recurrence::Instantly then
-                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
-            else
-                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
+        if Rec.Recurrence = Rec.Recurrence::Instantly then
+            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+        else
+            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
     end;
 
     trigger OnModify()
     var
-        NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        if not EmailFeature.IsEnabled() then
-            if JobQueueEntry.Get("Last Scheduled Job") then begin
-                NotificationEntry.SetView(JobQueueEntry."Parameter String");
-                JobQueueEntry.Delete(true);
-                Schedule(CopyStr(NotificationEntry.GetFilter("Recipient User ID"), 1, 50));
-            end;
-
-        if EmailFeature.IsEnabled() then
-            if Rec.Recurrence = Rec.Recurrence::Instantly then
-                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
-            else
-                JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
+        if Rec.Recurrence = Rec.Recurrence::Instantly then
+            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+        else
+            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
     end;
 
     var
@@ -352,16 +334,11 @@ table 1513 "Notification Schedule"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
-        EmailFeature: Codeunit "Email Feature";
     begin
         CheckRequiredPermissions();
-        if not EmailFeature.IsEnabled() then
-            if JobQueueEntry.ReuseExistingJobFromCategory(NotifyNowLbl, OneMinuteFromNow()) then
-                exit;
 
-        if EmailFeature.IsEnabled() then
-            if JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow()) then
-                exit;
+        if JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow()) then
+            exit;
 
         JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
         JobQueueEntry.ScheduleJobQueueEntryForLater(
@@ -372,7 +349,6 @@ table 1513 "Notification Schedule"
     var
         JobQueueEntry: Record "Job Queue Entry";
         NotificationEntry: Record "Notification Entry";
-        EmailFeature: Codeunit "Email Feature";
         ExecutionDateTime: DateTime;
     begin
         CheckRequiredPermissions();
@@ -389,13 +365,8 @@ table 1513 "Notification Schedule"
         NotificationEntry.SetRange("Recipient User ID", RecipientUserID);
         NotificationEntry.SetRange(Type, "Notification Type");
 
-        if not EmailFeature.IsEnabled() then
-            if JobQueueEntry.ReuseExistingJobFromCategoryAndParamString(NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
-                exit;
-
-        if EmailFeature.IsEnabled() then
-            if JobQueueEntry.ReuseExistingJobFromUserCategoryAndParamString(UserId(), NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
-                exit;
+        if JobQueueEntry.ReuseExistingJobFromUserCategoryAndParamString(UserId(), NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
+            exit;
 
         JobQueueEntry.ScheduleJobQueueEntryForLater(
           CODEUNIT::"Notification Entry Dispatcher", ExecutionDateTime, NotifyLaterLbl, NotificationEntry.GetView);

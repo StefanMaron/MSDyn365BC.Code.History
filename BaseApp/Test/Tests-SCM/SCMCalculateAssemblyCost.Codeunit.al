@@ -43,7 +43,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         Variant: Code[10];
         VArCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Kitting - D2: Cost amount is not updated when using SKU unit cost
         Variant := '1';
         VArCost := 20;
@@ -94,7 +94,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemC: Record Item;
         LibraryKitting: Codeunit "Library - Kitting";
     begin
-        Initialize;
+        Initialize();
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(7, 10));
         ItemC.Get(LibraryKitting.CreateItemWithNewUOM(13, 10));
@@ -126,7 +126,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemA: Record Item;
         ItemB: Record Item;
     begin
-        Initialize;
+        Initialize();
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(7, 10));
         ItemB."Overhead Rate" := 10;
@@ -159,7 +159,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemA: Record Item;
         ItemB: Record Item;
     begin
-        Initialize;
+        Initialize();
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(10, 10));
         ItemB.Modify();
@@ -188,7 +188,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         AsmHeader.Get(AsmHeader."Document Type"::Order,
           LibraryKitting.CreateOrder(WorkDate2, LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 1), 1));
         calcAndValidate(AsmHeader, 0, 0, 0, 0);
@@ -205,7 +205,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(50, 70));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(3, 4));
         LibraryKitting.CreateBOMComponentLine(
@@ -224,7 +224,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(50, 70));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(17, 20));
         LibraryKitting.CreateBOMComponentLine(
@@ -243,7 +243,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(50, 70));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(17, 20));
         LibraryKitting.CreateBOMComponentLine(
@@ -263,7 +263,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(50, 70));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(3, 4));
         LibraryKitting.CreateBOMComponentLine(
@@ -291,7 +291,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         BOMcomponentItem.Get(LibraryKitting.CreateItemWithNewUOM(5, 7));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(10, 12));
         LibraryKitting.CreateBOMComponentLine(
@@ -320,7 +320,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader: Record "Assembly Header";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         BOMcomponentItem.Get(LibraryKitting.CreateItemWithNewUOM(5, 7));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(10, 12));
         LibraryKitting.CreateBOMComponentLine(BOMcomponentItem, BOMComponent.Type::Item, childItem."No.",
@@ -354,7 +354,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         resource: Record Resource;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(5, 7));
         parentItem.Validate("Costing Method", parentItem."Costing Method"::Average);
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(10, 20));
@@ -378,7 +378,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         resource: Record Resource;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         // Resource Overhead is not summed up in Statistics
         parentItem.Get(LibraryKitting.CreateItemWithNewUOM(5, 7));
         parentItem.Validate("Costing Method", parentItem."Costing Method"::Average);
@@ -405,7 +405,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         // [FEATURE] [ACY]
         // [SCENARIO 382120] Assembly output cost should be posted in both local currency and additional reporting currency when ACY is configured
 
-        Initialize;
+        Initialize();
         LibraryInventory.SetAutomaticCostPosting(false);
 
         // [GIVEN] Set additional reporting currency with exchange rate = "X"
@@ -438,7 +438,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Calculate Assembly Cost");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
@@ -569,7 +569,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
             TestField("Cost Amount (Actual)", ExpectedCostLCY);
             TestField("Cost Amount (Actual) (ACY)", Round(ExpectedCostACY, Currency."Amount Rounding Precision"));

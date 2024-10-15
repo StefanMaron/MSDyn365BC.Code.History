@@ -47,6 +47,12 @@ page 7208 "CDS Full Synch. Review"
                                 OpenCRMSystemUserListPage();
                             Page::"CRM Contact List":
                                 OpenCRMContactListPage();
+                            Page::"CRM Payment Terms List":
+                                OpenCRMPaymentTermsListPage();
+                            Page::"CRM Freight Terms List":
+                                OpenCRMFreightTermsListPage();
+                            Page::"CRM Shipping Method List":
+                                OpenCRMShippingMethodListPage();
                             else
                                 OpenCRMAccountListPage();
                         end;
@@ -85,6 +91,12 @@ page 7208 "CDS Full Synch. Review"
                                 IntegrationTableMapping.SetRange("Table ID", Database::Vendor);
                             Page::"Customer List":
                                 IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+                            Page::"Payment Terms":
+                                IntegrationTableMapping.SetRange("Table ID", Database::"Payment Terms");
+                            Page::"Shipment Methods":
+                                IntegrationTableMapping.SetRange("Table ID", Database::"Shipment Method");
+                            Page::"Shipping Agents":
+                                IntegrationTableMapping.SetRange("Table ID", Database::"Shipping Agent");
                             else
                                 exit;
                         end;
@@ -205,6 +217,12 @@ page 7208 "CDS Full Synch. Review"
                 CDSPageId := 7209;
             'VENDOR':
                 CDSPageId := 5341;
+            'PAYMENT TERMS':
+                CDSPageId := 7210;
+            'SHIPMENT METHOD':
+                CDSPageId := 7211;
+            'SHIPPING AGENT':
+                CDSPageId := 7212;
         end;
     end;
 
@@ -221,6 +239,12 @@ page 7208 "CDS Full Synch. Review"
                 BCPageId := Page::"Salespersons/Purchasers";
             'VENDOR':
                 BCPageId := Page::"Vendor List";
+            'PAYMENT TERMS':
+                BCPageId := Page::"Payment Terms";
+            'SHIPMENT METHOD':
+                BCPageId := Page::"Shipment Methods";
+            'SHIPPING AGENT':
+                BCPageId := Page::"Shipping Agents";
         end;
     end;
 
@@ -237,6 +261,12 @@ page 7208 "CDS Full Synch. Review"
                 CDSPageName := 'Users';
             'VENDOR':
                 CDSPageName := 'Accounts';
+            'PAYMENT TERMS':
+                CDSPageName := 'Payment Terms';
+            'SHIPMENT METHOD':
+                CDSPageName := 'Freight Terms';
+            'SHIPPING AGENT':
+                CDSPageName := 'Shipping Methods';
         end;
     end;
 
@@ -253,6 +283,12 @@ page 7208 "CDS Full Synch. Review"
                 BCPageName := 'Salespeople/Purchasers';
             'VENDOR':
                 BCPageName := 'Vendors';
+            'PAYMENT TERMS':
+                BCPageName := 'Payment Terms';
+            'SHIPMENT METHOD':
+                BCPageName := 'Shipment Methods';
+            'SHIPPING AGENT':
+                BCPageName := 'Shipping Agents';
         end;
     end;
 
@@ -312,6 +348,30 @@ page 7208 "CDS Full Synch. Review"
         if CRMSystemUser.FindSet() then;
         CRMSystemuserList.SetRecord(CRMSystemUser);
         CRMSystemuserList.Run();
+        CurrPage.Update();
+    end;
+
+    local procedure OpenCRMPaymentTermsListPage()
+    var
+        CRMPaymentTermsList: Page "CRM Payment Terms List";
+    begin
+        CRMPaymentTermsList.Run();
+        CurrPage.Update();
+    end;
+
+    local procedure OpenCRMFreightTermsListPage()
+    var
+        CRMPFreightTermsList: Page "CRM Freight Terms List";
+    begin
+        CRMPFreightTermsList.Run();
+        CurrPage.Update();
+    end;
+
+    local procedure OpenCRMShippingMethodListPage()
+    var
+        CRMShippingMethodList: Page "CRM Shipping Method List";
+    begin
+        CRMShippingMethodList.Run();
         CurrPage.Update();
     end;
 

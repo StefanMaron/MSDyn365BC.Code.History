@@ -4,6 +4,7 @@ table 99008535 TempBlob
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced by BLOB Storage Module.';
     ObsoleteTag = '19.0';
+    ReplicateData = false;
 
     fields
     {

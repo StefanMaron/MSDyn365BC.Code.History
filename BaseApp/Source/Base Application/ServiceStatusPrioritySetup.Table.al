@@ -23,7 +23,7 @@ table 5928 "Service Status Priority Setup"
                 if Priority <> xRec.Priority then begin
                     ServStatusPrioritySetup.Reset();
                     ServStatusPrioritySetup.SetRange(Priority, Priority);
-                    if ServStatusPrioritySetup.FindFirst then
+                    if ServStatusPrioritySetup.FindFirst() then
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(
                                Text000, FieldCaption(Priority), Format(Priority),

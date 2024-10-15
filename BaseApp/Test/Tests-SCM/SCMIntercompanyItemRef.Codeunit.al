@@ -78,8 +78,8 @@ codeunit 137630 "SCM Intercompany Item Ref."
           DummyICPartner."Outbound Purch. Item No. Type"::"Cross Reference");
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddSalesDocsCreate;
+        LibraryLowerPermissions.AddPurchDocsCreate();
+        LibraryLowerPermissions.AddSalesDocsCreate();
         // [WHEN] Send Purchase Order to IC Partner
         SendPurchaseDocumentReceiveSalesDocument(PurchaseHeader, SalesHeader, ICPartnerCode, CustomerNo);
 
@@ -136,9 +136,9 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Initialize();
 
         // [GIVEN] Purchase Order with Buy-from IC Partner which has "Outbound Purch. Item No. Type"="Item Reference"
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+        LibraryLowerPermissions.AddO365Setup();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order,
           CreateICVendor(CreateICPartnerWithItemRefOutbndType));
         LibraryPurchase.CreatePurchaseLine(
@@ -216,9 +216,9 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Initialize();
 
         // [GIVEN] Purchase Order with Buy-from IC Partner which has "Outbound Purch. Item No. Type"="Internal No."
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+        LibraryLowerPermissions.AddO365Setup();
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner));
         LibraryPurchase.CreatePurchaseLine(
@@ -435,8 +435,8 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICPartner.Modify(true);
         VendorNo := CreateICVendor(ICPartnerCode);
         CustNo := CreateICCustomer(ICPartnerCode);
-        ItemNo1 := LibraryInventory.CreateItemNo;
-        ItemNo2 := LibraryInventory.CreateItemNo;
+        ItemNo1 := LibraryInventory.CreateItemNo();
+        ItemNo2 := LibraryInventory.CreateItemNo();
     end;
 
     local procedure CreateItem(): Code[20]
@@ -765,7 +765,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
 
         ICOutboxSalesLine.SetRecFilter;
         ICOutboxSalesLine.SetRange("Line No.");
-        ICOutboxSalesLine.FindFirst;
+        ICOutboxSalesLine.FindFirst();
         repeat
             ICInboxOutboxMgt.OutboxSalesLineToInbox(ICInboxTransaction, ICOutboxSalesLine, ICInboxPurchaseLine);
             ICInboxOutboxMgt.CreatePurchLines(PurchaseHeader, ICInboxPurchaseLine);
@@ -794,7 +794,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         FileMgt: Codeunit "File Management";
     begin
         ICOutboxTransaction.SetFilter("Document No.", DocumentNoFilter);
-        ICOutboxTransaction.FindFirst;
+        ICOutboxTransaction.FindFirst();
         ICPartner.Get(ICOutboxTransaction."IC Partner Code");
         ICOutboxTransaction.ModifyAll("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
 
@@ -803,15 +803,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
             FileMgt.DeleteServerFile(FileName);
 
         CODEUNIT.Run(CODEUNIT::"IC Outbox Export", ICOutboxTransaction);
-    end;
-
-    local procedure SetCompanyICPartner(ICPartnerCode: Code[20])
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify(true);
     end;
 
     local procedure ReceiveICSalesDocument(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CustomerNo: Code[20])
@@ -834,7 +825,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxJnlLine.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxJnlLine.SetRange("Account No.", AccountNo);
         ICOutboxJnlLine.SetRange("Document No.", DocumentNo);
-        ICOutboxJnlLine.FindFirst;
+        ICOutboxJnlLine.FindFirst();
     end;
 
     local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option)
@@ -842,7 +833,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
         ICOutboxTransaction.SetRange("Source Type", SourceType);
-        ICOutboxTransaction.FindFirst;
+        ICOutboxTransaction.FindFirst();
     end;
 
     local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
@@ -850,7 +841,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("IC Direction", SalesHeader."IC Direction"::Incoming);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure FindPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
@@ -858,7 +849,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("IC Direction", PurchaseHeader."IC Direction"::Incoming);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure FindICOutboxSalesHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Sales Document Type")
@@ -866,7 +857,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxSalesHeader.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxSalesHeader.SetRange("No.", DocumentNo);
         ICOutboxSalesHeader.SetRange("Document Type", DocumentType);
-        ICOutboxSalesHeader.FindFirst;
+        ICOutboxSalesHeader.FindFirst();
     end;
 
     local procedure FindICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Sales Document Type")
@@ -874,7 +865,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxSalesLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxSalesLine.SetRange("Document No.", DocumentNo);
         ICOutboxSalesLine.SetRange("Document Type", DocumentType);
-        ICOutboxSalesLine.FindFirst;
+        ICOutboxSalesLine.FindFirst();
     end;
 
     local procedure FindSalesShipmentByCustNo(CustNo: Code[20]): Code[20]
@@ -882,7 +873,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Sell-to Customer No.", CustNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         exit(SalesShipmentHeader."No.");
     end;
 
@@ -891,7 +882,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxPurchaseHeader.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxPurchaseHeader.SetRange("No.", DocumentNo);
         ICOutboxPurchaseHeader.SetRange("Document Type", DocumentType);
-        ICOutboxPurchaseHeader.FindFirst;
+        ICOutboxPurchaseHeader.FindFirst();
     end;
 
     local procedure FindICOutboxPurchaseLine(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Purchase Document Type")
@@ -899,7 +890,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxPurchaseLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxPurchaseLine.SetRange("Document No.", DocumentNo);
         ICOutboxPurchaseLine.SetRange("Document Type", DocumentType);
-        ICOutboxPurchaseLine.FindFirst;
+        ICOutboxPurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchReceiptByVendorNo(VendorNo: Code[20]): Code[20]
@@ -907,7 +898,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         exit(PurchRcptHeader."No.");
     end;
 
@@ -916,7 +907,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);  // Update partial Quantity.
         SalesLine.Modify(true);
     end;
@@ -925,7 +916,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -933,7 +924,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AccountNo: Code[20])
@@ -1023,7 +1014,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         PurchaseLineToInvoice.Validate("Quantity Received", PurchaseLineToSend."Quantity Received");
         PurchaseLineToInvoice.Modify(true);
 
-        PurchaseHeaderToInvoice.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeaderToInvoice.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeaderToInvoice.Modify(true);
     end;
 

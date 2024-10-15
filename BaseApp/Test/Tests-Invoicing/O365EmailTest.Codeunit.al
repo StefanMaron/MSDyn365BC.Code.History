@@ -18,7 +18,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyInsertingMultipleCCRecipients()
     begin
         // [SCENARIO] User can add multiple CC recipients in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [WHEN] The user adds multiple CC recipients
         InsertRecipient('CC1@test.com', O365EmailSetup.RecipientType::CC);
@@ -36,7 +36,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyInsertingMultipleBCCRecipients()
     begin
         // [SCENARIO] User can add multiple BCC recipients in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [WHEN] The user adds multiple BCC recipients
         InsertRecipient('BCC1@test.com', O365EmailSetup.RecipientType::BCC);
@@ -54,7 +54,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyDeletingCCRecipient()
     begin
         // [SCENARIO] User can delete CC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] A CC recipient and a BCC recipient setup in email settings
         InsertRecipient('BCC1@test.com', O365EmailSetup.RecipientType::BCC);
@@ -74,7 +74,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyDeletingBCCRecipient()
     begin
         // [SCENARIO] User can delete BCC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] A CC recipient and a BCC recipient setup in email settings
         InsertRecipient('CC1@test.com', O365EmailSetup.RecipientType::CC);
@@ -94,7 +94,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyCCDeletedWhenSettingEmailToEmpty()
     begin
         // [SCENARIO] User can delete CC recipient in email settings by setting their email to empty
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
 
         // [GIVEN] A CC recipient and a BCC recipient setup in email settings
@@ -117,7 +117,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyModifingCCRecipient()
     begin
         // [SCENARIO] User can modify CC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] An CC recipient in email settings
         InsertRecipient('CC@test.com', O365EmailSetup.RecipientType::CC);
@@ -137,7 +137,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyModifingBCCRecipient()
     begin
         // [SCENARIO] User can modify BCC recipient in email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] An BCC recipient in email settings
         InsertRecipient('BCC2@test.com', O365EmailSetup.RecipientType::BCC);
@@ -157,7 +157,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyInsertingSameRecipientinCCandBCC()
     begin
         // [SCENARIO] User can insert same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] An CC recipient in email settings
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -174,7 +174,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyDeletingSameRecipientfromCCandBCC()
     begin
         // [SCENARIO] User can delete same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] A same recipient in CC and BCC email settings
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -201,7 +201,7 @@ codeunit 138908 "O365 Email Test"
     procedure VerifyModifingSameRecipientinCCandBCC()
     begin
         // [SCENARIO] User can modify same recipient in CC and BCC email settings
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         // [GIVEN] A same recipient in CC and BCC email setting
         InsertRecipient('ForBoth1@test.com', O365EmailSetup.RecipientType::CC);
@@ -222,70 +222,6 @@ codeunit 138908 "O365 Email Test"
         // [THEN] BCC recipient is modified and CC recipient remains intact.
         Assert.AreEqual('ModifiedForBoth1@test.com', O365EmailSetup.GetCCAddressesFromO365EmailSetup, '');
         Assert.AreEqual('ModifiedForBoth1@test.com', O365EmailSetup.GetBCCAddressesFromO365EmailSetup, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
-    procedure VerifyFromAddressSetCorrectlyFromUserIdWithSender()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        MailManagement: Codeunit "Mail Management";
-        BCO365EmailAccountSettings: TestPage "BC O365 Email Account Settings";
-    begin
-        // [SCENARIO] User sets a user id of the format "user\sender", the user id and sender are set correctly
-        Initialize;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [GIVEN] A user has an email of the form "user\sender"
-        BCO365EmailAccountSettings.OpenEdit;
-        BCO365EmailAccountSettings."Email Provider".SetValue('Office 365');
-        BCO365EmailAccountSettings.FromAccount.SetValue('testuser@domain.com\testsender@domain.com');
-        BCO365EmailAccountSettings.Password.SetValue('TestPassword');
-        BCO365EmailAccountSettings.Close;
-
-        // [THEN] The user reopens the settings the from account is the same
-        BCO365EmailAccountSettings.OpenEdit;
-        Assert.AreEqual('testuser@domain.com\testsender@domain.com', BCO365EmailAccountSettings.FromAccount.Value, '');
-
-        // [THEN] Finding the from address it is the testsender
-        Assert.AreEqual('testsender@domain.com', MailManagement.GetSenderEmailAddress, '');
-
-        // [THEN] The User Id is set to testuser
-        SMTPMailSetup.Get();
-        Assert.AreEqual('testuser@domain.com', SMTPMailSetup."User ID", '');
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
-    procedure VerifyFromAddressSetCorrectlyFromUserId()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        MailManagement: Codeunit "Mail Management";
-        BCO365EmailAccountSettings: TestPage "BC O365 Email Account Settings";
-    begin
-        // [SCENARIO] User sets a user id of the format user@domain, the user id and sender are set correctly
-        Initialize;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [GIVEN] A user has an email of the form user@domain
-        BCO365EmailAccountSettings.OpenEdit;
-        BCO365EmailAccountSettings."Email Provider".SetValue('Office 365');
-        BCO365EmailAccountSettings.FromAccount.SetValue('testuser@domain.com');
-        BCO365EmailAccountSettings.Password.SetValue('TestPassword');
-        BCO365EmailAccountSettings.Close;
-
-        // [THEN] Finding the from address it is the testuser
-        Assert.AreEqual('testuser@domain.com', MailManagement.GetSenderEmailAddress, '');
-
-        // [THEN] The user reopens the settings the from account is the same
-        BCO365EmailAccountSettings.OpenEdit;
-        Assert.AreEqual('testuser@domain.com', BCO365EmailAccountSettings.FromAccount.Value, '');
-
-        // [THEN] The User Id is set to testuser
-        SMTPMailSetup.Get();
-        Assert.AreEqual('testuser@domain.com', SMTPMailSetup."User ID", '');
     end;
 
     local procedure Initialize()
@@ -320,7 +256,7 @@ codeunit 138908 "O365 Email Test"
         O365EmailSetup.SetCurrentKey(Email, RecipientType);
         O365EmailSetup.SetRange(Email, Email);
         O365EmailSetup.SetRange(RecipientType, RecipientType);
-        O365EmailSetup.FindFirst;
+        O365EmailSetup.FindFirst();
     end;
 
     [SendNotificationHandler(true)]

@@ -42,7 +42,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
     begin
         // [SCENARIO] Create posted and unposted sales credit memos and use a GET method to retrieve them
         // [GIVEN] 2 credit memos, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesCreditMemos(CreditMemoNo1, CreditMemoNo2);
         Commit();
 
@@ -75,7 +75,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
     begin
         // [SCENARIO] Create posted and unposted Sales credit memos and use HTTP POST to delete them
         // [GIVEN] 2 credit memos, one posted and one unposted
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
@@ -120,7 +120,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO] Create posted and unposted with specific currency set and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] an CreditMemo with a non-LCY currencyCode set
         LibrarySales.CreateCustomer(Customer);
@@ -130,7 +130,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         JSONManagement.GetJSONObject(JObject);
         JSONManagement.AddJPropertyToJObject(JObject, 'customerNumber', CustomerNo);
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         CreditMemoJSON := JSONManagement.WriteObjectToString;
@@ -189,7 +189,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         ComplexTypeJSON: Text;
     begin
         // [SCENARIO] Create Sales CreditMemo, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] an order with the previously created customer
@@ -251,7 +251,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
     begin
         // [SCENARIO] Create posted and unposted sales credit memos and use HTTP DELETE to delete them
         // [GIVEN] 2 credit memos, one posted and one unposted
-        Initialize;
+        Initialize();
         CreateSalesCreditMemos(CreditMemoNo1, CreditMemoNo2);
 
         SalesCrMemoHeader.Get(CreditMemoNo1);
@@ -290,7 +290,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         // [SCENARIO] Create an credit memo both through the client UI and through the API
         // [SCENARIO] and compare them. They should be the same and have the same fields autocompleted wherever needed.
         // [GIVEN] An unposted credit memo
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.InitializeUIPage;
 
         LibrarySales.CreateCustomer(Customer);
@@ -323,7 +323,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
     begin
         // [SCENARIO] When an credit memo is created,the GET Method should update the credit memo and assign a total
         // [GIVEN] 2 credit memos, one posted and one unposted without totals assigned
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(
           SalesHeader, DiscountPct, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
@@ -356,7 +356,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
     begin
         // [SCENARIO] When an credit memo is created, the GET Method should update the credit memo and assign a total
         // [GIVEN] 2 credit memos, one posted and one unposted with discount amount that should be redistributed
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(
           SalesHeader, DiscountPct, SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.CalcFields(Amount);
@@ -395,7 +395,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CreditMemoID: Text;
     begin
         // [SCENARIO 184721] Create Credit Memo, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] an item with unit price and unit cost
@@ -443,7 +443,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CreditMemoID: Text;
     begin
         // [SCENARIO 184721] Clearing manually set discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item with unit price and unit cost
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
@@ -517,7 +517,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     local procedure CreateCreditMemoThroughTestPage(var SalesCreditMemo: TestPage "Sales Credit Memo"; Customer: Record Customer; DocumentDate: Date)
     begin
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer No.".SetValue(Customer."No.");
         SalesCreditMemo."Document Date".SetValue(DocumentDate);
     end;
@@ -557,7 +557,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure ModifySalesHeaderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)

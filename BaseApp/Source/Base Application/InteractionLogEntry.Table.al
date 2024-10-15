@@ -121,11 +121,9 @@ table 5065 "Interaction Log Entry"
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
         }
-        field(25; "Delivery Status"; Option)
+        field(25; "Delivery Status"; Enum "Interaction Delivery Status")
         {
             Caption = 'Delivery Status';
-            OptionCaption = ' ,In Progress,Error';
-            OptionMembers = " ","In Progress",Error;
         }
         field(26; Canceled; Boolean)
         {
@@ -327,6 +325,7 @@ table 5065 "Interaction Log Entry"
         Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
+        OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
 
     procedure AssignNewOpportunity()
     var
@@ -458,7 +457,8 @@ table 5065 "Interaction Log Entry"
                 Attachment."Email Message Url".CreateInStream(IStream);
                 IStream.Read(EmailMessageUrl);
                 if WebRequestHelper.IsHttpUrl(EmailMessageUrl) then begin
-                    HyperLink(EmailMessageUrl);
+                    if Confirm(OpenMessageQst, true) then
+                        HyperLink(EmailMessageUrl);
                     exit;
                 end;
             end;
@@ -552,7 +552,7 @@ table 5065 "Interaction Log Entry"
             InteractLogEntry.SetCurrentKey("Attachment No.");
             InteractLogEntry.SetRange("Attachment No.", "Attachment No.");
             InteractLogEntry.SetFilter("Entry No.", '<>%1', "Entry No.");
-            IsUnique := not InteractLogEntry.FindFirst;
+            IsUnique := not InteractLogEntry.FindFirst();
         end;
     end;
 

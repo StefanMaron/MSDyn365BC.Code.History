@@ -1,6 +1,5 @@
 codeunit 6700 "O365 Sync. Management"
 {
-
     trigger OnRun()
     var
         IsHandled: Boolean;
@@ -42,7 +41,7 @@ codeunit 6700 "O365 Sync. Management"
         RegisterBookingsConnection(BookingSync);
         TempBookingMailbox.Reset();
         TempBookingMailbox.DeleteAll();
-        if BookingMailbox.FindSet then
+        if BookingMailbox.FindSet() then
             repeat
                 TempBookingMailbox.Init();
                 TempBookingMailbox.TransferFields(BookingMailbox);
@@ -439,4 +438,3 @@ codeunit 6700 "O365 Sync. Management"
     begin
     end;
 }
-

@@ -127,6 +127,9 @@ table 9 "Country/Region"
         fieldgroup(Brick; "Code", Name, "VAT Scheme")
         {
         }
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
     }
 
     trigger OnDelete()
