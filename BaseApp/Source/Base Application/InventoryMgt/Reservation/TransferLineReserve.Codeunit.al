@@ -571,7 +571,6 @@ codeunit 99000836 "Transfer Line-Reserve"
         if Direction = Direction::Outbound then begin
             ReservEntry2.Copy(ReservEntry);
             ReservEntry2.SetRange("Source Subtype", Direction::Inbound);
-            ReservEntry2.SetTrackingFilterFromReservEntry(ReservEntry);
             CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry2);
         end;
     end;
