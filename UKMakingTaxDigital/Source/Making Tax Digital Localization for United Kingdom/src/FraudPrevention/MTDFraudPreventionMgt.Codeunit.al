@@ -39,7 +39,7 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
         IPAddressErr: Label 'Public IP address lookup failed. Specify a service that will return the public IP address of the current user.';
         IPAddressOkTxt: Label 'Public IP address lookup was successful.';
 
-#if not CLEAN20
+#if not CLEAN21
     [Obsolete('Not used anymore.', '21.0')]
     internal procedure CheckInitDefaultHeadersList()
     begin

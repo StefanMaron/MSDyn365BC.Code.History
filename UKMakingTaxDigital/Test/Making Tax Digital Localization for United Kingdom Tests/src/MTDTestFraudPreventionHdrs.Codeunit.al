@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-
+#if not CLEAN21
 codeunit 148089 "MTD Test Fraud Prevention Hdrs"
 {
     Subtype = Test;
@@ -83,3 +83,4 @@ codeunit 148089 "MTD Test Fraud Prevention Hdrs"
         Commit();
     end;
 }
+#endif
