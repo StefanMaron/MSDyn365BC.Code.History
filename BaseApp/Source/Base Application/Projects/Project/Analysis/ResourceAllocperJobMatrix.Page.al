@@ -8,7 +8,7 @@ using System.Utilities;
 
 page 9211 "Resource Alloc. per Job Matrix"
 {
-    Caption = 'Resource Allocated per Job Matrix';
+    Caption = 'Resource Allocated per Project Matrix';
     DataCaptionExpression = '';
     Editable = false;
     LinksAllowed = false;

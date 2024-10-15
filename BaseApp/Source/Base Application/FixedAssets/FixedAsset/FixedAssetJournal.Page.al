@@ -594,9 +594,12 @@ page 5629 "Fixed Asset Journal"
         Clear(DimMgt);
     end;
 
+#pragma warning disable AL0523
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var FAJournalLine: Record "FA Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
     begin
     end;
+#pragma warning restore AL0523
+
 }
 

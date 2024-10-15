@@ -43,8 +43,8 @@ codeunit 137209 "SCM Get Item Entries"
         CompanyInformation.Get();
         TempCompanyInformation := CompanyInformation;
         TempCompanyInformation.Insert(true);
-        UpdateCompanyInfo;
-        CurrencyCode := UpdateAddnlReportingCurrency;
+        UpdateCompanyInfo();
+        CurrencyCode := UpdateAddnlReportingCurrency();
 
         // Setup intrastat journal.
         CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
@@ -61,7 +61,7 @@ codeunit 137209 "SCM Get Item Entries"
         NoOfLines := VerifyIntrastatLines(IntrastatJnlLine, DocumentType, DocumentNo);
 
         // Prevent false negatives when some lines are retrieved for an invalid interval.
-        Assert.IsFalse((WorkDate < StartDate) and (NoOfLines <> 0), 'Some lines were retrieved for ' + DocumentNo);
+        Assert.IsFalse((WorkDate() < StartDate) and (NoOfLines <> 0), 'Some lines were retrieved for ' + DocumentNo);
 
         // Tear Down: Restore company information.
         RestoreCompanyInfo(TempCompanyInformation);
@@ -127,7 +127,7 @@ codeunit 137209 "SCM Get Item Entries"
 
         // [WHEN] Getting Intrastat Lines
         CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate + 1);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate() + 1);
 
         // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 200 (includes Item Charge)
         VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 200);
@@ -168,7 +168,7 @@ codeunit 137209 "SCM Get Item Entries"
 
         // [WHEN] Getting Intrastat Lines
         CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate + 1);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate() + 1);
 
         // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 100 (not includes Item Charge)
         VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 100);
@@ -249,7 +249,7 @@ codeunit 137209 "SCM Get Item Entries"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CompanyInformation.FindFirst();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.FindFirst();
@@ -272,7 +272,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         // Set additional currency reporting in the GL setup.
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate();
         GeneralLedgerSetup.Modify(true);
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
@@ -329,7 +329,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         for Counter := 1 to 2 do
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     [Scope('OnPrem')]
@@ -373,7 +373,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         for Counter := 1 to 2 do
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem,
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(),
               LibraryRandom.RandInt(10));
     end;
 
@@ -427,7 +427,7 @@ codeunit 137209 "SCM Get Item Entries"
                 begin
                     LibrarySales.CreateCustomer(Customer);
                     // Customize the customer to be from within EU, from a different country than the one defined in the company information.
-                    Customer.Validate("Country/Region Code", CreateEUCountryRegion);
+                    Customer.Validate("Country/Region Code", CreateEUCountryRegion());
                     Customer.Modify(true);
 
                     // Create and post Sales Order.
@@ -444,7 +444,7 @@ codeunit 137209 "SCM Get Item Entries"
                 begin
                     LibraryPurchase.CreateVendor(Vendor);
                     // Customize the vendor to be from within EU, from a different country than the one defined in the company information.
-                    Vendor.Validate("Country/Region Code", CreateEUCountryRegion);
+                    Vendor.Validate("Country/Region Code", CreateEUCountryRegion());
                     Vendor.Modify(true);
 
                     // Create and post Purchase Order.
@@ -479,7 +479,7 @@ codeunit 137209 "SCM Get Item Entries"
         CompanyInformation: Record "Company Information";
         CountryRegionCode: Code[10];
     begin
-        CountryRegionCode := CreateEUCountryRegion;
+        CountryRegionCode := CreateEUCountryRegion();
         CompanyInformation.Get();
         CompanyInformation.Validate("Country/Region Code", CountryRegionCode);
         CompanyInformation.Validate("Ship-to Country/Region Code", CountryRegionCode);

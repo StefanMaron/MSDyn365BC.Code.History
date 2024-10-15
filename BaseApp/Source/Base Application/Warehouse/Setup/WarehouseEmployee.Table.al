@@ -10,6 +10,7 @@ table 7301 "Warehouse Employee"
     Caption = 'Warehouse Employee';
     LookupPageID = "Warehouse Employee List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

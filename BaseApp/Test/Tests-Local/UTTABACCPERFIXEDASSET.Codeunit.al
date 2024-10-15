@@ -70,7 +70,7 @@ codeunit 144020 "UT TAB ACCPER - FIXED ASSET"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Code := LibraryUTUtility.GetNewCode10;
+        DepreciationBook.Code := LibraryUTUtility.GetNewCode10();
         DepreciationBook."Use Accounting Period" := UseAccountingPeriod;
         DepreciationBook.Insert();
         exit(DepreciationBook.Code);

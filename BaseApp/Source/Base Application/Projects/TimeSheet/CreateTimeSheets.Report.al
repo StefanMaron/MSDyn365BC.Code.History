@@ -31,6 +31,7 @@ report 950 "Create Time Sheets"
                 trigger OnAfterGetRecord()
                 var
                     TimeSheetMgt: Codeunit "Time Sheet Management";
+                    NoSeries: Codeunit "No. Series";
                     IsHandled: Boolean;
                 begin
                     IsHandled := false;
@@ -40,7 +41,7 @@ report 950 "Create Time Sheets"
 
                     if CheckExistingPeriods() then begin
                         TimeSheetHeader.Init();
-                        TimeSheetHeader."No." := NoSeriesMgt.GetNextNo(ResourcesSetup."Time Sheet Nos.", Today, true);
+                        TimeSheetHeader."No." := NoSeries.GetNextNo(ResourcesSetup."Time Sheet Nos.", Today());
                         TimeSheetHeader."Starting Date" := StartingDate;
                         TimeSheetHeader."Ending Date" := EndingDate;
                         TimeSheetHeader.Validate("Resource No.", "No.");
@@ -111,8 +112,8 @@ report 950 "Create Time Sheets"
                     field(CreateLinesFromJobPlanning; CreateLinesFromJobPlanning)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Create Lines From Job Planning';
-                        ToolTip = 'Specifies if you want to create time sheet lines that are based on job planning lines.';
+                        Caption = 'Create Lines From Project Planning';
+                        ToolTip = 'Specifies if you want to create time sheet lines that are based on project planning lines.';
                     }
                 }
             }
@@ -198,7 +199,6 @@ report 950 "Create Time Sheets"
         AccountingPeriod: Record "Accounting Period";
         ResourcesSetup: Record "Resources Setup";
         TimeSheetHeader: Record "Time Sheet Header";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         HidResourceFilter: Code[250];
         StartingDate: Date;
         EndingDate: Date;

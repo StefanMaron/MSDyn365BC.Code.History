@@ -24,7 +24,7 @@ codeunit 5722 "Item Category Management"
         if ItemCategory.Get('') then
             ItemCategory.Delete();
 
-        if ItemCategory.FindSet(false, false) then
+        if ItemCategory.FindSet(false) then
             repeat
                 TempItemCategory.TransferFields(ItemCategory);
                 TempItemCategory.Insert();
@@ -49,7 +49,7 @@ codeunit 5722 "Item Category Management"
         TempItemCategory.SetCurrentKey("Parent Category");
         TempItemCategory.Ascending(false);
         TempItemCategory.SetRange("Parent Category", '');
-        if TempItemCategory.FindSet(false, false) then
+        if TempItemCategory.FindSet(false) then
             repeat
                 TempStack.Push(TempItemCategory.RecordId());
             until TempItemCategory.Next() = 0;
@@ -59,7 +59,7 @@ codeunit 5722 "Item Category Management"
             HasChildren := false;
 
             TempItemCategory.SetRange("Parent Category", TempCurItemCategory.Code);
-            if TempItemCategory.FindSet(false, false) then
+            if TempItemCategory.FindSet(false) then
                 repeat
                     TempStack.Push(TempItemCategory.RecordId());
                     HasChildren := true;
@@ -136,47 +136,45 @@ codeunit 5722 "Item Category Management"
         ItemCategoryPrevExists: Boolean;
         ItemCategoryNextExists: Boolean;
     begin
-        with ItemCategory do begin
-            if HasChildren() then begin
-                "Presentation Order" := 0;
-                exit;
-            end;
-
-            ItemCategoryPrev.SetRange("Parent Category", "Parent Category");
-            ItemCategoryPrev.SetFilter(Code, '<%1', Code);
-            ItemCategoryPrevExists := ItemCategoryPrev.FindLast();
-            if not ItemCategoryPrevExists then
-                ItemCategoryPrevExists := ItemCategoryPrev.Get("Parent Category")
-            else
-                ItemCategoryPrev.Get(GetLastChildCode(ItemCategoryPrev.Code));
-
-            ItemCategoryNext.SetRange("Parent Category", "Parent Category");
-            ItemCategoryNext.SetFilter(Code, '>%1', Code);
-            ItemCategoryNextExists := ItemCategoryNext.FindFirst();
-            if not ItemCategoryNextExists and ItemCategoryPrevExists then begin
-                ItemCategoryNext.Reset();
-                ItemCategoryNext.SetCurrentKey("Presentation Order");
-                ItemCategoryNext.SetFilter(Code, '<>%1', Code);
-                ItemCategoryNext.SetFilter("Presentation Order", '>%1', ItemCategoryPrev."Presentation Order");
-                ItemCategoryNextExists := ItemCategoryNext.FindFirst();
-            end;
-
-            case true of
-                not ItemCategoryPrevExists and not ItemCategoryNextExists:
-                    "Presentation Order" := 10000;
-                not ItemCategoryPrevExists and ItemCategoryNextExists:
-                    "Presentation Order" := ItemCategoryNext."Presentation Order" div 2;
-                ItemCategoryPrevExists and not ItemCategoryNextExists:
-                    "Presentation Order" := ItemCategoryPrev."Presentation Order" + 10000;
-                ItemCategoryPrevExists and ItemCategoryNextExists:
-                    "Presentation Order" := (ItemCategoryPrev."Presentation Order" + ItemCategoryNext."Presentation Order") div 2;
-            end;
-
-            ItemCategorySearch.SetRange("Presentation Order", "Presentation Order");
-            ItemCategorySearch.SetFilter(Code, '<>%1', Code);
-            if not ItemCategorySearch.IsEmpty() then
-                "Presentation Order" := 0;
+        if ItemCategory.HasChildren() then begin
+            ItemCategory."Presentation Order" := 0;
+            exit;
         end;
+
+        ItemCategoryPrev.SetRange("Parent Category", ItemCategory."Parent Category");
+        ItemCategoryPrev.SetFilter(Code, '<%1', ItemCategory.Code);
+        ItemCategoryPrevExists := ItemCategoryPrev.FindLast();
+        if not ItemCategoryPrevExists then
+            ItemCategoryPrevExists := ItemCategoryPrev.Get(ItemCategory."Parent Category")
+        else
+            ItemCategoryPrev.Get(GetLastChildCode(ItemCategoryPrev.Code));
+
+        ItemCategoryNext.SetRange("Parent Category", ItemCategory."Parent Category");
+        ItemCategoryNext.SetFilter(Code, '>%1', ItemCategory.Code);
+        ItemCategoryNextExists := ItemCategoryNext.FindFirst();
+        if not ItemCategoryNextExists and ItemCategoryPrevExists then begin
+            ItemCategoryNext.Reset();
+            ItemCategoryNext.SetCurrentKey("Presentation Order");
+            ItemCategoryNext.SetFilter(Code, '<>%1', ItemCategory.Code);
+            ItemCategoryNext.SetFilter("Presentation Order", '>%1', ItemCategoryPrev."Presentation Order");
+            ItemCategoryNextExists := ItemCategoryNext.FindFirst();
+        end;
+
+        case true of
+            not ItemCategoryPrevExists and not ItemCategoryNextExists:
+                ItemCategory."Presentation Order" := 10000;
+            not ItemCategoryPrevExists and ItemCategoryNextExists:
+                ItemCategory."Presentation Order" := ItemCategoryNext."Presentation Order" div 2;
+            ItemCategoryPrevExists and not ItemCategoryNextExists:
+                ItemCategory."Presentation Order" := ItemCategoryPrev."Presentation Order" + 10000;
+            ItemCategoryPrevExists and ItemCategoryNextExists:
+                ItemCategory."Presentation Order" := (ItemCategoryPrev."Presentation Order" + ItemCategoryNext."Presentation Order") div 2;
+        end;
+
+        ItemCategorySearch.SetRange("Presentation Order", ItemCategory."Presentation Order");
+        ItemCategorySearch.SetFilter(Code, '<>%1', ItemCategory.Code);
+        if not ItemCategorySearch.IsEmpty() then
+            ItemCategory."Presentation Order" := 0;
     end;
 
     [Scope('OnPrem')]

@@ -23,7 +23,6 @@ codeunit 137307 "SCM Assembly Reports"
         BlueLocation: Code[10];
         SalesOrderNo: Code[20];
         ShipmentNo: Code[20];
-        InvoiceNo: Code[20];
         SerialNoComponentQuantity: Decimal;
         LotNoComponentQuantity: Integer;
         SN: Code[5];
@@ -66,8 +65,8 @@ codeunit 137307 "SCM Assembly Reports"
         ActualGlobalLanguage: Integer;
     begin
         Initialize();
-        CleanSetupData;
-        CheckInit;
+        CleanSetupData();
+        CheckInit();
         SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
         ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader."Language Code");
@@ -81,66 +80,66 @@ codeunit 137307 "SCM Assembly Reports"
         SalesShipment.SetTableView(SalesShipmentHeader);
         Commit();
         SalesShipment.Run();
-        VerifySalesShipmentLines(SalesShipment.BlanksForIndent);
+        VerifySalesShipmentLines(SalesShipment.BlanksForIndent());
         if ActualReportLanguage <> ActualGlobalLanguage then
             GlobalLanguage(ActualGlobalLanguage);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     local procedure VerifyOrderConfirmationLines(Blanks: Text[10])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No2_SalesLine', AssemblyItemNo[1]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesLine', 1);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[5]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 2);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[6]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 8);
     end;
 
     local procedure VerifySalesShipmentLines(Blanks: Text[10])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesShptLine', AssemblyItemNo[1]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Description_SalesShptLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesShptLine', 1);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('PostedAsmLineItemNo', Blanks + AssemblyItemNo[5]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PostedAsmLineQuantity', 2);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('PostedAsmLineItemNo', Blanks + AssemblyItemNo[6]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PostedAsmLineQuantity', 8);
     end;
 
     local procedure VerifySalesInvoiceLines(Blanks: Text[10])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesInvLine', AssemblyItemNo[1]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesInvLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesInvLine', 1);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[5]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 2);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[6]);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 8);
     end;
 
@@ -278,7 +277,7 @@ codeunit 137307 "SCM Assembly Reports"
         i: Integer;
     begin
         if not SetupDataInitialized then begin
-            CreateTestNoSeriesBackupData;
+            CreateTestNoSeriesBackupData();
             BlueLocation := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
             GetResource();
             SellToCustomerNo := LibrarySales.CreateCustomerNo();
@@ -287,12 +286,12 @@ codeunit 137307 "SCM Assembly Reports"
             LibraryERMCountryData.UpdateGeneralPostingSetup();
             SetupDataInitialized := true;
         end;
-        CreateAssemblyItem;
+        CreateAssemblyItem();
         GetSKU();
-        ProvideAssemblyComponentSupply;
+        ProvideAssemblyComponentSupply();
         BOMComponent.SetRange("Parent Item No.", AssemblyItemNo[1]);
         BOMComponent.DeleteAll(true);
-        GetSerialNoLotNoCode;
+        GetSerialNoLotNoCode();
         // Create serialno item and provide supply
         AssemblyItemNo[5] := LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         Item.Get(AssemblyItemNo[5]);
@@ -352,7 +351,7 @@ codeunit 137307 "SCM Assembly Reports"
             StockoutWarningSet := false;
         end;
         SalesSetup."Credit Warnings" := OldCreditWarning;
-        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify();
         if OldAssemblyOrderNoSeries <> '' then begin
             AssemblySetup.Get();
@@ -511,7 +510,7 @@ codeunit 137307 "SCM Assembly Reports"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LibrarySales: Codeunit "Library - Sales";
     begin
         SalesHeader.Init();
@@ -523,7 +522,7 @@ codeunit 137307 "SCM Assembly Reports"
             DocumentType::"Blanket Order":
                 SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
         end;
-        SalesHeader."No." := NoSeriesMgt.GetNextNo(NoSeriesName, Today, true);
+        SalesHeader."No." := NoSeries.GetNextNo(NoSeriesName, Today());
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", SellToCustomerNo);
         SalesHeader.Validate("Location Code", BlueLocation);
@@ -638,7 +637,7 @@ codeunit 137307 "SCM Assembly Reports"
     [Scope('OnPrem')]
     procedure ReportHandlerSalesShipment(var SalesShipment: TestRequestPage "Sales - Shipment")
     begin
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

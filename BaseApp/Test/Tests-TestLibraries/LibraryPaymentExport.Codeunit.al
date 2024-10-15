@@ -14,7 +14,7 @@ codeunit 130100 "Library - Payment Export"
 
     procedure GetRandomCreditorNo(): Code[20]
     begin
-        exit(LibraryUtility.GenerateGUID + Format(LibraryRandom.RandIntInRange(111111111, 999999999)));
+        exit(LibraryUtility.GenerateGUID() + Format(LibraryRandom.RandIntInRange(111111111, 999999999)));
     end;
 
     procedure GetRandomPaymentReference(): Code[50]
@@ -22,7 +22,7 @@ codeunit 130100 "Library - Payment Export"
         RandomValue: Code[10];
     begin
         RandomValue := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
-        exit(LibraryUtility.GenerateGUID + RandomValue + RandomValue);
+        exit(LibraryUtility.GenerateGUID() + RandomValue + RandomValue);
     end;
 
     procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method")
@@ -95,20 +95,18 @@ codeunit 130100 "Library - Payment Export"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        with GenJnlTemplate do begin
-            SetRange(Type, Type::Payments);
-            SetRange(Recurring, false);
+        GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Payments);
+        GenJnlTemplate.SetRange(Recurring, false);
 
-            if not FindFirst() then begin
-                Init();
-                Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Gen. Journal Template");
-                Type := Type::Payments;
-                Recurring := false;
-                Insert();
-            end;
-
-            exit(Name);
+        if not GenJnlTemplate.FindFirst() then begin
+            GenJnlTemplate.Init();
+            GenJnlTemplate.Name := LibraryUtility.GenerateRandomCode(GenJnlTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template");
+            GenJnlTemplate.Type := GenJnlTemplate.Type::Payments;
+            GenJnlTemplate.Recurring := false;
+            GenJnlTemplate.Insert();
         end;
+
+        exit(GenJnlTemplate.Name);
     end;
 
     procedure SetPmtToDomestic(var BankAccount: Record "Bank Account"; var VendorBankAccount: Record "Vendor Bank Account")
@@ -201,20 +199,18 @@ codeunit 130100 "Library - Payment Export"
 
     procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; DataExchDefCode: Code[20])
     begin
-        with BankExportImportSetup do begin
-            if Get(DataExchDefCode) then
-                Delete();
-            Reset();
-            Code := LibraryUtility.GenerateGUID();
-            Direction := Direction::Export;
-            "Data Exch. Def. Code" := DataExchDefCode;
-            Insert();
-        end;
+        if BankExportImportSetup.Get(DataExchDefCode) then
+            BankExportImportSetup.Delete();
+        BankExportImportSetup.Reset();
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
+        BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
+        BankExportImportSetup."Data Exch. Def. Code" := DataExchDefCode;
+        BankExportImportSetup.Insert();
     end;
 
     procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AllowPaymentExport: Boolean)
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
         GenJournalBatch.Validate("Bal. Account Type", BalAccountType);
         GenJournalBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJournalBatch.Validate("Allow Payment Export", AllowPaymentExport);

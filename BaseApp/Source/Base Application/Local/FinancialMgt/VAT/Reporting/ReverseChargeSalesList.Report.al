@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -407,7 +407,6 @@ report 10529 "Reverse Charge Sales List"
         Text000: Label 'All amounts are in whole %1.';
         LineCountCurrentPage: Integer;
         LineCountAllPages: Integer;
-        CurrentPageNo: Integer;
         Text001: Label 'Page %1';
         SubmissionFilePath: Text;
         ExportSubmissionFile: Boolean;

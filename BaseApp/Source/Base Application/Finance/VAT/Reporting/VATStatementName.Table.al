@@ -8,6 +8,7 @@ table 257 "VAT Statement Name"
 {
     Caption = 'VAT Statement Name';
     LookupPageID = "VAT Statement Names";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,68 +10,67 @@ codeunit 139400 "Permissions Test"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN22
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+#endif
         LibraryPermissions: Codeunit "Library - Permissions";
+#if not CLEAN22
         LibraryPermissionsVerify: Codeunit "Library - Permissions Verify";
+#endif
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryPlainTextFile: Codeunit "Library - Plain Text File";
         Assert: Codeunit Assert;
         BaseAppID: Codeunit "BaseApp ID";
+#if not CLEAN22
         PermissionSetBasicTxt: Label 'D365 BASIC';
-        PermissionSetFinancialReportsTxt: Label 'D365 FINANCIAL REP.';
         PermissionSetJournalsEditTxt: Label 'D365 JOURNALS, EDIT';
         PermissionSetJournalsPostTxt: Label 'D365 JOURNALS, POST';
+#endif
         PermissionSetNonExistentTxt: Label 'Non-existent';
         PlanSmallBusinessTxt: Label 'Plan-SmallB-Test';
         PlanOffice365Txt: Label 'Plan-Office365-Test';
         PlanOffice365ExtraTxt: Label 'Plan-Office365Ext-Test';
+#if not CLEAN22
         QueryNameTok: Label 'Users In User Group';
+
+#endif
         UserCassieTxt: Label 'User-Cassie-Test';
         UserDebraTxt: Label 'User-Debra-Test';
+#if not CLEAN22
         UserGroupAccountantPostingTxt: Label 'UserGroup-AccP-Test';
         UserGroupAccountantTxt: Label 'UserGroup-Acc-Test';
         UserGroupAuditorTxt: Label 'UserGroup-Aud-Test';
         UserGroupFinanceTxt: Label 'UserGroup-Finance';
-        WrongUserGroupCodeErr: Label 'Wron user group exported.';
+#endif
         ImportEmptyFileErr: Label 'Cannot import the specified XML document because the file is empty.';
         ResolvePermissionNotificationIdTxt: Label '3301a843-3a72-4777-83a2-a1eeb2041efa', Locked = true;
         NullGuid: Guid;
 
     [Test]
     [Scope('OnPrem')]
-    procedure LastPlanRemovedFromUserInSaaS()
+    procedure UserWithoutPlansKeepReviewedStatusForOnSaaS()
     var
         UserSecurityStatus: Record "User Security Status";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        PlanID: Guid;
         Cassie: Guid;
     begin
-        // [SCENARIO] Last plan removed from user, marks it as "to review" by the security admin
+        // [SCENARIO] When a user has no plans, the reviewed status is not changed for OnPrem
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        // [GIVEN] Plan Office365
-        PlanID := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
         // [GIVEN] User Cassie
         Cassie := LibraryPermissions.CreateUserWithName(UserCassieTxt);
-        // [GIVEN] Cassie is part of Office365
-        LibraryPermissions.AddUserToPlan(Cassie, PlanID);
         // [GIVEN] Cassie is not marked for review by the security admin
         UserSecurityStatus.LoadUsers();
         UserSecurityStatus.Get(Cassie);
         UserSecurityStatus.Reviewed := true;
         UserSecurityStatus.Modify(true);
 
+        // [WHEN] User Security Status is reloaded
         UserSecurityStatus.LoadUsers();
+
+        // [THEN] Cassie is still marked as Reviewed = TRUE
         UserSecurityStatus.Get(Cassie);
         Assert.IsTrue(UserSecurityStatus.Reviewed, 'User Cassie should have status = reviewed');
-
-        // [WHEN] Cassie is removed from the plan
-        AzureADPlanTestLibrary.RemoveUserFromPlan(Cassie, PlanID);
-        UserSecurityStatus.LoadUsers();
-
-        // [THEN] Cassie is marked as Reviewed = FALSE
-        UserSecurityStatus.Get(Cassie);
-        Assert.IsFalse(UserSecurityStatus.Reviewed, 'User Cassie should have status = not reviewed');
 
         TearDown();
     end;
@@ -582,53 +581,6 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(TextPosition > 1, 'Tenant permission set is not found in exported file');
     end;
 
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure ImportTenantPermissions()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        Permission: Record Permission;
-        TenantPermission: Record "Tenant Permission";
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        FileManagement: Codeunit "File Management";
-        ExportFile: File;
-        ImportFile: File;
-        FileOutStream: OutStream;
-        FileInStream: InStream;
-        FileName: Text;
-        ZeroGuid: Guid;
-    begin
-        // [FEATURE] [Import] [XMLPORT] [Permission Set] [Tenant Permission Set]
-        // [SCENARIO 292106] Stan can import system permisions and tenant permissions via XML PORT 9174 in a single run
-
-        // [GIVEN] Tenant permission set "PS1" with "PS11_1_1" permissions (tenant "Role Id" = system "Role Id" )
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'PS11', ZeroGuid);
-        LibraryPermissions.AddTenantPermission(ZeroGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Sales Header");
-        TenantPermission.Get(ZeroGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Sales Header");
-        TenantPermission."Insert Permission" := TenantPermission."Insert Permission"::Yes;
-        TenantPermission.Modify();
-        // [GIVEN] Permissions are exported and deleted
-        AggregatePermissionSet.SetFilter("Role ID", 'PS11');
-        FileName := FileManagement.ServerTempFileName('txt');
-        ExportFile.Create(FileName);
-        ExportFile.CreateOutStream(FileOutStream);
-        Xmlport.Export(Xmlport::"Export Permission Sets", FileOutStream, AggregatePermissionSet);
-        ExportFile.Close();
-        TenantPermissionSet.Get(ZeroGuid, 'PS11');
-        TenantPermissionSet.Delete(true);
-
-        // [WHEN] Import permissions
-        ImportFile.Open(FileName);
-        ImportFile.CreateInStream(FileInStream);
-        XMLPORT.Import(XMLPORT::"Import Tenant Permission Sets", FileInStream);
-
-        // [THEN] Tenant "PS11" with "PS11_1_1" is in the "Tenant Permission Set" and "Tenant Permission"
-        TenantPermissionSet.Get(ZeroGuid, 'PS11');
-        TenantPermission.Get(ZeroGuid, 'PS11', Permission."Object Type"::"Table Data", Database::"Sales Header");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ImportPermissionSets_01()
@@ -716,96 +668,6 @@ codeunit 139400 "Permissions Test"
         Assert.AreEqual(RoleIdFilter, SelectedRoleIdFilter, 'Role Id selection filter is wrong.');
     end;
 
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure PermissionsPageWithRemovedObject()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        Permissions: TestPage Permissions;
-    begin
-        // [SCENARIO] Open permissions page with existing permission for the removed object
-        // [GIVEN] Permission set with permission for non-existing object
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'NEW', NullGuid);
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", 1234567890);
-        // [WHEN] Open permissions page
-        Permissions.Trap();
-        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::System, NullGuid, TenantPermissionSet."Role ID", false);
-        // [THEN] Page is opened
-        // [THEN] The page shows no record
-        Assert.IsFalse(Permissions.First(), 'The page was not empty.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TenantPermissionsPageWithRemovedObject()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        TenantPermissions: TestPage "Tenant Permissions";
-    begin
-        // [SCENARIO] Open permissions page with existing permission for the removed object
-        // [GIVEN] Permission set with permission for non-existing object
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), NullGuid);
-        LibraryPermissions.AddTenantPermission(NullGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", 1234567890);
-        // [WHEN] Open tenant permissions page
-        TenantPermissions.Trap();
-        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, NullGuid, TenantPermissionSet."Role ID", false);
-        // [THEN] Page is opened
-        // [THEN] "Object Name" is empty
-        TenantPermissions.First();
-        Assert.AreEqual(TenantPermissions."Object ID".Value, Format(1234567890), 'Object id should be "1234567890".');
-        Assert.AreEqual(TenantPermissions.ObjectName.Value, '', 'Object name should be blank for removed object.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PermissionSetsWithSameNameAndDifferentTypes()
-    var
-        FirstTenantPermissionSet: Record "Tenant Permission Set";
-        SecondTenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        TenantPermissions: TestPage "Tenant Permissions";
-        RoleID: Code[20];
-    begin
-        // [SCENARIO 389103] Page "Tenant Permissions" shows corresponding permissions
-
-        // [GIVEN] Permission Set "PS1" with "Role ID" = "PermSet" and type "User-defined"
-        // [GIVEN] and Permission "P1"
-        RoleID := LibraryUtility.GenerateRandomCode20(FirstTenantPermissionSet.FieldNo("Role ID"), Database::"Tenant Permission Set");
-        LibraryPermissions.CreateTenantPermissionSet(FirstTenantPermissionSet, RoleID, LibraryUtility.GetEmptyGuid());
-        LibraryPermissions.AddTenantPermission(
-            FirstTenantPermissionSet."App ID", FirstTenantPermissionSet."Role ID",
-            TenantPermission."Object Type"::Table, Database::"Sales Header");
-
-        // [GIVEN] Permission Set "PS2" with "Role ID" = "PermSet" and type "Extension"
-        // [GIVEN] and Permission "P2"
-        LibraryPermissions.CreateTenantPermissionSet(SecondTenantPermissionSet, RoleID, System.CreateGuid());
-        LibraryPermissions.AddTenantPermission(
-            SecondTenantPermissionSet."App ID", SecondTenantPermissionSet."Role ID",
-            TenantPermission."Object Type"::Table, Database::"Purchase Header");
-
-        // [WHEN] Open page "Tenant Permissions"
-        TenantPermissions.Trap();
-        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, LibraryUtility.GetEmptyGuid(), RoleID, false);
-
-        // [THEN] The first permission is "P1"
-        TenantPermissions.First();
-        Assert.AreEqual(Database::"Sales Header", TenantPermissions."Object ID".AsInteger(), 'Wrong object ID.');
-
-        // [THEN] The next line is blank
-        TenantPermissions.Next();
-        Assert.AreEqual(0, TenantPermissions."Object ID".AsInteger(), 'Wrong object ID.');
-    end;
-#endif
-
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure TestBasicHasDirectAccessToCueSetup()
@@ -828,12 +690,8 @@ codeunit 139400 "Permissions Test"
     procedure TestResolvePermissionNotificationAction()
     var
         AccessControl: Record "Access Control";
-        AggregatedPermissionSet: Record "Aggregate Permission Set";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        UsersCreateSuperUser: Codeunit "Users - Create Super User";
         AppID: Guid;
-        PlanID: Guid;
-        Cassie: Guid;
         Found: Boolean;
     begin
         // [SCENARIO] Test resolve permissions action for resolving permissions sets that no longer exist but still show in Access Control

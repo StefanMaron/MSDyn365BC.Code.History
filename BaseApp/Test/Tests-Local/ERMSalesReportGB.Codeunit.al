@@ -45,11 +45,11 @@ codeunit 144039 "ERM Sales Report GB"
 
         // Setup
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateAndPostSalesDocumentWithDueDate(
           SalesLine, CustomerNo, SalesLine."Document Type"::Order, '', true, CalcDate('<+1M>', WorkDate()));
 
-        FileName := LibraryReportDataset.GetFileName;
+        FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Enqueue(FileName); // for Statement handler
 
         // Exercise
@@ -83,7 +83,7 @@ codeunit 144039 "ERM Sales Report GB"
 
         // [WHEN] Export report "Order Confirmation GB" to XML file
         RunOrderConfirmationGBReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "External Document No." is displayed under Tag <ReferenceText> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ReferenceText', SalesHeader.FieldCaption("External Document No."));
@@ -98,8 +98,8 @@ codeunit 144039 "ERM Sales Report GB"
     begin
         Clear(LibraryReportDataset);
 
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
-        LibraryERMCountryData.UpdateFAPostingGroup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERMCountryData.UpdateFAPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
@@ -148,7 +148,7 @@ codeunit 144039 "ERM Sales Report GB"
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -167,7 +167,7 @@ codeunit 144039 "ERM Sales Report GB"
     [Scope('OnPrem')]
     procedure OrderConfirmationGBRequestPageHandler(var OrderConfirmationGB: TestRequestPage "Order Confirmation GB")
     begin
-        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure MockSalesOrderWithExternalDocumentNo(var SalesHeader: Record "Sales Header")

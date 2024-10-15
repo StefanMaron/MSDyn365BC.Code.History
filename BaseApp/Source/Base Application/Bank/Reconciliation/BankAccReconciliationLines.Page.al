@@ -41,22 +41,6 @@ page 380 "Bank Acc. Reconciliation Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check number for the transaction on the reconciliation line.';
                 }
-#if not CLEAN21
-                field(Type; Rec.Type)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of ledger entry, or a difference to be reconciled on this line.';
-                    Visible = false;
-                    ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-
-                    trigger OnValidate()
-                    begin
-                        SetUserInteractions();
-                    end;
-                }
-#endif
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -202,9 +186,6 @@ page 380 "Bank Acc. Reconciliation Lines"
 
                 trigger OnAction()
                 begin
-#if not CLEAN21
-                    ApplyBankReconEntries();
-#endif
                 end;
             }
 #endif
@@ -248,17 +229,18 @@ page 380 "Bank Acc. Reconciliation Lines"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         StyleTxt: Text;
-        TotalDiff: Decimal;
-        Balance: Decimal;
-        TotalBalance: Decimal;
         ReconciledAmount: Decimal;
         TotalReconciledAmount: Decimal;
-        UpdateAllowed: Boolean;
         TotalDiffEnable: Boolean;
         TotalBalanceEnable: Boolean;
         BalanceEnable: Boolean;
         ReconciledAmountEnable: Boolean;
         TotalReconciledAmountEnable: Boolean;
+
+    protected var
+        TotalDiff: Decimal;
+        Balance: Decimal;
+        TotalBalance: Decimal;
 
     local procedure CalcBalance(BankAccReconLineNo: Integer)
     var
@@ -300,18 +282,6 @@ page 380 "Bank Acc. Reconciliation Lines"
             TotalReconciledAmountEnable := true;
         end;
     end;
-
-#if not CLEAN21
-    local procedure ApplyBankReconEntries()
-    var
-        BankAccReconApplyEntries: Codeunit "Bank Acc. Recon. Apply Entries";
-    begin
-        Rec."Ready for Application" := true;
-        CurrPage.SaveRecord();
-        Commit();
-        BankAccReconApplyEntries.ApplyEntries(Rec);
-    end;
-#endif
 
     procedure GetSelectedRecords(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary)
     var

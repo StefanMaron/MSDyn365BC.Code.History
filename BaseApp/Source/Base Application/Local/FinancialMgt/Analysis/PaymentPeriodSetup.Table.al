@@ -16,6 +16,7 @@ table 10561 "Payment Period Setup"
     ObsoleteState = Pending;
     ObsoleteTag = '23.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

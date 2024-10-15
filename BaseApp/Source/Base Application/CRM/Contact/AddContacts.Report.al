@@ -470,63 +470,62 @@ report 5198 "Add Contacts"
         ReturnShptHeader: Record "Return Shipment Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        with ValueEntry do
-            case "Source Type" of
-                "Source Type"::Customer:
-                    begin
-                        if SalesInvHeader.ReadPermission then
-                            if SalesInvHeader.Get("Document No.") then
-                                if (SalesInvHeader."Sell-to Contact No." = ContactNo) or
-                                   (SalesInvHeader."Bill-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if SalesShptHeader.ReadPermission then
-                            if SalesShptHeader.Get("Document No.") then
-                                if (SalesShptHeader."Sell-to Contact No." = ContactNo) or
-                                   (SalesShptHeader."Bill-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if SalesCrMemoHeader.ReadPermission then
-                            if SalesCrMemoHeader.Get("Document No.") then
-                                if (SalesCrMemoHeader."Sell-to Contact No." = ContactNo) or
-                                   (SalesCrMemoHeader."Bill-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if ReturnRcptHeader.ReadPermission then
-                            if ReturnRcptHeader.Get("Document No.") then
-                                if (ReturnRcptHeader."Sell-to Contact No." = ContactNo) or
-                                   (ReturnRcptHeader."Bill-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                    end;
-                "Source Type"::Vendor:
-                    begin
-                        if PurchInvHeader.ReadPermission then
-                            if PurchInvHeader.Get("Document No.") then
-                                if (PurchInvHeader."Buy-from Contact No." = ContactNo) or
-                                   (PurchInvHeader."Pay-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if ReturnShptHeader.ReadPermission then
-                            if ReturnShptHeader.Get("Document No.") then
-                                if (ReturnShptHeader."Buy-from Contact No." = ContactNo) or
-                                   (ReturnShptHeader."Pay-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if PurchCrMemoHeader.ReadPermission then
-                            if PurchCrMemoHeader.Get("Document No.") then
-                                if (PurchCrMemoHeader."Buy-from Contact No." = ContactNo) or
-                                   (PurchCrMemoHeader."Pay-to Contact No." = ContactNo)
-                                then
-                                    exit(true);
-                        if PurchRcptHeader.ReadPermission then
-                            if PurchRcptHeader.Get("Document No.") then
-                                if (PurchRcptHeader."Buy-from Contact No." = ContactNo) or
-                                   (PurchRcptHeader."Pay-to Contact no." = ContactNo)
-                                then
-                                    exit(true);
-                    end;
-            end;
+        case ValueEntry."Source Type" of
+            ValueEntry."Source Type"::Customer:
+                begin
+                    if SalesInvHeader.ReadPermission then
+                        if SalesInvHeader.Get(ValueEntry."Document No.") then
+                            if (SalesInvHeader."Sell-to Contact No." = ContactNo) or
+                               (SalesInvHeader."Bill-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if SalesShptHeader.ReadPermission then
+                        if SalesShptHeader.Get(ValueEntry."Document No.") then
+                            if (SalesShptHeader."Sell-to Contact No." = ContactNo) or
+                               (SalesShptHeader."Bill-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if SalesCrMemoHeader.ReadPermission then
+                        if SalesCrMemoHeader.Get(ValueEntry."Document No.") then
+                            if (SalesCrMemoHeader."Sell-to Contact No." = ContactNo) or
+                               (SalesCrMemoHeader."Bill-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if ReturnRcptHeader.ReadPermission then
+                        if ReturnRcptHeader.Get(ValueEntry."Document No.") then
+                            if (ReturnRcptHeader."Sell-to Contact No." = ContactNo) or
+                               (ReturnRcptHeader."Bill-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                end;
+            ValueEntry."Source Type"::Vendor:
+                begin
+                    if PurchInvHeader.ReadPermission then
+                        if PurchInvHeader.Get(ValueEntry."Document No.") then
+                            if (PurchInvHeader."Buy-from Contact No." = ContactNo) or
+                               (PurchInvHeader."Pay-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if ReturnShptHeader.ReadPermission then
+                        if ReturnShptHeader.Get(ValueEntry."Document No.") then
+                            if (ReturnShptHeader."Buy-from Contact No." = ContactNo) or
+                               (ReturnShptHeader."Pay-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if PurchCrMemoHeader.ReadPermission then
+                        if PurchCrMemoHeader.Get(ValueEntry."Document No.") then
+                            if (PurchCrMemoHeader."Buy-from Contact No." = ContactNo) or
+                               (PurchCrMemoHeader."Pay-to Contact No." = ContactNo)
+                            then
+                                exit(true);
+                    if PurchRcptHeader.ReadPermission then
+                        if PurchRcptHeader.Get(ValueEntry."Document No.") then
+                            if (PurchRcptHeader."Buy-from Contact No." = ContactNo) or
+                               (PurchRcptHeader."Pay-to Contact no." = ContactNo)
+                            then
+                                exit(true);
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

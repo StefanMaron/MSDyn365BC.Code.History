@@ -31,6 +31,7 @@ codeunit 137274 "Item Jnl. Error Handling"
 
         // [GIVEN] Create journal line for item without Base Item Measure Code
         CreateItemJournalLineForItemWithoutBaseUOMForTemplate(ItemJournalLine);
+        Commit();
 
         // [WHEN] Open item journal for batch "XXX"
         ItemJournal.Trap();
@@ -47,7 +48,6 @@ codeunit 137274 "Item Jnl. Error Handling"
     procedure ItemJournalNumberOfBatchErrors()
     var
         ItemJournalLine: Record "Item Journal Line";
-        Item: Record Item;
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournal: TestPage "Item Journal";
         i: Integer;
@@ -430,6 +430,7 @@ codeunit 137274 "Item Jnl. Error Handling"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandIntInRange(2, 10));
+        Commit();
     end;
 
     local procedure CreateItemJournalLineWithEmptyDoc(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
@@ -439,6 +440,7 @@ codeunit 137274 "Item Jnl. Error Handling"
           LibraryRandom.RandIntInRange(2, 10));
         ItemJournalLine."Document No." := '';
         ItemJournalLine.Modify();
+        Commit();
     end;
 
     local procedure CreateItemJournalLineForItemWithoutBaseUOM(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
@@ -481,6 +483,7 @@ codeunit 137274 "Item Jnl. Error Handling"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Base Unit of Measure", '');
         Item.Modify();
+        Commit();
         exit(Item."No.");
     end;
 
@@ -493,7 +496,6 @@ codeunit 137274 "Item Jnl. Error Handling"
     local procedure MockFullBatchCheck(TemplateName: Code[10]; BatchName: Code[10]; var TempErrorMessage: Record "Error Message" temporary)
     var
         ErrorHandlingParameters: Record "Error Handling Parameters";
-        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
     begin
         ClearTempErrorMessage(TempErrorMessage);
 

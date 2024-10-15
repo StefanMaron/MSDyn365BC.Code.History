@@ -29,7 +29,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
+        ERMVATToolHelper.ResetToolSetup();  // This resets the setup table for all test cases.
 
         if isInitialized then
             exit;
@@ -38,8 +38,8 @@ codeunit 134050 "ERM VAT Tool - Master"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERM.SetBlockDeleteGLAccount(false);
-        ERMVATToolHelper.SetupItemNos;
-        ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+        ERMVATToolHelper.SetupItemNos();
+        ERMVATToolHelper.ResetToolSetup();  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
         Commit();
@@ -71,7 +71,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolGLAccountNo()
     begin
         asserterror VATToolGLAccount(VATRateChangeSetup2."Update G/L Accounts"::No, false, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check that Converted Date is Equal to WORKDATE.
         VerifyConvertedDate(WorkDate());
@@ -117,7 +117,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("VAT Rate Change Tool Completed"), false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check that Converted Date is Equal to WORKDATE.
         VerifyConvertedDate(WorkDate());
@@ -127,7 +127,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(DATABASE::"G/L Account");
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolItemNo()
     begin
         asserterror VATToolItem(VATRateChangeSetup2."Update Items"::No, false, false, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -199,7 +199,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolItemChargeNo()
     begin
         asserterror VATToolItemCharge(VATRateChangeSetup2."Update Item Charges"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolResourceNo()
     begin
         asserterror VATToolResource(VATRateChangeSetup2."Update Resources"::No, false, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolGenProdPostGrpNo()
     begin
         asserterror VATToolGenProdPostGrp(VATRateChangeSetup2."Update Gen. Prod. Post. Groups"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -274,11 +274,11 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise & Verify no Confirmation Messages are shown: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolServPriceAdjDetNo()
     begin
         asserterror VATToolServPriceAdjDt(VATRateChangeSetup2."Update Serv. Price Adj. Detail"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -308,7 +308,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolWorkCenterNo()
     begin
         asserterror VATToolWorkCenter(VATRateChangeSetup2."Update Work Centers"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -323,7 +323,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolMachineCenterNo()
     begin
         asserterror VATToolMachineCenter(VATRateChangeSetup2."Update Machine Centers"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolGenJnlLineNo()
     begin
         asserterror VATToolGenJnlLine(VATRateChangeSetup2."Update Gen. Journal Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -381,7 +381,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolGenJnllAllNo()
     begin
         asserterror VATToolGenJnlAll(VATRateChangeSetup2."Update Gen. Journal Allocation"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -410,7 +410,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolStdGenJnlLineNo()
     begin
         asserterror VATToolStdGenJnlLine(VATRateChangeSetup2."Update Std. Gen. Jnl. Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -425,7 +425,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolResJnlLineNo()
     begin
         asserterror VATToolRscJnlLine(VATRateChangeSetup2."Update Res. Journal Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -440,7 +440,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolJobJnlLineNo()
     begin
         asserterror VATToolJobJnlLine(VATRateChangeSetup2."Update Job Journal Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -455,7 +455,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolStdItemJnlLineNo()
     begin
         asserterror VATToolStdItemJnlLine(VATRateChangeSetup2."Update Std. Item Jnl. Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -470,7 +470,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     procedure VATToolReqLineNo()
     begin
         asserterror VATToolRqstnLine(VATRateChangeSetup2."Update Requisition Lines"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -514,7 +514,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolString(VATRateChangeSetup2.FieldNo("Account Filter"), GetGLAccountFilter(TempRecRef));
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -524,7 +524,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolItem(FieldOption: Option; "Filter": Boolean; AutoInsertDefault: Boolean; "Count": Integer)
@@ -550,7 +550,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolString(VATRateChangeSetup2.FieldNo("Item Filter"), GetItemFilter(TempRecRef));
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -560,7 +560,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolItemCharge(FieldOption: Option; "Count": Integer)
@@ -580,7 +580,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -590,7 +590,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolResource(FieldOption: Option; "Filter": Boolean; "Count": Integer)
@@ -616,7 +616,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolString(VATRateChangeSetup2.FieldNo("Resource Filter"), GetResourceFilter(TempRecRef));
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -626,7 +626,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolGenProdPostGrp(FieldOption: Option; "Count": Integer)
@@ -646,7 +646,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -656,7 +656,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolServPriceAdjDt(FieldOption: Option; "Count": Integer)
@@ -676,7 +676,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -686,7 +686,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolWorkCenter(FieldOption: Option; "Count": Integer)
@@ -706,7 +706,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -716,7 +716,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolMachineCenter(FieldOption: Option; "Count": Integer)
@@ -736,7 +736,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -746,7 +746,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolGenJnlLine(FieldOption: Option; "Count": Integer)
@@ -766,7 +766,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -776,7 +776,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolGenJnlAll(FieldOption: Option; "Count": Integer)
@@ -796,7 +796,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -806,7 +806,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolStdGenJnlLine(FieldOption: Option; "Count": Integer)
@@ -826,7 +826,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -836,7 +836,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolRscJnlLine(FieldOption: Option; "Count": Integer)
@@ -856,7 +856,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -866,7 +866,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolJobJnlLine(FieldOption: Option; "Count": Integer)
@@ -886,7 +886,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -896,7 +896,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolStdItemJnlLine(FieldOption: Option; "Count": Integer)
@@ -916,7 +916,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -926,7 +926,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolRqstnLine(FieldOption: Option; "Count": Integer)
@@ -946,7 +946,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -956,7 +956,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure CreateGenJnlAll(var TempRecRef: RecordRef; "Count": Integer)

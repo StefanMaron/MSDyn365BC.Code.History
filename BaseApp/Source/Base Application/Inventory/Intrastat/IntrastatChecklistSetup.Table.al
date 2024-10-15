@@ -13,6 +13,7 @@ table 8451 "Intrastat Checklist Setup"
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

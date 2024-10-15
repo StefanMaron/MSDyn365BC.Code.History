@@ -5,6 +5,7 @@ table 1261 "Service Password"
     ObsoleteState = Removed;
     ReplicateData = false;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

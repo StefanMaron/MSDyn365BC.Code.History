@@ -44,8 +44,8 @@ codeunit 134163 "Company Init Unit Test"
         PhysInvJnlValueTxt: Label 'Physical Inventory Journals';
         ResJnlCodeTxt: Label 'RESJNL', Comment = 'Resource Journal';
         ResJnlValueTxt: Label 'Resource Journals';
-        JobJnlCodeTxt: Label 'JOBJNL', Comment = 'Job Journal';
-        JobJnlValueTxt: Label 'Job Journals';
+        JobJnlCodeTxt: Label 'PROJJNL', Comment = 'Project Journal';
+        JobJnlValueTxt: Label 'Project Journals';
         SalesAppCodeTxt: Label 'SALESAPPL', Comment = 'Sales Entry Application';
         SalesAppValueTxt: Label 'Sales Entry Application';
         PurchAppCodeTxt: Label 'PURCHAPPL', Comment = 'Purchase Entry Applicaiton';
@@ -62,8 +62,8 @@ codeunit 134163 "Company Init Unit Test"
         DateCompressVLValueTxt: Label 'Date Compress Vendor Ledger';
         DateCompressRLCodeTxt: Label 'COMPRRES', Comment = 'Date Compress Resource Ledger';
         DateCompressRLValueTxt: Label 'Date Compress Resource Ledger';
-        DateCompressJLCodeTxt: Label 'COMPRJOB', Comment = 'Date Compress Job Ledger';
-        DateCompressJLValueTxt: Label 'Date Compress Job Ledge';
+        DateCompressJLCodeTxt: Label 'COMPRPROJ', Comment = 'Date Compress Project Ledger';
+        DateCompressJLValueTxt: Label 'Date Compress Project Ledger';
         DateCompressBACodeTxt: Label 'COMPRBANK', Comment = 'Date Comrpess Bank Account Ledger';
         DateCompressBAValueTxt: Label 'Date Compress Bank Account Ledger';
         DeleteCheckLedgerEntriesCodeTxt: Label 'COMPRCHECK', Comment = 'Date Compress Check Ledger Entries';
@@ -132,9 +132,9 @@ codeunit 134163 "Company Init Unit Test"
         ProdJnlValueTxt: Label 'Production Journal';
         FlushingCodeTxt: Label 'FLUSHING', Comment = 'Flushing';
         FlushingValueTxt: Label 'Flushing';
-        JobGlJnlCodeTxt: Label 'JOBGLJNL', Comment = 'Job G/L Journal';
-        JobGlJnlValueTxt: Label 'Job G/L Journals';
-        WipECodeTxt: Label 'JOBGLWIP', Comment = 'WIP Entry';
+        JobGlJnlCodeTxt: Label 'PROJGLJNL', Comment = 'Project G/L Journal';
+        JobGlJnlValueTxt: Label 'Project G/L Journals';
+        WipECodeTxt: Label 'PROJGLWIP', Comment = 'WIP Entry';
         WipEValueTxt: Label 'WIP Entry';
         CompressItemBudgetCodeTxt: Label 'COMPRIBUDG', Locked = true;
         CompressItemBudgetValueTxt: Label 'Date Compr. Item Budget Entries';
@@ -158,60 +158,6 @@ codeunit 134163 "Company Init Unit Test"
         SaleUContractValueTxt: Label 'Sale under Contract';
         TravelExpensesCodeTxt: Label 'TE', Locked = true;
         TravelExpensesValueTxt: Label 'Travel Expenses';
-        BankClearingStandardCode1Tok: Label 'AustrianBankleitzahl', Locked = true;
-        BankClearingStandardDesc1Txt: Label 'Austrian BLZ number';
-        BankClearingStandardCode2Tok: Label 'CanadianPaymentsARN', Locked = true;
-        BankClearingStandardDesc2Txt: Label 'Canadian ARN number';
-        BankClearingStandardCode3Tok: Label 'CHIPSParticipant', Locked = true;
-        BankClearingStandardDesc3Txt: Label 'American CHIPS number';
-        BankClearingStandardCode4Tok: Label 'CHIPSUniversal', Locked = true;
-        BankClearingStandardDesc4Txt: Label 'American CHIPS universal number';
-        BankClearingStandardCode5Tok: Label 'ExtensiveBranchNetwork', Locked = true;
-        BankClearingStandardDesc5Txt: Label 'Extensive branch network number';
-        BankClearingStandardCode6Tok: Label 'FedwireRoutingNumber', Locked = true;
-        BankClearingStandardDesc6Txt: Label 'American Fedwire/ABA routing number';
-        BankClearingStandardCode7Tok: Label 'GermanBankleitzahl', Locked = true;
-        BankClearingStandardDesc7Txt: Label 'German BLZ number';
-        BankClearingStandardCode8Tok: Label 'HongKongBank', Locked = true;
-        BankClearingStandardDesc8Txt: Label 'Hong Kong branch number';
-        BankClearingStandardCode9Tok: Label 'IrishNSC', Locked = true;
-        BankClearingStandardDesc9Txt: Label 'Irish NSC number';
-        BankClearingStandardCode10Tok: Label 'ItalianDomestic', Locked = true;
-        BankClearingStandardDesc10Txt: Label 'Italian domestic code';
-        BankClearingStandardCode11Tok: Label 'NewZealandNCC', Locked = true;
-        BankClearingStandardDesc11Txt: Label 'New Zealand NCC number';
-        BankClearingStandardCode12Tok: Label 'PortugueseNCC', Locked = true;
-        BankClearingStandardDesc12Txt: Label 'Portuguese NCC number';
-        BankClearingStandardCode13Tok: Label 'RussianCentralBankIdentificationCode', Locked = true;
-        BankClearingStandardDesc13Txt: Label 'Russian CBI code';
-        BankClearingStandardCode14Tok: Label 'SouthAfricanNCC', Locked = true;
-        BankClearingStandardDesc14Txt: Label 'South African NCC number';
-        BankClearingStandardCode15Tok: Label 'SpanishDomesticInterbanking', Locked = true;
-        BankClearingStandardDesc15Txt: Label 'Spanish domestic interbanking number';
-        BankClearingStandardCode16Tok: Label 'SwissBC', Locked = true;
-        BankClearingStandardDesc16Txt: Label 'Swiss BC number';
-        BankClearingStandardCode17Tok: Label 'SwissSIC', Locked = true;
-        BankClearingStandardDesc17Txt: Label 'Swiss SIC number';
-        BankClearingStandardCode18Tok: Label 'UKDomesticSortCode', Locked = true;
-        BankClearingStandardDesc18Txt: Label 'British sorting code';
-        BankDataConvPmtTypeCode1Tok: Label 'IntAcc2Acc', Locked = true;
-        BankDataConvPmtTypeDesc1Txt: Label 'International account to account transfer (standard)';
-        BankDataConvPmtTypeCode2Tok: Label 'IntAcc2AccExp', Locked = true;
-        BankDataConvPmtTypeDesc2Txt: Label 'International account to account transfer (express)';
-        BankDataConvPmtTypeCode3Tok: Label 'IntAcc2AccFoFa', Locked = true;
-        BankDataConvPmtTypeDesc3Txt: Label 'International account to account transfer';
-        BankDataConvPmtTypeCode4Tok: Label 'IntAcc2AccHighVal', Locked = true;
-        BankDataConvPmtTypeDesc4Txt: Label 'International account to account transfer (high value)';
-        BankDataConvPmtTypeCode5Tok: Label 'IntAcc2AccInterComp', Locked = true;
-        BankDataConvPmtTypeDesc5Txt: Label 'International account to account transfer (inter company)';
-        BankDataConvPmtTypeCode6Tok: Label 'DomAcc2Acc', Locked = true;
-        BankDataConvPmtTypeDesc6Txt: Label 'Domestic account to account transfer';
-        BankDataConvPmtTypeCode7Tok: Label 'DomAcc2AccHighVal', Locked = true;
-        BankDataConvPmtTypeDesc7Txt: Label 'Domestic account to account transfer (high value)';
-        BankDataConvPmtTypeCode8Tok: Label 'DomAcc2AccInterComp', Locked = true;
-        BankDataConvPmtTypeDesc8Txt: Label 'Domestic account to account transfer (inter company)';
-        BankDataConvPmtTypeCode9Tok: Label 'EurAcc2AccSepa', Locked = true;
-        BankDataConvPmtTypeDesc9Txt: Label 'SEPA credit transfer';
         SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
@@ -632,7 +578,7 @@ codeunit 134163 "Company Init Unit Test"
           JobWIPMethod."Recognized Sales"::"Percentage of Completion", 3);
     end;
 
-    local procedure CheckJobWIPMethodEntry(RecCode: Code[20]; Value: Text[100]; Costs: Option; Sales: Option; SystemIndex: Integer)
+    local procedure CheckJobWIPMethodEntry(RecCode: Code[20]; Value: Text[100]; Costs: Enum "Job WIP Recognized Costs Type"; Sales: Enum "Job WIP Recognized Sales Type"; SystemIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin

@@ -149,6 +149,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType RevenueCostTypeTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1953968830 - NamedType 725517822" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365 BUS FULL ACCESS]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Experience Tier Test - NamedType BusFullAccessRoleIdTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1953968830 - NamedType 4149381570" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365 BUS PREMIUM]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Experience Tier Test - NamedType BusPremiumRoleIdTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4199409546 - NamedType 552006252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Company]]></Val>
@@ -192,15 +210,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType PermissionSetBasicTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4167983346 - NamedType 476327919" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 FINANCIAL REP.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType PermissionSetFinancialReportsTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4167983346 - NamedType 3454973337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -320,15 +329,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType UserGroupFinanceTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4167983346 - NamedType 2962998383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wron user group exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType WrongUserGroupCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 738097134 - NamedType 104992627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sorry, the current permissions prevented the action. (TableData]]></Val>
@@ -381,33 +381,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType CopySuccessMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 626663853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 control is disabled on %2 page.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Object Type action is disabled on Permissions page.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType DisabledActionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 2159502800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 control is editable on %2 page.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Object Type control is editable on Permissions page.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType EditableControlErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1853180782 - NamedType 2280156122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 control is enabled on %2 page.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Object Type action is enabled on Permissions page.]D;]A;(LookupHint=Codeunit Test Editing Permissions - NamedType EnabledActionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1853180782 - NamedType 2230955369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

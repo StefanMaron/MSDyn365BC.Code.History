@@ -162,7 +162,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals::"Main Asset");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GroupCodeNameCap, StrSubstNo('%1%2 %3', GroupTotalsCap, ':', MainAssetCap));
         LibraryReportDataset.AssertElementWithValueExists(GroupHeadLineCap, MainAssetCap + ' *****');
     end;
@@ -196,7 +196,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Fixed_Asset__No__', FixedAsset."No.");
         LibraryReportDataset.AssertElementWithValueExists('Fixed_Asset_FA_Posting_Group', FixedAsset."FA Posting Group");
         LibraryReportDataset.AssertElementWithValueExists('PrintDetails', true);
@@ -215,7 +215,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValueAfterPostFAGLJournals(FixedAsset, GroupTotals);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('FANo', FixedAsset.FieldCaption("No."));
         LibraryReportDataset.AssertElementWithValueExists('FADescription', FixedAsset.FieldCaption(Description));
     end;
@@ -230,7 +230,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(false, 0, false, LibraryRandom.RandDec(10, 2));  // UseCustom1Depreciation as False. Take Random Amount.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Custom1TextCap, '');
         LibraryReportDataset.AssertElementWithValueExists(DeprCustom1TextCap, '');
         LibraryReportDataset.AssertElementWithValueExists('DeprText', 'Depreciation');
@@ -248,7 +248,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(true, 0, false, LibraryRandom.RandDec(10, 2));  // UseCustom1Depreciation as True, UseAccountingPeriods as False, Take Random Amount.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Custom1TextCap, Format(FAPostingTypeSetup."FA Posting Type"::"Custom 1"));
         LibraryReportDataset.AssertElementWithValueExists(
           DeprCustom1TextCap, DepreciationCap + ' + ' + Format(FAPostingTypeSetup."FA Posting Type"::"Custom 1"));
@@ -282,7 +282,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         RunFAProjectedValAfterPostFAGLJnlWithDiffDeprBook(false, 0, true, Amount); // UseCustom1Depreciation as False, UseAccountingPeriods as True, Take Random Amount.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalBookValue_1_', Amount);
     end;
 
@@ -319,7 +319,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         REPORT.Run(REPORT::"FA - Projected Value");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('DoProjectedDisposal', ProjectedDisposal);
     end;
 
@@ -336,7 +336,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Posting Date" := WorkDate();
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"Fixed Asset";
         GenJournalLine."Account No." := FixedAssetNo;
         GenJournalLine."Depreciation Book Code" := DepreciationBookCode;
@@ -352,7 +352,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Code := LibraryUTUtility.GetNewCode10;
+        DepreciationBook.Code := LibraryUTUtility.GetNewCode10();
         DepreciationBook."G/L Integration - Acq. Cost" := true;
         DepreciationBook.Insert();
         exit(DepreciationBook.Code);
@@ -362,7 +362,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     var
         FAClass: Record "FA Class";
     begin
-        FAClass.Code := LibraryUTUtility.GetNewCode10;
+        FAClass.Code := LibraryUTUtility.GetNewCode10();
         FAClass.Insert();
         exit(FAClass.Code);
     end;
@@ -372,7 +372,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         FADepreciationBook: Record "FA Depreciation Book";
     begin
         FADepreciationBook."FA No." := FixedAsset."No.";
-        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook;
+        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook();
         FADepreciationBook."FA Posting Group" := FixedAsset."FA Posting Group";
         FADepreciationBook."Acquisition Cost" := LibraryRandom.RandDec(10, 2);
         FADepreciationBook."Depreciation Starting Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
@@ -384,12 +384,12 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
 
     local procedure CreateFAPostingGroup(var FAPostingGroup: Record "FA Posting Group")
     begin
-        FAPostingGroup.Code := LibraryUTUtility.GetNewCode10;
-        FAPostingGroup."Acquisition Cost Account" := CreateGLAccount;
+        FAPostingGroup.Code := LibraryUTUtility.GetNewCode10();
+        FAPostingGroup."Acquisition Cost Account" := CreateGLAccount();
         FAPostingGroup.Insert();
     end;
 
-    local procedure CreateFAPostingTypeSetup(DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateFAPostingTypeSetup(DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Posting Type Setup Type")
     var
         FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin
@@ -402,7 +402,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     var
         FASubclass: Record "FA Subclass";
     begin
-        FASubclass.Code := LibraryUTUtility.GetNewCode10;
+        FASubclass.Code := LibraryUTUtility.GetNewCode10();
         FASubclass.Insert();
         exit(FASubclass.Code);
     end;
@@ -412,10 +412,10 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         FAPostingGroup: Record "FA Posting Group";
     begin
         CreateFAPostingGroup(FAPostingGroup);
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
-        FixedAsset.Description := LibraryUTUtility.GetNewCode;
-        FixedAsset."FA Class Code" := CreateFAClass;
-        FixedAsset."FA Subclass Code" := CreateFASubClass;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
+        FixedAsset.Description := LibraryUTUtility.GetNewCode();
+        FixedAsset."FA Class Code" := CreateFAClass();
+        FixedAsset."FA Subclass Code" := CreateFASubClass();
         FixedAsset."FA Posting Group" := FAPostingGroup.Code;
         FixedAsset.Insert();
         LibraryVariableStorage.Enqueue(FixedAsset."No.");  // Enqueue for FAProjectedValueRequestPageHandler.
@@ -426,11 +426,11 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Type := GenJournalTemplate.Type::Assets;
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -438,7 +438,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -522,7 +522,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
 
     local procedure VerifyXMLData(GroupTotalsValue: Text; GroupHeadLineValue: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           GroupCodeNameCap, StrSubstNo('%1%2 %3', GroupTotalsCap, ':', GroupTotalsValue));
         LibraryReportDataset.AssertElementWithValueExists(GroupHeadLineCap, GroupHeadLineValue);
@@ -533,7 +533,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     procedure FAProjectedValueWithGroupTotalReqPageHandler(var FAProjectedValue: TestRequestPage "FA - Projected Value")
     begin
         SetValuesOnFAProjectedValueRequestPage(FAProjectedValue);
-        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -542,7 +542,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     begin
         SetValuesOnFAProjectedValueRequestPage(FAProjectedValue);
         FAProjectedValue.InsertBalAccount.SetValue(true);
-        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -552,7 +552,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         SetValuesOnFAProjectedValueRequestPage(FAProjectedValue);
         FAProjectedValue.CopyToGLBudgetName.SetValue('');
         FAProjectedValue.PrintPerFixedAsset.SetValue(true);
-        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -564,7 +564,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         SetValuesOnFAProjectedValueRequestPage(FAProjectedValue);
         LibraryVariableStorage.Dequeue(ProjectedDisposal);
         FAProjectedValue.ProjectedDisposal.SetValue(ProjectedDisposal);
-        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -573,7 +573,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
     begin
         SetValuesOnFAProjectedValueRequestPage(FAProjectedValue);
         FAProjectedValue."Number of Days".SetValue(LibraryRandom.RandInt(10));
-        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjectedValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -154,7 +154,7 @@ page 529 "Posted Purchase Invoice Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Insurance No."; Rec."Insurance No.")
                 {

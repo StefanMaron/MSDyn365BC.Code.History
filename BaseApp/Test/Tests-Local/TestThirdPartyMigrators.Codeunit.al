@@ -26,22 +26,22 @@ codeunit 144503 "Test Third Party Migrators"
 
         // [WHEN] The data migration wizard is run
         // [THEN] Sage migrator is registered
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.AddO365Setup();
-        LibraryLowerPermissions.AddO365ExtensionMGT;
+        LibraryLowerPermissions.AddO365ExtensionMGT();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        DataMigrationWizard.Trap;
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
-        LibraryVariableStorage.Enqueue(GetSageCodeunitNumber);
+        LibraryVariableStorage.Enqueue(GetSageCodeunitNumber());
 
         with DataMigrationWizard do begin
-            ActionNext.Invoke; // Choose Data Source page
-            Description.Lookup; // Lookup to different data migrations tools
+            ActionNext.Invoke(); // Choose Data Source page
+            Description.Lookup(); // Lookup to different data migrations tools
             Description.SetValue(SageDataMigratorDescriptionTxt);
 
             // [THEN] Instruction that Sage extension must be installed is shown
-            ActionNext.Invoke; // Instructions & Settings
-                               // [THEN] Extension Management page is displayed
+            ActionNext.Invoke(); // Instructions & Settings
+                                 // [THEN] Extension Management page is displayed
         end;
     end;
 
@@ -69,9 +69,9 @@ codeunit 144503 "Test Third Party Migrators"
     var
         CodeunitNumber: Integer;
     begin
-        CodeunitNumber := LibraryVariableStorage.DequeueInteger;
+        CodeunitNumber := LibraryVariableStorage.DequeueInteger();
         DataMigrators.GotoKey(CodeunitNumber);
-        DataMigrators.OK.Invoke;
+        DataMigrators.OK().Invoke();
     end;
 
     [ConfirmHandler]

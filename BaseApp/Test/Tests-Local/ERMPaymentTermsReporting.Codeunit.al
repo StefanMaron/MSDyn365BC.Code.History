@@ -40,9 +40,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Order
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseOrder.OpenNew();
-        Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
+        Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible(), 'Field Invoice Receipt Date is not visible');
         PurchaseOrder.Close();
     end;
 
@@ -56,9 +56,9 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Invoice
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseInvoice.OpenNew();
-        Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
+        Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible(), 'Field Invoice Receipt Date is not visible');
         PurchaseInvoice.Close();
     end;
 
@@ -73,10 +73,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Order under SaaS version of NAV
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         PurchaseOrder.OpenNew();
-        Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
+        Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible(), 'Field Invoice Receipt Date is not visible');
         PurchaseOrder.Close();
     end;
 
@@ -91,10 +91,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" exists in Purchase Invoice under SaaS version of NAV
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         PurchaseInvoice.OpenNew();
-        Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
+        Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible(), 'Field Invoice Receipt Date is not visible');
         PurchaseInvoice.Close();
     end;
 
@@ -108,7 +108,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when create Purchase Order
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
@@ -126,7 +126,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" equals "Document Date" when create Purchase Invoice
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader.Insert(true);
@@ -144,7 +144,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [SCENARIO 212351] Field "Invoice Receipt Date" is blank when create Purchase Credit Memo
 
         Initialize();
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
         PurchaseHeader.Insert(true);
@@ -232,10 +232,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         Initialize();
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddAccountPayables;
+        LibraryLowerPermissions.AddAccountPayables();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         ExpectedDate := PurchaseHeader."Invoice Receipt Date";
-        PurchaseHeader.Validate("Document Date", WorkDate + 1);
+        PurchaseHeader.Validate("Document Date", WorkDate() + 1);
         PurchaseHeader.TestField("Invoice Receipt Date", ExpectedDate);
     end;
 
@@ -254,7 +254,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryJournals.CreateGenJournalLineWithBatch(
             GenJournalLine, GenJournalLine."Document Type"::Invoice, "Gen. Journal Account Type"::"G/L Account", '', 0);
         ExpectedDate := GenJournalLine."Invoice Receipt Date";
-        GenJournalLine.Validate("Document Date", WorkDate + 1);
+        GenJournalLine.Validate("Document Date", WorkDate() + 1);
         GenJournalLine.TestField("Invoice Receipt Date", ExpectedDate);
     end;
 
@@ -271,12 +271,12 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         Initialize();
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddAccountPayables;
+        LibraryLowerPermissions.AddAccountPayables();
 
         // [GIVEN] Purchase Invoice with "Invoice Receipt Date" = "X"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
 
         // [WHEN] Post Purchase Invoice
         LibraryERM.FindVendorLedgerEntry(
@@ -303,7 +303,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [GIVEN] General Journal Line with "Document Type" = Invoice and "Invoice Receipt Date" = "X"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, -1);
+          LibraryPurchase.CreateVendorNo(), -1);
 
         // [WHEN] Post General Journal Line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -333,7 +333,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [GIVEN] Posted Vendor Ledger Entry "Document Type" = Invoice and "Invoice Receipt Date" = 01.01.2017
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, -1);
+          LibraryPurchase.CreateVendorNo(), -1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         VendorLedgerEntry."Invoice Receipt Date" += 1;
@@ -454,7 +454,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 5
         // [GIVEN] Invoice with "Due Date"  = January 6
-        MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate + 1, true);
+        MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate() + 1, true);
         PaymentPracticesMgt.BuildPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate);
 
         // [WHEN] Invoke function GetPctOfPmtsNotPaid
@@ -812,7 +812,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         RunPaymentPracticesReport(StartingDate, EndingDate, false);
 
         // [THEN] XML nodes 'AvgVendorNo' and 'OverdueVendorNo' related to Invoice Details does not exist
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist('AvgVendorNo', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.AssertElementWithValueNotExist('OverdueVendorNo', VendorLedgerEntry."Vendor No.");
 
@@ -848,10 +848,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
         RunPaymentPracticesReport(StartingDate, EndingDate, true);
 
         // [THEN] XML nodes 'AvgVendorNo' and 'OverdueVendorNo' related to Invoice Details exists
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(2);
         LibraryReportDataset.AssertCurrentRowValueEquals('AvgVendorNo', VendorLedgerEntry."Vendor No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OverdueVendorNo', VendorLedgerEntry."Vendor No.");
 
         // [THEN] XML nodes with totals exists
@@ -893,14 +893,14 @@ codeunit 144062 "ERM Payment Terms Reporting"
         // [GIVEN] From 0 days to 1
         // [GIVEN] From 2 days to 3
         // [GIVEN] From 3 days to 4
-        MockThreePmtPeriodSetup;
+        MockThreePmtPeriodSetup();
         Commit();
 
         // [WHEN] Run "Payment Practices" report from January 1 to January 31 and save as XML
         RunPaymentPracticesReport(StartingDate, EndingDate, false);
 
         // [THEN] Three XML nodes per each Payment Period Setup generated with 33,33 % of payments paid in days each
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for i := 1 to 3 do begin
             LibraryReportDataset.MoveToRow(i + 1);
             LibraryReportDataset.AssertCurrentRowValueEquals('PctOfPmtsPaidInDays', 33.33);
@@ -932,7 +932,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate(), true);
 
         // [GIVEN] Partial Payment with "Posting Date" = January 4
-        MockPmtWithApplication(InvLedgEntryNo, WorkDate + 1);
+        MockPmtWithApplication(InvLedgEntryNo, WorkDate() + 1);
         PaymentPracticesMgt.BuildPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate);
 
         // [WHEN] Invoke function GetPctOfPmtsNotPaid
@@ -1246,10 +1246,10 @@ codeunit 144062 "ERM Payment Terms Reporting"
     [Scope('OnPrem')]
     procedure PmtPracticesRequestPageHandler(var PaymentPractices: TestRequestPage "Payment Practices")
     begin
-        PaymentPractices.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPractices.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPractices.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        PaymentPractices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PaymentPractices.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPractices.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPractices.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        PaymentPractices.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

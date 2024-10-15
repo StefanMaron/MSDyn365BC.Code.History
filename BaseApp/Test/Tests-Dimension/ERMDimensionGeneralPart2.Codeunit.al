@@ -450,7 +450,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // Verify: Verify No. of Entries on Item Analysis View Entry.
         FindItemAnalysisViewEntry(ItemAnalysisViewEntry, SalesLine."Sell-to Customer No.", SalesLine."No.", ItemAnalysisView.Code);
-        Assert.IsFalse(ItemAnalysisViewEntry.FindFirst, 'Item Analysis View Entry must not Exist.');
+        Assert.IsFalse(ItemAnalysisViewEntry.FindFirst(), 'Item Analysis View Entry must not Exist.');
     end;
 
     [Test]
@@ -638,11 +638,11 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify GL Entries Dimension Overview Matrix Page through GLEntriesDimOvervMatrixPageHandler.
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
         GeneralLedgerEntries.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
-        GLEntriesDimensionOverview.Trap;
-        GeneralLedgerEntries.GLDimensionOverview.Invoke;
-        GLEntriesDimensionOverview.ShowMatrix.Invoke;
+        GLEntriesDimensionOverview.Trap();
+        GeneralLedgerEntries.GLDimensionOverview.Invoke();
+        GLEntriesDimensionOverview.ShowMatrix.Invoke();
     end;
 
     [Test]
@@ -945,13 +945,10 @@ codeunit 134480 "ERM Dimension General Part 2"
 
     local procedure CreateAccountScheduleAndVerifyAccountScheduleOverviewMatrix(Totaling: Text[250]; ExpectedAmount: Decimal; UseAdditionalCurrency: Boolean)
     var
-        FinancialReport: Record "Financial Report";
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayoutName: Record "Column Layout Name";
         ColumnLayout: Record "Column Layout";
-        AccountScheduleNames: TestPage "Account Schedule Names";
-        AccountSchedule: TestPage "Account Schedule";
         FinancialReports: TestPage "Financial Reports";
     begin
         // Exercise: Create Account Schedule Name and Line.
@@ -1005,18 +1002,18 @@ codeunit 134480 "ERM Dimension General Part 2"
         ItemAnalysisView.Modify(true);
 
         // Exercise.
-        CreateAndPostSalesDocument(Customer."No.", CreateItem, SalespersonPurchaser.Code, Quantity, Amount);
+        CreateAndPostSalesDocument(Customer."No.", CreateItem(), SalespersonPurchaser.Code, Quantity, Amount);
         LibraryVariableStorage.Enqueue(Quantity);
         LibraryVariableStorage.Enqueue(Amount);
 
         // Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page through SalesAnalysisbyDimMatrixPageHandler.
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListSales."&Update".Invoke;
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        AnalysisViewListSales."&Update".Invoke();
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
         SalesAnalysisbyDimensions.LineDimCode.SetValue(Dimension.Code);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     [Test]
@@ -1047,7 +1044,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension.Code, DimensionValue.Code);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
 
         LibraryDimension.CreateDimension(Dimension2);
         LibraryDimension.CreateDimensionValue(DimensionValue2, Dimension2.Code);
@@ -1069,14 +1066,14 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Enqueue(Amount);
 
         // Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page with item filter through SalesAnalysisbyDimMatrixPageHandler.
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListSales."&Update".Invoke;
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        AnalysisViewListSales."&Update".Invoke();
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
         SalesAnalysisbyDimensions.LineDimCode.SetValue(LineDimOption::Item);
         SalesAnalysisbyDimensions.ItemFilter.SetValue(ItemNo);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     [Test]
@@ -1132,7 +1129,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Setup: Create Customer and create new Item and create new Sales Analysis View Card with daily Date Compression.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
 
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
         ItemAnalysisView.Validate("Date Compression", ItemAnalysisView."Date Compression"::Day);
@@ -1142,26 +1139,26 @@ codeunit 134480 "ERM Dimension General Part 2"
         Amount := CreateAndPostSalesDocumentAtDate(Customer."No.", ItemNo, CalcDate('<+32M>', WorkDate()));
 
         // Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page with item filter.
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListSales."&Update".Invoke;
-        SalesAnalysisByDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        AnalysisViewListSales."&Update".Invoke();
+        SalesAnalysisByDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
 
         SetFiltersWithItemOnSalesAnalysisDimensionsPage(
           SalesAnalysisByDimensions, Format(DimOption::Item), Format(DimOption::Period), ItemNo);
         SalesAnalysisByDimensions.PeriodType.SetValue(PeriodType::Month);
 
         SaveValsForAnalysisMarix(0, 1, 1);
-        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke();
 
         SaveValsForAnalysisMarix(Amount, 1, 1);
-        SalesAnalysisByDimensions.NextSet.Invoke;
-        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisByDimensions.NextSet.Invoke();
+        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke();
 
         SaveValsForAnalysisMarix(0, 1, 1);
-        SalesAnalysisByDimensions.PreviousSet.Invoke;
-        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisByDimensions.PreviousSet.Invoke();
+        SalesAnalysisByDimensions.ShowMatrix_Process.Invoke();
     end;
 
     [Test]
@@ -1196,7 +1193,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         CreateSalesAnalysisWithDimTotalingFilter(AnalysisLine, AnalysisColumn, ItemAnalysisView.Code, Customer."No.", TotalDimValueCode);
 
         // [GIVEN] Shipped and invoiced Sales Order with Salesperson and, respectively, document dimension value "S". Sales Amount = "X".
-        CreateAndPostSalesDocument(Customer."No.", CreateItem, SalespersonPurchaser.Code, Quantity, Amount);
+        CreateAndPostSalesDocument(Customer."No.", CreateItem(), SalespersonPurchaser.Code, Quantity, Amount);
 
         // [WHEN] Update Item Analysis View.
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisView);
@@ -1238,7 +1235,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         CreateSalesAnalysisWithDimTotalingFilter(AnalysisLine, AnalysisColumn, '', CustomerNo, TotalDimValueCode);
 
         // [WHEN] Ship and invoice Sales Document with Customer and, respectively, Global Dimension 1 value "G". Sales Amount = "X".
-        CreateAndPostSalesDocument(CustomerNo, CreateItem, '', Quantity, Amount);
+        CreateAndPostSalesDocument(CustomerNo, CreateItem(), '', Quantity, Amount);
 
         // [THEN] Sales Amount in Sales Analysis Report is equal to "X".
         AnalysisLine.SetRange("Date Filter", WorkDate());
@@ -1265,7 +1262,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Setup: Create Customer and create new Item and create new Sales Analysis View Card with daily Date Compression.
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
 
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
         ItemAnalysisView.Validate("Date Compression", ItemAnalysisView."Date Compression"::Day);
@@ -1275,25 +1272,25 @@ codeunit 134480 "ERM Dimension General Part 2"
         Amount := CreateAndPostPurchDocumentAtDate(Vendor."No.", ItemNo, CalcDate('<+32M>', WorkDate()));
 
         // Verify: Open Analysis View List and Verify Sales Analysis By Dimension matrix Page with item filter.
-        AnalysisViewListPurch.OpenEdit;
+        AnalysisViewListPurch.OpenEdit();
         AnalysisViewListPurch.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListPurch."&Update".Invoke;
-        PurchAnalysisByDimensions.Trap;
-        AnalysisViewListPurch.EditAnalysisView.Invoke;
+        AnalysisViewListPurch."&Update".Invoke();
+        PurchAnalysisByDimensions.Trap();
+        AnalysisViewListPurch.EditAnalysisView.Invoke();
         SetFiltersWithItemOnPurchAnalysisDimensionsPage(
           PurchAnalysisByDimensions, Format(DimOption::Item), Format(DimOption::Period), ItemNo);
         PurchAnalysisByDimensions.PeriodType.SetValue(PeriodType::Month);
 
         SaveValsForAnalysisMarix(0, 1, 1);
-        PurchAnalysisByDimensions.ShowMatrix.Invoke;
+        PurchAnalysisByDimensions.ShowMatrix.Invoke();
 
         SaveValsForAnalysisMarix(Amount, 1, 1);
-        PurchAnalysisByDimensions.NextSet.Invoke;
-        PurchAnalysisByDimensions.ShowMatrix.Invoke;
+        PurchAnalysisByDimensions.NextSet.Invoke();
+        PurchAnalysisByDimensions.ShowMatrix.Invoke();
 
         SaveValsForAnalysisMarix(0, 1, 1);
-        PurchAnalysisByDimensions.PreviousSet.Invoke;
-        PurchAnalysisByDimensions.ShowMatrix.Invoke;
+        PurchAnalysisByDimensions.PreviousSet.Invoke();
+        PurchAnalysisByDimensions.ShowMatrix.Invoke();
     end;
 
     [Test]
@@ -1318,15 +1315,15 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisView.Modify(true);
 
         // Exercise.
-        CreateAndPostSalesDocument(Customer."No.", CreateItem, '', Quantity, Amount);
+        CreateAndPostSalesDocument(Customer."No.", CreateItem(), '', Quantity, Amount);
         LibraryVariableStorage.Enqueue(Quantity);
         LibraryVariableStorage.Enqueue(Amount);
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
 
         // Verify.
-        AnalysisViewEntries.OpenView;
+        AnalysisViewEntries.OpenView();
         AnalysisViewEntries.FILTER.SetFilter("Analysis View Code", AnalysisView.Code);
-        AnalysisViewEntries.Amount.Lookup;
+        AnalysisViewEntries.Amount.Lookup();
     end;
 
     [Test]
@@ -1352,9 +1349,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
 
         // Exercise: Open Sales Analysis by Dimension Page.
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        AnalysisViewListSales.EditAnalysisView.Invoke();
 
         // Verify: Verification done in SalesAnalysisbyDimensionsPageHandler.
     end;
@@ -1490,7 +1487,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERMCountryData.UpdateLocalData();
 
         CreateGeneralLineWithGLAccount(GenJournalLine);
-        GenJournalLine.Validate("Posting Date", FindLastFYClosingDate);
+        GenJournalLine.Validate("Posting Date", FindLastFYClosingDate());
         GenJournalLine.Modify();
         LibraryVariableStorage.Enqueue(0);
 
@@ -1539,7 +1536,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Create and post general journal line with Currency and AmountLCY = "A"
         CreateGeneralLineWithGLAccount(GenJournalLine);
-        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         GenJournalLine.Modify(true);
         LibraryVariableStorage.Enqueue(-GenJournalLine."Amount (LCY)");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1567,7 +1564,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize();
 
         // [GIVEN] Create and setup Additional Currency
-        AddRepCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        AddRepCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         UpdateGLSetupAddCurrency(AddRepCurrencyCode);
 
         // [GIVEN] Create and post general journal line with AmountACY = "A"
@@ -1661,11 +1658,11 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Posted G/L Entries with Amount = "X1" on Date1, Amount = "X2" on Date2 for "D1" dimension
         LineAmount1[1] := CreateAndPostJournalLineWithDimension(DimensionValue1, GLAccountNo, WorkDate());
-        LineAmount1[2] := CreateAndPostJournalLineWithDimension(DimensionValue1, GLAccountNo, WorkDate + 1);
+        LineAmount1[2] := CreateAndPostJournalLineWithDimension(DimensionValue1, GLAccountNo, WorkDate() + 1);
 
         // [GIVEN] Posted G/L Entries with Amount = "Y1" on Date1, Amount = "Y2" on Date2 for "D2" dimension
         LineAmount2[1] := CreateAndPostJournalLineWithDimension(DimensionValue2, GLAccountNo, WorkDate());
-        LineAmount2[2] := CreateAndPostJournalLineWithDimension(DimensionValue2, GLAccountNo, WorkDate + 1);
+        LineAmount2[2] := CreateAndPostJournalLineWithDimension(DimensionValue2, GLAccountNo, WorkDate() + 1);
 
         LibraryVariableStorage.Enqueue(LineAmount1[1] + LineAmount1[2]);
         LibraryVariableStorage.Enqueue(LineAmount2[1] + LineAmount2[2]);
@@ -1698,7 +1695,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize();
 
         // [WHEN] Open G/L Entries Dim. Overv. Matrix
-        GLEntriesDimOvervMatrix.OpenView;
+        GLEntriesDimOvervMatrix.OpenView();
 
         // [THEN] Matrix position is set to the first G/L Entry record
         GLEntry.FindFirst();
@@ -1717,7 +1714,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize();
 
         // [WHEN] Open Analysis By Dimensions Matrix
-        AnalysisbyDimensionsMatrix.OpenView;
+        AnalysisbyDimensionsMatrix.OpenView();
 
         // [THEN] Matrix position is set to the first G/L Account record as default Show as Line option
         GLAccount.FindFirst();
@@ -1795,10 +1792,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Enqueue(ExpectedAmount[2]);
 
         // [GIVEN] "Sales Analysis by Dimensions" page is opened. Show as Lines - Item, Show as Columns - dimension "D". Dimension filter is "D1|D3"
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
 
         SetFiltersWithItemOnSalesAnalysisDimensionsPage(
           SalesAnalysisbyDimensions, Item.TableName, DimValue[1]."Dimension Code", ItemNo);
@@ -1806,7 +1803,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Matrix page is opened from "Sales Analysis by Dimensions" page
         SalesAnalysisbyDimensions.Dim1FilterControl.SetValue(StrSubstNo('%1|%2', DimValue[1].Code, DimValue[3].Code));
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
 
         // [WHEN] Drill down "Field 1" and "Field 2" associated with "D1" and "D3" accordingly
         // Done in SalesAnalysisbyDimMatrixPageDrillDownPageHandler
@@ -1852,16 +1849,16 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Enqueue(ExpectedAmount[2]);
 
         // [GIVEN] "Purchase Analysis by Dimensions" page is opened. Show as Lines - Item, Show as Columns - dimension "D". Dimension filter is "D1|D3"
-        AnalysisViewListPurchase.OpenEdit;
+        AnalysisViewListPurchase.OpenEdit();
         AnalysisViewListPurchase.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        PurchAnalysisbyDimensions.Trap;
-        AnalysisViewListPurchase.EditAnalysisView.Invoke;
+        PurchAnalysisbyDimensions.Trap();
+        AnalysisViewListPurchase.EditAnalysisView.Invoke();
         SetFiltersWithItemOnPurchAnalysisDimensionsPage(PurchAnalysisbyDimensions, Item.TableName, DimValue[1]."Dimension Code", ItemNo);
         PurchAnalysisbyDimensions.ShowColumnName.SetValue(true);
 
         // [GIVEN] Matrix page is opened from "Purchase Analysis by Dimensions" page
         PurchAnalysisbyDimensions.Dim1FilterControl.SetValue(StrSubstNo('%1|%2', DimValue[1].Code, DimValue[3].Code));
-        PurchAnalysisbyDimensions.ShowMatrix.Invoke;
+        PurchAnalysisbyDimensions.ShowMatrix.Invoke();
 
         // [WHEN] Drill down "Field 1" and "Field 2" associated with "D1" and "D3" accordingly
         // Done in PurchaseAnalysisbyDimMatrixPageDrillDownPageHandler
@@ -1901,13 +1898,13 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERM.UpdateAnalysisView(AnalysisView);
 
         // [WHEN] G/L Entries Dimension Overview Matrix Page is opened for Analysis View "AV"
-        AnalysisViewList.OpenView;
+        AnalysisViewList.OpenView();
         AnalysisViewList.GotoRecord(AnalysisView);
-        AnalysisbyDimensions.Trap;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList.EditAnalysis.Invoke();
 
         // [THEN] GL Entries Dimension Overview Matrix Page shows 3 entries through GLEntriesDimOvervMatrixVerifyCountPageHandler
-        AnalysisbyDimensions.ShowMatrix.Invoke;
+        AnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     [Test]
@@ -1922,10 +1919,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [SCENARIO 220371] Test validation error when input wrong value to Dim1Filter on Sales Analysis By Dimension page
         Initialize();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
-        SalesAnalysisbyDimensions.Trap;
+        SalesAnalysisbyDimensions.Trap();
         OpenEditSalesAnalysisView(AnalysisViewListSales, ItemAnalysisView.Code);
-        asserterror SalesAnalysisbyDimensions.Dim1FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror SalesAnalysisbyDimensions.Dim1FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -1940,10 +1937,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [SCENARIO 220371] Test validation error when input wrong value to Dim2Filter on Sales Analysis By Dimension page
         Initialize();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
-        SalesAnalysisbyDimensions.Trap;
+        SalesAnalysisbyDimensions.Trap();
         OpenEditSalesAnalysisView(AnalysisViewListSales, ItemAnalysisView.Code);
-        asserterror SalesAnalysisbyDimensions.Dim2FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror SalesAnalysisbyDimensions.Dim2FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -1958,10 +1955,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [SCENARIO 220371] Test validation error when input wrong value to Dim3Filter on Sales Analysis By Dimension page
         Initialize();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
-        SalesAnalysisbyDimensions.Trap;
+        SalesAnalysisbyDimensions.Trap();
         OpenEditSalesAnalysisView(AnalysisViewListSales, ItemAnalysisView.Code);
-        asserterror SalesAnalysisbyDimensions.Dim3FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror SalesAnalysisbyDimensions.Dim3FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -1975,11 +1972,11 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 220371] Test validation error when input wrong value to Dim1Filter on Purchase Analysis By Dimension page
         Initialize();
-        PurchAnalysisbyDimensions.Trap;
+        PurchAnalysisbyDimensions.Trap();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
         OpenEditPurchAnalysisView(AnalysisViewListPurchase, ItemAnalysisView.Code);
-        asserterror PurchAnalysisbyDimensions.Dim1FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror PurchAnalysisbyDimensions.Dim1FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -1993,11 +1990,11 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 220371] Test validation error when input wrong value to Dim2Filter on Purchase Analysis By Dimension page
         Initialize();
-        PurchAnalysisbyDimensions.Trap;
+        PurchAnalysisbyDimensions.Trap();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
         OpenEditPurchAnalysisView(AnalysisViewListPurchase, ItemAnalysisView.Code);
-        asserterror PurchAnalysisbyDimensions.Dim2FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror PurchAnalysisbyDimensions.Dim2FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -2011,11 +2008,11 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 220371] Test validation error when input wrong value to Dim3Filter on Purchase Analysis By Dimension page
         Initialize();
-        PurchAnalysisbyDimensions.Trap;
+        PurchAnalysisbyDimensions.Trap();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
         OpenEditPurchAnalysisView(AnalysisViewListPurchase, ItemAnalysisView.Code);
-        asserterror PurchAnalysisbyDimensions.Dim3FilterControl.SetValue(LibraryUtility.GenerateGUID + '|');
-        VerifyTestValidationError;
+        asserterror PurchAnalysisbyDimensions.Dim3FilterControl.SetValue(LibraryUtility.GenerateGUID() + '|');
+        VerifyTestValidationError();
     end;
 
     [Test]
@@ -2032,8 +2029,8 @@ codeunit 134480 "ERM Dimension General Part 2"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
 
-        InvtAnalysisbyDimensions.OpenView;
-        Assert.IsTrue(InvtAnalysisbyDimensions.ExportToExcel.Visible, ExcelControlVisibilityErr);
+        InvtAnalysisbyDimensions.OpenView();
+        Assert.IsTrue(InvtAnalysisbyDimensions.ExportToExcel.Visible(), ExcelControlVisibilityErr);
     end;
 
     [Test]
@@ -2050,8 +2047,8 @@ codeunit 134480 "ERM Dimension General Part 2"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
 
-        InvtAnalysisbyDimensions.OpenView;
-        Assert.IsTrue(InvtAnalysisbyDimensions.ExportToExcel.Visible, ExcelControlVisibilityErr);
+        InvtAnalysisbyDimensions.OpenView();
+        Assert.IsTrue(InvtAnalysisbyDimensions.ExportToExcel.Visible(), ExcelControlVisibilityErr);
     end;
 
     [Test]
@@ -2089,14 +2086,14 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERM.UpdateAnalysisView(AnalysisView);
 
         // [GIVEN] Opened "Analysis by Dimensions" page for "AV", "Show as Lines" = "TEST & TEST"
-        AnalysisViewList.OpenView;
+        AnalysisViewList.OpenView();
         AnalysisViewList.GotoRecord(AnalysisView);
-        AnalysisbyDimensions.Trap;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList.EditAnalysis.Invoke();
         AnalysisbyDimensions.LineDimCode.Value(DimensionCode);
 
         // [WHEN] Open "Analysis by Dimensions Matrix"
-        AnalysisbyDimensions.ShowMatrix.Invoke;
+        AnalysisbyDimensions.ShowMatrix.Invoke();
 
         // [THEN] "Analysis by Dimensions Matrix" opened and contains row with Code = "TEST1", Total Amount = 100
         // [THEN] Verify amount in AnalysisByDimensionMatrixPageHandler
@@ -2321,8 +2318,6 @@ codeunit 134480 "ERM Dimension General Part 2"
         DimensionValue: array[3] of Record "Dimension Value";
         DimensionValueTotal: Record "Dimension Value";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        GLAccountCard: TestPage "G/L Account Card";
-        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
         GlobalDim1Code: Code[20];
         GLAccountNo: Code[20];
         TotalAmount: Decimal;
@@ -3054,12 +3049,12 @@ codeunit 134480 "ERM Dimension General Part 2"
         ShowValueAs: Option "Sales Amount","COGS Amount",Quantity;
         ViewBy: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisViewCode);
-        AnalysisViewListSales."&Update".Invoke;
+        AnalysisViewListSales."&Update".Invoke();
 
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
 
         SalesAnalysisbyDimensions.DateFilter.SetValue(Format(DateFilter));
         SetFiltersWithItemOnSalesAnalysisDimensionsPage(
@@ -3067,10 +3062,10 @@ codeunit 134480 "ERM Dimension General Part 2"
         SalesAnalysisbyDimensions.PeriodType.SetValue(ViewBy::Month);
         SalesAnalysisbyDimensions.ValueType.SetValue(ShowValueAs::"Sales Amount");
         // Check the total values with initial set.
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
         // Here it needs to go to next set and check the total values.
-        SalesAnalysisbyDimensions.NextSet.Invoke;
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.NextSet.Invoke();
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure CreateCustomerWithDimension(GlobalDimension1Code: Code[20]): Code[20]
@@ -3137,7 +3132,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         CreateItemAnalysisView(ItemAnalysisView, Dimension1Code);
         ItemAnalysisView.Validate("Update on Posting", UpdateOnPosting);
-        ItemAnalysisView.Validate("Item Filter", CreateItem);
+        ItemAnalysisView.Validate("Item Filter", CreateItem());
         ItemAnalysisView.Modify(true);
     end;
 
@@ -3288,11 +3283,11 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisbyDimensions: TestPage "Analysis by Dimensions";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        AnalysisViewList.OpenView;
+        AnalysisViewList.OpenView();
         AnalysisViewList.FILTER.SetFilter(Code, Code);
-        AnalysisViewList."&Update".Invoke;
-        AnalysisbyDimensions.Trap;
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisViewList."&Update".Invoke();
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList.EditAnalysis.Invoke();
         AnalysisbyDimensions.RoundingFactor.SetValue(RoundingFactor);
         AnalysisbyDimensions.ShowOppositeSign.SetValue(ShowOppositeSign);
         AnalysisbyDimensions.ShowInAddCurr.SetValue(ShowInAddCurr);
@@ -3302,21 +3297,21 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisbyDimensions.LineDimCode.SetValue(LineDimCode);
         AnalysisbyDimensions.ClosingEntryFilter.SetValue(ClosingDates);
         AnalysisbyDimensions.ShowActualBudg.SetValue(Amounts);
-        AnalysisbyDimensions.ShowMatrix.Invoke;
+        AnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     local procedure OpenEditSalesAnalysisView(var AnalysisViewListSales: TestPage "Analysis View List Sales"; AnalysisViewCode: Code[10])
     begin
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, AnalysisViewCode);
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        AnalysisViewListSales.EditAnalysisView.Invoke();
     end;
 
     local procedure OpenEditPurchAnalysisView(var AnalysisViewListPurchase: TestPage "Analysis View List Purchase"; AnalysisViewCode: Code[10])
     begin
-        AnalysisViewListPurchase.OpenEdit;
+        AnalysisViewListPurchase.OpenEdit();
         AnalysisViewListPurchase.FILTER.SetFilter(Code, AnalysisViewCode);
-        AnalysisViewListPurchase.EditAnalysisView.Invoke;
+        AnalysisViewListPurchase.EditAnalysisView.Invoke();
     end;
 
     local procedure OpenGLBalancebyDimMatrix(GLAccountNo: Code[20]; ColumnDimCode: Code[20]; Dim1FilterText: Text)
@@ -3371,15 +3366,15 @@ codeunit 134480 "ERM Dimension General Part 2"
         GLAccountCard: TestPage "G/L Account Card";
         GLBalancebyDimension: TestPage "G/L Balance by Dimension";
     begin
-        GLAccountCard.OpenView;
+        GLAccountCard.OpenView();
         GLAccountCard.FILTER.SetFilter("No.", No);
-        GLBalancebyDimension.Trap;
-        GLAccountCard."G/L Balance by &Dimension".Invoke;
+        GLBalancebyDimension.Trap();
+        GLAccountCard."G/L Balance by &Dimension".Invoke();
         GLBalancebyDimension.LineDimCode.SetValue('G/L Account');  // Added string for make sure always Show as Line for G/L Account only.
         GLBalancebyDimension.AmountField.SetValue('Amount');  // Added string for make sure always Show Amount.. as Amount only.
         GLBalancebyDimension.RoundingFactor.SetValue(RoundingFactor);
         GLBalancebyDimension.GLAccFilter.SetValue(No);
-        GLBalancebyDimension.ShowMatrix.Invoke;
+        GLBalancebyDimension.ShowMatrix.Invoke();
     end;
 
     local procedure VerifyItemAnalysisViewEntry(SalesLine: Record "Sales Line"; ItemAnalysisViewCode: Code[10])
@@ -3399,21 +3394,21 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         // Verify: Open Account Schedule Overview and try to lookup value for control
         FinancialReport.FindFirst();
-        AccountScheduleNames.OpenView;
+        AccountScheduleNames.OpenView();
         AccountScheduleNames.FILTER.SetFilter(Name, FinancialReport.Name);
-        AccScheduleOverview.Trap;
-        AccountScheduleNames.Overview.Invoke;
+        AccScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
         LibraryVariableStorage.Enqueue(LookupValue);
 
         case LookupControlID of
             GLBudgetFilterControlId:
                 begin
-                    AccScheduleOverview."G/LBudgetFilter".Lookup;
+                    AccScheduleOverview."G/LBudgetFilter".Lookup();
                     Assert.AreEqual(LookupValue, AccScheduleOverview."G/LBudgetFilter".Value, WrongValueAfterLookupErr);
                 end;
             CostBudgetFilterControlId:
                 begin
-                    AccScheduleOverview.CostBudgetFilter.Lookup;
+                    AccScheduleOverview.CostBudgetFilter.Lookup();
                     Assert.AreEqual(LookupValue, AccScheduleOverview.CostBudgetFilter.Value, WrongValueAfterLookupErr);
                 end;
             else
@@ -3490,7 +3485,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         // Take Random Quantity for Purchase Line.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         // Take Random Direct Unit Cost for Purchase Line.
@@ -3507,9 +3502,9 @@ codeunit 134480 "ERM Dimension General Part 2"
     local procedure CreateItemTypeServiceOrNonStockAnalysisView(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Enum "Analysis Area Type"; UpdateOnPosting: Boolean; IsService: Boolean) ItemNo: Code[20]
     begin
         if IsService then
-            ItemNo := CreateItemTypeService
+            ItemNo := CreateItemTypeService()
         else
-            ItemNo := CreateItemTypeNonStock;
+            ItemNo := CreateItemTypeNonStock();
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, AnalysisArea);
         ItemAnalysisView.Validate("Update on Posting", UpdateOnPosting);
         ItemAnalysisView.Validate("Item Filter", ItemNo);
@@ -3550,10 +3545,10 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         Counter: Integer;
     begin
-        if GeneralLedgerEntries.Last then
+        if GeneralLedgerEntries.Last() then
             repeat
                 Counter += 1;
-            until not GeneralLedgerEntries.Previous;
+            until not GeneralLedgerEntries.Previous();
 
         Assert.AreNotEqual(0, Counter, WrongGLEntryLinesErr);
     end;
@@ -3562,7 +3557,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure AnalysisByDimensionMatrixPageHandler(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3576,14 +3571,14 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure AnalysisByDimensionMatrixTwoLinesPageHandler(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         AnalysisbyDimensionsMatrix.Next();
-        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        AnalysisbyDimensionsMatrix.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        AnalysisbyDimensionsMatrix.First;
-        AnalysisbyDimensionsMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        AnalysisbyDimensionsMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Assert.IsFalse(AnalysisbyDimensionsMatrix.Next, NoLineShouldBeFoundErr);
+        AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        AnalysisbyDimensionsMatrix.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        AnalysisbyDimensionsMatrix.First();
+        AnalysisbyDimensionsMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        AnalysisbyDimensionsMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Assert.IsFalse(AnalysisbyDimensionsMatrix.Next(), NoLineShouldBeFoundErr);
     end;
 
     [PageHandler]
@@ -3596,26 +3591,26 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Dequeue(CurrentColumnName);
         LibraryVariableStorage.Dequeue(RowNo);
         AccScheduleOverview.CurrentColumnName.SetValue(CurrentColumnName);
-        AccScheduleOverview.UseAmtsInAddCurr.SetValue(LibraryVariableStorage.DequeueBoolean);
+        AccScheduleOverview.UseAmtsInAddCurr.SetValue(LibraryVariableStorage.DequeueBoolean());
         AccScheduleOverview."Row No.".AssertEquals(RowNo);
-        AccScheduleOverview.ColumnValues1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AccScheduleOverview.ColumnValues1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         AccScheduleOverview.UseAmtsInAddCurr.SetValue(false);
-        AccScheduleOverview.OK.Invoke;
+        AccScheduleOverview.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GLBalancebyDimMatrixPageHandler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
     begin
-        GLBalancebyDimMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        GLBalancebyDimMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GLEntriesDimOvervMatrixPageHandler(var GLEntriesDimOvervMatrix: TestPage "G/L Entries Dim. Overv. Matrix")
     begin
-        GLEntriesDimOvervMatrix.FILTER.SetFilter("G/L Account No.", LibraryVariableStorage.DequeueText);
-        GLEntriesDimOvervMatrix.Amount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        GLEntriesDimOvervMatrix.FILTER.SetFilter("G/L Account No.", LibraryVariableStorage.DequeueText());
+        GLEntriesDimOvervMatrix.Amount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ConfirmHandler]
@@ -3629,8 +3624,8 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure SalesAnalysisbyDimMatrixPageHandler(var SalesAnalysisbyDimMatrix: TestPage "Sales Analysis by Dim Matrix")
     begin
-        SalesAnalysisbyDimMatrix.TotalQuantity.AssertEquals(-LibraryVariableStorage.DequeueDecimal);
-        SalesAnalysisbyDimMatrix.TotalInvtValue.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        SalesAnalysisbyDimMatrix.TotalQuantity.AssertEquals(-LibraryVariableStorage.DequeueDecimal());
+        SalesAnalysisbyDimMatrix.TotalInvtValue.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3648,7 +3643,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Verifying the values on Sales Analysis by Dim Matrix page.
         SalesAnalysisbyDimMatrix.TotalQuantity.AssertEquals(-TotalQuantity);
         SalesAnalysisbyDimMatrix.TotalInvtValue.AssertEquals(TotalAmount);
-        SalesAnalysisbyDimMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        SalesAnalysisbyDimMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3670,7 +3665,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Dequeue(LineNoVar);
         Evaluate(LineNo, Format(LineNoVar));
 
-        SalesAnalysisbyDimMatrix.First;
+        SalesAnalysisbyDimMatrix.First();
         while LineNo > 1 do begin
             SalesAnalysisbyDimMatrix.Next();
             LineNo -= 1;
@@ -3766,7 +3761,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryVariableStorage.Dequeue(LineNoVar);
         Evaluate(LineNo, Format(LineNoVar));
 
-        PurchAnalysisbyDimMatrix.First;
+        PurchAnalysisbyDimMatrix.First();
         while LineNo > 1 do begin
             PurchAnalysisbyDimMatrix.Next();
             LineNo -= 1;
@@ -3893,16 +3888,16 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure SalesAnalysisbyDimMatrixPageDrillDownPageHandler(var SalesAnalysisbyDimMatrix: TestPage "Sales Analysis by Dim Matrix")
     begin
-        SalesAnalysisbyDimMatrix.Field1.DrillDown;
-        SalesAnalysisbyDimMatrix.Field2.DrillDown;
+        SalesAnalysisbyDimMatrix.Field1.DrillDown();
+        SalesAnalysisbyDimMatrix.Field2.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchAnalysisbyDimMatrixPageDrillDownPageHandler(var PurchAnalysisbyDimMatrix: TestPage "Purch. Analysis by Dim Matrix")
     begin
-        PurchAnalysisbyDimMatrix.Field1.DrillDown;
-        PurchAnalysisbyDimMatrix.Field2.DrillDown;
+        PurchAnalysisbyDimMatrix.Field1.DrillDown();
+        PurchAnalysisbyDimMatrix.Field2.DrillDown();
     end;
 
     [PageHandler]
@@ -3922,7 +3917,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure ItemAnalysisViewEntryPageHandler(var ItemAnalysisViewEntries: TestPage "Item Analysis View Entries")
     begin
-        ItemAnalysisViewEntries."Sales Amount (Actual)".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ItemAnalysisViewEntries."Sales Amount (Actual)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -3933,8 +3928,8 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         LibraryVariableStorage.Dequeue(NameVar);
         GLBudgetNames.FILTER.SetFilter(Name, NameVar);
-        GLBudgetNames.First;
-        GLBudgetNames.OK.Invoke;
+        GLBudgetNames.First();
+        GLBudgetNames.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3945,8 +3940,8 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         LibraryVariableStorage.Dequeue(NameVar);
         CostBudgetNames.FILTER.SetFilter(Name, NameVar);
-        CostBudgetNames.First;
-        CostBudgetNames.OK.Invoke;
+        CostBudgetNames.First();
+        CostBudgetNames.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3954,7 +3949,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure AnalysisbyDimensionsMatrixPageHandlerTotalAmountDrill(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisbyDimensionsMatrix.TotalAmount.DrillDown;
+        AnalysisbyDimensionsMatrix.TotalAmount.DrillDown();
     end;
 
     [PageHandler]
@@ -3962,7 +3957,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure AnalysisViewPageHandler(var AnalysisViewEntries: TestPage "Analysis View Entries")
     begin
-        AnalysisViewEntries.Amount.Lookup;
+        AnalysisViewEntries.Amount.Lookup();
     end;
 
     [ModalPageHandler]
@@ -3970,7 +3965,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure GeneralLedgerEntriesPageHandler(var GeneralLedgerEntries: TestPage "General Ledger Entries")
     begin
-        GeneralLedgerEntries.GLDimensionOverview.Invoke;
+        GeneralLedgerEntries.GLDimensionOverview.Invoke();
     end;
 
     [PageHandler]
@@ -3978,7 +3973,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     [Scope('OnPrem')]
     procedure GLEntriesDimensionOverviewPageHandler(var GLEntriesDimensionOverview: TestPage "G/L Entries Dimension Overview")
     begin
-        GLEntriesDimensionOverview.ShowMatrix.Invoke;
+        GLEntriesDimensionOverview.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3987,11 +3982,11 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         Counter: Integer;
     begin
-        GLEntriesDimOvervMatrix.Last;
+        GLEntriesDimOvervMatrix.Last();
         repeat
             Counter += 1;
-        until not GLEntriesDimOvervMatrix.Previous;
-        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, Counter, WrongGLEntryLinesErr);
+        until not GLEntriesDimOvervMatrix.Previous();
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), Counter, WrongGLEntryLinesErr);
     end;
 }
 

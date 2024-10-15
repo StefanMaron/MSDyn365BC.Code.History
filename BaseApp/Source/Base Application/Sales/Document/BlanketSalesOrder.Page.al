@@ -434,7 +434,7 @@ page 507 "Blanket Sales Order"
                         group(Control4)
                         {
                             ShowCaption = false;
-                            Visible = NOT (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
+                            Visible = not (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
                             field("Ship-to Code"; Rec."Ship-to Code")
                             {
                                 ApplicationArea = Suite;
@@ -566,7 +566,7 @@ page 507 "Blanket Sales Order"
                     group(Control43)
                     {
                         ShowCaption = false;
-                        Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
+                        Visible = not (BillToOptions = BillToOptions::"Default (Customer)");
                         field("Bill-to Name"; Rec."Bill-to Name")
                         {
                             ApplicationArea = Suite;
@@ -1078,7 +1078,7 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1198,15 +1198,6 @@ page 507 "Blanket Sales Order"
                 actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1354,15 +1345,8 @@ page 507 "Blanket Sales Order"
     end;
 
     local procedure UpdateShipToBillToGroupVisibility()
-    var
-        ShipToOptionsOpt: Option;
-        BillToOptionsOpt: Option;
     begin
-        ShipToOptionsOpt := ShipToOptions.AsInteger();
-        BillToOptionsOpt := BillToOptions.AsInteger();
-        CustomerMgt.CalculateShipToBillToOptions(ShipToOptionsOpt, BillToOptionsOpt, Rec);
-        ShipToOptions := Enum::"Sales Ship-To Options".FromInteger(ShipToOptionsOpt);
-        BillToOptions := Enum::"Sales Bill-To Options".FromInteger(BillToOptionsOpt);
+        CustomerMgt.CalculateShipBillToOptions(ShipToOptions, BillToOptions, Rec);
     end;
 
     [IntegrationEvent(false, false)]

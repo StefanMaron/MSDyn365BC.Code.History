@@ -7,11 +7,13 @@ namespace Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Setup;
 using System.Utilities;
+using Microsoft.Inventory.Costing;
 
 table 10560 "Accounting Period GB"
 {
     Caption = 'Accounting Period GB';
     LookupPageID = "Accounting Periods";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,12 +46,10 @@ table 10560 "Accounting Period GB"
         {
             Caption = 'Period Name';
         }
-        field(5804; "Average Cost Calc. Type"; Option)
+        field(5804; "Average Cost Calc. Type"; Enum "Average Cost Calculation Type")
         {
             Caption = 'Average Cost Calc. Type';
             Editable = false;
-            OptionCaption = ' ,Item,Item & Location & Variant';
-            OptionMembers = " ",Item,"Item & Location & Variant";
         }
         field(5805; "Average Cost Period"; Option)
         {
@@ -122,10 +122,10 @@ table 10560 "Accounting Period GB"
     end;
 
     var
-        Text1041000: Label 'You cannot insert period between closed periods.';
-        Text1041001: Label '%1 %2 with %3=%4 conflicts with existing %5 %2 %6..%7.';
         AccountingPeriod2: Record "Accounting Period GB";
         Calendar: Record Date;
+        Text1041000: Label 'You cannot insert period between closed periods.';
+        Text1041001: Label '%1 %2 with %3=%4 conflicts with existing %5 %2 %6..%7.';
 
     [Scope('OnPrem')]
     procedure UpdateName()

@@ -23,7 +23,7 @@ codeunit 132568 "Collect DotNext Exception"
         ServerFileName: Text;
     begin
         // Setup
-        ServerFileName := CreateServerFile;
+        ServerFileName := CreateServerFile();
         ConfigureMasterDataSetup(ServerFileName);
 
         // Pre-Exercise

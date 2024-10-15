@@ -13,7 +13,9 @@ using System.Privacy;
 using Microsoft.Bank.Ledger;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Finance.GeneralLedger.Setup;
+#if not CLEAN23
 using Microsoft.Finance.Analysis;
+#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {

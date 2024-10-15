@@ -62,7 +62,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -103,7 +103,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -150,14 +150,14 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Update Inventory Setup, create Purchase Order,
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order,
           CreateAndModifyItem('', Item."Costing Method"::FIFO, Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase, 0),
-          '', CreateVendor, LibraryRandom.RandInt(10), WorkDate());
+          '', CreateVendor(), LibraryRandom.RandInt(10), WorkDate());
 
         // Exercise
         PostedReceiptNo := PostPurchaseDocument(PurchaseLine, false);
@@ -190,7 +190,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Update Inventory Setup, create and post Purchase Order, create Sales Order.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -244,7 +244,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         Initialize();
         LibraryERM.CreateReasonCode(ReasonCode);  // Added for G1 Country Fix.
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -308,7 +308,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
@@ -322,7 +322,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ValueEntry.TestField("Document Type", ValueEntry."Document Type"::"Sales Invoice");
         ValueEntry.TestField(
           "Cost Amount (Actual) (ACY)",
-          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision, '='));
+          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision(), '='));
 
         // Tear down.
         LibraryInventory.UpdateInventorySetup(
@@ -352,7 +352,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
@@ -378,7 +378,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ValueEntry.TestField("Document Type", ValueEntry."Document Type"::"Sales Invoice");
         ValueEntry.TestField(
           "Cost Amount (Actual) (ACY)",
-          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision, '='));
+          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision(), '='));
 
         // Tear Down.
         LibraryInventory.UpdateInventorySetup(
@@ -535,7 +535,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Overhead rate, Unit of measure and Quantity per unit of measure on Parent Item. Create and Post Purchase Order as Receive.
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, true, true, InventorySetup2."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -606,7 +606,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Setup
         Initialize();
         InventorySetup.Get();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup2, InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
           InventorySetup2."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type"::Item,
@@ -646,8 +646,8 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           StrSubstNo(CostMismatchErr,
             ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), ItemLedgerEntry.TableCaption(), ItemLedgerEntry."Entry No."));
         Item.Find('=');
-        UnitCost := Round(200.58085, LibraryERM.GetUnitAmountRoundingPrecision);
-        Item."Unit Cost" := Round(Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision);
+        UnitCost := Round(200.58085, LibraryERM.GetUnitAmountRoundingPrecision());
+        Item."Unit Cost" := Round(Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision());
         Assert.AreEqual(UnitCost, Item."Unit Cost",
           StrSubstNo(CostMismatchErr, Item.FieldCaption("Unit Cost"), Item.TableCaption(), Item."No."));
 
@@ -677,8 +677,6 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
 
@@ -697,7 +695,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
             ItemJournalLine.Modify(true);
         end else begin
             LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, WorkDate(),
-              CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ");
+              "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ");
             ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
             ItemJournalLine.SetRange("Applies-to Entry", ItemLedgerEntry."Entry No.");
@@ -765,7 +763,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Qty: Decimal; DirectUnitCost: Decimal; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, Qty, WorkDate());
+          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor(), Qty, WorkDate());
         if DirectUnitCost <> 0 then begin
             PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
             PurchaseLine.Modify(true);
@@ -903,7 +901,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -940,7 +938,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
     var
         ReasonCode: Record "Reason Code";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"]
         then begin
             LibraryERM.CreateReasonCode(ReasonCode);
@@ -1116,8 +1114,8 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         CreateAndPostPurchaseOrder(PurchaseLine, ItemNo, LibraryRandom.RandDec(100, 2), 0, true);
 
         CreatePurchaseDocument(
-          PurchaseLine2, PurchaseLine2."Document Type"::Order, PurchaseLine."No.", '', CreateVendor, LibraryRandom.RandInt(10),
-          WorkDate);  // Used Random for Quantity.
+          PurchaseLine2, PurchaseLine2."Document Type"::Order, PurchaseLine."No.", '', CreateVendor(), LibraryRandom.RandInt(10),
+          WorkDate());  // Used Random for Quantity.
         PurchaseLine2.Validate("Direct Unit Cost", (PurchaseLine2."Direct Unit Cost" + LibraryRandom.RandInt(10)));  // 'Direct Unit Cost' required more than previous Purchase Order.
         PurchaseLine2.Modify(true);
         PostPurchaseDocument(PurchaseLine2, true);
@@ -1201,7 +1199,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         repeat
             ActualAmount := GLEntry.Amount;
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount in GL entry.');
+        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount in GL entry.');
     end;
 
     local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ItemNo: Code[20])

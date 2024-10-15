@@ -9,14 +9,15 @@ using Microsoft.Sales.Customer;
 table 7023 "Sales Price Worksheet"
 {
     Caption = 'Sales Price Worksheet';
-#if not CLEAN21
+#if not CLEAN23
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '24.0';
+    ObsoleteTag = '26.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,7 +27,7 @@ table 7023 "Sales Price Worksheet"
             NotBlank = true;
             TableRelation = Item;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -54,7 +55,7 @@ table 7023 "Sales Price Worksheet"
             else
             if ("Sales Type" = const(Campaign)) Campaign;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if ("Sales Code" <> '') and ("Sales Type" = "Sales Type"::"All Customers") then
@@ -98,7 +99,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Currency Code';
             TableRelation = Currency;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -109,7 +110,7 @@ table 7023 "Sales Price Worksheet"
         {
             Caption = 'Starting Date';
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if ("Starting Date" > "Ending Date") and ("Ending Date" <> 0D) then
@@ -167,7 +168,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Minimum Quantity';
             MinValue = 0;
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -178,7 +179,7 @@ table 7023 "Sales Price Worksheet"
         {
             Caption = 'Ending Date';
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 Validate("Starting Date");
@@ -191,7 +192,7 @@ table 7023 "Sales Price Worksheet"
         }
         field(20; "Item Description"; Text[100])
         {
-            CalcFormula = Lookup(Item.Description where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
             FieldClass = FlowField;
         }
@@ -204,7 +205,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Unit of Measure Code';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -216,7 +217,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Variant Code';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -245,7 +246,7 @@ table 7023 "Sales Price Worksheet"
     {
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInsert()
     begin
         if "Sales Type" = "Sales Type"::"All Customers" then
@@ -325,7 +326,7 @@ table 7023 "Sales Price Worksheet"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCurrentPriceFound(var SalesPriceWorksheet: Record "Sales Price Worksheet"; SalesPrice: Record "Sales Price")
     begin

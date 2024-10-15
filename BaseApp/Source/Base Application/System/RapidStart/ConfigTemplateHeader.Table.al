@@ -8,6 +8,7 @@ table 8618 "Config. Template Header"
     Caption = 'Config. Template Header';
     LookupPageID = "Config. Template List";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,7 +40,7 @@ table 8618 "Config. Template Header"
         }
         field(4; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
                                                                         "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -47,7 +48,7 @@ table 8618 "Config. Template Header"
         }
         field(5; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;

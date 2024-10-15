@@ -163,36 +163,36 @@ codeunit 1100 "Cost Account Mgt"
 
         case CallingTrigger of
             CallingTrigger::OnInsert, CallingTrigger::OnModify:
-                with GLAcc do begin
-                    if CostType.Get("Cost Type No.") then
-                        UpdateCostType := IsGLAccNoFirstFromRange(CostType, "No.")
+                begin
+                    if CostType.Get(GLAcc."Cost Type No.") then
+                        UpdateCostType := IsGLAccNoFirstFromRange(CostType, GLAcc."No.")
                     else begin
-                        CostType."No." := "No.";
+                        CostType."No." := GLAcc."No.";
                         UpdateCostType := CostType.Insert();
                     end;
 
                     if UpdateCostType then begin
-                        CostType.Name := Name;
-                        CostType."Search Name" := "Search Name";
-                        CostType.Type := "Account Type";
-                        CostType.Blocked := "Account Type" <> "Account Type"::Posting;
-                        CostType."Cost Center Code" := GetCostCenterCodeFromDefDim(DATABASE::"G/L Account", "No.");
+                        CostType.Name := GLAcc.Name;
+                        CostType."Search Name" := GLAcc."Search Name";
+                        CostType.Type := GLAcc."Account Type";
+                        CostType.Blocked := GLAcc."Account Type" <> GLAcc."Account Type"::Posting;
+                        CostType."Cost Center Code" := GetCostCenterCodeFromDefDim(DATABASE::"G/L Account", GLAcc."No.");
                         if not CostCenterExists(CostType."Cost Center Code") then
                             CostType."Cost Center Code" := '';
-                        CostType."Cost Object Code" := GetCostObjectCodeFromDefDim(DATABASE::"G/L Account", "No.");
+                        CostType."Cost Object Code" := GetCostObjectCodeFromDefDim(DATABASE::"G/L Account", GLAcc."No.");
                         if not CostObjectExists(CostType."Cost Object Code") then
                             CostType."Cost Object Code" := '';
-                        CostType."New Page" := "New Page";
-                        CostType."Blank Line" := "No. of Blank Lines" > 0;
-                        CostType.Totaling := Totaling;
+                        CostType."New Page" := GLAcc."New Page";
+                        CostType."Blank Line" := GLAcc."No. of Blank Lines" > 0;
+                        CostType.Totaling := GLAcc.Totaling;
                         CostType."Modified Date" := Today;
-                        if "Account Type" = "Account Type"::Posting then
-                            CostType."G/L Account Range" := "No."
+                        if GLAcc."Account Type" = GLAcc."Account Type"::Posting then
+                            CostType."G/L Account Range" := GLAcc."No."
                         else
                             CostType."G/L Account Range" := '';
                         OnUpdateCostTypeFromGLAccOnInsertOrModifyCostTypeBeforeModify(CostType);
                         CostType.Modify();
-                        "Cost Type No." := CostType."No.";
+                        GLAcc."Cost Type No." := CostType."No.";
                     end;
                 end;
             CallingTrigger::OnRename:
@@ -320,27 +320,26 @@ codeunit 1100 "Cost Account Mgt"
     begin
         CostAccSetup.Get();
 
-        with GLAcc do
-            if CostType.Get("Cost Type No.") then begin
-                if not IsGLAccNoFirstFromRange(CostType, "No.") then
-                    exit;
-                if not CheckAlignment(GLAcc, CallingTrigger::OnModify) then
-                    exit;
+        if CostType.Get(GLAcc."Cost Type No.") then begin
+            if not IsGLAccNoFirstFromRange(CostType, GLAcc."No.") then
+                exit;
+            if not CheckAlignment(GLAcc, CallingTrigger::OnModify) then
+                exit;
 
-                if CostAccSetup."Cost Center Dimension" = DefaultDim."Dimension Code" then
-                    if CostCenterExists(DefaultDim."Dimension Value Code") and not (CallingTrigger = CallingTrigger::OnDelete) then
-                        CostType."Cost Center Code" := DefaultDim."Dimension Value Code"
-                    else
-                        CostType."Cost Center Code" := '';
+            if CostAccSetup."Cost Center Dimension" = DefaultDim."Dimension Code" then
+                if CostCenterExists(DefaultDim."Dimension Value Code") and not (CallingTrigger = CallingTrigger::OnDelete) then
+                    CostType."Cost Center Code" := DefaultDim."Dimension Value Code"
+                else
+                    CostType."Cost Center Code" := '';
 
-                if CostAccSetup."Cost Object Dimension" = DefaultDim."Dimension Code" then
-                    if CostObjectExists(DefaultDim."Dimension Value Code") and not (CallingTrigger = CallingTrigger::OnDelete) then
-                        CostType."Cost Object Code" := DefaultDim."Dimension Value Code"
-                    else
-                        CostType."Cost Object Code" := '';
+            if CostAccSetup."Cost Object Dimension" = DefaultDim."Dimension Code" then
+                if CostObjectExists(DefaultDim."Dimension Value Code") and not (CallingTrigger = CallingTrigger::OnDelete) then
+                    CostType."Cost Object Code" := DefaultDim."Dimension Value Code"
+                else
+                    CostType."Cost Object Code" := '';
 
-                CostType.Modify();
-            end;
+            CostType.Modify();
+        end;
     end;
 
     procedure ConfirmIndentCostTypes()
@@ -359,26 +358,25 @@ codeunit 1100 "Cost Account Mgt"
         if ShowMessage then
             Window.Open(Text004);
 
-        with CostType do
-            if Find('-') then
-                repeat
-                    if ShowMessage then
-                        Window.Update(1, "No.");
-                    if Type = Type::"End-Total" then begin
-                        if i < 1 then
-                            Error(Text005, "No.");
-                        Totaling := CostTypeNo[i] + '..' + "No.";
-                        i := i - 1;
-                    end;
-                    Indentation := i;
-                    Modify();
-                    if Type = Type::"Begin-Total" then begin
-                        i := i + 1;
-                        if i > ArrayLen(CostTypeNo) then
-                            Error(ArrayExceededErr, ArrayLen(CostTypeNo));
-                        CostTypeNo[i] := "No.";
-                    end;
-                until Next() = 0;
+        if CostType.Find('-') then
+            repeat
+                if ShowMessage then
+                    Window.Update(1, CostType."No.");
+                if CostType.Type = CostType.Type::"End-Total" then begin
+                    if i < 1 then
+                        Error(Text005, CostType."No.");
+                    CostType.Totaling := CostTypeNo[i] + '..' + CostType."No.";
+                    i := i - 1;
+                end;
+                CostType.Indentation := i;
+                CostType.Modify();
+                if CostType.Type = CostType.Type::"Begin-Total" then begin
+                    i := i + 1;
+                    if i > ArrayLen(CostTypeNo) then
+                        Error(ArrayExceededErr, ArrayLen(CostTypeNo));
+                    CostTypeNo[i] := CostType."No.";
+                end;
+            until CostType.Next() = 0;
 
         if ShowMessage then
             Window.Close();
@@ -439,17 +437,15 @@ codeunit 1100 "Cost Account Mgt"
         RecsCreated := 0;
         Window.Open(Text018);
 
-        with CostCenter do begin
-            Reset();
-            DimValue.SetRange("Dimension Code", CostAccSetup."Cost Center Dimension");
-            if DimValue.Find('-') then begin
-                repeat
-                    Window.Update(1, Code);
-                    if InsertCostCenterFromDimValue(DimValue) then
-                        RecsProcessed := RecsProcessed + 1;
-                until DimValue.Next() = 0;
-                Window.Close();
-            end;
+        CostCenter.Reset();
+        DimValue.SetRange("Dimension Code", CostAccSetup."Cost Center Dimension");
+        if DimValue.Find('-') then begin
+            repeat
+                Window.Update(1, CostCenter.Code);
+                if InsertCostCenterFromDimValue(DimValue) then
+                    RecsProcessed := RecsProcessed + 1;
+            until DimValue.Next() = 0;
+            Window.Close();
         end;
 
         IndentCostCenters();
@@ -479,63 +475,61 @@ codeunit 1100 "Cost Account Mgt"
 
         Window.Open(Text010);
 
-        with CostCenter do begin
-            SetCurrentKey("Sorting Order");
-            SetFilter("Sorting Order", '<>%1', '');
-            if Find('-') then
-                SpecialSort := true;
+        CostCenter.SetCurrentKey("Sorting Order");
+        CostCenter.SetFilter("Sorting Order", '<>%1', '');
+        if CostCenter.Find('-') then
+            SpecialSort := true;
 
-            CostCenterRange := '';
-            Reset();
-            if SpecialSort then begin
-                SetCurrentKey("Sorting Order");
-                if FindSet() then
-                    repeat
-                        if "Line Type" = "Line Type"::"End-Total" then begin
-                            Totaling := CostCenterRange;
-                            if i < 1 then
-                                Error(Text011, Code);
-                            i := i - 1;
-                        end;
-                        Indentation := i;
-                        Modify();
-                        if "Line Type" = "Line Type"::"Begin-Total" then begin
-                            CostCenterRange := '';
-                            i := i + 1;
-                        end;
-                        if (("Line Type" = "Line Type"::"Cost Center") and (i = 1)) or
-                           ("Line Type" = "Line Type"::"Begin-Total")
-                        then begin
-                            if StrLen(CostCenterRange) + StrLen(Code) > MaxStrLen(CostCenterRange) then
-                                Error(Text012);
-                            if CostCenterRange = '' then
-                                CostCenterRange := Code
-                            else
-                                CostCenterRange := CostCenterRange + '|' + Code;
-                        end;
-                    until Next() = 0;
-            end else begin
-                SetCurrentKey(Code);
-                if FindSet() then
-                    repeat
-                        Window.Update(1, Code);
+        CostCenterRange := '';
+        CostCenter.Reset();
+        if SpecialSort then begin
+            CostCenter.SetCurrentKey("Sorting Order");
+            if CostCenter.FindSet() then
+                repeat
+                    if CostCenter."Line Type" = CostCenter."Line Type"::"End-Total" then begin
+                        CostCenter.Totaling := CostCenterRange;
+                        if i < 1 then
+                            Error(Text011, CostCenter.Code);
+                        i := i - 1;
+                    end;
+                    CostCenter.Indentation := i;
+                    CostCenter.Modify();
+                    if CostCenter."Line Type" = CostCenter."Line Type"::"Begin-Total" then begin
+                        CostCenterRange := '';
+                        i := i + 1;
+                    end;
+                    if ((CostCenter."Line Type" = CostCenter."Line Type"::"Cost Center") and (i = 1)) or
+                       (CostCenter."Line Type" = CostCenter."Line Type"::"Begin-Total")
+                    then begin
+                        if StrLen(CostCenterRange) + StrLen(CostCenter.Code) > MaxStrLen(CostCenterRange) then
+                            Error(Text012);
+                        if CostCenterRange = '' then
+                            CostCenterRange := CostCenter.Code
+                        else
+                            CostCenterRange := CostCenterRange + '|' + CostCenter.Code;
+                    end;
+                until CostCenter.Next() = 0;
+        end else begin
+            CostCenter.SetCurrentKey(Code);
+            if CostCenter.FindSet() then
+                repeat
+                    Window.Update(1, CostCenter.Code);
 
-                        if "Line Type" = "Line Type"::"End-Total" then begin
-                            if i < 1 then
-                                Error(Text005, Code);
-                            Totaling := StartRange[i] + '..' + Code;
-                            i := i - 1;
-                        end;
-                        Indentation := i;
-                        Modify();
-                        if "Line Type" = "Line Type"::"Begin-Total" then begin
-                            i := i + 1;
-                            if i > ArrayLen(StartRange) then
-                                Error(ArrayExceededErr, ArrayLen(StartRange));
-                            StartRange[i] := Code;
-                        end;
-                    until Next() = 0;
-            end;
+                    if CostCenter."Line Type" = CostCenter."Line Type"::"End-Total" then begin
+                        if i < 1 then
+                            Error(Text005, CostCenter.Code);
+                        CostCenter.Totaling := StartRange[i] + '..' + CostCenter.Code;
+                        i := i - 1;
+                    end;
+                    CostCenter.Indentation := i;
+                    CostCenter.Modify();
+                    if CostCenter."Line Type" = CostCenter."Line Type"::"Begin-Total" then begin
+                        i := i + 1;
+                        if i > ArrayLen(StartRange) then
+                            Error(ArrayExceededErr, ArrayLen(StartRange));
+                        StartRange[i] := CostCenter.Code;
+                    end;
+                until CostCenter.Next() = 0;
         end;
         Window.Close();
     end;
@@ -553,17 +547,15 @@ codeunit 1100 "Cost Account Mgt"
         RecsCreated := 0;
         Window.Open(Text018);
 
-        with CostObject do begin
-            Reset();
-            DimValue.SetRange("Dimension Code", CostAccSetup."Cost Object Dimension");
-            if DimValue.Find('-') then begin
-                repeat
-                    Window.Update(1, Code);
-                    if InsertCostObjectFromDimValue(DimValue) then
-                        RecsProcessed := RecsProcessed + 1;
-                until DimValue.Next() = 0;
-                Window.Close();
-            end;
+        CostObject.Reset();
+        DimValue.SetRange("Dimension Code", CostAccSetup."Cost Object Dimension");
+        if DimValue.Find('-') then begin
+            repeat
+                Window.Update(1, CostObject.Code);
+                if InsertCostObjectFromDimValue(DimValue) then
+                    RecsProcessed := RecsProcessed + 1;
+            until DimValue.Next() = 0;
+            Window.Close();
         end;
 
         IndentCostObjects();
@@ -592,65 +584,63 @@ codeunit 1100 "Cost Account Mgt"
 
         Window.Open(Text010);
 
-        with CostObject do begin
-            SetCurrentKey("Sorting Order");
-            SetFilter("Sorting Order", '<>%1', '');
-            if Find('-') then
-                SpecialSort := true;
+        CostObject.SetCurrentKey("Sorting Order");
+        CostObject.SetFilter("Sorting Order", '<>%1', '');
+        if CostObject.Find('-') then
+            SpecialSort := true;
 
-            CostObjRange := '';
-            Reset();
-            if SpecialSort then begin
-                SetCurrentKey("Sorting Order");
-                if FindSet() then
-                    repeat
-                        if "Line Type" = "Line Type"::"End-Total" then begin
-                            Totaling := CostObjRange;
-                            if i < 1 then
-                                Error(Text011, Code);
-                            i := i - 1;
-                        end;
-                        Indentation := i;
-                        Modify();
-                        if "Line Type" = "Line Type"::"Begin-Total" then begin
-                            CostObjRange := '';
-                            i := i + 1;
-                        end;
+        CostObjRange := '';
+        CostObject.Reset();
+        if SpecialSort then begin
+            CostObject.SetCurrentKey("Sorting Order");
+            if CostObject.FindSet() then
+                repeat
+                    if CostObject."Line Type" = CostObject."Line Type"::"End-Total" then begin
+                        CostObject.Totaling := CostObjRange;
+                        if i < 1 then
+                            Error(Text011, CostObject.Code);
+                        i := i - 1;
+                    end;
+                    CostObject.Indentation := i;
+                    CostObject.Modify();
+                    if CostObject."Line Type" = CostObject."Line Type"::"Begin-Total" then begin
+                        CostObjRange := '';
+                        i := i + 1;
+                    end;
 
-                        if (("Line Type" = "Line Type"::"Cost Object") and (i = 1)) or
-                           ("Line Type" = "Line Type"::"Begin-Total")
-                        then begin
-                            if StrLen(CostObjRange) + StrLen(Code) > MaxStrLen(CostObjRange) then
-                                Error(Text012);
+                    if ((CostObject."Line Type" = CostObject."Line Type"::"Cost Object") and (i = 1)) or
+                       (CostObject."Line Type" = CostObject."Line Type"::"Begin-Total")
+                    then begin
+                        if StrLen(CostObjRange) + StrLen(CostObject.Code) > MaxStrLen(CostObjRange) then
+                            Error(Text012);
 
-                            if CostObjRange = '' then
-                                CostObjRange := Code
-                            else
-                                CostObjRange := CostObjRange + '|' + Code;
-                        end;
-                    until Next() = 0;
-            end else begin
-                SetCurrentKey(Code);
-                if Find('-') then
-                    repeat
-                        Window.Update(1, Code);
-                        if "Line Type" = "Line Type"::"End-Total" then begin
-                            if i < 1 then
-                                Error(Text005, Code);
-                            Totaling := StartRange[i] + '..' + Code;
-                            i := i - 1;
-                        end;
-                        Indentation := i;
-                        Modify();
+                        if CostObjRange = '' then
+                            CostObjRange := CostObject.Code
+                        else
+                            CostObjRange := CostObjRange + '|' + CostObject.Code;
+                    end;
+                until CostObject.Next() = 0;
+        end else begin
+            CostObject.SetCurrentKey(Code);
+            if CostObject.Find('-') then
+                repeat
+                    Window.Update(1, CostObject.Code);
+                    if CostObject."Line Type" = CostObject."Line Type"::"End-Total" then begin
+                        if i < 1 then
+                            Error(Text005, CostObject.Code);
+                        CostObject.Totaling := StartRange[i] + '..' + CostObject.Code;
+                        i := i - 1;
+                    end;
+                    CostObject.Indentation := i;
+                    CostObject.Modify();
 
-                        if "Line Type" = "Line Type"::"Begin-Total" then begin
-                            i := i + 1;
-                            if i > ArrayLen(StartRange) then
-                                Error(ArrayExceededErr, ArrayLen(StartRange));
-                            StartRange[i] := Code;
-                        end;
-                    until Next() = 0;
-            end;
+                    if CostObject."Line Type" = CostObject."Line Type"::"Begin-Total" then begin
+                        i := i + 1;
+                        if i > ArrayLen(StartRange) then
+                            Error(ArrayExceededErr, ArrayLen(StartRange));
+                        StartRange[i] := CostObject.Code;
+                    end;
+                until CostObject.Next() = 0;
         end;
         Window.Close();
     end;
@@ -806,7 +796,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforeCopyDimValueToCostCenter(DimValue, CostCenter, IsHandled);
         if IsHandled then
             exit;
@@ -839,7 +829,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforeCopyDimValueToCostObject(DimValue, CostObject, IsHandled);
         if IsHandled then
             exit;

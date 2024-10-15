@@ -1102,18 +1102,16 @@ report 10573 "Sales - Credit Memo GB"
             exit;
         end;
 
-        with SalesShipmentBuffer do begin
-            Init();
-            "Document No." := SalesCrMemoLine."Document No.";
-            "Line No." := SalesCrMemoLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := SalesCrMemoLine.Type;
-            "No." := SalesCrMemoLine."No.";
-            Quantity := -QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        SalesShipmentBuffer.Init();
+        SalesShipmentBuffer."Document No." := SalesCrMemoLine."Document No.";
+        SalesShipmentBuffer."Line No." := SalesCrMemoLine."Line No.";
+        SalesShipmentBuffer."Entry No." := NextEntryNo;
+        SalesShipmentBuffer.Type := SalesCrMemoLine.Type;
+        SalesShipmentBuffer."No." := SalesCrMemoLine."No.";
+        SalesShipmentBuffer.Quantity := -QtyOnShipment;
+        SalesShipmentBuffer."Posting Date" := PostingDate;
+        SalesShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 }
 

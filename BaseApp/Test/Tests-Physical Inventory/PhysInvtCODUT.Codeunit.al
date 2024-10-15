@@ -105,7 +105,7 @@ codeunit 137461 "Phys. Invt. COD UT"
     begin
         // [SCENARIO] validate PhysInvtRecPrint function of Codeunit - 5005396, Print Document Comfort.
         // Setup.
-        CreatePhysInventoryRecording(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode);
+        CreatePhysInventoryRecording(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode());
 
         // Exercise & Verify: Print Phys. Invt. Recording Report. Added Report Handler PhysInvtRecordingReportHandler.
         DocumentPrint.PrintInvtRecording(PhysInvtRecordHeader, true);  // Use RequestPage - TRUE.
@@ -122,7 +122,7 @@ codeunit 137461 "Phys. Invt. COD UT"
     begin
         // [SCENARIO] validate PostedPhysInvtRecPrint function of Codeunit - 5005396, Print Document Comfort.
         // Setup.
-        CreatePostedPhysInventoryRecording(PstdPhysInvtRecordHdr, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInventoryRecording(PstdPhysInvtRecordHdr, LibraryUTUtility.GetNewCode());
 
         // Exercise & Verify: Print Posted Phys. Invt. Recording Report. Added Report Handler PostedPhysInvtRecordingReportHandler.
         DocumentPrint.PrintPostedInvtRecording(PstdPhysInvtRecordHdr, true);  // Use RequestPage - TRUE.
@@ -164,31 +164,31 @@ codeunit 137461 "Phys. Invt. COD UT"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
 
     local procedure CreatePhysInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
 
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
         PhysInvtOrderLine."Line No." := 1;
-        PhysInvtOrderLine."Item No." := CreateItem;
+        PhysInvtOrderLine."Item No." := CreateItem();
         PhysInvtOrderLine."Quantity (Base)" := 1;
         PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryOrder(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line")
     begin
-        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderHdr.Insert();
 
         PstdPhysInvtOrderLine."Document No." := PstdPhysInvtOrderHdr."No.";
         PstdPhysInvtOrderLine."Line No." := 1;
-        PstdPhysInvtOrderLine."Item No." := CreateItem;
+        PstdPhysInvtOrderLine."Item No." := CreateItem();
         PstdPhysInvtOrderLine.Insert();
     end;
 
@@ -226,35 +226,35 @@ codeunit 137461 "Phys. Invt. COD UT"
     [Scope('OnPrem')]
     procedure PhysInvtOrderDiffListReportHandler(var PhysInvtOrderDiffList: TestRequestPage "Phys. Invt. Order Diff. List")
     begin
-        PhysInvtOrderDiffList.SaveAsXml(LibraryReportDataset.GetFileName, LibraryReportDataset.GetParametersFileName);
+        PhysInvtOrderDiffList.SaveAsXml(LibraryReportDataset.GetFileName(), LibraryReportDataset.GetParametersFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PhysInvtOrderTestReportHandler(var PhysInvtOrderTest: TestRequestPage "Phys. Invt. Order - Test")
     begin
-        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetFileName, LibraryReportDataset.GetParametersFileName);
+        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetFileName(), LibraryReportDataset.GetParametersFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PostedPhysInvtOrderDiffReportHandler(var PostedPhysInvtOrderDiff: TestRequestPage "Posted Phys. Invt. Order Diff.")
     begin
-        PostedPhysInvtOrderDiff.SaveAsXml(LibraryReportDataset.GetFileName, LibraryReportDataset.GetParametersFileName);
+        PostedPhysInvtOrderDiff.SaveAsXml(LibraryReportDataset.GetFileName(), LibraryReportDataset.GetParametersFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PhysInvtRecordingReportHandler(var PhysInvtRecording: TestRequestPage "Phys. Invt. Recording")
     begin
-        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetFileName, LibraryReportDataset.GetParametersFileName);
+        PhysInvtRecording.SaveAsXml(LibraryReportDataset.GetFileName(), LibraryReportDataset.GetParametersFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PostedPhysInvtRecordingReportHandler(var PostedPhysInvtRecording: TestRequestPage "Posted Phys. Invt. Recording")
     begin
-        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetFileName, LibraryReportDataset.GetParametersFileName);
+        PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetFileName(), LibraryReportDataset.GetParametersFileName());
     end;
 
     [PageHandler]

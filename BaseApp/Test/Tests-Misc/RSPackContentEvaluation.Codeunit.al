@@ -11,7 +11,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         PostingAfterWDIsOnErr: Label 'Posting After Working Date option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
@@ -282,7 +281,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -309,7 +308,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedOrderNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

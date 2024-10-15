@@ -98,6 +98,7 @@ table 483 "Change Global Dim. Log Entry"
                   TableData "Return Receipt Header" = rm,
                   TableData "Return Receipt Line" = rm;
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -294,11 +295,11 @@ table 483 "Change Global Dim. Log Entry"
     begin
         if "Global Dim.1 Field No." <> 0 then begin
             GlobalDimFieldRef[1] := RecRef.Field("Global Dim.1 Field No.");
-            DimValueCode[1] := GlobalDimFieldRef[1].Value;
+            DimValueCode[1] := GlobalDimFieldRef[1].Value();
         end;
         if "Global Dim.2 Field No." <> 0 then begin
             GlobalDimFieldRef[2] := RecRef.Field("Global Dim.2 Field No.");
-            DimValueCode[2] := GlobalDimFieldRef[2].Value;
+            DimValueCode[2] := GlobalDimFieldRef[2].Value();
         end;
     end;
 

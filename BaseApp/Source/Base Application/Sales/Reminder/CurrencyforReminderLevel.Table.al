@@ -8,6 +8,7 @@ table 329 "Currency for Reminder Level"
     DataCaptionFields = "Reminder Terms Code", "No.";
     DrillDownPageID = "Currencies for Reminder Level";
     LookupPageID = "Currencies for Reminder Level";
+    DataClassification = CustomerContent;
 
     fields
     {

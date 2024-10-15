@@ -250,8 +250,6 @@ codeunit 137268 "SCM Package Tracking Fixes"
         WarehouseEmployee: Record "Warehouse Employee";
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        ReservationEntry: Record "Reservation Entry";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -315,8 +313,6 @@ codeunit 137268 "SCM Package Tracking Fixes"
         WarehouseEmployee: Record "Warehouse Employee";
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        ReservationEntry: Record "Reservation Entry";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -508,12 +504,12 @@ codeunit 137268 "SCM Package Tracking Fixes"
     var
         TrackingOption: Option;
     begin
-        TrackingOption := LibraryVariableStorage.DequeueInteger;
-        ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        TrackingOption := LibraryVariableStorage.DequeueInteger();
+        ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         if TrackingOption = ItemTrackingOption::ReclassPackageNo then
-            ItemTrackingLines."New Package No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines."New Package No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]

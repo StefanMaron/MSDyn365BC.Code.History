@@ -68,7 +68,7 @@ codeunit 136903 "Employee Reports"
         // 1. Setup: Create Employee and Find Confidential.
         Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
-        LibraryHumanResource.CreateConfidentialInformation(ConfidentialInformation, Employee."No.", FindConfidential);
+        LibraryHumanResource.CreateConfidentialInformation(ConfidentialInformation, Employee."No.", FindConfidential());
 
         // 2. Exercise: Generate the Employee - Confidential Info. Report.
         Commit();
@@ -79,9 +79,9 @@ codeunit 136903 "Employee Reports"
 
         // 3. Verify: Verify that value of Description in Employee - Confidential Info. matches the value of Description
         // in corresponding Confidential Information.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Confidential_Information__Confidential_Code_', ConfidentialInformation."Confidential Code");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the confidential code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the confidential code');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Confidential_Information_Description', ConfidentialInformation.Description);
     end;
@@ -170,9 +170,9 @@ codeunit 136903 "Employee Reports"
 
         // 3. Verify: Verify that the values of Code in Employee - Contracts Report must match in Corresponding
         // Employment Contract Table values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employment_Contract_Code', EmploymentContract.Code);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the contract code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the contract code');
     end;
 
     [Test]
@@ -200,9 +200,9 @@ codeunit 136903 "Employee Reports"
         EmployeeUnions.Run();
 
         // 3. Verify: Verify that the values of Code in Employee - Unions Report must match in Corresponding Employee Table values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Union_Code', Union.Code);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the union code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the union code');
     end;
 
     [Test]
@@ -257,9 +257,9 @@ codeunit 136903 "Employee Reports"
 
         // 3. Verify: Verify that the values of Birth Date in Employee - Birthdays Report must match in
         // Corresponding Employee Table values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee__Birth_Date_', Format(Employee."Birth Date"));
     end;
 
@@ -1272,7 +1272,7 @@ codeunit 136903 "Employee Reports"
     local procedure CreateEmployeeQualifications(var EmployeeQualification: Record "Employee Qualification"; EmployeeNo: Code[20])
     begin
         LibraryHumanResource.CreateEmployeeQualification(EmployeeQualification, EmployeeNo);
-        EmployeeQualification.Validate("Qualification Code", FindQualification);
+        EmployeeQualification.Validate("Qualification Code", FindQualification());
         EmployeeQualification.Validate("From Date", WorkDate());
         EmployeeQualification.Validate("To Date", WorkDate());
         EmployeeQualification.Validate(Type, EmployeeQualification.Type::Internal);
@@ -1289,8 +1289,8 @@ codeunit 136903 "Employee Reports"
     local procedure CreateEmployeeRelative(var EmployeeRelative: Record "Employee Relative"; EmployeeNo: Code[20])
     begin
         LibraryHumanResource.CreateEmployeeRelative(EmployeeRelative, EmployeeNo);
-        EmployeeRelative.Validate("Relative Code", FindRelative);
-        EmployeeRelative.Validate("First Name", FindRelative);
+        EmployeeRelative.Validate("Relative Code", FindRelative());
+        EmployeeRelative.Validate("First Name", FindRelative());
         EmployeeRelative.Validate("Birth Date", WorkDate());
         EmployeeRelative.Modify(true);
     end;
@@ -1308,14 +1308,14 @@ codeunit 136903 "Employee Reports"
         DimensionValue.FindFirst();
         LibraryHumanResource.CreateEmployee(Employee);
         Employee.Validate("Global Dimension 1 Code", DimensionValue.Code);
-        Employee.Validate("Statistics Group Code", FindEmployeeStatisticsGroup);
+        Employee.Validate("Statistics Group Code", FindEmployeeStatisticsGroup());
         Employee.Validate("Country/Region Code", PostCode."Country/Region Code");
         Employee.Validate("Post Code", PostCode.Code);
         Employee.Validate("Employment Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'Y>'));
         Employee.Modify(true);
     end;
 
-    local procedure CreateCountryRegionWithAddressFormat(var CountryRegion: Record "Country/Region"; AddressFormat: Option)
+    local procedure CreateCountryRegionWithAddressFormat(var CountryRegion: Record "Country/Region"; AddressFormat: Enum "Country/Region Address Format")
     begin
         CountryRegion.Init();
         CountryRegion.Code := LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region");
@@ -1404,7 +1404,7 @@ codeunit 136903 "Employee Reports"
 
     local procedure ModifyMiscellaneousArticle(var MiscArticleInformation: Record "Misc. Article Information"; EmployeeNo: Code[20])
     begin
-        LibraryHumanResource.CreateMiscArticleInformation(MiscArticleInformation, EmployeeNo, FindMiscellaneousArticle);
+        LibraryHumanResource.CreateMiscArticleInformation(MiscArticleInformation, EmployeeNo, FindMiscellaneousArticle());
         MiscArticleInformation.Validate(
           "Serial No.",
           LibraryUtility.GenerateRandomCode(MiscArticleInformation.FieldNo("Serial No."), DATABASE::"Misc. Article Information"));
@@ -1441,9 +1441,9 @@ codeunit 136903 "Employee Reports"
         PostCodeCity: Text[90];
         County: Text[50];
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('AlternativeAddr_Address', AlternativeAddress.Address);
 
@@ -1455,9 +1455,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployee(Employee: Record Employee)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee__Global_Dimension_1_Code_', Employee."Global Dimension 1 Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee__Global_Dimension_2_Code_', Employee."Global Dimension 2 Code");
@@ -1471,9 +1471,9 @@ codeunit 136903 "Employee Reports"
         PostCodeCity: Text[90];
         County: Text[50];
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Address', Employee.Address);
 
@@ -1485,9 +1485,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployeeAbsencesByCauses(EmployeeAbsence: Record "Employee Absence")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee_Absence__Employee_No__', EmployeeAbsence."Employee No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Absence__Quantity__Base__', EmployeeAbsence."Quantity (Base)");
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Absence__From_Date_', Format(EmployeeAbsence."From Date"));
@@ -1496,9 +1496,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployeePhoneNos(Employee: Record Employee)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee__No__', Employee."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee__Mobile_Phone_No__', Employee."Mobile Phone No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee__Phone_No__', Employee."Phone No.");
@@ -1506,9 +1506,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyMiscellaneousArticle(MiscArticleInformation: Record "Misc. Article Information")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Misc__Article_Information__Misc__Article_Code_', MiscArticleInformation."Misc. Article Code");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the confidential code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the confidential code');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Misc__Article_Information_Description', MiscArticleInformation.Description);
         LibraryReportDataset.AssertCurrentRowValueEquals('Misc__Article_Information__Serial_No__', MiscArticleInformation."Serial No.");
@@ -1516,9 +1516,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployeeQualifications(EmployeeQualification: Record "Employee Qualification")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee_Qualification__Qualification_Code_', EmployeeQualification."Qualification Code");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the confidential code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the confidential code');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification_Description', EmployeeQualification.Description);
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Qualification__From_Date_', Format(EmployeeQualification."From Date"));
@@ -1529,9 +1529,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployeeRelative(EmployeeRelative: Record "Employee Relative")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee_Relative__Relative_Code_', EmployeeRelative."Relative Code");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the relative code');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the relative code');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Relative__First_Name_', EmployeeRelative."First Name");
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Relative__Birth_Date_', Format(EmployeeRelative."Birth Date"));
@@ -1539,9 +1539,9 @@ codeunit 136903 "Employee Reports"
 
     local procedure VerifyEmployeeStaffAbsences(EmployeeAbsence: Record "Employee Absence")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Employee_Absence__Employee_No__', EmployeeAbsence."Employee No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the employee no');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'find element with the employee no');
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Absence__From_Date_', Format(EmployeeAbsence."From Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -1573,91 +1573,91 @@ codeunit 136903 "Employee Reports"
     [Scope('OnPrem')]
     procedure EmployeeRelativeReportHandler(var EmployeeRelatives: TestRequestPage "Employee - Relatives")
     begin
-        EmployeeRelatives.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeRelatives.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeConfidentialInfoReportHandler(var EmployeeConfidentialInfo: TestRequestPage "Employee - Confidential Info.")
     begin
-        EmployeeConfidentialInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeConfidentialInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeMiscellaneousArticleReportHandler(var EmployeeMiscArticleInfo: TestRequestPage "Employee - Misc. Article Info.")
     begin
-        EmployeeMiscArticleInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeMiscArticleInfo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeQualificationsArticleReportHandler(var EmployeeQualifications: TestRequestPage "Employee - Qualifications")
     begin
-        EmployeeQualifications.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeQualifications.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeContractsReportHandler(var EmployeeContracts: TestRequestPage "Employee - Contracts")
     begin
-        EmployeeContracts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeContracts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeUnionsReportHandler(var EmployeeUnions: TestRequestPage "Employee - Unions")
     begin
-        EmployeeUnions.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeUnions.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeePhoneNosReportHandler(var EmployeePhoneNos: TestRequestPage "Employee - Phone Nos.")
     begin
-        EmployeePhoneNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeePhoneNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeBirthdaysReportHandler(var EmployeeBirthdays: TestRequestPage "Employee - Birthdays")
     begin
-        EmployeeBirthdays.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeBirthdays.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeAddressesReportHandler(var EmployeeAddresses: TestRequestPage "Employee - Addresses")
     begin
-        EmployeeAddresses.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeAddresses.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeAlternativeAddressReportHandler(var EmployeeAltAddresses: TestRequestPage "Employee - Alt. Addresses")
     begin
-        EmployeeAltAddresses.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeAltAddresses.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeListReportHandler(var EmployeeList: TestRequestPage "Employee - List")
     begin
-        EmployeeList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeAbsencesByCausesReportHandler(var EmployeeAbsencesbyCauses: TestRequestPage "Employee - Absences by Causes")
     begin
-        EmployeeAbsencesbyCauses.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeAbsencesbyCauses.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeStaffAbsencesReportHandler(var EmployeeStaffAbsences: TestRequestPage "Employee - Staff Absences")
     begin
-        EmployeeStaffAbsences.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        EmployeeStaffAbsences.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

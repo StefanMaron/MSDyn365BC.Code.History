@@ -12,10 +12,13 @@ codeunit 9300 "Sync. Looping Helper"
 
     var
         TempSkippedField: Record Field temporary;
+        TableSynchronizationCategoryTok: Label 'Table Synchronization', Locked = true;
+        FieldSyncAlreadyBoundTxt: Label 'Field Synchronization was already bound for table %1, Field %2.', Locked = true;
 
     procedure SkipFieldSynchronization(var SyncLoopingHelper: Codeunit "Sync. Looping Helper"; TableNo: Integer; FieldNo: Integer)
     begin
-        BindSubscription(SyncLoopingHelper);
+        if not BindSubscription(SyncLoopingHelper) then
+            Session.LogMessage('0000MB8', StrSubstNo(FieldSyncAlreadyBoundTxt, TableNo, FieldNo), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TableSynchronizationCategoryTok);
 
         if TempSkippedField.Get(TableNo, FieldNo) then
             exit;

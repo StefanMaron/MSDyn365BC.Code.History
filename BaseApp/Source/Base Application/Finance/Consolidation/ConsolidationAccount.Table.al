@@ -6,6 +6,7 @@ using System.Environment;
 table 1829 "Consolidation Account"
 {
     Caption = 'Consolidation Account';
+    DataClassification = CustomerContent;
 
     fields
     {

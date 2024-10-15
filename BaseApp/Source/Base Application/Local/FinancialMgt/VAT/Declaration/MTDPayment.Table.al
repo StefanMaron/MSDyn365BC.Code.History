@@ -10,6 +10,7 @@ table 10534 "MTD-Payment"
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

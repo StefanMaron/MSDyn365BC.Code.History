@@ -103,15 +103,13 @@ codeunit 130401 "CAL Test Management"
     var
         FromAllObjWithCaption: Record AllObjWithCaption;
     begin
-        with ToAllObjWithCaption do begin
-            FromAllObjWithCaption.SetRange("Object Type", "Object Type"::Codeunit);
-            FromAllObjWithCaption.SetRange("Object Subtype", 'Test');
-            if FromAllObjWithCaption.Find('-') then
-                repeat
-                    ToAllObjWithCaption := FromAllObjWithCaption;
-                    Insert();
-                until FromAllObjWithCaption.Next() = 0;
-        end;
+        FromAllObjWithCaption.SetRange("Object Type", ToAllObjWithCaption."Object Type"::Codeunit);
+        FromAllObjWithCaption.SetRange("Object Subtype", 'Test');
+        if FromAllObjWithCaption.Find('-') then
+            repeat
+                ToAllObjWithCaption := FromAllObjWithCaption;
+                ToAllObjWithCaption.Insert();
+            until FromAllObjWithCaption.Next() = 0;
 
         exit(ToAllObjWithCaption.Find('-'));
     end;
@@ -199,14 +197,12 @@ codeunit 130401 "CAL Test Management"
     var
         CALTestSuite: Record "CAL Test Suite";
     begin
-        with CALTestSuite do begin
-            NewSuiteName := DefaultTxt;
-            Init();
-            Validate(Name, NewSuiteName);
-            Validate(Description, DefaultSuiteTxt);
-            Validate(Export, false);
-            Insert(true);
-        end;
+        NewSuiteName := DefaultTxt;
+        CALTestSuite.Init();
+        CALTestSuite.Validate(Name, NewSuiteName);
+        CALTestSuite.Validate(Description, DefaultSuiteTxt);
+        CALTestSuite.Validate(Export, false);
+        CALTestSuite.Insert(true);
     end;
 
     local procedure RefreshSuite(CALTestSuite: Record "CAL Test Suite"; var AllObjWithCaption: Record AllObjWithCaption)
@@ -214,19 +210,17 @@ codeunit 130401 "CAL Test Management"
         CALTestLine: Record "CAL Test Line";
         LineNo: Integer;
     begin
-        with CALTestLine do begin
-            LineNo := LineNo + 10000;
+        LineNo := LineNo + 10000;
 
-            Init();
-            Validate("Test Suite", CALTestSuite.Name);
-            Validate("Line No.", LineNo);
-            Validate("Line Type", "Line Type"::Group);
-            Validate(Name, DefaultSuiteTxt);
-            Validate(Run, true);
-            Insert(true);
+        CALTestLine.Init();
+        CALTestLine.Validate("Test Suite", CALTestSuite.Name);
+        CALTestLine.Validate("Line No.", LineNo);
+        CALTestLine.Validate("Line Type", CALTestLine."Line Type"::Group);
+        CALTestLine.Validate(Name, DefaultSuiteTxt);
+        CALTestLine.Validate(Run, true);
+        CALTestLine.Insert(true);
 
-            AddTestCodeunits(CALTestSuite, AllObjWithCaption);
-        end;
+        AddTestCodeunits(CALTestSuite, AllObjWithCaption);
     end;
 
     procedure AddTestCodeunits(CALTestSuite: Record "CAL Test Suite"; var AllObjWithCaption: Record AllObjWithCaption)
@@ -274,36 +268,34 @@ codeunit 130401 "CAL Test Management"
         AllObj: Record AllObj;
         CodeunitIsValid: Boolean;
     begin
-        with CALTestLine do begin
-            if TestLineExists(TestSuiteName, TestCodeunitId) then
-                exit;
+        if TestLineExists(TestSuiteName, TestCodeunitId) then
+            exit;
 
-            Init();
-            Validate("Test Suite", TestSuiteName);
-            Validate("Line No.", LineNo);
-            Validate("Line Type", "Line Type"::Codeunit);
-            Validate("Test Codeunit", TestCodeunitId);
-            Validate(Run, true);
+        CALTestLine.Init();
+        CALTestLine.Validate("Test Suite", TestSuiteName);
+        CALTestLine.Validate("Line No.", LineNo);
+        CALTestLine.Validate("Line Type", CALTestLine."Line Type"::Codeunit);
+        CALTestLine.Validate("Test Codeunit", TestCodeunitId);
+        CALTestLine.Validate(Run, true);
 
-            Insert(true);
+        CALTestLine.Insert(true);
 
-            AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
-            AllObj.SetRange("Object ID", TestCodeunitId);
-            if Format(AllObj."App Package ID") <> '' then
-                CodeunitIsValid := true;
+        AllObj.SetRange("Object Type", AllObj."Object Type"::Codeunit);
+        AllObj.SetRange("Object ID", TestCodeunitId);
+        if Format(AllObj."App Package ID") <> '' then
+            CodeunitIsValid := true;
 
-            if not CodeunitIsValid then
-                CodeunitIsValid := AllObj.FindFirst();
+        if not CodeunitIsValid then
+            CodeunitIsValid := AllObj.FindFirst();
 
-            if CodeunitIsValid then begin
-                SETPUBLISHMODE();
-                SetRecFilter();
-                CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
-            end else begin
-                Validate(Result, Result::Failure);
-                Validate("First Error", ObjectNotCompiledErr);
-                Modify(true);
-            end;
+        if CodeunitIsValid then begin
+            SETPUBLISHMODE();
+            CALTestLine.SetRecFilter();
+            CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
+        end else begin
+            CALTestLine.Validate(Result, CALTestLine.Result::Failure);
+            CALTestLine.Validate("First Error", ObjectNotCompiledErr);
+            CALTestLine.Modify(true);
         end;
     end;
 

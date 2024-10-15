@@ -17,19 +17,19 @@ codeunit 132201 "Library - Inventory"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        JOURNAL: Label ' journal';
+        JOURNALTxt: Label ' journal';
         ReserveConfirmMsg: Label 'Do you want to reserve specific tracking numbers?';
 
     procedure CalculateInventory(ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
     var
-        CalculateInventory: Report "Calculate Inventory";
+        CalculateInventoryReport: Report "Calculate Inventory";
     begin
-        Clear(CalculateInventory);
-        CalculateInventory.UseRequestPage(false);
-        CalculateInventory.SetTableView(Item);
-        CalculateInventory.SetItemJnlLine(ItemJournalLine);
-        CalculateInventory.InitializeRequest(PostingDate, ItemJournalLine."Document No.", ItemsNotOnInvt, ItemsWithNoTransactions);
-        CalculateInventory.Run();
+        Clear(CalculateInventoryReport);
+        CalculateInventoryReport.UseRequestPage(false);
+        CalculateInventoryReport.SetTableView(Item);
+        CalculateInventoryReport.SetItemJnlLine(ItemJournalLine);
+        CalculateInventoryReport.InitializeRequest(PostingDate, ItemJournalLine."Document No.", ItemsNotOnInvt, ItemsWithNoTransactions);
+        CalculateInventoryReport.Run();
     end;
 
     procedure CalculateInventoryForSingleItem(ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
@@ -172,51 +172,42 @@ codeunit 132201 "Library - Inventory"
     [Scope('OnPrem')]
     procedure CreatePhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        with PhysInvtOrderHeader do begin
-            Init();
-            Insert(true);
-        end;
+        PhysInvtOrderHeader.Init();
+        PhysInvtOrderHeader.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreatePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CountNo: Code[20]; ItemNo: Code[20])
     begin
-        with PhysInvtOrderLine do begin
-            Validate("Document No.", CountNo);
-            Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtOrderLine, FieldNo("Line No.")));
-            Validate("Item No.", ItemNo);
-            Insert(true);
-        end;
+        PhysInvtOrderLine.Validate("Document No.", CountNo);
+        PhysInvtOrderLine.Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtOrderLine, PhysInvtOrderLine.FieldNo("Line No.")));
+        PhysInvtOrderLine.Validate("Item No.", ItemNo);
+        PhysInvtOrderLine.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreatePhysInvtRecordHeader(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; CountNo: Code[20])
     begin
-        with PhysInvtRecordHeader do begin
-            Validate("Order No.", CountNo);
-            Validate("Recording No.", LibraryUtility.GetNewRecNo(PhysInvtRecordHeader, FieldNo("Recording No.")));
-            Insert(true);
-        end;
+        PhysInvtRecordHeader.Validate("Order No.", CountNo);
+        PhysInvtRecordHeader.Validate("Recording No.", LibraryUtility.GetNewRecNo(PhysInvtRecordHeader, PhysInvtRecordHeader.FieldNo("Recording No.")));
+        PhysInvtRecordHeader.Insert(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreatePhysInvtRecordLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; Qty: Decimal)
     begin
-        with PhysInvtRecordLine do begin
-            Validate("Order No.", PhysInvtOrderLine."Document No.");
-            Validate("Order Line No.", PhysInvtOrderLine."Line No.");
-            Validate("Recording No.", RecordingNo);
-            Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtRecordLine, FieldNo("Line No.")));
-            Validate("Item No.", PhysInvtOrderLine."Item No.");
-            Validate(Quantity, Qty);
-            Validate(Recorded, true);
-            Insert(true);
-        end;
+        PhysInvtRecordLine.Validate("Order No.", PhysInvtOrderLine."Document No.");
+        PhysInvtRecordLine.Validate("Order Line No.", PhysInvtOrderLine."Line No.");
+        PhysInvtRecordLine.Validate("Recording No.", RecordingNo);
+        PhysInvtRecordLine.Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtRecordLine, PhysInvtRecordLine.FieldNo("Line No.")));
+        PhysInvtRecordLine.Validate("Item No.", PhysInvtOrderLine."Item No.");
+        PhysInvtRecordLine.Validate(Quantity, Qty);
+        PhysInvtRecordLine.Validate(Recorded, true);
+        PhysInvtRecordLine.Insert(true);
     end;
 
     procedure CreateItemWithoutVAT(var Item: Record Item)
     var
-        InventorySetup: Record "Inventory Setup";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         GeneralPostingSetup: Record "General Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
@@ -282,12 +273,10 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemWithUnitPriceAndUnitCost(var Item: Record Item; UnitPrice: Decimal; UnitCost: Decimal)
     begin
-        with Item do begin
-            CreateItem(Item);
-            Validate("Unit Price", UnitPrice);
-            Validate("Unit Cost", UnitCost);
-            Modify(true);
-        end;
+        CreateItem(Item);
+        Item.Validate("Unit Price", UnitPrice);
+        Item.Validate("Unit Cost", UnitCost);
+        Item.Modify(true);
     end;
 
     procedure CreateItemWithUnitPriceUnitCostAndPostingGroup(var Item: Record Item; UnitPrice: Decimal; UnitCost: Decimal)
@@ -412,13 +401,12 @@ codeunit 132201 "Library - Inventory"
         InvtDocPostReceipt: Codeunit "Invt. Doc.-Post Receipt";
         InvtDocPostShipment: Codeunit "Invt. Doc.-Post Shipment";
     begin
-        with InvtDocumentHeader do
-            case "Document Type" of
-                "Document Type"::Receipt:
-                    InvtDocPostReceipt.Run(InvtDocumentHeader);
-                "Document Type"::Shipment:
-                    InvtDocPostShipment.Run(InvtDocumentHeader);
-            end;
+        case InvtDocumentHeader."Document Type" of
+            InvtDocumentHeader."Document Type"::Receipt:
+                InvtDocPostReceipt.Run(InvtDocumentHeader);
+            InvtDocumentHeader."Document Type"::Shipment:
+                InvtDocPostShipment.Run(InvtDocumentHeader);
+        end;
     end;
 
     procedure CreateItemChargeWithoutVAT(var ItemCharge: Record "Item Charge")
@@ -472,13 +460,11 @@ codeunit 132201 "Library - Inventory"
     begin
         ItemChargeAssignmentSales.Init();
 
-        with ItemChargeAssignmentSales do begin
-            "Document Type" := SalesLine."Document Type";
-            "Document No." := SalesLine."Document No.";
-            "Document Line No." := SalesLine."Line No.";
-            "Item Charge No." := SalesLine."No.";
-            "Unit Cost" := SalesLine."Unit Cost";
-        end;
+        ItemChargeAssignmentSales."Document Type" := SalesLine."Document Type";
+        ItemChargeAssignmentSales."Document No." := SalesLine."Document No.";
+        ItemChargeAssignmentSales."Document Line No." := SalesLine."Line No.";
+        ItemChargeAssignmentSales."Item Charge No." := SalesLine."No.";
+        ItemChargeAssignmentSales."Unit Cost" := SalesLine."Unit Cost";
 
         RecRef.GetTable(ItemChargeAssignmentSales);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentSales.FieldNo("Line No."));
@@ -499,13 +485,11 @@ codeunit 132201 "Library - Inventory"
     begin
         ItemChargeAssignmentPurch.Init();
 
-        with ItemChargeAssignmentPurch do begin
-            "Document Type" := PurchaseLine."Document Type";
-            "Document No." := PurchaseLine."Document No.";
-            "Document Line No." := PurchaseLine."Line No.";
-            "Item Charge No." := PurchaseLine."No.";
-            "Unit Cost" := PurchaseLine."Unit Cost";
-        end;
+        ItemChargeAssignmentPurch."Document Type" := PurchaseLine."Document Type";
+        ItemChargeAssignmentPurch."Document No." := PurchaseLine."Document No.";
+        ItemChargeAssignmentPurch."Document Line No." := PurchaseLine."Line No.";
+        ItemChargeAssignmentPurch."Item Charge No." := PurchaseLine."No.";
+        ItemChargeAssignmentPurch."Unit Cost" := PurchaseLine."Unit Cost";
 
         RecRef.GetTable(ItemChargeAssignmentPurch);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
@@ -586,7 +570,7 @@ codeunit 132201 "Library - Inventory"
             ItemJournalBatch.Validate("Journal Template Name", JournalTemplateName);
             ItemJournalBatch.SetupNewBatch();
             ItemJournalBatch.Validate(Name, JournalBatchName);
-            ItemJournalBatch.Validate(Description, JournalBatchName + JOURNAL);
+            ItemJournalBatch.Validate(Description, JournalBatchName + JOURNALTxt);
             ItemJournalBatch.Insert(true);
         end;
         CreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, JournalTemplateName, JournalBatchName, EntryType);
@@ -632,7 +616,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Entry Type")
     var
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         RecRef: RecordRef;
         DocumentNo: Code[20];
     begin
@@ -646,7 +630,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.Validate("Posting Date", WorkDate());
         ItemJournalLine.Validate("Entry Type", EntryType);
         if NoSeries.Get(ItemJournalBatch."No. Series") then
-            DocumentNo := NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date", false)
+            DocumentNo := NoSeriesCodeunit.PeekNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date")
         else
             DocumentNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line");
         ItemJournalLine.Validate("Document No.", DocumentNo);
@@ -657,7 +641,6 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemManufacturing(var Item: Record Item): Code[20]
     var
-        InventorySetup: Record "Inventory Setup";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         GeneralPostingSetup: Record "General Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
@@ -777,7 +760,7 @@ codeunit 132201 "Library - Inventory"
         ItemTemplate.FindFirst();
 
         CreateNonStock(NonstockItem);
-        NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         NonstockItem.Validate(
           "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
         NonstockItem.Validate("Item Templ. Code", ItemTemplate.Code);
@@ -797,7 +780,7 @@ codeunit 132201 "Library - Inventory"
         CreateUnitOfMeasureCode(UnitOfMeasure);
 
         CreateNonStock(NonstockItem);
-        NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         NonstockItem.Validate(
           "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
         NonstockItem.Validate("Item Templ. Code", ItemTemplateCode);
@@ -821,12 +804,12 @@ codeunit 132201 "Library - Inventory"
         Item.Modify(true);
     end;
 
-    procedure CreateStockKeepingUnit(var Item: Record Item; CreatePerOption: Option; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
+    procedure CreateStockKeepingUnit(var Item: Record Item; CreationMethod: Enum "SKU Creation Method"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
     var
         TmpItem: Record Item;
-        CreateStockkeepingUnit: Report "Create Stockkeeping Unit";
+        CreateStockkeepingUnitReport: Report "Create Stockkeeping Unit";
     begin
-        CreateStockkeepingUnit.InitializeRequest(CreatePerOption, NewItemInInventoryOnly, NewReplacePreviousSKUs);
+        CreateStockkeepingUnitReport.SetParameters(CreationMethod, NewItemInInventoryOnly, NewReplacePreviousSKUs);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
@@ -834,9 +817,9 @@ codeunit 132201 "Library - Inventory"
             TmpItem.SetRange("No.", Item."No.");
         end;
 
-        CreateStockkeepingUnit.SetTableView(TmpItem);
-        CreateStockkeepingUnit.UseRequestPage(false);
-        CreateStockkeepingUnit.Run();
+        CreateStockkeepingUnitReport.SetTableView(TmpItem);
+        CreateStockkeepingUnitReport.UseRequestPage(false);
+        CreateStockkeepingUnitReport.Run();
     end;
 
     procedure CreateStockkeepingUnitForLocationAndVariant(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
@@ -869,21 +852,21 @@ codeunit 132201 "Library - Inventory"
     procedure CreateShippingAgentServiceUsingPages(ShippingAgentCode: Code[10]) ShippingAgentServiceCode: Code[10]
     var
         ShippingAgentServices: Record "Shipping Agent Services";
+        ShippingTime: DateFormula;
         ShippingAgents: TestPage "Shipping Agents";
         ShippingAgentServicesPage: TestPage "Shipping Agent Services";
-        ShippingTime: DateFormula;
     begin
-        ShippingAgents.OpenEdit;
+        ShippingAgents.OpenEdit();
         ShippingAgents.GotoKey(ShippingAgentCode);
 
-        ShippingAgentServicesPage.Trap;
-        ShippingAgents.ShippingAgentServices.Invoke;
+        ShippingAgentServicesPage.Trap();
+        ShippingAgents.ShippingAgentServices.Invoke();
 
         ShippingAgentServiceCode :=
           LibraryUtility.GenerateRandomCode(ShippingAgentServices.FieldNo(Code), DATABASE::"Shipping Agent Services");
         Evaluate(ShippingTime, '<1M>');
 
-        ShippingAgentServicesPage.New;
+        ShippingAgentServicesPage.New();
         ShippingAgentServicesPage.Code.SetValue(ShippingAgentServiceCode);
         ShippingAgentServicesPage."Shipping Time".SetValue(ShippingTime);
 
@@ -1165,32 +1148,32 @@ codeunit 132201 "Library - Inventory"
         exit(ReserveConfirmMsg);
     end;
 
-    procedure NoSeriesSetup(var InventorySetup: Record "Inventory Setup")
+    procedure NoSeriesSetup(var InventorySetup2: Record "Inventory Setup")
     begin
-        InventorySetup.Get();
-        InventorySetup.Validate("Internal Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Inventory Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Inventory Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Inventory Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Posted Invt. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Posted Transfer Rcpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Posted Transfer Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Registered Invt. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Validate("Posted Invt. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        InventorySetup.Modify(true);
+        InventorySetup2.Get();
+        InventorySetup2.Validate("Internal Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Inventory Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Inventory Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Inventory Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Posted Invt. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Posted Transfer Rcpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Posted Transfer Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Registered Invt. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Validate("Posted Invt. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        InventorySetup2.Modify(true);
     end;
 
-    local procedure ItemNoSeriesSetup(var InventorySetup: Record "Inventory Setup")
+    local procedure ItemNoSeriesSetup(var InventorySetup2: Record "Inventory Setup")
     var
         NoSeriesCode: Code[20];
     begin
-        InventorySetup.Get();
-        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
-        if NoSeriesCode <> InventorySetup."Item Nos." then begin
-            InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            InventorySetup.Modify(true);
+        InventorySetup2.Get();
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode();
+        if NoSeriesCode <> InventorySetup2."Item Nos." then begin
+            InventorySetup2.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            InventorySetup2.Modify(true);
         end;
     end;
 
@@ -1218,15 +1201,14 @@ codeunit 132201 "Library - Inventory"
 
     procedure OutputJnlExplRoute(var ItemJournalLine: Record "Item Journal Line")
     var
-        OutputJnlExplRoute: Codeunit "Output Jnl.-Expl. Route";
+        OutputJnlExplRouteCodeunit: Codeunit "Output Jnl.-Expl. Route";
     begin
-        Clear(OutputJnlExplRoute);
-        OutputJnlExplRoute.Run(ItemJournalLine);
+        Clear(OutputJnlExplRouteCodeunit);
+        OutputJnlExplRouteCodeunit.Run(ItemJournalLine);
     end;
 
     procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
     var
-        InventorySetup: Record "Inventory Setup";
         TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
         InventorySetup.Get();
@@ -1402,9 +1384,19 @@ codeunit 132201 "Library - Inventory"
         InventorySetup.Modify();
     end;
 
+#if not CLEAN24
+    [Obsolete('Temporary setup to enable/disable package tracking in Phys. Inventory Orders', '24.0')]
+    procedure SetInvtOrdersPackageTracking(PackageTracking: Boolean)
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Invt. Orders Package Tracking" <> PackageTracking then begin
+            InventorySetup."Invt. Orders Package Tracking" := PackageTracking;
+            InventorySetup.Modify();
+        end;
+    end;
+#endif
+
     procedure UpdateAverageCostSettings(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
-    var
-        InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
@@ -1419,7 +1411,7 @@ codeunit 132201 "Library - Inventory"
         if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Sales Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
+                    GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
                 if GeneralPostingSetup."Purch. Account" = '' then
                     GeneralPostingSetup.Validate("Purch. Account", GeneralPostingSetup."Sales Account");
                 if GeneralPostingSetup."COGS Account" = '' then
@@ -1437,27 +1429,26 @@ codeunit 132201 "Library - Inventory"
                 if GeneralPostingSetup."Sales Credit Memo Account" = '' then
                     GeneralPostingSetup.Validate("Sales Credit Memo Account", GeneralPostingSetup."Sales Account");
                 if GeneralPostingSetup."Sales Prepayments Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
+                    GeneralPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup());
                 if GeneralPostingSetup."Purch. Prepayments Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+                    GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup2: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
     begin
-        InventorySetup.Get();
-        InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
-        InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
-        InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
-        InventorySetup.Validate("Average Cost Calc. Type", AverageCostCalcType);
-        InventorySetup.Validate("Average Cost Period", AverageCostPeriod);
-        InventorySetup.Modify(true);
+        InventorySetup2.Get();
+        InventorySetup2.Validate("Automatic Cost Posting", AutomaticCostPosting);
+        InventorySetup2.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
+        InventorySetup2.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
+        InventorySetup2.Validate("Average Cost Calc. Type", AverageCostCalcType);
+        InventorySetup2.Validate("Average Cost Period", AverageCostPeriod);
+        InventorySetup2.Modify(true);
     end;
 
     procedure UpdateInventoryPostingSetup(Location: Record Location)
     var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         if InventoryPostingGroup.FindSet() then
@@ -1501,7 +1492,7 @@ codeunit 132201 "Library - Inventory"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);

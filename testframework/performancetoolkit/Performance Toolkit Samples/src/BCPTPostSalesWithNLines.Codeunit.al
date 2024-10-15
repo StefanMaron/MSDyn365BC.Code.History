@@ -49,7 +49,7 @@ codeunit 149118 "BCPT Post Sales with N Lines" implements "BCPT Test Param. Prov
         repeat
             if NoSeriesLine."Ending No." <> '' then begin
                 NoSeriesLine."Ending No." := '';
-                NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+                NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
             end;
         until NoSeriesLine.Next() = 0;

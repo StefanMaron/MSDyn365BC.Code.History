@@ -12,10 +12,11 @@ using System.Utilities;
 
 report 1011 "Job Suggested Billing"
 {
+    AdditionalSearchTerms = 'Job Suggested Billing';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobSuggestedBilling.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Suggested Billing';
+    Caption = 'Project Suggested Billing';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -330,8 +331,8 @@ report 1011 "Job Suggested Billing"
         TotalForTxt: Label 'Total for';
         CurrencyCode: Code[20];
         CurrReportPageNoCaptionLbl: Label 'Page';
-        JobSuggestedBillCaptionLbl: Label 'Job Suggested Billing';
-        JobTaskNoCaptionLbl: Label 'Job Task No.';
+        JobSuggestedBillCaptionLbl: Label 'Project Suggested Billing';
+        JobTaskNoCaptionLbl: Label 'Project Task No.';
         TotalContractCaptionLbl: Label 'Total Billable';
         CostCaptionLbl: Label 'Cost';
         SalesCaptionLbl: Label 'Sales';

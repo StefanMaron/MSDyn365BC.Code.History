@@ -69,7 +69,7 @@ page 846 "Cash Flow Setup"
                 field("Job CF Account No."; Rec."Job CF Account No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job account number that is used in cash flow forecasts.';
+                    ToolTip = 'Specifies the project account number that is used in cash flow forecasts.';
                 }
                 field("Tax CF Account No."; Rec."Tax CF Account No.")
                 {
@@ -140,11 +140,19 @@ page 846 "Cash Flow Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the API URI to the AzureML instance.';
                 }
-                field("API Key"; Rec."API Key")
+                field("API Key"; APIKey)
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the API Key to the AzureML time series experiment.';
+
+                    trigger OnValidate()
+                    begin
+                        if not IsNullGuid(Rec."Service Pass API Key ID") then
+                            Rec.EnableEncryption();
+                        if APIKey <> DummyApiKeyTok then
+                            Rec.SaveUserDefinedAPIKey(APIKey);
+                    end;
                 }
                 field("Time Series Model"; Rec."Time Series Model")
                 {
@@ -216,7 +224,7 @@ page 846 "Cash Flow Setup"
     trigger OnAfterGetRecord()
     begin
         TaxAccountTypeValid := Rec.HasValidTaxAccountInfo();
-        Rec."API Key" := Rec.GetUserDefinedAPIKey();
+        SetApiKey();
         if Format(Rec."Tax Payment Window") = '' then begin
             Evaluate(Rec."Tax Payment Window", '<CM + 1M + 7D>');
             Rec.Modify();
@@ -236,5 +244,14 @@ page 846 "Cash Flow Setup"
         AzureAIUsage: Codeunit "Azure AI Usage";
         AzureAIService: Enum "Azure AI Service";
         TaxAccountTypeValid: Boolean;
+        [NonDebuggable]
+        APIKey: Text[200];
+        DummyApiKeyTok: Label '*', Locked = true;
+
+    local procedure SetApiKey()
+    begin
+        if not Rec.GetUserDefinedAPIKeySecret().IsEmpty() then
+            APIKey := DummyApiKeyTok;
+    end;
 }
 

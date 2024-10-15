@@ -8,6 +8,7 @@ table 1328 "Top Customers By Sales Buffer"
 {
     Caption = 'Top Customers By Sales Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

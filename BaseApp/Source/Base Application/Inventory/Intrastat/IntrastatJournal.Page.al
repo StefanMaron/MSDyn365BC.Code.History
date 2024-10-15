@@ -1,4 +1,4 @@
-#if not CLEAN22
+﻿#if not CLEAN22
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -219,7 +219,9 @@ page 311 "Intrastat Journal"
                     ToolTip = 'Specifies the statistical value that has accumulated in the Intrastat journal.';
                     Visible = StatisticalValueVisible;
                 }
+#pragma warning disable AA0100
                 field("TotalStatisticalValue + ""Statistical Value"" - xRec.""Statistical Value"""; TotalStatisticalValue + Rec."Statistical Value" - xRec."Statistical Value")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = BasicEU;
                     AutoFormatType = 1;

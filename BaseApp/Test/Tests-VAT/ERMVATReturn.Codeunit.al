@@ -38,14 +38,14 @@ codeunit 134096 "ERM VAT Return"
         // [GIVEN] Demodata - VAT Report Suggest Lines Codeunit is setup in the VAT Report configuration table
         // [GIVEN] Demodata - VAT Entries
         // [GIVEN] VAT Report header of type VAT Return
-        CreateVATReturn(VATReportHdr, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHdr, DATE2DMY(WorkDate(), 3));
 
         // [GIVEN] VAT Statememt for VAT Return calculation
         SetupVATStatementLineForVATReturn();
         Commit();
 
         // [WHEN] Stan is running "Suggest Lines"
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         SuggestLines(
           VATReportHdr, Selection::Open, PeriodSelection::"Before and Within Period", VATReportHdr."Period Year", false);
 
@@ -71,7 +71,7 @@ codeunit 134096 "ERM VAT Return"
         // [GIVEN] Demodata - VAT Report Suggest Lines Codeunit is setup in the VAT Report configuration table
         // [GIVEN] Demodata - VAT Entries
         // [GIVEN] VAT Report header of type VAT Return
-        CreateVATReturn(VATReportHdr, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHdr, DATE2DMY(WorkDate(), 3));
 
         // [GIVEN] VAT Statememt for VAT Return calculation
         SetupVATStatementLineForVATReturn();
@@ -104,7 +104,7 @@ codeunit 134096 "ERM VAT Return"
     begin
         // [SCENARIO] VAT Statement Report Line modification is allowed
         // [GIVEN] VAT Report Header with VAT Statement Report Line "L1"
-        CreateVATReturn(VATReportHdr, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHdr, DATE2DMY(WorkDate(), 3));
         SetupVATStatementLineForVATReturn();
         Commit();
         LibraryLowerPermissions.SetO365BusFull();
@@ -140,7 +140,7 @@ codeunit 134096 "ERM VAT Return"
         Assert.IsFalse(
           VATReport."Amounts in Add. Rep. Currency".Editable(),
           'VATReport."Amounts in Add. Rep. Currency" should not be editable');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -157,7 +157,7 @@ codeunit 134096 "ERM VAT Return"
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] VAT Return for the period
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3) + 1);
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3) + 1);
 
         // [GIVEN] VAT Entries for the period with Amount\Base, unrealized Amount\Base LCY and ACY values
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -198,7 +198,7 @@ codeunit 134096 "ERM VAT Return"
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] VAT Return for the period
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3) + 1);
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3) + 1);
 
         // [GIVEN] VAT Entries for the period with Amount\Base, unrealized Amount\Base LCY and ACY values
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -273,7 +273,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(0);
 
         // [GIVEN] VAT Report with VAT Reports Configuration
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
 
         // [WHEN] Open VAT Report page
         VATReportPage.OpenEdit();
@@ -303,7 +303,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(Codeunit::"Test VAT Submission");
 
         // [GIVEN] VAT Report with VAT Reports Configuration
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
 
         // [WHEN] Open VAT Report page
         VATReportPage.OpenEdit();
@@ -333,7 +333,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(0);
 
         // [GIVEN] VAT Return with blank "Additional Information"
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
 
         // [GIVEN] VAT Report page opens and focused on VAT Return
         VATReportPage.OpenEdit();
@@ -366,7 +366,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(0);
 
         // [GIVEN] VAT Return with "Additional Information" specified
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
         VATReportHeader."Additional Information" := LibraryUtility.GenerateGUID();
         VATReportHeader.Modify(true);
 
@@ -400,7 +400,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(0);
 
         // [GIVEN] VAT Return with Release status
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
         VATReportHeader.Status := VATReportHeader.Status::Released;
         VATReportHeader.Modify(true);
 
@@ -433,7 +433,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(0);
 
         // [GIVEN] VAT Return with Status = Released
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
         VATReportHeader.Status := VATReportHeader.Status::Released;
         VATReportHeader.Modify(true);
 
@@ -460,7 +460,6 @@ codeunit 134096 "ERM VAT Return"
     procedure SubmitVATReportChanges()
     var
         VATReportHeader: Record "VAT Report Header";
-        VATReportArchive: Record "VAT Report Archive";
         VATReportPage: TestPage "VAT Report";
     begin
         // [FEATURE] [UI]
@@ -473,7 +472,7 @@ codeunit 134096 "ERM VAT Return"
         SetupVATReportsConfiguration(Codeunit::"Test VAT Submission");
 
         // [GIVEN] VAT Return
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
+        CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
         VATReportHeader.Status := VATReportHeader.Status::Released;
         VATReportHeader.Modify(true);
 
@@ -503,8 +502,6 @@ codeunit 134096 "ERM VAT Return"
     var
         VATReportHeader: Record "VAT Report Header";
         VATReportPage: TestPage "VAT Report";
-        PostingDate: Date;
-        BoxNo: Text[30];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 433237] The VAT Note field is visible in the VAT return subform page when "Report VAT Note" option is enabled
@@ -514,7 +511,7 @@ codeunit 134096 "ERM VAT Return"
 
         CreateVATReturn(VATReportHeader, DATE2DMY(WorkDate(), 3));
 
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         VATReportPage.OpenEdit();
         VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
         Assert.IsTrue(VATReportPage.VATReportLines.Note.Visible(), 'VAT Note field is not visible');
@@ -747,8 +744,8 @@ codeunit 134096 "ERM VAT Return"
         PeriodSelection := "VAT Statement Report Period Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
         VATReportRequestPage.PeriodSelection.SETVALUE(Format(PeriodSelection));
 
-        VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger);
-        VATReportRequestPage."Amounts in ACY".SETVALUE(LibraryVariableStorage.DequeueBoolean);
+        VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger());
+        VATReportRequestPage."Amounts in ACY".SETVALUE(LibraryVariableStorage.DequeueBoolean());
         VATReportRequestPage.OK().Invoke();
     end;
 

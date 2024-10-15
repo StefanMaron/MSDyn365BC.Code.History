@@ -21,7 +21,6 @@ codeunit 136500 "UT Time Sheets"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJob: Codeunit "Library - Job";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GlobalWorkTypeCode: Code[10];
         GlobalChargeable: Boolean;
@@ -41,13 +40,13 @@ codeunit 136500 "UT Time Sheets"
         CreateTimeSheetResource(Resource, false);
 
         // create time sheet
-        CreateTimeSheets(FindTimeSheetStartDate, 1, Resource."No.");
+        CreateTimeSheets(FindTimeSheetStartDate(), 1, Resource."No.");
 
         // verify that time sheet is created
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
-        Assert.IsTrue(TimeSheetHeader.FindFirst, 'Time sheet is not created');
+        Assert.IsTrue(TimeSheetHeader.FindFirst(), 'Time sheet is not created');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -68,7 +67,7 @@ codeunit 136500 "UT Time Sheets"
         asserterror ResJnlLine.Validate("Resource No.", Resource."No.");
         Assert.IsTrue(StrPos(GetLastErrorText, 'Use Time Sheet must be') > 0, 'Unexpected resource journal validation error.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -93,7 +92,7 @@ codeunit 136500 "UT Time Sheets"
         asserterror JobJnlLine.Validate("No.", Resource."No.");
         Assert.IsTrue(StrPos(GetLastErrorText, 'Use Time Sheet must be') > 0, 'Unexpected job journal validation error.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -125,7 +124,7 @@ codeunit 136500 "UT Time Sheets"
 
         // verify that lines are copied
         ToTimeSheetLine.SetRange("Time Sheet No.", ToTimeSheetHeader."No.");
-        Assert.IsTrue(ToTimeSheetLine.FindSet, 'Lines have not been copied.');
+        Assert.IsTrue(ToTimeSheetLine.FindSet(), 'Lines have not been copied.');
 
         FromTimeSheetLine.SetRange("Time Sheet No.", FromTimeSheetHeader."No.");
         FromTimeSheetLine.FindSet();
@@ -141,7 +140,7 @@ codeunit 136500 "UT Time Sheets"
             FromTimeSheetLine.Next();
         until ToTimeSheetLine.Next() = 0;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -187,7 +186,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
         Assert.IsTrue(TimeSheetLine.Count() = 1, 'Incorrect number of lines has been created.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -239,9 +238,9 @@ codeunit 136500 "UT Time Sheets"
 
         // create details for 2 days
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal());
         // submit and approve
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
@@ -254,7 +253,7 @@ codeunit 136500 "UT Time Sheets"
         // Posted should be Yes
         Assert.IsTrue(TimeSheetLine.Posted, 'Time sheet line has to be posted.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -282,9 +281,9 @@ codeunit 136500 "UT Time Sheets"
             TimeSheetLine[RowCount].Modify();
             // create details for 2 days
             LibraryTimeSheet.CreateTimeSheetDetail(
-              TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+              TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
             LibraryTimeSheet.CreateTimeSheetDetail(
-              TimeSheetLine[RowCount], TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal);
+              TimeSheetLine[RowCount], TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal());
             // submit and approve
             TimeSheetApprovalMgt.Submit(TimeSheetLine[RowCount]);
             TimeSheetApprovalMgt.Approve(TimeSheetLine[RowCount]);
@@ -294,7 +293,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -320,7 +319,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyServiceLinesQtyForFewTS(ServiceHeader."No.", TimeSheetNo);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -352,9 +351,9 @@ codeunit 136500 "UT Time Sheets"
             TimeSheetLine.Modify();
             // create details for 2 days
             LibraryTimeSheet.CreateTimeSheetDetail(
-              TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+              TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
             LibraryTimeSheet.CreateTimeSheetDetail(
-              TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal);
+              TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal());
             // submit and approve
             TimeSheetApprovalMgt.Submit(TimeSheetLine);
             TimeSheetApprovalMgt.Approve(TimeSheetLine);
@@ -362,7 +361,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
         ModifyCopyTimeSheetLinesinServiceSetup(false);
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -384,7 +383,7 @@ codeunit 136500 "UT Time Sheets"
         // Verify: only one timesheet header was added to the service order.
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -415,9 +414,9 @@ codeunit 136500 "UT Time Sheets"
 
         // create details for 2 days
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal());
         // submit and approve
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
@@ -428,7 +427,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         Assert.AreEqual(ServiceLinesCount, ServiceLine.Count, 'No service Lines have been added');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -449,7 +448,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -479,7 +478,7 @@ codeunit 136500 "UT Time Sheets"
         // verify Service Lines Qty.
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -501,7 +500,7 @@ codeunit 136500 "UT Time Sheets"
         if TimeSheetLine.FindSet() then
             repeat
                 LibraryTimeSheet.CreateTimeSheetDetail(
-                  TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+                  TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
             until TimeSheetLine.Next() = 0;
 
         // submit and approve
@@ -515,7 +514,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyServiceLinesQty(ServiceHeader."No.", TimeSheetHeader."No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -552,9 +551,9 @@ codeunit 136500 "UT Time Sheets"
 
         // set quantities for lines
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
         LibraryTimeSheet.CreateTimeSheetDetail(
-          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal);
+          TimeSheetLine, TimeSheetHeader."Starting Date" + 1, LibraryTimeSheet.GetRandomDecimal());
 
         // submit and approve lines
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
@@ -564,7 +563,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyDimensions(ServiceHeader."No.", TimeSheetHeader."Resource No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -587,22 +586,22 @@ codeunit 136500 "UT Time Sheets"
 
         // find time sheet
         WorkDate := TimeSheetHeader."Starting Date";
-        ManagerTSbyJob.OpenEdit;
+        ManagerTSbyJob.OpenEdit();
 
         // change chargeable and work type on the manager page by job
         ManagerTSbyJob.FILTER.SetFilter("Time Sheet No.", TimeSheetHeader."No.");
         ManagerTSbyJob.FILTER.SetFilter(Status, 'Submitted');
         GlobalWorkTypeCode := WorkType.Code;
         GlobalChargeable := false;
-        ManagerTSbyJob.Description.AssistEdit;
-        ManagerTSbyJob.Approve.Invoke;
+        ManagerTSbyJob.Description.AssistEdit();
+        ManagerTSbyJob.Approve.Invoke();
 
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         TimeSheetLine.FindFirst();
         TimeSheetLine.TestField("Work Type Code", GlobalWorkTypeCode);
         TimeSheetLine.TestField(Chargeable, GlobalChargeable);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -623,7 +622,7 @@ codeunit 136500 "UT Time Sheets"
         ManagerTSbyJob."&Next Period".Invoke();
         Assert.AreEqual(StartingDate, ManagerTSbyJob.StartingDate.AsDate(), 'Next Period Starting Date');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -647,14 +646,14 @@ codeunit 136500 "UT Time Sheets"
 
         // change chargeable and work type on the manager page
         WorkDate := TimeSheetHeader."Starting Date";
-        ManagerTimeSheet.OpenEdit;
+        ManagerTimeSheet.OpenEdit();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
         ManagerTimeSheet.FILTER.SetFilter(Status, 'Submitted');
-        ManagerTimeSheet.First;
+        ManagerTimeSheet.First();
         GlobalWorkTypeCode := WorkType.Code;
         GlobalChargeable := false;
-        ManagerTimeSheet.Description.AssistEdit;
-        ManagerTimeSheet.Approve.Invoke;
+        ManagerTimeSheet.Description.AssistEdit();
+        ManagerTimeSheet.Approve.Invoke();
 
         // compare table and page results
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
@@ -662,7 +661,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.TestField("Work Type Code", GlobalWorkTypeCode);
         TimeSheetLine.TestField(Chargeable, GlobalChargeable);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -709,7 +708,7 @@ codeunit 136500 "UT Time Sheets"
 
         VerifyTimeSheetStatuses(TimeSheetHeader, true, true, true, true, true);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -738,11 +737,11 @@ codeunit 136500 "UT Time Sheets"
         SetupTimeSheetChart(TimeSheetChartSetup, UserId, TimeSheetHeader."Starting Date");
 
         // init quiantities
-        OpenQty := LibraryTimeSheet.GetRandomDecimal;
-        SubmittedQty := LibraryTimeSheet.GetRandomDecimal;
-        RejectedQty := LibraryTimeSheet.GetRandomDecimal;
-        ApprovedQty := LibraryTimeSheet.GetRandomDecimal;
-        ScheduledQty := LibraryTimeSheet.GetRandomDecimal;
+        OpenQty := LibraryTimeSheet.GetRandomDecimal();
+        SubmittedQty := LibraryTimeSheet.GetRandomDecimal();
+        RejectedQty := LibraryTimeSheet.GetRandomDecimal();
+        ApprovedQty := LibraryTimeSheet.GetRandomDecimal();
+        ScheduledQty := LibraryTimeSheet.GetRandomDecimal();
         PostedQty := Round(ApprovedQty / 3);
 
         // create capacity for resource
@@ -784,7 +783,7 @@ codeunit 136500 "UT Time Sheets"
         VerifyFlowChartCalcAmount(
           TimeSheetHeader.Quantity - PostedQty, TimeSheetChartSetup, TimeSheetHeader."Resource No.", MeasureType::"Not posted");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -810,11 +809,11 @@ codeunit 136500 "UT Time Sheets"
         Initialize();
 
         // init quiantities
-        ResourceQty := LibraryTimeSheet.GetRandomDecimal;
-        JobQty := LibraryTimeSheet.GetRandomDecimal;
-        AbsenceQty := LibraryTimeSheet.GetRandomDecimal;
-        ServiceQty := LibraryTimeSheet.GetRandomDecimal;
-        ScheduledQty := LibraryTimeSheet.GetRandomDecimal;
+        ResourceQty := LibraryTimeSheet.GetRandomDecimal();
+        JobQty := LibraryTimeSheet.GetRandomDecimal();
+        AbsenceQty := LibraryTimeSheet.GetRandomDecimal();
+        ServiceQty := LibraryTimeSheet.GetRandomDecimal();
+        ScheduledQty := LibraryTimeSheet.GetRandomDecimal();
 
         LibraryTimeSheet.InitAssemblyBackwayScenario(TimeSheetHeader, AssemblyHeader, AssemblyLine, true);
         SetupTimeSheetChart(TimeSheetChartSetup, UserId, TimeSheetHeader."Starting Date");
@@ -851,7 +850,7 @@ codeunit 136500 "UT Time Sheets"
         VerifyFlowChartCalcAmount(ServiceQty, TimeSheetChartSetup, TimeSheetHeader."Resource No.", MeasureType::Service);
         VerifyFlowChartCalcAmount(AssemblyQty, TimeSheetChartSetup, TimeSheetHeader."Resource No.", MeasureType::"Assembly Order");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -861,7 +860,7 @@ codeunit 136500 "UT Time Sheets"
         // test verifies the resource list for manager-approver, not time sheet admin
         InitTimeSheetChartApprover(false);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -871,7 +870,7 @@ codeunit 136500 "UT Time Sheets"
         // test verifies the resource list for manager-approver, time sheet admin
         InitTimeSheetChartApprover(true);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -997,14 +996,14 @@ codeunit 136500 "UT Time Sheets"
         CreateTimeSheetLineSimple(TimeSheetHeader, TimeSheetLine.Status::Approved);
 
         // [WHEN] The Time Sheet List is opened with filter set to nothing
-        TimeSheetList.Trap;
-        TimeSheetList.OpenEdit;
+        TimeSheetList.Trap();
+        TimeSheetList.OpenEdit();
 
         // [THEN] The correct Time Sheet Header will be display.
-        Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
-        Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
-        Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
-        Assert.IsFalse(TimeSheetList.Next, 'UnExpected record in repeater for Open Time Sheet');
+        Assert.IsTrue(TimeSheetList.Next(), 'Expected record in repeater for Open Time Sheet');
+        Assert.IsTrue(TimeSheetList.Next(), 'Expected record in repeater for Open Time Sheet');
+        Assert.IsTrue(TimeSheetList.Next(), 'Expected record in repeater for Open Time Sheet');
+        Assert.IsFalse(TimeSheetList.Next(), 'UnExpected record in repeater for Open Time Sheet');
         TimeSheetList.Close();
 
         // [WHEN] The Time Sheet List is opened with filter set to Open
@@ -1067,7 +1066,7 @@ codeunit 136500 "UT Time Sheets"
 
         TimeSheetDetail.TestField(Quantity, -ServiceLine."Qty. to Ship");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1101,7 +1100,7 @@ codeunit 136500 "UT Time Sheets"
 
         TimeSheetDetail.TestField(Quantity, -ServiceShipmentLine."Qty. Shipped Not Invoiced");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1127,7 +1126,7 @@ codeunit 136500 "UT Time Sheets"
         // verify
         VerifyNoTSLineExistsForServiceDocLine(ServiceLine."Document No.", ServiceLine."Line No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1156,7 +1155,7 @@ codeunit 136500 "UT Time Sheets"
         // verify
         VerifyNoTSLineExistsForServiceDocLine(ServiceLine."Document No.", ServiceLine."Line No.");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1183,7 +1182,7 @@ codeunit 136500 "UT Time Sheets"
         // verify
         VerifyNoTSLineExistsForServiceDocLine(ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.");
 
-        TearDown;
+        TearDown();
     end;
 
     local procedure CreateTimeSheetResource(var Resource: Record Resource; CurrUserID: Boolean)
@@ -1237,7 +1236,7 @@ codeunit 136500 "UT Time Sheets"
         // verify
         VerifyTimeSheetAllocation(TimeSheetHeader, TimeSheetLine, DateQuantity);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1262,7 +1261,7 @@ codeunit 136500 "UT Time Sheets"
         VerifyTimeSheetAllocation(TimeSheetHeader, TimeSheetLine, DateQuantity);
         VerifyTimeSheetAllocationInserted(TimeSheetHeader."Starting Date", TimeSheetLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1288,7 +1287,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         Assert.IsTrue(TimeSheetDetail.IsEmpty, 'All time sheet detail records must be deleted');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1326,7 +1325,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetDetail.TestField("Assembly Order Line No.", AssemblyLine."Line No.");
         TimeSheetDetail.TestField(Quantity, AssemblyLine."Quantity to Consume (Base)");
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1351,7 +1350,7 @@ codeunit 136500 "UT Time Sheets"
         asserterror TimeSheetLine.Validate(Type, TimeSheetLine.Type::"Assembly Order");
         Assert.IsTrue(StrPos(GetLastErrorText, 'Type must not be Assembly') > 0, 'Unexpected time sheet searching error.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1404,7 +1403,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.Type := TimeSheetLine.Type::Job;
         asserterror TimeSheetLine.Validate("Job No.", Job."No.");
 
-        Assert.ExpectedError(StrSubstNo('Job %1 must not be blocked with type All.', Job."No."));
+        Assert.ExpectedError(StrSubstNo('Project %1 must not be blocked with type All.', Job."No."));
     end;
 
     [Test]
@@ -1571,14 +1570,14 @@ codeunit 136500 "UT Time Sheets"
                 TimeSheetDetail."Time Sheet No." := TimeSheetLine."Time Sheet No.";
                 TimeSheetDetail."Time Sheet Line No." := TimeSheetLine."Line No.";
                 TimeSheetDetail.Date := TimeSheetHeader."Starting Date" + i - 1;
-                TimeSheetDetail.Quantity := LibraryTimeSheet.GetRandomDecimal;
+                TimeSheetDetail.Quantity := LibraryTimeSheet.GetRandomDecimal();
                 TimeSheetDetail.Posted := true;
                 TimeSheetDetail.Insert();
             end;
 
             // prepare time allocation to modify or insert
             if UpdateType in [UpdateType::Modify, UpdateType::Insert] then
-                DateQuantity[i] := LibraryTimeSheet.GetRandomDecimal;
+                DateQuantity[i] := LibraryTimeSheet.GetRandomDecimal();
         end;
     end;
 
@@ -1586,12 +1585,12 @@ codeunit 136500 "UT Time Sheets"
     begin
         with ServiceLine do begin
             "Document No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Document No."));
-            "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
+            "Line No." := Round(LibraryUtility.GenerateRandomFraction() * 10000, 1);
             "No." := ResourceNo;
             "Posting Date" := Date;
             "Work Type Code" := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Work Type Code"));
             Description := Format(CreateGuid());
-            "Qty. to Ship" := LibraryUtility.GenerateRandomFraction * 10;
+            "Qty. to Ship" := LibraryUtility.GenerateRandomFraction() * 10;
         end;
     end;
 
@@ -1599,14 +1598,14 @@ codeunit 136500 "UT Time Sheets"
     begin
         with ServiceShipmentLine do begin
             "Document No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Document No."));
-            "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
+            "Line No." := Round(LibraryUtility.GenerateRandomFraction() * 10000, 1);
             "No." := ResourceNo;
             "Posting Date" := Date;
             "Work Type Code" := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Work Type Code"));
             Description := Format(CreateGuid());
-            "Qty. Shipped Not Invoiced" := LibraryUtility.GenerateRandomFraction * 10;
+            "Qty. Shipped Not Invoiced" := LibraryUtility.GenerateRandomFraction() * 10;
             "Order No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen("Order No."));
-            "Order Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
+            "Order Line No." := Round(LibraryUtility.GenerateRandomFraction() * 10000, 1);
         end;
     end;
 
@@ -1623,10 +1622,10 @@ codeunit 136500 "UT Time Sheets"
             Init();
             Type := Type::Resource;
             "Document No." := AssemblyHeader."No.";
-            "Line No." := Round(LibraryUtility.GenerateRandomFraction * 10000, 1);
+            "Line No." := Round(LibraryUtility.GenerateRandomFraction() * 10000, 1);
             "No." := ResourceNo;
             Description := Format(CreateGuid());
-            "Quantity to Consume (Base)" := LibraryUtility.GenerateRandomFraction * 10;
+            "Quantity to Consume (Base)" := LibraryUtility.GenerateRandomFraction() * 10;
         end;
     end;
 
@@ -1685,7 +1684,7 @@ codeunit 136500 "UT Time Sheets"
     local procedure VerifyCreatedTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var TimeSheetDetail: Record "Time Sheet Detail"; Date: Date)
     begin
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        Assert.IsTrue(TimeSheetLine.FindFirst, 'Time sheet line is not created.');
+        Assert.IsTrue(TimeSheetLine.FindFirst(), 'Time sheet line is not created.');
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
         TimeSheetLine.TestField(Posted, true);
         TimeSheetLine.TestField("Approver ID", TimeSheetHeader."Approver User ID");
@@ -1693,7 +1692,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.TestField("Approval Date", Today);
 
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        Assert.IsTrue(TimeSheetDetail.FindFirst, 'Time sheet detail is not found.');
+        Assert.IsTrue(TimeSheetDetail.FindFirst(), 'Time sheet detail is not found.');
         TimeSheetDetail.TestField(Date, Date);
     end;
 
@@ -2016,7 +2015,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         TimeSheetLineJobDetail."Work Type Code".Value := GlobalWorkTypeCode;
         TimeSheetLineJobDetail.Chargeable.Value := Format(GlobalChargeable);
-        TimeSheetLineJobDetail.OK.Invoke;
+        TimeSheetLineJobDetail.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2025,7 +2024,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         TimeSheetLineServiceDetail."Work Type Code".Value := GlobalWorkTypeCode;
         TimeSheetLineServiceDetail.Chargeable.Value := Format(GlobalChargeable);
-        TimeSheetLineServiceDetail.OK.Invoke;
+        TimeSheetLineServiceDetail.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2036,8 +2035,8 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryVariableStorage.Dequeue(TimeSheetNo);
         TimeSheetList.FILTER.SetFilter("No.", TimeSheetNo);
-        TimeSheetList.First;
-        TimeSheetList.OK.Invoke;
+        TimeSheetList.First();
+        TimeSheetList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2048,8 +2047,8 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryVariableStorage.Dequeue(TimeSheetNo);
         ManagerTimeSheetList.FILTER.SetFilter("No.", TimeSheetNo);
-        ManagerTimeSheetList.First;
-        ManagerTimeSheetList.OK.Invoke;
+        ManagerTimeSheetList.First();
+        ManagerTimeSheetList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2060,8 +2059,8 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryVariableStorage.Dequeue(TimeSheetNo);
         TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetNo);
-        TimeSheetArchiveList.First;
-        TimeSheetArchiveList.OK.Invoke;
+        TimeSheetArchiveList.First();
+        TimeSheetArchiveList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2072,8 +2071,8 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryVariableStorage.Dequeue(TimeSheetNo);
         ManagerTimeSheetArcList.FILTER.SetFilter("No.", TimeSheetNo);
-        ManagerTimeSheetArcList.First;
-        ManagerTimeSheetArcList.OK.Invoke;
+        ManagerTimeSheetArcList.First();
+        ManagerTimeSheetArcList.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -2151,7 +2150,7 @@ codeunit 136500 "UT Time Sheets"
 
         // create time sheets
         TimeSheetQty := LibraryRandom.RandIntInRange(5, 10);
-        CreateTimeSheets(FindTimeSheetStartDate, TimeSheetQty, Resource."No.");
+        CreateTimeSheets(FindTimeSheetStartDate(), TimeSheetQty, Resource."No.");
 
         // find numbers of initial and target time sheets
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
@@ -2190,7 +2189,7 @@ codeunit 136500 "UT Time Sheets"
         // VERIFY
         VerifyTargetTimeSheetNo(TimeSheetNo, TargetTimeSheetNo);
 
-        TearDown;
+        TearDown();
     end;
 
     local procedure LookupTimeSheetArchScenario(Role: Option Owner,Approver)
@@ -2222,7 +2221,7 @@ codeunit 136500 "UT Time Sheets"
         // VERIFY
         VerifyTargetTimeSheetNo(TimeSheetNo, TargetTimeSheetNo);
 
-        TearDown;
+        TearDown();
     end;
 
     local procedure VerifyTargetTimeSheetNo(TimeSheetNo: Code[20]; TargetTimeSheetNo: Code[20])
@@ -2348,8 +2347,8 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetList: TestPage "Time Sheet List";
     begin
         // [WHEN] The Time Sheet List is opened with filter set to various values
-        TimeSheetList.Trap;
-        TimeSheetList.OpenEdit;
+        TimeSheetList.Trap();
+        TimeSheetList.OpenEdit();
         case Status of
             Status::Open:
                 TimeSheetList.FILTER.SetFilter("Open Exists", 'Yes');
@@ -2360,7 +2359,7 @@ codeunit 136500 "UT Time Sheets"
             Status::Approved:
                 TimeSheetList.FILTER.SetFilter("Approved Exists", 'Yes');
         end;
-        TimeSheetList.First;
+        TimeSheetList.First();
 
         // [THEN] The correct Time Sheet Header will be display.
         case Status of
@@ -2373,7 +2372,7 @@ codeunit 136500 "UT Time Sheets"
             Status::Approved:
                 Assert.AreEqual('APPROVED', TimeSheetList."No.".Value, 'Unexpected record for Approved Time Sheet');
         end;
-        Assert.IsFalse(TimeSheetList.Next, 'Unexpected record in repeater for filtered Time Sheet');
+        Assert.IsFalse(TimeSheetList.Next(), 'Unexpected record in repeater for filtered Time Sheet');
         TimeSheetList.Close();
     end;
 }

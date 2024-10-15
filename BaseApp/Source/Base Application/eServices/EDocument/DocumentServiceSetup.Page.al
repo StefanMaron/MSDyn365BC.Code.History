@@ -173,25 +173,6 @@ page 9553 "Document Service Setup"
                                 Hyperlink('https://go.microsoft.com/fwlink/?linkid=2195964');
                             end;
                         }
-
-#if not CLEAN21
-                        field(OpenLegacySetup; OpenLegacySetupTxt)
-                        {
-                            ShowCaption = false;
-                            Editable = false;
-                            ApplicationArea = All;
-
-                            ObsoleteReason = 'The legacy setup is obsolete and will be removed. This setup page should be used instead.';
-                            ObsoleteTag = '21.0';
-                            ObsoleteState = Pending;
-
-                            trigger OnDrillDown()
-                            begin
-                                Page.RunModal(Page::"Document Service Config");
-                                EnableControls(false);
-                            end;
-                        }
-#endif
                     }
                 }
             }
@@ -523,7 +504,7 @@ page 9553 "Document Service Setup"
         IsSaaS := EnvironmentInformation.IsSaaSInfrastructure();
         EnableAppFeatures := IsSaaS; // By default, only enable file sharing in SaaS
 
-        If IsSaaS then
+        if IsSaaS then
             IntroductionText := StrSubstNo(IntroductionSaasLbl, ProductName.Short())
         else
             IntroductionText := StrSubstNo(IntroductionOnPremLbl, ProductName.Short());
@@ -973,7 +954,4 @@ page 9553 "Document Service Setup"
         FailedToGetTokenErr: Label 'Failed to get a token for the specified OneDrive URL.';
         LocationNotFoundErr: Label 'Could not resolve your OneDrive location from the specified OneDrive URL.';
         MigrationSummaryItemLbl: Label '- %1\', Locked = true;
-#if not CLEAN21
-        OpenLegacySetupTxt: Label 'View the previous settings we found';
-#endif
 }

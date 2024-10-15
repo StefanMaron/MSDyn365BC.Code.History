@@ -36,7 +36,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         UserSetup.DeleteAll();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales BOrder Approvals");
@@ -66,7 +66,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -76,9 +76,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         CreateSalesBlanketOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        BlanketSalesOrders.OpenView;
+        BlanketSalesOrders.OpenView();
         BlanketSalesOrders.GotoRecord(SalesHeader);
-        asserterror BlanketSalesOrders.Release.Invoke;
+        asserterror BlanketSalesOrders.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -106,7 +106,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -124,9 +124,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
 
         // Exercise
         Commit();
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        asserterror BlanketSalesOrder.Release.Invoke;
+        asserterror BlanketSalesOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -153,7 +153,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -170,9 +170,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
 
         // Exercise
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        asserterror BlanketSalesOrder.Reopen.Invoke;
+        asserterror BlanketSalesOrder.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -438,15 +438,15 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesBlanketOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         Commit();
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketSalesOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketSalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(BlanketSalesOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror BlanketSalesOrder.SendApprovalRequest.Invoke;
+        asserterror BlanketSalesOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -455,7 +455,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -463,28 +463,28 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // [WHEN] SalesHeader card is opened.
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketSalesOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketSalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(BlanketSalesOrder.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(BlanketSalesOrder.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(BlanketSalesOrder.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(BlanketSalesOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(BlanketSalesOrder.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(BlanketSalesOrder.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(BlanketSalesOrder.Delegate.Visible(), 'Delegate should NOT be visible');
         BlanketSalesOrder.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        BlanketSalesOrder.SendApprovalRequest.Invoke;
+        BlanketSalesOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(BlanketSalesOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(BlanketSalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketSalesOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         BlanketSalesOrder.Close();
@@ -493,13 +493,13 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
 
         // [WHEN] SalesHeader card is opened.
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(BlanketSalesOrder.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(BlanketSalesOrder.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(BlanketSalesOrder.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(BlanketSalesOrder.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(BlanketSalesOrder.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(BlanketSalesOrder.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -522,15 +522,15 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         // [WHEN] SalesHeader card is opened.
         CreateSalesBlanketOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         Commit();
-        BlanketSalesOrders.OpenEdit;
+        BlanketSalesOrders.OpenEdit();
         BlanketSalesOrders.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketSalesOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketSalesOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketSalesOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror BlanketSalesOrders.SendApprovalRequest.Invoke;
+        asserterror BlanketSalesOrders.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -539,7 +539,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrders.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -547,25 +547,25 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryWorkflow.EnableWorkflow(Workflow);
 
         // [WHEN] SalesHeader card is opened.
-        BlanketSalesOrders.OpenEdit;
+        BlanketSalesOrders.OpenEdit();
         BlanketSalesOrders.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(BlanketSalesOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(BlanketSalesOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketSalesOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         BlanketSalesOrders.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
-        BlanketSalesOrders.OpenEdit;
+        BlanketSalesOrders.OpenEdit();
         BlanketSalesOrders.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        BlanketSalesOrders.SendApprovalRequest.Invoke;
+        BlanketSalesOrders.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(BlanketSalesOrders.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(BlanketSalesOrders.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(BlanketSalesOrders.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(BlanketSalesOrders.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -590,7 +590,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
           Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -656,7 +656,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
           Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -709,7 +709,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
@@ -754,9 +754,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.SendApprovalRequest.Invoke;
+        BlanketSalesOrder.SendApprovalRequest.Invoke();
         BlanketSalesOrder.Close();
     end;
 
@@ -764,9 +764,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.Approve.Invoke;
+        BlanketSalesOrder.Approve.Invoke();
         BlanketSalesOrder.Close();
     end;
 
@@ -774,9 +774,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.Reject.Invoke;
+        BlanketSalesOrder.Reject.Invoke();
         BlanketSalesOrder.Close();
     end;
 
@@ -784,9 +784,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.CancelApprovalRequest.Invoke;
+        BlanketSalesOrder.CancelApprovalRequest.Invoke();
         BlanketSalesOrder.Close();
     end;
 
@@ -794,9 +794,9 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        BlanketSalesOrder.Delegate.Invoke;
+        BlanketSalesOrder.Delegate.Invoke();
         BlanketSalesOrder.Close();
     end;
 
@@ -834,16 +834,16 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder: TestPage "Blanket Sales Order";
         NumberOfComments: Integer;
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        Assert.AreEqual(CommentActionIsVisible, BlanketSalesOrder.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, BlanketSalesOrder.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            BlanketSalesOrder.Comment.Invoke;
-            if ApprovalComments.First then
+            BlanketSalesOrder.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -863,13 +863,13 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -886,13 +886,13 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -908,15 +908,15 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         BlanketSalesOrder: TestPage "Blanket Sales Order";
         BlanketSalesOrders: TestPage "Blanket Sales Orders";
     begin
-        BlanketSalesOrder.OpenView;
+        BlanketSalesOrder.OpenView();
         BlanketSalesOrder.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrder.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrder.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         BlanketSalesOrder.Close();
 
-        BlanketSalesOrders.OpenView;
+        BlanketSalesOrders.OpenView();
         BlanketSalesOrders.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrders.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, BlanketSalesOrders.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         BlanketSalesOrders.Close();
     end;

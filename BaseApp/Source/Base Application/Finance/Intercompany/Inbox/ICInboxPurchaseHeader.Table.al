@@ -10,6 +10,7 @@ using Microsoft.Purchases.Vendor;
 table 436 "IC Inbox Purchase Header"
 {
     Caption = 'IC Inbox Purchase Header';
+    DataClassification = CustomerContent;
 
     fields
     {

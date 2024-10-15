@@ -46,6 +46,7 @@ permissionset 910 "D365 WHSE, VIEW"
                   tabledata "Warehouse Journal Batch" = R,
                   tabledata "Warehouse Journal Line" = R,
                   tabledata "Warehouse Journal Template" = R,
+                  tabledata "Warehouse Reason Code" = R,
                   tabledata "Warehouse Receipt Header" = R,
                   tabledata "Warehouse Receipt Line" = R,
                   tabledata "Warehouse Register" = R,

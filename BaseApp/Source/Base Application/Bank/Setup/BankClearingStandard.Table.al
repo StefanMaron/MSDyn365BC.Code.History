@@ -4,6 +4,7 @@ table 1280 "Bank Clearing Standard"
 {
     Caption = 'Bank Clearing Standard';
     LookupPageID = "Bank Clearing Standards";
+    DataClassification = CustomerContent;
 
     fields
     {

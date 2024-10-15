@@ -1153,17 +1153,15 @@ report 10572 "Sales - Invoice GB"
             exit;
         end;
 
-        with SalesShipmentBuffer do begin
-            "Document No." := SalesInvoiceLine."Document No.";
-            "Line No." := SalesInvoiceLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := SalesInvoiceLine.Type;
-            "No." := SalesInvoiceLine."No.";
-            Quantity := QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        SalesShipmentBuffer."Document No." := SalesInvoiceLine."Document No.";
+        SalesShipmentBuffer."Line No." := SalesInvoiceLine."Line No.";
+        SalesShipmentBuffer."Entry No." := NextEntryNo;
+        SalesShipmentBuffer.Type := SalesInvoiceLine.Type;
+        SalesShipmentBuffer."No." := SalesInvoiceLine."No.";
+        SalesShipmentBuffer.Quantity := QtyOnShipment;
+        SalesShipmentBuffer."Posting Date" := PostingDate;
+        SalesShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 }
 

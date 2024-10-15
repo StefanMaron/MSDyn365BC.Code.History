@@ -834,7 +834,7 @@ codeunit 132537 SelectionFilterManagementTest
         SerialNoInformation: Record "Serial No. Information";
         ItemNo: Code[20];
     begin
-        ItemNo := InsertTestValues;
+        ItemNo := InsertTestValues();
         if AddNonNumerical then
             InsertSerialNoInformation(ItemNo, '2T');
 
@@ -843,7 +843,7 @@ codeunit 132537 SelectionFilterManagementTest
         with SerialNoInformation do begin
             repeat
                 Mark(true);
-            until Next = 0;
+            until Next() = 0;
             SetRange("Serial No.");
             SetRange("Item No.");
             MarkedOnly(true);
@@ -904,7 +904,7 @@ codeunit 132537 SelectionFilterManagementTest
         if not Customer.FindFirst() then begin
             Customer.Init();
             Customer."No." := 'ABC';
-            Customer.Insert;
+            Customer.Insert();
         end;
 
         // [WHEN] A record in the table is selected (marked).

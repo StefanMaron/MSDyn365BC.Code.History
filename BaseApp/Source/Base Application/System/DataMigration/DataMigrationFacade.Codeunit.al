@@ -20,7 +20,7 @@ codeunit 6100 "Data Migration Facade"
         OnRegisterDataMigrator(Sender);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnRegisterDataMigrator(var DataMigratorRegistration: Record "Data Migrator Registration")
     begin
@@ -33,7 +33,7 @@ codeunit 6100 "Data Migration Facade"
         OnGetInstructions(Sender, Instructions, Handled);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnGetInstructions(var DataMigratorRegistration: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     begin
@@ -46,7 +46,7 @@ codeunit 6100 "Data Migration Facade"
         OnDataImport(Sender, Handled);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnDataImport(var DataMigratorRegistration: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
@@ -59,7 +59,7 @@ codeunit 6100 "Data Migration Facade"
         OnSelectDataToApply(Sender, DataMigrationEntity, Handled);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnSelectDataToApply(var DataMigratorRegistration: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
@@ -72,7 +72,7 @@ codeunit 6100 "Data Migration Facade"
         OnApplySelectedData(Sender, DataMigrationEntity, Handled);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnApplySelectedData(var DataMigratorRegistration: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
@@ -85,7 +85,7 @@ codeunit 6100 "Data Migration Facade"
         OnShowThatsItMessage(Sender, Message);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnShowThatsItMessage(var DataMigratorRegistration: Record "Data Migrator Registration"; var Message: Text)
     begin
@@ -98,7 +98,7 @@ codeunit 6100 "Data Migration Facade"
         OnEnableTogglingDataMigrationOverviewPage(Sender, EnableTogglingOverviewPage);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnEnableTogglingDataMigrationOverviewPage(var DataMigratorRegistration: Record "Data Migrator Registration"; var EnableTogglingOverviewPage: Boolean)
     begin

@@ -133,7 +133,7 @@ page 30 "Item Card"
                 field(GTIN; Rec.GTIN)
                 {
                     ApplicationArea = Basic, Suite;
-                    Enabled = NOT IsService;
+                    Enabled = not IsService;
                     Importance = Additional;
                     ToolTip = 'Specifies the Global Trade Item Number (GTIN) for the item. For example, the GTIN is used with bar codes to track items, and when sending and receiving documents electronically. The GTIN number typically contains a Universal Product Code (UPC), or European Article Number (EAN).';
                 }
@@ -152,7 +152,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
-                    Visible = False;
+                    Visible = false;
                 }
                 field("Service Item Group"; Rec."Service Item Group")
                 {
@@ -284,7 +284,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies how many units of the item are allocated to jobs, meaning listed on outstanding job planning lines.';
+                    ToolTip = 'Specifies how many units of the item are allocated to projects, meaning listed on outstanding project planning lines.';
                 }
                 field("Qty. on Assembly Order"; Rec."Qty. on Assembly Order")
                 {
@@ -443,6 +443,12 @@ page 30 "Item Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies whether the item''s unit cost has been adjusted, either automatically or manually.';
                     }
+                    field("Excluded from Cost Adjustment"; Rec."Excluded from Cost Adjustment")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies whether the item is excluded from the cost adjustment process.';
+                        Visible = false;
+                    }
                     field("Cost is Posted to G/L"; Rec."Cost is Posted to G/L")
                     {
                         ApplicationArea = Basic, Suite;
@@ -476,7 +482,7 @@ page 30 "Item Card"
                             UpdateSpecialPriceListsTxt(PriceType::Purchase);
                         end;
                     }
-#if not CLEAN21
+#if not CLEAN23
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
@@ -642,7 +648,7 @@ page 30 "Item Card"
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
@@ -706,6 +712,11 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on sales documents, except return orders and credit memos, and journals.';
+                }
+                field("Service Blocked"; Rec."Service Blocked")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies that the item cannot be entered on service items, service contracts and service documents, except credit memos.';
                 }
                 field("Application Wksh. User ID"; Rec."Application Wksh. User ID")
                 {
@@ -1164,7 +1175,7 @@ page 30 "Item Card"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN21
+#if not CLEAN23
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1266,7 +1277,7 @@ page 30 "Item Card"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN21
+#if not CLEAN23
                 action(Action86)
                 {
                     ApplicationArea = Suite;
@@ -1424,7 +1435,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = (NOT OpenApprovalEntriesExist) AND EnabledApprovalWorkflowsExist AND CanRequestApprovalForFlow;
+                    Enabled = (not OpenApprovalEntriesExist) and EnabledApprovalWorkflowsExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -1440,7 +1451,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = OpenApprovalEntriesExist OR CanCancelApprovalForFlow;
+                    Enabled = OpenApprovalEntriesExist or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1493,20 +1504,6 @@ page 30 "Item Card"
                         end;
                     }
 #endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                 }
             }
             group(Workflow)
@@ -1516,7 +1513,7 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Approval Workflow';
-                    Enabled = NOT EnabledApprovalWorkflowsExist;
+                    Enabled = not EnabledApprovalWorkflowsExist;
                     Image = CreateWorkflow;
                     ToolTip = 'Set up an approval workflow for creating or changing items, by going through a few pages that will guide you.';
 
@@ -1713,7 +1710,7 @@ page 30 "Item Card"
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Item No." = field("No.");
                         RunPageView = sorting("Item No.")
-                                      order(Descending);
+                                      order(descending);
                         ShortCutKey = 'Ctrl+F7';
                         ToolTip = 'View the history of transactions that have been posted for the selected record.';
                     }
@@ -1791,12 +1788,9 @@ page 30 "Item Card"
                         trigger OnAction()
                         var
                             Item: Record Item;
-                            ExportItemData: XMLport "Export Item Data";
                         begin
                             Item.SetRange("No.", Rec."No.");
-                            Clear(ExportItemData);
-                            ExportItemData.SetTableView(Item);
-                            ExportItemData.Run();
+                            Xmlport.Run(XmlPort::"Export Item Data", false, false, Item);
                         end;
                     }
                 }
@@ -2569,7 +2563,6 @@ page 30 "Item Card"
                     ItemGTINLabel.RunModal();
                 end;
             }
-
         }
         area(Promoted)
         {
@@ -2589,24 +2582,6 @@ page 30 "Item Card"
                 actionref(ApplyTemplate_Promoted; ApplyTemplate)
                 {
                 }
-#if not CLEAN21
-                actionref("Item Journal_Promoted"; "Item Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Item Reclassification Journal_Promoted"; "Item Reclassification Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
@@ -2635,24 +2610,6 @@ page 30 "Item Card"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -2754,7 +2711,7 @@ page 30 "Item Card"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Set Special Prices_Promoted"; "Set Special Prices")
                 {
                     ObsoleteState = Pending;
@@ -2768,7 +2725,7 @@ page 30 "Item Card"
                 actionref(PurchPriceLists_Promoted; PurchPriceLists)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2776,7 +2733,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2784,7 +2741,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2798,7 +2755,7 @@ page 30 "Item Card"
                 actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Action86_Promoted; Action86)
                 {
                     ObsoleteState = Pending;
@@ -2806,7 +2763,7 @@ page 30 "Item Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Action85_Promoted; Action85)
                 {
                     ObsoleteState = Pending;
@@ -2861,7 +2818,7 @@ page 30 "Item Card"
     end;
 
 
-    Local procedure OnAfterGetCurrRecordFunc()
+    local procedure OnAfterGetCurrRecordFunc()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -2923,7 +2880,7 @@ page 30 "Item Card"
         OnAfterOnOpenPage();
     end;
 
-    Local procedure OnOpenPageFunc()
+    local procedure OnOpenPageFunc()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -2977,7 +2934,7 @@ page 30 "Item Card"
         MarketingTextPlaceholderTxt: Label '[Create draft]() based on this item''s attributes.', Comment = 'Text contained in [here]() will be clickable to invoke the generate action';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
         ShowVariantMandatoryDefaultYes: Boolean;
-#if not CLEAN21
+#if not CLEAN23
         SpecialPricesAndDiscountsTxt: Text;
         CreateNewSpecialPriceTxt: Label 'Create New Special Price...';
         CreateNewSpecialDiscountTxt: Label 'Create New Special Discount...';
@@ -3040,7 +2997,7 @@ page 30 "Item Card"
         EnablePlanningControls();
         EnableCostingControls();
 
-#if not CLEAN21
+#if not CLEAN23
         if not ExtendedPriceEnabled then
             UpdateSpecialPricesAndDiscountsTxt();
 #endif
@@ -3164,7 +3121,7 @@ page 30 "Item Card"
         OnAfterInitControls();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
@@ -3301,12 +3258,12 @@ page 30 "Item Card"
     end;
 #endif
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitControls()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage()
     begin
     end;

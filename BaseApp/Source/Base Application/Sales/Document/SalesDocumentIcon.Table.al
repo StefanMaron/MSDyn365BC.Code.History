@@ -11,6 +11,7 @@ table 2100 "Sales Document Icon"
     Caption = 'Sales Document Icon';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

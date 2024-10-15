@@ -31,7 +31,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
 
         Assert.AreEqual(VATReportHdr.Status::Released, VATReportHdr.Status, ReleaseError);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -48,7 +48,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
 
         Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenError);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -70,7 +70,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption()));
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
 
         Assert.AreEqual(VATReportHdr.Status::Submitted, VATReportHdr.Status, SubmitError);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         asserterror VATReportReleaseReopen.Submit(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(SubmitError2, VATReportHdr.TableCaption()));
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]

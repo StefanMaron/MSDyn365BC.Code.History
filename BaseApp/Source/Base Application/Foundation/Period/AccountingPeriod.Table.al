@@ -8,6 +8,7 @@ table 50 "Accounting Period"
 {
     Caption = 'Accounting Period';
     LookupPageID = "Accounting Periods";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -118,8 +119,6 @@ table 50 "Accounting Period"
         MonthTxt: Label '<Month Text>', Locked = true;
 
     procedure UpdateAvgItems()
-    var
-        ChangeAvgCostSetting: Codeunit "Change Average Cost Setting";
     begin
         // ChangeAvgCostSetting.UpdateAvgCostFromAccPeriodChg(Rec);
     end;

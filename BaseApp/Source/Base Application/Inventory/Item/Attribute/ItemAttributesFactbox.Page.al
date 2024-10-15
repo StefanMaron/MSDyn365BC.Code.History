@@ -40,14 +40,14 @@ page 9110 "Item Attributes Factbox"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attribute';
                     ToolTip = 'Specifies the name of the item attribute.';
-                    Visible = NOT TranslatedValuesVisible;
+                    Visible = not TranslatedValuesVisible;
                 }
                 field(RawValue; Rec.Value)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Value';
                     ToolTip = 'Specifies the value of the item attribute.';
-                    Visible = NOT TranslatedValuesVisible;
+                    Visible = not TranslatedValuesVisible;
                 }
             }
         }

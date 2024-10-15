@@ -185,7 +185,7 @@ codeunit 1711 "Positive Pay Export Mgt"
         if Optional then
             exit;
 
-        Value := FieldRef.Value;
+        Value := FieldRef.Value();
         StringValue := Format(Value);
 
         if ((Value.IsDecimal or Value.IsInteger or Value.IsBigInteger) and (StringValue = '0')) or
@@ -199,6 +199,7 @@ codeunit 1711 "Positive Pay Export Mgt"
         ValueAsDecimal: Decimal;
         ValueAsDate: Date;
         ValueAsDateTime: DateTime;
+        ValueAsBoolean: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeCastToDestinationType(DestinationValue, SourceValue, DataExchColumnDef, Multiplier, IsHandled);
@@ -229,6 +230,11 @@ codeunit 1711 "Positive Pay Export Mgt"
                         SourceValue := CreateDateTime(SourceValue, 0T);
                     Evaluate(ValueAsDateTime, Format(SourceValue, 0, 9), 9);
                     DestinationValue := ValueAsDateTime;
+                end;
+            DataExchColumnDef."Data Type"::Boolean:
+                begin
+                    Evaluate(ValueAsBoolean, Format(SourceValue));
+                    DestinationValue := ValueAsBoolean;
                 end;
         end;
     end;

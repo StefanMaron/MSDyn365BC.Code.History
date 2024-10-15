@@ -31,12 +31,12 @@ codeunit 136908 "Report Settings"
         Initialize();
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
-        ReportSettings.OpenEdit;
+        ReportSettings.OpenEdit();
 
         // [WHEN] On 'Pick Report' press 'Cancel'.
         LibraryVariableStorage.Enqueue(PageAction::Cancel); // for PickReportPageModalHandler
 
-        ReportSettings.NewSettings.Invoke;
+        ReportSettings.NewSettings.Invoke();
 
         // [THEN] No 'Object Options' is inserted.
         Assert.IsTrue(ObjectOptions.IsEmpty, ObjectOptionsInsertedErr);
@@ -57,7 +57,7 @@ codeunit 136908 "Report Settings"
         Initialize();
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
-        ReportSettings.OpenEdit;
+        ReportSettings.OpenEdit();
 
         // [GIVEN] On 'Pick Report' set 'Name', set 'Report ID' and press 'OK'. RequestPage is opened.
         LibraryVariableStorage.Enqueue(PageAction::OK); // for PickReportPageModalHandler
@@ -67,7 +67,7 @@ codeunit 136908 "Report Settings"
         // [WHEN] On RequestPage press 'Cancel'.
         LibraryVariableStorage.Enqueue(PageAction::Cancel); // for TestReportRequestPageModalHandler
 
-        ReportSettings.NewSettings.Invoke;
+        ReportSettings.NewSettings.Invoke();
 
         // [THEN] No 'Object Options' is inserted.
         Assert.IsTrue(ObjectOptions.IsEmpty, ObjectOptionsInsertedErr);
@@ -90,7 +90,7 @@ codeunit 136908 "Report Settings"
 
         // [GIVEN] Open 'Report Settings', press 'New' action. 'Pick Report' is opened.
         ParameterName := LibraryUtility.GenerateGUID();
-        ReportSettings.OpenEdit;
+        ReportSettings.OpenEdit();
 
         // [GIVEN] On 'Pick Report' set 'Name', set 'Report ID' and press 'OK'. RequestPage is opened.
         LibraryVariableStorage.Enqueue(PageAction::OK); // for PickReportPageModalHandler
@@ -99,7 +99,7 @@ codeunit 136908 "Report Settings"
 
         // [WHEN] On RequestPage press 'OK'.
         LibraryVariableStorage.Enqueue(PageAction::OK); // for TestReportRequestPageModalHandler
-        ReportSettings.NewSettings.Invoke;
+        ReportSettings.NewSettings.Invoke();
 
         // [THEN] 'Object Options' is inserted successfully.
         ObjectOptions.Get(
@@ -170,7 +170,7 @@ codeunit 136908 "Report Settings"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Report Settings");
         LibraryVariableStorage.Clear();
-        ClearObjectOptions;
+        ClearObjectOptions();
 
         if IsInitialized then
             exit;
@@ -193,16 +193,16 @@ codeunit 136908 "Report Settings"
     [Scope('OnPrem')]
     procedure PickReportPageModalHandler(var PickReport: TestPage "Pick Report")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             PageAction::Cancel:
-                PickReport.Cancel.Invoke;
+                PickReport.Cancel().Invoke();
             PageAction::OK:
                 begin
-                    PickReport.Name.SetValue(LibraryVariableStorage.DequeueText);
+                    PickReport.Name.SetValue(LibraryVariableStorage.DequeueText());
                     PickReport."Report ID".SetValue(TestReportID);
                     PickReport."Shared with All Users".SetValue(LibraryVariableStorage.DequeueBoolean());
                     Commit();
-                    PickReport.OK.Invoke;
+                    PickReport.OK().Invoke();
                 end;
         end;
     end;
@@ -211,11 +211,11 @@ codeunit 136908 "Report Settings"
     [Scope('OnPrem')]
     procedure TestReportRequestPageModalHandler(var CustomerTop10List: TestRequestPage "Customer - Top 10 List")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             PageAction::Cancel:
-                CustomerTop10List.Cancel.Invoke;
+                CustomerTop10List.Cancel().Invoke();
             PageAction::OK:
-                CustomerTop10List.OK.Invoke;
+                CustomerTop10List.OK().Invoke();
         end;
     end;
 }

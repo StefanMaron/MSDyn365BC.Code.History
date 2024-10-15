@@ -3012,6 +3012,9 @@ End Function
         <Field Name="DocumentDateCaption">
           <DataField>DocumentDateCaption</DataField>
         </Field>
+        <Field Name="PostingDateCaption">
+          <DataField>PostingDateCaption</DataField>
+        </Field>
         <Field Name="LineAmtLineDiscCurr">
           <DataField>LineAmtLineDiscCurr</DataField>
         </Field>
@@ -3048,6 +3051,9 @@ End Function
         <Field Name="DocDateFormat_VendLedgEntry2">
           <DataField>DocDateFormat_VendLedgEntry2</DataField>
         </Field>
+        <Field Name="PostingDateFormat_VendLedgEntry2">
+          <DataField>PostingDateFormat_VendLedgEntry2</DataField>
+        </Field>
         <Field Name="LAmountWDiscCur">
           <DataField>LAmountWDiscCur</DataField>
         </Field>
@@ -3080,6 +3086,9 @@ End Function
         </Field>
         <Field Name="VendLedgEntry3DocDateFormat">
           <DataField>VendLedgEntry3DocDateFormat</DataField>
+        </Field>
+        <Field Name="VendLedgEntry3PostingDateFormat">
+          <DataField>VendLedgEntry3PostingDateFormat</DataField>
         </Field>
         <Field Name="VendLedgEntry3ExtDocNo">
           <DataField>VendLedgEntry3ExtDocNo</DataField>

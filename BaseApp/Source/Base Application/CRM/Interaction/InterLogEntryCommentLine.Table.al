@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Interaction;
 table 5123 "Inter. Log Entry Comment Line"
 {
     Caption = 'Inter. Log Entry Comment Line';
+    DataClassification = CustomerContent;
     DrillDownPageID = "Inter. Log Entry Comment List";
     LookupPageID = "Inter. Log Entry Comment List";
     ReplicateData = true;

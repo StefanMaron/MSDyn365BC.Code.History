@@ -56,13 +56,13 @@ codeunit 139027 "Test Background Posting"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Background Posting");
         // These steps are executed once per test.
-        DeleteAllJobQueueEntries;
+        DeleteAllJobQueueEntries();
 
         // These steps are executed only once per codeunit.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Background Posting");
-        SalesAndPurchSetup;
+        SalesAndPurchSetup();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Background Posting");
     end;
@@ -221,7 +221,7 @@ codeunit 139027 "Test Background Posting"
         SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader);
         Commit();
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         // Ensure that job was not posted because of the job queue category filter
         WasJobPosted := not SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -261,7 +261,7 @@ codeunit 139027 "Test Background Posting"
 
         WaitForSalesHeaderRemoved(SalesHeader);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         Assert.IsFalse(
           SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."),
@@ -293,7 +293,7 @@ codeunit 139027 "Test Background Posting"
         PurchPostViaJobQueue.EnqueuePurchDoc(PurchHeader);
         Commit();
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         // Ensure that job was not posted because of the job queue category filter
         WasJobPosted := not PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
@@ -314,7 +314,6 @@ codeunit 139027 "Test Background Posting"
     [Scope('OnPrem')]
     procedure PostPurchOrderSameCategoryTest()
     var
-        PurchHeader: Record "Purchase Header";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         Initialize();
@@ -381,7 +380,7 @@ codeunit 139027 "Test Background Posting"
 
         WaitForSalesHeaderRemoved(SalesHeader);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
@@ -442,7 +441,7 @@ codeunit 139027 "Test Background Posting"
 
         WaitForPurchaseHeaderRemoved(PurchHeader);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
@@ -504,11 +503,11 @@ codeunit 139027 "Test Background Posting"
         ScheduledTask.SetRange(ID, TaskId);
 
         while not ScheduledTask.IsEmpty() and not TimeOut do begin
-            if not MailManagement.IsHandlingGetEmailBodyCustomer then begin
+            if not MailManagement.IsHandlingGetEmailBodyCustomer() then begin
                 MailManagementConcurrency.InsertNameValueBuffer(NameValueBuffer);
                 InsertCounter += 1;
             end;
-            TimeOut := (Counter - 1) > Round(MailManagementConcurrency.GetSleepDuration / 1000, 1);
+            TimeOut := (Counter - 1) > Round(MailManagementConcurrency.GetSleepDuration() / 1000, 1);
             Counter += 1;
             Sleep(1000);
         end;
@@ -558,7 +557,7 @@ codeunit 139027 "Test Background Posting"
         Commit();
         WaitForSalesHeaderRemoved(SalesHeader);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
     end;
 
     local procedure CleanBackgroundSessionsForPurchaseHeader(PurchaseHeader: Record "Purchase Header")
@@ -568,7 +567,7 @@ codeunit 139027 "Test Background Posting"
         Commit();
         WaitForPurchaseHeaderRemoved(PurchaseHeader);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
     end;
 
     local procedure CreatePurchaseOrderAndPostUsingPage(var PurchaseHeader: Record "Purchase Header")
@@ -585,9 +584,9 @@ codeunit 139027 "Test Background Posting"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.Post.Invoke;
+        PurchaseOrder.Post.Invoke();
     end;
 
     local procedure CreateSalesOrderAndPostUsingPage(var SalesHeader: Record "Sales Header")
@@ -604,9 +603,9 @@ codeunit 139027 "Test Background Posting"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.Post.Invoke;
+        SalesOrder.Post.Invoke();
     end;
 
     local procedure CreateCustomerWithPersonPartnerType(var Customer: Record Customer)
@@ -618,20 +617,20 @@ codeunit 139027 "Test Background Posting"
 
     local procedure InvokeExportDataPrivacyWizard(var DataPrivacyWizard: TestPage "Data Privacy Wizard"; EditConfigPackage: Boolean)
     begin
-        DataPrivacyWizard.NextAction.Invoke; // Exports data
+        DataPrivacyWizard.NextAction.Invoke(); // Exports data
         DataPrivacyWizard.EditConfigPackage.SetValue(EditConfigPackage);
-        DataPrivacyWizard.FinishAction.Invoke;
+        DataPrivacyWizard.FinishAction.Invoke();
     end;
 
     local procedure PrepareForExportDataPrivacyWizard(var DataPrivacyWizard: TestPage "Data Privacy Wizard"; ActionType: Option; DataSubject: Text; DataSubjectIdentifier: Code[80]; DataSensitivity: Option)
     begin
-        DataPrivacyWizard.Trap;
+        DataPrivacyWizard.Trap();
         PAGE.Run(PAGE::"Data Privacy Wizard");
-        DataPrivacyWizard.NextAction.Invoke; // Welcome Screen
+        DataPrivacyWizard.NextAction.Invoke(); // Welcome Screen
         DataPrivacyWizard.ActionType.SetValue(ActionType);
-        DataPrivacyWizard.NextAction.Invoke;
+        DataPrivacyWizard.NextAction.Invoke();
         LibraryVariableStorage.Enqueue(DataSubject);
-        DataPrivacyWizard.EntityType.Lookup;
+        DataPrivacyWizard.EntityType.Lookup();
         DataPrivacyWizard.EntityNo.SetValue(DataSubjectIdentifier);
         DataPrivacyWizard.DataSensitivity.SetValue(DataSensitivity);
     end;
@@ -706,7 +705,7 @@ codeunit 139027 "Test Background Posting"
         WaitForSalesHeaderRemoved(SalesHeader);
         NoOfJQLogEntries := WaitForNumberOfJobQueueLogEntries(1, JobQueueLogEntry.Status::Success);
 
-        BackgroundSessionsTestLib.CleanupAll;
+        BackgroundSessionsTestLib.CleanupAll();
 
         Assert.IsFalse(
           SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."),
@@ -728,7 +727,7 @@ codeunit 139027 "Test Background Posting"
         DataPrivacyEntities.SetRange("Table Caption", TableCaption);
         DataPrivacyEntities.FindFirst();
         DataSubject.GotoRecord(DataPrivacyEntities);
-        DataSubject.OK.Invoke;
+        DataSubject.OK().Invoke();
     end;
 
     [StrMenuHandler]

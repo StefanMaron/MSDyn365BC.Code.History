@@ -11,6 +11,7 @@ using System.Security.Encryption;
 table 10523 "GovTalk Setup"
 {
     Caption = 'GovTalk Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

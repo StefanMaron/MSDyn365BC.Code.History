@@ -5,6 +5,7 @@ using System.IO;
 table 1240 "Positive Pay Header"
 {
     Caption = 'Positive Pay Header';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,6 +17,7 @@ table 1240 "Positive Pay Header"
         field(2; "Company Name"; Text[30])
         {
             Caption = 'Company Name';
+            DataClassification = OrganizationIdentifiableInformation;
         }
         field(3; "Account Number"; Text[30])
         {

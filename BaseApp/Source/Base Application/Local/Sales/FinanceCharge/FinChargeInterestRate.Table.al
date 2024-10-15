@@ -8,6 +8,7 @@ table 10555 "Fin. Charge Interest Rate"
 {
     Caption = 'Fin. Charge Interest Rate';
     DataCaptionFields = "Fin. Charge Terms Code", "Start Date";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -70,11 +70,11 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitGetProgressScenario_Group;
+        InitGetProgressScenario_Group();
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Group);
 
-        Assert.AreEqual(60, ConfigLine.GetProgress, Text002);
+        Assert.AreEqual(60, ConfigLine.GetProgress(), Text002);
     end;
 
     [Test]
@@ -84,11 +84,11 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitGetProgressScenario_Area;
+        InitGetProgressScenario_Area();
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
 
-        Assert.AreEqual(60, ConfigLine.GetProgress, Text002);
+        Assert.AreEqual(60, ConfigLine.GetProgress(), Text002);
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 136605 "ERM RS Role Center"
         AddConfigLine(ConfigLine."Line Type"::Table, ConfigLine.Status::" ", true);
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Table);
 
-        Assert.AreEqual(0, ConfigLine.GetProgress, Text002);
+        Assert.AreEqual(0, ConfigLine.GetProgress(), Text002);
     end;
 
     [Test]
@@ -111,11 +111,11 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitGetProgressScenario_Area;
+        InitGetProgressScenario_Area();
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Group);
 
-        Assert.AreEqual(4, ConfigLine.GetNoTables, Text003);
+        Assert.AreEqual(4, ConfigLine.GetNoTables(), Text003);
     end;
 
     [Test]
@@ -125,11 +125,11 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitGetProgressScenario_Area;
+        InitGetProgressScenario_Area();
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
 
-        Assert.AreEqual(10, ConfigLine.GetNoTables, Text003);
+        Assert.AreEqual(10, ConfigLine.GetNoTables(), Text003);
     end;
 
     [Test]
@@ -139,11 +139,11 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitGetProgressScenario_AreaWithoutGroup;
+        InitGetProgressScenario_AreaWithoutGroup();
 
         FindConfigLine(ConfigLine, ConfigLine."Line Type"::Area);
 
-        Assert.AreEqual(10, ConfigLine.GetNoTables, Text003);
+        Assert.AreEqual(10, ConfigLine.GetNoTables(), Text003);
     end;
 
     [Test]
@@ -154,7 +154,7 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         Initialize();
-        InitVerifyCueScenario;
+        InitVerifyCueScenario();
 
         GetRapidStartCue(RapidStartServicesCue);
         RapidStartServicesCue.CalcFields("Not Started", "In Progress", Completed, Ignored, Promoted);
@@ -203,7 +203,7 @@ codeunit 136605 "ERM RS Role Center"
         ConfigLine: Record "Config. Line";
     begin
         ConfigLine.Status := ConfigLineStatus;
-        exit(ConfigLine.GetLineStatusWeight);
+        exit(ConfigLine.GetLineStatusWeight());
     end;
 
     local procedure InitGetProgressScenario_Area()

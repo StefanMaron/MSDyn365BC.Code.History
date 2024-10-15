@@ -99,7 +99,7 @@ page 7201 "CDS Connection Setup Wizard"
                     ShowCaption = false;
                 }
             }
-            Group(StepConsent)
+            group(StepConsent)
             {
                 InstructionalText = 'Please review terms and conditions.';
                 Visible = ConsentStepVisible;
@@ -176,106 +176,107 @@ page 7201 "CDS Connection Setup Wizard"
                 {
                     Caption = 'SET UP THE CONNECTION';
                     InstructionalText = 'Specify the URL of the Dataverse environment. Your environments appear in the list, or you can enter the URL.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
-                }
 
-                field(ServerAddress; Rec."Server Address")
-                {
-                    ApplicationArea = Suite;
-                    AssistEdit = true;
-                    ToolTip = 'The Dataverse environment URL.';
-                    Caption = 'The Dataverse environment URL.';
-                    ShowCaption = false;
+                    field(ServerAddress; Rec."Server Address")
+                    {
+                        ApplicationArea = Suite;
+                        AssistEdit = true;
+                        ToolTip = 'The Dataverse environment URL.';
+                        Caption = 'The Dataverse environment URL.';
+                        ShowCaption = false;
 
-                    trigger OnValidate()
-                    begin
-                        CDSIntegrationImpl.CheckModifyConnectionURL(Rec."Server Address");
-                        if Rec."Server Address" <> xRec."Server Address" then begin
-                            HasAdminSignedIn := false;
-                            NextActionEnabled := false;
+                        trigger OnValidate()
+                        begin
+                            CDSIntegrationImpl.CheckModifyConnectionURL(Rec."Server Address");
+                            if Rec."Server Address" <> xRec."Server Address" then begin
+                                HasAdminSignedIn := false;
+                                NextActionEnabled := false;
+                            end;
+                            CurrPage.Update();
                         end;
-                        CurrPage.Update();
-                    end;
 
-                    trigger OnAssistEdit()
-                    var
-                        CDSEnvironment: Codeunit "CDS Environment";
-                    begin
-                        CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
+                        trigger OnAssistEdit()
+                        var
+                            CDSEnvironment: Codeunit "CDS Environment";
+                        begin
+                            CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
 
-                        if Rec."Server Address" <> xRec."Server Address" then begin
-                            HasAdminSignedIn := false;
-                            NextActionEnabled := false;
+                            if Rec."Server Address" <> xRec."Server Address" then begin
+                                HasAdminSignedIn := false;
+                                NextActionEnabled := false;
+                            end;
+                            CurrPage.Update();
                         end;
-                        CurrPage.Update();
-                    end;
+                    }
                 }
 
                 group(Control12)
                 {
+                    Caption = '';
                     InstructionalText = 'Sign in with an administrator user account and give consent to the application that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
-                }
 
-                group(Control13)
-                {
-                    Visible = not HasAdminSignedIn;
-                    ShowCaption = false;
-
-                    field(SignInAdmin; SignInAdminTxt)
+                    group(Control13)
                     {
-                        Caption = 'Sign in';
+                        Visible = not HasAdminSignedIn;
                         ShowCaption = false;
-                        Editable = false;
-                        ApplicationArea = Suite;
 
-                        trigger OnDrillDown()
-                        begin
-                            if Rec."Server Address" = '' then
-                                Error(NoEnvironmentSelectedErr);
+                        field(SignInAdmin; SignInAdminTxt)
+                        {
+                            Caption = 'Sign in';
+                            ShowCaption = false;
+                            Editable = false;
+                            ApplicationArea = Suite;
 
-                            HasAdminSignedIn := true;
-                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
-                            CDSIntegrationImpl.JITProvisionFirstPartyApp(CrmHelper);
-                            Sleep(5000);
+                            trigger OnDrillDown()
+                            begin
+                                if Rec."Server Address" = '' then
+                                    Error(NoEnvironmentSelectedErr);
 
-                            AreAdminCredentialsCorrect := true;
-                            Rec.SetPassword(UserPassword);
-                            NextActionEnabled := true;
+                                HasAdminSignedIn := true;
+                                CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
+                                CDSIntegrationImpl.JITProvisionFirstPartyApp(CrmHelper);
+                                Sleep(5000);
 
-                            CurrPage.Update(false);
-                        end;
+                                AreAdminCredentialsCorrect := true;
+                                Rec.SetPassword(UserPassword);
+                                NextActionEnabled := true;
+
+                                CurrPage.Update(false);
+                            end;
+                        }
                     }
-                }
 
-                group(Control14)
-                {
-                    Visible = HasAdminSignedIn and AreAdminCredentialsCorrect;
-                    ShowCaption = false;
-
-                    field(SuccesfullyLoggedIn; SuccesfullyLoggedInTxt)
+                    group(Control14)
                     {
-                        ApplicationArea = Suite;
-                        ToolTip = 'Indicates whether the administrator user has logged in successfully.';
-                        Caption = 'The administrator is signed in.';
-                        Editable = false;
+                        Visible = HasAdminSignedIn and AreAdminCredentialsCorrect;
                         ShowCaption = false;
-                        Style = Favorable;
+
+                        field(SuccesfullyLoggedIn; SuccesfullyLoggedInTxt)
+                        {
+                            ApplicationArea = Suite;
+                            ToolTip = 'Indicates whether the administrator user has logged in successfully.';
+                            Caption = 'The administrator is signed in.';
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = Favorable;
+                        }
                     }
-                }
 
-                group(Control15)
-                {
-                    Visible = HasAdminSignedIn and (not AreAdminCredentialsCorrect);
-                    ShowCaption = false;
-
-                    field(UnsuccesfullyLoggedIn; UnsuccesfullyLoggedInTxt)
+                    group(Control15)
                     {
-                        ApplicationArea = Suite;
-                        Tooltip = 'Indicates that the administrator user has not logged in successfully';
-                        Caption = 'Could not sign in the administrator.';
-                        Editable = false;
+                        Visible = HasAdminSignedIn and (not AreAdminCredentialsCorrect);
                         ShowCaption = false;
-                        Style = Unfavorable;
+
+                        field(UnsuccesfullyLoggedIn; UnsuccesfullyLoggedInTxt)
+                        {
+                            ApplicationArea = Suite;
+                            Tooltip = 'Indicates that the administrator user has not logged in successfully';
+                            Caption = 'Could not sign in the administrator.';
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = Unfavorable;
+                        }
                     }
                 }
 
@@ -465,7 +466,7 @@ page 7201 "CDS Connection Setup Wizard"
                     Caption = 'Show initial synchronization recommendations list.';
                     ShowCaption = false;
                     Style = StrongAccent;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
 
                     trigger OnDrillDown()
                     var

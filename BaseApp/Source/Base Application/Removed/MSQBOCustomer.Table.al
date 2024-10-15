@@ -5,6 +5,7 @@ table 7820 "MS-QBO Customer"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

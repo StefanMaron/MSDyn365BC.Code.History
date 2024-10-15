@@ -28,9 +28,9 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule: Record "Transformation Rule";
         InputText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetUppercaseCode);
+        TransformationRule.Get(TransformationRule.GetUppercaseCode());
         InputText := LowerAlphaNumericCharsTxt;
         Assert.AreEqual(UpperCase(InputText), TransformationRule.TransformText(InputText), '');
     end;
@@ -42,9 +42,9 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule: Record "Transformation Rule";
         InputText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetLowercaseCode);
+        TransformationRule.Get(TransformationRule.GetLowercaseCode());
         InputText := UpperCase(LowerAlphaNumericCharsTxt);
         Assert.AreEqual(LowerCase(InputText), TransformationRule.TransformText(InputText), '');
     end;
@@ -58,9 +58,9 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
         Index: Integer;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetTitlecaseCode);
+        TransformationRule.Get(TransformationRule.GetTitlecaseCode());
 
         InputText := TitleCaseJohnRobertsTxt;
         ResultText := TransformationRule.TransformText(InputText);
@@ -80,9 +80,9 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule: Record "Transformation Rule";
         InputText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetTrimCode);
+        TransformationRule.Get(TransformationRule.GetTrimCode());
         InputText := StrSubstNo(' %1 ', LowerAlphaNumericCharsTxt);
 
         Assert.AreEqual(Format(LowerAlphaNumericCharsTxt), TransformationRule.TransformText(InputText), '');
@@ -97,9 +97,9 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
         i: Integer;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetFourthToSixthSubstringCode);
+        TransformationRule.Get(TransformationRule.GetFourthToSixthSubstringCode());
 
         InputText := EUR_DKKTxt;
         ResultText := TransformationRule.TransformText(InputText);
@@ -116,7 +116,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -137,7 +137,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -158,7 +158,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -179,7 +179,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -200,7 +200,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -221,7 +221,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -241,7 +241,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -259,7 +259,7 @@ codeunit 134274 "Transformation Rules Tests"
     var
         TransformationRule: Record "Transformation Rule";
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -287,7 +287,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -308,7 +308,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -329,7 +329,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -350,7 +350,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
@@ -375,7 +375,7 @@ codeunit 134274 "Transformation Rules Tests"
         k: Integer;
         m: Integer;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate(Code, REPLACEATxt);
@@ -412,7 +412,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate(Code, REMOVE_CURR_SYMBOLSTxt);
@@ -437,7 +437,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
         Rule2Name: Code[20];
     begin
-        Iniatialize;
+        Iniatialize();
 
         Rule2Name := 'Rule 2';
         TransformationRule2.Init();
@@ -469,7 +469,7 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRuleCard: TestPage "Transformation Rule Card";
         Rule2Name: Code[20];
     begin
-        Iniatialize;
+        Iniatialize();
 
         Rule2Name := 'Second Rule';
         TransformationRule2.Init();
@@ -484,11 +484,11 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule.Validate("Next Transformation Rule", Rule2Name);
         TransformationRule.Insert(true);
 
-        TransformationRuleCard.OpenEdit;
+        TransformationRuleCard.OpenEdit();
         TransformationRuleCard.GotoRecord(TransformationRule);
 
-        TransformationRuleCardSecondRule.Trap;
-        TransformationRuleCard."Next Transformation Rule".AssistEdit;
+        TransformationRuleCardSecondRule.Trap();
+        TransformationRuleCard."Next Transformation Rule".AssistEdit();
 
         Assert.AreEqual(Rule2Name, TransformationRuleCardSecondRule.Code.Value, 'Wrong record was opened');
     end;
@@ -501,7 +501,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
@@ -521,7 +521,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
@@ -541,7 +541,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
@@ -562,9 +562,9 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
         Index: Integer;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetAlphanumericCode);
+        TransformationRule.Get(TransformationRule.GetAlphanumericCode());
         InputText := LowerAlphaNumericCharsTxt;
         ResultText := TransformationRule.TransformText(InputText);
 
@@ -581,16 +581,16 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetUSDateFormatCode);
+        TransformationRule.Get(TransformationRule.GetUSDateFormatCode());
 
         TestDate := Today;
 
         InputText := Format(TestDate, 0, '<Year4>/<Month,2>/<Day,2>');
         ResultText := TransformationRule.TransformText(InputText);
 
-        Assert.AreEqual(Format(TestDate, 0, XmlFormat), ResultText, '');
+        Assert.AreEqual(Format(TestDate, 0, XmlFormat()), ResultText, '');
     end;
 
     [Test]
@@ -602,16 +602,16 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetUSDateTimeFormatCode);
+        TransformationRule.Get(TransformationRule.GetUSDateTimeFormatCode());
 
         TestDate := Today;
 
         InputText := StrSubstNo('%1 1:14:15 PM', Format(TestDate, 0, '<Month,2>/<Day,2>/<Year4>'));
         ResultText := TransformationRule.TransformText(InputText);
 
-        Assert.AreEqual(StrSubstNo('%1T13:14:15Z', Format(TestDate, 0, XmlFormat)), ResultText, '');
+        Assert.AreEqual(StrSubstNo('%1T13:14:15Z', Format(TestDate, 0, XmlFormat())), ResultText, '');
     end;
 
     [Test]
@@ -623,16 +623,16 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetYYYYMMDDCode);
+        TransformationRule.Get(TransformationRule.GetYYYYMMDDCode());
 
         TestDate := DMY2Date(13, 12, 2015);
 
         InputText := Format(TestDate, 0, '<Year4><Month,2><Day,2>');
         ResultText := TransformationRule.TransformText(InputText);
 
-        Assert.AreEqual(Format(TestDate, 0, XmlFormat), ResultText, '');
+        Assert.AreEqual(Format(TestDate, 0, XmlFormat()), ResultText, '');
     end;
 
     [Test]
@@ -644,9 +644,9 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(TransformationRule.GetYYYYMMDDHHMMSSCode);
+        TransformationRule.Get(TransformationRule.GetYYYYMMDDHHMMSSCode());
 
         TestDateTime := CreateDateTime(DMY2Date(13, 12, 2015), 030405T);
 
@@ -684,7 +684,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
     begin
         // [SCENARIO 290388] Date Formatting does not change input date. This test addresses time zones to the east of UTC.
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] Transformation rule of "Date Formatting" type.
         TransformationRule.Init();
@@ -700,7 +700,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText := TransformationRule.TransformText(InputText);
 
         // [THEN] The resulting string is 2020-01-20, which is equal to the input date in XML format.
-        Assert.AreEqual(Format(InputDate, 0, XmlFormat), ResultText, '');
+        Assert.AreEqual(Format(InputDate, 0, XmlFormat()), ResultText, '');
     end;
 
     [Test]
@@ -714,7 +714,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
     begin
         // [SCENARIO 290388] Date Formatting does not change input date. This test addresses time zones to the west of UTC.
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] Transformation rule of "Date Formatting" type.
         TransformationRule.Init();
@@ -730,7 +730,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText := TransformationRule.TransformText(InputText);
 
         // [THEN] The resulting string is 2020-01-20, which is equal to the input date in XML format.
-        Assert.AreEqual(Format(InputDate, 0, XmlFormat), ResultText, '');
+        Assert.AreEqual(Format(InputDate, 0, XmlFormat()), ResultText, '');
     end;
 
     [Test]
@@ -744,7 +744,7 @@ codeunit 134274 "Transformation Rules Tests"
         ResultText: Text;
     begin
         // [SCENARIO 290388] Date and Time Formatting does not change input date.
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] Transformation rule of "Date and Time Formatting" type.
         TransformationRule.Init();
@@ -770,7 +770,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
     begin
         // [SCENARIO 399408] Date Formatting returns the input string in case of a wrong input
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date Formatting");
@@ -787,7 +787,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
     begin
         // [SCENARIO 399408] Date and Time Formatting returns the input string in case of a wrong input
-        Iniatialize;
+        Iniatialize();
 
         TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date and Time Formatting");
@@ -809,9 +809,9 @@ codeunit 134274 "Transformation Rules Tests"
         InputText: Text;
         ResultText: Text;
     begin
-        Iniatialize;
+        Iniatialize();
 
-        TransformationRule.Get(UnixtimestampTransformation.GetUnixTimestampCode);
+        TransformationRule.Get(UnixtimestampTransformation.GetUnixTimestampCode());
 
         Timestamp := 1481544732;
         Testdate := TypeHelper.EvaluateUnixTimestamp(Timestamp);
@@ -819,7 +819,7 @@ codeunit 134274 "Transformation Rules Tests"
         InputText := Format(Timestamp);
         ResultText := TransformationRule.TransformText(InputText);
 
-        Assert.AreEqual(Format(Testdate, 0, XmlFormat), ResultText, '');
+        Assert.AreEqual(Format(Testdate, 0, XmlFormat()), ResultText, '');
     end;
 
     [Test]
@@ -830,7 +830,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Replace" due inserting
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::Replace);
@@ -851,7 +851,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Replace" due modifying
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::Replace);
@@ -873,7 +873,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Regular Expression - Replace" due inserting
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Replace");
@@ -894,7 +894,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Regular Expression - Replace" due modifying
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Replace");
@@ -916,7 +916,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Regular Expression - Match" due inserting
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Match"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Match");
@@ -937,7 +937,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 228885] System requires to fill "Find Value" of "Transformation Rule" when type = "Regular Expression - Match" due modifying
-        Iniatialize;
+        Iniatialize();
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Match"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Match");
@@ -961,7 +961,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 302372] User is able to specify Data Format for Custom transformation type 
-        Iniatialize;
+        Iniatialize();
 
         BindSubscription(TransformationRulesTests);
         // [GIVEN] New record of "Transformation Rule" with Type = Custom
@@ -989,7 +989,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 302372] User is able to edit Data Format field on the Transformation Rule Card page for Custom transformation type 
-        Iniatialize;
+        Iniatialize();
 
         BindSubscription(TransformationRulesTests);
         // [GIVEN] New record of "Transformation Rule" with Type = Custom
@@ -1001,7 +1001,7 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRuleCard.OpenEdit();
         TransformationRuleCard.Filter.SetFilter(Code, TransformationRule.Code);
         TransformationRuleCard."Data Format".SetValue(DataFormat);
-        TransformationRuleCard.ok.Invoke();
+        TransformationRuleCard.OK().Invoke();
 
         // [THEN] Data Format value changed to "XXX"
         TransformationRule.Find();
@@ -1021,7 +1021,7 @@ codeunit 134274 "Transformation Rules Tests"
         exit(9);
     end;
 
-    local procedure InitTransformationRule(var TransformationRule: Record "Transformation Rule"; TransformationType: Option)
+    local procedure InitTransformationRule(var TransformationRule: Record "Transformation Rule"; TransformationType: Enum "Transformation Rule Type")
     begin
         TransformationRule.Init();
         TransformationRule.Code := LibraryUtility.GenerateRandomCode(TransformationRule.FieldNo(Code), DATABASE::"Transformation Rule");

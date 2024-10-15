@@ -82,7 +82,7 @@ codeunit 144005 "UT REP Doclay"
 
         // Setup: Create Posted Purchase Invoice.
         Initialize();
-        No := CreatePostedPurchaseInvoice;
+        No := CreatePostedPurchaseInvoice();
         Commit();  // Codeunit 319 (Purch. Inv.-Printed) OnRun calls commit.
 
         // Exercise.
@@ -103,7 +103,7 @@ codeunit 144005 "UT REP Doclay"
 
         // Setup: Create Posted Purchase Credit Memo.
         Initialize();
-        No := CreatePostedPurchaseCreditMemo;
+        No := CreatePostedPurchaseCreditMemo();
         Commit();  // Codeunit 320 PurchCrMemo-Printed OnRun Calls commit.
 
         // Exercise.
@@ -161,11 +161,11 @@ codeunit 144005 "UT REP Doclay"
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHeader.Insert();
         PurchCrMemoLine."Document No." := PurchCrMemoHeader."No.";
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::Item;
-        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine.Insert();
         LibraryVariableStorage.Enqueue(PurchCrMemoHeader."No.");  // Enqueue required for PurchaseCreditMemoGBMemoRequestPageHandler.
         exit(PurchCrMemoHeader."No.");
@@ -176,11 +176,11 @@ codeunit 144005 "UT REP Doclay"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader.Insert();
         PurchInvLine."Document No." := PurchInvHeader."No.";
         PurchInvLine.Type := PurchInvLine.Type::Item;
-        PurchInvLine."No." := LibraryUTUtility.GetNewCode;
+        PurchInvLine."No." := LibraryUTUtility.GetNewCode();
         PurchInvLine.Insert();
         LibraryVariableStorage.Enqueue(PurchInvHeader."No.");  // Enqueue required for PurchaseInvoiceGBRequestPageHandler.
         exit(PurchInvHeader."No.");
@@ -192,12 +192,12 @@ codeunit 144005 "UT REP Doclay"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
         PurchaseLine."Document Type" := DocumentType;
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."No." := LibraryUTUtility.GetNewCode();
         PurchaseLine.Insert();
 
         // Enqueue for BlanketPurchaseOrderGBRequestPageHandler or OrderGBRequestPageHandler.
@@ -211,12 +211,12 @@ codeunit 144005 "UT REP Doclay"
         SalesLine: Record "Sales Line";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := LibraryUTUtility.GetNewCode;
+        SalesLine."No." := LibraryUTUtility.GetNewCode();
         SalesLine.Insert();
 
         // Enqueue required for BlanketSalesOrderGBRequestPageHandler,OrderConfirmationGBTestRequestPageHandler.
@@ -226,7 +226,7 @@ codeunit 144005 "UT REP Doclay"
 
     local procedure VerifyDataOnReport(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -238,7 +238,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseBlanketOrderGB."Purchase Header".SetFilter("No.", No);
-        PurchaseBlanketOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseBlanketOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -249,7 +249,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         BlanketSalesOrderGB."Sales Header".SetFilter("No.", No);
-        BlanketSalesOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -260,7 +260,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         OrderConfirmationGB."Sales Header".SetFilter("No.", No);
-        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -271,7 +271,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         OrderGB."Purchase Header".SetFilter("No.", No);
-        OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -282,7 +282,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseCreditMemoGB."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
-        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -293,7 +293,7 @@ codeunit 144005 "UT REP Doclay"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseInvoiceGB."Purch. Inv. Header".SetFilter("No.", No);
-        PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

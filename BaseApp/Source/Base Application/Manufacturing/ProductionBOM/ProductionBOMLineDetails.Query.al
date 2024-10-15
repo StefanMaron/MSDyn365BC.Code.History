@@ -2,7 +2,7 @@ namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Inventory.Item;
 
-Query 3691 "Production BOM & Line Details"
+query 3691 "Production BOM & Line Details"
 {
     QueryType = Normal;
     OrderBy = ascending(No_);

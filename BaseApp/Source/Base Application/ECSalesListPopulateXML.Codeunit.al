@@ -101,35 +101,31 @@ codeunit 141 "EC Sales List Populate XML"
 
     local procedure AddGovTalkNamespaces(var ECSLDeclarationRequestXMLNode: DotNet XmlNode)
     begin
-        with XMLDOMManagement do begin
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'SchemaVersion', '1.0');
-            AddAttributeWithPrefix(ECSLDeclarationRequestXMLNode, 'schemaLocation', 'xsi', XMLSchemaInstanceTok, ECSLSchemaLocationTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:ccts', ECSLCoreComponentParamTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:VATCore', ECSLVATCoreNameSpaceTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns', ECSLDeclarationNameSpaceTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:xsi', XMLSchemaInstanceTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:n1', GMSNameSpaceTok);
-            AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:UBLCurrencyCodelist', ECSLCurrencyCodeListTok);
-        end;
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'SchemaVersion', '1.0');
+        XMLDOMManagement.AddAttributeWithPrefix(ECSLDeclarationRequestXMLNode, 'schemaLocation', 'xsi', XMLSchemaInstanceTok, ECSLSchemaLocationTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:ccts', ECSLCoreComponentParamTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:VATCore', ECSLVATCoreNameSpaceTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns', ECSLDeclarationNameSpaceTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:xsi', XMLSchemaInstanceTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:n1', GMSNameSpaceTok);
+        XMLDOMManagement.AddAttribute(ECSLDeclarationRequestXMLNode, 'xmlns:UBLCurrencyCodelist', ECSLCurrencyCodeListTok);
     end;
 
     local procedure AddCurrencyElement(var ECSLDeclarationHeaderXMLNode: DotNet XmlNode; CurrencyCode: Code[10])
     var
         DummyXMLNode: DotNet XmlNode;
     begin
-        with XMLDOMManagement do begin
-            AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'CurrencyCode', CurrencyCode, 'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
-            AddAttribute(DummyXMLNode, 'codeListName', 'Currency');
-            AddAttribute(DummyXMLNode, 'codeListID', 'ISO 4217 Alpha');
-            AddAttribute(DummyXMLNode, 'codeListAgencyName', 'United Nations Economic Commission for Europe');
-            AddAttribute(DummyXMLNode, 'codeListSchemeURI', 'urn:oasis:names:specification:ubl:schema:xsd:CurrencyCode-1.0');
-            AddAttribute(DummyXMLNode, 'codeListURI',
-              'http://www.bsi-global.com/Technical%2BInformation/Publications/_Publications/tig90x.doc');
-            AddAttribute(DummyXMLNode, 'name', 'String');
-            AddAttribute(DummyXMLNode, 'codeListAgencyID', '6');
-            AddAttribute(DummyXMLNode, 'codeListVersionID', '0.3');
-            AddAttribute(DummyXMLNode, 'languageID', 'en');
-        end;
+        XMLDOMManagement.AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'CurrencyCode', CurrencyCode, 'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListName', 'Currency');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListID', 'ISO 4217 Alpha');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListAgencyName', 'United Nations Economic Commission for Europe');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListSchemeURI', 'urn:oasis:names:specification:ubl:schema:xsd:CurrencyCode-1.0');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListURI',
+          'http://www.bsi-global.com/Technical%2BInformation/Publications/_Publications/tig90x.doc');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'name', 'String');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListAgencyID', '6');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'codeListVersionID', '0.3');
+        XMLDOMManagement.AddAttribute(DummyXMLNode, 'languageID', 'en');
     end;
 
     local procedure AddPeriodElement(var ECSLDeclarationHeaderXMLNode: DotNet XmlNode; VATReportHeader: Record "VAT Report Header")
@@ -137,22 +133,20 @@ codeunit 141 "EC Sales List Populate XML"
         DummyXMLNode: DotNet XmlNode;
         ECSLPeriodXMLNode: DotNet XmlNode;
     begin
-        with XMLDOMManagement do begin
-            if VATReportHeader."Period Type" = VATReportHeader."Period Type"::Month then begin
-                AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'TaxMonthlyPeriod', '', 'VATCore', ECSLVATCoreNameSpaceTok, ECSLPeriodXMLNode);
-                AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxMonth', GetMonthCode(VATReportHeader."Period No."),
-                  'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
-                AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxMonthPeriodYear', Format(VATReportHeader."Period Year"),
-                  'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
-                exit;
-            end;
-            if VATReportHeader."Period Type" = VATReportHeader."Period Type"::Quarter then begin
-                AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'TaxQuarter', '', 'VATCore', ECSLVATCoreNameSpaceTok, ECSLPeriodXMLNode);
-                AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxQuarterNumber', Format(VATReportHeader."Period No."), 'VATCore',
-                  ECSLVATCoreNameSpaceTok, DummyXMLNode);
-                AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxQuarterYear', Format(VATReportHeader."Period Year"), 'VATCore',
-                  ECSLVATCoreNameSpaceTok, DummyXMLNode);
-            end;
+        if VATReportHeader."Period Type" = VATReportHeader."Period Type"::Month then begin
+            XMLDOMManagement.AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'TaxMonthlyPeriod', '', 'VATCore', ECSLVATCoreNameSpaceTok, ECSLPeriodXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxMonth', GetMonthCode(VATReportHeader."Period No."),
+              'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxMonthPeriodYear', Format(VATReportHeader."Period Year"),
+              'VATCore', ECSLVATCoreNameSpaceTok, DummyXMLNode);
+            exit;
+        end;
+        if VATReportHeader."Period Type" = VATReportHeader."Period Type"::Quarter then begin
+            XMLDOMManagement.AddElementWithPrefix(ECSLDeclarationHeaderXMLNode, 'TaxQuarter', '', 'VATCore', ECSLVATCoreNameSpaceTok, ECSLPeriodXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxQuarterNumber', Format(VATReportHeader."Period No."), 'VATCore',
+              ECSLVATCoreNameSpaceTok, DummyXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(ECSLPeriodXMLNode, 'TaxQuarterYear', Format(VATReportHeader."Period Year"), 'VATCore',
+              ECSLVATCoreNameSpaceTok, DummyXMLNode);
         end;
     end;
 

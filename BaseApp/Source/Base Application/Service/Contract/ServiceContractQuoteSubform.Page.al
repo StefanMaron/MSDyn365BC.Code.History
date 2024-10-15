@@ -1,7 +1,9 @@
 namespace Microsoft.Service.Contract;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Service.Item;
 
 page 6054 "Service Contract Quote Subform"
 {
@@ -151,6 +153,21 @@ page 6054 "Service Contract Quote Subform"
     {
         area(processing)
         {
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData "Service Item" = R;
+                ApplicationArea = Service;
+                Caption = 'Select service items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more service items from the full list of available service items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleServiceItems();
+                end;
+            }
+
             group("&Line")
             {
                 Caption = '&Line';
@@ -165,6 +182,23 @@ page 6054 "Service Contract Quote Subform"
                     trigger OnAction()
                     begin
                         Rec.ShowComments();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }

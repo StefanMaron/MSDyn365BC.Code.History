@@ -23,8 +23,7 @@ codeunit 1259 "Certificate Management"
         FileManagement: Codeunit "File Management";
         CryptographyManagement: Codeunit "Cryptography Management";
         UploadedCertFileName: Text;
-        [NonDebuggable]
-        CertPassword: Text;
+        SecretCertPassword: SecretText;
 
         PasswordSuffixTxt: Label 'Password', Locked = true;
         SavingPasswordErr: Label 'Could not save the password.';
@@ -72,7 +71,7 @@ codeunit 1259 "Certificate Management"
         if not TempBlob.HasValue() then
             Error(CertFileNotValidErr);
 
-        if ReadCertFromBlob(CertPassword) then begin
+        if ReadCertFromBlob(SecretCertPassword) then begin
             ValidateCertFields(IsolatedCertificate);
             exit(true);
         end;
@@ -114,12 +113,12 @@ codeunit 1259 "Certificate Management"
     [Scope('OnPrem')]
     procedure SavePasswordToIsolatedStorage(var IsolatedCertificate: Record "Isolated Certificate")
     begin
-        if CertPassword <> '' then
+        if not SecretCertPassword.IsEmpty() then
             if CryptographyManagement.IsEncryptionEnabled() then begin
-                if not ISOLATEDSTORAGE.SetEncrypted(IsolatedCertificate.Code + PasswordSuffixTxt, CertPassword, GetCertDataScope(IsolatedCertificate)) then
+                if not ISOLATEDSTORAGE.SetEncrypted(IsolatedCertificate.Code + PasswordSuffixTxt, SecretCertPassword, GetCertDataScope(IsolatedCertificate)) then
                     Error(SavingPasswordErr);
             end else
-                if not ISOLATEDSTORAGE.Set(IsolatedCertificate.Code + PasswordSuffixTxt, CertPassword, GetCertDataScope(IsolatedCertificate)) then
+                if not ISOLATEDSTORAGE.Set(IsolatedCertificate.Code + PasswordSuffixTxt, SecretCertPassword, GetCertDataScope(IsolatedCertificate)) then
                     Error(SavingPasswordErr);
     end;
 
@@ -128,22 +127,38 @@ codeunit 1259 "Certificate Management"
     procedure GetPasswordAsSecureString(var DotNet_SecureString: Codeunit DotNet_SecureString; IsolatedCertificate: Record "Isolated Certificate")
     var
         DotNetHelper_SecureString: Codeunit DotNetHelper_SecureString;
-        StoredPassword: Text;
+        StoredPassword: SecretText;
     begin
-        StoredPassword := '';
         GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
-        DotNetHelper_SecureString.SecureStringFromString(DotNet_SecureString, StoredPassword);
+        DotNetHelper_SecureString.SecureStringFromString(DotNet_SecureString, StoredPassword.Unwrap());
     end;
-
+#if not CLEAN24
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetPasswordAsSecret with SecretText data type for the return value.', '24.0')]
     procedure GetPassword(IsolatedCertificate: Record "Isolated Certificate") StoredPassword: Text
     begin
         GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
     end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetPasswordAsSecret(IsolatedCertificate: Record "Isolated Certificate") StoredPassword: SecretText
+    begin
+        GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
+    end;
+#if not CLEAN24
+    [NonDebuggable]
+    [Obsolete('Replaced by GetPasswordFromIsolatedStorage with SecretText data type for StoredPassword parameter.', '24.0')]
+    local procedure GetPasswordFromIsolatedStorage(var StoredPassword: Text; IsolatedCertificate: Record "Isolated Certificate")
+    begin
+        if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
+    end;
+#endif
 
     [NonDebuggable]
-    local procedure GetPasswordFromIsolatedStorage(var StoredPassword: Text; IsolatedCertificate: Record "Isolated Certificate")
+    local procedure GetPasswordFromIsolatedStorage(var StoredPassword: SecretText; IsolatedCertificate: Record "Isolated Certificate")
     begin
         if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
     end;
@@ -179,12 +194,10 @@ codeunit 1259 "Certificate Management"
         CertDataScope: DataScope;
     begin
         CertDataScope := GetCertDataScope(IsolatedCertificate);
-        with IsolatedCertificate do begin
-            if ISOLATEDSTORAGE.Contains(Code, CertDataScope) then
-                ISOLATEDSTORAGE.Delete(Code, CertDataScope);
-            if ISOLATEDSTORAGE.Contains(Code + PasswordSuffixTxt, CertDataScope) then
-                ISOLATEDSTORAGE.Delete(Code + PasswordSuffixTxt, CertDataScope);
-        end;
+        if ISOLATEDSTORAGE.Contains(IsolatedCertificate.Code, CertDataScope) then
+            ISOLATEDSTORAGE.Delete(IsolatedCertificate.Code, CertDataScope);
+        if ISOLATEDSTORAGE.Contains(IsolatedCertificate.Code + PasswordSuffixTxt, CertDataScope) then
+            ISOLATEDSTORAGE.Delete(IsolatedCertificate.Code + PasswordSuffixTxt, CertDataScope);
     end;
 
     [Scope('OnPrem')]
@@ -192,15 +205,24 @@ codeunit 1259 "Certificate Management"
     begin
         exit(UploadedCertFileName);
     end;
-
+#if not CLEAN24
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SetCertPassword with SecretText data type for CertificatePassword parameter.', '24.0')]
     procedure SetCertPassword(CertificatePassword: Text)
     begin
-        CertPassword := CertificatePassword;
+        SecretCertPassword := CertificatePassword;
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetCertPassword(CertificatePassword: SecretText)
+    begin
+        SecretCertPassword := CertificatePassword;
     end;
 
+    [NonDebuggable]
     [TryFunction]
-    local procedure ReadCertFromBlob(Password: Text)
+    local procedure ReadCertFromBlob(Password: SecretText)
     var
         DotNet_X509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
         DotNet_Array: Codeunit DotNet_Array;
@@ -211,7 +233,7 @@ codeunit 1259 "Certificate Management"
         TempBlob.CreateInStream(InStream);
         DotNet_Array.SetArray(Convert.FromBase64String(Base64Convert.ToBase64(InStream)));
         DotNet_X509KeyStorageFlags.Exportable();
-        DotNet_X509Certificate2.X509Certificate2(DotNet_Array, Password, DotNet_X509KeyStorageFlags);
+        DotNet_X509Certificate2.X509Certificate2(DotNet_Array, Password.Unwrap(), DotNet_X509KeyStorageFlags);
     end;
 
     local procedure GetIssuer(Issuer: Text): Text
@@ -222,13 +244,11 @@ codeunit 1259 "Certificate Management"
 
     local procedure ValidateCertFields(var IsolatedCertificate: Record "Isolated Certificate")
     begin
-        with IsolatedCertificate do begin
-            Validate("Expiry Date", DotNet_X509Certificate2.ExpirationLocalTime());
-            Validate("Has Private Key", DotNet_X509Certificate2.HasPrivateKey());
-            Validate(ThumbPrint, CopyStr(DotNet_X509Certificate2.Thumbprint(), 1, MaxStrLen(ThumbPrint)));
-            Validate("Issued By", GetIssuer(DotNet_X509Certificate2.Issuer()));
-            Validate("Issued To", GetIssuer(DotNet_X509Certificate2.Subject()));
-        end;
+        IsolatedCertificate.Validate("Expiry Date", DotNet_X509Certificate2.ExpirationLocalTime());
+        IsolatedCertificate.Validate("Has Private Key", DotNet_X509Certificate2.HasPrivateKey());
+        IsolatedCertificate.Validate(ThumbPrint, CopyStr(DotNet_X509Certificate2.Thumbprint(), 1, MaxStrLen(IsolatedCertificate.ThumbPrint)));
+        IsolatedCertificate.Validate("Issued By", GetIssuer(DotNet_X509Certificate2.Issuer()));
+        IsolatedCertificate.Validate("Issued To", GetIssuer(DotNet_X509Certificate2.Subject()));
     end;
 
     [NonDebuggable]
@@ -243,7 +263,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [NonDebuggable]
-    local procedure ConvertCertToDotNetFromBase64(Base64String: Text; Password: Text; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    local procedure ConvertCertToDotNetFromBase64(Base64String: Text; Password: SecretText; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
     var
         DotNetArrayBytes: Codeunit DotNet_Array;
         DotNetX509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
@@ -251,7 +271,7 @@ codeunit 1259 "Certificate Management"
     begin
         DotNetArrayBytes.SetArray(Convert.FromBase64String(Base64String));
         DotNetX509KeyStorageFlags.Exportable();
-        DotNetX509Certificate2.X509Certificate2(DotNetArrayBytes, Password, DotNetX509KeyStorageFlags);
+        DotNetX509Certificate2.X509Certificate2(DotNetArrayBytes, Password.Unwrap(), DotNetX509KeyStorageFlags);
     end;
 
     [NonDebuggable]
@@ -261,8 +281,9 @@ codeunit 1259 "Certificate Management"
         X509Certificate2: DotNet X509Certificate2;
         X509Chain: DotNet X509Chain;
         X509RevocationMode: DotNet X509RevocationMode;
+        EmptyPassword: SecretText;
     begin
-        ConvertCertToDotNetFromBase64(Base64String, '', DotNetX509Certificate2);
+        ConvertCertToDotNetFromBase64(Base64String, EmptyPassword, DotNetX509Certificate2);
         DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
         X509Chain := X509Chain.X509Chain();
         X509Chain.ChainPolicy.RevocationMode := X509RevocationMode.NoCheck;
@@ -272,8 +293,7 @@ codeunit 1259 "Certificate Management"
     [NonDebuggable]
     local procedure GetCertAsDotNet(IsolatedCertificate: Record "Isolated Certificate"; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
     begin
-        ConvertCertToDotNetFromBase64(
-            GetCertAsBase64String(IsolatedCertificate), GetPassword(IsolatedCertificate), DotNetX509Certificate2);
+        ConvertCertToDotNetFromBase64(GetCertAsBase64String(IsolatedCertificate), GetPasswordAsSecret(IsolatedCertificate), DotNetX509Certificate2);
     end;
 
     [NonDebuggable]
@@ -302,8 +322,23 @@ codeunit 1259 "Certificate Management"
         SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
     end;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Replaced by GetPublicKeyAsBase64String with SecretText data type for Password parameter.', '24.0')]
     procedure GetPublicKeyAsBase64String(FullCertificateBase64: Text; Password: Text): Text
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        X509Certificate2: DotNet X509Certificate2;
+        Dotnet_Convert: DotNet Convert;
+        SecretPassword: SecretText;
+    begin
+        SecretPassword := Password;
+        exit(GetPublicKeyAsBase64String(FullCertificateBase64, SecretPassword));
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure GetPublicKeyAsBase64String(FullCertificateBase64: Text; Password: SecretText): Text
     var
         DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         X509Certificate2: DotNet X509Certificate2;

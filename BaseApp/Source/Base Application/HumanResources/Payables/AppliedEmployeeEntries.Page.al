@@ -91,6 +91,16 @@ page 63 "Applied Employee Entries"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount that the entry was finally applied to (closed) with.';
                 }
+                field("Closed by Currency Code"; Rec."Closed by Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the currency code of the entry that was applied to (and closed) this employee ledger entry.';
+                }
+                field("Closed by Currency Amount"; Rec."Closed by Currency Amount")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the amount that was finally applied to (and closed) this employee ledger entry.';
+                }
                 field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = BasicHR;

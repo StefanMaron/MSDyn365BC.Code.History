@@ -10,6 +10,7 @@ table 10533 "MTD-Liability"
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

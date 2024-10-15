@@ -59,7 +59,7 @@ codeunit 144001 EU3Trade
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure VerifyPostedSalesInvoice(EU3Trade: Boolean)

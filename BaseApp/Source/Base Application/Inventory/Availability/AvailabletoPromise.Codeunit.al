@@ -40,7 +40,7 @@ codeunit 5790 "Available to Promise"
         IsHandled := false;
         OnBeforeCalcQtyAvailableToPromise(
             Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
-        If not IsHandled then begin
+        if not IsHandled then begin
             ScheduledReceipt := CalcScheduledReceipt(Item);
             GrossRequirement := CalcGrossRequirement(Item);
 
@@ -534,12 +534,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with ProdOrderLine do
-            if FindLinesWithItemToPlan(Item, true) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrderLine.CalcFields("Reserved Qty. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, ProdOrderLine."Due Date", ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)");
+            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure UpdatePurchReqRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -552,12 +551,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with RequisitionLine do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if RequisitionLine.FindLinesWithItemToPlan(Item) then
+            repeat
+                RequisitionLine.CalcFields("Reserved Qty. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, RequisitionLine."Due Date", RequisitionLine."Quantity (Base)" - RequisitionLine."Reserved Qty. (Base)");
+            until RequisitionLine.Next() = 0;
     end;
 
     local procedure UpdatePurchOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -570,19 +568,17 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with PurchaseLine do begin
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Expected Receipt Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if PurchaseLine.FindLinesWithItemToPlan(Item, PurchaseLine."Document Type"::Order) then
+            repeat
+                PurchaseLine.CalcFields("Reserved Qty. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, PurchaseLine."Expected Receipt Date", PurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Reserved Qty. (Base)");
+            until PurchaseLine.Next() = 0;
 
-            if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Expected Receipt Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
-                until Next() = 0;
-        end;
+        if PurchaseLine.FindLinesWithItemToPlan(Item, PurchaseLine."Document Type"::"Return Order") then
+            repeat
+                PurchaseLine.CalcFields("Reserved Qty. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, PurchaseLine."Expected Receipt Date", PurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Reserved Qty. (Base)")
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateTransOrderRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -595,13 +591,12 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with TransferLine do
-            if FindLinesWithItemToPlan(Item, true, false) then
-                repeat
-                    CalcFields("Reserved Qty. Inbnd. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Receipt Date",
-                      "Outstanding Qty. (Base)" + "Qty. Shipped (Base)" - "Qty. Received (Base)" - "Reserved Qty. Inbnd. (Base)");
-                until Next() = 0;
+        if TransferLine.FindLinesWithItemToPlan(Item, true, false) then
+            repeat
+                TransferLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, TransferLine."Receipt Date",
+                  TransferLine."Outstanding Qty. (Base)" + TransferLine."Qty. Shipped (Base)" - TransferLine."Qty. Received (Base)" - TransferLine."Reserved Qty. Inbnd. (Base)");
+            until TransferLine.Next() = 0;
     end;
 
     local procedure UpdateSchedNeedAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -614,12 +609,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with ProdOrderComp do
-            if FindLinesWithItemToPlan(Item, true) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrderComp.CalcFields("Reserved Qty. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, ProdOrderComp."Due Date", ProdOrderComp."Remaining Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)");
+            until ProdOrderComp.Next() = 0;
     end;
 
     local procedure UpdatePlanningIssuesAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -632,12 +626,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with PlanningComp do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Expected Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if PlanningComp.FindLinesWithItemToPlan(Item) then
+            repeat
+                PlanningComp.CalcFields("Reserved Qty. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, PlanningComp."Due Date", PlanningComp."Expected Quantity (Base)" - PlanningComp."Reserved Qty. (Base)");
+            until PlanningComp.Next() = 0;
     end;
 
     local procedure UpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -650,21 +643,19 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with SalesLine do begin
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
-                repeat
-                    if IncludeSalesLineToAvailCalc(SalesLine) then begin
-                        CalcFields("Reserved Qty. (Base)");
-                        UpdateGrossRequirement(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
-                    end
-                until Next() = 0;
+        if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
+            repeat
+                if IncludeSalesLineToAvailCalc(SalesLine) then begin
+                    SalesLine.CalcFields("Reserved Qty. (Base)");
+                    UpdateGrossRequirement(AvailabilityAtDate, SalesLine."Shipment Date", SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
+                end
+            until SalesLine.Next() = 0;
 
-            if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
-                until Next() = 0;
-        end;
+        if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::"Return Order") then
+            repeat
+                SalesLine.CalcFields("Reserved Qty. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, SalesLine."Shipment Date", SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
+            until SalesLine.Next() = 0;
     end;
 
     local procedure UpdateServOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -677,12 +668,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with ServiceLine do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Needed by Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if ServiceLine.FindLinesWithItemToPlan(Item) then
+            repeat
+                ServiceLine.CalcFields("Reserved Qty. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, ServiceLine."Needed by Date", ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)");
+            until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateJobOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -695,12 +685,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with JobPlanningLine do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Planning Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if JobPlanningLine.FindLinesWithItemToPlan(Item) then
+            repeat
+                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, JobPlanningLine."Planning Date", JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure UpdateTransOrderShptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -713,12 +702,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with TransferLine do
-            if FindLinesWithItemToPlan(Item, false, false) then
-                repeat
-                    CalcFields("Reserved Qty. Outbnd. (Base)");
-                    UpdateGrossRequirement(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. Outbnd. (Base)");
-                until Next() = 0;
+        if TransferLine.FindLinesWithItemToPlan(Item, false, false) then
+            repeat
+                TransferLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                UpdateGrossRequirement(AvailabilityAtDate, TransferLine."Shipment Date", TransferLine."Outstanding Qty. (Base)" - TransferLine."Reserved Qty. Outbnd. (Base)");
+            until TransferLine.Next() = 0;
     end;
 
     local procedure UpdateAsmOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -731,12 +719,11 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with AssemblyHeader do
-            if FindItemToPlanLines(Item, "Document Type"::Order) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next() = 0;
+        if AssemblyHeader.FindItemToPlanLines(Item, AssemblyHeader."Document Type"::Order) then
+            repeat
+                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
+                UpdateScheduledReceipt(AvailabilityAtDate, AssemblyHeader."Due Date", AssemblyHeader."Remaining Quantity (Base)" - AssemblyHeader."Reserved Qty. (Base)");
+            until AssemblyHeader.Next() = 0;
     end;
 
     local procedure UpdateAsmCompAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -749,14 +736,13 @@ codeunit 5790 "Available to Promise"
         if IsHandled then
             exit;
 
-        with AssemblyLine do
-            if FindItemToPlanLines(Item, "Document Type"::Order) then
-                repeat
-                    if not AreEqualAssemblyLines(ChangedAssemblyLine, AssemblyLine) then begin
-                        CalcFields("Reserved Qty. (Base)");
-                        UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
-                    end;
-                until Next() = 0;
+        if AssemblyLine.FindItemToPlanLines(Item, AssemblyLine."Document Type"::Order) then
+            repeat
+                if not AreEqualAssemblyLines(ChangedAssemblyLine, AssemblyLine) then begin
+                    AssemblyLine.CalcFields("Reserved Qty. (Base)");
+                    UpdateGrossRequirement(AvailabilityAtDate, AssemblyLine."Due Date", AssemblyLine."Remaining Quantity (Base)" - AssemblyLine."Reserved Qty. (Base)");
+                end;
+            until AssemblyLine.Next() = 0;
     end;
 
     local procedure IncludeSalesLineToAvailCalc(SalesLine: Record "Sales Line"): Boolean
@@ -794,7 +780,7 @@ codeunit 5790 "Available to Promise"
         exit(xAssemblyLine.RecordId() = AssemblyLine.RecordId());
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalculateAvailability(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
     begin
     end;

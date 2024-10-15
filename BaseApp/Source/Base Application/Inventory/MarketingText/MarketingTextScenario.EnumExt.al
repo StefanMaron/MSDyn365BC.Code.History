@@ -8,8 +8,10 @@ using System.Text;
 
 enumextension 5825 "Marketing Text Scenario" extends "Entity Text Scenario"
 {
+#pragma warning disable PTE0023
     value(0; "Marketing Text")
     {
         Caption = 'Marketing Text';
     }
+#pragma warning restore PTE0023
 }

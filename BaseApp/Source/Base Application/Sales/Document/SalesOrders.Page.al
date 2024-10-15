@@ -82,7 +82,7 @@ page 48 "Sales Orders"
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field(Amount; Rec.Amount)

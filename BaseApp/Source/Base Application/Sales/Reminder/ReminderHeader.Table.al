@@ -9,6 +9,7 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Company;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
@@ -26,6 +27,7 @@ table 295 "Reminder Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Reminder List";
     LookupPageID = "Reminder List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -36,10 +38,10 @@ table 295 "Reminder Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
-                "Posting Description" := StrSubstNo(Text000, "No.");
+                "Posting Description" := StrSubstNo(ReminderNoLbl, "No.");
             end;
         }
         field(2; "Customer No."; Code[20])
@@ -421,20 +423,18 @@ table 295 "Reminder Header"
 
             trigger OnLookup()
             begin
-                with ReminderHeader do begin
-                    ReminderHeader := Rec;
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
-                        Validate("Issuing No. Series");
-                    Rec := ReminderHeader;
-                end;
+                ReminderHeader := Rec;
+                ReminderHeader.TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetIssuingNoSeriesCode(), ReminderHeader."Issuing No. Series") then
+                    ReminderHeader.Validate("Issuing No. Series");
+                Rec := ReminderHeader;
             end;
 
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
+                    NoSeries.TestAreRelated(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -490,6 +490,10 @@ table 295 "Reminder Header"
             Caption = 'Format Region';
             TableRelation = "Language Selection"."Language Tag";
         }
+        field(55; "Email Text"; Blob)
+        {
+            Caption = 'Email Text';
+        }
         field(163; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Company Bank Account Code';
@@ -510,6 +514,11 @@ table 295 "Reminder Header"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+        }
+        field(500; "Reminder Automation Code"; Code[50])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Reminder Action Group"."Code";
         }
         field(9000; "Assigned User ID"; Code[50])
         {
@@ -552,16 +561,27 @@ table 295 "Reminder Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
     begin
         SalesSetup.Get();
         SetReminderNo();
-        "Posting Description" := StrSubstNo(Text000, "No.");
+        "Posting Description" := StrSubstNo(ReminderNoLbl, "No.");
         if ("No. Series" <> '') and
            (SalesSetup."Reminder Nos." = GetIssuingNoSeriesCode())
         then
             "Issuing No. Series" := "No. Series"
         else
+#if CLEAN24
+            if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
+                "Issuing No. Series" := GetIssuingNoSeriesCode();
+#else
+#pragma warning disable AL0432
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
+#pragma warning restore AL0432
+#endif
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
@@ -576,13 +596,6 @@ table 295 "Reminder Header"
     end;
 
     var
-        Text000: Label 'Reminder %1';
-        Text001: Label 'Do you want to print reminder %1?';
-        Text002: Label 'This change will cause the existing lines to be deleted for this reminder.\\';
-        Text003: Label 'Do you want to continue?';
-        Text004: Label 'There is not enough space to insert the text.';
-        Text005: Label 'Deleting this document will cause a gap in the number series for reminders. ';
-        Text006: Label 'An empty reminder %1 will be created to fill this gap in the number series.\\';
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         CustPostingGr: Record "Customer Posting Group";
@@ -599,7 +612,7 @@ table 295 "Reminder Header"
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         GLSetup: Record "General Ledger Setup";
         AutoFormat: Codeunit "Auto Format";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ReminderIssue: Codeunit "Reminder-Issue";
         DimMgt: Codeunit DimensionManagement;
@@ -607,18 +620,23 @@ table 295 "Reminder Header"
         LineSpacing: Integer;
         ReminderTotal: Decimal;
         SelectNoSeriesAllowed: Boolean;
+        ReminderNoLbl: Label 'Reminder %1', Comment = '%1 = Reminder No.';
+        PrintReminderQst: Label 'Do you want to print reminder %1?', Comment = '%1 = Reminder No.';
+        DeleteExistingLinesTxt: Label 'This change will cause the existing lines to be deleted for this reminder.\\';
+        ContinueTxt: Label 'Do you want to continue?';
+        NotEnoughSpaceForTextErr: Label 'There is not enough space to insert the text.';
+        GapInNumberSeriesIfDeleteTxt: Label 'Deleting this document will cause a gap in the number series for reminders. ';
+        CreateEmptyReminderTxt: Label 'An empty reminder %1 will be created to fill this gap in the number series.\\', Comment = '%1 = Reminder No.';
+        UnexpectedLineTypeErr: Label 'Unexpected line type %1 in reminder %2', Comment = '%1 = Line Type, %2 = Reminder No.';
 
     procedure AssistEdit(OldReminderHeader: Record "Reminder Header"): Boolean
     begin
-        with ReminderHeader do begin
-            ReminderHeader := Rec;
-            TestNoSeries();
-            if NoSeriesMgt.SelectSeries(SalesSetup."Reminder Nos.", OldReminderHeader."No. Series", "No. Series") then begin
-                TestNoSeries();
-                NoSeriesMgt.SetSeries("No.");
-                Rec := ReminderHeader;
-                exit(true);
-            end;
+        ReminderHeader := Rec;
+        ReminderHeader.TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(SalesSetup."Reminder Nos.", OldReminderHeader."No. Series", ReminderHeader."No. Series") then begin
+            ReminderHeader."No." := NoSeries.GetNextNo(ReminderHeader."No. Series");
+            Rec := ReminderHeader;
+            exit(true);
         end;
     end;
 
@@ -651,7 +669,17 @@ table 295 "Reminder Header"
         NoSeriesCode := SalesSetup."Reminder Nos.";
 
         OnAfterGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode);
-        exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
+        if not SelectNoSeriesAllowed then
+            exit(NoSeriesCode);
+
+        if NoSeries.IsAutomatic(NoSeriesCode) then
+            exit(NoSeriesCode);
+
+        if NoSeries.HasRelatedSeries(NoSeriesCode) then
+            if NoSeries.LookupRelatedNoSeries(NoSeriesCode, "No. Series") then
+                exit("No. Series");
+
+        exit(NoSeriesCode);
     end;
 
     local procedure InitVATDate()
@@ -689,8 +717,8 @@ table 295 "Reminder Header"
             Commit();
             if not
                Confirm(
-                 Text002 +
-                 Text003,
+                 DeleteExistingLinesTxt +
+                 ContinueTxt,
                  false)
             then
                 exit(true);
@@ -802,6 +830,7 @@ table 295 "Reminder Header"
 
     local procedure InsertBeginTexts(var ReminderHeader: Record "Reminder Header")
     var
+        ReminderCommunication: Codeunit "Reminder Communication";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -812,29 +841,33 @@ table 295 "Reminder Header"
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
         OnInsertBeginTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
-        if ReminderLevel.FindLast() then begin
-            ReminderText.Reset();
-            ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
-            ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
-            ReminderText.SetRange(Position, ReminderText.Position::Beginning);
-            OnInsertBeginTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
+        if ReminderLevel.FindLast() then
+            if ReminderCommunication.NewReminderCommunicationEnabled() then
+                ReminderCommunication.InsertBeginningText(ReminderHeader, ReminderLevel, ReminderLine)
+            else begin
+                ReminderText.Reset();
+                ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
+                ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
+                ReminderText.SetRange(Position, ReminderText.Position::Beginning);
+                OnInsertBeginTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
 
-            ReminderLine.Reset();
-            ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
-            ReminderLine."Reminder No." := ReminderHeader."No.";
-            if ReminderLine.Find('-') then begin
-                LineSpacing := ReminderLine."Line No." div (ReminderText.Count + 2);
-                if LineSpacing = 0 then
-                    Error(Text004);
-            end else
-                LineSpacing := 10000;
-            NextLineNo := 0;
-            InsertTextLines(ReminderHeader);
-        end;
+                ReminderLine.Reset();
+                ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
+                ReminderLine."Reminder No." := ReminderHeader."No.";
+                if ReminderLine.Find('-') then begin
+                    LineSpacing := ReminderLine."Line No." div (ReminderText.Count + 2);
+                    if LineSpacing = 0 then
+                        Error(NotEnoughSpaceForTextErr);
+                end else
+                    LineSpacing := 10000;
+                NextLineNo := 0;
+                InsertTextLines(ReminderHeader);
+            end;
     end;
 
     local procedure InsertEndTexts(var ReminderHeader: Record "Reminder Header")
     var
+        ReminderCommunication: Codeunit "Reminder Communication";
         ReminderLine2: Record "Reminder Line";
         IsHandled: Boolean;
     begin
@@ -846,39 +879,42 @@ table 295 "Reminder Header"
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
         OnInsertEndTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
-        if ReminderLevel.FindLast() then begin
-            ReminderText.SetRange(
-              "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
-            ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
-            ReminderText.SetRange(Position, ReminderText.Position::Ending);
-            OnInsertEndTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
+        if ReminderLevel.FindLast() then
+            if ReminderCommunication.NewReminderCommunicationEnabled() then
+                ReminderCommunication.InsertEndingText(ReminderHeader, ReminderLevel, ReminderLine)
+            else begin
+                ReminderText.SetRange(
+                  "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
+                ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
+                ReminderText.SetRange(Position, ReminderText.Position::Ending);
+                OnInsertEndTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
 
-            ReminderLine.Reset();
-            ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
-            ReminderLine.SetFilter(
-              "Line Type", '%1|%2|%3',
-              ReminderLine."Line Type"::"Reminder Line",
-              ReminderLine."Line Type"::"Additional Fee",
-              ReminderLine."Line Type"::Rounding);
-            OnInsertEndTextsOnAfterReminderLineSetFilters(ReminderLine, ReminderHeader);
-            if ReminderLine.FindLast() then
-                NextLineNo := ReminderLine."Line No."
-            else
-                NextLineNo := 0;
-            ReminderLine.SetRange("Line Type");
-            ReminderLine2 := ReminderLine;
-            ReminderLine2.CopyFilters(ReminderLine);
-            ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-            if ReminderLine2.Next() <> 0 then begin
-                LineSpacing :=
-                  (ReminderLine2."Line No." - ReminderLine."Line No.") div
-                  (ReminderText.Count + 2);
-                if LineSpacing = 0 then
-                    Error(Text004);
-            end else
-                LineSpacing := 10000;
-            InsertTextLines(ReminderHeader);
-        end;
+                ReminderLine.Reset();
+                ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
+                ReminderLine.SetFilter(
+                  "Line Type", '%1|%2|%3',
+                  ReminderLine."Line Type"::"Reminder Line",
+                  ReminderLine."Line Type"::"Additional Fee",
+                  ReminderLine."Line Type"::Rounding);
+                OnInsertEndTextsOnAfterReminderLineSetFilters(ReminderLine, ReminderHeader);
+                if ReminderLine.FindLast() then
+                    NextLineNo := ReminderLine."Line No."
+                else
+                    NextLineNo := 0;
+                ReminderLine.SetRange("Line Type");
+                ReminderLine2 := ReminderLine;
+                ReminderLine2.CopyFilters(ReminderLine);
+                ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
+                if ReminderLine2.Next() <> 0 then begin
+                    LineSpacing :=
+                      (ReminderLine2."Line No." - ReminderLine."Line No.") div
+                      (ReminderText.Count + 2);
+                    if LineSpacing = 0 then
+                        Error(NotEnoughSpaceForTextErr);
+                end else
+                    LineSpacing := 10000;
+                InsertTextLines(ReminderHeader);
+            end;
     end;
 
     local procedure InsertTextLines(var ReminderHeader: Record "Reminder Header")
@@ -888,6 +924,7 @@ table 295 "Reminder Header"
 
     procedure InsertTextLines(var ReminderHeader: Record "Reminder Header"; var ReminderText: Record "Reminder Text"; var NextLineNo: Integer; LineSpacing: Integer)
     var
+        CompanyInfo: Record "Company Information";
         AutoFormatType: Enum "Auto Format";
     begin
         if ReminderText.Find('-') then begin
@@ -904,6 +941,7 @@ table 295 "Reminder Header"
               ReminderHeader."Remaining Amount" + ReminderHeader."Interest Amount" +
               ReminderHeader."Additional Fee" + ReminderHeader."VAT Amount" +
               ReminderHeader."Add. Fee per Line";
+            CompanyInfo.Get();
 
             repeat
                 NextLineNo := NextLineNo + LineSpacing;
@@ -925,6 +963,7 @@ table 295 "Reminder Header"
                       ReminderHeader."Reminder Level",
                       ReminderHeader."Currency Code",
                       ReminderHeader."Posting Date",
+                      CompanyInfo.Name,
                       ReminderHeader."Add. Fee per Line"),
                     1,
                     MaxStrLen(ReminderLine.Description));
@@ -936,6 +975,59 @@ table 295 "Reminder Header"
                 ReminderLine.Insert();
             until ReminderText.Next() = 0;
             if ReminderText.Position = ReminderText.Position::Beginning then
+                InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");
+        end;
+    end;
+
+    procedure InsertTextLines(var LocalReminderHeader: Record "Reminder Header"; var ReminderAttachmentText: Record "Reminder Attachment Text"; LineType: Enum "Reminder Line Type"; var NextLineNumber: Integer; LineSpace: Integer)
+    var
+        ReminderCommunication: Codeunit "Reminder Communication";
+        SourceDescriptionText: Text[100];
+    begin
+        if not ReminderAttachmentText.IsEmpty() then begin
+            NextLineNo := NextLineNumber;
+            LineSpacing := LineSpace;
+
+            if LineType = Enum::"Reminder Line Type"::"Ending Text" then
+                InsertBlankLine(ReminderLine."Line Type"::"Ending Text");
+
+            if LocalReminderHeader."Fin. Charge Terms Code" <> '' then
+                FinChrgTerms.Get(LocalReminderHeader."Fin. Charge Terms Code");
+
+            OnInsertTextLinesOnAfterGetFinChrgTerms(LocalReminderHeader, FinChrgTerms);
+
+            if not ReminderLevel."Calculate Interest" then
+                FinChrgTerms."Interest Rate" := 0;
+            LocalReminderHeader.CalcFields("Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount", "Add. Fee per Line");
+            ReminderTotal := LocalReminderHeader."Remaining Amount"
+                            + LocalReminderHeader."Interest Amount"
+                            + LocalReminderHeader."Additional Fee"
+                            + LocalReminderHeader."VAT Amount"
+                            + LocalReminderHeader."Add. Fee per Line";
+
+            NextLineNo := NextLineNo + LineSpacing;
+            ReminderLine.Init();
+            ReminderLine."Reminder No." := LocalReminderHeader."No.";
+            ReminderLine."Line No." := NextLineNo;
+            ReminderLine.Type := ReminderLine.Type::" ";
+            case LineType of
+                Enum::"Reminder Line Type"::"Beginning Text":
+                    begin
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text";
+                        SourceDescriptionText := ReminderAttachmentText."Beginning Line";
+                    end;
+                Enum::"Reminder Line Type"::"Ending Text":
+                    begin
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
+                        SourceDescriptionText := ReminderAttachmentText."Ending Line";
+                    end;
+                else
+                    Error(UnexpectedLineTypeErr, LineType, LocalReminderHeader."No.");
+            end;
+            ReminderLine.Description := ReminderCommunication.SubstituteBeginningOrEndingDescription(SourceDescriptionText, ReminderTotal, MaxStrLen(ReminderLine.Description), LocalReminderHeader, FinChrgTerms);
+            ReminderLine.Insert();
+
+            if LineType = Enum::"Reminder Line Type"::"Beginning Text" then
                 InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");
         end;
     end;
@@ -968,12 +1060,10 @@ table 295 "Reminder Header"
         if IsHandled then
             exit;
 
-        with ReminderHeader do begin
-            Copy(Rec);
-            FindFirst();
-            SetRecFilter();
-            ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
-        end;
+        ReminderHeader.Copy(Rec);
+        ReminderHeader.FindFirst();
+        ReminderHeader.SetRecFilter();
+        ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, ReminderHeader.FieldNo("Customer No."));
     end;
 
     procedure ConfirmDeletion() Confirmed: Boolean
@@ -988,9 +1078,9 @@ table 295 "Reminder Header"
         ReminderIssue.TestDeleteHeader(Rec, IssuedReminderHeader);
         if IssuedReminderHeader."No." <> '' then
             if not Confirm(
-                 Text005 +
-                 Text006 +
-                 Text003, true,
+                 GapInNumberSeriesIfDeleteTxt +
+                 CreateEmptyReminderTxt +
+                 ContinueTxt, true,
                  IssuedReminderHeader."No.")
             then
                 exit;
@@ -1065,22 +1155,20 @@ table 295 "Reminder Header"
 
         if ReminderRoundingAmount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
-            with ReminderLine do begin
-                Init();
-                Validate("Line No.", GetNextLineNo(ReminderHeader."No."));
-                Validate("Reminder No.", ReminderHeader."No.");
-                Validate(Type, Type::"G/L Account");
-                "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount());
-                Validate(
-                  Amount,
-                  Round(
-                    ReminderRoundingAmount / (1 + ("VAT %" / 100)),
-                    Currency."Amount Rounding Precision"));
-                "VAT Amount" := ReminderRoundingAmount - Amount;
-                "Line Type" := "Line Type"::Rounding;
-                Insert();
-            end;
+            ReminderLine.Init();
+            ReminderLine.Validate("Line No.", GetNextLineNo(ReminderHeader."No."));
+            ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
+            ReminderLine.Validate(Type, ReminderLine.Type::"G/L Account");
+            ReminderLine."System-Created Entry" := true;
+            ReminderLine.Validate("No.", CustPostingGr.GetInvRoundingAccount());
+            ReminderLine.Validate(
+              Amount,
+              Round(
+                ReminderRoundingAmount / (1 + (ReminderLine."VAT %" / 100)),
+                Currency."Amount Rounding Precision"));
+            ReminderLine."VAT Amount" := ReminderRoundingAmount - ReminderLine.Amount;
+            ReminderLine."Line Type" := ReminderLine."Line Type"::Rounding;
+            ReminderLine.Insert();
         end;
     end;
 
@@ -1170,10 +1258,26 @@ table 295 "Reminder Header"
 
     [Scope('OnPrem')]
     procedure SetReminderNo()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+            "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+            end;
+#endif
         end;
     end;
 
@@ -1201,7 +1305,7 @@ table 295 "Reminder Header"
 
         if IssuedReminderHeader."No." <> '' then begin
             Commit();
-            if Confirm(Text001, true, IssuedReminderHeader."No.") then begin
+            if Confirm(PrintReminderQst, true, IssuedReminderHeader."No.") then begin
                 IssuedReminderHeader.SetRecFilter();
                 IssuedReminderHeader.PrintRecords(true, false, false)
             end;
@@ -1309,7 +1413,7 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertEndTextsOnAfterReminderLineSetFilters(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
+    internal procedure OnInsertEndTextsOnAfterReminderLineSetFilters(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 
@@ -1374,12 +1478,12 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertBeginTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    internal procedure OnInsertBeginTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertEndTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    internal procedure OnInsertEndTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 

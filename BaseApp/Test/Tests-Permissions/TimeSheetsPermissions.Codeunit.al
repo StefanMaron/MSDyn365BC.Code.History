@@ -10,7 +10,6 @@ codeunit 136505 "Time Sheets Permissions"
 
     var
         Assert: Codeunit Assert;
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         OpenUserSetupQst: Label 'You aren''t allowed to run this report. If you want, you can give yourself the Time Sheet Admin. rights, and then try again.\\ Do you want to do that now?';
         TimeSheetAdminErr: Label 'Time sheet administrator only is allowed to create time sheets.';
         ConfirmationAnswer: Boolean;

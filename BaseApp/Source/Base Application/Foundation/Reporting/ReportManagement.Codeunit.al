@@ -238,6 +238,8 @@ codeunit 44 ReportManagement
         end;
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced by platform Word merge', '24.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ApplicationReportMergeStrategy', '', false, false)]
     local procedure ApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
     var
@@ -249,6 +251,7 @@ codeunit 44 ReportManagement
         OnApplicationReportMergeStrategy(ObjectId, LayoutCode, InApplication, IsHandled);
     end;
 
+    [Obsolete('Replaced by platform Word merge', '24.0')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'WordDocumentMergerAppMode', '', false, false)]
     local procedure WordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
     var
@@ -259,7 +262,7 @@ codeunit 44 ReportManagement
         IsHandled := false;
         OnWordDocumentMergerAppMode(ObjectId, LayoutCode, InApplication, IsHandled);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'SelectReportLayoutUI', '', false, false)]
     local procedure SelectReportLayoutUI(ObjectID: Integer; var LayoutName: Text; var LayoutAppID: Guid; var Success: Boolean)
     var
@@ -274,6 +277,15 @@ codeunit 44 ReportManagement
             LayoutAppID := ReportLayoutList."Application ID";
             Success := true;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetFilename', '', false, false)]
+    local procedure GetFilename(ReportID: Integer; Caption: Text[250]; ObjectPayload: JsonObject; FileExtension: Text[30]; ReportRecordRef: RecordRef; var Filename: Text; var Success: Boolean)
+    begin
+        if Success then
+            exit;
+
+        OnGetFilename(ReportID, Caption, ObjectPayload, FileExtension, ReportRecordRef, Filename, Success);
     end;
 
     [IntegrationEvent(false, false)]
@@ -391,6 +403,11 @@ codeunit 44 ReportManagement
     /// <remarks>This event is for backward compatibility only and will be depricated.</remarks>
     [IntegrationEvent(false, false)]
     local procedure OnWordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFilename(ReportID: Integer; Caption: Text[250]; ObjectPayload: JsonObject; FileExtension: Text[30]; ReportRecordRef: RecordRef; var Filename: Text; var Success: Boolean)
     begin
     end;
 }

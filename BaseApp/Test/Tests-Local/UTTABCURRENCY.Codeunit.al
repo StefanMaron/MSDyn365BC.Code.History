@@ -32,7 +32,7 @@ codeunit 144008 "UT TAB CURRENCY"
         // Purpose of this test is to verify error on delete Currency used in Open Customer Ledger Entry.
 
         // Setup.
-        Currency.Get(CreateCustomerLedgerEntry);
+        Currency.Get(CreateCustomerLedgerEntry());
 
         // Exercise.
         asserterror Currency.Delete(true);
@@ -45,7 +45,7 @@ codeunit 144008 "UT TAB CURRENCY"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -56,8 +56,8 @@ codeunit 144008 "UT TAB CURRENCY"
     begin
         CustLedgerEntry."Entry No." := LibraryRandom.RandInt(5);  // Use random value.
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        CustLedgerEntry."Currency Code" := CreateCurrency;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
+        CustLedgerEntry."Currency Code" := CreateCurrency();
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Currency Code");

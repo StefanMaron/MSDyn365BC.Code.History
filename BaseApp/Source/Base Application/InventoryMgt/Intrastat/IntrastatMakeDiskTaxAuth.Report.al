@@ -183,14 +183,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
     [Scope('OnPrem')]
     procedure WriteFile()
     begin
-        with IntrastatJnlLineTemp do begin
-            repeat
-                LineCount := LineCount + 1;
-                Window.Update(3, LineCount);
-                Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                WriteGroupTotalsToFile(IntrastatJnlLineTemp);
-            until Next() = 0;
-        end;
+        repeat
+            LineCount := LineCount + 1;
+            Window.Update(3, LineCount);
+            Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+            WriteGroupTotalsToFile(IntrastatJnlLineTemp);
+        until IntrastatJnlLineTemp.Next() = 0;
     end;
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format")
@@ -216,7 +214,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             JournalType := 'A';
         IntrastatFileWriter.WriteLine(
             'T' + ',' +
-            IntraJnlManagement.GetCompanyVATRegNo + ',' +
+            IntraJnlManagement.GetCompanyVATRegNo() + ',' +
             ',' +
             CopyStr(CompanyInfo.Name, 1, 30) + ',' +
             NilReturnCode + ',' +
@@ -240,7 +238,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if ExportFormat = ExportFormat::"2021" then
             WriteGroupTotalsToFile2021(IntrastatJnlLine, Quantity)
         else
-            WriteGroupTotalsToFile2022(IntrastatJnlLine, Quantity);
+            WriteGroupTotalsToFile2022(IntrastatJnlLine);
     end;
 
     local procedure WriteGroupTotalsToFile2021(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Quantity: Text[11])
@@ -257,7 +255,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             IntrastatJnlLine."Document No.");
     end;
 
-    local procedure WriteGroupTotalsToFile2022(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Quantity: Text[11])
+    local procedure WriteGroupTotalsToFile2022(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         CountryRegion: Record "Country/Region";
         CountryOfOriginCode: Code[10];

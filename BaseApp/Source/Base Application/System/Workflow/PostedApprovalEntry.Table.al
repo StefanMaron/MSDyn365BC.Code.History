@@ -9,6 +9,7 @@ table 456 "Posted Approval Entry"
     Caption = 'Posted Approval Entry';
     DrillDownPageId = "Posted Approval Entries";
     LookupPageId = "Posted Approval Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

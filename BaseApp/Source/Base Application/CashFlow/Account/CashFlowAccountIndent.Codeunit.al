@@ -31,30 +31,29 @@ codeunit 849 "Cash Flow Account - Indent"
     begin
         Window.Open(Text1004);
 
-        with CFAccount do
-            if Find('-') then
-                repeat
-                    Window.Update(1, "No.");
+        if CFAccount.Find('-') then
+            repeat
+                Window.Update(1, CFAccount."No.");
 
-                    if "Account Type" = "Account Type"::"End-Total" then begin
-                        if i < 1 then
-                            Error(
-                              Text1005,
-                              "No.");
-                        Totaling := AccNo[i] + '..' + "No.";
-                        i := i - 1;
-                    end;
+                if CFAccount."Account Type" = CFAccount."Account Type"::"End-Total" then begin
+                    if i < 1 then
+                        Error(
+                          Text1005,
+                          CFAccount."No.");
+                    CFAccount.Totaling := AccNo[i] + '..' + CFAccount."No.";
+                    i := i - 1;
+                end;
 
-                    Validate(Indentation, i);
-                    Modify();
+                CFAccount.Validate(CFAccount.Indentation, i);
+                CFAccount.Modify();
 
-                    if "Account Type" = "Account Type"::"Begin-Total" then begin
-                        i := i + 1;
-                        if i > ArrayLen(AccNo) then
-                            Error(ArrayExceededErr, ArrayLen(AccNo));
-                        AccNo[i] := "No.";
-                    end;
-                until Next() = 0;
+                if CFAccount."Account Type" = CFAccount."Account Type"::"Begin-Total" then begin
+                    i := i + 1;
+                    if i > ArrayLen(AccNo) then
+                        Error(ArrayExceededErr, ArrayLen(AccNo));
+                    AccNo[i] := CFAccount."No.";
+                end;
+            until CFAccount.Next() = 0;
 
         Window.Close();
     end;

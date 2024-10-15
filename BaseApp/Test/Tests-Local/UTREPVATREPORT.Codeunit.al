@@ -57,7 +57,7 @@ codeunit 144003 "UT REP VAT REPORT"
     begin
         // Setup.
         FindReverseChargeVATPostingSetup(VATPostingSetup);
-        UpdateThresholdAppliesOnGLSetup;
+        UpdateThresholdAppliesOnGLSetup();
         UpdateDomesticCustomersOnSalesReceivablesSetup(VATPostingSetup."VAT Bus. Posting Group");
         CreateSalesDocument(SalesLine, VATPostingSetup, DocumentType);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for SalesDocumentTestRequestPageHandler.
@@ -66,7 +66,7 @@ codeunit 144003 "UT REP VAT REPORT"
         REPORT.Run(REPORT::"Sales Document - Test");   // Open SalesDocumentTestRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line___VAT_Identifier_', VATPostingSetup."VAT Identifier");
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line__Quantity', SalesLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line___Unit_Price_', SalesLine."Unit Price");
@@ -84,8 +84,8 @@ codeunit 144003 "UT REP VAT REPORT"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesHeader."VAT Registration No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesHeader.Insert();
@@ -94,7 +94,7 @@ codeunit 144003 "UT REP VAT REPORT"
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryRandom.RandInt(10);  // Random Line No.
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := LibraryUTUtility.GetNewCode;
+        SalesLine."No." := LibraryUTUtility.GetNewCode();
         SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesLine."Reverse Charge Item" := true;
@@ -138,7 +138,7 @@ codeunit 144003 "UT REP VAT REPORT"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

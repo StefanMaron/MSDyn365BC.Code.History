@@ -3,7 +3,6 @@
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
-using System.Environment.Configuration;
 using System.Reflection;
 
 page 9657 "Customer Report Selections"
@@ -62,7 +61,7 @@ page 9657 "Customer Report Selections"
                 field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Report Caption';
+                    Caption = 'Report Name';
                     ToolTip = 'Specifies the name of the report.';
                 }
                 field("Custom Report Description"; Rec."Custom Report Description")
@@ -72,8 +71,7 @@ page 9657 "Customer Report Selections"
                     DrillDown = true;
                     Lookup = true;
                     ToolTip = 'Specifies a description of the custom report layout.';
-                    Visible = not PlatformSelectionEnabled;
-
+                    Visible = false;
                     trigger OnDrillDown()
                     begin
                         Rec.LookupCustomReportDescription();
@@ -104,27 +102,6 @@ page 9657 "Customer Report Selections"
                         end;
                     end;
                 }
-                field("Email Attachment Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Attachment Layout Name", Rec."Email Attachment Layout AppID"))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Email Attachment Layout';
-                    ToolTip = 'Specifies the report layout used as email attachment.';
-
-                    trigger OnDrillDown()
-                    var
-                        ReportLayoutListSelection: Record "Report Layout List";
-                        ReportManagementCodeunit: Codeunit ReportManagement;
-                        IsReportLayoutSelected: Boolean;
-                    begin
-                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
-                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
-                        if IsReportLayoutSelected then begin
-                            Rec."Email Attachment Layout Name" := ReportLayoutListSelection."Name";
-                            Rec."Email Attachment Layout AppID" := ReportLayoutListSelection."Application ID";
-                            Rec.Modify();
-                        end;
-                    end;
-                }
                 field(SendToEmail; Rec."Send To Email")
                 {
                     ApplicationArea = Basic, Suite;
@@ -141,6 +118,11 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
+                }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -152,8 +134,8 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     Lookup = true;
-                    ToolTip = 'Specifies a description of the email body layout that is used.';
-                    Visible = not PlatformSelectionEnabled;
+                    ToolTip = 'Specifies a description of the custom email body layout that is used.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -184,6 +166,27 @@ page 9657 "Customer Report Selections"
                         if IsReportLayoutSelected then begin
                             Rec."Email Body Layout Name" := ReportLayoutListSelection."Name";
                             Rec."Email Body Layout AppID" := ReportLayoutListSelection."Application ID";
+                            Rec.Modify();
+                        end;
+                    end;
+                }
+                field("Email Attachment Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Attachment Layout Name", Rec."Email Attachment Layout AppID"))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Attachment Layout';
+                    ToolTip = 'Specifies the report layout used as email attachment.';
+
+                    trigger OnDrillDown()
+                    var
+                        ReportLayoutListSelection: Record "Report Layout List";
+                        ReportManagementCodeunit: Codeunit ReportManagement;
+                        IsReportLayoutSelected: Boolean;
+                    begin
+                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
+                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
+                        if IsReportLayoutSelected then begin
+                            Rec."Email Attachment Layout Name" := ReportLayoutListSelection."Name";
+                            Rec."Email Attachment Layout AppID" := ReportLayoutListSelection."Application ID";
                             Rec.Modify();
                         end;
                     end;
@@ -260,27 +263,14 @@ page 9657 "Customer Report Selections"
         MapTableUsageValueToPageValue();
     end;
 
-    trigger OnOpenPage()
-    begin
-        PlatformSelectionEnabled := FeatureManagement.IsEnabled(PlatformSelectionEnabledLbl);
-    end;
-
     var
-        FeatureManagement: Codeunit "Feature Management Facade";
         ReportSelectionsImpl: Codeunit "Report Selections Impl";
-        PlatformSelectionEnabledLbl: Label 'EnablePlatformBasedReportSelection', Locked = true;
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
-        PlatformSelectionEnabled: Boolean;
 
     protected var
         Usage2: Enum "Custom Report Selection Sales";
 
     local procedure MapTableUsageValueToPageValue()
-#if not CLEAN21
-    var
-        CustomReportSelection: Record "Custom Report Selection";
-        UsageOpt: Option;
-#endif
     begin
         case Rec.Usage of
             "Report Selection Usage"::"S.Quote":
@@ -301,13 +291,6 @@ page 9657 "Customer Report Selections"
                 Usage2 := "Custom Report Selection Sales"::Shipment;
             "Report Selection Usage"::"Pro Forma S. Invoice":
                 Usage2 := "Custom Report Selection Sales"::"Pro Forma Invoice";
-#if not CLEAN21
-            else begin
-                UsageOpt := Usage2.AsInteger();
-                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, UsageOpt, Rec);
-                Usage2 := "Custom Report Selection Sales".FromInteger(UsageOpt);
-            end;
-#endif
         end;
 
         OnAfterOnMapTableUsageValueToPageValue(Rec, Usage2);
@@ -334,14 +317,6 @@ page 9657 "Customer Report Selections"
     local procedure OnAfterOnMapTableUsageValueToPageValue(CustomReportSelection: Record "Custom Report Selection"; var Usage2: Enum "Custom Report Selection Sales")
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by event OnAfterOnMapTableUsageValueToPageValue() with enum parameter', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option; Rec: Record "Custom Report Selection")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Option)

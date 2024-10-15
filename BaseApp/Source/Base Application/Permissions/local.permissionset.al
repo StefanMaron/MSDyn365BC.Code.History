@@ -4,7 +4,9 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Bank.Ledger;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Finance.VAT.Reporting;
+#if not CLEAN23
 using Microsoft.Finance.Analysis;
+#endif
 using Microsoft.Foundation.Address;
 
 permissionset 1001 "LOCAL"

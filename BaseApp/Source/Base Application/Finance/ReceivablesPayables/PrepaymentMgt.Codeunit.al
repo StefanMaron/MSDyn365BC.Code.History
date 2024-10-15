@@ -52,81 +52,74 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit;
 
-        with SalesPrepaymentPct do begin
-            if (SalesLine.Type <> SalesLine.Type::Item) or (SalesLine."No." = '') or
-               (SalesLine."Document Type" <> SalesLine."Document Type"::Order)
-            then
-                exit;
-            SetFilter("Starting Date", '..%1', Date);
-            SetFilter("Ending Date", '%1|>=%2', 0D, Date);
-            SetRange("Item No.", SalesLine."No.");
-            for "Sales Type" := "Sales Type"::Customer to "Sales Type"::"All Customers" do begin
-                SetRange("Sales Type", "Sales Type");
-                case "Sales Type" of
-                    "Sales Type"::Customer:
-                        begin
-                            SetRange("Sales Code", SalesLine."Bill-to Customer No.");
-                            if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
-                                exit;
-                        end;
-                    "Sales Type"::"Customer Price Group":
-                        begin
-                            Cust.Get(SalesLine."Bill-to Customer No.");
-                            if Cust."Customer Price Group" <> '' then
-                                SetRange("Sales Code", Cust."Customer Price Group");
-                            if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
-                                exit;
-                        end;
-                    "Sales Type"::"All Customers":
-                        begin
-                            SetRange("Sales Code");
-                            if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
-                                exit;
-                        end;
-                end;
+        if (SalesLine.Type <> SalesLine.Type::Item) or (SalesLine."No." = '') or
+           (SalesLine."Document Type" <> SalesLine."Document Type"::Order)
+        then
+            exit;
+        SalesPrepaymentPct.SetFilter("Starting Date", '..%1', Date);
+        SalesPrepaymentPct.SetFilter("Ending Date", '%1|>=%2', 0D, Date);
+        SalesPrepaymentPct.SetRange("Item No.", SalesLine."No.");
+        for SalesPrepaymentPct."Sales Type" := SalesPrepaymentPct."Sales Type"::Customer to SalesPrepaymentPct."Sales Type"::"All Customers" do begin
+            SalesPrepaymentPct.SetRange("Sales Type", SalesPrepaymentPct."Sales Type");
+            case SalesPrepaymentPct."Sales Type" of
+                SalesPrepaymentPct."Sales Type"::Customer:
+                    begin
+                        SalesPrepaymentPct.SetRange("Sales Code", SalesLine."Bill-to Customer No.");
+                        if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
+                            exit;
+                    end;
+                SalesPrepaymentPct."Sales Type"::"Customer Price Group":
+                    begin
+                        Cust.Get(SalesLine."Bill-to Customer No.");
+                        if Cust."Customer Price Group" <> '' then
+                            SalesPrepaymentPct.SetRange("Sales Code", Cust."Customer Price Group");
+                        if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
+                            exit;
+                    end;
+                SalesPrepaymentPct."Sales Type"::"All Customers":
+                    begin
+                        SalesPrepaymentPct.SetRange("Sales Code");
+                        if ApplySalesPrepaymentPct(SalesLine, SalesPrepaymentPct) then
+                            exit;
+                    end;
             end;
         end;
     end;
 
     local procedure ApplySalesPrepaymentPct(var SalesLine: Record "Sales Line"; var SalesPrepaymentPct: Record "Sales Prepayment %"): Boolean
     begin
-        with SalesPrepaymentPct do
-            if FindLast() then begin
-                SalesLine."Prepayment %" := "Prepayment %";
-                exit(true);
-            end;
+        if SalesPrepaymentPct.FindLast() then begin
+            SalesLine."Prepayment %" := SalesPrepaymentPct."Prepayment %";
+            exit(true);
+        end;
     end;
 
     procedure SetPurchPrepaymentPct(var PurchLine: Record "Purchase Line"; Date: Date)
     var
         PurchPrepaymentPct: Record "Purchase Prepayment %";
     begin
-        with PurchPrepaymentPct do begin
-            if (PurchLine.Type <> PurchLine.Type::Item) or (PurchLine."No." = '') or
-               (PurchLine."Document Type" <> PurchLine."Document Type"::Order)
-            then
-                exit;
-            SetFilter("Starting Date", '..%1', Date);
-            SetFilter("Ending Date", '%1|>=%2', 0D, Date);
-            SetRange("Item No.", PurchLine."No.");
-            SetRange("Vendor No.", PurchLine."Pay-to Vendor No.");
-            if ApplyPurchPrepaymentPct(PurchLine, PurchPrepaymentPct) then
-                exit;
-
-            // All Vendors
-            SetRange("Vendor No.", '');
-            if ApplyPurchPrepaymentPct(PurchLine, PurchPrepaymentPct) then
-                exit;
-        end;
+        if (PurchLine.Type <> PurchLine.Type::Item) or (PurchLine."No." = '') or
+           (PurchLine."Document Type" <> PurchLine."Document Type"::Order)
+        then
+            exit;
+        PurchPrepaymentPct.SetFilter("Starting Date", '..%1', Date);
+        PurchPrepaymentPct.SetFilter("Ending Date", '%1|>=%2', 0D, Date);
+        PurchPrepaymentPct.SetRange("Item No.", PurchLine."No.");
+        PurchPrepaymentPct.SetRange("Vendor No.", PurchLine."Pay-to Vendor No.");
+        if ApplyPurchPrepaymentPct(PurchLine, PurchPrepaymentPct) then
+            exit;
+        // All Vendors
+        PurchPrepaymentPct.SetRange("Vendor No.", '');
+        if ApplyPurchPrepaymentPct(PurchLine, PurchPrepaymentPct) then
+            exit;
     end;
 
     local procedure ApplyPurchPrepaymentPct(var PurchLine: Record "Purchase Line"; var PurchPrepaymentPct: Record "Purchase Prepayment %"): Boolean
     begin
-        with PurchPrepaymentPct do
-            if FindLast() then begin
-                PurchLine."Prepayment %" := "Prepayment %";
-                exit(true);
-            end;
+        if PurchPrepaymentPct.FindLast() then begin
+            PurchLine."Prepayment %" := PurchPrepaymentPct."Prepayment %";
+            exit(true);
+        end;
     end;
 
     procedure TestSalesPrepayment(SalesHeader: Record "Sales Header"): Boolean

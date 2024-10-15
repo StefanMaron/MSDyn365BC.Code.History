@@ -22,7 +22,9 @@ page 1828 "Extend Trial Wizard"
                 Editable = false;
                 ShowCaption = false;
                 Visible = TopBannerVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;

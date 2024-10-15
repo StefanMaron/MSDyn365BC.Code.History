@@ -49,7 +49,7 @@ codeunit 134640 "Sales E2E"
         CustomerTempl.Modify();
 
         // [GIVEN] Create contact, fill name and address fields, create customer from contact
-        ContactNo := CreateContactAsCustomer;
+        ContactNo := CreateContactAsCustomer();
         CustomerNo := FindCustomerByContact(ContactNo);
 
         // [GIVEN] Create sales quote with several items for created customer, send it by e-mail
@@ -116,10 +116,10 @@ codeunit 134640 "Sales E2E"
 
         LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryVariableStorage.Clear();
-        DisableSendMails;
+        DisableSendMails();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales E2E");
     end;
@@ -131,12 +131,12 @@ codeunit 134640 "Sales E2E"
     begin
         ContactCard.OpenNew();
         ContactCard.Type.SetValue(DummyContact.Type::Person);
-        ContactCard.Name.AssistEdit;
+        ContactCard.Name.AssistEdit();
         ContactCard.Address.SetValue(DummyAddressTxt);
         ContactCard.City.SetValue(DummyCityTxt);
-        ContactCard."Post Code".SetValue(FindPostCode);
+        ContactCard."Post Code".SetValue(FindPostCode());
         ContactCard."E-Mail".SetValue(CustomerEmailTxt);
-        ContactCard.CreateCustomer.Invoke;
+        ContactCard.CreateCustomer.Invoke();
         exit(ContactCard."No.".Value);
     end;
 
@@ -152,7 +152,7 @@ codeunit 134640 "Sales E2E"
             CreateQuoteLine(SalesQuote);
 
         SalesQuote.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        SalesQuote.Email.Invoke;
+        SalesQuote.Email.Invoke();
         exit(SalesQuote."No.".Value);
     end;
 
@@ -160,9 +160,9 @@ codeunit 134640 "Sales E2E"
     var
         DummySalesLine: Record "Sales Line";
     begin
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines.Type.SetValue(DummySalesLine.Type::Item);
-        SalesQuote.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        SalesQuote.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(5, 10));
         SalesQuote.SalesLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(10, 50, 2));
     end;
@@ -173,14 +173,14 @@ codeunit 134640 "Sales E2E"
         SalesQuotes: TestPage "Sales Quotes";
         SalesOrder: TestPage "Sales Order";
     begin
-        ContactList.OpenView;
+        ContactList.OpenView();
         ContactList.FILTER.SetFilter("No.", ContactNo);
-        SalesQuotes.Trap;
-        ContactList.ShowSalesQuotes.Invoke;
+        SalesQuotes.Trap();
+        ContactList.ShowSalesQuotes.Invoke();
         SalesQuotes.FILTER.SetFilter("No.", QuoteNo);
-        SalesOrder.Trap;
-        SalesQuotes.MakeOrder.Invoke;
-        SalesOrder.SendEmailConfirmation.Invoke;
+        SalesOrder.Trap();
+        SalesQuotes.MakeOrder.Invoke();
+        SalesOrder.SendEmailConfirmation.Invoke();
         exit(SalesOrder."No.".Value);
     end;
 
@@ -190,16 +190,16 @@ codeunit 134640 "Sales E2E"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();
-        CashReceiptJournal.OpenEdit;
-        CashReceiptJournal."Posting Date".SetValue(WorkDate + 60);
+        CashReceiptJournal.OpenEdit();
+        CashReceiptJournal."Posting Date".SetValue(WorkDate() + 60);
         CashReceiptJournal."Document Type".SetValue(DummyGenJournalLine."Document Type"::Payment);
         CashReceiptJournal."Account Type".SetValue(DummyGenJournalLine."Account Type"::Customer);
         CashReceiptJournal."Account No.".SetValue(CustomerNo);
         CashReceiptJournal."Applies-to Doc. Type".SetValue(DummyGenJournalLine."Applies-to Doc. Type"::Invoice);
         LibraryVariableStorage.Enqueue(InvoiceNo);
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        PaymentNo := CashReceiptJournal."Document No.".Value;
-        CashReceiptJournal.Post.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        PaymentNo := CashReceiptJournal."Document No.".Value();
+        CashReceiptJournal.Post.Invoke();
     end;
 
     local procedure DisableSendMails()
@@ -230,10 +230,10 @@ codeunit 134640 "Sales E2E"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", OrderNo);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesOrder."Sell-to Customer No.".Value);
-        SalesOrder.PostAndSend.Invoke;
+        SalesOrder.PostAndSend.Invoke();
         SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
@@ -247,7 +247,7 @@ codeunit 134640 "Sales E2E"
 
     local procedure VerifyCustomerStatement(PostedInvoiceNo: Code[20]; PaymentNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('DocNo_DtldCustLedgEntries', PostedInvoiceNo);
         LibraryReportDataset.AssertElementWithValueExists('DocNo_DtldCustLedgEntries', PaymentNo);
     end;
@@ -258,15 +258,15 @@ codeunit 134640 "Sales E2E"
     begin
         NameDetails."First Name".SetValue(DummyFirstNameTxt);
         NameDetails.Surname.SetValue(DummySurnameTxt);
-        NameDetails.OK.Invoke;
+        NameDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustTemplateListHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
-        CustomerTemplateList.First;
-        CustomerTemplateList.OK.Invoke;
+        CustomerTemplateList.First();
+        CustomerTemplateList.OK().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -279,15 +279,15 @@ codeunit 134640 "Sales E2E"
     [Scope('OnPrem')]
     procedure PostAndSendConfirmationHandler(var PostAndSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostAndSendConfirmation.Yes.Invoke;
+        PostAndSendConfirmation.Yes().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -297,9 +297,9 @@ codeunit 134640 "Sales E2E"
         StandardStatement."Start Date".SetValue(CalcDate('<-CY>', WorkDate()));
         StandardStatement."End Date".SetValue(CalcDate('<CY>', WorkDate()));
         StandardStatement.IncludeAllCustomerswithLE.SetValue(true);
-        StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
         StandardStatement.ReportOutput.SetValue('Preview');
-        StandardStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [StrMenuHandler]

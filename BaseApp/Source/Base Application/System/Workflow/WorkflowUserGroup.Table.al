@@ -6,6 +6,7 @@ table 1540 "Workflow User Group"
     DataCaptionFields = "Code", Description;
     LookupPageID = "Workflow User Groups";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

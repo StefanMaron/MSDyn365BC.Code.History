@@ -24,6 +24,8 @@ codeunit 139183 "CRM Integration Mapping"
         InsertIsNotAllowedErr: Label 'New method failed because Insert is not allowed.';
         FieldValueMustBeNoErr: Label '%1 must be equal to ''No''', Comment = '%1 - a field name';
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';
+        FieldRelationShipErr: Label 'The field %1 must not have a relationship with another table.', Comment = '%1 - a field name';
+        FieldClassNormalErr: Label 'The field %1 must have the field class set to "Normal"', comment = '%1 = field name';
 
     [Test]
     [Scope('OnPrem')]
@@ -46,13 +48,13 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping[2].Insert();
 
         // [WHEN] Open "Integration Table Mapping List" page
-        IntegrationTableMappingList.Trap;
+        IntegrationTableMappingList.Trap();
         PAGE.Run(PAGE::"Integration Table Mapping List");
 
         // [THEN] The List page shows just one record - 'Normal'
-        Assert.IsTrue(IntegrationTableMappingList.First, 'There should be at least one record in the list.');
+        Assert.IsTrue(IntegrationTableMappingList.First(), 'There should be at least one record in the list.');
         IntegrationTableMappingList.Name.AssertEquals(IntegrationTableMapping[1].Name);
-        Assert.IsTrue(IntegrationTableMappingList.Last, 'There should be just one record in the list.');
+        Assert.IsTrue(IntegrationTableMappingList.Last(), 'There should be just one record in the list.');
         IntegrationTableMappingList.Name.AssertEquals(IntegrationTableMapping[1].Name);
     end;
 
@@ -69,15 +71,15 @@ codeunit 139183 "CRM Integration Mapping"
             "Table ID" := DATABASE::Item;
             "Integration Table ID" := DATABASE::"CRM Product";
             // [THEN] GetTempDescription() returns 'Item<->CRM Product' for "Bidirectional" sync
-            Assert.AreEqual('Item <-> CRM Product', GetTempDescription, Format(Direction));
+            Assert.AreEqual('Item <-> CRM Product', GetTempDescription(), Format(Direction));
 
             // [THEN] GetTempDescription() returns 'Item->CRM Product' for "ToIntegrationTable" sync
             Direction := Direction::ToIntegrationTable;
-            Assert.AreEqual('Item -> CRM Product', GetTempDescription, Format(Direction));
+            Assert.AreEqual('Item -> CRM Product', GetTempDescription(), Format(Direction));
 
             // [THEN] GetTempDescription() returns 'Item<-CRM Product' for "FromIntegrationTable" sync
             Direction := Direction::FromIntegrationTable;
-            Assert.AreEqual('Item <- CRM Product', GetTempDescription, Format(Direction));
+            Assert.AreEqual('Item <- CRM Product', GetTempDescription(), Format(Direction));
         end;
     end;
 
@@ -111,20 +113,20 @@ codeunit 139183 "CRM Integration Mapping"
         CreateIntegrationFieldMapping(IntegrationFieldMapping, IntegrationTableMapping.Name, NAVField[2], CRMField[2]);
 
         // [GIVEN] Open 'Integration Table Mapping List' page
-        IntegrationTableMappingList.OpenView;
+        IntegrationTableMappingList.OpenView();
 
         // [WHEN] Run action 'Fields Mapping'
-        IntegrationFieldMappingList.Trap;
-        IntegrationTableMappingList.FieldMapping.Invoke;
+        IntegrationFieldMappingList.Trap();
+        IntegrationTableMappingList.FieldMapping.Invoke();
 
         // [THEN] not editable "Integration Field Mapping List" page is open showing two records
-        Assert.IsFalse(IntegrationFieldMappingList.Editable, 'Page.Editable');
+        Assert.IsFalse(IntegrationFieldMappingList.Editable(), 'Page.Editable');
         // [THEN] First record, where "Field No." is 'N1', "Integration Table Field No." is 'C1'
         IntegrationFieldMappingList."Field No.".AssertEquals(NAVField[1]."No.");
         IntegrationFieldMappingList."Integration Table Field No.".AssertEquals(CRMField[1]."No.");
         IntegrationFieldMappingList.FieldName.AssertEquals(NAVField[1]."Field Caption");
         IntegrationFieldMappingList.IntegrationFieldName.AssertEquals(CRMField[1]."Field Caption");
-        IntegrationFieldMappingList.Last;
+        IntegrationFieldMappingList.Last();
         // [THEN] Last record, where "Field No." is 'N2', "Integration Table Field No." is 'C2'
         IntegrationFieldMappingList."Field No.".AssertEquals(NAVField[2]."No.");
         IntegrationFieldMappingList."Integration Table Field No.".AssertEquals(CRMField[2]."No.");
@@ -152,29 +154,29 @@ codeunit 139183 "CRM Integration Mapping"
         CreateIntegrationFieldMapping(IntegrationFieldMapping, IntegrationTableMapping.Name, NAVField[1], CRMField[1]);
 
         // [WHEN] Open Integration Field Mapping List page
-        IntegrationFieldMappingList.OpenEdit;
+        IntegrationFieldMappingList.OpenEdit();
 
         // [THEN] Editable fields: Status, Direction, "Constant Value", "Validate Field", "Validate Integration Table Fld", "Clear Value on Failed Sync", "Not Null".
-        Assert.IsTrue(IntegrationFieldMappingList.Status.Editable, 'Status should be editable');
-        Assert.IsTrue(IntegrationFieldMappingList.Direction.Editable, 'Direction should be editable');
-        Assert.IsTrue(IntegrationFieldMappingList."Not Null".Editable, 'Not Null should be editable');
-        Assert.IsTrue(IntegrationFieldMappingList."Constant Value".Editable, 'Constant Value should be editable');
-        Assert.IsTrue(IntegrationFieldMappingList."Validate Field".Editable, 'Validate Field should be editable');
+        Assert.IsTrue(IntegrationFieldMappingList.Status.Editable(), 'Status should be editable');
+        Assert.IsTrue(IntegrationFieldMappingList.Direction.Editable(), 'Direction should be editable');
+        Assert.IsTrue(IntegrationFieldMappingList."Not Null".Editable(), 'Not Null should be editable');
+        Assert.IsTrue(IntegrationFieldMappingList."Constant Value".Editable(), 'Constant Value should be editable');
+        Assert.IsTrue(IntegrationFieldMappingList."Validate Field".Editable(), 'Validate Field should be editable');
         Assert.IsTrue(
-          IntegrationFieldMappingList."Validate Integration Table Fld".Editable,
+          IntegrationFieldMappingList."Validate Integration Table Fld".Editable(),
           'Validate Integration Table Fld should be editable');
         Assert.IsTrue(
-          IntegrationFieldMappingList."Clear Value on Failed Sync".Editable,
+          IntegrationFieldMappingList."Clear Value on Failed Sync".Editable(),
           'Clear Value on Failed Sync should be editable');
         // [THEN] Not editable fields: "Field No.", "Field Name", "Integration Table Field No.", "Integration Field Name".
-        Assert.IsFalse(IntegrationFieldMappingList."Field No.".Editable, 'Field No should not be editable');
-        Assert.IsFalse(IntegrationFieldMappingList.FieldName.Editable, 'NAVFieldName should not be editable');
+        Assert.IsFalse(IntegrationFieldMappingList."Field No.".Editable(), 'Field No should not be editable');
+        Assert.IsFalse(IntegrationFieldMappingList.FieldName.Editable(), 'NAVFieldName should not be editable');
         Assert.IsFalse(
-          IntegrationFieldMappingList."Integration Table Field No.".Editable,
+          IntegrationFieldMappingList."Integration Table Field No.".Editable(),
           'Integration Table Field No should not be editable');
-        Assert.IsFalse(IntegrationFieldMappingList.IntegrationFieldName.Editable, 'CRMFieldName should not be editable');
+        Assert.IsFalse(IntegrationFieldMappingList.IntegrationFieldName.Editable(), 'CRMFieldName should not be editable');
         // [THEN] It is not allowed to add a new record
-        asserterror IntegrationFieldMappingList.New;
+        asserterror IntegrationFieldMappingList.New();
         Assert.ExpectedError(InsertIsNotAllowedErr);
     end;
 
@@ -257,9 +259,9 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationSynchJob[2].Insert();
 
         // [WHEN] Run "View Integration Synch. Job Log" on the mapping list page
-        IntegrationSynchJobList.Trap;
-        IntegrationTableMappingList.OpenView;
-        IntegrationTableMappingList."View Integration Synch. Job Log".Invoke;
+        IntegrationSynchJobList.Trap();
+        IntegrationTableMappingList.OpenView();
+        IntegrationTableMappingList."View Integration Synch. Job Log".Invoke();
         IntegrationTableMappingList.Close();
 
         // [THEN] Integration Synch. Job List shows one record, related to 'Y'
@@ -592,7 +594,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -674,7 +676,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -788,7 +790,7 @@ codeunit 139183 "CRM Integration Mapping"
         TempNameValueBuffer.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         ResetCRMConfiguration(false);
         // [GIVEN] the temp mappings for CUSTOMER/POSTEDSALESINV-INV are added, where "Delete After Synchronization" is 'Yes'
         AddTempTableMapping('CUSTOMER');
@@ -843,7 +845,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMConnectionSetup.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
         // [GIVEN] Default mapping setup, where are 14 mappings and 3 of them are for Options.
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
         ResetCRMConfiguration(false);
 
         TotalCount := IntegrationTableMapping.Count();
@@ -1164,7 +1166,7 @@ codeunit 139183 "CRM Integration Mapping"
         SalesInvoiceLine.Insert();
 
         // [WHEN] Create the new coupled CRM Invoice
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvoiceHeader.RecordId);
         FilteredSalesInvoiceHeader.SetRange(SystemId, SalesInvoiceHeader.SystemId);
         JobQueueEntryID :=
@@ -1294,7 +1296,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
 
         // [GIVEN] There is CRM Transaction Currency for NAV LCY
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         LCYGUID := CRMSynchHelper.GetCRMTransactioncurrency('');
         // [GIVEN] Coupled Currency 'X'
         LibraryCRMIntegration.CreateCoupledCurrencyAndNotLCYTransactionCurrency(Currency, CRMTransactioncurrency);
@@ -1506,7 +1508,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMAccount[1].GetView());
 
         // [WHEN] Page CRM Account List is being opened
-        CRMAccountList.OpenView;
+        CRMAccountList.OpenView();
 
         // [THEN] Page contains CRM Account with Name=A
         Assert.IsTrue(CRMAccountList.GotoRecord(CRMAccount[1]), ExpectedRecordNotFoundErr);
@@ -1541,7 +1543,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMContact[1].GetView());
 
         // [WHEN] Page CRM Contact List is being opened
-        CRMContactList.OpenView;
+        CRMContactList.OpenView();
 
         // [THEN] Page contains CRM Contact with FullName=A
         Assert.IsTrue(CRMContactList.GotoRecord(CRMContact[1]), ExpectedRecordNotFoundErr);
@@ -1577,7 +1579,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMOpportunity[1].GetView());
 
         // [WHEN] Page CRM Opportunity List is being opened
-        CRMOpportunityList.OpenView;
+        CRMOpportunityList.OpenView();
 
         // [THEN] Page contains CRM Opportunity with Name=A
         Assert.IsTrue(CRMOpportunityList.GotoRecord(CRMOpportunity[1]), ExpectedRecordNotFoundErr);
@@ -1619,7 +1621,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMProduct[2].GetView());
 
         // [WHEN] Page CRM Product List is being opened
-        CRMProductList.OpenView;
+        CRMProductList.OpenView();
 
         // [THEN] Page contains CRM Product with Name=A
         Assert.IsTrue(CRMProductList.GotoRecord(CRMProduct[1]), ExpectedRecordNotFoundErr);
@@ -1658,7 +1660,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMTransactioncurrency[1].GetView());
 
         // [WHEN] Page CRM TransactionCurrency List is being opened
-        CRMTransactionCurrencyList.OpenView;
+        CRMTransactionCurrencyList.OpenView();
 
         // [THEN] Page contains CRM Transactioncurrency with CurrencyName=A
         Assert.IsTrue(CRMTransactionCurrencyList.GotoRecord(CRMTransactioncurrency[1]), ExpectedRecordNotFoundErr);
@@ -1695,7 +1697,7 @@ codeunit 139183 "CRM Integration Mapping"
         SetIntTableFilter(IntegrationTableMapping, CRMUomschedule[1].GetView());
 
         // [WHEN] Page CRM TransactionCurrency List is being opened
-        CRMUnitGroupList.OpenView;
+        CRMUnitGroupList.OpenView();
 
         // [THEN] Page contains CRM Uomschedule with Name=A
         Assert.IsTrue(CRMUnitGroupList.GotoRecord(CRMUomschedule[1]), ExpectedRecordNotFoundErr);
@@ -1726,11 +1728,11 @@ codeunit 139183 "CRM Integration Mapping"
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
 
         // [GIVEN] Open Integration table mapping list
-        IntegrationTableMappingList.OpenEdit;
+        IntegrationTableMappingList.OpenEdit();
         IntegrationTableMappingList.GotoRecord(IntegrationTableMapping);
 
         // [WHEN] Assist edit on Integration Table Filter field is being run
-        IntegrationTableMappingList.IntegrationTableFilter.AssistEdit;
+        IntegrationTableMappingList.IntegrationTableFilter.AssistEdit();
 
         // [THEN] Connection has been registered
         Assert.IsTrue(
@@ -1753,8 +1755,10 @@ codeunit 139183 "CRM Integration Mapping"
         CRMInvoice: Record "CRM Invoice";
         CRMInvoiceDetail: Record "CRM Invoicedetail";
         CRMUomschedule: Record "CRM Uomschedule";
+#if not CLEAN23
         CRMPricelevel: Record "CRM Pricelevel";
         CRMProductPricelevel: Record "CRM Productpricelevel";
+#endif
         IntegrationTableMappingList: TestPage "Integration Table Mapping List";
         IntegrationTableMappingsNo: Integer;
     begin
@@ -1784,7 +1788,7 @@ codeunit 139183 "CRM Integration Mapping"
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail");
         ModifyIntegrationTableMappingDirection(DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
-#if not CLEAN21
+#if not CLEAN23
         ModifyIntegrationTableMappingDirection(DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel");
 #endif
@@ -1845,7 +1849,7 @@ codeunit 139183 "CRM Integration Mapping"
           IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
-#if not CLEAN21
+#if not CLEAN23
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -2045,6 +2049,154 @@ codeunit 139183 "CRM Integration Mapping"
         SalesHeader.TestField("Sell-to Phone No.", Contact."Phone No.");
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure InsertTableInManualIntegrationTableMapping()
+    var
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+        AllObjWithCaption: Record AllObjWithCaption;
+    begin
+        // [FEATURE] [Manual Integration Table Mapping]
+        // [SCENARIO] Insert a table ID in the Manual Integration Table Mapping
+        Initialize();
+        // [GIVEN] a random table ID
+        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+        AllObjWithCaption.SetRange("Object Subtype", 'Normal');
+        if AllObjWithCaption.FindFirst() then;
+
+        // [WHEN] Inserting the table ID in the Manual Integration Table Mapping
+        InsertIntegrationTableMapping(AllObjWithCaption."Object ID", 0);
+
+        // [THEN] the table ID is inserted in the Manual Integration Table Mapping
+        Assert.AreEqual(1, ManIntegrationTableMapping.Count, 'the record set should include 1 record');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure InsertIntegrationTableInManualIntegrationTableMapping()
+    var
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+        AllObjWithCaption: Record AllObjWithCaption;
+    begin
+        // [FEATURE] [Manual Integration Table Mapping]
+        // [SCENARIO] Insert a IntegrationTable ID in the Manual Integration Table Mapping
+        Initialize();
+        // [GIVEN] a random integration table ID
+        AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+        AllObjWithCaption.SetRange("Object Subtype", 'CDS');
+        if AllObjWithCaption.FindFirst() then;
+
+        // [WHEN] Inserting the table ID in the Manual Integration Table Mapping
+        InsertIntegrationTableMapping(0, AllObjWithCaption."Object ID");
+
+        // [THEN] the table ID is inserted in the Manual Integration Table Mapping
+        Assert.AreEqual(1, ManIntegrationTableMapping.Count, 'the record set should include 1 record');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckIfFieldTypeIsTheSame()
+    var
+        ManIntegrationFieldMapping: Record "Man. Integration Field Mapping";
+    begin
+        // [FEATURE] [Manual Integration Table Mapping]
+        // [SCENARIO] Check if the field type of both fields are the same
+        Initialize();
+
+        // [GIVEN] An manual integration table mapping 18 - customer, 5341 - CRM Account
+        InsertIntegrationTableMapping(18, 5341);
+
+        // [WHEN] Inserting the table ID in the Manual Integration Field Mapping 1 - No., 20 - AccountNumber
+        InsertIntegrationFieldMapping(18, 1, 5341, 20);
+
+        // [THEN] the table ID is inserted in the Manual Integration Table Mapping
+        Assert.AreEqual(1, ManIntegrationFieldMapping.Count, 'the record set should include 1 record');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckIfThereIsATableRelationThenError()
+    var
+        Field: Record Field;
+    begin
+        // [FEATURE] [Manual Integration Table Mapping]
+        // [SCENARIO] Check if the field type of both fields are the same
+        Initialize();
+
+        // [GIVEN] An manual integration table mapping 18 - customer, 5341 - CRM Account
+        InsertIntegrationTableMapping(18, 5341);
+
+        // [WHEN] Inserting the table ID in the Manual Integration Field Mapping 12 - Ship-to Code
+        asserterror InsertIntegrationFieldMapping(18, 12, 0, 0);
+
+        // [THEN] Expect an error that there is a table relation
+        Field.Get(18, 12);
+        Assert.ExpectedError(StrSubstNo(FieldRelationShipErr, Field.FieldName));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CheckIfTheFieldTypeIsNotNormalThenError()
+    var
+        Field: Record Field;
+    begin
+        // [FEATURE] [Manual Integration Table Mapping]
+        // [SCENARIO] Check if the field type is not normal. Then an error is thrown
+        Initialize();
+
+        // [GIVEN] An manual integration table mapping 18 - customer, 5341 - CRM Account
+        InsertIntegrationTableMapping(18, 5341);
+
+        // [GIVEN] A field of type <> normal for table 18 - customer
+        GetFieldOfType(18, Field);
+
+        // [WHEN] Inserting the table ID in the Manual Integration Field Mapping 12 - Ship-to Code
+        asserterror InsertIntegrationFieldMapping(18, Field."No.", 0, 0);
+
+        // [THEN] Expect an error that there is a table relation
+        Assert.ExpectedError(StrSubstNo(FieldClassNormalErr, Field.FieldName));
+    end;
+
+    local procedure InsertIntegrationTableMapping(TableId: Integer; IntegrationTableId: Integer)
+    var
+        ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
+    begin
+        ManIntegrationTableMapping.Init();
+        ManIntegrationTableMapping.Name := 'Test';
+        if TableId <> 0 then
+            ManIntegrationTableMapping.Validate("Table ID", TableId);
+        if IntegrationTableId <> 0 then
+            ManIntegrationTableMapping.Validate("Integration Table ID", IntegrationTableId);
+        ManIntegrationTableMapping.Insert();
+    end;
+
+    local procedure InsertIntegrationFieldMapping(TableId: Integer; FieldId: Integer; IntegrationTableId: Integer; IntegrationFieldId: Integer)
+    var
+        ManIntegrationFieldMapping: Record "Man. Integration Field Mapping";
+    begin
+        ManIntegrationFieldMapping.Init();
+        ManIntegrationFieldMapping."Mapping Name" := 'Test';
+        ManIntegrationFieldMapping.Validate("Table ID", TableId);
+        ManIntegrationFieldMapping.Validate("Table Field ID", FieldId);
+        if IntegrationTableId <> 0 then
+            ManIntegrationFieldMapping.Validate("Integration Table ID", IntegrationTableId);
+        if IntegrationFieldId <> 0 then
+            ManIntegrationFieldMapping.Validate("Integration Table Field ID", IntegrationFieldId);
+        ManIntegrationFieldMapping.Insert();
+    end;
+
+    local procedure GetFieldOfType(TableId: Integer; var field: Record Field)
+    begin
+        Field.SetRange(TableNo, TableId);
+        Field.SetFilter(Class, '<>%1', Field.Class::Normal);
+        if Field.FindFirst() then;
+    end;
+
     local procedure Initialize()
     begin
         Initialize(false, false);
@@ -2217,7 +2369,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         Assert.IsTrue(CRMOptionMapping.FindRecordID(TableID, FieldID, OptionValue), 'Cannot find mapping');
-        exit(CRMOptionMapping.GetRecordKeyValue);
+        exit(CRMOptionMapping.GetRecordKeyValue());
     end;
 
     local procedure SetIntTableFilter(IntegrationTableMapping: Record "Integration Table Mapping"; "Filter": Text)
@@ -2370,7 +2522,7 @@ codeunit 139183 "CRM Integration Mapping"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup."Is Enabled" := true;
@@ -2390,8 +2542,8 @@ codeunit 139183 "CRM Integration Mapping"
         CRMIntTableSubscriber.ClearCache();
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, OnlyTransferModifiedFields);
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
-        if IntegrationRecordSynch.Run then
-            exit(IntegrationRecordSynch.GetWasModified);
+        if IntegrationRecordSynch.Run() then
+            exit(IntegrationRecordSynch.GetWasModified());
     end;
 
     local procedure SimulateIntegrationSyncJobExecution(var IntegrationTableMapping: Record "Integration Table Mapping")

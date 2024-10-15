@@ -13,6 +13,7 @@ table 5822 "Invt. Post to G/L Test Buffer"
 {
     Caption = 'Invt. Post to G/L Test Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -8,6 +8,7 @@ table 5606 "FA Posting Group"
     Caption = 'FA Posting Group';
     DrillDownPageID = "FA Posting Groups";
     LookupPageID = "FA Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

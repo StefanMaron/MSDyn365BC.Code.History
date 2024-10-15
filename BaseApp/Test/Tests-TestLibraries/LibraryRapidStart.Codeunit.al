@@ -9,8 +9,8 @@ codeunit 131903 "Library - Rapid Start"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
-        TemplateSelectionRuleTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="%1">SORTING(Field1) WHERE(Field%2=1(%3))</DataItem></DataItems></ReportParameters>';
         APIMockEvents: Codeunit "API Mock Events";
+        TemplateSelectionRuleTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="%1">SORTING(Field1) WHERE(Field%2=1(%3))</DataItem></DataItems></ReportParameters>', Locked = true;
 
     procedure CleanUp(PackageCode: Code[20])
     var
@@ -128,28 +128,24 @@ codeunit 131903 "Library - Rapid Start"
 
     procedure CreatePackageTableRule(var ConfigTableProcessingRule: Record "Config. Table Processing Rule"; ConfigPackageTable: Record "Config. Package Table"; ProcessingAction: Option; CodeunitID: Integer)
     begin
-        with ConfigTableProcessingRule do begin
-            Init();
-            Validate("Package Code", ConfigPackageTable."Package Code");
-            Validate("Table ID", ConfigPackageTable."Table ID");
-            "Rule No." += 10000;
-            Validate(Action, ProcessingAction);
-            Validate("Custom Processing Codeunit ID", CodeunitID);
-            Insert(true);
-        end;
+        ConfigTableProcessingRule.Init();
+        ConfigTableProcessingRule.Validate("Package Code", ConfigPackageTable."Package Code");
+        ConfigTableProcessingRule.Validate("Table ID", ConfigPackageTable."Table ID");
+        ConfigTableProcessingRule."Rule No." += 10000;
+        ConfigTableProcessingRule.Validate(Action, ProcessingAction);
+        ConfigTableProcessingRule.Validate("Custom Processing Codeunit ID", CodeunitID);
+        ConfigTableProcessingRule.Insert(true);
     end;
 
     procedure CreatePackageTableRuleFilter(var ConfigPackageFilter: Record "Config. Package Filter"; ConfigTableProcessingRule: Record "Config. Table Processing Rule"; FieldID: Integer; FilterValue: Text[250])
     begin
-        with ConfigPackageFilter do begin
-            Init();
-            Validate("Package Code", ConfigTableProcessingRule."Package Code");
-            Validate("Table ID", ConfigTableProcessingRule."Table ID");
-            Validate("Processing Rule No.", ConfigTableProcessingRule."Rule No.");
-            Validate("Field ID", FieldID);
-            Validate("Field Filter", FilterValue);
-            Insert(true);
-        end;
+        ConfigPackageFilter.Init();
+        ConfigPackageFilter.Validate("Package Code", ConfigTableProcessingRule."Package Code");
+        ConfigPackageFilter.Validate("Table ID", ConfigTableProcessingRule."Table ID");
+        ConfigPackageFilter.Validate("Processing Rule No.", ConfigTableProcessingRule."Rule No.");
+        ConfigPackageFilter.Validate("Field ID", FieldID);
+        ConfigPackageFilter.Validate("Field Filter", FilterValue);
+        ConfigPackageFilter.Insert(true);
     end;
 
     procedure CreatePackageRecord(var ConfigPackageRecord: Record "Config. Package Record"; PackageCode: Code[20]; TableID: Integer; RecNo: Integer)
@@ -213,7 +209,7 @@ codeunit 131903 "Library - Rapid Start"
             ConfigLine.Validate(Name, LineName);
         ConfigLine.Insert(true);
 
-        ConfigMgt.AssignParentLineNos;
+        ConfigMgt.AssignParentLineNos();
 
         if PackageCode <> '' then begin
             ConfigLine.SetRange("Line No.", ConfigLine."Line No.");
@@ -245,6 +241,16 @@ codeunit 131903 "Library - Rapid Start"
         ConfigPackageField.SetRange("Package Code", PackageCode);
         ConfigPackageField.SetRange("Table ID", TableID);
         ConfigPackageField.SetRange("Field ID", FromFieldID, ToFieldID);
+        ConfigPackageField.ModifyAll("Include Field", SetInclude, true);
+    end;
+
+    procedure SetIncludeAllFields(CoonfigPackageCode: Code[20]; TableNo: Integer; SetInclude: Boolean)
+    var
+        ConfigPackageField: Record "Config. Package Field";
+    begin
+        ConfigPackageField.SetRange("Package Code", CoonfigPackageCode);
+        ConfigPackageField.SetRange("Table ID", TableNo);
+        ConfigPackageField.SetRange("Primary Key", false);
         ConfigPackageField.ModifyAll("Include Field", SetInclude, true);
     end;
 

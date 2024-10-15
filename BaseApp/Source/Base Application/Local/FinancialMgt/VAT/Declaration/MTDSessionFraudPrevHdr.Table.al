@@ -10,6 +10,7 @@ table 10538 "MTD-Session Fraud Prev. Hdr"
     ObsoleteReason = 'Moved to extension Making Tax Digital';
     ObsoleteState = Pending;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

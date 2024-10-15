@@ -29,7 +29,9 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJob: Codeunit "Library - Job";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         isInitialized: Boolean;
@@ -98,7 +100,7 @@
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
 
         // Exercise: Calculate VAT Amount on Purchase Invoice.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         PurchaseLine.CalcVATAmountLines(QtyType::Invoicing, PurchaseHeader, PurchaseLine, VATAmountLine);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
@@ -126,7 +128,7 @@
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
 
         // Exercise: Generate Report as external file for Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         Clear(PurchaseDocumentTest);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
@@ -147,7 +149,7 @@
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         VATPostingSetup: Record "VAT Posting Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PurchaseLineCount: Integer;
         PostedInvoiceNo: Code[20];
         DocumentNo: Code[20];
@@ -165,11 +167,10 @@
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLineCount := PurchaseLine.Count();
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
-        Clear(NoSeriesManagement);
+        DocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Receiving No. Series");
 
         // Exercise: Post Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Posted Purchase Receipt,GL Entry, Vendor Ledger Entry, Value Entry and VAT Entry.
@@ -203,7 +204,7 @@
         PurchaseHeader.Modify(true);
 
         // Exercise: Post Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Posted Purchase Invoice does not have *** as the id..
@@ -226,8 +227,8 @@
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateVendor(''), PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
-        PurchaseLine.validate(Quantity, 2);
-        PurchaseLine.validate("Direct Unit Cost", 10);
+        PurchaseLine.Validate(Quantity, 2);
+        PurchaseLine.Validate("Direct Unit Cost", 10);
         PurchaseLine.Validate("Qty. to Invoice", 1);
         PurchaseLine."Description 2" := 'A';
         PurchaseLine.Modify(true);
@@ -249,7 +250,7 @@
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseInvoice: Report "Purchase - Invoice";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         FilePath: Text[1024];
         PostedDocumentNo: Code[20];
     begin
@@ -260,11 +261,11 @@
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
+        PostedDocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Generate Report as external file for Posted Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         Clear(PurchaseInvoice);
         PurchInvHeader.SetRange("No.", PostedDocumentNo);
         PurchaseInvoice.SetTableView(PurchInvHeader);
@@ -283,7 +284,7 @@
         PurchaseLine: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         WarehouseEmployee: Record "Warehouse Employee";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PostedDocumentNo: Code[20];
     begin
         // Test if Post a Purchase Invoice with Warehouse Location and verify Posted Purchase Receipt Entry.
@@ -298,9 +299,9 @@
         PurchaseHeader.Validate("Location Code", UpdateWarehouseLocation(true));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, PurchaseLine."Location Code", false);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
+        PostedDocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Receiving No. Series");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Quantity Posted Receipt Document.
@@ -314,7 +315,7 @@
         WarehouseEmployee.Delete();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurchaseInvoice()
@@ -333,7 +334,7 @@
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // Exercise: Create and Post Invoice with Random Quantity. Take Quantity greater than Purchase Line Discount Minimum Quantity.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         CreatePurchaseHeader(PurchaseHeader, PurchaseLineDiscount."Vendor No.", PurchaseHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLineDiscount."Item No.",
@@ -357,10 +358,10 @@
 
         // Setup: Create Line Discount Setup.
         Initialize();
-        Item.Get(CreateServiceItem);
+        Item.Get(CreateServiceItem());
         SetupLineDiscount(PurchaseLineDiscount);
         // Exercise: Create and Post Invoice with Random Quantity. Take Quantity greater than Purchase Line Discount Minimum Quantity.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostItemAndVerifyValueEntries(Item, PurchaseLineDiscount);
     end;
 
@@ -375,10 +376,10 @@
 
         // Setup: Create Line Discount Setup.
         Initialize();
-        Item.Get(CreateNonStockItem);
+        Item.Get(CreateNonStockItem());
         SetupLineDiscount(PurchaseLineDiscount);
         // Exercise: Create and Post Invoice with Random Quantity. Take Quantity greater than Purchase Line Discount Minimum Quantity.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostItemAndVerifyValueEntries(Item, PurchaseLineDiscount);
     end;
 #endif
@@ -400,10 +401,10 @@
         // Exercise: Create Purchase Invoice using Random value for Quantity, calculate Invoice Discount and Post Invoice.
         CreatePurchaseHeader(PurchaseHeader, VendorInvoiceDisc.Code, PurchaseHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // Invoice Value always greater than Minimum Amount of Invoice Discount Setup.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PurchaseLine.Validate("Direct Unit Cost", VendorInvoiceDisc."Minimum Amount");
         PurchaseLine.Modify(true);
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
@@ -432,11 +433,11 @@
 
         // Exercise: Create Purchase Invoice, attach new Currency on Purchase Invoice and Post Invoice.
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(''), PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.Validate("Currency Code", CreateCurrency);
+        PurchaseHeader.Validate("Currency Code", CreateCurrency());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-        LibraryLowerPermissions.SetPurchDocsPost;
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Currency Code in Purchase Line and Posted Purchase Invoice Header.
@@ -504,7 +505,7 @@
             RoundingPrecision);
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
@@ -539,7 +540,7 @@
         InvDiscAmountToInvoice := Round((TotalAmount - (TotalAmount * PurchaseLine."Line Discount %" / 100)) * InvoiceDiscount / 100);
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
 
@@ -570,7 +571,7 @@
         CreateAndPostPurchaseOrder(PurchaseLine, InvDiscountAmount);
 
         // Exercise: Calculate VAT Amount.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         PurchaseLine.CalcVATAmountLines(QtyType::Invoicing, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -602,7 +603,7 @@
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, InvDiscountAmount);
 
         // Exercise: Calculate VAT Amount.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         PurchInvHeader.Get(DocumentNo);
         PurchInvLine.CalcVATAmountLines(PurchInvHeader, VATAmountLine);
 
@@ -628,7 +629,7 @@
         PurchaseInvoice.OpenNew();
 
         // [THEN] Contact Field is not editable
-        Assert.IsFalse(PurchaseInvoice."Buy-from Contact".Editable, ContactShouldNotBeEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Buy-from Contact".Editable(), ContactShouldNotBeEditableErr);
     end;
 
     [Test]
@@ -644,14 +645,14 @@
         Initialize();
 
         // [Given] A sample Purchase Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Purchase Invoice page is opened
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [THEN] Contact Field is editable
-        Assert.IsTrue(PurchaseInvoice."Buy-from Contact".Editable, ContactShouldBeEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Buy-from Contact".Editable(), ContactShouldBeEditableErr);
     end;
 
     [Test]
@@ -667,18 +668,18 @@
         Initialize();
 
         // [Given] A sample Purchase Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Purchase Invoice page is opened
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [THEN] Pay-to Address Fields is not editable
-        Assert.IsFalse(PurchaseInvoice."Pay-to Address".Editable, PayToAddressFieldsNotEditableErr);
-        Assert.IsFalse(PurchaseInvoice."Pay-to Address 2".Editable, PayToAddressFieldsNotEditableErr);
-        Assert.IsFalse(PurchaseInvoice."Pay-to City".Editable, PayToAddressFieldsNotEditableErr);
-        Assert.IsFalse(PurchaseInvoice."Pay-to Contact".Editable, PayToAddressFieldsNotEditableErr);
-        Assert.IsFalse(PurchaseInvoice."Pay-to Post Code".Editable, PayToAddressFieldsNotEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Pay-to Address".Editable(), PayToAddressFieldsNotEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Pay-to Address 2".Editable(), PayToAddressFieldsNotEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Pay-to City".Editable(), PayToAddressFieldsNotEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Pay-to Contact".Editable(), PayToAddressFieldsNotEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Pay-to Post Code".Editable(), PayToAddressFieldsNotEditableErr);
     end;
 
     [Test]
@@ -696,22 +697,22 @@
         Initialize();
 
         // [Given] A sample Purchase Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Purchase Invoice page is opened
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [WHEN] Another Pay-to vendor is picked
-        PayToVendor.Get(LibraryPurchase.CreateVendorNo);
+        PayToVendor.Get(LibraryPurchase.CreateVendorNo());
         PurchaseInvoice."Pay-to Name".SetValue(PayToVendor.Name);
 
         // [THEN] Pay-to Address Fields is editable
-        Assert.IsTrue(PurchaseInvoice."Pay-to Address".Editable, PayToAddressFieldsEditableErr);
-        Assert.IsTrue(PurchaseInvoice."Pay-to Address 2".Editable, PayToAddressFieldsEditableErr);
-        Assert.IsTrue(PurchaseInvoice."Pay-to City".Editable, PayToAddressFieldsEditableErr);
-        Assert.IsTrue(PurchaseInvoice."Pay-to Contact".Editable, PayToAddressFieldsEditableErr);
-        Assert.IsTrue(PurchaseInvoice."Pay-to Post Code".Editable, PayToAddressFieldsEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Pay-to Address".Editable(), PayToAddressFieldsEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Pay-to Address 2".Editable(), PayToAddressFieldsEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Pay-to City".Editable(), PayToAddressFieldsEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Pay-to Contact".Editable(), PayToAddressFieldsEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Pay-to Post Code".Editable(), PayToAddressFieldsEditableErr);
     end;
 
     [Test]
@@ -729,14 +730,14 @@
 
         // Setup: Create Currency,Vendor and Update Additional Currency on General Ledger Setup.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
 
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(CurrencyCode), PurchaseHeader."Document Type"::Invoice);
 
         // Using RANDOM Quantity for Purchase Line, value is not important.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FindFixedAsset, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FindFixedAsset(), LibraryRandom.RandInt(10));
 
         // Exercise: Post Purchase order.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -762,7 +763,7 @@
         // Setup: Create Currency and Exchange Rate. Update Inv. Rounding Precision LCY and Additional Currency on General Ledger Setup.
         // Run Additional Reporting Currency and create Vendor with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         LibraryERM.SetInvRoundingPrecisionLCY(1);  // 1 used for Inv. Rounding Precision LCY according to script.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -792,7 +793,7 @@
         // Setup: Create Currency and Exchange Rate. Update Additional Currency on General Ledger Setup.
         // Run Additional Reporting Currency. Find VAT Posting Setup. Create Vendor and Item.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         FindVATPostingSetup(VATPostingSetup);
 
@@ -836,11 +837,11 @@
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         Amount := PurchaseLine."Line Amount" + (PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100);
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify GL And Vendor Ledger Entry for Amount and Purchaser Code.
@@ -869,7 +870,7 @@
         Initialize();
 
         // Exercise: Create Purchase Invoice.
-        LibraryLowerPermissions.AddVendorEdit;
+        LibraryLowerPermissions.AddVendorEdit();
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
 
         // Verify: Check Line Amount of Purchase Invoice.
@@ -892,7 +893,7 @@
         PurchaseHeader.CalcFields("Amount Including VAT");
 
         // Exercise: Post the Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Check Balance(LCY) and Total(LCY) of Vendor.
@@ -918,17 +919,17 @@
 
         // Setup: Create G/L Account, Create Currency and its Exchange rate, Create Vendor and Item.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
-        Vendor.Get(CreateVendor(CreateCurrency));
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+        Vendor.Get(CreateVendor(CreateCurrency()));
         LibraryERM.SetAddReportingCurrency(Vendor."Currency Code");
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LineAmtGLAccount := CreatePurchLineWithReturnAmt(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo);
         LineAmtItem := CreatePurchLineWithReturnAmt(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.");
 
         // Exercise: Create and post Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Amount and Additional Currency Amount on G/L entries.
@@ -954,10 +955,10 @@
 
         // Using Random Number Generator for Random Quantity.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
 
         // Exercise: Post Purchase Order.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Purchase Order.
@@ -975,11 +976,11 @@
 
         // Setup.
         Initialize();
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.Close();
 
         // Exercise: Open and close Vendor Page.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         asserterror VendorCard.Close();
 
         // Verify: Verify error message on Vendor page.
@@ -1000,8 +1001,8 @@
         Initialize();
 
         // Exercise: Create Vendor with Page.
-        LibraryLowerPermissions.SetVendorEdit;
-        VendorNo := CreateVendorCard;
+        LibraryLowerPermissions.SetVendorEdit();
+        VendorNo := CreateVendorCard();
 
         // Verify: Verify value on Vendor.
         Vendor.Get(VendorNo);
@@ -1041,15 +1042,15 @@
         // Setup: Create Purchase Invoice with IC Partner Code.
         Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         VendorNo :=
           LibraryPurchase.CreateVendorWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
         CreatePurchaseHeader(PurchaseHeader, VendorNo, PurchaseHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(10, 2));  // Using Random Number Generator for Random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Using Random Number Generator for Random Direct Unit Cost.
-        PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
-        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount);
+        PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
+        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount());
         PurchaseLine.Modify(true);
 
         // Exercise: Post Purchase Invoice.
@@ -1115,7 +1116,6 @@
     [Scope('OnPrem')]
     procedure TotalsShouldBeRecalculatedByPriceInclVAT()
     var
-        GeneralPostingSetup: Record "General Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
@@ -1133,9 +1133,9 @@
         // [GIVEN] Create Purchase Invoice 'PI' and do "Get Receipt Lines" to get line from 'PO'.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke;
+        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke();
         Evaluate(AmountIncVAT, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value());
 
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -1167,7 +1167,7 @@
         PartiallyPostPurchaseOrder(PurchaseHeader);
 
         // Exercise: Open Get Receipt Lines page.
-        GetReceiptLines.OpenEdit;
+        GetReceiptLines.OpenEdit();
 
         // Verify: Verify that both lines are exists on Get Receipt Lines page with same Quantity on which Purchase Order is posted.
 
@@ -1189,7 +1189,7 @@
         PartiallyPostPurchaseOrder(PurchaseHeader);
 
         // Exercise: Open Get Receipt Lines page.
-        GetReceiptLines.OpenEdit;
+        GetReceiptLines.OpenEdit();
 
         // Verify: Verify Quantity Filter on Get Receipt Lines page, Verification done in the QuantityFilterUsingGetReceiptLinesPageHandler page handler.
     end;
@@ -1209,7 +1209,7 @@
         // Setup: Post the Purchase Order and open Get Receipt Lines page.
         Initialize();
         PartiallyPostPurchaseOrder(PurchaseHeader);
-        GetReceiptLines.OpenEdit;
+        GetReceiptLines.OpenEdit();
 
         // Exercise: Post the Purchase Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1220,7 +1220,7 @@
         VerifyGLEntry(DocumentNo, PurchInvHeader."Amount Including VAT");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithoutPriceInclVAT()
@@ -1302,7 +1302,7 @@
     begin
         // Unit test
         LibraryLowerPermissions.SetOutsideO365Scope();
-        asserterror PurchDocLineQtyValidation;
+        asserterror PurchDocLineQtyValidation();
         Assert.ExpectedError(WhseReceiveIsRequiredErr);
 
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1320,7 +1320,7 @@
         // [SCENARIO 376908] Purchase Line's global dim values are updated after validate Job Task No.
         Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
-        UpdateGlobalDims;
+        UpdateGlobalDims();
 
         // [GIVEN] Job "X" with global dim1 value = "D1". Job task "Y" with global dim2 value = "D2".
         CreateJobAndJobTaskWithDimensions(JobNo, JobTaskNo);
@@ -1485,7 +1485,7 @@
         // [GIVEN] Create Sales Invoice Line with non zero Quantity and Outstanding amount
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
 
@@ -1503,7 +1503,7 @@
         Assert.AreEqual(0, PurchaseLine."Outstanding Amt. Ex. VAT (LCY)", 'should be zero');
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure UpdateUnitCostWithPurchPriceWhenChangeVendorNo()
@@ -1518,15 +1518,15 @@
 
         Initialize();
         // [GIVEN] Purchase Invoice with Vendor "A", Item "X" and "Direct Unit Cost" = 100
-        CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo, PurchHeader."Document Type"::Invoice);
+        CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo(), PurchHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Modify(true);
 
         // [GIVEN] Vendor "B" with Purchase Price defined: Item "X", "Direct Unit Cost" = 150
         LibraryCosting.CreatePurchasePrice(
-          PurchPrice, LibraryPurchase.CreateVendorNo, PurchLine."No.", 0D, '', '', '', 0);
+          PurchPrice, LibraryPurchase.CreateVendorNo(), PurchLine."No.", 0D, '', '', '', 0);
         PurchPrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchPrice.Modify(true);
         CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
@@ -1554,16 +1554,16 @@
 
         Initialize();
         // [GIVEN] Purchase Invoice with Vendor "A", Item "X" and "Direct Unit Cost" = 100
-        CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo, PurchHeader."Document Type"::Invoice);
+        CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo(), PurchHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Modify(true);
         ExpectedDirectUnitCost := PurchLine."Direct Unit Cost";
         PurchHeader.SetHideValidationDialog(true);
 
         // [WHEN] Change "Buy From Vendor No." from "A" to "B" in Purchase Invoice
-        PurchHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [THEN] "Direct Unit Cost" in Purchase Line is 100
         PurchLine.Find();
@@ -1595,7 +1595,7 @@
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeader, LibraryPurchase.CreateVendorNo,
+          PurchHeader, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := PurchHeader."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -1645,7 +1645,7 @@
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeader, LibraryPurchase.CreateVendorNo,
+          PurchHeader, LibraryPurchase.CreateVendorNo(),
           LibraryRandom.RandInt(5), PostedDocNo);
         InitialPostingDate := PurchHeader."Posting Date";
         LibraryVariableStorage.Enqueue(false);
@@ -1689,7 +1689,7 @@
 
         // [GIVEN] Purchase Quote with Posting Date = "X"
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -1780,7 +1780,7 @@
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeader1, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5), PostedDocNo);
+          PurchHeader1, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(5), PostedDocNo);
 
         // [WHEN] Run Copy Document from Posted Purchase Cr. Memo to Purchase Document with Include Header = TRUE
         CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
@@ -1791,7 +1791,7 @@
 
         // [WHEN] Run Copy Document from Posted Return Shipment to Purchase Document with Include Header = TRUE
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeader2, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5), PostedDocNo);
+          PurchHeader2, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(5), PostedDocNo);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ReturnShipmentHeader.FindFirst();
@@ -1822,11 +1822,11 @@
 
         // [GIVEN] Purchase Quote with Posting Date = "X"
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
         CreatePurchaseHeaderWithPostingNo(
-          PurchHeaderDst, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5),
+          PurchHeaderDst, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(5),
           LibraryUtility.GenerateRandomCode(PurchHeaderDst.FieldNo("Posting No."), DATABASE::"Purchase Header"));
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
@@ -1856,7 +1856,7 @@
 
         // [GIVEN] Source Purchase Invoice with "VAT Bus. Posting Group" = "X" in line
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
         PurchHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -1895,7 +1895,7 @@
 
         // [GIVEN] Source Purchase Invoice with "VAT Bus. Posting Group" = "X" in line
         LibraryPurchase.CreatePurchHeader(
-          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
         PurchHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -1940,17 +1940,17 @@
         // [GIVEN] Purchase Invoice with an Item with negative quantity
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, -LibraryRandom.RandInt(10));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), -LibraryRandom.RandInt(10));
         PurchaseHeaderNo := PurchaseHeader."No.";
 
         // [WHEN] Trying to POST and see the error in the page. Business Manager should be able to delete the Purchase Invoice
-        ErrorMessagesPage.Trap;
-        PurchaseInvoice.OpenEdit;
+        ErrorMessagesPage.Trap();
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
         Assert.ExpectedMessage(NegativeAmountErr, ErrorMessagesPage.Description.Value);
 
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseHeaderNo);
         PurchaseHeader.Delete(true);
 
@@ -1990,17 +1990,17 @@
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
 
         // [WHEN] Purchase Invoice Subform is openned
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [THEN] "Total VAT Amount" field of Purchase Invoice Subform is 321, so it includes only the Amount of "PL2" and does not include the Amount of "PL1"
         Assert.AreEqual(
-          Round(Item."Last Direct Cost" * PurchaseLine."VAT %" / 100), PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal, '');
+          Round(Item."Last Direct Cost" * PurchaseLine."VAT %" / 100), PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(), '');
 
         // [THEN] "Total Amount Incl. VAT" field of Purchase Invoice Subform is 3321
         Assert.AreEqual(
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal + PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal() + PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
           '');
         PurchaseInvoice.Close();
     end;
@@ -2028,7 +2028,7 @@
         // [GIVEN] Purchase Invoice with "No." = 1111
         PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Insert(true);
 
         PurchaseHeader.Validate("Posting No. Series", PurchaseHeader."No. Series");
@@ -2037,7 +2037,7 @@
         LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmCreateEmptyPostedInvMsg, PurchaseHeader."No."));
 
         // [WHEN] Delete Purchase Invoice
-        PurchaseHeader.ConfirmDeletion;
+        PurchaseHeader.ConfirmDeletion();
 
         // [THEN] "Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice 1111 will be created" error appear
         // Checked within CreateEmptyPostedInvConfirmHandler
@@ -2061,7 +2061,7 @@
 
         // [GIVEN] Purchase Invoice with second line of item "I" with Quantity = -1
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, -1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), -1);
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2094,7 +2094,7 @@
 
         // [GIVEN] Purchase Credit Memo with second line of item "I" with Quantity = -1
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, -1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), -1);
 
         // [WHEN] Post Purchase Credit Memo
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2122,7 +2122,7 @@
 
         // [GIVEN] Page with Prices including VAT disabled was open
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.GotoRecord(PurchaseHeader);
 
         // [WHEN] User checks Prices including VAT
@@ -2152,16 +2152,16 @@
         CreateVendorsWithSameName(Vendor1, Vendor2);
 
         // [GIVEN] Purchase Invoice card is opened
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryVariableStorage.Enqueue(Vendor2."No.");
         LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
         LibraryVariableStorage.Enqueue(true); // yes to change "Buy-from Vendor No."
         LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] Select "Vend2" when lookup "Buy-from Vendor Name"
-        PurchaseInvoice."Buy-from Vendor Name".Lookup;
+        PurchaseInvoice."Buy-from Vendor Name".Lookup();
         PurchaseInvoice.Close();
 
         // [THEN] "Buy-from Vendor No." is updated with "Vend2" on the Purchase Invoice
@@ -2169,7 +2169,7 @@
         PurchaseHeader.TestField("Buy-from Vendor No.", Vendor2."No.");
         PurchaseHeader.TestField("Buy-from Vendor Name", Vendor2.Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2190,15 +2190,15 @@
         CreateVendorsWithSameName(Vendor1, Vendor2);
 
         // [GIVEN] Purchase Invoice card is opened
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryVariableStorage.Enqueue(Vendor2."No.");
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] Select "Vend2" when lookup "Pay-to Name"
-        PurchaseInvoice."Pay-to Name".Lookup;
+        PurchaseInvoice."Pay-to Name".Lookup();
         PurchaseInvoice.Close();
 
         // [THEN] "Pay-to Vendor No." is updated with "Vend2" on the Purchase Invoice
@@ -2206,7 +2206,7 @@
         PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
         PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2219,7 +2219,7 @@
         PurchSetup: Record "Purchases & Payables Setup";
         PurchaseInvoice: TestPage "Purchase Invoice";
         PurchaseInvoice2: TestPage "Purchase Invoice";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NextDocNo: Code[20];
     begin
         // [FEATURE] [UI]
@@ -2227,20 +2227,20 @@
         Initialize();
 
         // [GIVEN] Purchase Invoice card is opened with invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
 
-        LibraryLowerPermissions.SetPurchDocsPost;
-        PurchaseInvoice.OpenEdit;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] Action "Post and new" is being clicked
-        PurchaseInvoice2.trap;
+        PurchaseInvoice2.Trap();
         PurchSetup.Get();
-        NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Invoice Nos.", WorkDate(), false);
+        NextDocNo := NoSeries.PeekNextNo(PurchSetup."Invoice Nos.");
         PurchaseInvoice.PostAndNew.Invoke();
 
         // [THEN] Purchase invoice page opened with new invoice
@@ -2264,7 +2264,7 @@
         // [GIVEN] Standard text.
         LibrarySales.CreateStandardText(StandardText);
         // [GIVEN] Enabled notification about missing G/L account.
-        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID(), '', '', true);
         // [GIVEN] Purchase header.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(''));
         // [GIVEN] Permisson to create purchase invoices.
@@ -2295,18 +2295,18 @@
         Initialize();
 
         // [GIVEN] Enabled notification about missing G/L account.
-        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID(), '', '', true);
         // [GIVEN] Purchase header with "Gen. Bus. Posting Group" and "VAT Bus. Posting Group" are not in Posting Setup.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithNewPostingGroups);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithNewPostingGroups());
 
         // [WHEN] Add Purchase Line (SendNotificationHandler).
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // [THEN] Notification "Purch. Account is missing in General Posting Setup." is sent.
-        Assert.ExpectedMessage(PurchaseAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(PurchaseAccountIsMissingTxt, LibraryVariableStorage.DequeueText());
         // [THEN] Notification "Purchase VAT Account is missing in VAT Posting Setup." is sent.
-        Assert.ExpectedMessage(PurchaseVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(PurchaseVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2349,13 +2349,13 @@
 
         LibraryVariableStorage.Enqueue(Vendor1."No.");
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         LibraryVariableStorage.Enqueue(StrSubstNo('''''..%1', WorkDate()));
-        PurchaseInvoice."Buy-from Vendor Name".Lookup;
+        PurchaseInvoice."Buy-from Vendor Name".Lookup();
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
         PurchaseInvoice.Close();
 
         PurchaseHeader.Find();
@@ -2365,7 +2365,7 @@
         PurchaseLine.TestField(Type);
         PurchaseLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2394,13 +2394,13 @@
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor1."No.");
-        PurchaseInvoice."Pay-to Name".Lookup;
+        PurchaseInvoice."Pay-to Name".Lookup();
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
         PurchaseInvoice.Close();
 
         PurchaseHeader.Find();
@@ -2412,7 +2412,7 @@
         PurchaseLine.TestField(Type);
         PurchaseLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2436,12 +2436,12 @@
         PurchaseHeader.Insert(true);
         PurchaseHeader.TestField("No.");
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor1."No.");
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
         PurchaseInvoice.Close();
 
         PurchaseHeader.Find();
@@ -2453,7 +2453,7 @@
         PurchaseLine.TestField(Type);
         PurchaseLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2482,13 +2482,13 @@
 
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor1."No.");
         PurchaseInvoice."Pay-to Name".SetValue(Vendor2."No.");
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
         PurchaseInvoice.Close();
 
         PurchaseHeader.Find();
@@ -2500,7 +2500,7 @@
         PurchaseLine.TestField(Type);
         PurchaseLine.TestField("No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2823,7 +2823,7 @@
         // [GIVEN] Created Purchase Header with Line for location "L1"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
         PurchaseLine.Validate("Location Code", Location.Code);
 
@@ -2943,7 +2943,7 @@
         PurchaseInvoice.OpenNew();
 
         // [THEN] Field is not editable
-        Assert.IsFalse(PurchaseInvoice."Remit-to Code".Editable, RemitToCodeShouldNotBeEditableErr);
+        Assert.IsFalse(PurchaseInvoice."Remit-to Code".Editable(), RemitToCodeShouldNotBeEditableErr);
     end;
 
     [Test]
@@ -2963,13 +2963,13 @@
         // [Given] A sample Purchase Invoice
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-        PurchaseInvoice.OpenEdit;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Buy-from Vendor No.".SetValue(VendorNo);
 
         // [THEN] Remit-to code Field is editable
-        Assert.IsTrue(PurchaseInvoice."Remit-to Code".Editable, RemitToCodeShouldBeEditableErr);
+        Assert.IsTrue(PurchaseInvoice."Remit-to Code".Editable(), RemitToCodeShouldBeEditableErr);
     end;
 
     [Test]
@@ -2996,13 +2996,13 @@
 
         // [GIVEN] Purchase Invoice with one Item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseHeaderNo := PurchaseHeader."No.";
         PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
         PurchaseHeader.Modify(true);
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.GotoRecord(PurchaseHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Purchase - Invoice"
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Purchase Document - Test", RequestPageXML);
@@ -3153,7 +3153,7 @@
         PurchaseHeader.Modify();
 
         // [GIVEN] Create Purchase Line
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
 
         // [GIVEN] Update Unit Price in Purchase Line.
         PurchaseLine.Validate("Direct Unit Cost", UnitPrice);
@@ -3167,7 +3167,7 @@
         PurchInvHeader.FindFirst();
 
         // [GIVEN] Open Posted Purchase Invoice page.
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         // [GIVEN] Enqueue Cancel Confirm Handler values.
@@ -3175,8 +3175,8 @@
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
 
         // [THEN] Click on Cancel button of Posted Purchase Invoice and close the page
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseInvoice.CancelInvoice.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
         PostedPurchaseCreditMemo.Close();
 
         // [VERIFY] Verify Purchase Credit Memo posted successfully and everything will be reverted.
@@ -3201,8 +3201,8 @@
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         PurchaseLine.DeleteAll();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         PriceListLine.DeleteAll();
         if isInitialized then
             exit;
@@ -3334,7 +3334,7 @@
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchaseHeader(PurchHeader, VendorNo, DocType);
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
@@ -3366,7 +3366,7 @@
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
     begin
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Random Number Generator for Ending date.
@@ -3399,10 +3399,10 @@
         // Create Multiple purchase line and using RANDOM for Quantity.
         for Counter := 1 to 1 + LibraryRandom.RandInt(10) do
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreatePurchInvWithPricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; PurchaseLineDiscount: Record "Purchase Line Discount"; PricesIncludingVAT: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
@@ -3421,7 +3421,7 @@
     begin
         // Using RANDOM value for Quantity and Direct Unit Cost. Amount greater than 100 needed to avoid rounding issue.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 2 * LibraryRandom.RandInt(20));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), 2 * LibraryRandom.RandInt(20));
         QtyToReceive := PurchaseLine.Quantity / 2; // Taking here 2 for partial posting.
         // Used in QuantityOnGetReceiptLinesPageHandler, QuantityFilterUsingGetReceiptLinesPageHandler and InvokeGetReceiptLinesPageHandler
         LibraryVariableStorage.Enqueue(QtyToReceive);
@@ -3518,12 +3518,12 @@
         // Take Random Amount for Quantity and Line Discount % in Purchase Line and Zero for Minimum Amount in Invoice Discount.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, SetupInvoiceDiscount(VendorInvoiceDisc, 0));
         PurchaseHeader.Validate("Prices Including VAT", true);
-        PurchaseHeader.Validate("Currency Code", CreateCurrency);
+        PurchaseHeader.Validate("Currency Code", CreateCurrency());
         PurchaseHeader.Modify(true);
 
         // Take Quantity in Multiple of 2 so that we can take half equal value without Decimal.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10) * 2);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10) * 2);
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         exit(VendorInvoiceDisc."Discount %");
@@ -3534,9 +3534,9 @@
         VendorCard: TestPage "Vendor Card";
     begin
         VendorCard.OpenNew();
-        VendorCard.Name.Activate;
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorCard.Name.Activate();
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure CreateVendorWithDimension(var DefaultDimension: Record "Default Dimension")
@@ -3598,7 +3598,7 @@
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateReceivePurchOrderWithPricesInclVATAndLineDisc(var PurchHeader: Record "Purchase Header"; var VATPercent: Decimal; LineDiscAmt: Decimal; PricesInclVAT: Boolean)
@@ -3607,9 +3607,9 @@
     begin
         with PurchHeader do begin
             CreatePurchDocWithPricesInclVAT(
-              PurchHeader, "Document Type"::Order, LibraryPurchase.CreateVendorNo, PricesInclVAT);
+              PurchHeader, "Document Type"::Order, LibraryPurchase.CreateVendorNo(), PricesInclVAT);
             LibraryPurchase.CreatePurchaseLine(
-              PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo,
+              PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(),
               LibraryRandom.RandIntInRange(100, 1000));
             VATPercent := PurchLine."VAT %";
             PurchLine.Validate("Line Discount Amount", LineDiscAmt);
@@ -3760,9 +3760,9 @@
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
-        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke;
+        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke();
     end;
 
     local procedure PartiallyPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
@@ -3892,7 +3892,7 @@
         exit(VendorInvoiceDisc.Code);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -3927,7 +3927,7 @@
             SetRange("G/L Account No.", GLAccountNo);
             FindFirst();
             Assert.AreNearlyEqual(
-              AdditionalCurrencyAmount, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              AdditionalCurrencyAmount, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(
                 ValidateErr, FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount, TableCaption(), "Entry No."));
         end;
@@ -3942,7 +3942,7 @@
             SetRange("G/L Account No.", GLAccountNo);
             FindFirst();
             Assert.AreNearlyEqual(
-              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption(), "Entry No."));
         end;
     end;
@@ -3956,7 +3956,7 @@
             SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode); // required for BE to avoid finding rounding VAT Entry
             FindFirst();
             Assert.AreNearlyEqual(
-              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption(), "Entry No."));
         end;
     end;
@@ -3984,7 +3984,7 @@
             FindFirst();
             CalcFields("Amount (LCY)");
             Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+              AmountLCY, "Amount (LCY)", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
               StrSubstNo(ValidateErr, FieldCaption("Amount (LCY)"), AmountLCY, TableCaption(), "Entry No."));
         end;
     end;
@@ -4019,7 +4019,6 @@
     local procedure VerifyGLEntryForGLAccount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; PositiveAmount: Boolean; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
-        TotalGLAmount: Decimal;
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -4035,7 +4034,6 @@
     local procedure VerifyVATEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PositiveAmount: Boolean; ExpectedAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
-        TotalGLAmount: Decimal;
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -4168,7 +4166,7 @@
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Base + VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Base + VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption()));
     end;
 
@@ -4248,7 +4246,7 @@
         PurchaseLine."Location Code" := Location.Code;
         PurchaseLine."Pay-to Vendor No." := VendorNo;
         PurchaseLine.Insert();
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         // EXECUTE:
         PurchaseInvoice.PurchLines.Quantity.SetValue(100);
@@ -4293,7 +4291,7 @@
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(''));
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Job No.", JobNo);
         PurchaseLine.Modify(true);
     end;
@@ -4409,7 +4407,7 @@
     [Scope('OnPrem')]
     procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4420,8 +4418,8 @@
     begin
         // Verification for both lines filtering in the Get Receipt Lines page which is partially posted Purchase Order for same vendor.
         LibraryVariableStorage.Dequeue(QtyToReceive);
-        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
-        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
+        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText(), 1, 20), QtyToReceive);
+        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText(), 1, 20), QtyToReceive);
     end;
 
     [ModalPageHandler]
@@ -4432,7 +4430,7 @@
     begin
         // Verification for filter in the Get Receipt Lines page according to Quantity.
         LibraryVariableStorage.Dequeue(QtyToReceive);
-        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
+        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText(), 1, 20), QtyToReceive);
     end;
 
 
@@ -4444,8 +4442,8 @@
         QtyToReceive: Variant;
     begin
         LibraryVariableStorage.Dequeue(QtyToReceive);
-        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
-        GetReceiptLines.OK.Invoke;
+        FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText(), 1, 20), QtyToReceive);
+        GetReceiptLines.OK().Invoke();
     end;
 
     local procedure CheckEverythingIsReverted(Item: Record Item; Vendor: Record Vendor; LastGLEntry: Record "G/L Entry")
@@ -4507,7 +4505,7 @@
     begin
         ExpectedConfirmText := CopyDocDateOrderConfirmMsg;
         Assert.AreEqual(ExpectedConfirmText, Question, WrongConfirmationMsgErr);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]
@@ -4522,11 +4520,11 @@
     [Scope('OnPrem')]
     procedure CreateEmptyPostedInvConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := false;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Scope('OnPrem')]
     procedure PostItemAndVerifyValueEntries(Item: Record Item; PurchaseLineDiscount: Record "Purchase Line Discount")
     var
@@ -4546,18 +4544,18 @@
     [Scope('OnPrem')]
     procedure VendorLookupHandler(var VendorLookup: TestPage "Vendor Lookup")
     begin
-        VendorLookup.GotoKey(LibraryVariableStorage.DequeueText);
+        VendorLookup.GotoKey(LibraryVariableStorage.DequeueText());
         Assert.AreEqual(LibraryVariableStorage.DequeueText(),
             VendorLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
-        VendorLookup.OK.Invoke;
+        VendorLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorLookupSelectVendorPageHandler(var VendorLookup: TestPage "Vendor Lookup")
     begin
-        VendorLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        VendorLookup.OK.Invoke();
+        VendorLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        VendorLookup.OK().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -4571,7 +4569,7 @@
     [Scope('OnPrem')]
     procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]

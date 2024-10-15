@@ -8,6 +8,7 @@ table 745 "VAT Report Error Log"
 {
     Caption = 'VAT Report Error Log';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

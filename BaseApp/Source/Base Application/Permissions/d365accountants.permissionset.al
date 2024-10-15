@@ -44,7 +44,7 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata "Sales Cr.Memo Header" = R,
                   tabledata "Sales Discount Access" = Rimd,
                   tabledata "Sales Invoice Header" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = Rimd,
 #endif
                   tabledata "Sales Prepayment %" = D,

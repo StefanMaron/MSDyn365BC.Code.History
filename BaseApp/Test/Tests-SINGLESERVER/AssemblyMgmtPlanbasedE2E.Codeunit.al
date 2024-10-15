@@ -31,11 +31,11 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         if IsInitialized then
             exit;
@@ -43,13 +43,13 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
         LibraryERMCountryData.CreateVATData();
-        CreateManufacturingSetup;
-        CreateAssemblySetup;
+        CreateManufacturingSetup();
+        CreateAssemblySetup();
 
         IsInitialized := true;
         Commit();
@@ -70,10 +70,10 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         CreateItemWithComponents(ItemNo, ComponentItemNo);
@@ -96,10 +96,10 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         CreateItemWithComponents(ItemNo, ComponentItemNo);
@@ -122,27 +122,27 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         asserterror CreateItemWithComponents(ItemNo, ComponentItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreateItemWithComponents(ItemNo, ComponentItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A sales order containing the above item is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo);
         // [THEN] A validation error is thrown
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [THEN] No changes has been done to the inventory
         VerifyItemInventory(ComponentItemNo, 9);
     end;
@@ -160,10 +160,10 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Essential ISV Emb plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         CreateItemWithComponents(ItemNo, ComponentItemNo);
@@ -186,29 +186,29 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Team Member ISV Emb plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         asserterror CreateItemWithComponents(ItemNo, ComponentItemNo);
         // [THEN] A permission error is thrown
         Assert.ExpectedError(MissingPermissionsErr);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CreateItemWithComponents(ItemNo, ComponentItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A sales order containing the above item is created and posted
         asserterror CreateAndPostSalesOrder(CustomerNo, ItemNo);
         // [THEN] A validation error is thrown
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CreateAndPostSalesOrder(CustomerNo, ItemNo);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [THEN] No changes has been done to the inventory
         VerifyItemInventory(ComponentItemNo, 9);
     end;
@@ -226,10 +226,10 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         Initialize();
 
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] The Device ISV Emb plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] An Item with BOM and Assemble to Order as Assembly Policy
         CreateItemWithComponents(ItemNo, ComponentItemNo);
@@ -246,13 +246,13 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     begin
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
-        SalesOrder.SalesLines.New;
+        SalesOrder.SalesLines.New();
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines.Quantity.SetValue(1);
         SalesOrder.SalesLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesOrderNo := SalesOrder."No.".Value;
-        SalesOrder.OK.Invoke;
+        SalesOrderNo := SalesOrder."No.".Value();
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure PostSalesOrder(SalesOrderNo: Code[20]) PostedSalesOrderNo: Code[20]
@@ -260,10 +260,10 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);
-        SalesOrder.Post.Invoke;
-        PostedSalesOrderNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedSalesOrderNo));
+        SalesOrder.Post.Invoke();
+        PostedSalesOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedSalesOrderNo));
     end;
 
     local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; ItemNo: Code[20]) PostedSalesOrderNo: Code[20]
@@ -294,8 +294,8 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(10);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoiceNo := PurchaseInvoice."No.".Value();
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure PostPurchaseInvoice(PurchaseInvoiceNo: Code[20]) PostedPurchaseInvoiceNo: Code[20]
@@ -303,17 +303,17 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoKey(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
-        PurchaseInvoice.Post.Invoke;
-        PostedPurchaseInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedPurchaseInvoiceNo));
+        PurchaseInvoice.Post.Invoke();
+        PostedPurchaseInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedPurchaseInvoiceNo));
     end;
 
     local procedure CreateItemWithComponents(var ItemNo: Code[20]; var ComponentItemNo: Code[20])
     var
         VendorNo: Code[20];
     begin
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         ItemNo := CreateItem(VendorNo);
         ComponentItemNo := CreateItem(VendorNo);
         CreateAndPostPurchaseInvoice(VendorNo, ComponentItemNo);
@@ -327,9 +327,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     begin
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard."Vendor No.".SetValue(VendorNo);
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -343,9 +343,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
-        VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup());
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
         Commit();
     end;
 
@@ -359,9 +359,9 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
-        CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup());
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
         Commit();
     end;
 
@@ -369,12 +369,12 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     var
         AssemblySetup: TestPage "Assembly Setup";
     begin
-        AssemblySetup.OpenEdit;
-        AssemblySetup."Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        AssemblySetup."Assembly Quote Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        AssemblySetup."Blanket Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        AssemblySetup."Posted Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode);
-        AssemblySetup.OK.Invoke;
+        AssemblySetup.OpenEdit();
+        AssemblySetup."Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        AssemblySetup."Assembly Quote Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        AssemblySetup."Blanket Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        AssemblySetup."Posted Assembly Order Nos.".SetValue(LibraryERM.CreateNoSeriesCode());
+        AssemblySetup.OK().Invoke();
         Commit();
     end;
 
@@ -382,7 +382,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        LibraryE2EPlanPermissions.SetViralSignupPlan;
+        LibraryE2EPlanPermissions.SetViralSignupPlan();
         ManufacturingSetup.DeleteAll();
         ManufacturingSetup.Insert();
         Commit();
@@ -395,17 +395,17 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
         AssemblyBOM: TestPage "Assembly BOM";
         ItemCard: TestPage "Item Card";
     begin
-        AssemblyBOM.Trap;
-        ItemCard.OpenEdit;
+        AssemblyBOM.Trap();
+        ItemCard.OpenEdit();
         ItemCard.GotoKey(ParentItemNo);
-        ItemCard."Assembly BOM".Invoke;
+        ItemCard."Assembly BOM".Invoke();
         AssemblyBOM.Type.SetValue(BOMComponent.Type::Item);
         AssemblyBOM."No.".SetValue(ComponentItemNo);
         AssemblyBOM."Quantity per".SetValue(1);
-        AssemblyBOM.OK.Invoke;
+        AssemblyBOM.OK().Invoke();
         ItemCard."Replenishment System".SetValue(Item."Replenishment System"::Assembly);
         ItemCard."Assembly Policy".SetValue(Item."Assembly Policy"::"Assemble-to-Order");
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -413,7 +413,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoKey(ItemNo);
         ItemCard.Inventory.AssertEquals(Quantity);
     end;

@@ -370,7 +370,6 @@ report 130 "EC Sales List"
         Calendar: Record Date;
         XMLOut: DotNet XmlDocument;
         XMLCurrNode: DotNet XmlNode;
-        ProcessingInstruction: DotNet XmlProcessingInstruction;
         Attribute: DotNet XmlAttribute;
         NewChildNode: DotNet XmlNode;
         NewChildNode2: DotNet XmlNode;
@@ -503,8 +502,6 @@ report 130 "EC Sales List"
     end;
 
     local procedure FormatAmtXML(AmountToPrint: Decimal): Text[30]
-    var
-        TextAmt: Text[30];
     begin
         exit(Format(Round(-AmountToPrint, 1), 0, 1));
     end;
@@ -540,8 +537,6 @@ report 130 "EC Sales List"
 
     [Scope('OnPrem')]
     procedure CalcPeriodValue(): Integer
-    var
-        PeriodEnd: Date;
     begin
         if Calendar."Period Type" = Calendar."Period Type"::Month then
             exit(1)

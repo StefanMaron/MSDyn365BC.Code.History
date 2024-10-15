@@ -14,6 +14,7 @@ table 10500 "Type of Supply"
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

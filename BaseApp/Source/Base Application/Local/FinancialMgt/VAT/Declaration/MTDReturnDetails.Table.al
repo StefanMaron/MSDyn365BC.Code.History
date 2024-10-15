@@ -10,6 +10,7 @@ table 10535 "MTD-Return Details"
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

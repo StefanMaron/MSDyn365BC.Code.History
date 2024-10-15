@@ -5,7 +5,6 @@ using Microsoft.CashFlow.Forecast;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Foundation.Period;
 using System.Text;
 using System.Utilities;
 
@@ -415,7 +414,6 @@ report 852 "Cash Flow Dimensions - Detail"
 
             trigger OnAfterGetRecord()
             var
-                AccountingPeriod: Record "Accounting Period";
                 i: Integer;
                 StartDate: Date;
                 EndDate: Date;

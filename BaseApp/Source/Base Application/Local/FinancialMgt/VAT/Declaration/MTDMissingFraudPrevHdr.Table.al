@@ -10,6 +10,7 @@ table 10536 "MTD-Missing Fraud Prev. Hdr"
     ObsoleteReason = 'Moved to extension Making Tax Digital';
     ObsoleteState = Pending;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

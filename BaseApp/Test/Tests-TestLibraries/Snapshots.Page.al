@@ -58,14 +58,14 @@ page 130013 Snapshots
             {
                 ApplicationArea = All;
                 Caption = 'Enable Snapshots';
-                Enabled = NOT SnapshotEnabled;
+                Enabled = not SnapshotEnabled;
                 Promoted = true;
                 PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
                     SnapshotMgt.SetEnabled(true);
-                    UpdateDisabledFlag;
+                    UpdateDisabledFlag();
                 end;
             }
             action("<Refresh List>")
@@ -93,7 +93,7 @@ page 130013 Snapshots
 
                 trigger OnAction()
                 begin
-                    SnapshotMgt.InitSnapshot('SNAPSHOT' + Format(SnapshotMgt.GetAvailableSnapshotNo), true);
+                    SnapshotMgt.InitSnapshot('SNAPSHOT' + Format(SnapshotMgt.GetAvailableSnapshotNo()), true);
                     RefreshPage();
                 end;
             }
@@ -124,12 +124,12 @@ page 130013 Snapshots
 
     trigger OnInit()
     begin
-        UpdateDisabledFlag;
+        UpdateDisabledFlag();
     end;
 
     trigger OnOpenPage()
     begin
-        UpdateDisabledFlag;
+        UpdateDisabledFlag();
         RefreshPage();
     end;
 
@@ -143,13 +143,13 @@ page 130013 Snapshots
         DeleteAll();
         SnapshotMgt.ListSnapshots(Rec);
         if FindFirst() then;
-        CurrPage."Tainted Tables".PAGE.RefreshPage;
+        CurrPage."Tainted Tables".PAGE.RefreshPage();
     end;
 
     [Scope('OnPrem')]
     procedure UpdateDisabledFlag()
     begin
-        SnapshotEnabled := SnapshotMgt.GetEnabledFlag;
+        SnapshotEnabled := SnapshotMgt.GetEnabledFlag();
     end;
 }
 

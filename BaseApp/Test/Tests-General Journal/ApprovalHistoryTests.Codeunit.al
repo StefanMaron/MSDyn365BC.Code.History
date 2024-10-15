@@ -57,7 +57,7 @@ codeunit 134323 "Approval History Tests"
         Initialize();
 
         // Setup
-        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
+        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo());
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -82,7 +82,7 @@ codeunit 134323 "Approval History Tests"
         Initialize();
 
         // Setup
-        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
+        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo());
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -161,7 +161,7 @@ codeunit 134323 "Approval History Tests"
         Initialize();
 
         // Setup
-        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo);
+        ExecuteApprovalWorkflowForJournalLine(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -219,9 +219,9 @@ codeunit 134323 "Approval History Tests"
 
         // [GIVEN] General Journal Line, Approval Entry with Link
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
         CreateGeneralJournalBatchWithJournalLine(
-            GenJournalBatch, GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
+            GenJournalBatch, GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo());
 
         Commit();
         SendApprovalRequestForLine(GenJournalLine."Journal Batch Name");
@@ -255,7 +255,7 @@ codeunit 134323 "Approval History Tests"
         FAPostingGroup: Record "FA Posting Group";
     begin
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
         CreateGeneralJournalBatchWithJournalLine(GenJournalBatch, GenJournalLine, AccountType, AccountNo);
 
         if AccountType = GenJournalLine."Account Type"::Vendor then
@@ -290,9 +290,9 @@ codeunit 134323 "Approval History Tests"
         ApprovalUserSetup: Record "User Setup";
     begin
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         CreateGeneralJournalBatchWithJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo);
+          LibrarySales.CreateCustomerNo());
         Commit();
         SendApprovalRequestForBatch(GenJournalLine."Journal Batch Name");
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
@@ -315,7 +315,7 @@ codeunit 134323 "Approval History Tests"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         CreateJournalBatch(GenJournalBatch,
-          LibraryERM.SelectGenJnlTemplate, GenJournalBatch."Bal. Account Type"::"Bank Account", BankAccount."No.");
+          LibraryERM.SelectGenJnlTemplate(), GenJournalBatch."Bal. Account Type"::"Bank Account", BankAccount."No.");
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LibraryRandom.RandDecInRange(10000, 50000, 2));
@@ -325,27 +325,27 @@ codeunit 134323 "Approval History Tests"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        GeneralJournal.SendApprovalRequestJournalLine.Invoke;
+        GeneralJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure SendApprovalRequestForBatch(GenJournalBatchName: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        GeneralJournal.SendApprovalRequestJournalBatch.Invoke;
+        GeneralJournal.SendApprovalRequestJournalBatch.Invoke();
     end;
 
     local procedure ApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     var
         RequeststoApprove: TestPage "Requests to Approve";
     begin
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        RequeststoApprove.Approve.Invoke;
+        RequeststoApprove.Approve.Invoke();
     end;
 
     local procedure VerifyCustLedgerEntryPostedApprovals(GenJournalLine: Record "Gen. Journal Line")

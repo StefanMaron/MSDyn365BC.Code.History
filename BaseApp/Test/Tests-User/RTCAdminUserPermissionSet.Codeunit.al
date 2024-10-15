@@ -29,7 +29,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         ExpectedError: Text;
         ValidationError: Text;
     begin
-        Version := GetOsVersion;
+        Version := GetOsVersion();
         case Version of
             '6.0':
                 ExpectedError := UserAnonymousIsNotAllowedTxt;
@@ -41,7 +41,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
 
         UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Anonymous';
-        ValidationError := UserCard.GetValidationError;
+        ValidationError := UserCard.GetValidationError();
         if ValidationError <> ExpectedError then begin
             UserCard.Close();
             Error(ErrorStringCom001, ExpectedError, ValidationError);
@@ -61,8 +61,8 @@ codeunit 132901 RTCAdmin_User_PermissionSet
     begin
         UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Everyone';
-        if UserCard.GetValidationError <> UserEveryoneIsNotAllowedTxt then begin
-            ValidationError := UserCard.GetValidationError;
+        if UserCard.GetValidationError() <> UserEveryoneIsNotAllowedTxt then begin
+            ValidationError := UserCard.GetValidationError();
             UserCard.Close();
             Error(ErrorStringCom001, UserEveryoneIsNotAllowedTxt, ValidationError);
         end;
@@ -81,8 +81,8 @@ codeunit 132901 RTCAdmin_User_PermissionSet
     begin
         UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := 'Administrators';
-        if UserCard.GetValidationError <> UserAdministratorsIsNotAllowedTxt then begin
-            ValidationError := UserCard.GetValidationError;
+        if UserCard.GetValidationError() <> UserAdministratorsIsNotAllowedTxt then begin
+            ValidationError := UserCard.GetValidationError();
             UserCard.Close();
             Error(ErrorStringCom001, UserAdministratorsIsNotAllowedTxt, ValidationError);
         end;
@@ -102,8 +102,8 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         AddUserHelper(User002);
         UserCard.OpenNew();
         asserterror UserCard."Windows User Name".Value := UserInvalid001;
-        if UserCard.GetValidationError <> UserIsNotValidWinAccountTxt then begin
-            ValidationError := UserCard.GetValidationError;
+        if UserCard.GetValidationError() <> UserIsNotValidWinAccountTxt then begin
+            ValidationError := UserCard.GetValidationError();
             UserCard.Close();
             Error(ErrorStringCom001, UserIsNotValidWinAccountTxt, ValidationError);
         end;

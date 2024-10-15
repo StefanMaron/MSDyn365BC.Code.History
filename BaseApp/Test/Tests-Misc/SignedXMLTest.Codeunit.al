@@ -30,10 +30,10 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test of SignedXMLText function
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A private and public key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
 
         PrivateKey := Convert.ToBase64String(RSAKey.ExportCspBlob(true));
         PublicKey := Convert.ToBase64String(RSAKey.ExportCspBlob(false));
@@ -64,10 +64,10 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test of SignedXMLStream function
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A private and public key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
 
         PrivateKey := Convert.ToBase64String(RSAKey.ExportCspBlob(true));
         PublicKey := Convert.ToBase64String(RSAKey.ExportCspBlob(false));
@@ -99,10 +99,10 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test of SignedXMLText function on XmlDocument with processing instruction
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A private and public key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
 
         PrivateKey := Convert.ToBase64String(RSAKey.ExportCspBlob(true));
         PublicKey := Convert.ToBase64String(RSAKey.ExportCspBlob(false));
@@ -134,10 +134,10 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test of SignedXMLStream function on XmlDocument with processing instruction
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A private and public key
-        RSAKey := RSAKey.RSACryptoServiceProvider;
+        RSAKey := RSAKey.RSACryptoServiceProvider();
 
         PrivateKey := Convert.ToBase64String(RSAKey.ExportCspBlob(true));
         PublicKey := Convert.ToBase64String(RSAKey.ExportCspBlob(false));
@@ -166,7 +166,7 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test valid hardcoded xml document and public key
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A signed xml document
         SignedXmlText := '<?xml version="1.0" encoding="UTF-8" ?>' +
@@ -200,7 +200,7 @@ codeunit 132559 "Signed XML Test"
         SignedXmlText: Text;
     begin
         // [SCENARIO] Test invalid hardcoded xml document and public key
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] A signed xml document
         SignedXmlText := '<?xml version="1.0" encoding="UTF-8" ?>' +

@@ -5,6 +5,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Period;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -917,6 +918,84 @@ codeunit 1720 "Deferral Utilities"
         OnAfterAdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
     end;
 
+    procedure CheckDeferralConditionForGenJournal(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        RequiredSourceCode: Code[10];
+        ErrorInfo: ErrorInfo;
+        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purcase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
+        RequiredSourceCodeErr: Label 'Journal Source Code %1 is not same as default Source Code set for Gen. Journal Template with type %2. Deferrals can only be used when the journal line has the same source code as the source code defined for the journal in source code Setup. Please update this Gen. Journal Template or change the setup in Source Code Setup.', Comment = '%1->Source Code, %2->Gen. Journal Template Type';
+        OpenSourceCodeSetupTxt: Label 'Open Source Code Setup';
+        OpenSourceCodeSetupDescTxt: Label 'Open Source Code Setup page to check Source code setup.';
+        OpenGenJournalTemplateTxt: Label 'Open Gen. Journal Template';
+        OpenGenJournalTemplateDescTxt: Label 'Open Gen. Journal Template page to update Source code.';
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDeferralConditionForGenJournal(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GenJournalLine."Deferral Code" = '' then
+            exit;
+
+        SourceCodeSetup.Get();
+        if GenJournalLine."Source Code" in [SourceCodeSetup.Sales, SourceCodeSetup.Purchases] then begin
+            ErrorInfo.ErrorType(ErrorType::Client);
+            ErrorInfo.Verbosity(Verbosity::Error);
+            ErrorInfo.Message(StrSubstNo(SameSourceCodeErr, GenJournalLine."Source Code"));
+            ErrorInfo.TableId(GenJournalLine.RecordId.TableNo);
+            ErrorInfo.RecordId(GenJournalLine.RecordId);
+            ErrorInfo.AddAction(OpenGenJournalTemplateTxt, Codeunit::"Deferral Utilities", 'ShowGenJournalTemplate', OpenGenJournalTemplateDescTxt);
+            ErrorInfo.AddAction(OpenSourceCodeSetupTxt, Codeunit::"Deferral Utilities", 'ShowSourceCodeSetup', OpenSourceCodeSetupDescTxt);
+            Error(ErrorInfo);
+        end;
+
+        GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+        case
+            GenJournalTemplate.Type of
+            GenJournalTemplate.Type::General:
+                RequiredSourceCode := SourceCodeSetup."General Journal";
+            GenJournalTemplate.Type::Purchases:
+                RequiredSourceCode := SourceCodeSetup."Purchase Journal";
+            GenJournalTemplate.Type::Sales:
+                RequiredSourceCode := SourceCodeSetup."Sales Journal";
+        end;
+
+        if GenJournalLine."Source Code" <> RequiredSourceCode then begin
+            ErrorInfo.ErrorType(ErrorType::Client);
+            ErrorInfo.Verbosity(Verbosity::Error);
+            ErrorInfo.Message(StrSubstNo(RequiredSourceCodeErr, GenJournalLine."Source Code", GenJournalTemplate.Type));
+            ErrorInfo.TableId(GenJournalLine.RecordId.TableNo);
+            ErrorInfo.RecordId(GenJournalLine.RecordId);
+            ErrorInfo.AddAction(OpenGenJournalTemplateTxt, Codeunit::"Deferral Utilities", 'ShowGenJournalTemplate', OpenGenJournalTemplateDescTxt);
+            ErrorInfo.AddAction(OpenSourceCodeSetupTxt, Codeunit::"Deferral Utilities", 'ShowSourceCodeSetup', OpenSourceCodeSetupDescTxt);
+            Error(ErrorInfo);
+        end;
+    end;
+
+    procedure ShowGenJournalTemplate(ErrorInfo: ErrorInfo)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournalTemplates: Page "General Journal Templates";
+        RecordRef: RecordRef;
+    begin
+        RecordRef := ErrorInfo.RecordId.GetRecord();
+        RecordRef.SetTable(GenJournalLine);
+        GenJournalTemplate.SetRange(Name, GenJournalLine."Journal Template Name");
+        GeneralJournalTemplates.SetTableView(GenJournalTemplate);
+        GeneralJournalTemplates.RunModal();
+    end;
+
+    procedure ShowSourceCodeSetup(ErrorInfo: ErrorInfo)
+    var
+        SourceCodeSetup: Page "Source Code Setup";
+    begin
+        SourceCodeSetup.RunModal();
+    end;
+
     local procedure GetPeriodStartingDate(PostingDate: Date): Date
     var
         AccountingPeriod: Record "Accounting Period";
@@ -1128,6 +1207,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenLineScheduleEditOnBeforeDeferralScheduleSetParameters(var DeferralSchedule: Page "Deferral Schedule"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; DeferralHeader: Record "Deferral Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDeferralConditionForGenJournal(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

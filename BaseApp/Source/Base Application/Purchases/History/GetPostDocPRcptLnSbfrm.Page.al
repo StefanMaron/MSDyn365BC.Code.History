@@ -166,7 +166,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -354,25 +354,23 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
         if IsHandled then
             exit(Result);
 
-        with PurchRcptLine2 do begin
-            RemainingQty := 0;
-            if RevQtyFilter and (Type = Type::" ") then
-                exit("Attached to Line No." = 0);
-            if Type <> Type::Item then
-                exit(true);
-            if ("Job No." <> '') or ("Prod. Order No." <> '') then
-                exit(not RevQtyFilter);
+        RemainingQty := 0;
+        if RevQtyFilter and (PurchRcptLine2.Type = PurchRcptLine2.Type::" ") then
+            exit(PurchRcptLine2."Attached to Line No." = 0);
+        if PurchRcptLine2.Type <> PurchRcptLine2.Type::Item then
+            exit(true);
+        if (PurchRcptLine2."Job No." <> '') or (PurchRcptLine2."Prod. Order No." <> '') then
+            exit(not RevQtyFilter);
 
-            IsHandled := false;
-            OnIsShowRecOnBeforeCalcReceivedPurchNotReturned(PurchRcptLine2, RevQtyFilter, IsHandled);
-            if IsHandled then
-                exit(not RevQtyFilter);
+        IsHandled := false;
+        OnIsShowRecOnBeforeCalcReceivedPurchNotReturned(PurchRcptLine2, RevQtyFilter, IsHandled);
+        if IsHandled then
+            exit(not RevQtyFilter);
 
-            CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
-            if not RevQtyFilter then
-                exit(true);
-            exit(RemainingQty > 0);
-        end;
+        PurchRcptLine2.CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
+        if not RevQtyFilter then
+            exit(true);
+        exit(RemainingQty > 0);
     end;
 
     local procedure GetAppliedQty(): Decimal

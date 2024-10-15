@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 10520 GovTalkMessage
 {
     Caption = 'GovTalkMessage';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -24,15 +24,15 @@ codeunit 144501 "Test UK Postcode Config"
     begin
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] we open a page, change a value and cancel
-        PostcodeConfigurationPage.OpenEdit;
+        PostcodeConfigurationPage.OpenEdit();
         PostcodeConfigurationPage.SelectedService.Value(DummyServiceTok);
-        PostcodeConfigurationPage.Cancel.Invoke;
+        PostcodeConfigurationPage.Cancel().Invoke();
 
         // [THEN] old value should remain
-        PostcodeConfigurationPage.OpenEdit; // In order to retrieve the value
+        PostcodeConfigurationPage.OpenEdit(); // In order to retrieve the value
         Assert.AreEqual(DisabledTok, PostcodeConfigurationPage.SelectedService.Value, 'Value should be reverted to original');
     end;
 
@@ -45,11 +45,11 @@ codeunit 144501 "Test UK Postcode Config"
     begin
         // [GIVEN] we have a config page open and invoke lookup page
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         LibraryVariableStorage.Enqueue('CANCEL'); // Action for lookup page, what to do
-        PostcodeConfigurationPage.OpenEdit;
+        PostcodeConfigurationPage.OpenEdit();
         PostcodeConfigurationPage.SelectedService.Value(DisabledTok); // ensure which value we have
-        PostcodeConfigurationPage.SelectedService.Lookup;
+        PostcodeConfigurationPage.SelectedService.Lookup();
 
         // [WHEN] when we open a selection and cancel it
         // ServiceLookupHandler takes over
@@ -67,11 +67,11 @@ codeunit 144501 "Test UK Postcode Config"
     begin
         // [GIVEN] we have a config page open and invoke lookup page
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         LibraryVariableStorage.Enqueue('SELECT'); // Action for lookup page, what to do
         LibraryVariableStorage.Enqueue(2); // Which record id lookup page should select
-        PostcodeConfigurationPage.OpenEdit;
-        PostcodeConfigurationPage.SelectedService.Lookup;
+        PostcodeConfigurationPage.OpenEdit();
+        PostcodeConfigurationPage.SelectedService.Lookup();
 
         // [WHEN] when we open a selection and cancel it
         // ServiceLookupHandler takes over
@@ -88,7 +88,7 @@ codeunit 144501 "Test UK Postcode Config"
     begin
         // [GIVEN] we have a basic user
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] a user tries to create a config entry
         PostcodeServiceConfig.Init();
@@ -107,12 +107,12 @@ codeunit 144501 "Test UK Postcode Config"
     begin
         // [GIVEN] we have a postcode config entry
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         PostcodeServiceConfig.Init();
         PostcodeServiceConfig.Insert();
 
         // we have a regular user who tries to access it
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] we try to access it
         PostcodeServiceConfig.FindFirst();
@@ -140,13 +140,13 @@ codeunit 144501 "Test UK Postcode Config"
     var
         "Action": Text;
     begin
-        Action := LibraryVariableStorage.DequeueText;
+        Action := LibraryVariableStorage.DequeueText();
         if Action = 'CANCEL' then
-            PostcodeServiceLookup.Cancel.Invoke
+            PostcodeServiceLookup.Cancel().Invoke()
         else
             if Action = 'SELECT' then begin
-                PostcodeServiceLookup.GotoKey(LibraryVariableStorage.DequeueInteger);
-                PostcodeServiceLookup.OK.Invoke;
+                PostcodeServiceLookup.GotoKey(LibraryVariableStorage.DequeueInteger());
+                PostcodeServiceLookup.OK().Invoke();
             end
     end;
 

@@ -291,8 +291,6 @@ report 502 "Intrastat - Checklist"
         NoOfRecords: Integer;
         NoOfRecordsRTC: Integer;
         PrintJnlLines: Boolean;
-        Heading: Boolean;
-        HeaderText: Text;
         HeaderLine: Text;
         SubTotalWeight: Decimal;
         TotalWeight: Decimal;

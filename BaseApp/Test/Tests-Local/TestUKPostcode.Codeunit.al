@@ -24,14 +24,14 @@ codeunit 144500 "Test UK Postcode"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] on postcode lookup field drilldown, a page with results should open
-        CustomerCard.OpenEdit;
-        CustomerCard.LookupAddress.DrillDown;
+        CustomerCard.OpenEdit();
+        CustomerCard.LookupAddress.DrillDown();
 
         // [THEN] error is raised if not because of unsued page handlers
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -39,9 +39,9 @@ codeunit 144500 "Test UK Postcode"
     procedure TestPostcodeIsCreatedWhenFlagIsFalse()
     begin
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         GeneralTestCreatePostcodeOnPostcodeSelect(false, 0);
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -49,9 +49,9 @@ codeunit 144500 "Test UK Postcode"
     procedure TestPostcodeIsCreatedWhenFlagIsTrue()
     begin
         Initialize();
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         GeneralTestCreatePostcodeOnPostcodeSelect(true, 1);
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 144500 "Test UK Postcode"
         // actual list from mock service
         // - Select the first item on the list
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // This is what we'd like to get
         TempAutocompleteAddress.Address := 'ADDRESS';
@@ -87,8 +87,8 @@ codeunit 144500 "Test UK Postcode"
         // [THEN] we should get our data
         Assert.AreEqual('ADDRESS', TempAutocompleteAddress.Address, 'Retrieved selected value is incorrect.');
         Assert.AreEqual('POSTCODE', TempAutocompleteAddress.Postcode, 'Retrieved selected value is incorrect.');
-        LibraryLowerPermissions.SetO365BusFull; // for the cleanup
-        DeleteConfiguration;
+        LibraryLowerPermissions.SetO365BusFull(); // for the cleanup
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 144500 "Test UK Postcode"
         DeliveryPoint: Text;
     begin
         // [GIVEN]
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // - Set values that should be inputed
         LibraryVariableStorage.Enqueue('POSTCODE');
         LibraryVariableStorage.Enqueue('DELIVERYPOINT');
@@ -115,7 +115,7 @@ codeunit 144500 "Test UK Postcode"
         // [THEN]
         Assert.AreEqual('POSTCODE', Postcode, 'Retrived postcode is not correct.');
         Assert.AreEqual('DELIVERYPOINT', DeliveryPoint, 'Retrived delivery point is not correct.');
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -127,14 +127,14 @@ codeunit 144500 "Test UK Postcode"
     begin
         // Check that values are correctly passed into a page
         // [GIVEN]
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         PostcodeSearch.SetValues('POSTCODE', 'DELIVERYPOINT');
 
         // [WHEN]
         Assert.IsTrue(PostcodeSearch.RunModal() = ACTION::Cancel, 'Because of precal');
 
         // [THEN] assertion is done in the handler
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -147,7 +147,7 @@ codeunit 144500 "Test UK Postcode"
     begin
         // [GIVEN]
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         TempEnteredAutocompleteAddress.Init();
         TempAutocompleteAddress.Address := 'ADDRESS'; // This is what we want to get back
         TempEnteredAutocompleteAddress.Postcode := 'ONE';
@@ -157,7 +157,7 @@ codeunit 144500 "Test UK Postcode"
 
         // [THEN] no window opens, values are retrieved
         Assert.AreEqual('ADDRESS', TempAutocompleteAddress.Address, 'Value was not retrieved correctly');
-        DeleteConfiguration;
+        DeleteConfiguration();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 144500 "Test UK Postcode"
         DummyNotification: Notification;
     begin
         // [GIVEN] basic user, that hasn't had any interaction with postcode notificaitons
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Assert.RecordIsEmpty(PostcodeNotificationMemory);
 
         // [WHEN] user clicks "don't show again"
@@ -191,7 +191,7 @@ codeunit 144500 "Test UK Postcode"
         DummyNotification: Notification;
     begin
         // [GIVEN] basic user, that hasn't had any interaction with postcode notificaitons
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         Assert.RecordIsEmpty(PostcodeNotificationMemory);
 
         // [WHEN] User clicks configure
@@ -263,16 +263,16 @@ codeunit 144500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure PostcodeSearchInputCancelPageHandler(var PostcodeSearchPage: TestPage "Postcode Search")
     begin
-        PostcodeSearchPage.Cancel.Invoke;
+        PostcodeSearchPage.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostcodeSearchInputEnterPostcodeAndOKPageHandler(var PostcodeSearchPage: TestPage "Postcode Search")
     begin
-        PostcodeSearchPage.PostcodeField.Value(LibraryVariableStorage.DequeueText);
-        PostcodeSearchPage.DeliveryPoint.Value(LibraryVariableStorage.DequeueText);
-        PostcodeSearchPage.OK.Invoke;
+        PostcodeSearchPage.PostcodeField.Value(LibraryVariableStorage.DequeueText());
+        PostcodeSearchPage.DeliveryPoint.Value(LibraryVariableStorage.DequeueText());
+        PostcodeSearchPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -280,8 +280,8 @@ codeunit 144500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure PostcodeAddressSelectPageHandler(var PostcodeSelectAddress: TestPage "Postcode Select Address")
     begin
-        PostcodeSelectAddress.GotoKey(LibraryVariableStorage.DequeueInteger);
-        PostcodeSelectAddress.OK.Invoke;
+        PostcodeSelectAddress.GotoKey(LibraryVariableStorage.DequeueInteger());
+        PostcodeSelectAddress.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -296,7 +296,7 @@ codeunit 144500 "Test UK Postcode"
     [Scope('OnPrem')]
     procedure PostcodeConfigurationPageHandler(var PostcodeConfigurationPage: TestPage "Postcode Configuration Page")
     begin
-        PostcodeConfigurationPage.Cancel.Invoke;
+        PostcodeConfigurationPage.Cancel().Invoke();
     end;
 }
 

@@ -79,7 +79,7 @@ codeunit 144024 "UT REP VATREP"
         // Setup.
         Initialize();
         FindReverseChargeVATPostingSetup(VATPostingSetup);
-        UpdateThresholdAppliesOnGLSetup;
+        UpdateThresholdAppliesOnGLSetup();
         UpdateDomesticVendorsOnPurchasesPayablesSetup(VATPostingSetup."VAT Bus. Posting Group");
         CreatePurchaseDocument(PurchaseLine, VATPostingSetup, DocumentType);
         LibraryVariableStorage.Enqueue(PurchaseLine."Document No.");  // Enqueue value for PurchaseDocumentTestRequestPageHandler.
@@ -88,7 +88,7 @@ codeunit 144024 "UT REP VATREP"
         REPORT.Run(REPORT::"Purchase Document - Test");  // Open PurchaseDocumentTestRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Line___VAT_Identifier_', VATPostingSetup."VAT Identifier");
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Quantity', PurchaseLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Line___Direct_Unit_Cost_', PurchaseLine."Direct Unit Cost");
@@ -115,7 +115,7 @@ codeunit 144024 "UT REP VATREP"
         REPORT.Run(REPORT::"Purchase - Quote");  // Open PurchaseQuoteRequestPageHandler.
 
         // Verify: Verify Purchase Quote No and Company Information Phone No on Report Purchase - Quote.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PurchHeadNo', No);
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfoPhoneNo', ResponsibilityCenter."Phone No.");
     end;
@@ -152,7 +152,7 @@ codeunit 144024 "UT REP VATREP"
         // Setup.
         Initialize();
         FindReverseChargeVATPostingSetup(VATPostingSetup);
-        UpdateThresholdAppliesOnGLSetup;
+        UpdateThresholdAppliesOnGLSetup();
         UpdateDomesticCustomersOnSalesReceivablesSetup(VATPostingSetup."VAT Bus. Posting Group");
         CreateSalesDocument(SalesLine, VATPostingSetup, DocumentType);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for SalesDocumentTestRequestPageHandler.
@@ -161,7 +161,7 @@ codeunit 144024 "UT REP VATREP"
         REPORT.Run(REPORT::"Sales Document - Test");  // Open SalesDocumentTestRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line___VAT_Identifier_', VATPostingSetup."VAT Identifier");
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line__Quantity', SalesLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists('Sales_Line___Unit_Price_', SalesLine."Unit Price");
@@ -237,7 +237,7 @@ codeunit 144024 "UT REP VATREP"
 
         // Setup.
         Initialize();
-        CreateVATEntry(VATEntry, VATEntry.Type::Purchase, 0, '', '', CreateVendor);  // Taken Zero for Base and blank for VATProdPostingGroup, VATBusPostingGroup.
+        CreateVATEntry(VATEntry, VATEntry.Type::Purchase, 0, '', '', CreateVendor());  // Taken Zero for Base and blank for VATProdPostingGroup, VATBusPostingGroup.
         LibraryVariableStorage.Enqueue(VATEntry."Document No.");  // Enqueue for VATEntryExceptionReportRequestPageHandler.
 
         // Exercise.
@@ -263,7 +263,7 @@ codeunit 144024 "UT REP VATREP"
         FindVATPostingSetup(VATPostingSetup);
         CreateVATEntry(
           VATEntry, VATEntry.Type::Purchase, LibraryRandom.RandDec(10, 2),
-          VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."VAT Bus. Posting Group", CreateVendor);  // Taken random for Base.
+          VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."VAT Bus. Posting Group", CreateVendor());  // Taken random for Base.
         LibraryVariableStorage.Enqueue(VATEntry."Document No.");  // Enqueue for VATEntryExceptionReportRequestPageHandler.
 
         // Exercise.
@@ -282,7 +282,7 @@ codeunit 144024 "UT REP VATREP"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -291,7 +291,7 @@ codeunit 144024 "UT REP VATREP"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -302,9 +302,9 @@ codeunit 144024 "UT REP VATREP"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Quote;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Responsibility Center" := ResponsibilityCenter;
         PurchaseHeader.Insert();
         PurchaseLine."Document No." := PurchaseHeader."No.";
@@ -319,8 +319,8 @@ codeunit 144024 "UT REP VATREP"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := CreateVendor;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := CreateVendor();
         PurchaseHeader."Pay-to Vendor No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseHeader."VAT Registration No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -331,7 +331,7 @@ codeunit 144024 "UT REP VATREP"
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := CreateItem;
+        PurchaseLine."No." := CreateItem();
         PurchaseLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         PurchaseLine."Reverse Charge Item" := true;
         PurchaseLine.Quantity := LibraryRandom.RandDecInRange(10, 100, 2);
@@ -343,8 +343,8 @@ codeunit 144024 "UT REP VATREP"
 
     local procedure CreateResponsibilityCenter(var ResponsibilityCenter: Record "Responsibility Center")
     begin
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
-        ResponsibilityCenter."Phone No." := LibraryUTUtility.GetNewCode;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
+        ResponsibilityCenter."Phone No." := LibraryUTUtility.GetNewCode();
         ResponsibilityCenter.Insert();
     end;
 
@@ -352,8 +352,8 @@ codeunit 144024 "UT REP VATREP"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesCrMemoHeader."Sell-to Customer No." := CreateCustomer;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesCrMemoHeader."Sell-to Customer No." := CreateCustomer();
         SalesCrMemoHeader."Bill-to Customer No." := SalesCrMemoHeader."Sell-to Customer No.";
         SalesCrMemoHeader.Insert();
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
@@ -368,8 +368,8 @@ codeunit 144024 "UT REP VATREP"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."VAT Registration No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesHeader.Insert();
@@ -378,7 +378,7 @@ codeunit 144024 "UT REP VATREP"
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryRandom.RandInt(10);
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := CreateItem;
+        SalesLine."No." := CreateItem();
         SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesLine."Reverse Charge Item" := true;
@@ -392,8 +392,8 @@ codeunit 144024 "UT REP VATREP"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesInvoiceHeader."Sell-to Customer No." := CreateCustomer;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesInvoiceHeader."Sell-to Customer No." := CreateCustomer();
         SalesInvoiceHeader."Bill-to Customer No." := SalesInvoiceHeader."Sell-to Customer No.";
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
@@ -411,7 +411,7 @@ codeunit 144024 "UT REP VATREP"
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
-        VATEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VATEntry."Document No." := LibraryUTUtility.GetNewCode();
         VATEntry."VAT Bus. Posting Group" := VATBusPostingSetup;
         VATEntry."VAT Prod. Posting Group" := VATProdPostingSetup;
         VATEntry.Base := Base;
@@ -426,7 +426,7 @@ codeunit 144024 "UT REP VATREP"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -454,7 +454,7 @@ codeunit 144024 "UT REP VATREP"
         REPORT.Run(ReportID);  // Open SalesInvoiceGBReqPageHandler, SalesCreditMemoGBRequestPageHandler.
 
         // Verify: Verify No, Reverse Charge on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesDocumentCap, DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('TotalReverseCharge', ReverseCharge);
         // BUG 279809
@@ -467,7 +467,7 @@ codeunit 144024 "UT REP VATREP"
         VATEntryExceptionReport.ManualVATDifference.SetValue(ManualVATDifference);
         VATEntryExceptionReport.VATCalculationTypes.SetValue(VATCalculationTypes);
         VATEntryExceptionReport.VATRate.SetValue(VATRate);
-        VATEntryExceptionReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATEntryExceptionReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure UpdateDomesticCustomersOnSalesReceivablesSetup(DomesticCustomers: Code[20])
@@ -502,7 +502,7 @@ codeunit 144024 "UT REP VATREP"
 
     local procedure VerifyValuesOnReport(ElementName: Text; ElementName2: Text; ExpectedValue: Variant; ExpectedValue2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
         LibraryReportDataset.AssertElementWithValueExists(ElementName2, ExpectedValue2);
     end;
@@ -515,7 +515,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -527,7 +527,7 @@ codeunit 144024 "UT REP VATREP"
         LibraryVariableStorage.Dequeue(No);
         PurchaseQuote."Purchase Header".SetFilter("No.", No);
         PurchaseQuote.LogInteraction.SetValue(true);
-        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -538,7 +538,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesCreditMemoGB."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -549,7 +549,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -560,7 +560,7 @@ codeunit 144024 "UT REP VATREP"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesInvoiceGB."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

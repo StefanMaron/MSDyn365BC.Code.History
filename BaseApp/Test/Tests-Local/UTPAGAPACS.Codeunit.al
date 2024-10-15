@@ -42,7 +42,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed True Account Type Customer.
-        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::Customer, CreateCustomer);
+        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed False Account Type Customer.
-        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::Customer, CreateCustomer);
+        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -64,7 +64,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed True Account Type Vendor.
-        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::Vendor, CreateVendor);
+        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::Vendor, CreateVendor());
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed False Account Type Vendor.
-        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::Vendor, CreateVendor);
+        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::Vendor, CreateVendor());
     end;
 
     [Test]
@@ -86,7 +86,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed True Account Type Bank Account.
-        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
+        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount());
     end;
 
     [Test]
@@ -97,7 +97,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed False Account Type Bank Account.
-        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
+        PreviewCheckPaymentJournal(false, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount());
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed True Account Type Fixed Asset.
-        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset);
+        PreviewCheckPaymentJournal(true, GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset());
     end;
 
     local procedure PreviewCheckPaymentJournal(CheckPrinted: Boolean; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -136,7 +136,7 @@ codeunit 144010 "UT PAG APACS"
         // Purpose of the test is to validate Preview Check GB on Payment Journal When Check Printed False Account Type Fixed Asset.
 
         // Setup.
-        DocumentNo := CreateGenJournalLine(false, GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset);
+        DocumentNo := CreateGenJournalLine(false, GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset());
         OpenPagePaymentJournalPreviewCheck(DocumentNo);
 
         // Exercise.
@@ -150,7 +150,7 @@ codeunit 144010 "UT PAG APACS"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -159,7 +159,7 @@ codeunit 144010 "UT PAG APACS"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -168,7 +168,7 @@ codeunit 144010 "UT PAG APACS"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
@@ -177,7 +177,7 @@ codeunit 144010 "UT PAG APACS"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -192,11 +192,11 @@ codeunit 144010 "UT PAG APACS"
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
-        GenJournalLine.Description := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
+        GenJournalLine.Description := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine."Bal. Account No." := CreateBankAccount;
+        GenJournalLine."Bal. Account No." := CreateBankAccount();
         GenJournalLine."Check Printed" := CheckPrinted;
         GenJournalLine.Insert();
         exit(GenJournalLine."Document No.");
@@ -206,9 +206,9 @@ codeunit 144010 "UT PAG APACS"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        PaymentJournal.PreviewCheck.Invoke;
+        PaymentJournal.PreviewCheck.Invoke();
         PaymentJournal.Close();
     end;
 
@@ -216,7 +216,7 @@ codeunit 144010 "UT PAG APACS"
     var
         CheckPreviewGB: TestPage "Check Preview GB";
     begin
-        CheckPreviewGB.OpenEdit;
+        CheckPreviewGB.OpenEdit();
         CheckPreviewGB.FILTER.SetFilter("Document No.", DocumentNo);
         CheckPreviewGB.Close();
     end;

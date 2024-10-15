@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Profiling;
 table 5111 Rating
 {
     Caption = 'Rating';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -42,7 +43,7 @@ table 5111 Rating
 #pragma warning disable AS0086
         field(6; "Profile Question Description"; Text[250])
         {
-            CalcFormula = Lookup("Profile Questionnaire Line".Description where("Profile Questionnaire Code" = field("Profile Questionnaire Code"),
+            CalcFormula = lookup("Profile Questionnaire Line".Description where("Profile Questionnaire Code" = field("Profile Questionnaire Code"),
                                                                                  "Line No." = field("Profile Questionnaire Line No.")));
             Caption = 'Profile Question Description';
             Editable = false;

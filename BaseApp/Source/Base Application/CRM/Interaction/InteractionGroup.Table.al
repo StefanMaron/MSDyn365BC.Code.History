@@ -4,6 +4,7 @@ table 5063 "Interaction Group"
 {
     Caption = 'Interaction Group';
     DataCaptionFields = "Code", Description;
+    DataClassification = CustomerContent;
     LookupPageID = "Interaction Groups";
 
     fields
@@ -24,7 +25,7 @@ table 5063 "Interaction Group"
         }
         field(4; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" where("Interaction Group Code" = field(Code),
+            CalcFormula = count("Interaction Log Entry" where("Interaction Group Code" = field(Code),
                                                                Canceled = const(false),
                                                                Date = field("Date Filter"),
                                                                Postponed = const(false)));
@@ -35,7 +36,7 @@ table 5063 "Interaction Group"
         field(5; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" where("Interaction Group Code" = field(Code),
+            CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Interaction Group Code" = field(Code),
                                                                           Canceled = const(false),
                                                                           Date = field("Date Filter"),
                                                                           Postponed = const(false)));
@@ -45,7 +46,7 @@ table 5063 "Interaction Group"
         }
         field(6; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" where("Interaction Group Code" = field(Code),
+            CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Interaction Group Code" = field(Code),
                                                                                Canceled = const(false),
                                                                                Date = field("Date Filter"),
                                                                                Postponed = const(false)));

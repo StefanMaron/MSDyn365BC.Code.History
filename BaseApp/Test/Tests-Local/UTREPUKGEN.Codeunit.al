@@ -233,7 +233,7 @@ codeunit 144028 "UT REP UKGEN"
 
         // [GIVEN] Sales Order with "Bill-to Post Code" = 'X'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesHeader."Bill-to Post Code" := LibraryUTUtility.GetNewCode;
+        SalesHeader."Bill-to Post Code" := LibraryUTUtility.GetNewCode();
         SalesHeader.Modify();
         Commit();
 
@@ -256,7 +256,7 @@ codeunit 144028 "UT REP UKGEN"
 
         // [GIVEN] Sales Order with "Ship-to Post Code" = 'X'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesHeader."Ship-to Post Code" := LibraryUTUtility.GetNewCode;
+        SalesHeader."Ship-to Post Code" := LibraryUTUtility.GetNewCode();
         SalesHeader.Modify();
         Commit();
 
@@ -281,7 +281,7 @@ codeunit 144028 "UT REP UKGEN"
         Initialize();
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
-        PostCode := LibraryUTUtility.GetNewCode;
+        PostCode := LibraryUTUtility.GetNewCode();
         UpdateCompanyInfoPostCode(PostCode);
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
 
@@ -311,9 +311,9 @@ codeunit 144028 "UT REP UKGEN"
 
         // [GIVEN] Blanket Sales Order with "Bill-to Post Code" = 'X', "Ship-to Post Code" = 'Y'
         CreateSalesDocumentWithFormatAddress(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
-        SalesHeader."Bill-to Post Code" := LibraryUTUtility.GetNewCode;
+        SalesHeader."Bill-to Post Code" := LibraryUTUtility.GetNewCode();
 
-        SalesHeader."Ship-to Post Code" := LibraryUTUtility.GetNewCode;
+        SalesHeader."Ship-to Post Code" := LibraryUTUtility.GetNewCode();
 
         SalesHeader.Modify();
         Commit();
@@ -342,7 +342,7 @@ codeunit 144028 "UT REP UKGEN"
         Initialize();
 
         // [GIVEN] G/L Setup with "Local Address Format" = "Post Code+City", "Company Information"."Post Code" = 'X'
-        PostCode := LibraryUTUtility.GetNewCode;
+        PostCode := LibraryUTUtility.GetNewCode();
         UpdateCompanyInfoPostCode(PostCode);
         UpdateGLSetupAddressFormat(GeneralLedgerSetup."Local Address Format"::"Post Code+City");
 
@@ -379,8 +379,8 @@ codeunit 144028 "UT REP UKGEN"
         DimensionValue: Record "Dimension Value";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
 
         DimensionSetEntry2.FindLast();
@@ -397,12 +397,12 @@ codeunit 144028 "UT REP UKGEN"
     begin
         CreateDimensionSetEntry(DimensionSetEntry);
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
         PurchaseHeader.Insert();
         PurchaseLine."Document Type" := DocumentType;
         PurchaseLine."Document No." := PurchaseHeader."No.";
-        PurchaseLine."No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."No." := LibraryUTUtility.GetNewCode();
         PurchaseLine.Insert();
 
         // Enqueue value for use in OrderGBRequestPageHandler and BlanketPurchaseOrderGBRequestPageHandler.
@@ -415,11 +415,11 @@ codeunit 144028 "UT REP UKGEN"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         CreateDimensionSetEntry(DimensionSetEntry);
-        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHdr."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
         PurchCrMemoHdr.Insert();
         PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
-        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine.Insert();
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."No.");  // Enqueue value for use in PurchaseCreditMemoGBRequestPageHandler.
     end;
@@ -430,11 +430,11 @@ codeunit 144028 "UT REP UKGEN"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         CreateDimensionSetEntry(DimensionSetEntry);
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoHeader."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
         SalesCrMemoHeader.Insert();
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
-        SalesCrMemoLine."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoLine."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoLine.Insert();
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");  // Enqueue value for use in SalesCreditMemoGBRequestPageHandler.
     end;
@@ -446,14 +446,14 @@ codeunit 144028 "UT REP UKGEN"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         CreateDimensionSetEntry(DimensionSetEntry);
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader."Bill-to Customer No." := Customer."No.";
         SalesInvoiceHeader."Dimension Set ID" := DimensionSetEntry."Dimension Set ID";
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
-        SalesInvoiceLine."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceLine."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceLine.Insert();
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value for use in SalesInvoiceGBRequestPageHandler.
     end;
@@ -474,8 +474,8 @@ codeunit 144028 "UT REP UKGEN"
     local procedure CreateSalesDocumentWithFormatAddress(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         MockSalesDocument(SalesHeader, DocumentType);
-        SalesHeader."Bill-to Country/Region Code" := MockCountryRegionWithFormatAddress;
-        SalesHeader."Ship-to Country/Region Code" := MockCountryRegionWithFormatAddress;
+        SalesHeader."Bill-to Country/Region Code" := MockCountryRegionWithFormatAddress();
+        SalesHeader."Ship-to Country/Region Code" := MockCountryRegionWithFormatAddress();
         SalesHeader.Modify();
 
         // Enqueue value for use in SalesdQuoteGBRequestPageHandler, BlanketSalesOrderGBRequestPageHandler and OrderConfirmationGBRequestPageHandler.
@@ -491,7 +491,7 @@ codeunit 144028 "UT REP UKGEN"
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
     end;
 
@@ -503,7 +503,7 @@ codeunit 144028 "UT REP UKGEN"
             "Document Type" := DocumentType;
             "Document No." := DocumentNo;
             Type := Type::Item;
-            "No." := LibraryUTUtility.GetNewCode;
+            "No." := LibraryUTUtility.GetNewCode();
             Insert();
         end;
     end;
@@ -514,7 +514,7 @@ codeunit 144028 "UT REP UKGEN"
     begin
         with CountryRegion do begin
             Init();
-            Code := LibraryUTUtility.GetNewCode10;
+            Code := LibraryUTUtility.GetNewCode10();
             "Address Format" := "Address Format"::"Post Code+City";
             Insert();
             exit(Code);
@@ -561,7 +561,7 @@ codeunit 144028 "UT REP UKGEN"
         REPORT.Run(ReportID);
 
         // Verify: Verify the Dimension Text after running Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -611,7 +611,7 @@ codeunit 144028 "UT REP UKGEN"
 
     local procedure VerifyElementValue(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -624,7 +624,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         PurchaseBlanketOrderGB."Purchase Header".SetFilter("No.", No);
         PurchaseBlanketOrderGB.ShowInternalInformation.SetValue(true);
-        PurchaseBlanketOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseBlanketOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -636,7 +636,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         BlanketSalesOrderGB."Sales Header".SetFilter("No.", No);
         BlanketSalesOrderGB.ShowInternalInformation.SetValue(true);
-        BlanketSalesOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -648,7 +648,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         OrderGB."Purchase Header".SetFilter("No.", No);
         OrderGB.ShowInternalInformation.SetValue(true);
-        OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OrderGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -660,7 +660,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         PurchaseCreditMemoGB."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
         PurchaseCreditMemoGB.ShowInternalInformation.SetValue(true);
-        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -672,7 +672,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         OrderConfirmationGB."Sales Header".SetFilter("No.", No);
         OrderConfirmationGB.ShowInternalInformation.SetValue(true);
-        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OrderConfirmationGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -684,7 +684,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         SalesQuoteGB."Sales Header".SetFilter("No.", No);
         SalesQuoteGB.ShowInternalInformation.SetValue(true);
-        SalesQuoteGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesQuoteGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -696,7 +696,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         SalesInvoiceGB."Sales Invoice Header".SetFilter("No.", No);
         SalesInvoiceGB.ShowInternalInformation.SetValue(true);
-        SalesInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -708,7 +708,7 @@ codeunit 144028 "UT REP UKGEN"
         LibraryVariableStorage.Dequeue(No);
         SalesCreditMemoGB."Sales Cr.Memo Header".SetFilter("No.", No);
         SalesCreditMemoGB.ShowInternalInformation.SetValue(true);
-        SalesCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

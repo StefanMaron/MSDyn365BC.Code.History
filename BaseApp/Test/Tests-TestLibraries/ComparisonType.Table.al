@@ -1,6 +1,7 @@
 table 132590 "Comparison Type"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

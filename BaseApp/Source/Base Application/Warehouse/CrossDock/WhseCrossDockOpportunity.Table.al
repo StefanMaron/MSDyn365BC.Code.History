@@ -15,6 +15,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
     Caption = 'Whse. Cross-Dock Opportunity';
     DrillDownPageID = "Cross-Dock Opportunities";
     LookupPageID = "Cross-Dock Opportunities";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -305,28 +306,27 @@ table 5768 "Whse. Cross-Dock Opportunity"
         QtyToHandleBase: Decimal;
     begin
         CrossDock.CopyFilters(Rec);
-        with CrossDock do
-            if Find('-') then begin
-                QtyToHandleBase := CalcQtyToHandleBase("Source Template Name", "Source Name/No.", "Source Line No.");
+        if CrossDock.Find('-') then begin
+            QtyToHandleBase := CalcQtyToHandleBase(CrossDock."Source Template Name", CrossDock."Source Name/No.", CrossDock."Source Line No.");
 
-                repeat
-                    CalcFields("Qty. Cross-Docked (Base)");
-                    if "Qty. Cross-Docked (Base)" >= QtyToHandleBase then
-                        exit;
-                    if "Qty. Needed (Base)" <> Rec."Qty. to Cross-Dock (Base)" then
-                        if QtyToHandleBase - "Qty. Cross-Docked (Base)" > "Qty. Needed (Base)" then begin
-                            Validate(
-                              "Qty. to Cross-Dock",
-                              CalcQty("Qty. Needed (Base)", "To-Src. Qty. per Unit of Meas."));
-                            Modify();
-                        end else begin
-                            Validate(
-                              "Qty. to Cross-Dock",
-                              CalcQty(QtyToHandleBase - "Qty. Cross-Docked (Base)", "To-Src. Qty. per Unit of Meas."));
-                            Modify();
-                        end;
-                until Next() = 0;
-            end;
+            repeat
+                CrossDock.CalcFields("Qty. Cross-Docked (Base)");
+                if CrossDock."Qty. Cross-Docked (Base)" >= QtyToHandleBase then
+                    exit;
+                if CrossDock."Qty. Needed (Base)" <> Rec."Qty. to Cross-Dock (Base)" then
+                    if QtyToHandleBase - CrossDock."Qty. Cross-Docked (Base)" > CrossDock."Qty. Needed (Base)" then begin
+                        CrossDock.Validate(
+                          CrossDock."Qty. to Cross-Dock",
+                          CalcQty(CrossDock."Qty. Needed (Base)", CrossDock."To-Src. Qty. per Unit of Meas."));
+                        CrossDock.Modify();
+                    end else begin
+                        CrossDock.Validate(
+                          CrossDock."Qty. to Cross-Dock",
+                          CalcQty(QtyToHandleBase - CrossDock."Qty. Cross-Docked (Base)", CrossDock."To-Src. Qty. per Unit of Meas."));
+                        CrossDock.Modify();
+                    end;
+            until CrossDock.Next() = 0;
+        end;
     end;
 
     local procedure CalcBaseQty(Qty: Decimal): Decimal

@@ -601,8 +601,8 @@ report 118 "Finance Charge Memo"
                 CustPostingGroup: Record "Customer Posting Group";
                 VATPostingSetup: Record "VAT Posting Setup";
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -754,14 +754,13 @@ report 118 "Finance Charge Memo"
         Customer: Record Customer;
         GLSetup: Record "General Ledger Setup";
         CompanyBankAccount: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         VATClause: Record "VAT Clause";
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         CustEntry: Record "Cust. Ledger Entry";
         SalesSetup: Record "Sales & Receivables Setup";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SegManagement: Codeunit SegManagement;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];
@@ -826,6 +825,7 @@ report 118 "Finance Charge Memo"
         ContactEmailLbl: Label 'Contact E-Mail';
 
     protected var
+        CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";

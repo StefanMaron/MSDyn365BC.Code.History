@@ -20,7 +20,6 @@ codeunit 134710 "Manual Payment Registration"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
         OpenCustomerDocErr: Label 'Document with No = %1 for Customer No = %2 should not be open.';
@@ -50,16 +49,16 @@ codeunit 134710 "Manual Payment Registration"
     begin
         Initialize();
 
-        MoveDefaultSetupToDummyUserSetup; // to keep Default setup, so we could restore it after.
-        DeleteCurrentUserSetup;
+        MoveDefaultSetupToDummyUserSetup(); // to keep Default setup, so we could restore it after.
+        DeleteCurrentUserSetup();
 
         // HandlerFunctions has a verification.
-        PaymentRegistrationPage.OpenEdit;
+        PaymentRegistrationPage.OpenEdit();
         PaymentRegistrationPage.Close();
 
         PaymentRegistrationSetup.Get(UserId);
 
-        RestoreDefaultSetupFromDummyUser;
+        RestoreDefaultSetupFromDummyUser();
     end;
 
     [Test]
@@ -73,11 +72,11 @@ codeunit 134710 "Manual Payment Registration"
     begin
         Initialize();
 
-        DeleteCurrentUserSetup;
+        DeleteCurrentUserSetup();
 
         PaymentRegistrationSetupDefault.Get();
         // HandlerFunctions has a verification.
-        PaymentRegistrationPage.OpenEdit;
+        PaymentRegistrationPage.OpenEdit();
         PaymentRegistrationPage.Close();
         PaymentRegistrationSetupMyUser.Get(UserId);
 
@@ -97,10 +96,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := IssueFinanceChargeMemoAndMarkItAsPaid(FinanceChargeMemoHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -125,7 +124,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := IssueFinanceChargeMemoAndMarkItAsPaid(FinanceChargeMemoHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -147,10 +146,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoice(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -175,7 +174,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoice(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -197,10 +196,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -225,7 +224,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         PostPayments(TempPaymentRegistrationBuffer);
@@ -250,23 +249,23 @@ codeunit 134710 "Manual Payment Registration"
         CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
 
         // Exercise:
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
         asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, false);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview function');
 
         // Verify:
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         repeat
             case GLPostingPreview."Table Name".Value of
                 'G/L Entry':
-                    Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of G/L preview records.');
+                    Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of G/L preview records.');
                 'Cust. Ledger Entry':
-                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of cust preview records.');
+                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of cust preview records.');
                 'Detailed Cust. Ledg. Entry':
-                    Assert.AreEqual(3, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of detailed cust preview records.');
+                    Assert.AreEqual(3, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of detailed cust preview records.');
                 'Bank Account Ledger Entry':
-                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of bank account preview records.');
+                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of bank account preview records.');
                 else
                     Error(UnexpectedPreviewErr);
             end;
@@ -290,23 +289,23 @@ codeunit 134710 "Manual Payment Registration"
         CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
 
         // Exercise:
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
         asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, true);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview function');
 
         // Verify:
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         repeat
             case GLPostingPreview."Table Name".Value of
                 'G/L Entry':
-                    Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of G/L preview records.');
+                    Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of G/L preview records.');
                 'Cust. Ledger Entry':
-                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of cust preview records.');
+                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of cust preview records.');
                 'Detailed Cust. Ledg. Entry':
-                    Assert.AreEqual(3, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of detailed cust preview records.');
+                    Assert.AreEqual(3, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of detailed cust preview records.');
                 'Bank Account Ledger Entry':
-                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger, 'Incorrect number of bank account preview records.');
+                    Assert.AreEqual(1, GLPostingPreview."No. of Records".AsInteger(), 'Incorrect number of bank account preview records.');
                 else
                     Error(UnexpectedPreviewErr);
             end;
@@ -329,10 +328,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := IssueFinanceChargeMemoAndMarkItAsPaid(FinanceChargeMemoHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, FinanceChargeMemoHeader."Customer No.", PostedDocNo,
@@ -362,7 +361,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := IssueFinanceChargeMemoAndMarkItAsPaid(FinanceChargeMemoHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, FinanceChargeMemoHeader."Customer No.", PostedDocNo,
@@ -389,10 +388,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoice(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", PostedDocNo,
@@ -422,7 +421,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoice(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", PostedDocNo,
@@ -449,10 +448,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.", PostedDocNo,
@@ -482,7 +481,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesOrder(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         ExpectedAmount :=
           UpdateAmountReceived(TempPaymentRegistrationBuffer, SalesHeader."Sell-to Customer No.",
@@ -508,10 +507,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         UpdatePaymentDetailsForPaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
@@ -537,7 +536,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         UpdatePaymentDetailsForPaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
@@ -561,10 +560,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         ExpectedAmount := UpdatePaymentDetailsForOverduePaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
@@ -590,11 +589,11 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesInvoice(SalesHeader2);
-        PaymentDocNo2 := GetNextPaymentDocNo;
+        PaymentDocNo2 := GetNextPaymentDocNo();
 
         TempPaymentRegistrationBuffer.PopulateTable();
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, SalesHeader2."Sell-to Customer No.", PostedDocNo2);
@@ -626,7 +625,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // Exercise:
         ExpectedAmount := UpdatePaymentDetailsForOverduePaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
@@ -650,10 +649,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         UpdatePaymentDetailsForPaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
 
@@ -685,7 +684,7 @@ codeunit 134710 "Manual Payment Registration"
         SetupBalAccountAsBankAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         UpdatePaymentDetailsForPaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
         ExtraPaymentAmount := LibraryRandom.RandDec(100, 2);
@@ -713,10 +712,10 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo := CreatePostAndMarkAsPaidSalesInvoiceWithPaymentDiscount(SalesHeader, TempPaymentRegistrationBuffer);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         UpdatePaymentDetailsForOverduePaymentDiscount(TempPaymentRegistrationBuffer, SalesHeader, PostedDocNo);
 
@@ -759,7 +758,7 @@ codeunit 134710 "Manual Payment Registration"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         PostedDocNo1: Code[20];
         PostedDocNo2: Code[20];
         PaymentDocNo1: Code[20];
@@ -768,12 +767,12 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesOrder(SalesHeader2);
-        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
-        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
+        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
 
         TempPaymentRegistrationBuffer.PopulateTable(); // TO DO: encapsulate in test library function
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, SalesHeader1."Sell-to Customer No.", PostedDocNo1);
@@ -796,7 +795,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesHeader1: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
         SalesHeader3: Record "Sales Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         PostedDocNo1: Code[20];
         PostedDocNo2: Code[20];
         PaymentDocNo1: Code[20];
@@ -805,12 +804,12 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesOrder(SalesHeader2);
-        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
-        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        PaymentDocNo1 := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
+        PaymentDocNo2 := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
 
         CreateAndPostSalesOrder(SalesHeader3);
 
@@ -934,13 +933,13 @@ codeunit 134710 "Manual Payment Registration"
     begin
         Initialize();
 
-        PaymentRegistration.OpenEdit;
-        PaymentRegistration.Last;
-        Name := PaymentRegistration.Name.Value;
+        PaymentRegistration.OpenEdit();
+        PaymentRegistration.Last();
+        Name := PaymentRegistration.Name.Value();
         // Exercise:
-        CustomerCard.Trap;
-        PaymentRegistration.Name.DrillDown;
-        CustCardName := CustomerCard.Name.Value;
+        CustomerCard.Trap();
+        PaymentRegistration.Name.DrillDown();
+        CustCardName := CustomerCard.Name.Value();
         CustomerCard.Close();
 
         // Verify:
@@ -959,14 +958,14 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        PaymentRegistration.OpenEdit;
-        PaymentRegistration.Last;
-        Name := PaymentRegistration.Name.Value;
+        PaymentRegistration.OpenEdit();
+        PaymentRegistration.Last();
+        Name := PaymentRegistration.Name.Value();
 
         // Exercise:
-        Navigate.Trap;
-        PaymentRegistration.Navigate.Invoke;
-        SourceName := Navigate.SourceName.Value;
+        Navigate.Trap();
+        PaymentRegistration.Navigate.Invoke();
+        SourceName := Navigate.SourceName.Value();
         Navigate.Close();
 
         // Verify:
@@ -985,12 +984,12 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        PaymentRegistration.OpenEdit;
-        PaymentRegistration.First;
+        PaymentRegistration.OpenEdit();
+        PaymentRegistration.First();
 
         // Exercise:
-        FinanceChargeMemo.Trap;
-        PaymentRegistration.FinanceChargeMemo.Invoke;
+        FinanceChargeMemo.Trap();
+        PaymentRegistration.FinanceChargeMemo.Invoke();
         CustomerNo := FinanceChargeMemo.FILTER.GetFilter("Customer No.");
         FinanceChargeMemo.Close();
         Customer.Get(CustomerNo);
@@ -1010,12 +1009,12 @@ codeunit 134710 "Manual Payment Registration"
 
         // Setup:
 
-        PaymentRegistration.OpenEdit;
-        PaymentRegistration.Last;
+        PaymentRegistration.OpenEdit();
+        PaymentRegistration.Last();
         LibraryVariableStorage.Enqueue(PaymentRegistration.Name.Value);
 
         // Exercise:
-        PaymentRegistration.Details.Invoke;
+        PaymentRegistration.Details.Invoke();
     end;
 
     [Test]
@@ -1027,8 +1026,8 @@ codeunit 134710 "Manual Payment Registration"
     begin
         Initialize();
 
-        PaymentRegistration.OpenEdit;
-        PaymentRegistration.First;
+        PaymentRegistration.OpenEdit();
+        PaymentRegistration.First();
         Evaluate(DueDate, PaymentRegistration."Due Date".Value);
         PaymentRegistration."Date Received".SetValue(DueDate + LibraryRandom.RandInt(5));
         Assert.AreEqual(Format(DueDateMsg), PaymentRegistration.Warning.Value, WrongWarningErr);
@@ -1047,7 +1046,7 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         PostedDocNo1 := CreateAndPostSalesInvoice(SalesHeader1);
         PostedDocNo2 := CreateAndPostSalesInvoice(SalesHeader2);
@@ -1077,7 +1076,7 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         CreatePostTwoSalesInvoices(CustomerNo, PostedDocNo);
 
@@ -1116,8 +1115,8 @@ codeunit 134710 "Manual Payment Registration"
 
         // Setup:
 
-        SetupBalAccountAsGLAccount;
-        PaymentDocNo := GetNextPaymentDocNo;
+        SetupBalAccountAsGLAccount();
+        PaymentDocNo := GetNextPaymentDocNo();
 
         CreatePostTwoSalesInvoices(CustomerNo, PostedDocNo);
 
@@ -1153,9 +1152,9 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // Setup:
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         CreatePostTwoSalesInvoices(CustomerNo, PostedDocNo);
 
@@ -1194,7 +1193,7 @@ codeunit 134710 "Manual Payment Registration"
 
         // Setup:
 
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         CreatePostTwoSalesInvoices(CustomerNo, PostedDocNo);
 
@@ -1228,7 +1227,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         Initialize();
 
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
         PaymentRegistrationSetup.Get(UserId);
 
         CreateGenJnlLine(GenJnlLine, PaymentRegistrationSetup);
@@ -1239,7 +1238,7 @@ codeunit 134710 "Manual Payment Registration"
         UnpostedAmount := GenJnlLine.Amount;
 
         // Verify
-        PaymentRegistration.OpenEdit;
+        PaymentRegistration.OpenEdit();
         PaymentRegistration.PostedBalance.AssertEquals(-PostedAmount);
         PaymentRegistration.UnpostedBalance.AssertEquals(UnpostedAmount);
         PaymentRegistration.TotalBalance.AssertEquals(-PostedAmount + UnpostedAmount);
@@ -1265,7 +1264,7 @@ codeunit 134710 "Manual Payment Registration"
         AmountReceived := TempPaymentRegistrationBuffer."Amount Received";
 
         // [WHEN] Reload Payment Registration
-        TempPaymentRegistrationBuffer.Reload;
+        TempPaymentRegistrationBuffer.Reload();
 
         // [THEN] Payment Registration has "Amount Received" = "X"
         TempPaymentRegistrationBuffer.TestField("Amount Received", AmountReceived);
@@ -1296,9 +1295,9 @@ codeunit 134710 "Manual Payment Registration"
 
         LibraryERM.CreateBankAccount(BankAccount);
 
-        PaymentRegistrationSetupPage.OpenEdit;
+        PaymentRegistrationSetupPage.OpenEdit();
         PaymentRegistrationSetupPage."Bal. Account No.".Value := BankAccount."No.";
-        PaymentRegistrationSetupPage.OK.Invoke;
+        PaymentRegistrationSetupPage.OK().Invoke();
 
         PaymentRegistrationSetup.Get();
         TempPaymentRegistrationSetup.Get();
@@ -1320,7 +1319,7 @@ codeunit 134710 "Manual Payment Registration"
           PaymentRegistrationSetup."Bal. Account No.",
           StrSubstNo(WrongBalAccountErr, TempPaymentRegistrationSetup."User ID"));
 
-        PaymentRegistrationSetupPage.OpenEdit;
+        PaymentRegistrationSetupPage.OpenEdit();
         Assert.AreEqual(
           BankAccount."No.",
           PaymentRegistrationSetupPage."Bal. Account No.".Value,
@@ -1345,7 +1344,7 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // [GIVEN] Payment registration setup with "Balancing Account Type" = "Bank Account", "Balancing Account" = "WWB-EUR"
-        PreparePmtRegSetupWithBankBalAccount;
+        PreparePmtRegSetupWithBankBalAccount();
 
         // [GIVEN] Two posted sales invoices in LCY ("Currency Code" = "")
         CreatePostTwoSalesInvoices(CustomerNo, DocumentNo);
@@ -1384,7 +1383,7 @@ codeunit 134710 "Manual Payment Registration"
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
         // [GIVEN] Two posted Sales Invoices "PSI1" and "PSI2" for Customer.
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
         CreatePostTwoSalesInvoices(CustomerNo, DocumentNo);
 
         // [GIVEN] Payment Register table is populated and "PSI1" and "PSI2" are marked as paid.
@@ -1415,7 +1414,7 @@ codeunit 134710 "Manual Payment Registration"
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
         // [GIVEN] Two posted Sales Invoices "PSI1" and "PSI2" for Customer.
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
         CreatePostTwoSalesInvoices(CustomerNo, DocumentNo);
 
         // [GIVEN] Payment Register table is populated and "PSI1" and "PSI2" are marked as paid.
@@ -1528,13 +1527,13 @@ codeunit 134710 "Manual Payment Registration"
 
         // [THEN] Posting Preview shows correct numbers of entries with Payment Tolerance entries included
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"G/L Entry"));
-        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'G/L Entries expected.');
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger() > 0, 'G/L Entries expected.');
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
-        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Customer ledger entries expected.');
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger() > 0, 'Customer ledger entries expected.');
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Detailed Cust. Ledg. Entry"));
-        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Detailed customer ledger entries expected.');
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger() > 0, 'Detailed customer ledger entries expected.');
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Bank Account Ledger Entry"));
-        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger > 0, 'Bank ledger entries expected.');
+        Assert.IsTrue(GLPostingPreview."No. of Records".AsInteger() > 0, 'Bank ledger entries expected.');
         GLPostingPreview.Close();
     end;
 
@@ -1545,7 +1544,7 @@ codeunit 134710 "Manual Payment Registration"
     var
         Customer: Record Customer;
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         PostedInvoiceNo: Code[20];
         PostedCreditMemoNo: Code[20];
         PaymentDocNo: Code[20];
@@ -1565,8 +1564,8 @@ codeunit 134710 "Manual Payment Registration"
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, Customer."No.", PostedInvoiceNo);
         MarkDocumentAsPaid(TempPaymentRegistrationBuffer, Customer."No.", PostedCreditMemoNo);
 
-        PaymentDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
-        RefundDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesManagement);
+        PaymentDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
+        RefundDocNo := GetNextPaymentDocNoPreserveNo(NoSeriesBatch);
 
         // [WHEN] Post temporary Payment Registration Buffer with "Inv" and "CrM"
         PostPayments(TempPaymentRegistrationBuffer);
@@ -1593,7 +1592,7 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         // [GIVEN] Customer exists
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -1637,7 +1636,7 @@ codeunit 134710 "Manual Payment Registration"
         Initialize();
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
 
         // [GIVEN] Customer exists
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -1672,26 +1671,23 @@ codeunit 134710 "Manual Payment Registration"
     var
         SalesHeader: Record "Sales Header";
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
-        GLEntry: Record "G/L Entry";
         Customer: Record Customer;
-        CustomerPostingGroup: Record "Customer Posting Group";
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         GLPostingPreview: TestPage "G/L Posting Preview";
         PostedDocNo: Code[20];
         PaymentDocNo: Code[20];
-        TolerancePct: Decimal;
         AmountChange: Decimal;
     begin
         // [SCENARIO 419736] User should be able to post lump payment Register Customer Payments with Payment Tolerance
         Initialize();
 
         // [GIVEN] Payment Tolerance with Max. Payment Tolerance Amount = 10
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
         LibraryCashFlowHelper.SetupPmtTolPercentage(0);
         LibraryCashFlowHelper.SetupPmtTolAmount(10);
 
         // [GIVEN] Posted Sales Document with Amount = X
-        CreateSalesDocumentWithCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        CreateSalesDocumentWithCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Customer.Get(SalesHeader."Sell-to Customer No.");
 
@@ -1702,11 +1698,11 @@ codeunit 134710 "Manual Payment Registration"
         UpdateAmountReceived(
             TempPaymentRegistrationBuffer, Customer."No.", PostedDocNo,
             TempPaymentRegistrationBuffer."Amount Received" + AmountChange);
-        PaymentDocNo := GetNextPaymentDocNo;
+        PaymentDocNo := GetNextPaymentDocNo();
 
         // [WHEN] Preview Posting Payment as Lump
         // [THEN] No error messages shown
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
         asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, true);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview function');
@@ -1738,7 +1734,7 @@ codeunit 134710 "Manual Payment Registration"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Open Register Customer Payments page
-        SetupBalAccountAsGLAccount;
+        SetupBalAccountAsGLAccount();
         PaymentRegistration.OpenEdit();
 
         // [THEN] "External Document No." = "EDN"
@@ -1758,7 +1754,7 @@ codeunit 134710 "Manual Payment Registration"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Manual Payment Registration");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1801,7 +1797,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -1812,7 +1808,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", Amount);
         SalesLine.Modify(true);
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1823,7 +1819,7 @@ codeunit 134710 "Manual Payment Registration"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch.Modify();
         exit(GenJournalBatch.Name);
     end;
@@ -1866,7 +1862,7 @@ codeunit 134710 "Manual Payment Registration"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
-            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
             Modify(true);
             exit("No.");
         end;
@@ -1878,7 +1874,7 @@ codeunit 134710 "Manual Payment Registration"
         with GenJournalBatch do begin
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccountNo);
-            Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -1909,21 +1905,21 @@ codeunit 134710 "Manual Payment Registration"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentRegistrationSetup: Record "Payment Registration Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
-        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false))
+        exit(NoSeries.PeekNextNo(GenJournalBatch."No. Series"))
     end;
 
-    local procedure GetNextPaymentDocNoPreserveNo(var NoSeriesManagement: Codeunit NoSeriesManagement): Code[20]
+    local procedure GetNextPaymentDocNoPreserveNo(var NoSeriesBatch: Codeunit "No. Series - Batch"): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
-        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false))
+        exit(NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series"))
     end;
 
     local procedure IssueFinanceChargeMemoAndMarkItAsPaid(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary): Code[20]
@@ -1953,7 +1949,7 @@ codeunit 134710 "Manual Payment Registration"
         FinanceChargeMemoHeader.Modify(true);
         LibraryERM.CreateFinanceChargeMemoLine(FinanceChargeMemoLine,
           FinanceChargeMemoHeader."No.", FinanceChargeMemoLine.Type::"G/L Account");
-        FinanceChargeMemoLine.Validate("No.", CreateGLAccount);
+        FinanceChargeMemoLine.Validate("No.", CreateGLAccount());
         FinanceChargeMemoLine.Validate(Amount, LibraryRandom.RandInt(1000));
         FinanceChargeMemoLine.Modify(true);
 
@@ -2170,7 +2166,7 @@ codeunit 134710 "Manual Payment Registration"
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        CreateGenJournalBatchWithBankAccount(GenJournalBatch, CreateBankAccountWithCurrency);
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch, CreateBankAccountWithCurrency());
         with PaymentRegistrationSetup do begin
             SetRange("User ID", UserId);
             DeleteAll();
@@ -2401,7 +2397,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetup.Get(UserId);
 
         CustLedgerEntry.TestField("Bal. Account No.", PaymentRegistrationSetup."Bal. Account No.");
-        CustLedgerEntry.TestField("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType);
+        CustLedgerEntry.TestField("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType());
         CustLedgerEntry.TestField("Journal Batch Name", PaymentRegistrationSetup."Journal Batch Name");
     end;
 
@@ -2412,7 +2408,7 @@ codeunit 134710 "Manual Payment Registration"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
@@ -2470,7 +2466,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetupPage."Journal Batch Name".Value := PaymentRegistrationSetup."Journal Batch Name";
         PaymentRegistrationSetupPage."Bal. Account Type".Value := Format(PaymentRegistrationSetup."Bal. Account Type"::"Bank Account");
         PaymentRegistrationSetupPage."Bal. Account No.".Value := PaymentRegistrationSetup."Bal. Account No.";
-        PaymentRegistrationSetupPage.OK.Invoke;
+        PaymentRegistrationSetupPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2501,7 +2497,7 @@ codeunit 134710 "Manual Payment Registration"
           PaymentRegistrationSetupPage."Bal. Account No.".Value,
           StrSubstNo(WrongFieldValueErr, PaymentRegistrationSetupPage."Bal. Account No.".Caption));
 
-        PaymentRegistrationSetupPage.OK.Invoke;
+        PaymentRegistrationSetupPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2512,7 +2508,7 @@ codeunit 134710 "Manual Payment Registration"
         Name: Text[100];
     begin
         LibraryVariableStorage.Dequeue(ExpectedName);
-        Name := PaymentRegistrationDetails.Name.Value;
+        Name := PaymentRegistrationDetails.Name.Value();
         Assert.AreEqual(Name, ExpectedName, WrongCustomerErr);
     end;
 }

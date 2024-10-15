@@ -15,6 +15,7 @@ using Microsoft.Sales.Customer;
 table 10550 "BACS Ledger Entry"
 {
     Caption = 'BACS Ledger Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

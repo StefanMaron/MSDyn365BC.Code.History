@@ -156,7 +156,7 @@ codeunit 144061 "ERM PSREPORTING"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SellToCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random Quantity.
     end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20])
@@ -164,10 +164,10 @@ codeunit 144061 "ERM PSREPORTING"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, BuyFromVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random Quantity.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random Quantity.
     end;
 
-    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; Type: Enum "Analysis Line Type"; Range: Code[20]): Code[10]
+    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; Type: Enum "Analysis Line Type"; Range: Code[20]): Code[10]
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
@@ -180,14 +180,14 @@ codeunit 144061 "ERM PSREPORTING"
         exit(AnalysisLine."Analysis Line Template Name");
     end;
 
-    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
+    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Enum "Analysis Area Type"; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisColumn: Record "Analysis Column";
     begin
         LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, ItemAnalysisViewAnalysisArea);
         LibraryERM.CreateAnalysisColumn(AnalysisColumn, ItemAnalysisViewAnalysisArea, AnalysisColumnTemplate.Name);
-        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID, 1, AnalysisColumn.FieldNo("Column No.")));
+        AnalysisColumn.Validate("Column No.", CopyStr(LibraryUtility.GenerateGUID(), 1, AnalysisColumn.FieldNo("Column No.")));
         AnalysisColumn.Validate(
           "Column Header",
           CopyStr(
@@ -221,7 +221,7 @@ codeunit 144061 "ERM PSREPORTING"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateItemAnalysisSetup(var ItemAnalysisView: Record "Item Analysis View"; CostAmountExpected: Decimal; AnalysisArea: Option): Code[10]
+    local procedure CreateItemAnalysisSetup(var ItemAnalysisView: Record "Item Analysis View"; CostAmountExpected: Decimal; AnalysisArea: Enum "Analysis Area Type"): Code[10]
     var
         AnalysisReportName: Record "Analysis Report Name";
     begin
@@ -263,22 +263,22 @@ codeunit 144061 "ERM PSREPORTING"
     var
         AnalysisReportSale: TestPage "Analysis Report Sale";
     begin
-        AnalysisReportSale.OpenEdit;
+        AnalysisReportSale.OpenEdit();
         AnalysisReportSale.FILTER.SetFilter(Name, Name);
         AnalysisReportSale."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
         AnalysisReportSale."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        AnalysisReportSale.EditAnalysisReport.Invoke;  // Opens SalesAnalysisReportPageHandler.
+        AnalysisReportSale.EditAnalysisReport.Invoke();  // Opens SalesAnalysisReportPageHandler.
     end;
 
     local procedure OpenAndEditAnalysisReportPurchase(Name: Code[10]; AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
     var
         AnalysisReportPurchase: TestPage "Analysis Report Purchase";
     begin
-        AnalysisReportPurchase.OpenEdit;
+        AnalysisReportPurchase.OpenEdit();
         AnalysisReportPurchase.FILTER.SetFilter(Name, Name);
         AnalysisReportPurchase."Analysis Line Template Name".SetValue(AnalysisLineTemplateName);
         AnalysisReportPurchase."Analysis Column Template Name".SetValue(AnalysisColumnTemplateName);
-        AnalysisReportPurchase.EditAnalysisReport.Invoke;  // Opens PurchaseAnalysisReportPageHandler.
+        AnalysisReportPurchase.EditAnalysisReport.Invoke();  // Opens PurchaseAnalysisReportPageHandler.
     end;
 
     local procedure OpenAndEditAnalysisViewListInventory(ItemNo: Code[20]; DimensionValueCode: Code[20])
@@ -287,9 +287,9 @@ codeunit 144061 "ERM PSREPORTING"
     begin
         LibraryVariableStorage.Enqueue(ItemNo);  // Required inside InvtAnalysByDimMatrixPageHandler.
         LibraryVariableStorage.Enqueue(DimensionValueCode);  // Required inside ItemAnalysisViewEntriesPageHandler.
-        AnalysisViewListInventory.OpenEdit;
-        AnalysisViewListInventory."&Update".Invoke;
-        AnalysisViewListInventory.EditAnalysisView.Invoke;  // Opens InvtAnalysisByDimensionsPageHandler.
+        AnalysisViewListInventory.OpenEdit();
+        AnalysisViewListInventory."&Update".Invoke();
+        AnalysisViewListInventory.EditAnalysisView.Invoke();  // Opens InvtAnalysisByDimensionsPageHandler.
     end;
 
     [PageHandler]
@@ -299,7 +299,7 @@ codeunit 144061 "ERM PSREPORTING"
         SalesPeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         SalesAnalysisReport.PeriodType.SetValue(SalesPeriodType::Month);
-        SalesAnalysisReport.ShowMatrix.Invoke;  // Opens SalesAnalysisMatrixPageHandler.
+        SalesAnalysisReport.ShowMatrix.Invoke();  // Opens SalesAnalysisMatrixPageHandler.
     end;
 
     [PageHandler]
@@ -319,7 +319,7 @@ codeunit 144061 "ERM PSREPORTING"
         PurchasePeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         PurchaseAnalysisReport.PeriodType.SetValue(PurchasePeriodType::Month);
-        PurchaseAnalysisReport.ShowMatrix.Invoke;  // Opens PurchaseAnalysisMatrixPageHandler.
+        PurchaseAnalysisReport.ShowMatrix.Invoke();  // Opens PurchaseAnalysisMatrixPageHandler.
     end;
 
     [PageHandler]
@@ -336,7 +336,7 @@ codeunit 144061 "ERM PSREPORTING"
     [Scope('OnPrem')]
     procedure InvtAnalysisByDimensionsPageHandler(var InvtAnalysisByDimensions: TestPage "Invt. Analysis by Dimensions")
     begin
-        InvtAnalysisByDimensions.ShowMatrix.Invoke;  // Opens InvtAnalysByDimMatrixPageHandler.
+        InvtAnalysisByDimensions.ShowMatrix.Invoke();  // Opens InvtAnalysByDimMatrixPageHandler.
     end;
 
     [ModalPageHandler]
@@ -347,7 +347,7 @@ codeunit 144061 "ERM PSREPORTING"
     begin
         LibraryVariableStorage.Dequeue(Code);
         InvtAnalysByDimMatrix.FindFirstField(Code, Code);
-        InvtAnalysByDimMatrix.TotalInvtValue.DrillDown;  // Opens ItemAnalysisViewEntriesPageHandler.
+        InvtAnalysByDimMatrix.TotalInvtValue.DrillDown();  // Opens ItemAnalysisViewEntriesPageHandler.
     end;
 
     [PageHandler]

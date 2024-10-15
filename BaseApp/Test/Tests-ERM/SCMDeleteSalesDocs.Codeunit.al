@@ -7,24 +7,26 @@ codeunit 137208 "SCM Delete Sales Docs"
     begin
         // [FEATURE] [Print Documents] [Sales]
         isInitialized := false;
+        Initialize();
     end;
 
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
+        AllowPostedDocumentDeletionDate: Date;
 
     local procedure Initialize()
     var
         CompanyInformation: Record "Company Information";
+        SalesSetup: Record "Sales & Receivables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Delete Sales Docs");
@@ -36,9 +38,14 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        AllowPostedDocumentDeletionDate := LibraryERM.GetDeletionBlockedAfterDate();
         CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
         CompanyInformation.Modify();
+
+        SalesSetup.Get();
+        SalesSetup.Validate("Posting Date Check on Posting", false);
+        SalesSetup.Modify();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
@@ -187,7 +194,8 @@ codeunit 137208 "SCM Delete Sales Docs"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-
+        SalesHeader.Validate("Posting Date", AllowPostedDocumentDeletionDate - 1);
+        SalesHeader.Modify();
         // Create a sales document with 2 lines.
         for Counter := 1 to 2 do begin
             LibraryInventory.CreateItem(Item);

@@ -11,14 +11,8 @@ codeunit 137023 "SCM Reservation Worksheet"
 
     var
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
-        LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryItemTracking: Codeunit "Library - Item Tracking";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -327,7 +321,7 @@ codeunit 137023 "SCM Reservation Worksheet"
         // [WHEN] Run "Get Demand" filtered by these 3 items in the default batch.
         GetDemand(ReservationWkshBatch.Name, ItemList);
 
-        // [THEN] Reservation worksheet lines are created only the period WorkDate + 10 days .. WorkDate + 20 days.
+        // [THEN] Reservation worksheet lines are created only the period WorkDate() + 10 days .. WorkDate() + 20 days.
         ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
         ReservationWkshLine.SetFilter("Demand Date", '<%1|>%2', WorkDate() + 10, WorkDate() + 20);
         Assert.RecordIsEmpty(ReservationWkshLine);

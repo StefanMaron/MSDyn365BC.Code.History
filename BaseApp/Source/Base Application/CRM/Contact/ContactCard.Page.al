@@ -373,7 +373,7 @@ page 5050 "Contact Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the contact''s address on your preferred map website.';
 
                         trigger OnDrillDown()
@@ -478,7 +478,7 @@ page 5050 "Contact Card"
             {
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("No.");
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(Control31; "Contact Statistics FactBox")
             {
@@ -638,7 +638,7 @@ page 5050 "Contact Card"
             group(ActionGroupCRM)
             {
                 Caption = 'Dataverse';
-                Enabled = (Rec.Type <> Rec.Type::Company) AND (Rec."Company No." <> '');
+                Enabled = (Rec.Type <> Rec.Type::Company) and (Rec."Company No." <> '');
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoContact)
                 {
@@ -742,7 +742,7 @@ page 5050 "Contact Card"
                     RunObject = Page "Contact Segment List";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact No.", "Segment No.");
                     ToolTip = 'View the segments that are related to the contact.';
                 }
@@ -895,7 +895,7 @@ page 5050 "Contact Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -929,7 +929,7 @@ page 5050 "Contact Card"
                     Image = TaskList;
                     RunObject = Page "Task List";
                     RunPageLink = "Contact Company No." = field("Company No."),
-                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                  "Contact No." = field(filter("Lookup Contact No.")),
                                   "System To-do Type" = filter(Organizer | "Contact Attendee");
                     RunPageView = sorting("Contact Company No.", Date, "Contact No.", Closed);
                     ToolTip = 'View all marketing tasks that involve the contact person.';
@@ -942,7 +942,7 @@ page 5050 "Contact Card"
                     RunObject = Page "Opportunity List";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact Company No.", "Contact No.");
                     ToolTip = 'View the sales opportunities that are handled by salespeople for the contact. Opportunities must involve a contact and can be linked to campaigns.';
                 }
@@ -954,7 +954,7 @@ page 5050 "Contact Card"
                     RunObject = Page "Postponed Interactions";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact Company No.", Date, "Contact No.", Canceled, "Initiated By", "Attempt Failed");
                     ToolTip = 'View postponed interactions for the contact.';
                 }
@@ -986,7 +986,7 @@ page 5050 "Contact Card"
                     RunObject = Page "Interaction Log Entries";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact Company No.", Date, "Contact No.", Canceled, "Initiated By", "Attempt Failed");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View a list of the interactions that you have logged, for example, when you create an interaction, print a cover sheet, a sales order, and so on.';
@@ -1502,7 +1502,7 @@ page 5050 "Contact Card"
     begin
         IsHandled := false;
         OnBeforeOnNewRecord(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if Rec.GetFilter("Company No.") <> '' then begin
@@ -1602,7 +1602,7 @@ page 5050 "Contact Card"
         if not PostcodeBusinessLogic.SupportedCountryOrRegionCode(Rec."Country/Region Code") then
             exit;
 
-        if not PostcodeBusinessLogic.IsConfigured or ((Rec."Post Code" = '') and not ShowInputFields) then
+        if not PostcodeBusinessLogic.IsConfigured() or ((Rec."Post Code" = '') and not ShowInputFields) then
             exit;
 
         TempEnteredAutocompleteAddress.Address := Rec.Address;

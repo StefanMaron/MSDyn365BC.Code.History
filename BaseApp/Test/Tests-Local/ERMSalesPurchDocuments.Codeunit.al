@@ -104,8 +104,8 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         // Setup: Update General Ledger Setup, create Customer with Country Region. Create Sales Order. Update Sell To Customer No on Sales Order.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         UpdateBillToSellToVATCalcOnGLSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
         CreateCustomerWithCountryRegion(Customer);
         CreateCustomerWithCountryRegion(Customer2);
@@ -198,8 +198,8 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         // Verify that column name displayed correctly after pressing the Show Column name on GL budget with Business Unit.
         Initialize();
-        CreateBusinessUnit;
-        GLBudgetWithColumnValues;
+        CreateBusinessUnit();
+        GLBudgetWithColumnValues();
     end;
 
     [Test]
@@ -209,7 +209,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         // Verify that column name displayed correctly after pressing the Show Column name on GL budget with G/L Account.
         Initialize();
-        GLBudgetWithColumnValues;
+        GLBudgetWithColumnValues();
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 144038 "ERM Sales Purch Documents"
 
         // [GIVEN] Found VAT Posting Setup with "Reverse Charge VAT"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Edited "Purchases & Payables Setup"
@@ -304,7 +304,7 @@ codeunit 144038 "ERM Sales Purch Documents"
 
         // [GIVEN] Created VAT Posting Setup with "Reverse Charge VAT"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 20);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Edited "Purchases & Payables Setup". Set "Reverse Charge VAT Posting Gr." and "Domestic Vendors" to value from VAT Posting Setup.
@@ -348,8 +348,8 @@ codeunit 144038 "ERM Sales Purch Documents"
         if isInitialized then
             exit;
 
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         isInitialized := true;
         Commit();
@@ -456,16 +456,16 @@ codeunit 144038 "ERM Sales Purch Documents"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst
+        SalesLine.FindFirst();
     end;
 
     local procedure OpenGlBudgetPage(GLBudgetNameValue: Text)
     var
         GLBudgetNamesPage: TestPage "G/L Budget Names";
     begin
-        GLBudgetNamesPage.OpenEdit;
+        GLBudgetNamesPage.OpenEdit();
         GLBudgetNamesPage.FILTER.SetFilter(Name, GLBudgetNameValue);
-        GLBudgetNamesPage.EditBudget.Invoke;
+        GLBudgetNamesPage.EditBudget.Invoke();
     end;
 
     local procedure SetupForSalesDocumentWithRevCharge(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
@@ -497,7 +497,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesHeader.Modify(true);
     end;
 
-    local procedure UpdateBillToSellToVATCalcOnGLSetup(BillToSellToVATCalc: Option)
+    local procedure UpdateBillToSellToVATCalcOnGLSetup(BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
@@ -559,7 +559,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         PurchInvLine.TestField("No.", PurchaseLine."No.");
         PurchInvLine.TestField("Reverse Charge Item", PurchaseLine."Reverse Charge Item");
         Assert.AreNearlyEqual(
-          ReverseCharge, PurchInvLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision,
+          ReverseCharge, PurchInvLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ReverseChargeErr, PurchInvLine.FieldCaption("Reverse Charge"), ReverseCharge, PurchInvLine.TableCaption()));
     end;
 
@@ -573,7 +573,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Reverse Charge Item", ReverseChargeItem);
         Assert.AreNearlyEqual(
-          ReverseCharge, SalesInvoiceLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision,
+          ReverseCharge, SalesInvoiceLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ReverseChargeErr, SalesInvoiceLine.FieldCaption("Reverse Charge"), ReverseCharge, SalesInvoiceLine.TableCaption()));
     end;
 

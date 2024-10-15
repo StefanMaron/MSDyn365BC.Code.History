@@ -58,11 +58,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Invoice with Item and open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -81,11 +81,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, Resource, Service Invoice with Resource and open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -104,11 +104,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, G/L Account, Create Service Invoice with G/L Account and open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -129,11 +129,11 @@ codeunit 136130 "Service Statistics"
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Customer, Service Invoice with Cost and open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
         CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Cost, ServiceCost.Code);
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -154,22 +154,22 @@ codeunit 136130 "Service Statistics"
         // Create Customer, Customer Invoice Discount.
         Initialize();
 
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Item, Resource, G/L Account, Service Invoice with multiple lines, Calculate Invoice Discount
         // and open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CustomerNo);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Cost, ServiceCost.Code);
 
-        ServiceInvoice."Calculate Invoice Discount".Invoke;
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice."Calculate Invoice Discount".Invoke();
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -192,17 +192,17 @@ codeunit 136130 "Service Statistics"
 
         // 2. Exercise: Create Customer, Item, Resource,G/L Account, Service Invoice with Prices Including VAT as True,
         // multiple lines, in lines Allow Invoice Discount as False and open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
         ServiceInvoice."Prices Including VAT".SetValue(true);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Cost, ServiceCost.Code);
 
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::Invoice, ServiceInvoice."No.".Value);
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -222,19 +222,19 @@ codeunit 136130 "Service Statistics"
         // Customer Invoice Discount.
         Initialize();
 
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // 2. Exercise: Create Item, Service Invoice, Calculate Invoice Discount, open Statistics Page and change
         // Invoice Discount Amount and again open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CustomerNo);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceInvoice."Calculate Invoice Discount".Invoke;
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceInvoice."Calculate Invoice Discount".Invoke();
+        ServiceInvoice.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -253,19 +253,19 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer and
         // Customer Invoice Discount.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // 2. Exercise: Create Item, Service Invoice, Calculate Invoice Discount , open Statistics Page and change
         // Total Incl. VAT and again open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, CustomerNo);
-        DocumentNo2 := ServiceInvoice."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceInvoice."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Invoice;  // Assign global variable for page handler.
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceInvoice."Calculate Invoice Discount".Invoke;
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceInvoice."Calculate Invoice Discount".Invoke();
+        ServiceInvoice.Statistics.Invoke();
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -288,8 +288,8 @@ codeunit 136130 "Service Statistics"
 
         // 2. Exercise: Create G/L Account, Service Invoice with G/L Account and open Statistics Page.
         CreateServiceInvoiceHeader(ServiceInvoice, Customer."No.");
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        ServiceInvoice.Statistics.Invoke;
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) in Statistics Page on Page handler.
     end;
@@ -308,11 +308,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Credit Memo with Item and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceCreditMemo.Statistics.Invoke;
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -331,11 +331,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, Resource, Service Credit Memo with Resource and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        ServiceCreditMemo.Statistics.Invoke;
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -354,11 +354,11 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, G/L Account, Service Credit Memo with G/L Account and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := "Service Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        ServiceCreditMemo.Statistics.Invoke;
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -379,11 +379,11 @@ codeunit 136130 "Service Statistics"
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Customer, Service Credit Memo with Cost and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
         CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Cost, ServiceCost.Code);
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -402,22 +402,22 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Find Service Cost and Create Customer, Customer Invoice Discount.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
         LibraryService.FindServiceCost(ServiceCost);
 
         // 2. Exercise: Create Item, Resource, G/L Account, Service Credit Memo with multiple lines, Calculate Invoice Discount
         // and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CustomerNo);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Cost, ServiceCost.Code);
 
-        ServiceCreditMemo."Calculate Invoice Discount".Invoke;
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo."Calculate Invoice Discount".Invoke();
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -439,18 +439,18 @@ codeunit 136130 "Service Statistics"
 
         // 2. Exercise: Create Customer, Item, Resource,G/L Account, Service Credit Memo with Prices Including VAT as True,
         // multiple lines, in lines Allow Invoice Discount as False and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
         ServiceCreditMemo."Prices Including VAT".SetValue(true);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
         CreateServiceCreditMemoLine(
-          ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+          ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Cost, ServiceCost.Code);
 
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::"Credit Memo", ServiceCreditMemo."No.".Value);
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -468,19 +468,19 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Find VAT Posting Setup, Create Customer and Customer Invoice Discount.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // 2. Exercise: Create Item, Service Credit Memo, Calculate Invoice Discount, open Statistics Page and change
         // Invoice Discount Amount and again open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CustomerNo);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceCreditMemo."Calculate Invoice Discount".Invoke;
-        ServiceCreditMemo.Statistics.Invoke;
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceCreditMemo."Calculate Invoice Discount".Invoke();
+        ServiceCreditMemo.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -498,19 +498,19 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Find VAT Posting Setup, Create Customer and Customer Invoice Discount.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // 2. Exercise: Create Item, Service Credit Memo, Calculate Invoice Discount , open Statistics Page and change
         // Total Incl. VAT and again open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CustomerNo);
-        DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceCreditMemo."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        ServiceCreditMemo."Calculate Invoice Discount".Invoke;
-        ServiceCreditMemo.Statistics.Invoke;
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceCreditMemo."Calculate Invoice Discount".Invoke();
+        ServiceCreditMemo.Statistics.Invoke();
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Statistics Page with details on Page handler.
     end;
@@ -534,8 +534,8 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create G/L Account, Service Credit Memo with G/L Account and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, Customer."No.");
         CreateServiceCreditMemoLine(
-          ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        ServiceCreditMemo.Statistics.Invoke;
+          ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        ServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) in Statistics Page on Page handler.
     end;
@@ -558,15 +558,15 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Order with Item and open Service Order Statistics Page.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Item;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -589,15 +589,15 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Resource;
 
         // 2. Exercise: Create Customer Service Order with Resource and open Service Order Statistics Page.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Resource;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page Handler.
     end;
@@ -616,19 +616,19 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryERM.CreateGLAccountWithSalesSetup;
+        No2 := LibraryERM.CreateGLAccountWithSalesSetup();
         Type2 := Type2::"G/L Account";
 
         // 2. Exercise: Create Customer, Service Order with G/L Account and open Service Order Statistics Page.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::"G/L Account";  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page Handler.
     end;
@@ -653,15 +653,15 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Cost;
 
         // 2. Exercise: Create Customer, Service Order with Cost and open Service Order Statistics Page.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Cost;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -682,24 +682,24 @@ codeunit 136130 "Service Statistics"
         // Create Customer, Customer Invoice Discount ,Item, Resource and G/L Account.
         Initialize();
         LibraryService.FindServiceCost(ServiceCost);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
         ItemNo := LibraryInventory.CreateItemNo();
         ResourceNo := LibraryResource.CreateResourceNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         CostCode := ServiceCost.Code;
 
         // 2. Exercise: Create Service Order with multiple lines, Calculate Invoice Discount and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -723,21 +723,21 @@ codeunit 136130 "Service Statistics"
         // Assign global variable for page handler.
         ItemNo := LibraryInventory.CreateItemNo();
         ResourceNo := LibraryResource.CreateResourceNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         CostCode := ServiceCost.Code;
 
         // 2. Exercise: Create Service Order with Prices Including VAT as True,multiple lines,
         // in lines Allow Invoice Discount as False and open Service Order Statistics Page.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         ServiceOrder."Prices Including VAT".SetValue(true);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::Order, ServiceOrder."No.".Value);
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -756,7 +756,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer,
         // Customer Invoice Discount and Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -767,14 +767,14 @@ codeunit 136130 "Service Statistics"
         // Invoice Discount Amount and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -793,7 +793,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer and
         // Customer Invoice Discount and Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -804,14 +804,14 @@ codeunit 136130 "Service Statistics"
         // Total Incl. VAT and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -830,7 +830,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup, Create Customer,
         // Customer Invoice Discount and Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -840,13 +840,13 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -865,7 +865,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -875,14 +875,14 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Order with Item, Update Quantity to Ship, Post and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -902,7 +902,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -913,16 +913,16 @@ codeunit 136130 "Service Statistics"
         // Change Invoice Discount Amount, and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -942,7 +942,7 @@ codeunit 136130 "Service Statistics"
         // [GIVEN] Sales & Receivables Setup "Calc. Inv. Discount" = FALSE
         LibrarySales.SetCalcInvDiscount(false);
         // [GIVEN] Customer with Invoice Discount setup: "Minimum Amount" = 0, "Discount %" = 10
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // [GIVEN] Service Order: "Service Item No." = "", "Item No." = "X"
@@ -975,7 +975,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -986,16 +986,16 @@ codeunit 136130 "Service Statistics"
         // Change Total Incl. VAT , and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1014,7 +1014,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1024,13 +1024,13 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToInvoiceLine(DocumentNo2);
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1049,7 +1049,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1059,15 +1059,15 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Order with Item, Update Quantity to Invoice, Post and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
         UpdateQuantityToInvoiceLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1087,7 +1087,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1098,17 +1098,17 @@ codeunit 136130 "Service Statistics"
         // Change Invoice Discount Amount, and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
         UpdateQuantityToInvoiceLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1128,7 +1128,7 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Update Stockout Warning on Sales & Receivables Setup, Find VAT Posting Setup and Create Customer,
         // Customer Invoice Discount, Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1139,19 +1139,19 @@ codeunit 136130 "Service Statistics"
         // open Service Order Statistics Page, Change Total Incl. VAT, and again open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
         UpdateQuantityToInvoiceLine(DocumentNo2);
-        ServiceOrder.Post.Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Post.Invoke();
+        ServiceOrder.Statistics.Invoke();
         UpdateQuantityToShipLine(DocumentNo2);
         UpdateQuantityToInvoiceLine(DocumentNo2);
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1172,16 +1172,16 @@ codeunit 136130 "Service Statistics"
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
         // Assign global variable for page handler.
-        No2 := LibraryERM.CreateGLAccountWithSalesSetup;
+        No2 := LibraryERM.CreateGLAccountWithSalesSetup();
         Type2 := Type2::"G/L Account";
 
         // 2. Exercise: Create Service Order with G/L Account and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, Customer."No.");
         CreateServiceOrderItemLine(ServiceOrder);
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) in Service Order Statistics Page on Page handler.
     end;
@@ -1204,14 +1204,14 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Service Quote with Item and open Statistics Page.
-        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer);
+        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer());
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1234,14 +1234,14 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Resource;
 
         // 2. Exercise: Create Customer Service Quote with Resource and open Statistics Page.
-        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer);
+        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer());
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1260,18 +1260,18 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // Assign global variable for page handler.
-        No2 := LibraryERM.CreateGLAccountWithSalesSetup;
+        No2 := LibraryERM.CreateGLAccountWithSalesSetup();
         Type2 := Type2::"G/L Account";
 
         // 2. Exercise: Create Customer, Service Quote with G/L Account and open Statistics Page.
-        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer);
+        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer());
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1296,14 +1296,14 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Cost;
 
         // 2. Exercise: Create Customer, Service Quote with Cost and open Statistics Page.
-        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer);
+        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer());
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1323,24 +1323,24 @@ codeunit 136130 "Service Statistics"
         // 1. Setup: Find VAT Posting Setup,Service Cost, Create Customer, Customer Invoice Discount ,Item, Resource and G/L Account.
         Initialize();
         LibraryService.FindServiceCost(ServiceCost);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
         ItemNo := LibraryInventory.CreateItemNo();
         ResourceNo := LibraryResource.CreateResourceNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         CostCode := ServiceCost.Code;
 
         // 2. Exercise: Create Service Quote with multiple lines, Calculate Invoice Discount and open Statistics Page.
         CreateServiceQuoteHeader(ServiceQuote, CustomerNo);
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1363,21 +1363,21 @@ codeunit 136130 "Service Statistics"
         // Assign global variable for page handler.
         ItemNo := LibraryInventory.CreateItemNo();
         ResourceNo := LibraryResource.CreateResourceNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         CostCode := ServiceCost.Code;
 
         // 2. Exercise: Create Service Quote with Prices Including VAT as True,multiple lines,
         // in lines Allow Invoice Discount as False and open Statistics Page.
-        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer);
+        CreateServiceQuoteHeader(ServiceQuote, CreateCustomer());
         ServiceQuote."Prices Including VAT".SetValue(true);
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::Quote, ServiceQuote."No.".Value);
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1395,7 +1395,7 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Find VAT Posting Setup, Create Customer, Customer Invoice Discount and Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1406,14 +1406,14 @@ codeunit 136130 "Service Statistics"
         // Invoice Discount Amount and again open Statistics Page.
         CreateServiceQuoteHeader(ServiceQuote, CustomerNo);
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
         UpdateDiscountAmount := true;  // Assign global variable for page handler.
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Statistics Page with details on Page handler.
     end;
@@ -1431,7 +1431,7 @@ codeunit 136130 "Service Statistics"
 
         // 1. Setup: Find VAT Posting Setup, Create Customer, Customer Invoice Discount and Item.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceDiscount(CustomerNo);
 
         // Assign global variable for page handler.
@@ -1442,14 +1442,14 @@ codeunit 136130 "Service Statistics"
         // Total Incl. VAT and again open Statistics Page.
         CreateServiceQuoteHeader(ServiceQuote, CustomerNo);
         CreateServiceQuoteItemLine(ServiceQuote);
-        DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
+        DocumentNo2 := ServiceQuote."No.".Value(); // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
         UpdateTotalVAT := true;  // Assign global variable for page handler.
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Service Order Statistics Page with details on Page handler.
     end;
@@ -1470,16 +1470,16 @@ codeunit 136130 "Service Statistics"
         CreditLimitLCY := Customer."Credit Limit (LCY)";  // Assign global variable for page handler.
 
         // Assign global variable for page handler.
-        No2 := LibraryERM.CreateGLAccountWithSalesSetup;
+        No2 := LibraryERM.CreateGLAccountWithSalesSetup();
         Type2 := Type2::"G/L Account";
 
         // 2. Exercise: Create Service Quote with G/L Account and open Statistics Page.
         CreateServiceQuoteHeader(ServiceQuote, Customer."No.");
         CreateServiceQuoteItemLine(ServiceQuote);
         Commit();
-        ServiceQuote.ServItemLine.First;
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.ServItemLine.First();
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuote.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) in Service Statistics Page on Page handler.
     end;
@@ -1505,19 +1505,19 @@ codeunit 136130 "Service Statistics"
         Type2 := Type2::Item;
 
         // 2. Exercise: Create Customer, Service Order with Item, Post, Find Posted Service Shipment and open Statistics.
-        CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
+        CreateServiceOrderHeader(ServiceOrder, CreateCustomer());
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo := ServiceOrder."No.".Value;
+        DocumentNo := ServiceOrder."No.".Value();
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        LibrarySales.DisableConfirmOnPostingDoc;
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        LibrarySales.DisableConfirmOnPostingDoc();
+        ServiceOrder.Post.Invoke();
 
-        PostedServiceShipment.OpenView;
+        PostedServiceShipment.OpenView();
         PostedServiceShipment.FILTER.SetFilter("No.", FindServiceShipmentHeader(DocumentNo));
-        ServiceShipmentStatistics.Trap;
-        PostedServiceShipment."S&tatistics".Invoke;
+        ServiceShipmentStatistics.Trap();
+        PostedServiceShipment."S&tatistics".Invoke();
 
         // 3. Verify: Verify Quantity on Service Shipment Statistics Page.
         ServiceShipmentLine.SetRange("Document No.", PostedServiceShipment."No.".Value);
@@ -1542,15 +1542,15 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer, Item, Service Invoice with Item, Find Posted Service Invoice and  open Statistics Page.
-        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer);
-        DocumentNo := ServiceInvoice."No.".Value;
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateServiceInvoiceHeader(ServiceInvoice, CreateCustomer());
+        DocumentNo := ServiceInvoice."No.".Value();
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         PostServiceInvoice(ServiceInvoice);
 
-        PostedServiceInvoice.OpenView;
+        PostedServiceInvoice.OpenView();
         PostedServiceInvoice.FILTER.SetFilter("No.", FindServiceInvoiceHeader(DocumentNo));
-        ServiceInvoiceStatistics.Trap;
-        PostedServiceInvoice.Statistics.Invoke;
+        ServiceInvoiceStatistics.Trap();
+        PostedServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Service Invoice Statistics Page with details.
         ServiceInvoiceLine.SetRange("Document No.", PostedServiceInvoice."No.".Value);
@@ -1558,7 +1558,7 @@ codeunit 136130 "Service Statistics"
 
         ServiceInvoiceStatistics.Amount.AssertEquals(ServiceInvoiceLine.Amount);
         ServiceInvoiceStatistics.VATAmount.AssertEquals(ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount);
-        ServiceInvoiceStatistics.Subform.First;
+        ServiceInvoiceStatistics.Subform.First();
         ServiceInvoiceStatistics.Subform."VAT Amount".AssertEquals(
           ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount);
     end;
@@ -1582,14 +1582,14 @@ codeunit 136130 "Service Statistics"
 
         // 2. Exercise: Create Service Invoice with Item, post,Find Posted Service Invoice and open Statistic Page.
         CreateServiceInvoiceHeader(ServiceInvoice, Customer."No.");
-        DocumentNo := ServiceInvoice."No.".Value;
-        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        DocumentNo := ServiceInvoice."No.".Value();
+        CreateServiceInvoiceLine(ServiceInvoice, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         PostServiceInvoice(ServiceInvoice);
 
-        PostedServiceInvoice.OpenView;
+        PostedServiceInvoice.OpenView();
         PostedServiceInvoice.FILTER.SetFilter("No.", FindServiceInvoiceHeader(DocumentNo));
-        ServiceInvoiceStatistics.Trap;
-        PostedServiceInvoice.Statistics.Invoke;
+        ServiceInvoiceStatistics.Trap();
+        PostedServiceInvoice.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) on Service Invoice Statistics Page.
         ServiceInvoiceStatistics.CreditLimitLCY.AssertEquals(Customer."Credit Limit (LCY)");
@@ -1613,23 +1613,23 @@ codeunit 136130 "Service Statistics"
         Initialize();
 
         // 2. Exercise: Create Customer,Item,Service Credit Memo with Item, post, Find Posted Service Credit Memo and open Statistics Page.
-        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
-        DocumentNo := ServiceCreditMemo."No.".Value;
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        LibrarySales.DisableConfirmOnPostingDoc;
-        ServiceCreditMemo.Post.Invoke;
+        CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer());
+        DocumentNo := ServiceCreditMemo."No.".Value();
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        LibrarySales.DisableConfirmOnPostingDoc();
+        ServiceCreditMemo.Post.Invoke();
 
-        PostedServiceCreditMemo.OpenView;
+        PostedServiceCreditMemo.OpenView();
         PostedServiceCreditMemo.FILTER.SetFilter("No.", FindServiceCreditMemoHeader(DocumentNo));
-        ServiceCreditMemoStatistics.Trap;
-        PostedServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemoStatistics.Trap();
+        PostedServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Service Credit Memo Statistics Page with details.
         ServiceCrMemoLine.SetRange("Document No.", PostedServiceCreditMemo."No.".Value);
         ServiceCrMemoLine.FindFirst();
         ServiceCreditMemoStatistics.Amount.AssertEquals(ServiceCrMemoLine.Amount);
         ServiceCreditMemoStatistics.VATAmount.AssertEquals(ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount);
-        ServiceCreditMemoStatistics.Subform.First;
+        ServiceCreditMemoStatistics.Subform.First();
         ServiceCreditMemoStatistics.Subform."VAT Amount".AssertEquals(
           ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount);
     end;
@@ -1654,15 +1654,15 @@ codeunit 136130 "Service Statistics"
 
         // 2. Exercise: Create Item, Service Credit Memo with Item, post,Find Posted Service Credit Memo and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, Customer."No.");
-        DocumentNo := ServiceCreditMemo."No.".Value;
-        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        LibrarySales.DisableConfirmOnPostingDoc;
-        ServiceCreditMemo.Post.Invoke;
+        DocumentNo := ServiceCreditMemo."No.".Value();
+        CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        LibrarySales.DisableConfirmOnPostingDoc();
+        ServiceCreditMemo.Post.Invoke();
 
-        PostedServiceCreditMemo.OpenView;
+        PostedServiceCreditMemo.OpenView();
         PostedServiceCreditMemo.FILTER.SetFilter("No.", FindServiceCreditMemoHeader(DocumentNo));
-        ServiceCreditMemoStatistics.Trap;
-        PostedServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemoStatistics.Trap();
+        PostedServiceCreditMemo.Statistics.Invoke();
 
         // 3. Verify: Verify Credit Limit (LCY) on Service Credit Memo Statistics Page.
         ServiceCreditMemoStatistics.CreditLimitLCY.AssertEquals(Customer."Credit Limit (LCY)");
@@ -1691,35 +1691,35 @@ codeunit 136130 "Service Statistics"
         Item.Modify(true);
 
         // [GIVEN] Service Order with Service Line for "X" priced at 10
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceLineWithQuantity(
           ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);
 
         // [WHEN] Open Service Order Statistics page
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // [THEN] Validate Original Profit (LCY), Original Profit %, Adjusted Profit (LCY), Adjusted Profit %
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();
         ProfitValue := ServiceLine.Amount - ServiceLine."Unit Cost (LCY)" * ServiceLine.Quantity;
         ProfitPct := Round(ProfitValue / ServiceLine.Amount * 100, AmountRoundingPrecision);
 
-        Assert.AreNearlyEqual(ProfitValue, LibraryVariableStorage.DequeueDecimal, AmountRoundingPrecision,
+        Assert.AreNearlyEqual(ProfitValue, LibraryVariableStorage.DequeueDecimal(), AmountRoundingPrecision,
           StrSubstNo(OrigProfitLCYErr, ServiceLine."Document No."));
-        Assert.AreNearlyEqual(ProfitPct, LibraryVariableStorage.DequeueDecimal, AmountRoundingPrecision,
+        Assert.AreNearlyEqual(ProfitPct, LibraryVariableStorage.DequeueDecimal(), AmountRoundingPrecision,
           StrSubstNo(OrigProfitPctErr, ServiceLine."Document No."));
-        Assert.AreEqual(ProfitValue, LibraryVariableStorage.DequeueDecimal, AdjProfitLCYErr);
-        Assert.AreEqual(ProfitPct, LibraryVariableStorage.DequeueDecimal, AdjProfitPctErr);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(ProfitValue, LibraryVariableStorage.DequeueDecimal(), AdjProfitLCYErr);
+        Assert.AreEqual(ProfitPct, LibraryVariableStorage.DequeueDecimal(), AdjProfitPctErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Statistics");
-        InitVariables;
+        InitVariables();
         LibrarySetupStorage.Restore();
 
         if isInitialized then
@@ -1741,7 +1741,7 @@ codeunit 136130 "Service Statistics"
 
     local procedure CreateCustomer(): Code[20]
     begin
-        exit(LibrarySales.CreateCustomerNo);
+        exit(LibrarySales.CreateCustomerNo());
     end;
 
     local procedure CreateCustomerInvoiceDiscount(CustomerNo: Code[20])
@@ -1766,11 +1766,11 @@ codeunit 136130 "Service Statistics"
         ServiceHeader: Record "Service Header";
         ServiceCreditMemoNo: Code[20];
     begin
-        ServiceCreditMemoNo := LibraryService.CreateServiceCreditMemoHeaderUsingPage;
+        ServiceCreditMemoNo := LibraryService.CreateServiceCreditMemoHeaderUsingPage();
         Commit();
 
         Clear(ServiceCreditMemo);
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::"Credit Memo"));
         ServiceCreditMemo.FILTER.SetFilter("No.", ServiceCreditMemoNo);
         ServiceCreditMemo."Customer No.".SetValue(CustomerNo);
@@ -1784,7 +1784,7 @@ codeunit 136130 "Service Statistics"
         // Take Random Quantity and Unit Price.
         ServiceCreditMemo.ServLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         ServiceCreditMemo.ServLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
-        ServiceCreditMemo.ServLines.New;
+        ServiceCreditMemo.ServLines.New();
     end;
 
     local procedure CreateServiceLine(var ServiceLines: TestPage "Service Lines"; Type: Option; No: Code[20])
@@ -1795,7 +1795,7 @@ codeunit 136130 "Service Statistics"
         // Take Random Quantity and Unit Price.
         ServiceLines.Quantity.SetValue(2 * LibraryRandom.RandDec(10, 2));
         ServiceLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
-        ServiceLines.New;
+        ServiceLines.New();
     end;
 
     local procedure CreateServiceInvoiceHeader(var ServiceInvoice: TestPage "Service Invoice"; CustomerNo: Code[20])
@@ -1804,13 +1804,13 @@ codeunit 136130 "Service Statistics"
         ServiceInvoiceNo: Code[20];
     begin
         ServiceInvoice.OpenNew();
-        ServiceInvoice."Customer No.".Activate;
-        ServiceInvoiceNo := ServiceInvoice."No.".Value;
-        ServiceInvoice.OK.Invoke;
+        ServiceInvoice."Customer No.".Activate();
+        ServiceInvoiceNo := ServiceInvoice."No.".Value();
+        ServiceInvoice.OK().Invoke();
         Commit();
 
         Clear(ServiceInvoice);
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Invoice));
         ServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceNo);
         ServiceInvoice."Customer No.".SetValue(CustomerNo);
@@ -1824,7 +1824,7 @@ codeunit 136130 "Service Statistics"
         // Take Random Quantity and Unit Price.
         ServiceInvoice.ServLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         ServiceInvoice.ServLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
-        ServiceInvoice.ServLines.New;
+        ServiceInvoice.ServLines.New();
     end;
 
     local procedure CreateServiceOrderHeader(var ServiceOrder: TestPage "Service Order"; CustomerNo: Code[20])
@@ -1832,11 +1832,11 @@ codeunit 136130 "Service Statistics"
         ServiceHeader: Record "Service Header";
         ServiceOrderNo: Code[20];
     begin
-        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
+        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage();
         Commit();
 
         Clear(ServiceOrder);
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Order));
         ServiceOrder.FILTER.SetFilter("No.", ServiceOrderNo);
         ServiceOrder."Customer No.".SetValue(CustomerNo);
@@ -1845,7 +1845,7 @@ codeunit 136130 "Service Statistics"
     local procedure CreateServiceOrderItemLine(var ServiceOrder: TestPage "Service Order")
     begin
         ServiceOrder.ServItemLines.Description.SetValue(ServiceOrder."No.".Value);
-        ServiceOrder.ServItemLines.New;
+        ServiceOrder.ServItemLines.New();
     end;
 
     local procedure CreateServiceQuoteHeader(var ServiceQuote: TestPage "Service Quote"; CustomerNo: Code[20])
@@ -1854,13 +1854,13 @@ codeunit 136130 "Service Statistics"
         ServiceQuoteNo: Code[20];
     begin
         ServiceQuote.OpenNew();
-        ServiceQuote."Customer No.".Activate;
-        ServiceQuoteNo := ServiceQuote."No.".Value;
-        ServiceQuote.OK.Invoke;
+        ServiceQuote."Customer No.".Activate();
+        ServiceQuoteNo := ServiceQuote."No.".Value();
+        ServiceQuote.OK().Invoke();
         Commit();
 
         Clear(ServiceQuote);
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Quote));
         ServiceQuote.FILTER.SetFilter("No.", ServiceQuoteNo);
         ServiceQuote."Customer No.".SetValue(CustomerNo);
@@ -1869,7 +1869,7 @@ codeunit 136130 "Service Statistics"
     local procedure CreateServiceQuoteItemLine(var ServiceQuote: TestPage "Service Quote")
     begin
         ServiceQuote.ServItemLine.Description.SetValue(ServiceQuote."No.".Value);
-        ServiceQuote.ServItemLine.New;
+        ServiceQuote.ServItemLine.New();
     end;
 
     local procedure CreateServiceQuoteLine(var ServiceQuoteLines: TestPage "Service Quote Lines"; Type: Option; No: Code[20])
@@ -1880,7 +1880,7 @@ codeunit 136130 "Service Statistics"
         // Take Random Quantity and Unit Price.
         ServiceQuoteLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         ServiceQuoteLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
-        ServiceQuoteLines.New;
+        ServiceQuoteLines.New();
     end;
 
     local procedure CreateAndPostServiceOrderWithInvoiceDiscountAmount(CustomerNo: Code[20]; var InvoiceDiscountAmount: Decimal)
@@ -1890,15 +1890,15 @@ codeunit 136130 "Service Statistics"
     begin
         CreateServiceOrderHeader(ServiceOrder, CustomerNo);
         CreateServiceOrderItemLine(ServiceOrder);
-        DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
+        DocumentNo2 := ServiceOrder."No.".Value();  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Commit();
-        ServiceOrder.ServItemLines.First;
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.ServItemLines.First();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceOrder.Statistics.Invoke();
         FindServiceLine(ServiceLine, DocumentType2, DocumentNo2);
         InvoiceDiscountAmount := ServiceLine."Inv. Discount Amount";
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.Post.Invoke();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
@@ -2059,7 +2059,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountItems: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.FindFirst();
@@ -2097,7 +2097,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountResources: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
         ServiceLine.FindFirst();
@@ -2138,7 +2138,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountCosts: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.SetFilter(Type, '%1|%2', ServiceLine.Type::Cost, ServiceLine.Type::"G/L Account");
         ServiceLine.FindSet();
@@ -2177,7 +2177,7 @@ codeunit 136130 "Service Statistics"
         SalesLCYGeneral: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountGeneral, ServiceOrderStatistics.Amount_General.Value);
         Evaluate(VATAmountGeneral, ServiceOrderStatistics."VAT Amount_General".Value);
         Evaluate(TotalInclVATGeneral, ServiceOrderStatistics."Total Incl. VAT_General".Value);
@@ -2212,7 +2212,7 @@ codeunit 136130 "Service Statistics"
         InvoiceDiscountAmount: Decimal;
         QuantityPer: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountDetails, ServiceOrderStatistics.Amount_Invoicing.Value);
         Evaluate(VATAmountDetails, ServiceOrderStatistics."VAT Amount_Invoicing".Value);
         Evaluate(TotalInclVATDetails, ServiceOrderStatistics."Total Incl. VAT_Invoicing".Value);
@@ -2247,7 +2247,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountGeneral: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountGeneral, ServiceOrderStatistics.Amount_General.Value);
         Evaluate(VATAmountGeneral, ServiceOrderStatistics."VAT Amount_General".Value);
         Evaluate(TotalInclVATGeneral, ServiceOrderStatistics."Total Incl. VAT_General".Value);
@@ -2294,7 +2294,7 @@ codeunit 136130 "Service Statistics"
         InvoiceDiscountAmount: Decimal;
         QuantityPer: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountShipping, ServiceOrderStatistics.Amount_Shipping.Value);
         Evaluate(VATAmountShipping, ServiceOrderStatistics."VAT Amount_Shipping".Value);
         Evaluate(TotalInclVATShipping, ServiceOrderStatistics."Total Incl. VAT_Shipping".Value);
@@ -2338,8 +2338,8 @@ codeunit 136130 "Service Statistics"
         FindServiceLine(ServiceLine, ServiceLine."Document Type"::Order, DocumentNo);
         ServiceLine.CalcSums("Amount Including VAT", Amount, "VAT Base Amount");
 
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
-        VATAmountLines.First;
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
+        VATAmountLines.First();
         repeat
             Evaluate(VATBase, VATAmountLines."VAT Base".Value);
             Evaluate(VATAmount, VATAmountLines."VAT Amount".Value);
@@ -2371,7 +2371,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountItems: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.FindFirst();
@@ -2409,7 +2409,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountResources: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
         ServiceLine.FindFirst();
@@ -2450,7 +2450,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountCosts: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         FilterServiceLine(ServiceLine, DocumentType, DocumentNo);
         ServiceLine.SetFilter(Type, '%1|%2', ServiceLine.Type::Cost, ServiceLine.Type::"G/L Account");
         ServiceLine.FindSet();
@@ -2489,7 +2489,7 @@ codeunit 136130 "Service Statistics"
         SalesLCYGeneral: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountGeneral, ServiceStatistics.Amount_General.Value);
         Evaluate(VATAmountGeneral, ServiceStatistics."VAT Amount_General".Value);
         Evaluate(TotalInclVATGeneral, ServiceStatistics."Total Incl. VAT_General".Value);
@@ -2518,7 +2518,7 @@ codeunit 136130 "Service Statistics"
         InvDiscountAmountGeneral: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
         Evaluate(AmountGeneral, ServiceStatistics.Amount_General.Value);
         Evaluate(VATAmountGeneral, ServiceStatistics."VAT Amount_General".Value);
         Evaluate(TotalInclVATGeneral, ServiceStatistics."Total Incl. VAT_General".Value);
@@ -2552,8 +2552,8 @@ codeunit 136130 "Service Statistics"
         StatisticsAmountIncludingVAT2: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision;  // Using multiplication of 10 for rounding.
-        ServiceStatistics.SubForm.First;
+        AmountRoundingPrecision := 10 * GetAmountRoundingPrecision();  // Using multiplication of 10 for rounding.
+        ServiceStatistics.SubForm.First();
         repeat
             Evaluate(StatisticsVATBase, ServiceStatistics.SubForm."VAT Base".Value);
             Evaluate(StatisticsVATAmount, ServiceStatistics.SubForm."VAT Amount".Value);
@@ -2598,7 +2598,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateDiscountAmount then begin
             UpdateDiscountAmountOrder(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2606,8 +2606,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsDetails(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2618,7 +2618,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateDiscountAmount then begin
             UpdateDiscountAmountOrder(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2626,8 +2626,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsShipping(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2638,7 +2638,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateDiscountAmount then begin
             UpdateDiscountAmountOrder(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2647,8 +2647,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineItems(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2659,7 +2659,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateDiscountAmount then begin
             UpdateDiscountAmountStatistics(ServiceStatistics);
-            ServiceStatistics.OK.Invoke;
+            ServiceStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2667,7 +2667,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceStatisticsGeneral(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
         VerifyServiceLineItems(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2678,7 +2678,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateTotalVAT then begin
             UpdateTotalVATOrderStatistics(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2687,8 +2687,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineItems(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2699,7 +2699,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateTotalVAT then begin
             UpdateTotalVATOrderStatistics(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2707,8 +2707,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsShipping(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2719,7 +2719,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateTotalVAT then begin
             UpdateTotalVATOrderStatistics(ServiceOrderStatistics);
-            ServiceOrderStatistics.OK.Invoke;
+            ServiceOrderStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2727,8 +2727,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsDetails(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2739,7 +2739,7 @@ codeunit 136130 "Service Statistics"
     begin
         if not UpdateTotalVAT then begin
             UpdateTotalVATStatistics(ServiceStatistics);
-            ServiceStatistics.OK.Invoke;
+            ServiceStatistics.OK().Invoke();
             exit;
         end;
 
@@ -2747,7 +2747,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceStatisticsGeneral(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
         VerifyServiceLineItems(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2755,7 +2755,7 @@ codeunit 136130 "Service Statistics"
     procedure CreditLimitLCYPageHandler(var ServiceOrderStatistics: TestPage "Service Order Statistics")
     begin
         ServiceOrderStatistics."Credit Limit (LCY)_Customer".AssertEquals(CreditLimitLCY);
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2763,7 +2763,7 @@ codeunit 136130 "Service Statistics"
     procedure DocumentCreditLimitPageHandler(var ServiceStatistics: TestPage "Service Statistics")
     begin
         ServiceStatistics."Credit Limit (LCY)".AssertEquals(CreditLimitLCY);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2776,7 +2776,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceStatisticsGeneral(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
         VerifyServiceLineCostGLAccount(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2793,7 +2793,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceLineItems(ServiceStatistics, DocumentType2, DocumentNo2);
         VerifyServiceLineResources(ServiceStatistics, DocumentType2, DocumentNo2);
         VerifyServiceLineCostGLAccount(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2806,7 +2806,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceStatisticsGeneral(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
         VerifyServiceLineItems(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2819,7 +2819,7 @@ codeunit 136130 "Service Statistics"
         VerifyServiceStatisticsGeneral(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
         VerifyServiceLineResources(ServiceStatistics, DocumentType2, DocumentNo2);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2832,7 +2832,7 @@ codeunit 136130 "Service Statistics"
         ServiceLine.CalcSums("Amount Including VAT", Amount, "VAT Base Amount");
         VerifyServiceStatistics(ServiceStatistics, ServiceLine);
         VerifyServiceStatisticsVATLine(ServiceStatistics, ServiceLine);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2846,8 +2846,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineCostGLAccount(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2861,8 +2861,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineItems(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2879,8 +2879,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineCostGLAccount(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2894,8 +2894,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderLineResources(ServiceOrderStatistics, DocumentNo2);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2909,8 +2909,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatistics(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_General".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2930,8 +2930,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsDetails(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2944,8 +2944,8 @@ codeunit 136130 "Service Statistics"
         VerifyOrderStatisticsShipping(ServiceOrderStatistics, ServiceLine);
 
         // Verify VAT Amount Line on Page handler.
-        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown;
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics."No. of VAT Lines_Shipping".DrillDown();
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2953,8 +2953,8 @@ codeunit 136130 "Service Statistics"
     procedure QuoteLinesPageHandler(var ServiceQuoteLines: TestPage "Service Quote Lines")
     begin
         CreateServiceQuoteLine(ServiceQuoteLines, Type2, No2);
-        ServiceQuoteLines.CalculateInvoiceDiscount.Invoke;
-        ServiceQuoteLines.OK.Invoke;
+        ServiceQuoteLines.CalculateInvoiceDiscount.Invoke();
+        ServiceQuoteLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2965,8 +2965,8 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteLine(ServiceQuoteLines, Type2::"G/L Account", GLAccountNo);
         CreateServiceQuoteLine(ServiceQuoteLines, Type2::Resource, ResourceNo);
         CreateServiceQuoteLine(ServiceQuoteLines, Type2::Cost, CostCode);
-        ServiceQuoteLines.CalculateInvoiceDiscount.Invoke;
-        ServiceQuoteLines.OK.Invoke;
+        ServiceQuoteLines.CalculateInvoiceDiscount.Invoke();
+        ServiceQuoteLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2974,8 +2974,8 @@ codeunit 136130 "Service Statistics"
     procedure ServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         CreateServiceLine(ServiceLines, Type2, No2);
-        ServiceLines."Calculate Invoice Discount".Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines."Calculate Invoice Discount".Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2986,8 +2986,8 @@ codeunit 136130 "Service Statistics"
         CreateServiceLine(ServiceLines, Type2::"G/L Account", GLAccountNo);
         CreateServiceLine(ServiceLines, Type2::Resource, ResourceNo);
         CreateServiceLine(ServiceLines, Type2::Cost, CostCode);
-        ServiceLines."Calculate Invoice Discount".Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines."Calculate Invoice Discount".Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -3011,7 +3011,7 @@ codeunit 136130 "Service Statistics"
         // Verify VAT Amount Line.
 
         VerifyServiceOrderVATLine(VATAmountLines, DocumentNo2);
-        VATAmountLines.OK.Invoke;
+        VATAmountLines.OK().Invoke();
     end;
 }
 

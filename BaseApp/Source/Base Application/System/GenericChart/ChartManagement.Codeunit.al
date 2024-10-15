@@ -313,14 +313,13 @@ codeunit 1315 "Chart Management"
         EndDate := BusinessChartBuffer."Period Filter End Date";
         case ChartDefinition."Code Unit ID" of
             CODEUNIT::"Acc. Sched. Chart Management":
-                with AccountSchedulesChartSetup do
-                    case "Base X-Axis on" of
-                        "Base X-Axis on"::Period:
-                            StatusText := StrSubstNo(MediumStatusTxt, ChartDefinition."Chart Name", "Period Length");
-                        "Base X-Axis on"::"Acc. Sched. Line",
-                      "Base X-Axis on"::"Acc. Sched. Column":
-                            StatusText := StrSubstNo(LongStatusTxt, ChartDefinition."Chart Name", StartDate, EndDate, "Period Length");
-                    end;
+                case AccountSchedulesChartSetup."Base X-Axis on" of
+                    AccountSchedulesChartSetup."Base X-Axis on"::Period:
+                        StatusText := StrSubstNo(MediumStatusTxt, ChartDefinition."Chart Name", AccountSchedulesChartSetup."Period Length");
+                    AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line",
+                      AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
+                        StatusText := StrSubstNo(LongStatusTxt, ChartDefinition."Chart Name", StartDate, EndDate, AccountSchedulesChartSetup."Period Length");
+                end;
             CODEUNIT::"Sales by Cust. Grp. Chart Mgt.",
           CODEUNIT::"Aged Acc. Receivable",
           CODEUNIT::"Aged Acc. Payable",
@@ -335,19 +334,18 @@ codeunit 1315 "Chart Management"
     var
         LastUsedChart: Record "Last Used Chart";
     begin
-        with LastUsedChart do
-            if Get(UserId) then begin
-                if ("Code Unit ID" <> ChartDefinition."Code Unit ID") or ("Chart Name" <> ChartDefinition."Chart Name") then begin
-                    Validate("Code Unit ID", ChartDefinition."Code Unit ID");
-                    Validate("Chart Name", ChartDefinition."Chart Name");
-                    Modify();
-                end;
-            end else begin
-                Validate(UID, UserId);
-                Validate("Code Unit ID", ChartDefinition."Code Unit ID");
-                Validate("Chart Name", ChartDefinition."Chart Name");
-                Insert();
+        if LastUsedChart.Get(UserId) then begin
+            if (LastUsedChart."Code Unit ID" <> ChartDefinition."Code Unit ID") or (LastUsedChart."Chart Name" <> ChartDefinition."Chart Name") then begin
+                LastUsedChart.Validate("Code Unit ID", ChartDefinition."Code Unit ID");
+                LastUsedChart.Validate("Chart Name", ChartDefinition."Chart Name");
+                LastUsedChart.Modify();
             end;
+        end else begin
+            LastUsedChart.Validate(UID, UserId);
+            LastUsedChart.Validate("Code Unit ID", ChartDefinition."Code Unit ID");
+            LastUsedChart.Validate("Chart Name", ChartDefinition."Chart Name");
+            LastUsedChart.Insert();
+        end;
     end;
 
     local procedure InsertChartDefinition(ChartCodeunitId: Integer; ChartName: Text[60])

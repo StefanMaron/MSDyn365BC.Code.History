@@ -47,11 +47,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        BlanketSalesOrder.Trap;
-        CustomerCard.NewBlanketSalesOrder.Invoke;
+        BlanketSalesOrder.Trap();
+        CustomerCard.NewBlanketSalesOrder.Invoke();
 
         // Verification
         Assert.AreEqual(
@@ -77,11 +77,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
 
         // Verification
         Assert.AreEqual(Customer.Name, SalesQuote."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
@@ -104,11 +104,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        SalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // Verification
         Assert.AreEqual(Customer.Name, SalesInvoice."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
@@ -131,14 +131,14 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        SalesOrder.Trap;
-        CustomerCard.NewSalesOrder.Invoke;
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
 
         // Verification
-        SalesOrder."Sell-to Customer Name".Activate;
+        SalesOrder."Sell-to Customer Name".Activate();
         Assert.AreEqual(Customer.Name, SalesOrder."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, SalesOrder."Sell-to Address".Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", SalesOrder."Sell-to Post Code".Value,
@@ -159,11 +159,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        SalesCreditMemo.Trap;
-        CustomerCard.NewSalesCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        CustomerCard.NewSalesCreditMemo.Invoke();
 
         // Verification
         Assert.AreEqual(Customer.Name, SalesCreditMemo."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
@@ -186,11 +186,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        SalesReturnOrder.Trap;
-        CustomerCard.NewSalesReturnOrder.Invoke;
+        SalesReturnOrder.Trap();
+        CustomerCard.NewSalesReturnOrder.Invoke();
 
         // Verification
         Assert.AreEqual(Customer.Name, SalesReturnOrder."Sell-to Customer Name".Value, 'Customername is not carried over to the document');
@@ -215,14 +215,14 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        ServiceQuote.Trap;
-        CustomerCard.NewServiceQuote.Invoke;
+        ServiceQuote.Trap();
+        CustomerCard.NewServiceQuote.Invoke();
 
         // Verification
-        ServiceQuote.Description.Activate;
+        ServiceQuote.Description.Activate();
         Assert.AreEqual(Customer."No.", ServiceQuote."Customer No.".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Name, ServiceQuote.Name.Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, ServiceQuote.Address.Value, 'Customer address is not carried over to the document');
@@ -244,14 +244,14 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        ServiceInvoice.Trap;
-        CustomerCard.NewServiceInvoice.Invoke;
+        ServiceInvoice.Trap();
+        CustomerCard.NewServiceInvoice.Invoke();
 
         // Verification
-        ServiceInvoice.Name.Activate;
+        ServiceInvoice.Name.Activate();
         Assert.AreEqual(Customer."No.", ServiceInvoice."Customer No.".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Name, ServiceInvoice.Name.Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, ServiceInvoice.Address.Value, 'Customer address is not carried over to the document');
@@ -273,14 +273,14 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        ServiceOrder.Trap;
-        CustomerCard.NewServiceOrder.Invoke;
+        ServiceOrder.Trap();
+        CustomerCard.NewServiceOrder.Invoke();
 
         // Verification
-        ServiceOrder.Description.Activate;
+        ServiceOrder.Description.Activate();
         Assert.AreEqual(Customer."No.", ServiceOrder."Customer No.".Value, 'Customername is not carried over to the document');
         Assert.AreEqual(Customer.Address, ServiceOrder.Address.Value, 'Customer address is not carried over to the document');
         Assert.AreEqual(Customer."Post Code", ServiceOrder."Post Code".Value,
@@ -293,19 +293,30 @@ codeunit 134771 "New Document from CustomerCard"
     procedure NewServiceCrMemoFromCustomer()
     var
         Customer: Record Customer;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        NoSeries: Record "No. Series";
         CustomerCard: TestPage "Customer Card";
         ServiceCreditMemo: TestPage "Service Credit Memo";
+        NoSeriesUpdated: Boolean;
     begin
         // Setup
         Initialize();
         CreateCustomer(Customer);
 
+        // Check Service Cr. Memo No. Series
+        ServiceMgtSetup.Get();
+        if NoSeries.Get(ServiceMgtSetup."Service Credit Memo Nos.") then begin
+            NoSeries."Manual Nos." := false;
+            NoSeries.Modify();
+            NoSeriesUpdated := true;
+        end;
+
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        ServiceCreditMemo.Trap;
-        CustomerCard.NewServiceCreditMemo.Invoke;
+        ServiceCreditMemo.Trap();
+        CustomerCard.NewServiceCreditMemo.Invoke();
 
         // Verification
         Assert.AreEqual(Customer."No.", ServiceCreditMemo."Customer No.".Value, 'Customername is not carried over to the document');
@@ -313,6 +324,11 @@ codeunit 134771 "New Document from CustomerCard"
         Assert.AreEqual(Customer."Post Code", ServiceCreditMemo."Post Code".Value,
           'Customer postcode is not carried over to the document');
         Assert.AreEqual(Customer.Contact, ServiceCreditMemo."Contact Name".Value, 'Customer contact is not carried over to the document');
+
+        if NoSeriesUpdated then begin
+            NoSeries."Manual Nos." := true;
+            NoSeries.Modify();
+        end;
     end;
 
     [Test]
@@ -328,11 +344,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        Reminder.Trap;
-        CustomerCard.NewReminder.Invoke;
+        Reminder.Trap();
+        CustomerCard.NewReminder.Invoke();
 
         // Verification
         Assert.AreEqual(Customer."No.", Reminder."Customer No.".Value, 'Customername is not carried over to the document');
@@ -354,11 +370,11 @@ codeunit 134771 "New Document from CustomerCard"
         CreateCustomer(Customer);
 
         // Execute
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
-        FinanceChargeMemo.Trap;
-        CustomerCard.NewFinanceChargeMemo.Invoke;
+        FinanceChargeMemo.Trap();
+        CustomerCard.NewFinanceChargeMemo.Invoke();
 
         // Verification
         Assert.AreEqual(Customer."No.", FinanceChargeMemo."Customer No.".Value, 'Customername is not carried over to the document');
@@ -382,17 +398,17 @@ codeunit 134771 "New Document from CustomerCard"
         // [GIVEN] Opening Customer card
         Initialize();
         CreateCustomer(Customer);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // [GIVEN] Opening First New Sales Invoice
-        FirstSalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        FirstSalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
         VerifySalesInvoicePage(Customer, FirstSalesInvoice);
 
         // [WHEN] Opening Second New Sales Invoice
-        SecondSalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SecondSalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [THEN] Fields on the page "Sales Invoice" have been filled
         VerifySalesInvoicePage(Customer, SecondSalesInvoice);
@@ -424,13 +440,13 @@ codeunit 134771 "New Document from CustomerCard"
         StandardCustomerSalesCode.Modify();
 
         // [WHEN] Opening the customer card and then creating a new sales order.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        SalesOrder.Trap;
-        CustomerCard.NewSalesOrder.Invoke;
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
 
         // [THEN] The sales order is filled out with the customer information.
-        SalesOrder."Sell-to Customer Name".Activate;
+        SalesOrder."Sell-to Customer Name".Activate();
 
         Assert.AreEqual(Customer.Name, SalesOrder."Sell-to Customer Name".Value,
             'Customername is not carried over to the document');
@@ -474,13 +490,13 @@ codeunit 134771 "New Document from CustomerCard"
         StandardCustomerSalesCode.Modify();
 
         // [WHEN] Opening the customer card and then creating a new sales invoice.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        SalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [THEN] The sales invoice is filled out with the customer information and recurring sales line.
-        SalesInvoice."Sell-to Customer Name".Activate;
+        SalesInvoice."Sell-to Customer Name".Activate();
 
         Assert.AreEqual(Customer.Name, SalesInvoice."Sell-to Customer Name".Value,
             'Customername is not carried over to the document');
@@ -524,13 +540,13 @@ codeunit 134771 "New Document from CustomerCard"
         StandardCustomerSalesCode.Modify();
 
         // [WHEN] Opening the customer card and then creating a new sales credit memo.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        SalesCreditMemo.Trap;
-        CustomerCard.NewSalesCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        CustomerCard.NewSalesCreditMemo.Invoke();
 
         // [THEN] The sales credit memo is filled out with the customer information and recurring sales line.
-        SalesCreditMemo."Sell-to Customer Name".Activate;
+        SalesCreditMemo."Sell-to Customer Name".Activate();
 
         Assert.AreEqual(Customer.Name, SalesCreditMemo."Sell-to Customer Name".Value,
             'Customername is not carried over to the document');
@@ -574,13 +590,13 @@ codeunit 134771 "New Document from CustomerCard"
         StandardCustomerSalesCode.Modify();
 
         // [WHEN] Opening the customer card and then creating a new sales quote.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
 
         // [THEN] The sales quote is filled out with the customer information and recurring sales line.
-        SalesQuote."Sell-to Customer Name".Activate;
+        SalesQuote."Sell-to Customer Name".Activate();
 
         Assert.AreEqual(Customer.Name, SalesQuote."Sell-to Customer Name".Value,
             'Customername is not carried over to the document');
@@ -621,10 +637,10 @@ codeunit 134771 "New Document from CustomerCard"
         StandardCustomerSalesCode.Modify();
 
         // [WHEN] Opening the customer card and then creating a new sales order.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        SalesOrder.Trap;
-        CustomerCard.NewSalesOrder.Invoke;
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
 
         // [VERIFY] Verify: The sales lines should not have the recurring sales line filled out.
         VerifyRecurringSalesLineNotFilledOut(Item);

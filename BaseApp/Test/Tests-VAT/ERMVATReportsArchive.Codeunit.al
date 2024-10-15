@@ -36,7 +36,7 @@ codeunit 134094 "ERM VAT Reports Archive"
         VATReportNo := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
 
         // [WHEN] The message is archived
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         VATReportArchive.ArchiveSubmissionMessage(VATReportArchive."VAT Report Type"::"VAT Return".AsInteger(), VATReportNo, TempBlob, DummyGuid);
 
         // [THEN] User can open it from VAT Report List page
@@ -69,7 +69,7 @@ codeunit 134094 "ERM VAT Reports Archive"
         VATReportNo := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
 
         // [WHEN] The message is archived
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         VATReportArchive.ArchiveSubmissionMessage(VATReportArchive."VAT Report Type"::"VAT Return".AsInteger(), VATReportNo, TempBlob, DummyGuid);
         VATReportArchive.ArchiveResponseMessage(VATReportArchive."VAT Report Type"::"VAT Return".AsInteger(), VATReportNo, TempBlob, DummyGuid);
 

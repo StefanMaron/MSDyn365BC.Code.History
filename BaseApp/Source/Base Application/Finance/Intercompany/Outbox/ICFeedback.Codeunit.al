@@ -14,12 +14,12 @@ codeunit 404 "IC Feedback"
         CreatedAndSentTransactionMsg: Label 'An entry for document %1 has been created as an intercompany transaction. The entry was automatically sent to IC partner %2.', Comment = '%1 = Document No., %2 = IC Partner No.';
         CreatedAndSentMultipleTransactionsMsg: Label 'Multiple entries have been created as intercompany transactions. The entries were automatically sent to their corresponding IC partners.';
 
-    internal procedure ShowIntercompanyMessage(PurchaseHeader: Record "Purchase Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type")
+    procedure ShowIntercompanyMessage(PurchaseHeader: Record "Purchase Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type")
     begin
         ShowIntercompanyMessage(PurchaseHeader, ICTransactionDocumentType, PurchaseHeader."No.");
     end;
 
-    internal procedure ShowIntercompanyMessage(PurchaseHeader: Record "Purchase Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
+    procedure ShowIntercompanyMessage(PurchaseHeader: Record "Purchase Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     var
         ICSetup: Record "IC Setup";
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -46,12 +46,12 @@ codeunit 404 "IC Feedback"
         end;
     end;
 
-    internal procedure ShowIntercompanyMessage(SalesHeader: Record "Sales Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type")
+    procedure ShowIntercompanyMessage(SalesHeader: Record "Sales Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type")
     begin
         ShowIntercompanyMessage(SalesHeader, ICTransactionDocumentType, SalesHeader."No.");
     end;
 
-    internal procedure ShowIntercompanyMessage(SalesHeader: Record "Sales Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
+    procedure ShowIntercompanyMessage(SalesHeader: Record "Sales Header"; ICTransactionDocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     var
         ICSetup: Record "IC Setup";
         ICOutboxTransaction: Record "IC Outbox Transaction";

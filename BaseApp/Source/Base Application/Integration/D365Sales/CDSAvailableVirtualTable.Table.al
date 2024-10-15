@@ -10,6 +10,7 @@ table 5371 "CDS Available Virtual Table"
     TableType = CRM;
     Description = 'Contains available Business Central tables in Dataverse.';
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

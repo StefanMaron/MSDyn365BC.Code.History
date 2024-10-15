@@ -5,6 +5,7 @@ table 301 "Finance Charge Text"
     Caption = 'Finance Charge Text';
     DrillDownPageID = "Finance Charge Text";
     LookupPageID = "Finance Charge Text";
+    DataClassification = CustomerContent;
 
     fields
     {

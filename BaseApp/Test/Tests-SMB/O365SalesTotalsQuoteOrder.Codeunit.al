@@ -36,8 +36,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableFoundationSetup();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Lazy Setup.
         if isInitialized then
@@ -46,7 +46,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
@@ -56,7 +56,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesSetup.Modify();
 
         InventorySetup.Get();
-        ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
+        ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
         if InventorySetup."Item Nos." <> ItemNoSeries then begin
             InventorySetup.Validate("Item Nos.", ItemNoSeries);
             InventorySetup.Modify();
@@ -76,7 +76,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
             DATABASE::"Res. Ledger Entry":
                 ResLedgerEntry.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -99,8 +99,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
 
         CheckTotals(
-          ItemQuantity * Item."Unit Price", true, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesQuote.SalesLines."Total VAT Amount".AsDEcimal);
+          ItemQuantity * Item."Unit Price", true, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesQuote.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     [Test]
@@ -118,7 +118,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
 
         CheckQuoteDiscountTypePercentage(DiscPct, ItemQuantity * Item."Unit Price", SalesQuote, true, '');
     end;
@@ -144,26 +144,26 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         ItemQuantity := ItemQuantity * 2;
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
         TotalAmount := ItemQuantity * Item."Unit Price";
         CheckQuoteDiscountTypePercentage(DiscPct, TotalAmount, SalesQuote, true, '');
 
         SalesQuote.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
         TotalAmount := 2 * TotalAmount;
         CheckQuoteDiscountTypePercentage(DiscPct, TotalAmount, SalesQuote, true, '');
 
-        NewLineAmount := Round(SalesQuote.SalesLines."Line Amount".AsDEcimal / 100 * DiscPct, 1);
+        NewLineAmount := Round(SalesQuote.SalesLines."Line Amount".AsDecimal() / 100 * DiscPct, 1);
         SalesQuote.SalesLines."Line Amount".SetValue(NewLineAmount);
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
         CheckQuoteDiscountTypePercentage(DiscPct, NewLineAmount, SalesQuote, true, '');
 
         SalesQuote.SalesLines."Line Discount %".SetValue('0');
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
         CheckQuoteDiscountTypePercentage(DiscPct, TotalAmount, SalesQuote, true, '');
 
         SalesQuote.SalesLines."No.".SetValue('');
-        SalesQuote.CalculateInvoiceDiscount.Invoke;
+        SalesQuote.CalculateInvoiceDiscount.Invoke();
         TotalAmount := 0;
         CheckQuoteDiscountTypePercentage(0, TotalAmount, SalesQuote, false, '');
 
@@ -238,7 +238,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
 
@@ -335,7 +335,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesQuote."Sell-to Customer Name".SetValue(NewCustomer.Name);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Price";
@@ -427,7 +427,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode);
+        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -459,7 +459,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode);
+        SalesQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
         SalesQuote.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -491,11 +491,11 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, SalesHeader);
 
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        AnswerYesToAllConfirmDialogs;
-        SalesQuote.MakeInvoice.Invoke;
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote.MakeInvoice.Invoke();
 
         TotalAmount := Item."Unit Price" * ItemQuantity * NumberOfLines;
         CheckInvoiceDiscountTypePercentage(DiscPct, TotalAmount, SalesInvoice, true, '');
@@ -522,11 +522,11 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
 
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
         OpenSalesQuote(SalesHeader, SalesQuote);
 
-        AnswerYesToAllConfirmDialogs;
-        SalesQuote.MakeInvoice.Invoke;
+        AnswerYesToAllConfirmDialogs();
+        SalesQuote.MakeInvoice.Invoke();
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Price";
         CheckInvoiceDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesInvoice, true, '');
@@ -546,14 +546,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
-        Customer."Currency Code" := GetDifferentCurrencyCode;
+        Customer."Currency Code" := GetDifferentCurrencyCode();
         Customer.Modify(true);
         SalesQuote.OpenNew();
 
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         QuoteCheckCurrencyOnTotals(SalesQuote, Customer."Currency Code");
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         QuoteCheckCurrencyOnTotals(SalesQuote, Customer."Currency Code");
 
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
@@ -580,8 +580,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
 
         CheckTotals(
-          ItemQuantity * Item."Unit Price", true, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesOrder.SalesLines."Total VAT Amount".AsDEcimal);
+          ItemQuantity * Item."Unit Price", true, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesOrder.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     [Test]
@@ -599,7 +599,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
 
         CheckOrderDiscountTypePercentage(DiscPct, ItemQuantity * Item."Unit Price", SalesOrder, true, '');
     end;
@@ -626,26 +626,26 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity := ItemQuantity * 2;
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Unit Price";
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderDiscountTypePercentage(DiscPct, TotalAmount, SalesOrder, true, '');
 
         SalesOrder.SalesLines."Unit Price".SetValue(2 * Item."Unit Price");
         TotalAmount := 2 * TotalAmount;
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderDiscountTypePercentage(DiscPct, TotalAmount, SalesOrder, true, '');
 
-        NewLineAmount := Round(SalesOrder.SalesLines."Line Amount".AsDEcimal / 100 * DiscPct, 1);
+        NewLineAmount := Round(SalesOrder.SalesLines."Line Amount".AsDecimal() / 100 * DiscPct, 1);
         SalesOrder.SalesLines."Line Amount".SetValue(NewLineAmount);
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderDiscountTypePercentage(DiscPct, NewLineAmount, SalesOrder, true, '');
 
         SalesOrder.SalesLines."Line Discount %".SetValue('0');
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderDiscountTypePercentage(DiscPct, TotalAmount, SalesOrder, true, '');
 
         SalesOrder.SalesLines."No.".SetValue('');
         TotalAmount := 0;
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderDiscountTypePercentage(0, TotalAmount, SalesOrder, false, '');
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
@@ -719,7 +719,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
 
@@ -816,7 +816,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
         OpenSalesOrder(SalesHeader, SalesOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesOrder."Sell-to Customer Name".SetValue(NewCustomer.Name);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Price";
@@ -908,7 +908,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         OpenSalesOrder(SalesHeader, SalesOrder);
 
-        SalesOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        SalesOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -942,9 +942,9 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         OpenSalesOrder(SalesHeader, SalesOrder);
 
-        CurrencyCode := GetDifferentCurrencyCode;
+        CurrencyCode := GetDifferentCurrencyCode();
         SalesOrder."Currency Code".SetValue(CurrencyCode);
-        Assert.AreEqual(0, SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal, 'Invoice discount not set to 0');
+        Assert.AreEqual(0, SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(), 'Invoice discount not set to 0');
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindLast();
@@ -974,14 +974,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
-        Customer."Currency Code" := GetDifferentCurrencyCode;
+        Customer."Currency Code" := GetDifferentCurrencyCode();
         Customer.Modify(true);
         SalesOrder.OpenNew();
 
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
         OrderCheckCurrencyOnTotals(SalesOrder, Customer."Currency Code");
 
-        SalesOrder.SalesLines.New;
+        SalesOrder.SalesLines.New();
         OrderCheckCurrencyOnTotals(SalesOrder, Customer."Currency Code");
 
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
@@ -1074,7 +1074,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Return Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
         Initialize();
-        LibraryApplicationArea.EnableReturnOrderSetup;
+        LibraryApplicationArea.EnableReturnOrderSetup();
 
         // [GIVEN] Sales Return Order "SO01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1176,15 +1176,15 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount := TotalAmountWithoutDiscount - DiscAmt;
 
         Assert.AreEqual(
-          DiscPct, SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+          DiscPct, SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           'Customer Discount Percentage was not set to correct value');
         Assert.AreEqual(
-          DiscAmt, SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
+          DiscAmt, SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
           'Customer Invoice Discount Amount was not set to correct value');
 
         CheckTotals(
-          TotalAmount, VATApplied, SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesInvoice.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckInvoiceDiscountTypeAmount(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; SalesInvoice: TestPage "Sales Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1198,16 +1198,16 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         DiscPct := Round(InvoiceDiscAmt * 100 / TotalAmountWithoutDiscount, 0.00001);
 
         Assert.AreEqual(
-          DiscPct, SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+          DiscPct, SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           'Customer Discount Percentage was not set to the correct value');
         Assert.AreEqual(
-          InvoiceDiscAmt, SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
+          InvoiceDiscAmt, SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
-          TotalAmount, VATApplied, SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesInvoice.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckQuoteDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; SalesQuote: TestPage "Sales Quote"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1226,8 +1226,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesQuote.SalesLines."Invoice Discount Amount".AssertEquals(DiscAmt);
 
         CheckTotals(
-          TotalAmount, VATApplied, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesQuote.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesQuote.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckQuoteDiscountTypeAmount(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; SalesQuote: TestPage "Sales Quote"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1241,16 +1241,16 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         RoundAmount(InvoiceDiscAmt, CurrencyCode);
 
         Assert.AreEqual(
-          DiscPct, SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+          DiscPct, SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           'Customer Discount Percentage should be zero for Invoice Discount Type Amount');
         Assert.AreEqual(
-          InvoiceDiscAmt, SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
+          InvoiceDiscAmt, SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
-          TotalAmount, VATApplied, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesQuote.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesQuote.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckOrderDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; SalesOrder: TestPage "Sales Order"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1269,8 +1269,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(DiscAmt);
 
         CheckTotals(
-          TotalAmount, VATApplied, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesOrder.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesOrder.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckOrderDiscountTypeAmount(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; SalesOrder: TestPage "Sales Order"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1284,16 +1284,16 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         RoundAmount(InvoiceDiscAmt, CurrencyCode);
 
         Assert.AreEqual(
-          DiscPct, Round(SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal, 0.01),
+          DiscPct, Round(SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(), 0.01),
           'Wrong Customer Discount Percentage for Invoice Discount Type Amount');
         Assert.AreEqual(
-          InvoiceDiscAmt, SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
+          InvoiceDiscAmt, SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
-          TotalAmount, VATApplied, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal, SalesOrder.SalesLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(), SalesOrder.SalesLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckTotals(ExpectedAmountExclVAT: Decimal; VATApplied: Boolean; ActualAmountInclVAT: Decimal; ActualAmountExclVAT: Decimal; ActualVATAmount: Decimal)
@@ -1351,7 +1351,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
         SalesQuote.SalesLines.Next();
@@ -1363,7 +1363,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
 
-        SalesOrder.SalesLines.First;
+        SalesOrder.SalesLines.First();
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         SalesOrder.SalesLines.Next();
@@ -1372,26 +1372,26 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
     local procedure OpenSalesQuote(SalesHeader: Record "Sales Header"; var SalesQuote: TestPage "Sales Quote")
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.SalesLines.Next();
     end;
 
     local procedure OpenSalesOrder(SalesHeader: Record "Sales Header"; var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesReturnOrder(SalesHeader: Record "Sales Header"; var SalesReturnOrder: TestPage "Sales Return Order")
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesBlanketOrder(SalesHeader: Record "Sales Header"; var BlanketSalesOrder: TestPage "Blanket Sales Order")
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
     end;
 
@@ -1431,7 +1431,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
             Currency.FindFirst();
             Amount := Round(Amount, Currency."Amount Rounding Precision");
         end else
-            Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision);
+            Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure SetupDataForDiscountTypePct(var Item: Record Item; var ItemQuantity: Decimal; var Customer: Record Customer; var DiscPct: Decimal)

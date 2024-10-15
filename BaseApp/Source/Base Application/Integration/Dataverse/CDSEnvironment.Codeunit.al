@@ -5,6 +5,7 @@
 namespace Microsoft.Integration.Dataverse;
 
 using System.Security.Authentication;
+using System.Environment;
 using System.Utilities;
 
 codeunit 7203 "CDS Environment"
@@ -34,8 +35,9 @@ codeunit 7203 "CDS Environment"
         EnvironmentUrlEmptyTxt: Label 'Environment URL is empty.', Locked = true;
         NoEnvironmentsWhenUrlNotEmptyMsg: Label 'No Dataverse environments were discovered.';
         NoEnvironmentsWhenUrlEmptyMsg: Label 'No Dataverse environments were discovered. Enter the URL of the Dataverse environment to connect to.';
-        GlobalDiscoApiUrlTok: Label 'https://globaldisco.crm.dynamics.com/api/discovery/v1.0/Instances', Locked = true;
+        GlobalDiscoApiUrlTok: Label 'https://globaldisco.crm.dynamics.com/api/discovery/v2.0/Instances', Locked = true;
         RequestFailedWithStatusCodeTxt: Label 'Request failed with status code %1.', Locked = true;
+        EnvironmentIdFilterTok: Label '?$filter=EnvironmentId eq ''%1''', Locked = true, Comment = '%1 = The environment id to filter on';
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -47,7 +49,7 @@ codeunit 7203 "CDS Environment"
         if Token = '' then
             exit(false);
 
-        EnvironmentCount := GetCDSEnvironments(TempCDSEnvironment, Token);
+        EnvironmentCount := GetCDSEnvironments(TempCDSEnvironment, Token, '');
 
         if EnvironmentCount = 0 then begin
             if GuiAllowed then
@@ -73,6 +75,23 @@ codeunit 7203 "CDS Environment"
             exit(true);
         end;
         exit(false);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetGlobalDiscoverabilityOnBehalfToken(): Text
+    var
+        OAuth2: Codeunit OAuth2;
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        Scopes: List of [Text];
+        Token: Text;
+    begin
+        Scopes.Add(ScopesLbl);
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), Scopes, Token);
+        if Token <> '' then
+            exit(Token)
+        else
+            exit('');
     end;
 
     [Scope('OnPrem')]
@@ -122,7 +141,7 @@ codeunit 7203 "CDS Environment"
         if ConsumerSecret = '' then
             Session.LogMessage('0000BRC', MissingSecretErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
-        if (ConsumerKey <> '') AND (ConsumerSecret <> '') then begin
+        if (ConsumerKey <> '') and (ConsumerSecret <> '') then begin
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ConsumerKey, ConsumerSecret, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
             if Token = '' then
                 OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, Scopes, PromptInteraction::Login, Token, Err);
@@ -134,8 +153,9 @@ codeunit 7203 "CDS Environment"
     end;
 
     [NonDebuggable]
-    local procedure GetCDSEnvironments(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: Text): Integer
+    local procedure GetCDSEnvironments(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: Text; FilterTxt: Text): Integer
     var
+        EnvironmentInformation: Codeunit "Environment Information";
         TempBlob: Codeunit "Temp Blob";
         RequestMessage: HttpRequestMessage;
         ResponseMessage: HttpResponseMessage;
@@ -156,7 +176,7 @@ codeunit 7203 "CDS Environment"
         RequestMessage.GetHeaders(RequestHeaders);
         RequestHeaders.Add('Authorization', 'Bearer ' + Token);
 
-        RequestMessage.SetRequestUri(GlobalDiscoApiUrlTok);
+        RequestMessage.SetRequestUri(GlobalDiscoApiUrlTok + FilterTxt);
         RequestMessage.Method('GET');
 
         Clear(TempBlob);
@@ -226,6 +246,12 @@ codeunit 7203 "CDS Environment"
             if JObject.Get('Version', JToken) then
                 TempCDSEnvironment.Version := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempCDSEnvironment.Version));
 
+            if JObject.Get('EnvironmentId', JToken) then begin
+                TempCDSEnvironment."Environment Id" := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempCDSEnvironment."Environment Id"));
+                if EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId() = TempCDSEnvironment."Environment Id" then
+                    TempCDSEnvironment.Linked := true;
+            end;
+
             if TempCDSEnvironment.Url = '' then
                 Session.LogMessage('0000AVI', EnvironmentUrlEmptyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
@@ -236,5 +262,21 @@ codeunit 7203 "CDS Environment"
         end;
 
         exit(EnvironmentCount);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    internal procedure SetLinkedDataverseEnvironmentUrl(var CDSConnectionSetup: Record "CDS Connection Setup"; Token: Text)
+    var
+        TempCDSEnvironment: Record "CDS Environment" temporary;
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if Token = '' then
+            exit;
+
+        if GetCDSEnvironments(TempCDSEnvironment, Token, StrSubstNo(EnvironmentIdFilterTok, EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId())) = 1 then begin
+            TempCDSEnvironment.FindFirst();
+            CDSConnectionSetup."Server Address" := TempCDSEnvironment.Url;
+        end;
     end;
 }

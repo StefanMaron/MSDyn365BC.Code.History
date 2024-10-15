@@ -24,14 +24,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerView;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerView();
 
         // [WHEN] customer card is viewed
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
 
         // [THEN] Lookup address option is hidden
-        Assert.IsFalse(CustomerCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CustomerCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -43,14 +43,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
 
         // [THEN] Lookup address option is hidden
-        Assert.IsFalse(CustomerCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CustomerCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -61,17 +61,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard."Country/Region Code".Value('GB');
 
         // [THEN] Lookup address option is visible
-        Assert.IsTrue(CustomerCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(CustomerCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -82,17 +82,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard."Country/Region Code".Value('SI');
 
         // [THEN] lookup text is visible, postcode lookup field is visible
-        Assert.IsFalse(CustomerCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CustomerCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -113,12 +113,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] we assume successful process, copying fields
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard."Country/Region Code".SetValue('');
-        CustomerCard.LookupAddress.DrillDown; // trigger postcode search
+        CustomerCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -129,8 +129,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', CustomerCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', CustomerCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -151,10 +151,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [GIVEN] ensure blank address fields
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.Address.Value('');
         CustomerCard."Address 2".Value('');
         CustomerCard."Post Code".Value('');
@@ -162,7 +162,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CustomerCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        CustomerCard.LookupAddress.DrillDown;
+        CustomerCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -172,8 +172,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', CustomerCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', CustomerCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -185,14 +185,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365HRView;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365HRView();
 
         // [WHEN] customer card is viewed
-        EmployeeCard.OpenView;
+        EmployeeCard.OpenView();
 
         // [THEN] Lookup address option is hidden
-        Assert.IsFalse(EmployeeCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(EmployeeCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -204,14 +204,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365HREdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365HREdit();
 
         // [WHEN] customer card is opened
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
 
         // [THEN] Lookup address option is hidden
-        Assert.IsFalse(EmployeeCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(EmployeeCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -222,17 +222,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard."Country/Region Code".Value('GB');
 
         // [THEN] Lookup address option is visible
-        Assert.IsTrue(EmployeeCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(EmployeeCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -243,17 +243,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard."Country/Region Code".Value('SI');
 
         // [THEN] lookup text is visible, postcode lookup field is visible
-        Assert.IsFalse(EmployeeCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(EmployeeCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -274,12 +274,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
 
         // [WHEN] we assume successful process, copying fields
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard."Country/Region Code".SetValue('');
-        EmployeeCard.LookupAddress.DrillDown; // trigger postcode search
+        EmployeeCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -290,8 +290,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', EmployeeCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', EmployeeCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -312,10 +312,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
 
         // [GIVEN] ensure blank address fields
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.Address.Value('');
         EmployeeCard."Address 2".Value('');
         EmployeeCard."Post Code".Value('');
@@ -323,7 +323,7 @@ codeunit 144502 "Test UK Postcode Pages"
         EmployeeCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        EmployeeCard.LookupAddress.DrillDown;
+        EmployeeCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -333,8 +333,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', EmployeeCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', EmployeeCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -346,14 +346,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerView;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerView();
 
         // [WHEN] customer card is viewed
-        ShiptoAddress.OpenView;
+        ShiptoAddress.OpenView();
 
         // [THEN] regular postcode fields are visible instead of lookup fields
-        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -365,14 +365,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened
-        ShiptoAddress.OpenEdit;
+        ShiptoAddress.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -383,17 +383,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        ShiptoAddress.OpenEdit;
+        ShiptoAddress.OpenEdit();
         ShiptoAddress."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(ShiptoAddress.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(ShiptoAddress.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -404,17 +404,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        ShiptoAddress.OpenEdit;
+        ShiptoAddress.OpenEdit();
         ShiptoAddress."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ShiptoAddress.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -435,12 +435,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] we assume successful process, copying fields
-        ShiptoAddress.OpenEdit;
+        ShiptoAddress.OpenEdit();
         ShiptoAddress."Country/Region Code".Value('GB');
-        ShiptoAddress.LookupAddress.DrillDown; // trigger postcode search
+        ShiptoAddress.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -451,8 +451,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', ShiptoAddress.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', ShiptoAddress."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -473,10 +473,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [GIVEN] ensure blank address fields
-        ShiptoAddress.OpenEdit;
+        ShiptoAddress.OpenEdit();
         ShiptoAddress.Address.Value('');
         ShiptoAddress."Address 2".Value('');
         ShiptoAddress."Post Code".Value('');
@@ -484,7 +484,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ShiptoAddress."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        ShiptoAddress.LookupAddress.DrillDown;
+        ShiptoAddress.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -494,8 +494,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', ShiptoAddress.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', ShiptoAddress."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -507,14 +507,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetVendorView;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetVendorView();
 
         // [WHEN] customer card is viewed
-        VendorCard.OpenView;
+        VendorCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(VendorCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(VendorCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -526,14 +526,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetVendorEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetVendorEdit();
 
         // [WHEN] customer card is opened
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(VendorCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(VendorCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -544,17 +544,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetVendorEdit;
+        LibraryLowerPermissions.SetVendorEdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(VendorCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(VendorCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -565,17 +565,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetVendorEdit;
+        LibraryLowerPermissions.SetVendorEdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(VendorCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(VendorCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -596,12 +596,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetVendorEdit;
+        LibraryLowerPermissions.SetVendorEdit();
 
         // [WHEN] we assume successful process, copying fields
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard."Country/Region Code".Value('');
-        VendorCard.LookupAddress.DrillDown; // trigger postcode search
+        VendorCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -612,8 +612,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', VendorCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', VendorCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -634,10 +634,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetVendorEdit;
+        LibraryLowerPermissions.SetVendorEdit();
 
         // [GIVEN] ensure blank address fields
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.Address.Value('');
         VendorCard."Address 2".Value('');
         VendorCard."Post Code".Value('');
@@ -645,7 +645,7 @@ codeunit 144502 "Test UK Postcode Pages"
         VendorCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        VendorCard.LookupAddress.DrillDown;
+        VendorCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -655,8 +655,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', VendorCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', VendorCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -668,14 +668,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] customer card is viewed
-        BankAccountCard.OpenView;
+        BankAccountCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(BankAccountCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(BankAccountCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -687,14 +687,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] customer card is opened
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(BankAccountCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(BankAccountCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -705,17 +705,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] customer card is opened and country is set to GB
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(BankAccountCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(BankAccountCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -726,17 +726,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(BankAccountCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(BankAccountCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -757,12 +757,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] we assume successful process, copying fields
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard."Country/Region Code".Value('');
-        BankAccountCard.LookupAddress.DrillDown; // trigger postcode search
+        BankAccountCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -773,8 +773,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', BankAccountCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', BankAccountCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -795,10 +795,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [GIVEN] ensure blank address fields
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard.Address.Value('');
         BankAccountCard."Address 2".Value('');
         BankAccountCard."Post Code".Value('');
@@ -806,7 +806,7 @@ codeunit 144502 "Test UK Postcode Pages"
         BankAccountCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        BankAccountCard.LookupAddress.DrillDown;
+        BankAccountCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -816,8 +816,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', BankAccountCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', BankAccountCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -829,14 +829,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is viewed
-        LocationCard.OpenView;
+        LocationCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(LocationCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(LocationCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -848,14 +848,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(LocationCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(LocationCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -866,17 +866,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to GB
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(LocationCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(LocationCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -887,17 +887,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(LocationCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(LocationCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -918,12 +918,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] we assume successful process, copying fields
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard."Country/Region Code".Value('GB');
-        LocationCard.LookupAddress.DrillDown; // trigger postcode search
+        LocationCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -934,8 +934,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', LocationCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', LocationCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -956,10 +956,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] ensure blank address fields
-        LocationCard.OpenEdit;
+        LocationCard.OpenEdit();
         LocationCard.Address.Value('');
         LocationCard."Address 2".Value('');
         LocationCard."Post Code".Value('');
@@ -967,7 +967,7 @@ codeunit 144502 "Test UK Postcode Pages"
         LocationCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        LocationCard.LookupAddress.DrillDown;
+        LocationCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -977,8 +977,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', LocationCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', LocationCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -990,14 +990,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is viewed
-        ResourceCard.OpenView;
+        ResourceCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ResourceCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ResourceCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1009,14 +1009,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ResourceCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ResourceCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1027,15 +1027,15 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(ResourceCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(ResourceCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1056,11 +1056,11 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] we assume successful process, copying fields
-        ResourceCard.OpenEdit;
-        ResourceCard.LookupAddress.DrillDown; // trigger postcode search
+        ResourceCard.OpenEdit();
+        ResourceCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -1070,7 +1070,7 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('POSTCODE', ResourceCard."Post Code".Value, RetrievedInvalidValueTok);
         Assert.AreEqual('CITY', ResourceCard.City.Value, RetrievedInvalidValueTok);
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1091,17 +1091,17 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] ensure blank address fields
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.Address.Value('');
         ResourceCard."Address 2".Value('');
         ResourceCard."Post Code".Value('');
         ResourceCard.City.Value('');
 
         // [WHEN] trigger postcode search
-        ResourceCard.LookupAddress.DrillDown;
+        ResourceCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -1110,8 +1110,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', ResourceCard."Post Code".Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', ResourceCard.City.Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1123,14 +1123,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is viewed
-        ContactCard.OpenView;
+        ContactCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1142,14 +1142,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1160,17 +1160,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(ContactCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(ContactCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1181,17 +1181,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1212,12 +1212,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] we assume successful process, copying fields
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard."Country/Region Code".Value('GB');
-        ContactCard.LookupAddress.DrillDown; // trigger postcode search
+        ContactCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -1228,8 +1228,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', ContactCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', ContactCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1250,10 +1250,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [GIVEN] ensure blank address fields
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard.Address.Value('');
         ContactCard."Address 2".Value('');
         ContactCard."Post Code".Value('');
@@ -1261,7 +1261,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        ContactCard.LookupAddress.DrillDown;
+        ContactCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -1271,8 +1271,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', ContactCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', ContactCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1284,14 +1284,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is viewed
-        ContactAltAddressCard.OpenView;
+        ContactAltAddressCard.OpenView();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1303,14 +1303,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetCustomerEdit;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened
-        ContactAltAddressCard.OpenEdit;
+        ContactAltAddressCard.OpenEdit();
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1321,17 +1321,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to GB
-        ContactAltAddressCard.OpenEdit;
+        ContactAltAddressCard.OpenEdit();
         ContactAltAddressCard."Country/Region Code".Value('GB');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsTrue(ContactAltAddressCard.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(ContactAltAddressCard.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1342,17 +1342,17 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        ContactAltAddressCard.OpenEdit;
+        ContactAltAddressCard.OpenEdit();
         ContactAltAddressCard."Country/Region Code".Value('SI');
 
         // [THEN] postcode lookup action is visible
-        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(ContactAltAddressCard.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1373,12 +1373,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [WHEN] we assume successful process, copying fields
-        ContactAltAddressCard.OpenEdit;
+        ContactAltAddressCard.OpenEdit();
         ContactAltAddressCard."Country/Region Code".Value('');
-        ContactAltAddressCard.LookupAddress.DrillDown; // trigger postcode search
+        ContactAltAddressCard.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -1389,8 +1389,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', ContactAltAddressCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', ContactAltAddressCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1411,10 +1411,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
+        LibraryLowerPermissions.SetCustomerEdit();
 
         // [GIVEN] ensure blank address fields
-        ContactAltAddressCard.OpenEdit;
+        ContactAltAddressCard.OpenEdit();
         ContactAltAddressCard.Address.Value('');
         ContactAltAddressCard."Address 2".Value('');
         ContactAltAddressCard."Post Code".Value('');
@@ -1422,7 +1422,7 @@ codeunit 144502 "Test UK Postcode Pages"
         ContactAltAddressCard."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        ContactAltAddressCard.LookupAddress.DrillDown;
+        ContactAltAddressCard.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -1432,8 +1432,8 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', ContactAltAddressCard.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', ContactAltAddressCard."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        LibraryLowerPermissions.SetO365BusFull; // for cleanup
-        Teardown;
+        LibraryLowerPermissions.SetO365BusFull(); // for cleanup
+        TearDown();
     end;
 
     [Test]
@@ -1445,14 +1445,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is viewed
-        CompanyInformation.OpenView;
+        CompanyInformation.OpenView();
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1464,14 +1464,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1482,16 +1482,16 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to GB
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Country/Region Code".Value('GB');
 
         // [THEN] lookup link should be visible
-        Assert.IsTrue(CompanyInformation.LookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(CompanyInformation.LookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1502,16 +1502,16 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Country/Region Code".Value('SI');
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.LookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.LookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1532,12 +1532,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] we assume successful process, copying fields
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Country/Region Code".Value('GB');
-        CompanyInformation.LookupAddress.DrillDown; // trigger postcode search
+        CompanyInformation.LookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -1548,7 +1548,7 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', CompanyInformation.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', CompanyInformation."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1569,10 +1569,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] ensure blank address fields
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation.Address.Value('');
         CompanyInformation."Address 2".Value('');
         CompanyInformation."Post Code".Value('');
@@ -1580,7 +1580,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation."Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        CompanyInformation.LookupAddress.DrillDown;
+        CompanyInformation.LookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -1590,7 +1590,7 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', CompanyInformation.City.Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', CompanyInformation."Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1602,14 +1602,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is viewed
-        CompanyInformation.OpenView;
+        CompanyInformation.OpenView();
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1621,14 +1621,14 @@ codeunit 144502 "Test UK Postcode Pages"
         // [GIVEN] postcode service is not configured
         // - Unbind dummy service so it won't raise an error
         Initialize();
-        Teardown; // unbind dummy service
-        LibraryLowerPermissions.SetO365BusFull;
+        TearDown(); // unbind dummy service
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
     end;
 
     [Test]
@@ -1639,16 +1639,16 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to GB
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Ship-to Country/Region Code".Value('GB');
 
         // [THEN] lookup link should be visible
-        Assert.IsTrue(CompanyInformation.ShipToLookupAddress.Visible, ErrorMsgGenerator(true, LookupTextTok));
+        Assert.IsTrue(CompanyInformation.ShipToLookupAddress.Visible(), ErrorMsgGenerator(true, LookupTextTok));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1659,16 +1659,16 @@ codeunit 144502 "Test UK Postcode Pages"
     begin
         // [GIVEN] postcode service is configured
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] customer card is opened and country is set to something other than GB
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Ship-to Country/Region Code".Value('SI');
 
         // [THEN] lookup link should be visible
-        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible, ErrorMsgGenerator(false, LookupTextTok));
+        Assert.IsFalse(CompanyInformation.ShipToLookupAddress.Visible(), ErrorMsgGenerator(false, LookupTextTok));
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1689,12 +1689,12 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] we assume successful process, copying fields
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Country/Region Code".Value('');
-        CompanyInformation.ShipToLookupAddress.DrillDown; // trigger postcode search
+        CompanyInformation.ShipToLookupAddress.DrillDown(); // trigger postcode search
         // PostcodeSearchScenario page handler takes over and inputs postcode
         // PostcodeAddressPickerScenario page handler takes over and selects address
 
@@ -1705,7 +1705,7 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('CITY', CompanyInformation."Ship-to City".Value, RetrievedInvalidValueTok);
         Assert.AreEqual('COUNTRY', CompanyInformation."Ship-to Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -1726,10 +1726,10 @@ codeunit 144502 "Test UK Postcode Pages"
         // - Retrieve a result with one address, so that values are
         // automatically set
         Initialize();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] ensure blank address fields
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Ship-to Address".Value('');
         CompanyInformation."Ship-to Address 2".Value('');
         CompanyInformation."Ship-to Post Code".Value('');
@@ -1737,7 +1737,7 @@ codeunit 144502 "Test UK Postcode Pages"
         CompanyInformation."Ship-to Country/Region Code".Value('');
 
         // [WHEN] trigger postcode search
-        CompanyInformation.ShipToLookupAddress.DrillDown;
+        CompanyInformation.ShipToLookupAddress.DrillDown();
         // PostcodeSearch cancel page handler takes over and cancels the process
 
         // [THEN] address fields should stay blank
@@ -1747,7 +1747,7 @@ codeunit 144502 "Test UK Postcode Pages"
         Assert.AreEqual('', CompanyInformation."Ship-to City".Value, RetrievedInvalidValueTok);
         Assert.AreEqual('', CompanyInformation."Ship-to Country/Region Code".Value, RetrievedInvalidValueTok);
 
-        Teardown;
+        TearDown();
     end;
 
     local procedure Initialize()
@@ -1813,14 +1813,14 @@ codeunit 144502 "Test UK Postcode Pages"
     procedure PostcodeSearchScenarioModalPageHandler(var PostcodeSearch: TestPage "Postcode Search")
     begin
         PostcodeSearch.PostcodeField.Value('POSTCODE');
-        PostcodeSearch.OK.Invoke;
+        PostcodeSearch.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostcodeSearchCancelModalPageHandler(var PostcodeSearch: TestPage "Postcode Search")
     begin
-        PostcodeSearch.Cancel.Invoke;
+        PostcodeSearch.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1828,7 +1828,7 @@ codeunit 144502 "Test UK Postcode Pages"
     procedure PostcodeAddressPickerScenarioPageHandler(var PostcodeSelectAddress: TestPage "Postcode Select Address")
     begin
         PostcodeSelectAddress.GotoKey(3);
-        PostcodeSelectAddress.OK.Invoke;
+        PostcodeSelectAddress.OK().Invoke();
     end;
 }
 

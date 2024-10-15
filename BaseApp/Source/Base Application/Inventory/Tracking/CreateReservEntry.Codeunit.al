@@ -75,7 +75,7 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntry."Location Code" := LocationCode;
         ReservEntry.Description := Description;
         ReservEntry."Creation Date" := WorkDate();
-        ReservEntry."Created By" := UserId;
+        ReservEntry."Created By" := CopyStr(UserId(), 1, 50);
         ReservEntry."Expected Receipt Date" := ExpectedReceiptDate;
         ReservEntry."Shipment Date" := ShipmentDate;
         ReservEntry."Transferred from Entry No." := TransferredFromEntryNo;
@@ -475,6 +475,10 @@ codeunit 99000830 "Create Reserv. Entry"
                 NewReservEntry.Modify();
                 if NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive) then begin // Get partner-record
                     NewReservEntry.Validate("Quantity (Base)", -TransferQty);
+                    if NewReservEntry."Quantity (Base)" < 0 then // Adjust the expected receipt date and shipment date
+                        NewReservEntry."Expected Receipt Date" := 0D
+                    else
+                        NewReservEntry."Shipment Date" := DMY2Date(31, 12, 9999);
                     OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
                     NewReservEntry.Modify();
                 end;
@@ -705,7 +709,7 @@ codeunit 99000830 "Create Reserv. Entry"
         TempTrkgSpec.Validate("Quantity (Base)", NonReleasedQty);
         IsHandled := false;
         OnBeforeClearTracking(ReservEntry, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             if (TempTrkgSpec."Source Type" <> Database::"Item Ledger Entry") and
                 (ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation)
             then
@@ -903,29 +907,27 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntryQtyBase: Decimal;
     begin
         OnBeforeCreateWhseItemTrkgLines(ReservEntry);
-        with WhseShipmentLine do begin
-            SetSourceFilter(
-              ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
-            if not FindFirst() then
-                exit;
+        WhseShipmentLine.SetSourceFilter(
+          ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
+        if not WhseShipmentLine.FindFirst() then
+            exit;
 
-            ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
-            WhseItemTrkgQtyBase :=
-              ItemTrkgMgt.CalcWhseItemTrkgLineQtyBase(
-                Database::"Warehouse Shipment Line", 0, "No.", '', 0, "Source Line No.", "Location Code", ItemTrackingSetup);
+        ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+        WhseItemTrkgQtyBase :=
+          ItemTrkgMgt.CalcWhseItemTrkgLineQtyBase(
+            Database::"Warehouse Shipment Line", 0, WhseShipmentLine."No.", '', 0, WhseShipmentLine."Source Line No.", WhseShipmentLine."Location Code", ItemTrackingSetup);
 
-            ReservEntry.SetPointerFilter();
-            ReservationEntry.CopyFilters(ReservEntry);
-            ReservationEntry.SetTrackingFilterFromReservEntry(ReservEntry);
-            ReservationEntry.CalcSums("Quantity (Base)");
-            ReservEntryQtyBase := Abs(ReservationEntry."Quantity (Base)");
+        ReservEntry.SetPointerFilter();
+        ReservationEntry.CopyFilters(ReservEntry);
+        ReservationEntry.SetTrackingFilterFromReservEntry(ReservEntry);
+        ReservationEntry.CalcSums("Quantity (Base)");
+        ReservEntryQtyBase := Abs(ReservationEntry."Quantity (Base)");
 
-            if WhseItemTrkgQtyBase < ReservEntryQtyBase then begin
-                ItemTrkgMgt.InitWhseWorksheetLine(WhseWkshLine,
-                  Enum::"Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+        if WhseItemTrkgQtyBase < ReservEntryQtyBase then begin
+            ItemTrkgMgt.InitWhseWorksheetLine(WhseWkshLine,
+              Enum::"Warehouse Worksheet Document Type"::Shipment, WhseShipmentLine."No.", WhseShipmentLine."Line No.", WhseShipmentLine."Source Type", WhseShipmentLine."Source Subtype", WhseShipmentLine."Source No.", WhseShipmentLine."Source Line No.", 0);
 
-                ItemTrkgMgt.CreateWhseItemTrkgForResEntry(ReservEntry, WhseWkshLine);
-            end;
+            ItemTrkgMgt.CreateWhseItemTrkgForResEntry(ReservEntry, WhseWkshLine);
         end;
     end;
 
@@ -1015,10 +1017,10 @@ codeunit 99000830 "Create Reserv. Entry"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         CurrSourceID: Text;
     begin
-        with ReservationEntry do
-            CurrSourceID :=
+        CurrSourceID :=
               ItemTrackingMgt.ComposeRowID(
-                "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+                ReservationEntry."Source Type", ReservationEntry."Source Subtype", ReservationEntry."Source ID",
+                ReservationEntry."Source Batch Name", ReservationEntry."Source Prod. Order Line", ReservationEntry."Source Ref. No.");
 
         if LastProcessedSourceID = CurrSourceID then
             exit(false);

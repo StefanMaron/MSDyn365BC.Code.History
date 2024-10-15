@@ -95,7 +95,7 @@ codeunit 134816 "ERM CA Reporting"
         CostRegister.FindLast();
         LastAllocatedJnlNo := CostRegister."No.";
         ReversedCostAllocEntriesCount := AllocatedWithJnlNo(LastAllocatedJnlNo) + AllocatedInJnlNo(LastAllocatedJnlNo);
-        TotalAllocatedEntriesCountOld := TotalAllocatedCostEntries;
+        TotalAllocatedEntriesCountOld := TotalAllocatedCostEntries();
 
         // Exercise:
         LibraryCostAccounting.DeleteCostRegisterEntriesFrom(LastAllocatedJnlNo);
@@ -103,7 +103,7 @@ codeunit 134816 "ERM CA Reporting"
         // Verify:
         Assert.AreEqual(0, AllocatedWithJnlNo(LastAllocatedJnlNo), IncorrectAllocEntriesCount);
         Assert.AreEqual(
-          TotalAllocatedEntriesCountOld - ReversedCostAllocEntriesCount, TotalAllocatedCostEntries, IncorrectAllocEntriesCount);
+          TotalAllocatedEntriesCountOld - ReversedCostAllocEntriesCount, TotalAllocatedCostEntries(), IncorrectAllocEntriesCount);
 
         // Verify Last Alloc Doc No. field from Cost Accounting Setup
         CostEntry.SetRange(Allocated, true);
@@ -508,7 +508,7 @@ codeunit 134816 "ERM CA Reporting"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM CA Reporting");
 
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryCostAccounting.InitializeCASetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA Reporting");
@@ -552,7 +552,7 @@ codeunit 134816 "ERM CA Reporting"
         "Count": Integer;
     begin
         for Count := 1 to NoOfCostRegisterEntries do
-            CreateCostRegisterEntry;
+            CreateCostRegisterEntry();
 
         CostRegister.SetRange(Closed, false);
         CostRegister.Next(NoOfCostRegisterEntries);
@@ -643,7 +643,7 @@ codeunit 134816 "ERM CA Reporting"
     procedure RPHandlerAllocBudgetCosts(var AllocCostsReqPage: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', GlobalCostBudget);
-        AllocCostsReqPage.OK.Invoke;
+        AllocCostsReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -651,37 +651,37 @@ codeunit 134816 "ERM CA Reporting"
     procedure RPHandlerAllocCosts(var AllocCostsReqPage: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', '');
-        AllocCostsReqPage.OK.Invoke;
+        AllocCostsReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHandlerDeleteCostBudgetEntriesCanceled(var DeleteCostBudgetEntries: TestRequestPage "Delete Cost Budget Entries")
     begin
-        DeleteCostBudgetEntries.Cancel.Invoke;
+        DeleteCostBudgetEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHandlerDeleteCostBudgetEntriesSetNonExistingFromValue(var DeleteCostBudgetEntries: TestRequestPage "Delete Cost Budget Entries")
     begin
-        asserterror DeleteCostBudgetEntries.FromRegisterNo.SetValue(DeleteCostBudgetEntries.ToRegisterNo.AsInteger + 1);
-        DeleteCostBudgetEntries.Cancel.Invoke;
+        asserterror DeleteCostBudgetEntries.FromRegisterNo.SetValue(DeleteCostBudgetEntries.ToRegisterNo.AsInteger() + 1);
+        DeleteCostBudgetEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHandlerDeleteCostEntriesCanceled(var DeleteCostEntries: TestRequestPage "Delete Cost Entries")
     begin
-        DeleteCostEntries.Cancel.Invoke;
+        DeleteCostEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHandlerDeleteCostEntriesSetNonExistingFromValue(var DeleteCostEntries: TestRequestPage "Delete Cost Entries")
     begin
-        asserterror DeleteCostEntries.FromRegisterNo.SetValue(DeleteCostEntries.ToRegisterNo.AsInteger + 1);
-        DeleteCostEntries.Cancel.Invoke;
+        asserterror DeleteCostEntries.FromRegisterNo.SetValue(DeleteCostEntries.ToRegisterNo.AsInteger() + 1);
+        DeleteCostEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -692,14 +692,14 @@ codeunit 134816 "ERM CA Reporting"
     begin
         LibraryVariableStorage.Dequeue(YearEndDate);
         DeleteOldCostEntriesRP.YearEndingDate.SetValue(YearEndDate);
-        DeleteOldCostEntriesRP.Cancel.Invoke;
+        DeleteOldCostEntriesRP.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHandlerDeleteOldCostEntriesCanceled(var DeleteOldCostEntries: TestRequestPage "Delete Old Cost Entries")
     begin
-        DeleteOldCostEntries.Cancel.Invoke;
+        DeleteOldCostEntries.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -710,7 +710,7 @@ codeunit 134816 "ERM CA Reporting"
     begin
         LibraryVariableStorage.Dequeue(YearEndDate);
         asserterror DeleteOldCostEntriesRP.YearEndingDate.SetValue(YearEndDate);
-        DeleteOldCostEntriesRP.Cancel.Invoke;
+        DeleteOldCostEntriesRP.Cancel().Invoke();
     end;
 }
 

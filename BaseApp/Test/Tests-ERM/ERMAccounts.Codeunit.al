@@ -59,7 +59,7 @@ codeunit 134020 "ERM Accounts"
         PostInvoice(Customer, BalAccount."No.", Delta);
 
         // Verify that accounts changed correctly.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 134020 "ERM Accounts"
         Initialize();
 
         // Exercise: Create New G/L Account by Chart Of Accounts Page.
-        SourceGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        SourceGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccountNo := CreateGLAccountByPage(SourceGLAccount);
 
         // Verify: Verify values on G/L Account.
@@ -357,11 +357,11 @@ codeunit 134020 "ERM Accounts"
         Initialize();
 
         // [GIVEN] Open Page Analysis View List
-        AnalysisViewList.OpenView;
-        AnalysisViewList.First;
+        AnalysisViewList.OpenView();
+        AnalysisViewList.First();
 
         // [WHEN] Change option Show as Lines and set Date Filter = X
-        AnalysisViewList.EditAnalysis.Invoke;
+        AnalysisViewList.EditAnalysis.Invoke();
 
         // [THEN] Verify that Date Filter = X in AnalysisByDimShowColumnPeriodHandler
     end;
@@ -439,8 +439,8 @@ codeunit 134020 "ERM Accounts"
         GLAccount3 := GenJournalLine."Account No.";  // Global Variable used for Page Handler.
 
         // Exercise: Open G/L Entries Dimension Overview Page.
-        GLEntriesDimensionOverview.OpenEdit;
-        GLEntriesDimensionOverview.ShowMatrix.Invoke;
+        GLEntriesDimensionOverview.OpenEdit();
+        GLEntriesDimensionOverview.ShowMatrix.Invoke();
 
         // Verify: Verify Total Amount on G/L Entries Dimension Overview Matrix Page Handler.
     end;
@@ -454,7 +454,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // Verify that G/L Balance By Dim. Matrix can be opened without Load() func
         GLAccount.FindFirst();
-        GLBalByDimMatrix.OpenView;
+        GLBalByDimMatrix.OpenView();
 
         GLBalByDimMatrix.Code.AssertEquals(GLAccount."No.");
     end;
@@ -468,7 +468,7 @@ codeunit 134020 "ERM Accounts"
         // [SCENARIO TFS107201] G/L Balance by Dim. Matrix can be opened without Load() func with column captions
 
         // [WHEN] Open G/L Balance by Dim. Matrix
-        GLBalanceByDimMatrix.OpenView;
+        GLBalanceByDimMatrix.OpenView();
 
         // [THEN] Default caption loaded for Field1 column
         Assert.AreEqual(Format(WorkDate()), GLBalanceByDimMatrix.Field1.Caption, IncorrectColumnCaptionErr);
@@ -535,7 +535,7 @@ codeunit 134020 "ERM Accounts"
         Initialize();
 
         // [GIVEN] Open "G/L Balance" page
-        GLBalance.OpenView;
+        GLBalance.OpenView();
 
         // [WHEN] Validate "View by" = "Day", "View As" = "Net Change"
         GLBalance.PeriodType.SetValue(PeriodType::Day);
@@ -558,7 +558,7 @@ codeunit 134020 "ERM Accounts"
         Initialize();
 
         // [GIVEN] Open "G/L Balance" page
-        GLBalance.OpenView;
+        GLBalance.OpenView();
 
         // [WHEN] Validate "View by" = "Day", "View As" = "Balance at Date"
         GLBalance.PeriodType.SetValue(PeriodType::Day);
@@ -609,7 +609,7 @@ codeunit 134020 "ERM Accounts"
 
         // [GIVEN] Set Name = "ABC" on the G/L Account Card
         AccName := LibraryUtility.GenerateGUID();
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
         GLAccountCard.Name.SetValue(AccName);
 
@@ -685,7 +685,7 @@ codeunit 134020 "ERM Accounts"
 
         // [GIVEN] Show matrix
         GeneralLedgerEntries.Trap();
-        GLBalancebyDimension.ShowMatrix.Invoke;
+        GLBalancebyDimension.ShowMatrix.Invoke();
 
         // [WHEN] DrillDown ammount for column 1 (in handler GLBalancebyDimMatrixDrillDownAmount1Handler)
 
@@ -787,7 +787,7 @@ codeunit 134020 "ERM Accounts"
         // Create General Journal Line with Random Values.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         GenJournalLine.Modify(true);
     end;
@@ -840,7 +840,7 @@ codeunit 134020 "ERM Accounts"
         // Create General Journal Line with Random Values.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Account No.");
     end;
@@ -864,18 +864,18 @@ codeunit 134020 "ERM Accounts"
     var
         AnalysisViewList: TestPage "Analysis View List";
     begin
-        AnalysisViewList.OpenView;
+        AnalysisViewList.OpenView();
         AnalysisViewList.FILTER.SetFilter(Code, AnalysisViewCode);
         if UpdateAnalysisView then
-            AnalysisViewList."&Update".Invoke;
-        AnalysisViewList.EditAnalysis.Invoke;
+            AnalysisViewList."&Update".Invoke();
+        AnalysisViewList.EditAnalysis.Invoke();
     end;
 
     local procedure SetFilterOnGLBalancebyDimension(AmountField: Option; DimensionCode: Code[20]; Dim2Filter: Code[20]; GLAccountNo: Code[20]; GLAccountNo2: Code[20])
     var
         GLBalancebyDimension: TestPage "G/L Balance by Dimension";
     begin
-        GLBalancebyDimension.OpenEdit;
+        GLBalancebyDimension.OpenEdit();
         GLBalancebyDimension.GLAccFilter.SetValue('');
         GLBalancebyDimension.LineDimCode.SetValue(DimensionCode);
         GLBalancebyDimension.AmountField.SetValue(AmountField);
@@ -883,25 +883,25 @@ codeunit 134020 "ERM Accounts"
             GLBalancebyDimension.GLAccFilter.SetValue(GLAccountNo + '|' + GLAccountNo2);
         GLBalancebyDimension.Dim2Filter.SetValue(Dim2Filter);
         GLBalancebyDimension.DateFilter.SetValue(WorkDate());
-        GLBalancebyDimension.ShowMatrix.Invoke;
+        GLBalancebyDimension.ShowMatrix.Invoke();
     end;
 
     local procedure SetFilterOnGLBalancePage(var GLBalance: TestPage "G/L Balance"; DebitAndCreditTotals: Boolean; AccountNo: Code[20])
     begin
-        GLBalance.OpenView;
+        GLBalance.OpenView();
         GLBalance.DebitCreditTotals.SetValue(DebitAndCreditTotals);
         GLBalance.FILTER.SetFilter("No.", AccountNo);
-        GLBalance.First;
+        GLBalance.First();
     end;
 
     local procedure SetFilterOnGLAccountBalancePage(var GLAccountBalance: TestPage "G/L Account Balance"; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DebitAndCreditTotals: Boolean; AccountNo: Code[20])
     begin
-        GLAccountBalance.OpenView;
+        GLAccountBalance.OpenView();
         GLAccountBalance.DebitCreditTotals.SetValue(DebitAndCreditTotals);
         GLAccountBalance.PeriodType.SetValue(PeriodType);
         GLAccountBalance.FILTER.SetFilter("No.", AccountNo);
         GLAccountBalance.GLBalanceLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        GLAccountBalance.First;
+        GLAccountBalance.First();
     end;
 
     local procedure SetupDeltaAssertions(Customer: Record Customer; BalAccount: Record "G/L Account"; Delta: Decimal)
@@ -913,9 +913,9 @@ codeunit 134020 "ERM Accounts"
         // Setup contract that account must change by +Delta and balancing account by -Delta.
         DeltaAssert.Init();
         with Account do
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition, FieldNo(Balance), Delta);
+            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), Delta);
         with BalAccount do
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition, FieldNo(Balance), -Delta);
+            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), -Delta);
     end;
 
     local procedure FindPostingAccount(var Account: Record "G/L Account"; Customer: Record Customer)
@@ -938,8 +938,8 @@ codeunit 134020 "ERM Accounts"
         ChartOfAccounts."Gen. Bus. Posting Group".SetValue(GLAccount."Gen. Bus. Posting Group");
         ChartOfAccounts."Gen. Prod. Posting Group".SetValue(GLAccount."Gen. Prod. Posting Group");
 
-        GLAccountNo := ChartOfAccounts."No.".Value;
-        ChartOfAccounts.OK.Invoke;
+        GLAccountNo := ChartOfAccounts."No.".Value();
+        ChartOfAccounts.OK().Invoke();
     end;
 
     local procedure PostInvoice(Customer: Record Customer; AccountNo: Code[20]; Delta: Decimal)
@@ -969,14 +969,14 @@ codeunit 134020 "ERM Accounts"
     var
         DimensionCombinations: TestPage "Dimension Combinations";
     begin
-        DimensionCombinations.OpenEdit;
+        DimensionCombinations.OpenEdit();
         DimensionCombinations.MatrixForm.FILTER.SetFilter(Code, DimensionCode);
-        DimensionCombinations.MatrixForm.First;
+        DimensionCombinations.MatrixForm.First();
 
         if DimensionCombinations.MatrixForm.Field1.Caption = DimensionCode then
-            DimensionCombinations.MatrixForm.Field2.AssistEdit
+            DimensionCombinations.MatrixForm.Field2.AssistEdit()
         else
-            DimensionCombinations.MatrixForm.Field1.AssistEdit;
+            DimensionCombinations.MatrixForm.Field1.AssistEdit();
     end;
 
     local procedure VerifyValuesOnGLAccount(SourceGLAccount: Record "G/L Account"; GLAccountNo: Code[20])
@@ -1009,7 +1009,7 @@ codeunit 134020 "ERM Accounts"
     [Scope('OnPrem')]
     procedure GLBalancebyDimMatrixDifferentDimensionHandler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
     begin
-        GLBalancebyDimMatrix.First;
+        GLBalancebyDimMatrix.First();
         repeat
             GLBalancebyDimMatrix.TotalAmount.AssertEquals(0);
         until not GLBalancebyDimMatrix.Next();
@@ -1034,7 +1034,7 @@ codeunit 134020 "ERM Accounts"
     procedure GLEntriesDimOvervMatrixHandler(var GLEntriesDimOvervMatrix: TestPage "G/L Entries Dim. Overv. Matrix")
     begin
         GLEntriesDimOvervMatrix.FILTER.SetFilter("G/L Account No.", GLAccount3);
-        GLEntriesDimOvervMatrix.First;
+        GLEntriesDimOvervMatrix.First();
         GLEntriesDimOvervMatrix.Amount.AssertEquals(TotalAmount);
     end;
 
@@ -1043,7 +1043,7 @@ codeunit 134020 "ERM Accounts"
     procedure AnalysisByDimensionsHandler(var AnalysisbyDimensions: TestPage "Analysis by Dimensions")
     begin
         Commit();
-        AnalysisbyDimensions.ShowMatrix.Invoke;
+        AnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     [PageHandler]
@@ -1057,15 +1057,15 @@ codeunit 134020 "ERM Accounts"
         AnalysisbyDimensions.ColumnDimCode.SetValue(ColumnDimOption::Period);
         AnalysisbyDimensions.LineDimCode.SetValue(LineDimOption::"Business Unit");
         Days := LibraryRandom.RandInt(10);
-        AnalysisbyDimensions.DateFilter.SetValue(WorkDate + Days);
-        AnalysisbyDimensions.DateFilter.AssertEquals(WorkDate + Days);
+        AnalysisbyDimensions.DateFilter.SetValue(WorkDate() + Days);
+        AnalysisbyDimensions.DateFilter.AssertEquals(WorkDate() + Days);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisByDimensionsMatrixHandler(var AnalysisByDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisByDimensionsMatrix.First;
+        AnalysisByDimensionsMatrix.First();
         AnalysisByDimensionsMatrix.TotalAmount.AssertEquals(TotalAmount);
     end;
 

@@ -1070,7 +1070,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateItem(Item);
         CreateLocation(Location, false, false, true);
         CreateAndReleasePurchDocument(
-          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo(), false);
         // [GIVEN] Set item to "Blocked"
         BlockItemForPosting(Item."No.", true);
 
@@ -1101,7 +1101,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateLocation(Location, false, false, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         CreateAndReleasePurchDocument(
-          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo(), false);
         // [GIVEN] Set item to "Blocked"
         BlockItemForPosting(Item."No.", true);
 
@@ -1134,7 +1134,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         // [GIVEN] Create purchase order with two lines, each for a different item
         CreatePurchaseDocument(
-          PurchHeader, PurchHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+          PurchHeader, PurchHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibraryPurchase.CreateVendorNo(), false);
         CreatePurchaseLine(PurchHeader, Item[2]."No.", Location.Code);
         LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
 
@@ -1169,7 +1169,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateItem(BlockedItem);
         CreateLocation(Location, false, true, false);
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo(), false);
         CreateSalesLine(SalesHeader, BlockedItem."No.", Location.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -1208,7 +1208,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateLocation(Location, false, true, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         CreateAndReleaseSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo(), false);
         // [GIVEN] Set item to "Blocked"
         BlockItemForPosting(Item."No.", true);
 
@@ -1241,7 +1241,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         // [GIVEN] Create sales order with two lines, each for a different item
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+          SalesHeader, SalesHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibrarySales.CreateCustomerNo(), false);
         CreateSalesLine(SalesHeader, Item[2]."No.", Location.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -1603,7 +1603,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [THEN] Put-away line created for 4 pcs of lot "L2"
         WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1638,7 +1638,7 @@ codeunit 137047 "SCM Warehouse I"
         UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, StockQty, LotNo);
 
         // [GIVEN] Sales order with 2 lines: first for 5 pcs of item "I1", second - 5 pcs of item "I2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesHeader, TrackedItem."No.", Location.Code);
         CreateSalesLine(SalesHeader, Item."No.", Location.Code);
 
@@ -1665,13 +1665,13 @@ codeunit 137047 "SCM Warehouse I"
         NoOfLots: Integer;
         I: Integer;
     begin
-        NoOfLots := LibraryVariableStorage.DequeueInteger;
+        NoOfLots := LibraryVariableStorage.DequeueInteger();
         for I := 1 to NoOfLots do begin
-            ItemTrackingLines.New;
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+            ItemTrackingLines.New();
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [Test]
@@ -1705,7 +1705,7 @@ codeunit 137047 "SCM Warehouse I"
         UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, 1, SerialNo);
 
         // [GIVEN] Sales order with 2 lines: first for item "I1", second for item "I2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, TrackedItem."No.", 1);
         SalesLine[1].Validate("Location Code", Location.Code);
         SalesLine[1].Modify(true);
@@ -1785,7 +1785,7 @@ codeunit 137047 "SCM Warehouse I"
             RequisitionLine.OpenItemTrackingLines();
             RequisitionLine.Next();
         end;
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [WHEN] Register the warehouse pick with earlier defined item tracking.
         for i := 1 to 2 do begin
@@ -1798,8 +1798,8 @@ codeunit 137047 "SCM Warehouse I"
 
         // [THEN] Despite two lines in the sales order, the confirmation is raised only once.
         Assert.AreEqual(
-          OrderToOrderBindingOnSalesLineQst, LibraryVariableStorage.DequeueText, 'A confirmation message has not been raised only once.');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'A confirmation message has not been raised only once.');
+          OrderToOrderBindingOnSalesLineQst, LibraryVariableStorage.DequeueText(), 'A confirmation message has not been raised only once.');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'A confirmation message has not been raised only once.');
 
         // [THEN] The sales order lines are now reserved from the inventory. Lot nos. = "L1" and "L2".
         for i := 1 to 2 do
@@ -1813,7 +1813,7 @@ codeunit 137047 "SCM Warehouse I"
             PurchaseLine.Next();
         end;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1864,7 +1864,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.Enqueue(LotNo[2]);
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
         RequisitionLine.OpenItemTrackingLines();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [WHEN] Register the warehouse pick but do not confirm deleting the reservation between the sales and the purchase.
         Commit();
@@ -1887,7 +1887,7 @@ codeunit 137047 "SCM Warehouse I"
           WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField("Qty. Handled", 0);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1953,7 +1953,7 @@ codeunit 137047 "SCM Warehouse I"
         SalesLine.OpenItemTrackingLines();
 
         // [THEN] Serial #2 is avaliable.
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, WrongMessageTextErr);
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), WrongMessageTextErr);
     end;
 
     [Test]
@@ -1992,7 +1992,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
         RequisitionLine.OpenItemTrackingLines();
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [GIVEN] Post the newly created purchase order.
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -2019,7 +2019,7 @@ codeunit 137047 "SCM Warehouse I"
             DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2228,6 +2228,161 @@ codeunit 137047 "SCM Warehouse I"
     end;
 
     [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignSerialNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateSerialNoAsBarcodeOnWarehousePick()
+    var
+        Location: Record Location;
+        TrackedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ScanWarehouseActivityLine: Codeunit "Scan Warehouse Activity Line";
+        SerialNo: Code[10];
+    begin
+        // [FEATURE] [Item Tracking] [Validate Barcode] [Warehouse Pick]
+        // [SCENARIO] Validating Serial No. tracked item and item without tracking can be picked in one warehouse pick
+
+        Initialize();
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Items "I1" tracked by serial no.
+        CreateItemWithSNWarehouseTracking(TrackedItem);
+
+        // [GIVEN] Item is in stock on WHITE location
+        SerialNo := LibraryUtility.GenerateGUID();
+        UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, 1, SerialNo);
+
+        // [GIVEN] Sales order with 1 line for item "I1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TrackedItem."No.", 1);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", 0);
+        WarehouseActivityLine.FindSet();
+
+        // [GIVEN] Ensure Serial No. is set to empty and "Qty. to Handle" is 0
+        WarehouseActivityLine.TestField("Serial No.", '');
+        WarehouseActivityLine.TestField("Qty. to Handle", 0);
+
+        // [WHEN] SerialNo is passed to the ValidateBarcode method
+        ScanWarehouseActivityLine.ValidateBarcode(WarehouseActivityLine, SerialNo);
+
+        // [THEN] SerialNo is validated as barcode
+        WarehouseActivityLine.TestField("Serial No.", SerialNo);
+        // [THEN] "Qty. to Handle" field is incremented by 1
+        WarehouseActivityLine.TestField("Qty. to Handle", 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignLotPageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateLotNoAsBarcodeOnWarehousePick()
+    var
+        Location: Record Location;
+        TrackedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ScanWarehouseActivityLine: Codeunit "Scan Warehouse Activity Line";
+        LotNo: Code[10];
+    begin
+        // [FEATURE] [Item Tracking] [Validate Barcode] [Warehouse Pick]
+        // [SCENARIO] Validating Lot No. tracked item and item without tracking can be picked in one warehouse pick
+
+        Initialize();
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Item "I1" tracked by lot no.
+        CreateItemWithLotWarehouseTracking(TrackedItem);
+
+        // [GIVEN] Both items are in stock on WHITE location
+        LotNo := LibraryUtility.GenerateGUID();
+        UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, 5, LotNo);
+
+        // [GIVEN] Sales order with 1 line for item "I1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TrackedItem."No.", 5);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", 0);
+        WarehouseActivityLine.FindSet();
+
+        // [GIVEN] Ensure Lot No. is set to empty and "Qty. to Handle" is 0
+        WarehouseActivityLine.TestField("Lot No.", '');
+        WarehouseActivityLine.TestField("Qty. to Handle", 0);
+
+        // [WHEN] LotNo is passed to the ValidateBarcode method
+        ScanWarehouseActivityLine.ValidateBarcode(WarehouseActivityLine, LotNo);
+
+        // [THEN] LotNo is validated as barcode
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        // [THEN] "Qty. to Handle" field is incremented by 1
+        WarehouseActivityLine.TestField("Qty. to Handle", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateGTINAsBarcodeOnWarehousePick()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ScanWarehouseActivityLine: Codeunit "Scan Warehouse Activity Line";
+        GTIN: Code[10];
+    begin
+        // [FEATURE] [Item Tracking] [Validate Barcode] [Warehouse Pick]
+        // [SCENARIO] Validating GTIN to pick in warehouse pick
+        Initialize();
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Item "I1" without item tracking
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Set GTIN on the item
+        GTIN := LibraryUtility.GenerateGUID();
+        Item.Validate(GTIN, GTIN);
+        Item.Modify(true);
+
+        // [GIVEN] Item is in stock on WHITE location
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 5, false);
+
+        // [GIVEN] Sales order with 1 line for item "I1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 5);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", 0);
+        WarehouseActivityLine.FindSet();
+
+        // [GIVEN] Ensure "Qty. to Handle" is 0
+        WarehouseActivityLine.TestField("Qty. to Handle", 0);
+
+        // [WHEN] GTIN is passed to the ValidateBarcode method
+        ScanWarehouseActivityLine.ValidateBarcode(WarehouseActivityLine, GTIN);
+
+        // [THEN] "Qty. to Handle" field is incremented by 1
+        WarehouseActivityLine.TestField("Qty. to Handle", 1);
+    end;
+
+    [Test]
     procedure GetBinContent()
     var
         Location: Record Location;
@@ -2275,7 +2430,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
@@ -2316,11 +2471,11 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -2329,13 +2484,13 @@ codeunit 137047 "SCM Warehouse I"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -2415,7 +2570,7 @@ codeunit 137047 "SCM Warehouse I"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
@@ -2507,7 +2662,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateItemWithLotWarehouseTracking(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -2771,7 +2926,7 @@ codeunit 137047 "SCM Warehouse I"
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, ItemNo, Qty, LocationCode, WorkDate());
+          LibraryPurchase.CreateVendorNo(), ItemNo, Qty, LocationCode, WorkDate());
 
         PurchaseLine.OpenItemTrackingLines();
 
@@ -2911,7 +3066,7 @@ codeunit 137047 "SCM Warehouse I"
                 ;
                 Validate("Qty. to Handle", QtyToHandle);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -3311,9 +3466,9 @@ codeunit 137047 "SCM Warehouse I"
     var
         ConfirmMessageText: Text;
     begin
-        ConfirmMessageText := LibraryVariableStorage.DequeueText;
+        ConfirmMessageText := LibraryVariableStorage.DequeueText();
         Assert.IsTrue(StrPos(ConfirmMessage, ConfirmMessageText) > 0, ConfirmMessage);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
@@ -3346,10 +3501,10 @@ codeunit 137047 "SCM Warehouse I"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.New;
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.New();
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3359,37 +3514,37 @@ codeunit 137047 "SCM Warehouse I"
         i: Integer;
         CheckAvaliable: Boolean;
     begin
-        CheckAvaliable := LibraryVariableStorage.DequeueBoolean;
+        CheckAvaliable := LibraryVariableStorage.DequeueBoolean();
 
-        for i := 1 to LibraryVariableStorage.DequeueInteger do begin
-            ItemTrackingLines.New;
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+        for i := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines.New();
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
             ItemTrackingLines."Quantity (Base)".SetValue(1);
         end;
 
         if CheckAvaliable then
-            LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean);
+            LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean());
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesAssignLotPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesAssignSerialNoPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 }
 

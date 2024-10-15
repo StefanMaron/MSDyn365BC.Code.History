@@ -31,25 +31,21 @@ codeunit 10528 "GovTalk VAT Report Validate"
         ErrorMessage.SetContext(VATReportHeader);
 
         ErrorMessage.ClearLogRec(CompanyInformation);
-        with CompanyInformation do begin
-            Get();
-            ErrorMessage.LogIfEmpty(CompanyInformation, FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
-            ErrorMessage.LogIfEmpty(CompanyInformation, FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);
-            if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::"EC Sales List" then begin
-                ErrorMessage.LogIfEmpty(CompanyInformation, FieldNo("Branch Number"), ErrorMessage."Message Type"::Error);
-                ErrorMessage.LogIfEmpty(CompanyInformation, FieldNo("Post Code"), ErrorMessage."Message Type"::Error);
-            end;
+        CompanyInformation.Get();
+        ErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
+        ErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);
+        if VATReportHeader."VAT Report Config. Code" = VATReportHeader."VAT Report Config. Code"::"EC Sales List" then begin
+            ErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Branch Number"), ErrorMessage."Message Type"::Error);
+            ErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Post Code"), ErrorMessage."Message Type"::Error);
         end;
         ErrorMessage.CopyToTemp(TempErrorMessage);
 
         ErrorMessage.ClearLogRec(GovTalkSetup);
-        with GovTalkSetup do begin
-            if not FindFirst() then
-                ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, GovTalkSetupMissingErr)
-            else
-                if (Username = '') or IsNullGuid(Password) or (Endpoint = '') then
-                    ErrorMessage.LogMessage(GovTalkSetup, FieldNo(Username), ErrorMessage."Message Type"::Warning, GovTalkSetupMissingErr);
-        end;
+        if not GovTalkSetup.FindFirst() then
+            ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, GovTalkSetupMissingErr)
+        else
+            if (GovTalkSetup.Username = '') or IsNullGuid(GovTalkSetup.Password) or (GovTalkSetup.Endpoint = '') then
+                ErrorMessage.LogMessage(GovTalkSetup, GovTalkSetup.FieldNo(Username), ErrorMessage."Message Type"::Warning, GovTalkSetupMissingErr);
         ErrorMessage.CopyToTemp(TempErrorMessage);
 
         exit(not TempErrorMessage.HasErrors(false));

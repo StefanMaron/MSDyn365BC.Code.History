@@ -5,6 +5,7 @@ table 99000775 "Routing Comment Line"
     Caption = 'Routing Comment Line';
     DrillDownPageID = "Routing Comment List";
     LookupPageID = "Routing Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

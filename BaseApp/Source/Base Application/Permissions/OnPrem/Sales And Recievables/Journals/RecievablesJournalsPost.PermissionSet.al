@@ -53,6 +53,7 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "G/L Account" = r,
+                  tabledata "G/L Account Source Currency" = Ri,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Ri,
                   tabledata "G/L Register" = Rim,

@@ -1,6 +1,8 @@
 namespace Microsoft.Finance.Dimension;
 
+#pragma warning disable AL0659
 enum 353 "Default Dimension Value Posting Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

@@ -26,108 +26,102 @@ report 95 "Date Compress VAT Entries"
             trigger OnAfterGetRecord()
             begin
                 VATEntry2 := "VAT Entry";
-                with VATEntry2 do begin
-                    if not
-                       SetCurrentKey(
-                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date")
-                    then
-                        SetCurrentKey(
-                          Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
-                    CopyFilters("VAT Entry");
-                    SetRange(Type, Type);
-                    SetRange(Closed, Closed);
-                    SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-                    SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    SetRange("Tax Jurisdiction Code", "Tax Jurisdiction Code");
-                    SetRange("Use Tax", "Use Tax");
-                    SetFilter("VAT Reporting Date", DateComprMgt.GetDateFilter("VAT Reporting Date", EntrdDateComprReg, true));
-                    SetRange("Document Type", "Document Type");
+                if not VATEntry2.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") then
+                    VATEntry2.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
+                VATEntry2.CopyFilters("VAT Entry");
+                VATEntry2.SetRange(Type, VATEntry2.Type);
+                VATEntry2.SetRange(Closed, VATEntry2.Closed);
+                VATEntry2.SetRange("VAT Bus. Posting Group", VATEntry2."VAT Bus. Posting Group");
+                VATEntry2.SetRange("VAT Prod. Posting Group", VATEntry2."VAT Prod. Posting Group");
+                VATEntry2.SetRange("Tax Jurisdiction Code", VATEntry2."Tax Jurisdiction Code");
+                VATEntry2.SetRange("Use Tax", VATEntry2."Use Tax");
+                VATEntry2.SetFilter("VAT Reporting Date", DateComprMgt.GetDateFilter(VATEntry2."VAT Reporting Date", EntrdDateComprReg, true));
+                VATEntry2.SetRange("Document Type", VATEntry2."Document Type");
 
-                    LastVATEntryNo := LastVATEntryNo + 1;
+                LastVATEntryNo := LastVATEntryNo + 1;
 
-                    NewVATEntry.Init();
-                    NewVATEntry."Entry No." := LastVATEntryNo;
-                    NewVATEntry.Type := Type;
-                    NewVATEntry.Closed := Closed;
-                    NewVATEntry."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                    NewVATEntry."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                    NewVATEntry."Tax Jurisdiction Code" := "Tax Jurisdiction Code";
-                    NewVATEntry."Use Tax" := "Use Tax";
-                    NewVATEntry."VAT Reporting Date" := GetRangeMin("VAT Reporting Date");
-                    NewVATEntry."Document Type" := "Document Type";
-                    NewVATEntry."Source Code" := SourceCodeSetup."Compress VAT Entries";
-                    NewVATEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                    NewVATEntry."Transaction No." := NextTransactionNo;
-                    Window.Update(1, NewVATEntry.Type);
-                    Window.Update(2, NewVATEntry."VAT Bus. Posting Group");
-                    Window.Update(3, NewVATEntry."VAT Prod. Posting Group");
-                    Window.Update(4, NewVATEntry."Tax Jurisdiction Code");
-                    Window.Update(5, NewVATEntry."Use Tax");
-                    Window.Update(6, NewVATEntry."VAT Reporting Date");
-                    DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-                    Window.Update(7, DateComprReg."No. of New Records");
+                NewVATEntry.Init();
+                NewVATEntry."Entry No." := LastVATEntryNo;
+                NewVATEntry.Type := VATEntry2.Type;
+                NewVATEntry.Closed := VATEntry2.Closed;
+                NewVATEntry."VAT Bus. Posting Group" := VATEntry2."VAT Bus. Posting Group";
+                NewVATEntry."VAT Prod. Posting Group" := VATEntry2."VAT Prod. Posting Group";
+                NewVATEntry."Tax Jurisdiction Code" := VATEntry2."Tax Jurisdiction Code";
+                NewVATEntry."Use Tax" := VATEntry2."Use Tax";
+                NewVATEntry."VAT Reporting Date" := VATEntry2.GetRangeMin("VAT Reporting Date");
+                NewVATEntry."Document Type" := VATEntry2."Document Type";
+                NewVATEntry."Source Code" := SourceCodeSetup."Compress VAT Entries";
+                NewVATEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(VATEntry2."User ID"));
+                NewVATEntry."Transaction No." := NextTransactionNo;
+                Window.Update(1, NewVATEntry.Type);
+                Window.Update(2, NewVATEntry."VAT Bus. Posting Group");
+                Window.Update(3, NewVATEntry."VAT Prod. Posting Group");
+                Window.Update(4, NewVATEntry."Tax Jurisdiction Code");
+                Window.Update(5, NewVATEntry."Use Tax");
+                Window.Update(6, NewVATEntry."VAT Reporting Date");
+                DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+                Window.Update(7, DateComprReg."No. of New Records");
 
-                    if DateComprRetainFields."Retain Document No." then begin
-                        SetRange("Document No.", "Document No.");
-                        NewVATEntry."Document No." := "Document No.";
-                    end;
-                    if DateComprRetainFields."Retain Bill-to/Pay-to No." then begin
-                        SetRange("Bill-to/Pay-to No.", "Bill-to/Pay-to No.");
-                        NewVATEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
-                    end;
-                    if DateComprRetainFields."Retain EU 3-Party Trade" then begin
-                        SetRange("EU 3-Party Trade", "EU 3-Party Trade");
-                        NewVATEntry."EU 3-Party Trade" := "EU 3-Party Trade";
-                    end;
-                    if DateComprRetainFields."Retain Country/Region Code" then begin
-                        SetRange("Country/Region Code", "Country/Region Code");
-                        NewVATEntry."Country/Region Code" := "Country/Region Code";
-                    end;
-                    if DateComprRetainFields."Retain Internal Ref. No." then begin
-                        SetRange("Internal Ref. No.", "Internal Ref. No.");
-                        NewVATEntry."Internal Ref. No." := "Internal Ref. No.";
-                    end;
-                    if DateComprRetainFields."Retain Journal Template Name" then begin
-                        SetRange("Journal Templ. Name", "Journal Templ. Name");
-                        NewVATEntry."Journal Templ. Name" := "Journal Templ. Name";
-                    end;
-                    if Base >= 0 then
-                        SetFilter(Base, '>=0')
-                    else
-                        SetFilter(Base, '<0');
-                    repeat
-                        NewVATEntry.Base := NewVATEntry.Base + Base;
-                        NewVATEntry.Amount := NewVATEntry.Amount + Amount;
-                        NewVATEntry."Unrealized Amount" := NewVATEntry."Unrealized Amount" + "Unrealized Amount";
-                        NewVATEntry."Unrealized Base" := NewVATEntry."Unrealized Base" + "Unrealized Base";
-                        NewVATEntry."Additional-Currency Base" :=
-                          NewVATEntry."Additional-Currency Base" + "Additional-Currency Base";
-                        NewVATEntry."Additional-Currency Amount" :=
-                          NewVATEntry."Additional-Currency Amount" + "Additional-Currency Amount";
-                        NewVATEntry."Add.-Currency Unrealized Amt." :=
-                          NewVATEntry."Add.-Currency Unrealized Amt." + "Add.-Currency Unrealized Amt.";
-                        NewVATEntry."Add.-Currency Unrealized Base" :=
-                          NewVATEntry."Add.-Currency Unrealized Base" + "Add.-Currency Unrealized Base";
-                        NewVATEntry."Remaining Unrealized Amount" :=
-                          NewVATEntry."Remaining Unrealized Amount" + "Remaining Unrealized Amount";
-                        NewVATEntry."Remaining Unrealized Base" :=
-                          NewVATEntry."Remaining Unrealized Base" + "Remaining Unrealized Base";
-                        Delete();
-                        GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
-                        if GLEntryVATEntryLink.FindSet() then
-                            repeat
-                                GLEntryVATEntryLink2 := GLEntryVATEntryLink;
-                                GLEntryVATEntryLink2.Delete();
-                                GLEntryVATEntryLink2."VAT Entry No." := NewVATEntry."Entry No.";
-                                if GLEntryVATEntryLink2.Insert() then;
-                            until GLEntryVATEntryLink.Next() = 0;
-                        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-                        Window.Update(8, DateComprReg."No. Records Deleted");
-                        if UseDataArchive then
-                            DataArchive.SaveRecord(VATEntry2);
-                    until Next() = 0;
-                    NewVATEntry.Insert();
+                if DateComprRetainFields."Retain Document No." then begin
+                    VATEntry2.SetRange("Document No.", VATEntry2."Document No.");
+                    NewVATEntry."Document No." := VATEntry2."Document No.";
                 end;
+                if DateComprRetainFields."Retain Bill-to/Pay-to No." then begin
+                    VATEntry2.SetRange("Bill-to/Pay-to No.", VATEntry2."Bill-to/Pay-to No.");
+                    NewVATEntry."Bill-to/Pay-to No." := VATEntry2."Bill-to/Pay-to No.";
+                end;
+                if DateComprRetainFields."Retain EU 3-Party Trade" then begin
+                    VATEntry2.SetRange("EU 3-Party Trade", VATEntry2."EU 3-Party Trade");
+                    NewVATEntry."EU 3-Party Trade" := VATEntry2."EU 3-Party Trade";
+                end;
+                if DateComprRetainFields."Retain Country/Region Code" then begin
+                    VATEntry2.SetRange("Country/Region Code", VATEntry2."Country/Region Code");
+                    NewVATEntry."Country/Region Code" := VATEntry2."Country/Region Code";
+                end;
+                if DateComprRetainFields."Retain Internal Ref. No." then begin
+                    VATEntry2.SetRange("Internal Ref. No.", VATEntry2."Internal Ref. No.");
+                    NewVATEntry."Internal Ref. No." := VATEntry2."Internal Ref. No.";
+                end;
+                if DateComprRetainFields."Retain Journal Template Name" then begin
+                    VATEntry2.SetRange("Journal Templ. Name", VATEntry2."Journal Templ. Name");
+                    NewVATEntry."Journal Templ. Name" := VATEntry2."Journal Templ. Name";
+                end;
+                if VATEntry2.Base >= 0 then
+                    VATEntry2.SetFilter(Base, '>=0')
+                else
+                    VATEntry2.SetFilter(Base, '<0');
+                repeat
+                    NewVATEntry.Base := NewVATEntry.Base + VATEntry2.Base;
+                    NewVATEntry.Amount := NewVATEntry.Amount + VATEntry2.Amount;
+                    NewVATEntry."Unrealized Amount" := NewVATEntry."Unrealized Amount" + VATEntry2."Unrealized Amount";
+                    NewVATEntry."Unrealized Base" := NewVATEntry."Unrealized Base" + VATEntry2."Unrealized Base";
+                    NewVATEntry."Additional-Currency Base" :=
+                      NewVATEntry."Additional-Currency Base" + VATEntry2."Additional-Currency Base";
+                    NewVATEntry."Additional-Currency Amount" :=
+                      NewVATEntry."Additional-Currency Amount" + VATEntry2."Additional-Currency Amount";
+                    NewVATEntry."Add.-Currency Unrealized Amt." :=
+                      NewVATEntry."Add.-Currency Unrealized Amt." + VATEntry2."Add.-Currency Unrealized Amt.";
+                    NewVATEntry."Add.-Currency Unrealized Base" :=
+                      NewVATEntry."Add.-Currency Unrealized Base" + VATEntry2."Add.-Currency Unrealized Base";
+                    NewVATEntry."Remaining Unrealized Amount" :=
+                      NewVATEntry."Remaining Unrealized Amount" + VATEntry2."Remaining Unrealized Amount";
+                    NewVATEntry."Remaining Unrealized Base" :=
+                      NewVATEntry."Remaining Unrealized Base" + VATEntry2."Remaining Unrealized Base";
+                    VATEntry2.Delete();
+                    GLEntryVATEntryLink.SetRange("VAT Entry No.", VATEntry2."Entry No.");
+                    if GLEntryVATEntryLink.FindSet() then
+                        repeat
+                            GLEntryVATEntryLink2 := GLEntryVATEntryLink;
+                            GLEntryVATEntryLink2.Delete();
+                            GLEntryVATEntryLink2."VAT Entry No." := NewVATEntry."Entry No.";
+                            if GLEntryVATEntryLink2.Insert() then;
+                        until GLEntryVATEntryLink.Next() = 0;
+                    DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+                    Window.Update(8, DateComprReg."No. Records Deleted");
+                    if UseDataArchive then
+                        DataArchive.SaveRecord(VATEntry2);
+                until VATEntry2.Next() = 0;
+                NewVATEntry.Insert();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -194,13 +188,17 @@ report 95 "Date Compress VAT Entries"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the first date to be included in the date compression. The compression affects all VAT entries from this date to the Ending Date field.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
@@ -213,7 +211,9 @@ report 95 "Date Compress VAT Entries"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Period Length';

@@ -11,6 +11,7 @@ table 10551 "BACS Register"
 {
     Caption = 'BACS Register';
     LookupPageID = "G/L Registers";
+    DataClassification = CustomerContent;
 
     fields
     {

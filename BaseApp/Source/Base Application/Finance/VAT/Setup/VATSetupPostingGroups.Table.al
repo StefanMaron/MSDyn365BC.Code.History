@@ -11,6 +11,7 @@ using Microsoft.Service.Document;
 table 1877 "VAT Setup Posting Groups"
 {
     Caption = 'VAT Setup Posting Groups';
+    DataClassification = CustomerContent;
 
     fields
     {

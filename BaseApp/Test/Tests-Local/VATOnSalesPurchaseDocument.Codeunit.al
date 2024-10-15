@@ -55,20 +55,20 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Open Sales Return Order Statistics Page from Sales Return Order to change VAT Amount.
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Statistics.Invoke;  // Invoking Statistics.
-        SalesReturnOrder.OK.Invoke;
+        SalesReturnOrder.Statistics.Invoke();  // Invoking Statistics.
+        SalesReturnOrder.OK().Invoke();
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify changed VAT Amount on Sales Credit Memo Statistics Page.
         SalesCrMemoHeader.Get(DocumentNo);
-        SalesCreditMemoStatistics.OpenEdit;
+        SalesCreditMemoStatistics.OpenEdit();
         SalesCreditMemoStatistics.GotoRecord(SalesCrMemoHeader);
         SalesCreditMemoStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
-        SalesCreditMemoStatistics.OK.Invoke;
+        SalesCreditMemoStatistics.OK().Invoke();
     end;
 
     [Test]
@@ -93,20 +93,20 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Open Sales Order Statistics Page from Sales Order to change VAT Amount.
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.Statistics.Invoke;
-        SalesOrder.OK.Invoke;
+        SalesOrder.Statistics.Invoke();
+        SalesOrder.OK().Invoke();
 
         // Exercise.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify changed VAT Amount on Sales Invoice Statistics Page.
         SalesInvoiceHeader.Get(DocumentNo);
-        SalesInvoiceStatistics.OpenEdit;
+        SalesInvoiceStatistics.OpenEdit();
         SalesInvoiceStatistics.GotoRecord(SalesInvoiceHeader);
         SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
-        SalesInvoiceStatistics.OK.Invoke;
+        SalesInvoiceStatistics.OK().Invoke();
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // Setup: Create and partially post Purchase Return Order.
         Initialize();
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         VATAmount :=
@@ -136,10 +136,10 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Open Purchase Return Order Statistics Page from Purchase Return Order to change VAT Amount.
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.Statistics.Invoke;  // Invoking Statistics.
-        PurchaseReturnOrder.OK.Invoke;
+        PurchaseReturnOrder.Statistics.Invoke();  // Invoking Statistics.
+        PurchaseReturnOrder.OK().Invoke();
 
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -149,10 +149,10 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Verify: Verify changed VAT Amount on Purchase Credit Memo Statistics Page.
         PurchCrMemoHdr.Get(DocumentNo);
-        PurchCreditMemoStatistics.OpenEdit;
+        PurchCreditMemoStatistics.OpenEdit();
         PurchCreditMemoStatistics.GotoRecord(PurchCrMemoHdr);
         PurchCreditMemoStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
-        PurchCreditMemoStatistics.OK.Invoke;
+        PurchCreditMemoStatistics.OK().Invoke();
     end;
 
     [Test]
@@ -178,10 +178,10 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Open Purchase Order Statistics Page from Purchase Order to change VAT Amount.
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue value for VATAmountLinesPageHandler.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.Statistics.Invoke;
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrder.Statistics.Invoke();
+        PurchaseOrder.OK().Invoke();
 
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -191,10 +191,10 @@ codeunit 144007 "VAT On Sales/Purchase Document"
 
         // Verify: Verify changed VAT Amount on Purchase Invoice Statistics Page.
         PurchInvHeader.Get(DocumentNo);
-        PurchaseInvoiceStatistics.OpenEdit;
+        PurchaseInvoiceStatistics.OpenEdit();
         PurchaseInvoiceStatistics.GotoRecord(PurchInvHeader);
         PurchaseInvoiceStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
-        PurchaseInvoiceStatistics.OK.Invoke;
+        PurchaseInvoiceStatistics.OK().Invoke();
     end;
 
     [Test]
@@ -264,7 +264,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         // [GIVEN] "G/L Account"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
 
         // [WHEN] "G/L Account" is added to "Sales Line" by "No."
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 0);
@@ -346,12 +346,12 @@ codeunit 144007 "VAT On Sales/Purchase Document"
         isInitialized := true;
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", true);
-        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -368,7 +368,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // Update General Ledger Setup and Purchases Payables Setup for VAT Difference. Create and post Purchase Document.
         UpdateGeneralLedgerSetupForMaxVATDiffAllowed(GeneralLedgerSetup);
-        UpdatePurchasesPayablesSetup;
+        UpdatePurchasesPayablesSetup();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
@@ -392,7 +392,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         // Update General Ledger Setup and Sales Receivables Setup for VAT Difference. Create and post Sales Document.
         UpdateGeneralLedgerSetupForMaxVATDiffAllowed(GeneralLedgerSetup);
-        UpdateSalesReceivablesSetupForAllowVATDifference;
+        UpdateSalesReceivablesSetupForAllowVATDifference();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), Quantity);
@@ -436,16 +436,16 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
-        PurchaseOrderStatistics.OK.Invoke;
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
-        SalesOrderStatistics.OK.Invoke;
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -456,7 +456,7 @@ codeunit 144007 "VAT On Sales/Purchase Document"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         VATAmountLines."VAT Amount".SetValue(VATAmount);
-        VATAmountLines.OK.Invoke;
+        VATAmountLines.OK().Invoke();
     end;
 
     local procedure CreateItemReverseChargeApplies(var Item: Record Item)

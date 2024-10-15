@@ -42,7 +42,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Purchase - Credit Memo GB");  // Open PurchaseCreditMemoGBRequestPageHandler.
 
         // Verify: Verify Number and Description on Report Purchase - Credit Memo GB.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchCrMemoLine', PurchCrMemoLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('Desc_PurchCrMemoLine', PurchCrMemoLine.Description);
     end;
@@ -65,7 +65,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Purchase - Invoice GB");  // Open PurchaseInvoiceGBRequestPageHandler.
 
         // Verify: Verify Number and Description on Report Purchase - Invoice GB.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchInvLine', PurchInvLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('Description_PurchInvLine', PurchInvLine.Description);
     end;
@@ -80,14 +80,14 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate Issued Fin. Charge Memo Header - OnAfterGetRecord trigger of Report ID - 118 Finance Charge Memo.
         // Setup.
         Initialize();
-        IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo;
+        IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo();
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
 
         // Exercise.
         REPORT.Run(REPORT::"Finance Charge Memo");
 
         // Verify: Verify Issued Finance Charge Memo Header No on report Finance Charge Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_IssuedFinChrgMemoHeader', IssuedFinChargeMemoNo);
     end;
 
@@ -102,7 +102,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate DimensionLoop - OnAfterGetRecord trigger of Report ID - 118 Finance Charge Memo.
         // Setup.
         Initialize();
-        IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo;
+        IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo();
         UpdateIssuedFinChargeMemoHeaderDimensionSetID(DimensionSetEntry, IssuedFinChargeMemoNo);
         Commit();  // Commit required, because it is explicitly called by IncrNoPrinted function of Codeunit ID - 395 FinChrgMemo-Issue.
 
@@ -110,7 +110,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Finance Charge Memo");
 
         // Verify: Verify Dimension Text on report Finance Charge Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'DimText', StrSubstNo('%1 - %2', DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
     end;
@@ -134,7 +134,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Purchase - Quote");
 
         // Verify: Verify Purchase Quote No and Company Information Phone No on Report Purchase - Quote.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PurchHeadNo', PurchaseHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoPhoneNoCap, ResponsibilityCenter."Phone No.");
     end;
@@ -158,7 +158,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Purchase - Receipt");
 
         // Verify: Verify Purchase Receipt Header No and Company Information Phone No on Report Purchase - Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchRcptHeader', PurchaseReceiptHeaderNo);
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoPhoneNoCap, ResponsibilityCenter."Phone No.");
     end;
@@ -183,7 +183,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::Reminder);
 
         // Verify: Verify Issued Reminder Header Number and Amount on Report Purchase - Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(IssuedReminderHeaderCap, IssuedReminderHeaderNo);
         LibraryReportDataset.AssertElementWithValueExists('NNCTotalInclVAT', Amount);
     end;
@@ -206,7 +206,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::Reminder);
 
         // Verify: Verify Issued Reminder Header No on Report Purchase - Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(IssuedReminderHeaderCap, IssuedReminderHeaderNo);
     end;
 
@@ -221,7 +221,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate Sales Shipment Header - OnAfterGetRecord trigger of Report ID - 208 Sales - Shipment.
         // Setup.
         Initialize();
-        SalesShipmentHeaderNo := CreateSalesShipment;
+        SalesShipmentHeaderNo := CreateSalesShipment();
         PhoneNo := UpdateSalesShipmentHeaderResponsibilityCenter(SalesShipmentHeaderNo);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 314 Sales Shpt.-Printed.
 
@@ -229,7 +229,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Sales - Shipment");
 
         // Verify: Verify Sales Shipment Header No and Company Information Phone No on Report Sales - Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_SalesShptHeader', SalesShipmentHeaderNo);
         LibraryReportDataset.AssertElementWithValueExists(CompanyInfoPhoneNoCap, PhoneNo);
     end;
@@ -245,7 +245,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate Sales Shipment Header - OnAfterGetRecord trigger of Report ID - 208 Sales - Shipment.
         // Setup.
         Initialize();
-        SalesShipmentHeaderNo := CreateSalesShipment;
+        SalesShipmentHeaderNo := CreateSalesShipment();
         UpdateSalesShipmentHeaderWithSalesperson(SalesShipmentHeaderNo);
         Commit();  // Commit required, because it is explicitly called by OnRun Trigger of Codeunit ID - 314 Sales Shpt.-Printed.
 
@@ -253,7 +253,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         REPORT.Run(REPORT::"Sales - Shipment");
 
         // Verify: Verify Salesperson Text and Reference Text on Report Sales - Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('SalesPersonText', 'Salesperson');
         LibraryReportDataset.AssertElementWithValueExists('ReferenceText', SalesShipmentHeader.FieldCaption("Your Reference"));
     end;
@@ -286,13 +286,13 @@ codeunit 144052 "UT REP Purchase & Sales"
         Initialize();
 
         // [GIVEN] Enabled Application Area = #basic setup
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         Commit();
 
         // [WHEN] Run "EC Sales List" report
         // [THEN] ReportLayout and "Create XML File" fields are enabled (check in RPH)
         REPORT.Run(REPORT::"EC Sales List");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -311,7 +311,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         // [WHEN] Run "EC Sales List" report
         // [THEN] ReportLayout and "Create XML File" fields are enabled (check in RPH)
         REPORT.Run(REPORT::"EC Sales List");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -458,7 +458,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -468,8 +468,8 @@ codeunit 144052 "UT REP Purchase & Sales"
         CustomerPostingGroupCode: Code[20];
     begin
         CustomerPostingGroupCode := CreateVATAndCustomerPostingSetup(VATPostingSetup);
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Reminder Terms Code" := CreateReminderTerms;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Reminder Terms Code" := CreateReminderTerms();
         Customer."Customer Posting Group" := CustomerPostingGroupCode;
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Customer.Insert();
@@ -482,9 +482,9 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         if GLEntry2.FindLast() then;
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Document No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Transaction No." := SelectGLEntryTransactionNo;
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Document No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Transaction No." := SelectGLEntryTransactionNo();
         GLEntry.Insert();
     end;
 
@@ -492,9 +492,9 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader.Insert();
-        CreatePostedPurchaseInvoiceLine(PurchInvLine, PurchInvLine.Type::Item, PurchInvHeader."No.", LibraryUTUtility.GetNewCode);
+        CreatePostedPurchaseInvoiceLine(PurchInvLine, PurchInvLine.Type::Item, PurchInvHeader."No.", LibraryUTUtility.GetNewCode());
         CreatePostedPurchaseInvoiceLine(PurchInvLine, PurchInvLine.Type::Item, PurchInvHeader."No.", '');  // Blank value for Number.
         LibraryVariableStorage.Enqueue(PurchInvHeader."No.");  // Enqueue required for PurchaseCreditMemoGBRequestPageHandler.
     end;
@@ -505,7 +505,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchInvLine."Document No." := DocumentNo;
         PurchInvLine.Type := Type;
         PurchInvLine."No." := No;
-        PurchInvLine.Description := LibraryUTUtility.GetNewCode;
+        PurchInvLine.Description := LibraryUTUtility.GetNewCode();
         PurchInvLine.Insert();
     end;
 
@@ -513,10 +513,10 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHeader.Insert();
         CreatePostedPurchaseCreditMemoLine(
-          PurchCrMemoLine, PurchCrMemoLine.Type::Item, PurchCrMemoHeader."No.", LibraryUTUtility.GetNewCode);
+          PurchCrMemoLine, PurchCrMemoLine.Type::Item, PurchCrMemoHeader."No.", LibraryUTUtility.GetNewCode());
         CreatePostedPurchaseCreditMemoLine(PurchCrMemoLine, PurchCrMemoLine.Type::Item, PurchCrMemoHeader."No.", '');  // Blank value for - Number.
         LibraryVariableStorage.Enqueue(PurchCrMemoHeader."No.");  // Enqueue required for PurchaseCreditMemoGBRequestPageHandler.
     end;
@@ -527,7 +527,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchCrMemoLine."Document No." := DocumentNo;
         PurchCrMemoLine.Type := Type;
         PurchCrMemoLine."No." := No;
-        PurchCrMemoLine.Description := LibraryUTUtility.GetNewCode;
+        PurchCrMemoLine.Description := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine.Insert();
     end;
 
@@ -536,10 +536,10 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Vendor Cr. Memo No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Vendor Invoice No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Responsibility Center" := ResponsibilityCenter;
         PurchaseHeader.Insert();
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
@@ -557,7 +557,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         ReminderTerms: Record "Reminder Terms";
     begin
-        ReminderTerms.Code := LibraryUTUtility.GetNewCode10;
+        ReminderTerms.Code := LibraryUTUtility.GetNewCode10();
         ReminderTerms.Insert();
         CreateReminderLevel(ReminderTerms.Code);
         exit(ReminderTerms.Code);
@@ -583,7 +583,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         if CustLedgerEntry2.FindLast() then;
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Positive := true;
         CustLedgerEntry."Due Date" := WorkDate();
@@ -629,7 +629,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."VAT Prod. Posting Group" := VATProdPostingGroup;
         GLAccount."Gen. Prod. Posting Group" := CreateGeneralPostingSetup(VATProdPostingGroup);
         GLAccount.Insert();
@@ -640,7 +640,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := DefVATProdPostingGroup;
         GenProductPostingGroup.Insert();
         exit(GenProductPostingGroup.Code);
@@ -677,8 +677,8 @@ codeunit 144052 "UT REP Purchase & Sales"
         DimensionValue: Record "Dimension Value";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
 
         if DimensionSetEntry2.FindLast() then
@@ -694,15 +694,15 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATProductPostingGroup.Insert();
         exit(VATProductPostingGroup.Code);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup();
         VATPostingSetup.Insert();
     end;
 
@@ -712,7 +712,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         GLAccountNo: Code[20];
     begin
         GLAccountNo := CreateGLAccount(VATProdPostingGroup);
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         CustomerPostingGroup."Additional Fee Account" := GLAccountNo;
         CustomerPostingGroup."Interest Account" := GLAccountNo;
         CustomerPostingGroup.Insert();
@@ -727,7 +727,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CustomerPostingGroupCode: Code[20];
     begin
         CustomerPostingGroupCode := CreateVATAndCustomerPostingSetup(VATPostingSetup);
-        IssuedFinChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedFinChargeMemoHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedFinChargeMemoHeader."Customer Posting Group" := CustomerPostingGroupCode;
         IssuedFinChargeMemoHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         IssuedFinChargeMemoHeader.Insert();
@@ -747,10 +747,10 @@ codeunit 144052 "UT REP Purchase & Sales"
         CustomerPostingGroupCode: Code[20];
     begin
         CustomerPostingGroupCode := CreateVATAndCustomerPostingSetup(VATPostingSetup);
-        IssuedReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedReminderHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroupCode;
         IssuedReminderHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        IssuedReminderHeader."Currency Code" := LibraryUTUtility.GetNewCode10;
+        IssuedReminderHeader."Currency Code" := LibraryUTUtility.GetNewCode10();
         IssuedReminderHeader.Insert();
 
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
@@ -763,8 +763,8 @@ codeunit 144052 "UT REP Purchase & Sales"
 
     local procedure CreateResponsibilityCenter(var ResponsibilityCenter: Record "Responsibility Center")
     begin
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
-        ResponsibilityCenter."Phone No." := LibraryUTUtility.GetNewCode;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
+        ResponsibilityCenter."Phone No." := LibraryUTUtility.GetNewCode();
         ResponsibilityCenter.Insert();
     end;
 
@@ -772,7 +772,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
-        PurchRcptHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchRcptHeader."No." := LibraryUTUtility.GetNewCode();
         PurchRcptHeader."Responsibility Center" := ResponsibilityCenter;
         PurchRcptHeader.Insert();
         LibraryVariableStorage.Enqueue(PurchRcptHeader."No.");  // Required inside PurchaseReceiptRequestPageHandler.
@@ -784,7 +784,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode();
         SalesShipmentHeader.Insert();
         SalesShipmentLine."Document No." := SalesShipmentHeader."No.";
         SalesShipmentLine.Insert();
@@ -796,7 +796,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
         exit(SalespersonPurchaser.Code);
     end;
@@ -845,8 +845,8 @@ codeunit 144052 "UT REP Purchase & Sales"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.Get(SalesShipmentHeaderNo);
-        SalesShipmentHeader."Salesperson Code" := CreateSalespersonPurchaser;
-        SalesShipmentHeader."Your Reference" := LibraryUTUtility.GetNewCode;
+        SalesShipmentHeader."Salesperson Code" := CreateSalespersonPurchaser();
+        SalesShipmentHeader."Your Reference" := LibraryUTUtility.GetNewCode();
         SalesShipmentHeader.Modify();
     end;
 
@@ -907,7 +907,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         FinanceChargeMemo."Issued Fin. Charge Memo Header".SetFilter("No.", No);
         FinanceChargeMemo.ShowInternalInformation.SetValue(ShowInternalInformation);
         FinanceChargeMemo.LogInteraction.SetValue(LogInteraction);
-        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -919,7 +919,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CurrentSaveValuesId := REPORT::"Purchase - Credit Memo GB";
         LibraryVariableStorage.Dequeue(No);
         PurchaseCreditMemoGB."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
-        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemoGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -931,7 +931,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CurrentSaveValuesId := REPORT::"Purchase - Invoice GB";
         LibraryVariableStorage.Dequeue(No);
         PurchaseInvoiceGB."Purch. Inv. Header".SetFilter("No.", No);
-        PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoiceGB.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -960,7 +960,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryVariableStorage.Dequeue(No);
         PurchaseQuote."Purchase Header".SetFilter("No.", No);
         PurchaseQuote.LogInteraction.SetValue(true);
-        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -974,7 +974,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         PurchaseReceipt."Purch. Rcpt. Header".SetFilter("No.", No);
         PurchaseReceipt.LogInteraction.SetValue(true);
         PurchaseReceipt."Show Correction Lines".SetValue(true);
-        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -986,7 +986,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CurrentSaveValuesId := REPORT::Reminder;
         LibraryVariableStorage.Dequeue(No);
         Reminder."Issued Reminder Header".SetFilter("No.", No);
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -998,7 +998,7 @@ codeunit 144052 "UT REP Purchase & Sales"
         CurrentSaveValuesId := REPORT::"Sales - Shipment";
         LibraryVariableStorage.Dequeue(No);
         SalesShipment."Sales Shipment Header".SetFilter("No.", No);
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()
@@ -1012,20 +1012,20 @@ codeunit 144052 "UT REP Purchase & Sales"
     [Scope('OnPrem')]
     procedure ECSalesListReportRPH(var ECSalesList: TestRequestPage "EC Sales List")
     begin
-        Assert.IsTrue(ECSalesList."Create XML File".Visible, '');
-        Assert.IsTrue(ECSalesList."Create XML File".Enabled, '');
+        Assert.IsTrue(ECSalesList."Create XML File".Visible(), '');
+        Assert.IsTrue(ECSalesList."Create XML File".Enabled(), '');
     end;
 
     [RequestPageHandler]
     procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test");
     begin
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     procedure RemittanceAdviceJournalRequestPageHandler(var RemittanceAdviceJournal: TestRequestPage "Remittance Advice - Journal");
     begin
-        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

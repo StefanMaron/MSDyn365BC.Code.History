@@ -27,6 +27,8 @@ permissionset 8783 "Dataverse - View"
                   tabledata "CRM Shipping Method" = R,
                   tabledata "CRM Systemuser" = R,
                   tabledata "CRM Systemuserroles" = R,
+                  tabledata "CDS Field Security Profile" = R,
+                  tabledata "CDS System User Profiles" = R,
                   tabledata "CRM Team" = R,
                   tabledata "CRM Transactioncurrency" = R;
 }

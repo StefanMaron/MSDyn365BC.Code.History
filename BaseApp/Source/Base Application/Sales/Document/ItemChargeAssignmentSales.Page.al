@@ -534,7 +534,7 @@ page 5814 "Item Charge Assignment (Sales)"
     local procedure QtytoAssignOnAfterValidate()
     begin
         CurrPage.SaveRecord();
-        UpdateQtyAssgnt;
+        UpdateQtyAssgnt();
         CurrPage.Update(false);
     end;
 

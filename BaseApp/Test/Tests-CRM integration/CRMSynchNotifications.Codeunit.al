@@ -34,7 +34,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Contact] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to a CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -47,19 +47,19 @@ codeunit 139185 "CRM Synch. Notifications"
           Contact.RecordId, CRMContact.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Contact Card for "A"
-        ContactCardPage.Trap;
+        ContactCardPage.Trap();
         PAGE.Run(PAGE::"Contact Card", Contact);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Customer Card page to trigger refresh
-        Assert.IsTrue(ContactCardPage.ShowLog.Enabled, 'ShowLog action is not enabled.');
-        IntegrationSynchJobListPage.Trap;
-        ContactCardPage.ShowLog.Invoke;
+        Assert.IsTrue(ContactCardPage.ShowLog.Enabled(), 'ShowLog action is not enabled.');
+        IntegrationSynchJobListPage.Trap();
+        ContactCardPage.ShowLog.Invoke();
         IntegrationSynchJobListPage.Close();
         // [THEN] Notification "Err" is not repeated
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
     end;
 
     [Test]
@@ -75,13 +75,13 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Contact] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Contact[1].DeleteAll();
         // [GIVEN] Contacts "A" and "B" coupled to a CRM Contacts
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact[1], CRMContact[1]);
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact[2], CRMContact[2]);
         // [GIVEN] Open Contact Card for "A"
-        ContactCardPage.Trap;
+        ContactCardPage.Trap();
         PAGE.Run(PAGE::"Contact Card", Contact[1]);
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains messages: "ErrA", "ErrB"
@@ -100,7 +100,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Contact "A" in the Card page
-        ContactCardPage.Previous;
+        ContactCardPage.Previous();
         ContactCardPage."No.".AssertEquals(Contact[1]."No.");
         // [THEN] Notification "ErrA" shown for Contact "A"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -120,7 +120,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: Text;
     begin
         // [FEATURE] [Contact] [Log] [UI]
-        TestInit;
+        TestInit();
         Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -139,16 +139,16 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Contact Card page
-        ContactCardPage.Trap;
+        ContactCardPage.Trap();
         PAGE.Run(PAGE::"Contact Card", Contact);
-        IntegrationSynchJobListPage.Trap;
-        Assert.IsTrue(ContactCardPage.ShowLog.Enabled, 'ShowLog action is not enabled.');
-        ContactCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        Assert.IsTrue(ContactCardPage.ShowLog.Enabled(), 'ShowLog action is not enabled.');
+        ContactCardPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Contact "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -166,7 +166,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Contact] [Log] [UI]
-        TestInit;
+        TestInit();
         Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
@@ -183,15 +183,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Contact List page
-        ContactListPage.Trap;
+        ContactListPage.Trap();
         PAGE.Run(PAGE::"Contact List", Contact);
-        IntegrationSynchJobListPage.Trap;
-        ContactListPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        ContactListPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Contact "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -209,7 +209,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Currency] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Currency.DeleteAll();
         // [GIVEN] Currency "A" coupled to a CRM Transactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
@@ -221,22 +221,22 @@ codeunit 139185 "CRM Synch. Notifications"
           Currency.RecordId, CRMTransactioncurrency.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Currency Card for "A"
-        CurrencyCardPage.Trap;
+        CurrencyCardPage.Trap();
         PAGE.Run(PAGE::"Currency Card", Currency);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Currency Card page
-        IntegrationSynchJobListPage.Trap;
-        CurrencyCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CurrencyCardPage.ShowLog.Invoke();
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Currency "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(ExpectedErrorMsg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -253,7 +253,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Currency] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         // [GIVEN] Currencies "A" and "B"  coupled to a CRM Transactioncurrencies
         Currency[1].DeleteAll();
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
@@ -264,7 +264,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Currency[2].FindLast();
 
         // [GIVEN] Open Currency Card for "A"
-        CurrencyCardPage.Trap;
+        CurrencyCardPage.Trap();
         PAGE.Run(PAGE::"Currency Card", Currency[1]);
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the messages: "ErrA", "ErrB"
@@ -283,7 +283,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Currency "A" in the Card page
-        CurrencyCardPage.Previous;
+        CurrencyCardPage.Previous();
         CurrencyCardPage.Code.AssertEquals(Currency[1].Code);
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -303,7 +303,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Currency] [Log] [UI]
-        TestInit;
+        TestInit();
         Currency.DeleteAll();
         // [GIVEN] Currency "A" coupled to CRM Transactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
@@ -322,15 +322,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Currencies page
-        Currencies.Trap;
+        Currencies.Trap();
         PAGE.Run(PAGE::Currencies, Currency);
-        IntegrationSynchJobListPage.Trap;
-        Currencies.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        Currencies.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Currency "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -348,7 +348,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -359,18 +359,18 @@ codeunit 139185 "CRM Synch. Notifications"
           CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Customer Card for "A"
-        CustomerCardPage.Trap;
+        CustomerCardPage.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Customer Card page to trigger refresh
-        IntegrationSynchJobListPage.Trap;
-        CustomerCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CustomerCardPage.ShowLog.Invoke();
         IntegrationSynchJobListPage.Close();
         // [THEN] Notification "Err" is not repeated
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
     end;
 
     [Test]
@@ -386,13 +386,13 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Customer[1].DeleteAll();
         // [GIVEN] Customers "A" and "B" coupled to a CRM Accounts
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
         // [GIVEN] Open Customer Card for "A"
-        CustomerCardPage.Trap;
+        CustomerCardPage.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer[1]);
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the messages: "ErrA", "ErrB"
@@ -411,7 +411,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Customer "A" in the Card page
-        CustomerCardPage.Previous;
+        CustomerCardPage.Previous();
         CustomerCardPage."No.".AssertEquals(Customer[1]."No.");
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -431,7 +431,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page opening, if the record has failed the initial sync.
-        TestInit;
+        TestInit();
         Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -444,7 +444,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Delete();
 
         // [WHEN] Open Customer Card for "A"
-        CustomerCardPage.Trap;
+        CustomerCardPage.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
 
         // [THEN] Notification: "Err"
@@ -461,14 +461,14 @@ codeunit 139185 "CRM Synch. Notifications"
         CustomerCardPage: TestPage "Customer Card";
     begin
         // [FEATURE] [Customer] [UI]
-        TestInit;
+        TestInit();
         Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] CRM Integration record for Customer "A" marked as successful
         LibraryCRMIntegration.MockSuccessSynchToCRMIntegrationRecord(Customer.RecordId, '');
         // [WHEN] Open Customer Card for "A"
-        CustomerCardPage.Trap;
+        CustomerCardPage.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
 
         // [THEN] The page is open for "A" and there is no notification
@@ -490,7 +490,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Customer] [Log] [UI]
-        TestInit;
+        TestInit();
         Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -509,15 +509,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer Card page
-        CustomerCardPage.Trap;
+        CustomerCardPage.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
-        IntegrationSynchJobListPage.Trap;
-        CustomerCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CustomerCardPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where are 2 jobs for "CUSTOMER"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Next();
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 2 records in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 2 records in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -536,7 +536,7 @@ codeunit 139185 "CRM Synch. Notifications"
         i: Integer;
     begin
         // [FEATURE] [Customer] [Log] [UI]
-        TestInit;
+        TestInit();
         Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -557,20 +557,20 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer List page
-        CustomerListPage.Trap;
+        CustomerListPage.Trap();
         PAGE.Run(PAGE::"Customer List", Customer);
-        IntegrationSynchJobListPage.Trap;
-        CustomerListPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CustomerListPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where are 3 jobs for "CUSTOMER", sorted by "Start Date/Time"
-        Assert.IsTrue(IntegrationSynchJobListPage.First, 'there should be first job in the list.');
+        Assert.IsTrue(IntegrationSynchJobListPage.First(), 'there should be first job in the list.');
         IntegrationSynchJobListPage.Next();
         IntegrationSynchJobListPage.Next();
         Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'there should be three jobs in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -585,7 +585,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Customer Price Group] [Log] [UI]
-        TestInit;
+        TestInit();
         CustomerPriceGroup.DeleteAll();
         // [GIVEN] Customer Price Group "A" coupled to CRM Pricelevel
         LibraryCRMIntegration.CreateCoupledPriceGroupAndPricelevel(
@@ -604,15 +604,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer Price Groups page
-        CustomerPriceGroups.Trap;
+        CustomerPriceGroups.Trap();
         PAGE.Run(PAGE::"Customer Price Groups", CustomerPriceGroup);
-        IntegrationSynchJobListPage.Trap;
-        CustomerPriceGroups.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CustomerPriceGroups.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Customer Price Group "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 #endif
@@ -631,7 +631,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Item] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -642,22 +642,22 @@ codeunit 139185 "CRM Synch. Notifications"
           Item.RecordId, CRMProduct.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Item Card for "A"
-        ItemCardPage.Trap;
+        ItemCardPage.Trap();
         PAGE.Run(PAGE::"Item Card", Item);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Item Card page
-        IntegrationSynchJobListPage.Trap;
-        ItemCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        ItemCardPage.ShowLog.Invoke();
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Item "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(ExpectedErrorMsg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -674,13 +674,13 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Item] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Item[1].DeleteAll();
         // [GIVEN] Items "A" and "B" coupled to CRM Products
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item[1], CRMProduct[2]);
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item[2], CRMProduct[2]);
         // [GIVEN] Open Item Card for "A"
-        ItemCardPage.Trap;
+        ItemCardPage.Trap();
         PAGE.Run(PAGE::"Item Card", Item[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Items "A" and "B" marked as failed
@@ -698,7 +698,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Item "A" in the Card page
-        ItemCardPage.Previous;
+        ItemCardPage.Previous();
         ItemCardPage."No.".AssertEquals(Item[1]."No.");
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -717,7 +717,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Item] [UI]
         // [SCENARIO 257616] Notification should not be shown on Card page openning, if item is coupled, has failed the last sync and Integration Synch. Job entry is deleted.
-        TestInit;
+        TestInit();
         Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -730,7 +730,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJob.Delete();
 
         // [WHEN] Open Item Card for "A"
-        ItemCardPage.Trap;
+        ItemCardPage.Trap();
         PAGE.Run(PAGE::"Item Card", Item);
 
         // [THEN] No error sync notification (no any notification handlers)
@@ -750,7 +750,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Item] [UI]
         // [SCENARIO 257616] Notification should not be shown on Card page openning, if item is coupled, has failed the last sync and Integration Synch. Job entry is deleted.
-        TestInit;
+        TestInit();
         Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -763,7 +763,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJob.Delete();
 
         // [WHEN] Open Item Card for "A"
-        ItemCardPage.Trap;
+        ItemCardPage.Trap();
         PAGE.Run(PAGE::"Item Card", Item);
 
         // [THEN] No error sync notification (no any notification handlers)
@@ -783,7 +783,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Item] [Log] [UI]
-        TestInit;
+        TestInit();
         Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -801,15 +801,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Item List page
-        ItemListPage.Trap;
+        ItemListPage.Trap();
         PAGE.Run(PAGE::"Item List", Item);
-        IntegrationSynchJobListPage.Trap;
-        ItemListPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        ItemListPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Item "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -827,7 +827,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Resource] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         Resource.DeleteAll();
         // [GIVEN] Resource "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
@@ -838,22 +838,22 @@ codeunit 139185 "CRM Synch. Notifications"
           Resource.RecordId, CRMProduct.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Resource Card for "A"
-        ResourceCardPage.Trap;
+        ResourceCardPage.Trap();
         PAGE.Run(PAGE::"Resource Card", Resource);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Resource Card page
-        IntegrationSynchJobListPage.Trap;
-        ResourceCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        ResourceCardPage.ShowLog.Invoke();
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Resource "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(ExpectedErrorMsg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -871,14 +871,14 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Resource] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
-        LibraryApplicationArea.EnableJobsSetup;
+        TestInit();
+        LibraryApplicationArea.EnableJobsSetup();
         // [GIVEN] Resourcea "A" and "B" coupled to CRM Products
         Resource[1].DeleteAll();
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource[1], CRMProduct[1]);
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource[2], CRMProduct[2]);
         // [GIVEN] Open Resource Card for "A"
-        ResourceCardPage.Trap;
+        ResourceCardPage.Trap();
         PAGE.Run(PAGE::"Resource Card", Resource[1]);
 
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
@@ -897,7 +897,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Resource "A" in the Card page
-        ResourceCardPage.Previous;
+        ResourceCardPage.Previous();
         ResourceCardPage."No.".AssertEquals(Resource[1]."No.");
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -917,7 +917,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Resource] [Log] [UI]
-        TestInit;
+        TestInit();
         Resource.DeleteAll();
         // [GIVEN] Resource "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
@@ -935,15 +935,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Resource List page
-        ResourceListPage.Trap;
+        ResourceListPage.Trap();
         PAGE.Run(PAGE::"Resource List", Resource);
-        IntegrationSynchJobListPage.Trap;
-        ResourceListPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        ResourceListPage.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Resource "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -961,7 +961,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         SalesInvoiceHeader.DeleteAll();
         // [GIVEN] Sales Invoice "A" coupled to a CRM Invoice
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
@@ -972,22 +972,22 @@ codeunit 139185 "CRM Synch. Notifications"
           SalesInvoiceHeader.RecordId, CRMInvoice.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Sales Invoice Card for "A"
-        PostedSalesInvoicePage.Trap;
+        PostedSalesInvoicePage.Trap();
         PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Sales Invoice Card page
-        IntegrationSynchJobListPage.Trap;
-        PostedSalesInvoicePage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        PostedSalesInvoicePage.ShowLog.Invoke();
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Sales Invoice "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(ExpectedErrorMsg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
         IntegrationSynchJobListPage.Close();
         PostedSalesInvoicePage.Close();
     end;
@@ -1005,13 +1005,13 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         SalesInvoiceHeader[1].DeleteAll();
         // [GIVEN] Sales Invoice "A" and "B" coupled to CRM Invoices
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader[1], CRMInvoice[1]);
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader[2], CRMInvoice[2]);
         // [GIVEN] Open Sales Invoice Card for "A"
-        PostedSalesInvoicePage.Trap;
+        PostedSalesInvoicePage.Trap();
         PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB".
         // [GIVEN] CRM Integration record for Invoices "A" and "B" marked as failed
@@ -1029,7 +1029,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Sales Invoice "A" in the Card page
-        PostedSalesInvoicePage.Previous;
+        PostedSalesInvoicePage.Previous();
         PostedSalesInvoicePage."No.".AssertEquals(SalesInvoiceHeader[1]."No.");
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -1050,7 +1050,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Sales] [Invoice] [Log] [UI]
-        TestInit;
+        TestInit();
         SalesInvoiceHeader.DeleteAll();
         // [GIVEN] Sales Invoice "A" coupled to a CRM Invoice
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
@@ -1068,15 +1068,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Posted Sales Invoices page
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
-        IntegrationSynchJobListPage.Trap;
-        PostedSalesInvoices.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        PostedSalesInvoices.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Sales Invoice "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -1094,7 +1094,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Salesperson] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         SalespersonPurchaser.DeleteAll();
         // [GIVEN] Salesperson "A" coupled to a CRM Systemuser
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1106,22 +1106,22 @@ codeunit 139185 "CRM Synch. Notifications"
           ExpectedErrorMsg, CurrentDateTime, false);
 
         // [WHEN] Open Salesperson/Purchaser Card for "A"
-        SalespersonPurchaserCardPage.Trap;
+        SalespersonPurchaserCardPage.Trap();
         PAGE.Run(PAGE::"Salesperson/Purchaser Card", SalespersonPurchaser);
 
         // [THEN] Notification: "Err"
         VerifyNotificationMessage(ExpectedErrorMsg);
 
         // [WHEN] Run "Synchronization Log" action in Salesperson/Purchaser Card page
-        IntegrationSynchJobListPage.Trap;
-        SalespersonPurchaserCardPage.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        SalespersonPurchaserCardPage.ShowLog.Invoke();
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Salesperson/Purchaser "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(ExpectedErrorMsg);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
-        VerifyNoNotificationSent;
+        VerifyNoNotificationSent();
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -1138,13 +1138,13 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Salesperson] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
-        TestInit;
+        TestInit();
         SalespersonPurchaser[1].DeleteAll();
         // [GIVEN] Salespersons "A" and "B" coupled to CRM Systemusers
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[1], CRMSystemuser[1]);
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[2], CRMSystemuser[2]);
         // [GIEN] Open Salesperson/Purchaser Card for "A"
-        SalespersonPurchaserCardPage.Trap;
+        SalespersonPurchaserCardPage.Trap();
         PAGE.Run(PAGE::"Salesperson/Purchaser Card", SalespersonPurchaser[1]);
         // [GIVEN] Synch. Job Error for "A" and "B" contains the message: "ErrA", "ErrB"
         // [GIVEN] CRM Integration record for Salesperson "A" and "B" marked as failed
@@ -1164,7 +1164,7 @@ codeunit 139185 "CRM Synch. Notifications"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
 
         // [WHEN] Move back to Salesperson "A" in the Card page
-        SalespersonPurchaserCardPage.Previous;
+        SalespersonPurchaserCardPage.Previous();
         SalespersonPurchaserCardPage.Code.AssertEquals(SalespersonPurchaser[1].Code);
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
@@ -1184,7 +1184,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Salesperson] [Log] [UI]
-        TestInit;
+        TestInit();
         SalespersonPurchaser.DeleteAll();
         // [GIVEN] Salesperson "A" coupled to a CRM Systemuser
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1202,15 +1202,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Salespersons/Purchasers page
-        SalespersonsPurchasers.Trap;
+        SalespersonsPurchasers.Trap();
         PAGE.Run(PAGE::"Salespersons/Purchasers", SalespersonPurchaser);
-        IntegrationSynchJobListPage.Trap;
-        SalespersonsPurchasers.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        SalespersonsPurchasers.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Salesperson/Purchaser "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -1229,7 +1229,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[2] of Text;
     begin
         // [FEATURE] [Unit Of Measure] [Log] [UI]
-        TestInit;
+        TestInit();
         UnitOfMeasure.DeleteAll();
         // [GIVEN] Unit Of Measure "A" coupled to a CRM Uomschedule
         LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(
@@ -1248,15 +1248,15 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Units Of Measure page
-        UnitsofMeasure.Trap;
+        UnitsofMeasure.Trap();
         PAGE.Run(PAGE::"Units of Measure", UnitOfMeasure);
-        IntegrationSynchJobListPage.Trap;
-        UnitsofMeasure.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        UnitsofMeasure.ShowLog.Invoke();
 
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Unit Of Measure "A"
-        IntegrationSynchJobListPage.First;
+        IntegrationSynchJobListPage.First();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Next(), 'There should be 1 record in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
@@ -1272,7 +1272,7 @@ codeunit 139185 "CRM Synch. Notifications"
         ExpectedMessage: Text;
     begin
         // [FEATURE] [UT]
-        TestInit;
+        TestInit();
         ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1301,7 +1301,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Failure notification is not shown for bidirectional table if the last job is successful
-        TestInit;
+        TestInit();
         ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1309,7 +1309,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.MockSuccessSynchToCRMIntegrationRecord(Customer.RecordId, '');
         // [GIVEN] Failed Sync job, where "Direction" is 'FromIntegrationTable'
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
-          CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, LibraryUtility.GenerateGUID, CurrentDateTime, false);
+          CRMAccount.AccountId, CRMAccount.RecordId, Customer.RecordId, LibraryUtility.GenerateGUID(), CurrentDateTime, false);
         // [GIVEN] "Last Synch. CRM Modified On" is later than "Last Synch. Modified On"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMIntegrationRecord."Last Synch. Modified On" + 1000;
@@ -1336,7 +1336,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Failure notification is shown for bidirectional table if the last job is failed
-        TestInit;
+        TestInit();
         ClearCustomerContactBusRel();
         // [GIVEN] Customer is coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1370,7 +1370,7 @@ codeunit 139185 "CRM Synch. Notifications"
         OldName: Text;
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1410,7 +1410,7 @@ codeunit 139185 "CRM Synch. Notifications"
         OldName: Text;
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1448,7 +1448,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1481,7 +1481,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1514,7 +1514,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1548,7 +1548,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1577,7 +1577,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Last Synch. Job] [UT]
-        TestInit;
+        TestInit();
 
         // [GIVEN] Coupled Item and CRM Product
         CreateCoupledAndActiveItemAndProduct(Item, CRMProduct);
@@ -1609,7 +1609,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Coupled Sales Invoice Line should not get markers regarding the last synch. job.
-        TestInit;
+        TestInit();
         // [GIVEN] Sales Invoice Line is coupled to CRM Sales Invoice Line
         SalesInvoiceLine.Init();
         SalesInvoiceLine.Insert();
@@ -1617,13 +1617,13 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationTableMapping.SetRange("Table ID", SourceRecordRef.Number);
         IntegrationTableMapping.FindFirst();
 
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(SourceRecordRef.RecordId, CreateGuid);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(SourceRecordRef.RecordId, CreateGuid());
         // [GIVEN] CRM Integration Record does not have data on last synch. jobs
         VerifyLastSynchDataIsBlank(SourceRecordRef.RecordId);
 
         // [WHEN] run MarkIntegrationRecordAsFailed() for Sales Invoice Line
         IntegrationRecSynchInvoke.MarkIntegrationRecordAsFailed(
-          IntegrationTableMapping, SourceRecordRef, CreateGuid, TABLECONNECTIONTYPE::CRM);
+          IntegrationTableMapping, SourceRecordRef, CreateGuid(), TABLECONNECTIONTYPE::CRM);
 
         // [THEN] CRM Integration Record is not updated
         VerifyLastSynchDataIsBlank(SourceRecordRef.RecordId);
@@ -1642,7 +1642,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[3] of Text;
     begin
         // [FEATURE] [UT]
-        TestInit;
+        TestInit();
         // [GIVEN] Currency 'X' could not be synched to CRMTransactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] Synch Job Error, where Message = 'Err1', Destination RecordID is set
@@ -1674,7 +1674,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Msg: array[3] of Text;
     begin
         // [FEATURE] [UT]
-        TestInit;
+        TestInit();
         // [GIVEN] Currency 'X' coupled to CRMTransactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         // [GIVEN] Synch Job Error, where Message = 'Err1', Destination RecordID is set
@@ -1706,13 +1706,13 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // Enable CRM Integration with Integration Table Mappings
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        ResetDefaultCRMSetupConfiguration;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        ResetDefaultCRMSetupConfiguration();
 
         RecordLink.DeleteAll();
 
-        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
+        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID(), '', '', false);
     end;
 
     local procedure CreateCoupledAndActiveItemAndProduct(var Item: Record Item; var CRMProduct: Record "CRM Product")
@@ -1824,14 +1824,14 @@ codeunit 139185 "CRM Synch. Notifications"
 
     local procedure VerifyNoNotificationSent()
     begin
-        if LibraryVariableStorage.Length > 0 then
-            Error(UnexpectedNotificationErr, LibraryVariableStorage.DequeueText);
+        if LibraryVariableStorage.Length() > 0 then
+            Error(UnexpectedNotificationErr, LibraryVariableStorage.DequeueText());
     end;
 
     local procedure VerifyNotificationMessage(ExpectedErrorMsg: Text)
     begin
         // Expect that LibraryVariableStorage contains a message filled by FailedSyncNotification handler
-        Assert.ExpectedMessage(ExpectedErrorMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ExpectedErrorMsg, LibraryVariableStorage.DequeueText());
     end;
 
     local procedure VerifySuccessfulFromCRMJob(RecID: RecordID; IntegrationTableMapping: Record "Integration Table Mapping")

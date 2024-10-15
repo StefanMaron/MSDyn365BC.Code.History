@@ -25,14 +25,14 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Sales Return Order
         SalesReturnOrder.OpenNew();
 
         // [THEN] The Type field is visible and the subtype field is not
-        Assert.IsTrue(SalesReturnOrder.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(SalesReturnOrder.SalesLines.FilteredTypeField.Visible, 'Subtype field should not be visible for OnPrem');
+        Assert.IsTrue(SalesReturnOrder.SalesLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(SalesReturnOrder.SalesLines.FilteredTypeField.Visible(), 'Subtype field should not be visible for OnPrem');
     end;
 
     [Test]
@@ -50,9 +50,9 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
-        asserterror SalesReturnOrder.SalesLines.Type.Activate;
+        asserterror SalesReturnOrder.SalesLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(SalesReturnOrder.SalesLines.FilteredTypeField.Visible, 'Subtype field should be visible for OnPrem');
+        Assert.IsTrue(SalesReturnOrder.SalesLines.FilteredTypeField.Visible(), 'Subtype field should be visible for OnPrem');
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            SalesReturnOrder.SalesLines.FilteredTypeField.Lookup;
+            SalesReturnOrder.SalesLines.FilteredTypeField.Lookup();
 
             // [THEN] The subtype is set to service
             SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -106,7 +106,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the subtype on the Sales Line to co
-        SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType, 1, 2));
+        SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType(), 1, 2));
         // [THEN] The Subtype is set to Comment
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
@@ -144,7 +144,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an Item Subtype is selected
         Initialize();
-        LibraryApplicationArea.EnableSalesReturnOrderSetup;
+        LibraryApplicationArea.EnableSalesReturnOrderSetup();
 
         // [GIVEN] A Sales Return Order
         SalesReturnOrder.OpenNew();
@@ -175,14 +175,14 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Purchase Return Order
         PurchaseReturnOrder.OpenNew();
 
         // [THEN] The Type field is visible and the subtype field is not
-        Assert.IsTrue(PurchaseReturnOrder.PurchLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(PurchaseReturnOrder.PurchLines.FilteredTypeField.Visible, 'Subtype field should not be visible for OnPrem');
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(PurchaseReturnOrder.PurchLines.FilteredTypeField.Visible(), 'Subtype field should not be visible for OnPrem');
     end;
 
     [Test]
@@ -200,9 +200,9 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
-        asserterror PurchaseReturnOrder.PurchLines.Type.Activate;
+        asserterror PurchaseReturnOrder.PurchLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(PurchaseReturnOrder.PurchLines.FilteredTypeField.Visible, 'Subtype field should be visible for SaaS');
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines.FilteredTypeField.Visible(), 'Subtype field should be visible for SaaS');
     end;
 
     [Test]
@@ -225,7 +225,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            PurchaseReturnOrder.PurchLines.FilteredTypeField.Lookup;
+            PurchaseReturnOrder.PurchLines.FilteredTypeField.Lookup();
 
             // [THEN] The subtype is set to service
             PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -256,7 +256,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Item));
 
         // [WHEN] Setting the subtype on the Purchase Line to co
-        PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType, 1, 2));
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType(), 1, 2));
         // [THEN] The Subtype is set to Comment
         PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
@@ -294,7 +294,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
     begin
         // [SCENARIO] When invalid values are entered into Subtype, an Item is selected
         Initialize();
-        LibraryApplicationArea.EnablePurchaseReturnOrderSetup;
+        LibraryApplicationArea.EnablePurchaseReturnOrderSetup();
 
         // [GIVEN] A Purchase Return Order
         PurchaseReturnOrder.OpenNew();
@@ -316,20 +316,21 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(
+            "Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger()));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next() = 0;
 
-        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
-        OptionLookupList.OK.Invoke;
+        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText());
+        OptionLookupList.OK().Invoke();
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ret. Doc Type Lookup Test");
-        LibraryApplicationArea.EnableReturnOrderSetup;
+        LibraryApplicationArea.EnableReturnOrderSetup();
         LibraryVariableStorage.Clear();
     end;
 }

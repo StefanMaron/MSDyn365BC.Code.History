@@ -337,26 +337,24 @@ report 5690 "Index Fixed Assets"
                 DocumentNo3 := DocumentNo;
             FirstFAJnl := false;
         end;
-        with FAJnlLine do begin
-            Init();
-            "Line No." := 0;
-            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-            "Posting Date" := PostingDate;
-            "FA Posting Date" := FAPostingDate;
-            if "Posting Date" = "FA Posting Date" then
-                "Posting Date" := 0D;
-            "FA Posting Type" := PostingType;
-            Validate("FA No.", FANo);
-            "Document No." := DocumentNo3;
-            "Posting No. Series" := Noseries3;
-            Description := PostingDescription;
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate(Amount, IndexAmount);
-            "Index Entry" := true;
-            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-            "Line No." := FAJnlNextLineNo;
-            Insert(true);
-        end;
+        FAJnlLine.Init();
+        FAJnlLine."Line No." := 0;
+        FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+        FAJnlLine."Posting Date" := PostingDate;
+        FAJnlLine."FA Posting Date" := FAPostingDate;
+        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+            FAJnlLine."Posting Date" := 0D;
+        FAJnlLine."FA Posting Type" := PostingType;
+        FAJnlLine.Validate("FA No.", FANo);
+        FAJnlLine."Document No." := DocumentNo3;
+        FAJnlLine."Posting No. Series" := Noseries3;
+        FAJnlLine.Description := PostingDescription;
+        FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        FAJnlLine.Validate(Amount, IndexAmount);
+        FAJnlLine."Index Entry" := true;
+        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+        FAJnlLine."Line No." := FAJnlNextLineNo;
+        FAJnlLine.Insert(true);
     end;
 
     local procedure InsertJournalLine(FixedAsset: Record "Fixed Asset")

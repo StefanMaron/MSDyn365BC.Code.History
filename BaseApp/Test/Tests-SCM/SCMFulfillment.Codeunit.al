@@ -1928,12 +1928,12 @@ codeunit 137014 "SCM Fulfillment"
     local procedure RunJobCalcRemainingUsage(JobJournalBatch: Record "Job Journal Batch"; JobTask: Record "Job Task")
     var
         JobCalcRemainingUsage: Report "Job Calc. Remaining Usage";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         JobTask.SetRecFilter();
         Commit();
         JobCalcRemainingUsage.SetBatch(JobJournalBatch."Journal Template Name", JobJournalBatch.Name);
-        JobCalcRemainingUsage.SetDocNo(NoSeriesManagement.GetNextNo(JobJournalBatch."No. Series", WorkDate(), false));
+        JobCalcRemainingUsage.SetDocNo(NoSeries.PeekNextNo(JobJournalBatch."No. Series"));
         JobCalcRemainingUsage.SetTableView(JobTask);
         JobCalcRemainingUsage.Run();
     end;

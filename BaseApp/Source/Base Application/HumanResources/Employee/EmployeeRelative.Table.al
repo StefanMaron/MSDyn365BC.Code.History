@@ -9,6 +9,7 @@ table 5205 "Employee Relative"
     DataCaptionFields = "Employee No.";
     DrillDownPageID = "Employee Relatives";
     LookupPageID = "Employee Relatives";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -55,7 +56,7 @@ table 5205 "Employee Relative"
         }
         field(10; Comment; Boolean)
         {
-            CalcFormula = Exist("Human Resource Comment Line" where("Table Name" = const("Employee Relative"),
+            CalcFormula = exist("Human Resource Comment Line" where("Table Name" = const("Employee Relative"),
                                                                      "No." = field("Employee No."),
                                                                      "Table Line No." = field("Line No.")));
             Caption = 'Comment';

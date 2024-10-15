@@ -146,7 +146,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         ReversalEntry: Record "Reversal Entry";
     begin
         // Setup: Create Customer, Create Genenral Journal Line with different Document Types, new Currency and Post it.
-        CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency);
+        CreateGeneralJournalLine(GenJournalLine, DocumentType, Amount, CreateCurrency());
         AmountLCY := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 

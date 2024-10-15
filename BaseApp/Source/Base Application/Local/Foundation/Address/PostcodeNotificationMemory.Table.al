@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.Address;
 table 10501 "Postcode Notification Memory"
 {
     Caption = 'Postcode Notification Memory';
+    DataClassification = CustomerContent;
 
     fields
     {

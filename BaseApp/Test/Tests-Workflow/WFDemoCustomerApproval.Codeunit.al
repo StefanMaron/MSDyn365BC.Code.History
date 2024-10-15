@@ -48,15 +48,15 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // Exercise - New Customer
         LibrarySales.CreateCustomer(Customer);
 
         // Exercise - Send for approval
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
@@ -85,16 +85,16 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // Setup - an existing approval
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Exercise
-        CustomerCard.CancelApprovalRequest.Invoke;
+        CustomerCard.CancelApprovalRequest.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
@@ -126,13 +126,13 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // Setup - an existing approval
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -176,14 +176,14 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // Setup - an existing approval
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
-        CustomerCard.OK.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
+        CustomerCard.OK().Invoke();
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -219,43 +219,43 @@ codeunit 134205 "WF Demo Customer Approval"
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
         Commit();
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // [THEN] Send and Cancel are disabled.
-        Assert.IsFalse(CustomerCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(CustomerCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(CustomerCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(CustomerCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // Cleanup
         CustomerCard.Close();
 
         // [GIVEN] Customer approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // [WHEN] Customer card is opened.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(CustomerCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(CustomerCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(CustomerCard.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(CustomerCard.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(CustomerCard.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(CustomerCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(CustomerCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(CustomerCard.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(CustomerCard.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(CustomerCard.Delegate.Visible(), 'Delegate should NOT be visible');
         CustomerCard.Close();
 
         // [GIVEN] Approval exist on Customer.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // [WHEN] Customer send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(CustomerCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(CustomerCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(CustomerCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(CustomerCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         CustomerCard.Close();
@@ -264,13 +264,13 @@ codeunit 134205 "WF Demo Customer Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RecordId);
 
         // [WHEN] Customer card is opened.
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(CustomerCard.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(CustomerCard.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(CustomerCard.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(CustomerCard.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(CustomerCard.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(CustomerCard.Delegate.Visible(), 'Delegate should be visible');
 
         // Rollback
         CustomerCard.Close();
@@ -293,40 +293,40 @@ codeunit 134205 "WF Demo Customer Approval"
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
         Commit();
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(CustomerList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(CustomerList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // Cleanup
         CustomerList.Close();
 
         // [GIVEN] Customer approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         // [WHEN] Customer card is opened.
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(CustomerList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(CustomerList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         CustomerList.Close();
 
         // [GIVEN] Approval exist on Customer.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
 
         // [WHEN] Customer send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        CustomerList.SendApprovalRequest.Invoke;
+        CustomerList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(CustomerList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(CustomerList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(CustomerList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Rollback
         CustomerList.Close();
@@ -351,21 +351,21 @@ codeunit 134205 "WF Demo Customer Approval"
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
 
         // Setup - A approval
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
         CustomerCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RecordId);
 
         // Exercise
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.Approve.Invoke;
+        CustomerCard.Approve.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
@@ -394,21 +394,21 @@ codeunit 134205 "WF Demo Customer Approval"
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
 
         // Setup - A approval
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
         CustomerCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RecordId);
 
         // Exercise
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.Reject.Invoke;
+        CustomerCard.Reject.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
@@ -442,20 +442,20 @@ codeunit 134205 "WF Demo Customer Approval"
         LibraryDocumentApprovals.SetApprover(CurrentUserSetup, ApproverUserSetup);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, ApproverUserSetup);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
         CustomerCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RecordId);
 
         // Exercise
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.Delegate.Invoke;
+        CustomerCard.Delegate.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
@@ -486,16 +486,16 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2), '', WorkDate());
 
         // Exercise.
         Commit();
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Verify.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -526,18 +526,18 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2), '', WorkDate());
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Exercise.
-        CustomerCard.CancelApprovalRequest.Invoke;
+        CustomerCard.CancelApprovalRequest.Invoke();
 
         // Verify. No errors.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -567,20 +567,20 @@ codeunit 134205 "WF Demo Customer Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate());
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2), '', WorkDate());
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Customer.RecordId);
 
         // Exercise.
-        CustomerCard.Approve.Invoke;
+        CustomerCard.Approve.Invoke();
 
         // Verify. No errors.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -614,8 +614,8 @@ codeunit 134205 "WF Demo Customer Approval"
         Customer.SetRecFilter();
 
         // [GIVEN] Customer Approval Workflow "WF" where Approver Type set as Workflow User Group
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Workflow User Group");
 
         // [GIVEN] Three approvers for "WF" User1 User2 and User3 added into the Workflow User Group "WG" with the Sequences of 1, 2 and 3, respectively.
@@ -681,8 +681,8 @@ codeunit 134205 "WF Demo Customer Approval"
         Customer.SetRecFilter();
 
         // [GIVEN] Customer Approval Workflow "WF" where Approver Type set as Workflow User Group
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Workflow User Group");
 
         // [GIVEN] Three approvers for "WF" User1 User2 and User3 added into the Workflow User Group "WG" with the Sequences of 1, 1 and 2, respectively.
@@ -756,7 +756,7 @@ codeunit 134205 "WF Demo Customer Approval"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Customer Approval");
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         WorkflowUserGroup.DeleteAll();
         WorkflowUserGroupMember.DeleteAll();
@@ -797,15 +797,15 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
         FirstEntryPointEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
         FirstResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode, FirstEntryPointEvent);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(), FirstEntryPointEvent);
         SecondResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode, FirstResponse);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(), FirstResponse);
         SecondEvent :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, SecondResponse);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), SecondResponse);
         FirstResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApproveAllApprovalRequestsCode, SecondEvent);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApproveAllApprovalRequestsCode(), SecondEvent);
 
         LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Workflow User Group");
     end;
@@ -847,7 +847,7 @@ codeunit 134205 "WF Demo Customer Approval"
         ApprovalEntry.TestField("Salespers./Purch. Code", Customer."Salesperson Code");
         ApprovalEntry.TestField(Status, Status);
         ApprovalEntry.TestField("Currency Code", Customer."Currency Code");
-        ApprovalEntry.TestField("Available Credit Limit (LCY)", Customer.CalcAvailableCredit);
+        ApprovalEntry.TestField("Available Credit Limit (LCY)", Customer.CalcAvailableCredit());
     end;
 
     local procedure VerifyApprovalEntriesApprovedForAllGroupMembers(Workflow: Record Workflow)

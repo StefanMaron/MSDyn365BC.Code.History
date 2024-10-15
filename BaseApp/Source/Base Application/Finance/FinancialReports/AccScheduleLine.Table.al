@@ -14,6 +14,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 table 85 "Acc. Schedule Line"
 {
     Caption = 'Acc. Schedule Line';
+    DataClassification = CustomerContent;
 
     fields
     {

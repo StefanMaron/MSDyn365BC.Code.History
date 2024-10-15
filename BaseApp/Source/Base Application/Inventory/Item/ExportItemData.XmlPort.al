@@ -19,14 +19,29 @@ using Microsoft.Manufacturing.Document;
 
 xmlport 5801 "Export Item Data"
 {
-    Caption = 'Export Item Data';
+    Caption = 'Export/Import Item Data';
     DefaultFieldsValidation = false;
-    Direction = Export;
     FieldDelimiter = '<~>';
     FieldSeparator = '<;>';
     Format = VariableText;
     TextEncoding = UTF16;
-    UseRequestPage = false;
+    UseRequestPage = true;
+    Direction = Both;
+
+    Permissions = tabledata "Item Ledger Entry" = rimd,
+                  tabledata "Item Application Entry" = rimd,
+                  tabledata "Production Order" = rimd,
+                  tabledata "Prod. Order Line" = rimd,
+                  tabledata "Value entry" = rimd,
+                  tabledata "Item Application Entry History" = rimd,
+                  tabledata "Capacity Ledger Entry" = rimd,
+                  tabledata "Avg. Cost Adjmt. Entry Point" = rimd,
+                  tabledata "Item Tracking Code" = rimd,
+                  tabledata "Post Value Entry to G/L" = rimd,
+                  tabledata "Inventory Period" = rimd,
+                  tabledata "Item Register" = rimd,
+                  tabledata "Inventory Adjmt. Entry (Order)" = rimd;
+
     schema
     {
         textelement(root)
@@ -50,7 +65,7 @@ xmlport 5801 "Export Item Data"
                 fieldelement(Item_PriceUnitConversion; Item."Price Unit Conversion")
                 {
                 }
-                textelement("item::type")
+                textelement(ItemType)
                 {
                     XmlName = 'Item_Type';
                 }
@@ -154,6 +169,9 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(Item_SalesBlocked; Item."Sales Blocked")
+                {
+                }
+                fieldelement(Item_ServiceBlocked; Item."Service Blocked")
                 {
                 }
                 fieldelement(Item_PurchasingBlocked; Item."Purchasing Blocked")
@@ -366,28 +384,56 @@ xmlport 5801 "Export Item Data"
                 fieldelement(Item_VariantMandatoryIfExists; Item."Variant Mandatory if Exists")
                 {
                 }
+
                 trigger OnAfterGetRecord()
                 begin
                     Item.Description := CopyStr(Item.Description, 1, MaxStrLen(Item.Description));
                     Item."Search Description" := CopyStr(Item."Search Description", 1, MaxStrLen(Item."Search Description"));
+
+                    if ItemTypeFieldExists then begin
+                        ItemRecRef.GetTable(Item);
+                        TypeFieldRef := ItemRecRef.Field(10);
+                        ItemTypeInt := TypeFieldRef.Value();
+                        ItemType := Format(ItemTypeInt);
+                        Clear(ItemRecRef);
+                    end;
                 end;
 
                 trigger OnPreXmlItem()
                 begin
-                    if Item.Count <> 1 then
-                        Error(SingleItemExportOnlyErr, Item.GetFilters, Item.Count);
+                    if not currXMLport.ImportFile() then begin
+                        if Item.Count <> 1 then
+                            Error(SingleItemExportOnlyErr);
 
-                    Item.FindFirst();
-                    Item.Reset();
-                    Item.SetRecFilter();
-
-                    FilteredItem.Copy(Item);
+                        Item.FindFirst();
+                        Item.Reset();
+                        Item.SetRecFilter();
+                        FilteredItem.Copy(Item);
+                    end;
                 end;
 
                 trigger OnAfterInsertRecord()
                 begin
                     if not Item.Insert() then
                         Item.Modify();
+                end;
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    if currXMLport.ImportFile() then begin
+                        Item.Reset();
+                        Item.SetRecFilter();
+                        FilteredItem.Copy(Item);
+                    end;
+
+                    if ItemTypeFieldExists and (ItemType <> '') then begin
+                        ItemRecRef.GetTable(Item);
+                        TypeFieldRef := ItemRecRef.Field(10);
+                        Evaluate(ItemTypeInt, ItemType);
+                        TypeFieldRef.Value := ItemTypeInt;
+                        ItemRecRef.SetTable(Item);
+                        Clear(ItemRecRef);
+                    end;
                 end;
             }
             tableelement(unitofmeasure; "Unit of Measure")
@@ -563,8 +609,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 XmlName = 'ItemLedgEntry';
                 SourceTableView = sorting("Item No.");
                 fieldelement(ItemLedgEntry_EntryNo; ItemLedgEntry."Entry No.")
@@ -817,8 +861,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 XmlName = 'ValueEntry';
                 SourceTableView = sorting("Item No.");
                 fieldelement(ValueEntry_EntryNo; ValueEntry."Entry No.")
@@ -1090,8 +1132,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 MinOccurs = Zero;
                 XmlName = 'ItemVariant';
                 SourceTableView = sorting("Item No.", Code);
@@ -1110,6 +1150,9 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemVariant_SalesBlocked; ItemVariant."Sales Blocked")
                 {
                 }
+                fieldelement(ItemVariant_ServiceBlocked; ItemVariant."Service Blocked")
+                {
+                }
                 fieldelement(ItemVariant_PurchasingBlocked; ItemVariant."Purchasing Blocked")
                 {
                 }
@@ -1123,8 +1166,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = false;
                 AutoUpdate = false;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 MinOccurs = Zero;
                 XmlName = 'AvgCostAdjmtEntryPoint';
                 SourceTableView = sorting("Item No.");
@@ -1661,8 +1702,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 MinOccurs = Zero;
                 XmlName = 'CapLedgEntry';
                 SourceTableView = sorting("Entry No.");
@@ -2017,6 +2056,16 @@ xmlport 5801 "Export Item Data"
                 begin
                     ValueEntry.SetRange("Item No.", FilteredItem."No.");
                 end;
+
+                trigger OnAfterInsertRecord()
+                var
+                    CapValueEntry2: Record "Value Entry";
+                begin
+                    CapValueEntry2 := TempCapValueEntry;
+                    CapValueEntry2."Item Ledger Entry Type" := CapValueEntry2."Item Ledger Entry Type"::" "; // otherwise Capacity Value entries state Purchase as ILE Type
+                    if not CapValueEntry2.Insert() then
+                        CapValueEntry2.Modify();
+                end;
             }
             tableelement(generalledgsetup; "General Ledger Setup")
             {
@@ -2132,8 +2181,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 MinOccurs = Zero;
                 XmlName = 'PostValueEntryToGl';
                 SourceTableView = sorting("Item No.", "Posting Date");
@@ -2282,8 +2329,6 @@ xmlport 5801 "Export Item Data"
             {
                 AutoSave = true;
                 AutoUpdate = true;
-                LinkFields = "Item No." = field("No.");
-                LinkTable = Item;
                 MinOccurs = Zero;
                 XmlName = 'StockkeepingUnit';
                 SourceTableView = sorting("Item No.");
@@ -2496,20 +2541,89 @@ xmlport 5801 "Export Item Data"
 
     trigger OnPostXmlPort()
     begin
-        Message(ExportTimeMsg, Format(CurrentDateTime - StartTime));
+        if currXMLport.ImportFile() then begin
+            FinishImport();
+            Message(ImportOKMsg, FilteredItem."No.", Format(CurrentDateTime - StartTime));
+        end else
+            Message(ExportOKMsg, FilteredItem."No.", Format(CurrentDateTime - StartTime));
     end;
 
     trigger OnPreXmlPort()
     begin
-        StartTime := CurrentDateTime;
+        StartTime := CurrentDateTime();
+
+        ItemRecRef.Open(Database::Item);
+        ItemTypeFieldExists := ItemRecRef.FieldExist(10);
+        ItemRecRef.Close();
     end;
 
     var
         FilteredItem: Record Item;
+        ItemRecRef: RecordRef;
+        TypeFieldRef: FieldRef;
         StartTime: DateTime;
-        SingleItemExportOnlyErr: Label 'This export is for a sinlge Item only. The filter you have specified (%1) filters to %2 Items.', Comment = '%1 = Item filters; %2 = Item count';
-        ItemLedgEntryNoExistErr: Label 'Item Ledger Entry %1 is used in both, Customer and Demo DB.\Please delete all Value Entries, Item Ledger Entries and Item Application Entries in order to have integer data.', Comment = '%1 = Entry No.';
-        ExportTimeMsg: Label 'Export Time %1.', Comment = '%1 = Time';
+        ItemTypeFieldExists: Boolean;
+        ItemTypeInt: Integer;
+        SingleItemExportOnlyErr: Label 'Select just one item to export.';
+        ItemLedgEntryNoExistErr: Label 'Item Ledger Entry %1 already exists in the database.\You must delete all entries before continue.', Comment = '%1 = Entry No.';
+        ExportOKMsg: Label 'Item %1 has been successfully exported in %2.', Comment = '%1 = Item No., %2 = Duration';
+        ImportOKMsg: Label 'Item %1 has been successfully imported in %2.', Comment = '%1 = Item No., %2 = Duration';
+
+    procedure FinishImport()
+    var
+        GenPostingSetup2: Record "General Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        InvtPostingSetup2: Record "Inventory Posting Setup";
+        BusinessGroupCode: Code[20];
+        ProductGroupCode: Code[20];
+        LocationCode: Code[10];
+    begin
+        GenPostingSetup2.SetFilter("Sales Account", '<>%1', '');
+        GenPostingSetup2.SetFilter("COGS Account", '<>%1', '');
+        if GenPostingSetup2.FindFirst() then;
+
+        VATPostingSetup2.SetFilter("Sales VAT Account", '<>%1', '');
+        if VATPostingSetup2.FindFirst() then;
+
+        InvtPostingSetup2.SetFilter("Inventory Account", '<>%1', '');
+        if InvtPostingSetup2.FindFirst() then;
+
+        GenPostingSetup.FindSet();
+        repeat
+            if (GenPostingSetup."Sales Account" = '') and (GenPostingSetup."COGS Account" = '') then begin
+                BusinessGroupCode := GenPostingSetup."Gen. Bus. Posting Group";
+                ProductGroupCode := GenPostingSetup."Gen. Prod. Posting Group";
+                GenPostingSetup.TransferFields(GenPostingSetup2);
+                GenPostingSetup."Gen. Bus. Posting Group" := BusinessGroupCode;
+                GenPostingSetup."Gen. Prod. Posting Group" := ProductGroupCode;
+                GenPostingSetup.Modify();
+            end;
+        until GenPostingSetup.Next() = 0;
+
+        VatPostingSetup.FindSet();
+        repeat
+            if VatPostingSetup."VAT Identifier" = '' then begin
+                BusinessGroupCode := VatPostingSetup."VAT Bus. Posting Group";
+                ProductGroupCode := VatPostingSetup."VAT Prod. Posting Group";
+                VatPostingSetup.TransferFields(VATPostingSetup2);
+                VatPostingSetup."VAT Bus. Posting Group" := BusinessGroupCode;
+                VatPostingSetup."VAT Prod. Posting Group" := ProductGroupCode;
+                VatPostingSetup.Modify();
+            end;
+        until VatPostingSetup.Next() = 0;
+
+        InventoryPostingSetup.FindSet();
+        repeat
+            if InventoryPostingSetup."Inventory Account" = '' then begin
+                LocationCode := InventoryPostingSetup."Location Code";
+                ProductGroupCode := InventoryPostingSetup."Invt. Posting Group Code";
+                InventoryPostingSetup.TransferFields(InvtPostingSetup2);
+                InventoryPostingSetup."Location Code" := LocationCode;
+                InventoryPostingSetup."Invt. Posting Group Code" := ProductGroupCode;
+                InventoryPostingSetup.Modify();
+            end;
+        until InventoryPostingSetup.Next() = 0;
+    end;
 
     procedure CollectItemApplnEntry(ItemLedgEntryNo: Integer)
     var
@@ -2573,4 +2687,3 @@ xmlport 5801 "Export Item Data"
             until ValueEntry.Next() = 0;
     end;
 }
-
