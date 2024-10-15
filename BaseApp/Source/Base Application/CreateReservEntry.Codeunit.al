@@ -621,6 +621,11 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntry := LastReservEntry;
     end;
 
+    procedure GetLastInsertReservEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry := InsertReservEntry;
+    end;
+
     local procedure AdjustDateIfItemLedgerEntry(var ReservEntry: Record "Reservation Entry")
     begin
         if ReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then

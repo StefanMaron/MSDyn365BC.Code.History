@@ -26,7 +26,7 @@ page 5414 "Item Availability by Variant"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -38,7 +38,7 @@ page 5414 "Item Availability by Variant"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -141,7 +141,7 @@ page 5414 "Item Availability by Variant"
                 trigger OnAction()
                 begin
                     FindPeriod('<=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
             action(NextPeriod)
@@ -157,7 +157,7 @@ page 5414 "Item Availability by Variant"
                 trigger OnAction()
                 begin
                     FindPeriod('>=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
         }
@@ -167,7 +167,7 @@ page 5414 "Item Availability by Variant"
     begin
         SetRange("Drop Shipment Filter", false);
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnClosePage()
@@ -211,7 +211,7 @@ page 5414 "Item Availability by Variant"
         DateFilter := GetFilter("Date Filter");
     end;
 
-    local procedure UpdateSubForm()
+    protected procedure UpdateSubForm()
     begin
         CurrPage.ItemAvailLocLines.PAGE.Set(Rec, AmountType);
     end;

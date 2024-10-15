@@ -67,9 +67,7 @@ codeunit 730 "Copy Item"
                 OnBeforeInitSeries(SourceItem, InventorySetup);
                 InventorySetup.TestField("Item Nos.");
                 "No." := '';
-                NoSeriesMgt.InitSeries(
-                  InventorySetup."Item Nos.", CopyItemBuffer."Target No. Series", 0D, "No.", CopyItemBuffer."Target No. Series");
-                "No. Series" := CopyItemBuffer."Target No. Series";
+                NoSeriesMgt.InitSeries(CopyItemBuffer."Target No. Series", '', 0D, "No.", "No. Series");
             end else begin
                 NoSeriesMgt.TestManual(InventorySetup."Item Nos.");
 

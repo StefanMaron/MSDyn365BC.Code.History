@@ -274,7 +274,7 @@ page 520 "Item Availability by Lot No."
         UpdateSubForm();
     end;
 
-    local procedure UpdateSubForm()
+    protected procedure UpdateSubForm()
     begin
         CurrPage.ItemAvailLoTNoLines.PAGE.SetItem(Rec, AmountType);
     end;

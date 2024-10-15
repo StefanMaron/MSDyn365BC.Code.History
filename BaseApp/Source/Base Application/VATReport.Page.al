@@ -175,6 +175,17 @@ page 740 "VAT Report"
                 SubPageLink = "VAT Report No." = FIELD("No.");
             }
         }
+        area(factboxes)
+        {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(740),
+                              "No." = FIELD("No."),
+                              "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
+            }
+        }
     }
 
     actions
