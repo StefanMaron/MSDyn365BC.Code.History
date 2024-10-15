@@ -232,7 +232,7 @@ codeunit 5321 "Exchange Web Services Server"
 
                     Attachments := EmailMessage.Attachments;
                     foreach Attachment in Attachments do begin
-                        Init;
+                        Init();
                         Validate(Type, Type::Attachment);
                         Validate("Item ID", Attachment.Id);
                         Validate(Name, Attachment.Name);
@@ -280,18 +280,19 @@ codeunit 5321 "Exchange Web Services Server"
 
     procedure GetEndpoint() Endpoint: Text
     begin
-        Endpoint := ProdEndpoint;
+        Endpoint := ProdEndpoint();
     end;
 
-    procedure ProdEndpoint(): Text
+    procedure ProdEndpoint() ProdEndpointText: Text
     begin
-        exit(ProdEndpointTxt);
+        ProdEndpointText := ProdEndpointTxt;
+        OnAfterGetProdEndpoint(ProdEndpointText);
     end;
 
     [Scope('OnPrem')]
     procedure GetCurrentUserTimeZone(): Text
     begin
-        exit(Service.GetExchangeUserTimeZone);
+        exit(Service.GetExchangeUserTimeZone());
     end;
 
     [IntegrationEvent(false, false)]
@@ -303,5 +304,9 @@ codeunit 5321 "Exchange Web Services Server"
     local procedure OnBeforeSendEmailMessageWithAttachment(var Subject: Text; var RecipientAddress: Text; var BodyHTML: Text; var SenderAddress: Text)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetProdEndpoint(var ProdEndPointText: Text)
+    begin
+    end;
+}

@@ -40,7 +40,7 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company Information where IC Partner Code = ''
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("IC Partner Code", '');
         CompanyInformation.Modify(true);
 
@@ -63,7 +63,7 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company Information where IC Partner Code = ''
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("IC Partner Code", '');
         CompanyInformation.Modify(true);
 
@@ -85,7 +85,7 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company Information where IC Partner Code <> ''
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("IC Partner Code", CopyStr(
             LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("IC Partner Code"), DATABASE::"Company Information"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("IC Partner Code"))));
@@ -241,10 +241,10 @@ codeunit 134154 "ERM Intercompany III"
         DocumentNo := LibraryUtility.GenerateGUID;
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Auto. Send Transactions" := true;
         CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [GIVEN] 2 IC General journal lines for 1 Document No
         CreateICGeneralJournalLine(
@@ -367,6 +367,110 @@ codeunit 134154 "ERM Intercompany III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure GLEntryDescriptionWhenPostSalesDocumentWithPostingDescription()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 349615] Post Sales Document with "Posting Description" when IC Partner is set for Sales Line.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with nonempty "Posting Description". Sales Line with IC Partner.
+        CreateSalesDocumentWithGLAccount(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
+        UpdatePostingDescriptionOnSalesHeader(SalesHeader, LibraryUtility.GenerateGUID());
+        UpdateICInfoOnSalesLine(SalesLine, CreateICPartnerWithInbox());
+
+        // [WHEN] Post Sales Invoice.
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] GL Entry with "Bal. Account No." = IC Partner Code have Description = "Posting Description" of Sales Invoice.
+        VerifyGLEntryDescriptionICPartner(
+            PostedDocumentNo, SalesHeader."Document Type"::Invoice, SalesLine."IC Partner Code", SalesHeader."Posting Description");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntryDescriptionWhenPostSalesDocumentWithBlankPostingDescription()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICPartner: Record "IC Partner";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 349615] Post Sales Document with blank "Posting Description" when IC Partner is set for Sales Line.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with blank "Posting Description". Sales Line with IC Partner.
+        CreateSalesDocumentWithGLAccount(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
+        UpdatePostingDescriptionOnSalesHeader(SalesHeader, '');
+        UpdateICInfoOnSalesLine(SalesLine, CreateICPartnerWithInbox());
+
+        // [WHEN] Post Sales Invoice.
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] GL Entry with "Bal. Account No." = IC Partner Code have Description = IC Partner Name.
+        ICPartner.Get(SalesLine."IC Partner Code");
+        VerifyGLEntryDescriptionICPartner(
+            PostedDocumentNo, SalesHeader."Document Type"::Invoice, SalesLine."IC Partner Code", ICPartner.Name);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntryDescriptionWhenPostPurchaseDocumentWithPostingDescription()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 349615] Post Purchase Document with "Posting Description" when IC Partner is set for Purchase Line.
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with nonempty "Posting Description". Purchase Line with IC Partner.
+        CreatePurchaseDocumentWithGLAccount(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
+        UpdatePostingDescriptionOnPurchaseHeader(PurchaseHeader, LibraryUtility.GenerateGUID());
+        UpdateICInfoOnPurchaseLine(PurchaseLine, CreateICPartnerWithInbox());
+
+        // [WHEN] Post Purchase Invoice.
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] GL Entry with "Bal. Account No." = IC Partner Code have Description = "Posting Description" of Purchase Invoice.
+        VerifyGLEntryDescriptionICPartner(
+            PostedDocumentNo, PurchaseHeader."Document Type"::Invoice, PurchaseLine."IC Partner Code", PurchaseHeader."Posting Description");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntryDescriptionWhenPostPurchaseDocumentWithBlankPostingDescription()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ICPartner: Record "IC Partner";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 349615] Post Purchase Document with blank "Posting Description" when IC Partner is set for Purchase Line.
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with blank "Posting Description". Purchase Line with IC Partner.
+        CreatePurchaseDocumentWithGLAccount(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
+        UpdatePostingDescriptionOnPurchaseHeader(PurchaseHeader, '');
+        UpdateICInfoOnPurchaseLine(PurchaseLine, CreateICPartnerWithInbox());
+
+        // [WHEN] Post Purchase Invoice.
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] GL Entry with "Bal. Account No." = IC Partner Code have Description = IC Partner Name.
+        ICPartner.Get(PurchaseLine."IC Partner Code");
+        VerifyGLEntryDescriptionICPartner(
+            PostedDocumentNo, PurchaseHeader."Document Type"::Invoice, PurchaseLine."IC Partner Code", ICPartner.Name);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VerifyShipmentFieldsInOutboxExportFile()
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -444,7 +548,7 @@ codeunit 134154 "ERM Intercompany III"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -473,11 +577,23 @@ codeunit 134154 "ERM Intercompany III"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateICPartnerBase(var ICPartner: Record "IC Partner")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateICPartner(ICPartner);
+        ICPartner.Validate("Receivables Account", GLAccount."No.");
+        LibraryERM.CreateGLAccount(GLAccount);
+        ICPartner.Validate("Payables Account", GLAccount."No.");
+    end;
+
     local procedure CreateICPartnerWithInbox(): Code[20]
     var
         ICPartner: Record "IC Partner";
     begin
-        LibraryERM.CreateICPartner(ICPartner);
+        CreateICPartnerBase(ICPartner);
+        ICPartner.Validate(Name, LibraryUtility.GenerateGUID());
         ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::Database);
         ICPartner.Validate("Inbox Details", CompanyName);
         ICPartner.Modify(true);
@@ -563,9 +679,49 @@ codeunit 134154 "ERM Intercompany III"
         DimensionValue.Modify(true);
     end;
 
+    local procedure CreateSalesDocumentWithGLAccount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DummyGLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, DocumentType,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale),
+            LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseDocumentWithGLAccount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DummyGLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, DocumentType,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Purchase),
+            LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure GetICDimensionValueFromDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionValue: Record "Dimension Value")
     begin
-        ICDimensionValue.Reset;
+        ICDimensionValue.Reset();
         ICDimensionValue.SetRange("Dimension Code", DimensionValue."Dimension Code");
         ICDimensionValue.SetRange(Code, DimensionValue.Code);
         ICDimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type");
@@ -585,7 +741,7 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure MockICInboxSalesHeader(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CustomerNo: Code[20])
     begin
-        ICInboxSalesHeader.Init;
+        ICInboxSalesHeader.Init();
         ICInboxSalesHeader."IC Transaction No." :=
           LibraryUtility.GetNewRecNo(ICInboxSalesHeader, ICInboxSalesHeader.FieldNo("IC Transaction No."));
         ICInboxSalesHeader."IC Partner Code" :=
@@ -595,14 +751,14 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxSalesHeader."Bill-to Customer No." := CustomerNo;
         ICInboxSalesHeader."Posting Date" := WorkDate;
         ICInboxSalesHeader."Document Date" := WorkDate;
-        ICInboxSalesHeader.Insert;
+        ICInboxSalesHeader.Insert();
     end;
 
     local procedure MockICInboxSalesLine(ICInboxSalesHeader: Record "IC Inbox Sales Header"): Integer
     var
         ICInboxSalesLine: Record "IC Inbox Sales Line";
     begin
-        ICInboxSalesLine.Init;
+        ICInboxSalesLine.Init();
         ICInboxSalesLine."Line No." :=
           LibraryUtility.GetNewRecNo(ICInboxSalesLine, ICInboxSalesLine.FieldNo("Line No."));
         ICInboxSalesLine."IC Transaction No." := ICInboxSalesHeader."IC Transaction No.";
@@ -610,7 +766,7 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxSalesLine."Transaction Source" := ICInboxSalesHeader."Transaction Source";
         ICInboxSalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type"::Item;
         ICInboxSalesLine."IC Partner Reference" := LibraryInventory.CreateItemNo;
-        ICInboxSalesLine.Insert;
+        ICInboxSalesLine.Insert();
         exit(ICInboxSalesLine."Line No.");
     end;
 
@@ -627,7 +783,7 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure MockICInboxPurchHeader(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; VendorNo: Code[20])
     begin
-        ICInboxPurchaseHeader.Init;
+        ICInboxPurchaseHeader.Init();
         ICInboxPurchaseHeader."IC Transaction No." :=
           LibraryUtility.GetNewRecNo(ICInboxPurchaseHeader, ICInboxPurchaseHeader.FieldNo("IC Transaction No."));
         ICInboxPurchaseHeader."IC Partner Code" :=
@@ -637,14 +793,14 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxPurchaseHeader."Pay-to Vendor No." := VendorNo;
         ICInboxPurchaseHeader."Posting Date" := WorkDate;
         ICInboxPurchaseHeader."Document Date" := WorkDate;
-        ICInboxPurchaseHeader.Insert;
+        ICInboxPurchaseHeader.Insert();
     end;
 
     local procedure MockICInboxPurchLine(ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"): Integer
     var
         ICInboxPurchaseLine: Record "IC Inbox Purchase Line";
     begin
-        ICInboxPurchaseLine.Init;
+        ICInboxPurchaseLine.Init();
         ICInboxPurchaseLine."Line No." :=
           LibraryUtility.GetNewRecNo(ICInboxPurchaseLine, ICInboxPurchaseLine.FieldNo("Line No."));
         ICInboxPurchaseLine."IC Transaction No." := ICInboxPurchaseHeader."IC Transaction No.";
@@ -652,7 +808,7 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxPurchaseLine."Transaction Source" := ICInboxPurchaseHeader."Transaction Source";
         ICInboxPurchaseLine."IC Partner Ref. Type" := ICInboxPurchaseLine."IC Partner Ref. Type"::Item;
         ICInboxPurchaseLine."IC Partner Reference" := LibraryInventory.CreateItemNo;
-        ICInboxPurchaseLine.Insert;
+        ICInboxPurchaseLine.Insert();
         exit(ICInboxPurchaseLine."Line No.");
     end;
 
@@ -664,14 +820,14 @@ codeunit 134154 "ERM Intercompany III"
     begin
         LibraryDimension.CreateAndMapICDimFromDim(ICDimension, DimensionValue."Dimension Code");
         LibraryDimension.CreateAndMapICDimValueFromDimValue(ICDimensionValue, DimensionValue.Code, DimensionValue."Dimension Code");
-        ICDocumentDimension.Init;
+        ICDocumentDimension.Init();
         ICDocumentDimension."IC Partner Code" := ICPartnerCode;
         ICDocumentDimension."Transaction No." := TransactionNo;
         ICDocumentDimension."Table ID" := TableID;
         ICDocumentDimension."Dimension Code" := ICDimensionValue."Dimension Code";
         ICDocumentDimension."Dimension Value Code" := ICDimensionValue.Code;
         ICDocumentDimension."Line No." := LineNo;
-        ICDocumentDimension.Insert;
+        ICDocumentDimension.Insert();
     end;
 
     local procedure MockICOutboxTrans(var ICOutboxTransaction: Record "IC Outbox Transaction")
@@ -732,6 +888,40 @@ codeunit 134154 "ERM Intercompany III"
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValue.Code);
+    end;
+
+    local procedure UpdatePostingDescriptionOnSalesHeader(var SalesHeader: Record "Sales Header"; PostingDescriptionTxt: Text[100])
+    begin
+        SalesHeader.Validate("Posting Description", PostingDescriptionTxt);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdatePostingDescriptionOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; PostingDescriptionTxt: Text[100])
+    begin
+        PurchaseHeader.Validate("Posting Description", PostingDescriptionTxt);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure UpdateICInfoOnSalesLine(var SalesLine: Record "Sales Line"; ICPartnerCode: Code[20])
+    var
+        ICGLAccount: Record "IC G/L Account";
+    begin
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        SalesLine.Validate("IC Partner Code", ICPartnerCode);
+        SalesLine.Validate("IC Partner Ref. Type", SalesLine."IC Partner Ref. Type"::"G/L Account");
+        SalesLine.Validate("IC Partner Reference", ICGLAccount."No.");
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateICInfoOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; ICPartnerCode: Code[20])
+    var
+        ICGLAccount: Record "IC G/L Account";
+    begin
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        PurchaseLine.Validate("IC Partner Code", ICPartnerCode);
+        PurchaseLine.Validate("IC Partner Ref. Type", PurchaseLine."IC Partner Ref. Type"::"G/L Account");
+        PurchaseLine.Validate("IC Partner Reference", ICGLAccount."No.");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
@@ -798,6 +988,19 @@ codeunit 134154 "ERM Intercompany III"
             GetICDimensionValueFromDimensionValue(ICDimensionValue, DimensionValue[i]);
             ICDimensionValue.TestField(Indentation, ExpectedIndentation[i]);
         end;
+    end;
+
+    local procedure VerifyGLEntryDescriptionICPartner(DocumentNo: Code[20]; DocumentType: Option; ICPartnerCode: Code[20]; DescrpitionTxt: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
+        GLEntry.SetRange("Bal. Account No.", ICPartnerCode);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Description, DescrpitionTxt);
+        GLEntry.TestField("IC Partner Code", ICPartnerCode);
     end;
 
     [ConfirmHandler]
