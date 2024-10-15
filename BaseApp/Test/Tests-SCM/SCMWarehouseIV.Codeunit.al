@@ -3883,6 +3883,10 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryVariableStorage.Enqueue(ItemTrackingModeWithVerification::AssignSerialNo);
         CreateAndPostPurchaseOrderWithItemTrackingLines(PurchaseLine, true, Item."No.", Location.Code, Bin.Code);
 
+        // [THEN] Clear Storage
+        LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.DequeueDate();
+
         // [WHEN] Sales Order Created with Serially Tracked Item
         Qty := LibraryRandom.RandInt(5);
         CreateAndReleaseSalesOrderWithSelectEntriesForItemTrackingLines(SalesLine, true, WorkDate(), Item."No.", Location.Code, Bin.Code, Qty);
@@ -3890,6 +3894,70 @@ codeunit 137407 "SCM Warehouse IV"
         // [VERIFY] Verify: Warranty Date on Item Tracking Line
         LibraryVariableStorage.Enqueue(ItemTrackingModeWithVerification::VerifyWarrantyDate);
         SalesLine.OpenItemTrackingLines();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNewItemTrackingLinesHandler,EnterQuantityToCreateHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyWarrantyDateOnSeriallyTrackedWarehouseShipment()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarrantyDateFormula: DateFormula;
+        Qty: Decimal;
+    begin
+        // [SCENARIO 504307] Error "Warranty Date must have a value in Tracking Specification" when Posting a Warehouse Shipment 
+        // for an item with Serial Tracking and Warranty date if the tracking is assigned using the Field Serial Number on the Warehouse Pick
+        Initialize();
+        Evaluate(WarrantyDateFormula, '<1M>');
+
+        // [GIVEN] WMS location "L" with mandatory shipment and pick.
+        CreateAndUpdateLocationWithSetup(Location, true, true, true);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        // [GIVEN] Item "I" with serial no. tracking.
+        CreateItemWithItemTrackingCode(Item, true, false);
+
+        // [GIVEN] Item Tracking Code with Lot Sales Tracking and Man. Warranty Date Entry Reqd. enabled, Warranty Date Formula = 1M
+        CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+        ItemTrackingCode.Validate("Man. Warranty Date Entry Reqd.", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Warranty Date Formula", WarrantyDateFormula);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] X serial nos. "S1".."SX" of "I" are purchased and put-away.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, true, Item."No.", Location.Code, Bin.Code);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        PostWarehouseReceipt(PurchaseHeader."No.");
+        RegisterWarehouseActivity(PurchaseHeader."No.");
+
+        // [GIVEN] Sales order for "Y" ("Y" < "X") pcs of "I". No item tracking is selected on the sales line.
+        // [GIVEN] Warehouse shipment and pick are created for the order.
+        Qty := LibraryRandom.RandInt(5);
+        CreateAndReleaseSalesOrderWithItemTrackingLines(SalesLine, false, WorkDate(), Item."No.", Location.Code, Bin.Code, Qty);
+        CreateAndReleaseWarehouseShipmentFromSalesOrder(WarehouseShipmentHeader, SalesLine);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] Update Serial No. from "Whse. Pick Subform" Page
+        UpdateSerialNoOnWhseActivityLine(SalesLine."Document No.");
+
+        // [VERIFY] Verify: Warranty Date Warehouse Activity Line Table
+        FindWarehouseActivityNo(WarehouseActivityLine, SalesLine."Document No.", WarehouseActivityLine."Activity Type"::Pick);
+        Assert.AreEqual(
+            WorkDate(),
+            WarehouseActivityLine."Warranty Date",
+            StrSubstNo(
+                WarrantyDateError,
+                WarehouseActivityLine."Warranty Date"));
     end;
 
     local procedure Initialize()
@@ -5180,6 +5248,16 @@ codeunit 137407 "SCM Warehouse IV"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
+    local procedure UpdateSerialNoOnWhseActivityLine(DocumentNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityNo(WarehouseActivityLine, DocumentNo, WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.Validate("Serial No.", LibraryVariableStorage.DequeueText());
+        WarehouseActivityLine.Validate("Warranty Date", LibraryVariableStorage.DequeueDate());
+        WarehouseActivityLine.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -5405,6 +5483,8 @@ codeunit 137407 "SCM Warehouse IV"
             ReservationEntry.SetRange("Serial No.", SerialNo);
             if ReservationEntry.FindFirst() then begin
                 ReservationEntry."Warranty Date" := WorkDate();
+                LibraryVariableStorage.Enqueue(SerialNo);
+                LibraryVariableStorage.Enqueue(ReservationEntry."Warranty Date");
                 ReservationEntry.Modify(true);
             end;
         end;
@@ -5449,6 +5529,13 @@ codeunit 137407 "SCM Warehouse IV"
     procedure CalculateWhseAdjustmentHandler(var CalculateWhseAdjustment: TestRequestPage "Calculate Whse. Adjustment")
     begin
         CalculateWhseAdjustment.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

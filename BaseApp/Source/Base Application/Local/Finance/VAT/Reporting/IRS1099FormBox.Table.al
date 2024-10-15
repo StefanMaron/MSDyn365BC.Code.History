@@ -7,7 +7,17 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 10010 "IRS 1099 Form-Box"
 {
     Caption = 'IRS 1099 Form-Box';
+#if not CLEAN25
     LookupPageID = "IRS 1099 Form-Box";
+#endif
+    ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#endif
 
     fields
     {
@@ -161,4 +171,3 @@ table 10010 "IRS 1099 Form-Box"
         IRS1099FormBox.Insert();
     end;
 }
-

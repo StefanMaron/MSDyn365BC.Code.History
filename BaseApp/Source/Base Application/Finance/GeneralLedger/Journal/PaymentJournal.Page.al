@@ -2182,6 +2182,7 @@ page 256 "Payment Journal"
         NoExportDiffCurrencyErr: Label 'You cannot export journal entries if Currency Code is different in Gen. Journal Line and Bank Account.';
         RecipientBankAccountEmptyErr: Label 'Recipient Bank Account must be filled.';
         ElectronicPaymentTok: Label 'NA Electronic Payments', Locked = true;
+        AmountToApplyMissMatchMsg: Label 'Amount assigned on Apply Entries (%1) is bigger then the amount on the line (%2). System will remove all related Applies-to ID. Do you want to proceed?', Comment = '%1 - Amount to apply, %2 - Amount on the line';
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -2452,14 +2453,14 @@ page 256 "Payment Journal"
         SmallestLineAmountToApply: Decimal;
         JournalAmount: Decimal;
         AmountToApply: Decimal;
-        AmountToApplyMissMatchMsg: Label 'Amount assigned on Apply Entries (%1) is bigger then the amount on the line (%2). System will remove all related Applies-to ID. Do you want to proceed?', Comment = '%1 - Amount to apply, %2 - Amount on the line';
     begin
         if Rec."Document Type" <> Rec."Document Type"::"Payment" then
             exit;
 
         if not (((xRec.Amount <> 0) and (xRec.Amount <> Rec.Amount) and (Rec.Amount <> 0))
             or ((xRec."Amount (LCY)" <> 0) and (xRec."Amount (LCY)" <> Rec."Amount (LCY)") and (Rec."Amount (LCY)" <> 0))) then
-            exit;
+            if AmountZeroConfirmation() then
+                exit;
 
         AmountToApply := 0;
         SmallestLineAmountToApply := 0;
@@ -2517,10 +2518,25 @@ page 256 "Payment Journal"
 
         case Rec."Account Type" of
             Rec."Account Type"::Customer:
-                CustEntrySetApplId.RemoveApplId(CustLedgEntryMarkedToApply, Rec."Applies-to ID");
+                begin
+                    CustEntrySetApplId.RemoveApplId(CustLedgEntryMarkedToApply, Rec."Applies-to ID");
+                    Rec.Validate("Applies-to ID", '');
+                end;
             Rec."Account Type"::Vendor:
-                VendEntrySetApplId.RemoveApplId(VendorLedgerEntryMarkedToApply, Rec."Applies-to ID");
+                begin
+                    VendEntrySetApplId.RemoveApplId(VendorLedgerEntryMarkedToApply, Rec."Applies-to ID");
+                    Rec.Validate("Applies-to ID", '');
+                end;
         end;
+    end;
+
+    local procedure AmountZeroConfirmation(): Boolean
+    begin
+        if (xRec."Applies-to ID" <> '') then
+            if not Confirm(AmountToApplyMissMatchMsg, false, xRec.Amount, Rec.Amount) then
+                Error('');
+
+        exit(true);
     end;
 
 #if not CLEAN22

@@ -62,7 +62,7 @@ page 9657 "Customer Report Selections"
                 field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Report Caption';
+                    Caption = 'Report Name';
                     ToolTip = 'Specifies the name of the report.';
                 }
                 field("Custom Report Description"; Rec."Custom Report Description")
@@ -104,27 +104,6 @@ page 9657 "Customer Report Selections"
                         end;
                     end;
                 }
-                field("Email Attachment Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Attachment Layout Name", Rec."Email Attachment Layout AppID"))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Email Attachment Layout';
-                    ToolTip = 'Specifies the report layout used as email attachment.';
-
-                    trigger OnDrillDown()
-                    var
-                        ReportLayoutListSelection: Record "Report Layout List";
-                        ReportManagementCodeunit: Codeunit ReportManagement;
-                        IsReportLayoutSelected: Boolean;
-                    begin
-                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
-                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
-                        if IsReportLayoutSelected then begin
-                            Rec."Email Attachment Layout Name" := ReportLayoutListSelection."Name";
-                            Rec."Email Attachment Layout AppID" := ReportLayoutListSelection."Application ID";
-                            Rec.Modify();
-                        end;
-                    end;
-                }
                 field(SendToEmail; Rec."Send To Email")
                 {
                     ApplicationArea = Basic, Suite;
@@ -141,6 +120,11 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
+                }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -152,8 +136,8 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     Lookup = true;
-                    ToolTip = 'Specifies a description of the email body layout that is used.';
-                    Visible = not PlatformSelectionEnabled;
+                    ToolTip = 'Specifies a description of the custom email body layout that is used.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -184,6 +168,27 @@ page 9657 "Customer Report Selections"
                         if IsReportLayoutSelected then begin
                             Rec."Email Body Layout Name" := ReportLayoutListSelection."Name";
                             Rec."Email Body Layout AppID" := ReportLayoutListSelection."Application ID";
+                            Rec.Modify();
+                        end;
+                    end;
+                }
+                field("Email Attachment Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Attachment Layout Name", Rec."Email Attachment Layout AppID"))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Attachment Layout';
+                    ToolTip = 'Specifies the report layout used as email attachment.';
+
+                    trigger OnDrillDown()
+                    var
+                        ReportLayoutListSelection: Record "Report Layout List";
+                        ReportManagementCodeunit: Codeunit ReportManagement;
+                        IsReportLayoutSelected: Boolean;
+                    begin
+                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
+                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
+                        if IsReportLayoutSelected then begin
+                            Rec."Email Attachment Layout Name" := ReportLayoutListSelection."Name";
+                            Rec."Email Attachment Layout AppID" := ReportLayoutListSelection."Application ID";
                             Rec.Modify();
                         end;
                     end;

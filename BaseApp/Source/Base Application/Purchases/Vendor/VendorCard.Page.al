@@ -41,7 +41,9 @@ using System.Integration.Word;
 using System.Privacy;
 using System.Utilities;
 using Microsoft.Inventory.Location;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 page 26 "Vendor Card"
 {
@@ -514,17 +516,25 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a payment term that will be used for calculating cash flow.';
                 }
+#if not CLEAN25
                 field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     Importance = Additional;
                     ToolTip = 'Specifies a 1099 code for the vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 field("FATCA filing requirement"; Rec."FATCA filing requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is set up to require FATCA filing.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 field("Federal ID No."; Rec."Federal ID No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1086,6 +1096,7 @@ page 26 "Vendor Card"
                                   "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ToolTip = 'View entry statistics for the record.';
                 }
+#if not CLEAN25
                 action("1099 Statistics")
                 {
                     ApplicationArea = BasicUS;
@@ -1095,7 +1106,11 @@ page 26 "Vendor Card"
                     RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'View the vendor 1099 statistics that you can use to create 1099 reports and generate the files necessary to submit 1099 information to the Internal Revenue Service (IRS). This information is required to report paid vendor income.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("Statistics by C&urrencies")
                 {
                     ApplicationArea = Suite;
@@ -1712,6 +1727,7 @@ page 26 "Vendor Card"
                     RunReport(REPORT::"Projected Cash Payments");
                 end;
             }
+#if not CLEAN25
             action("Vendor 1099 Div")
             {
                 ApplicationArea = BasicUS;
@@ -1720,6 +1736,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-DIV for dividends and distribution.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 begin
@@ -1734,6 +1753,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-INT for interest income.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';               
 
                 trigger OnAction()
                 begin
@@ -1748,6 +1770,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 var
@@ -1764,12 +1789,16 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the vendors'' 1099 information. The report includes all 1099 information for the vendors that have been set up using the IRS 1099 Form-Box table. This includes only amounts that have been paid. It does not include amounts billed but not yet paid. You must enter a date filter before you can print this report.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 begin
                     RunReport(REPORT::"Vendor 1099 Information");
                 end;
             }
+#endif
             action("Vendor/Item Statistics")
             {
                 ApplicationArea = Basic, Suite;

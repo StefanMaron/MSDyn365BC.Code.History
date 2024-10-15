@@ -8,7 +8,9 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Sales.RoleCenters;
 using Microsoft.Utilities;
 using Microsoft.Finance.GeneralLedger.Account;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 using Microsoft.Inventory.Reports;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Deposit;
@@ -41,8 +43,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "EFT Export" = R,
                   tabledata "EFT Export Workset" = R,
                   tabledata "GIFI Code" = R,
+#if not CLEAN25
                   tabledata "IRS 1099 Adjustment" = R,
                   tabledata "IRS 1099 Form-Box" = R,
+#endif
                   tabledata "Item Location Variant Buffer" = R,
                   tabledata "MX Electronic Invoicing Setup" = R,
                   tabledata "PAC Web Service" = R,

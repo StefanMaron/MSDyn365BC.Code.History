@@ -53,7 +53,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.User;
 using System.Utilities;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 23 Vendor
 {
@@ -1545,14 +1547,24 @@ table 23 Vendor
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
 
+#if not CLEAN25
             trigger OnValidate()
             var
                 UpgradeIRS1099FormBoxes: Codeunit "Upgrade IRS 1099 Form Boxes";
             begin
                 UpgradeIRS1099FormBoxes.UpdateIRSCodeInPostedData("No.", xRec."IRS 1099 Code", "IRS 1099 Code");
             end;
+#endif
         }
         field(10021; "Balance on Date"; Decimal)
         {
@@ -1617,6 +1629,14 @@ table 23 Vendor
         field(10026; "FATCA filing requirement"; Boolean)
         {
             Caption = 'FATCA filing requirement';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(14020; "Tax Identification Type"; Enum "Tax Identification Type")
         {

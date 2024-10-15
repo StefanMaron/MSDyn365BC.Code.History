@@ -1392,7 +1392,7 @@ table 5740 "Transfer Header"
         TempPurchRcptHeader: Record "Purch. Rcpt. Header" temporary;
         PostedPurchaseReceipts: Page "Posted Purchase Receipts";
     begin
-        PurchRcptHeader.SetRange("Location Code", "Transfer-from Code");
+        FindPurchRcptHeader(PurchRcptHeader);
         PostedPurchaseReceipts.SetTableView(PurchRcptHeader);
         PostedPurchaseReceipts.LookupMode := true;
         if PostedPurchaseReceipts.RunModal() = ACTION::LookupOK then begin
@@ -1462,6 +1462,8 @@ table 5740 "Transfer Header"
         PurchRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgerEntry);
         ItemTrackingDocMgt.CopyItemLedgerEntriesToTemp(TempItemLedgerEntry, ItemLedgerEntry);
         ItemTrackingMgt.CopyItemLedgEntryTrkgToTransferLine(TempItemLedgerEntry, TransferLine);
+        TransferLine."Appl.-to Item Entry" := ItemLedgerEntry."Entry No.";
+        TransferLine.Modify(true);
 
         OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry, Rec);
     end;
@@ -1599,6 +1601,31 @@ table 5740 "Transfer Header"
             else
                 exit(Result::Partial);
         end;
+    end;
+
+    local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        DocumentNo: Code[20];
+    begin
+        PurchRcptLine.SetLoadFields("Document No.", "Location Code");
+        PurchRcptLine.SetCurrentKey("Document No.");
+        PurchRcptLine.SetRange("Location Code", "Transfer-from Code");
+        if PurchRcptLine.FindSet() then
+            repeat
+                GetPurchRcptHeader(PurchRcptHeader, PurchRcptLine, DocumentNo);
+            until PurchRcptLine.Next() = 0;
+        PurchRcptHeader.MarkedOnly(true);
+    end;
+
+    local procedure GetPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; var DocumentNo: Code[20])
+    begin
+        if PurchRcptLine."Document No." = DocumentNo then
+            exit;
+
+        PurchRcptHeader.Get(PurchRcptLine."Document No.");
+        PurchRcptHeader.Mark(true);
+        DocumentNo := PurchRcptLine."Document No.";
     end;
 
     [IntegrationEvent(false, false)]

@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.RoleCenters;
 
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Reports;
@@ -197,12 +199,17 @@ page 36601 "Payroll Role Center"
                     RunObject = Page "Employee Statistics Groups";
                     ToolTip = 'View or edit the grouping of employees for statistical purposes.';
                 }
+#if not CLEAN25
                 action("IRS 1099 Form-Box")
                 {
                     Caption = 'IRS 1099 Form-Box';
                     RunObject = Page "IRS 1099 Form-Box";
                     ToolTip = 'Set up 1099 tax forms to use on vendor cards, track posted amounts, and print or export 1099 information. After you have set up a 1099 code, you can enter it as a default 1099 form for a vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
             }
         }
     }
