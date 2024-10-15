@@ -19,6 +19,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryResource: Codeunit "Library - Resource";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.';
         PrepaymentCMErr: Label 'Posted Prepayment Credit Memo must exist.';
@@ -2873,6 +2874,7 @@ codeunit 134103 "ERM Prepayment IV"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
     begin
         // [FEATURE] [Resource]
         // [SCENARIO 289386] Verify prepayment % for resource purchase line
@@ -2884,7 +2886,10 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Add resource purchase order line
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 1);
+        Resource.Get(LibraryResource.CreateResourceNo());
+        UpdatePrepmtPostGroups(
+            PurchaseHeader."Gen. Bus. Posting Group", Resource."Gen. Prod. Posting Group", Resource."VAT Prod. Posting Group");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
 
         // [THEN] Resource purchase line has the same prepayment % as purchase header
         VerifyPurchaseLineForPrepaymentPct(PurchaseHeader);
@@ -3182,6 +3187,7 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreateAndUpdatePrepaymentPctOnSalesOrder(var SalesHeader: Record "Sales Header")
     var
+        Item: Record Item;
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
     begin
@@ -3191,11 +3197,14 @@ codeunit 134103 "ERM Prepayment IV"
         ModifySalesHeaderForPrepaymentPct(SalesHeader, LibraryRandom.RandIntInRange(10, 90));
 
         // Exercise: Create Sales Line with Zero Quantity.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+        Item.Get(LibraryInventory.CreateItemNo);
+        UpdatePrepmtPostGroups(SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
     end;
 
     local procedure CreateAndUpdatePrepaymentPctOnPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     var
+        Item: Record Item;
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
@@ -3205,7 +3214,9 @@ codeunit 134103 "ERM Prepayment IV"
         ModifyPrepaymentPctOnPurchaseHeader(PurchaseHeader, LibraryRandom.RandIntInRange(10, 90));
 
         // Exercise: Create Purchase Line with Zero Quantity.
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+        Item.Get(LibraryInventory.CreateItemNo);
+        UpdatePrepmtPostGroups(PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0);
     end;
 
     local procedure CreateAndModifyCustomer(VATBusPostingGroup: Code[20]): Code[20]
@@ -3274,6 +3285,7 @@ codeunit 134103 "ERM Prepayment IV"
         SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 40)); // make sure values are big enough, so amounts are not close to rounding precision
         SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
+        CreateNewGenProductPostingGroupOnItem(SalesHeader."Gen. Bus. Posting Group", Item);
         SalesPrepmtAccount :=
           UpdateSalesPrepmtAccount(GLAccountNo, SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
         CreateSalesLineItem(SalesLine, SalesHeader, Item."No.");
@@ -3303,56 +3315,58 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreateSOWithTwoPrepmtLinesAndUpdateGenPostingSetup(var SalesHeader: Record "Sales Header"; var GeneralPostingSetup: Record "General Posting Setup") OldSalesPrepaymentsAccountNo: Code[20]
     var
+        Item: Record Item;
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         CurrencyCode: Code[10];
-        ItemNo: Code[20];
     begin
         // Create Sales Order with two prepayment lines
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        ItemNo := LibraryInventory.CreateItemNo;
+        Item.Get(LibraryInventory.CreateItemNo());
         CurrencyCode := CreateCurrency;
         CreateExchangeRate(CurrencyCode, WorkDate);
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order,
           CreateCustWithCurrencyAndVATBusPostingGroup(CurrencyCode, VATPostingSetup."VAT Bus. Posting Group"));
-        CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, ItemNo, LibraryRandom.RandIntInRange(10, 40));
-        CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, ItemNo, SalesLine."Prepayment %" + LibraryRandom.RandIntInRange(10, 40));
+        UpdatePrepmtPostGroups(SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
+        CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandIntInRange(10, 40));
+        CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, Item."No.", SalesLine."Prepayment %" + LibraryRandom.RandIntInRange(10, 40));
 
         // Update Sales Prepayment Account
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         OldSalesPrepaymentsAccountNo := GeneralPostingSetup."Sales Prepayments Account";
-        GeneralPostingSetup.Validate("Sales Prepayments Account",
+        GeneralPostingSetup."Sales Prepayments Account" :=
           CreateBalanceSheetAccount(
-            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GeneralPostingSetup.Modify(true);
     end;
 
     local procedure CreatePOWithTwoPrepmtLinesAndUpdateGenPostingSetup(var PurchaseHeader: Record "Purchase Header"; var GeneralPostingSetup: Record "General Posting Setup") OldPurchasePrepaymentsAccountNo: Code[20]
     var
+        Item: Record Item;
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         CurrencyCode: Code[10];
-        ItemNo: Code[20];
     begin
         // Create Purchase Order with two prepayment lines
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        ItemNo := LibraryInventory.CreateItemNo;
+        Item.Get(LibraryInventory.CreateItemNo());
         CurrencyCode := CreateCurrency;
         CreateExchangeRate(CurrencyCode, WorkDate);
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
           CreateVendorWithCurrencyAndVATBusPostingGroup(CurrencyCode, VATPostingSetup."VAT Bus. Posting Group"));
-        CreatePurchaseLineWithPrepmtPercentage(PurchaseLine, PurchaseHeader, ItemNo, LibraryRandom.RandIntInRange(10, 40));
+        UpdatePrepmtPostGroups(PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
+        CreatePurchaseLineWithPrepmtPercentage(PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(10, 40));
         CreatePurchaseLineWithPrepmtPercentage(
-          PurchaseLine, PurchaseHeader, ItemNo, PurchaseLine."Prepayment %" + LibraryRandom.RandIntInRange(10, 40));
+          PurchaseLine, PurchaseHeader, Item."No.", PurchaseLine."Prepayment %" + LibraryRandom.RandIntInRange(10, 40));
 
         // Update Purchase Prepayment Account
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         OldPurchasePrepaymentsAccountNo := GeneralPostingSetup."Purch. Prepayments Account";
-        GeneralPostingSetup.Validate("Purch. Prepayments Account",
+        GeneralPostingSetup."Purch. Prepayments Account" :=
           CreateBalanceSheetAccount(
-            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -3372,6 +3386,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         for i := 1 to ArrayLen(Item) do begin
             Item[i].Get(LibraryInventory.CreateItemNo);
+            UpdatePrepmtPostGroups(
+                SalesHeader."Gen. Bus. Posting Group", Item[i]."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, Item[i]."No.", LibraryRandom.RandIntInRange(10, 40));
         end;
     end;
@@ -3458,6 +3474,7 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 40)); // make sure values are big enough, so amounts are not close to rounding precision
         PurchaseHeader.Modify(true);
         Item.Get(LibraryInventory.CreateItemNo);
+        CreateNewGenProductPostingGroupOnItem(PurchaseHeader."Gen. Bus. Posting Group", Item);
         PurchasePrepmtAccount :=
           UpdatePurchasePrepmtAccount(GLAccountNo, PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
         CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, Item."No.");
@@ -3604,12 +3621,15 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreatePurchaseOrderWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; VendorNo: Code[20]): Decimal
     var
+        Item: Record Item;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
         CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo);
+        UpdatePrepmtPostGroups(PurchaseHeader."Gen. Bus. Posting Group", item."Gen. Prod. Posting Group", item."VAT Prod. Posting Group");
+        CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, item."No.");
         PrepaymentAmount := Round(PurchaseLine."Line Amount" * PurchaseHeader."Prepayment %" / 100);
         exit((PrepaymentAmount * CurrencyExchangeRate."Relational Exch. Rate Amount") / CurrencyExchangeRate."Exchange Rate Amount");
     end;
@@ -3692,12 +3712,15 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrencyCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Decimal
     var
+        Item: Record Item;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
         CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        CreateSalesLineItem(SalesLine, SalesHeader, LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo);
+        UpdatePrepmtPostGroups(SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
+        CreateSalesLineItem(SalesLine, SalesHeader, Item."No.");
         PrepaymentAmount := Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100);
         exit((PrepaymentAmount * CurrencyExchangeRate."Relational Exch. Rate Amount") / CurrencyExchangeRate."Exchange Rate Amount");
     end;
@@ -4323,7 +4346,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         OldPurchPrepaymentsAccount := GeneralPostingSetup."Purch. Prepayments Account";
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -4333,7 +4356,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         OldSalesPrepaymentsAccount := GeneralPostingSetup."Sales Prepayments Account";
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := SalesPrepaymentsAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -4565,23 +4588,63 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure CreatePurchaseOrderWithResourceLineAndPrepayment(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var GLAccountNo: Code[20])
     var
+        Resource: Record Resource;
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 90));
         PurchaseHeader.Modify(true);
 
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 1);
+        Resource.Get(LibraryResource.CreateResourceNo());
+        UpdatePrepmtPostGroups(
+            PurchaseHeader."Gen. Bus. Posting Group", Resource."Gen. Prod. Posting Group", Resource."VAT Prod. Posting Group");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify();
 
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        GeneralPostingSetup."Purch. Prepayments Account" := LibraryERM.CreateGLAccountWithPurchSetup();
         GeneralPostingSetup.Modify(true);
 
         GLAccountNo := GeneralPostingSetup."Purch. Prepayments Account";
 
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+    end;
+
+    local procedure CreateNewGenProductPostingGroupOnItem(GenBusPostingGroupCode: Code[20]; var Item: Record Item)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        GenProductPostingGroup.Get(Item."Gen. Prod. Posting Group");
+        GenProductPostingGroup.Code := LibraryUtility.GenerateGUID();
+        GenProductPostingGroup.Insert(true);
+        GeneralPostingSetup.Get(GenBusPostingGroupCode, Item."Gen. Prod. Posting Group");
+        GeneralPostingSetup."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        GeneralPostingSetup.Insert();
+        Item."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        Item.Modify();
+    end;
+
+    local procedure UpdatePrepmtPostGroups(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        SetProdPostingGroupsOnGLAccount(GeneralPostingSetup."Sales Prepayments Account", GenProdPostingGroup, VATProdPostingGroup);
+        SetProdPostingGroupsOnGLAccount(GeneralPostingSetup."Purch. Prepayments Account", GenProdPostingGroup, VATProdPostingGroup);
+    end;
+
+    local procedure SetProdPostingGroupsOnGLAccount(GLAccountNo: Code[20]; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if GLAccountNo <> '' then begin
+            GLAccount.Get(GLAccountNo);
+            GLAccount."Gen. Prod. Posting Group" := GenProdPostingGroup;
+            GLAccount."VAT Prod. Posting Group" := VATProdPostingGroup;
+            GLAccount.Modify();
+        end;
     end;
 
     [ConfirmHandler]

@@ -513,6 +513,8 @@ codeunit 134117 "Price Lists UI"
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         SalesPriceList.OpenEdit();
+        SalesPriceList.SourceType.AssertEquals("Price Source Type"::"All Customers");
+        Assert.IsFalse(SalesPriceList.JobSourceType.Visible(), 'JobSourceType.Visible');
         // [GIVEN] Price list page open, where Status is 'Draft', all controls are editable
         Assert.IsTrue(SalesPriceList.Status.Editable(), 'Status.not Editable');
         Assert.IsTrue(SalesPriceList.AmountType.Editable(), 'AmountType.not Editable');
@@ -624,6 +626,7 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 100
         ItemNo := LibraryInventory.CreateItemNo();
         SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::"G/L Account"); // Taken from the previous line
         SalesPriceList.Lines."Asset Type".SetValue('Item');
         SalesPriceList.Lines."Asset No.".SetValue(ItemNo);
         SalesPriceList.Lines."Unit Price".SetValue(100);
@@ -633,6 +636,8 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Customers");
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Run "Verify Lines" action
@@ -919,6 +924,61 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T028_SalesPriceListPageNewLineWithDefaultAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales]
+        Initialize(true);
+        // [GIVEN] New sales price list
+        SalesPriceList.OpenNew();
+
+        // [WHEN] Add a new line and put Item No.
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Sale'
+        SalesPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", SalesPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Customers");
+        PriceListLine.TestField("Source No.", '');
+    end;
+
+    [Test]
+    procedure T029_SalesJobPriceListPageNewLineWithDefaultAssetType()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Sales] [Job]
+        Initialize(true);
+        // [GIVEN] New sales price list from "Sales Job Price Lists" (simulate page filters)
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
+        PriceListHeader.SetRange("Source Group", "Price Source Group"::Job);
+        PriceListHeader.FilterGroup(0);
+        SalesPriceList.Trap();
+        Page.Run(Page::"Sales Price List", PriceListHeader);
+        SalesPriceList.New();
+
+        // [WHEN] Add a new line and put Item No.
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Sale'
+        SalesPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", SalesPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.TestField("Source No.", '');
+    end;
+
+    [Test]
     procedure T030_OpenItemCardIfItemDiscGroupDeleted()
     var
         Item: Record Item;
@@ -1018,6 +1078,8 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Add new price list line for a g/l account
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.SourceType.AssertEquals("Price Source Type"::Customer);
+        Assert.IsFalse(SalesPriceList.JobSourceType.Visible(), 'JobSourceType.Visible');
         SalesPriceList.Lines.New();
         SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
         SalesPriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
@@ -1026,6 +1088,9 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", "Price Source Type"::Customer);
+        PriceListLine.TestField("Source No.", Customer."No.");
         PriceListLine.TestField("Currency Code", Currency.Code);
     end;
 
@@ -1058,6 +1123,8 @@ codeunit 134117 "Price Lists UI"
 
         // [WHEN] Add new price list line for Vendor 'L' and a g/l account
         PurchasePriceList.OpenEdit();
+        PurchasePriceList.SourceType.AssertEquals("Price Source Type"::Vendor);
+        Assert.IsFalse(PurchasePriceList.JobSourceType.Visible(), 'JobSourceType.Visible');
         PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
         PurchasePriceList.Lines.New();
         PurchasePriceList.Lines.SourceNo.SetValue(Vendor[2]."No.");
@@ -1068,6 +1135,8 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Source Type", "Price Source Type"::Vendor);
+        PriceListLine.TestField("Source No.", Vendor[2]."No.");
         PriceListLine.TestField("Currency Code", Currency[2].Code);
     end;
 
@@ -1116,6 +1185,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
         PriceListLine.Testfield("Source No.", Customer[1]."No.");
         PriceListLine.TestField("Currency Code", Currency[1].Code);
         Assert.IsFalse(PriceListLine.Next() = 0, 'not found 2nd line');
@@ -1483,6 +1553,8 @@ codeunit 134117 "Price Lists UI"
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PurchasePriceList.OpenEdit();
+        PurchasePriceList.SourceType.AssertEquals("Price Source Type"::"All Vendors");
+        Assert.IsFalse(PurchasePriceList.JobSourceType.Visible(), 'JobSourceType.Visible');
         // [GIVEN] Price list page open, where Status is 'Draft', all controls are editable
         Assert.IsTrue(PurchasePriceList.Status.Editable(), 'Status.not Editable');
         Assert.IsTrue(PurchasePriceList.AmountType.Editable(), 'AmountType.not Editable');
@@ -1594,6 +1666,7 @@ codeunit 134117 "Price Lists UI"
         // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Cost" is 100
         ItemNo := LibraryInventory.CreateItemNo();
         PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::"G/L Account"); // Taken from the previous line
         PurchasePriceList.Lines."Asset Type".SetValue('Item');
         PurchasePriceList.Lines."Asset No.".SetValue(ItemNo);
         PurchasePriceList.Lines."Unit Cost".SetValue(100);
@@ -1603,6 +1676,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Run "Verify Lines" action
@@ -1656,6 +1730,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
         PriceListLine.TestField(Status, "Price Status"::Draft);
 
         // [WHEN] Close the price list page
@@ -1855,6 +1930,61 @@ codeunit 134117 "Price Lists UI"
         // [THEN] AllowLineDisc and AllowInvoiceDisc are off in the line
         PurchPriceList.Lines."Allow Line Disc.".AssertEquals(false);
         PurchPriceList.Lines."Allow Invoice Disc.".AssertEquals(false);
+    end;
+
+    [Test]
+    procedure T078_PurchPriceListPageNewLineWithDefaultAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase]
+        Initialize(true);
+        // [GIVEN] New Purch price list
+        PurchPriceList.OpenNew();
+
+        // [WHEN] Add a new line, and "Asset No." as Item No.
+        PurchPriceList.Lines.New();
+        PurchPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Purchase'
+        PurchPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", PurchPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Vendors");
+        PriceListLine.TestField("Source No.", '');
+    end;
+
+    [Test]
+    procedure T079_PurchJobPriceListPageNewLineWithDefaultAssetType()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Purchase] [Job]
+        Initialize(true);
+        // [GIVEN] New Purch price list from "Purchase Job Price Lists"
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Purchase);
+        PriceListHeader.SetRange("Source Group", "Price Source Group"::Job);
+        PriceListHeader.FilterGroup(1);
+        PurchPriceList.Trap();
+        Page.Run(Page::"Purchase Price List", PriceListHeader);
+        PurchPriceList.New();
+
+        // [WHEN] Add a new line, and "Asset No." as Item No.
+        PurchPriceList.Lines.New();
+        PurchPriceList.Lines."Asset No.".SetValue(LibraryInventory.CreateItemNo());
+
+        // [THEN] "Asset Type" is Item, "Price Type" is 'Purchase'
+        PurchPriceList.Lines."Asset Type".AssertEquals("Price Asset Type"::Item);
+        PriceListLine.SetRange("Price List Code", PurchPriceList.Code.Value());
+        PriceListLine.FindLast();
+        PriceListLine.TestField("Price Type", "Price Type"::Purchase);
+        PriceListLine.TestField("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.TestField("Source No.", '');
     end;
 
     [Test]
@@ -2100,6 +2230,30 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T106_SalesJobPriceListPageShowsSourceType()
+    var
+        PriceListHeader: Record "Price List Header";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Price List, where "Source Type" is 'All Jobs', "Price Type" is 'Sale'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+
+        // [WHEN] Open page "Sales Job Price List" 
+        SalesPriceList.Trap();
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
+        PriceListHeader.SetRange("Source Group", "Price Source Group"::Job);
+        PriceListHeader.FilterGroup(0);
+        Page.Run(Page::"Sales Price List", PriceListHeader);
+
+        // [THEN] SourceType is 'All Jobs' 
+        Assert.IsFalse(SalesPriceList.SourceType.Visible(), 'SourceType.Visible');
+        SalesPriceList.JobSourceType.AssertEquals("Price Source Type"::"All Jobs");
+    end;
+
+    [Test]
     procedure T120_JobCardPriceListsActionVisibleIfFeatureOn()
     var
         JobCard: TestPage "Job Card";
@@ -2112,8 +2266,8 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobCard.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobCard.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
+        Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobCard."&Item".Visible(), '"&Item". Visible');
@@ -2154,8 +2308,8 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobList.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobList.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
+        Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobList."&Item".Visible(), '"&Item". Visible');
@@ -2536,6 +2690,30 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(PriceListLineReview.Next(), 'not found 2th');
         PriceListLineReview."Price List Code".AssertEquals('005');
         Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
+    end;
+
+    [Test]
+    procedure T156_PurchJobPriceListPageShowsSourceType()
+    var
+        PriceListHeader: Record "Price List Header";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Price List, where "Source Type" is 'All Jobs', "Price Type" is 'Purchase'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Jobs", '');
+
+        // [WHEN] Open page "Purchase Job Price List" 
+        PurchasePriceList.Trap();
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Price Type", "Price Type"::Purchase);
+        PriceListHeader.SetRange("Source Group", "Price Source Group"::Job);
+        PriceListHeader.FilterGroup(0);
+        Page.Run(Page::"Purchase Price List", PriceListHeader);
+
+        // [THEN] SourceType is 'All Jobs' 
+        Assert.IsFalse(PurchasePriceList.SourceType.Visible(), 'SourceType.Visible');
+        PurchasePriceList.JobSourceType.AssertEquals("Price Source Type"::"All Jobs");
     end;
 
     [Test]
@@ -3381,7 +3559,7 @@ codeunit 134117 "Price Lists UI"
         PriceListLine.ModifyAll(Status, PriceListLine.Status::Draft);
         PriceListLine.DeleteAll(true);
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -3661,7 +3839,7 @@ codeunit 134117 "Price Lists UI"
     [Scope('OnPrem')]
     procedure ClearVariableStorage()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Scope('OnPrem')]
@@ -3690,7 +3868,6 @@ codeunit 134117 "Price Lists UI"
                 LibraryVariableStorage.Enqueue(PriceListLineReview."Price List Code");
             until not PriceListLineReview.Next();
     end;
-
 
     [ModalPageHandler]
     procedure ResourceListModalHandler(var ResourceList: TestPage "Resource List")

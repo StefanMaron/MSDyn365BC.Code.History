@@ -149,6 +149,11 @@
         {
             Caption = 'Suggest Balancing Amount';
         }
+        field(28; "Pending Approval"; Boolean)
+        {
+            Caption = 'Pending Approval';
+            Editable = false;
+        }
         field(31; "Copy to Posted Jnl. Lines"; Boolean)
         {
             Caption = 'Copy to Posted Jnl. Lines';

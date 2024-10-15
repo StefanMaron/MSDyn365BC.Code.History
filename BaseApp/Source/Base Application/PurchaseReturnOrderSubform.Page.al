@@ -164,6 +164,7 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }
