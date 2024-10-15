@@ -1963,6 +1963,10 @@ codeunit 5330 "CRM Integration Management"
             else
                 TempConnectionString := StrSubstNo(
                     ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
+
+        if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::OAuth then
+            TempConnectionString := CDSIntegrationImpl.ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUserEmail, AdminUserPassword);
+
         if not InitializeCRMConnection(CRMHelper, TempConnectionString) then
             ProcessConnectionFailures;
 

@@ -3,7 +3,8 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     // // [FEATURE] [Bank Reconciliation] [SEPA CAMT]
 
     EventSubscriberInstance = Manual;
-    Permissions = TableData "Bank Export/Import Setup" = rimd;
+    Permissions = TableData "Bank Export/Import Setup" = rimd,
+                  TableData "Cust. Ledger Entry" = id;
     SingleInstance = true;
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -38,7 +39,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02]
         // [SCENARIO 221219] Import CAMT 053.001.02
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 053.001.02 xml with statement header, balance node and one entry node
         SetupWriteCAMTFile05302;
@@ -67,10 +68,10 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 221219] Import CAMT 053.001.04
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 053.001.04 xml with statement header, balance node and one 2 entry nodes
-        SetupWriteCAMTFile05304;
+        SetupWriteCAMTFile05304();
 
         // [GIVEN] Setup of Bank Account with Bank Acc. Reconciliation for CAMT 053.001.04
         SetupBankAccWithBankReconciliation(BankAcc, BankAccReconciliation, BankAccReconciliationLineTemplate, GetCAMT05304DataExch);
@@ -96,7 +97,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 221219] Import CAMT 054.001.04
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 054.001.04 xml with statement header, balance node and one entry node
         SetupWriteCAMTFile054;
@@ -123,7 +124,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02]
         // [SCENARIO 234534] Import CAMT 053.001.02 to General Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 053.001.02 xml with statement header, balance node and one entry node
         SetupWriteCAMTFile05302;
@@ -153,10 +154,10 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 234534] Import CAMT 053.001.04 to Gen. Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 053.001.04 xml with statement header, balance node and one entry node
-        SetupWriteCAMTFile05304;
+        SetupWriteCAMTFile05304();
 
         // [GIVEN] Setup of Bank Statement Import Format for CAMT 053.001.04
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
@@ -183,7 +184,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 234534] Import CAMT 054.001.04 to Gen. Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] CAMT 054.001.04 xml with statement header, balance node and one entry node
         SetupWriteCAMTFile054;
@@ -220,7 +221,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with one invoice (identical amounts and currencies)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with one invoice (Amount = 1234.56 CHF, Debitor Name = "DBTR_NAME", Ref. No. = "INV_REF")
@@ -254,7 +255,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with one invoice (identical currencies, invoice amount is higher than payment's)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with one invoice (Amount = 1234.57 CHF, Debitor Name = "DBTR_NAME", Ref. No. = "INV_REF")
@@ -289,7 +290,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with one invoice (identical currencies, invoice amount is lower than payment's)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with one invoice (Amount = 1234.55 CHF, Debitor Name = "DBTR_NAME", Ref. No. = "INV_REF")
@@ -324,7 +325,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with one invoice (identical amounts, different currencies)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with one invoice (Amount = 1234.56 EUR, Debitor Name = "DBTR_NAME", Ref. No. = "INV_REF")
@@ -359,7 +360,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with two invoices (identical amounts and currencies)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with two invoices:
@@ -396,7 +397,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with two invoices (identical currencies, total invoices amount is higher than payment's)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with two invoices:
@@ -433,7 +434,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with two invoices (identical currencies, total invoices amount is lower than payment's)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with two invoices:
@@ -470,7 +471,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of one payment with two invoices (identical amounts, different currencies)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: one payment (Amount = 1234.56 CHF) with two invoices:
@@ -507,7 +508,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical amounts and currencies within one payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -544,7 +545,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical currencies within one payment, invoice amount is higher tha payment's within first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -582,7 +583,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical currencies within one payment, invoice amount is lower tha payment's within first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -620,7 +621,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical currencies within one payment, invoice amount is higher tha payment's within second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -658,7 +659,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical currencies within one payment, invoice amount is lower tha payment's within second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -696,7 +697,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical amounts within one payment, different currencies within first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -734,7 +735,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having one invoice (identical amounts within one payment, different currencies within second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -772,7 +773,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical amounts and currencies within one payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -815,7 +816,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical currencies, invoices amount is higher than first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -859,7 +860,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical currencies, invoices amount is lower than first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -903,7 +904,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical currencies, invoices amount is higher than second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -947,7 +948,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical currencies, invoices amount is lower than second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -991,7 +992,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical amounts within one payment, different currencies in first payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -1035,7 +1036,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 225918] Import CAMT 054.001.04 in case of two payments each having two invoices (identical amounts within one payment, different currencies in second payment)
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_TwoPmtTwoInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: two payments:
@@ -1079,7 +1080,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 275421] Import CAMT 054.001.04 in case of extra spaces before <BkToCstmrDbtCdtNtfctn> and <Ntfctn> tags.
-        Initialize;
+        Initialize();
         PrepareValuesForImportCAMT054_OnePmtOneInv(PmtCurrency, PmtAmount, InvCurrency, InvAmount, InvDbtrName, InvRefTxt);
 
         // [GIVEN] CAMT 054.001.04 xml: <BkToCstmrDbtCdtNtfctn> and <Ntfctn> tags has indentation 3 and 6 spaces respectively; one payment with one invoice.
@@ -1107,7 +1108,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02] [Bank Account ID]
         // [SCENARIO 273063] Import CAMT 053-02 when only Bank Account Id is specified in Stmt/Acct/Id/Othr/Id
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 053-02 setup
         SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05302DataExch);
@@ -1137,7 +1138,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04] [Bank Account ID]
         // [SCENARIO 273063] Import CAMT 053-04 when only Bank Account Id is specified in Stmt/Acct/Id/Othr/Id
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 053-04 setup
         SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT05304DataExch);
@@ -1167,7 +1168,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054] [Bank Account ID]
         // [SCENARIO 273063] Import CAMT 054 when only Bank Account Id is specified in Stmt/Acct/Id/Othr/Id
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank account with SEPA CAMT 054 setup
         SetupBankAccWithBankReconciliation(BankAccount, BankAccReconciliation, BankAccReconciliationLine, GetCAMT054DataExch);
@@ -1202,7 +1203,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02]
         // [SCENARIO 252679] Match CAMT 053-02 in case of "Additional Transaction Info" contains "Document No." of the existing sales document with concatenation of alphanumeric symbols.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
@@ -1245,7 +1246,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 252679] Match CAMT 053-04 in case of "Additional Transaction Info" contains "Document No." of the existing sales document with concatenation of alphanumeric symbols.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
@@ -1288,7 +1289,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 252679] Match CAMT 054 in case of "Additional Transaction Info" contains "Document No." of the existing sales document with concatenation of alphanumeric symbols.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Document No." = "103001"
         LibrarySales.CreateCustomer(Customer);
@@ -1323,10 +1324,10 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 264899] Bank Payment Application Rule with with "Related Party Matched" = "No", "Doc No. Matched" = "Yes" and "Amount Matched" = "Multiple Matches" is created by default.
-        Initialize;
+        Initialize();
 
         // [WHEN] Restore default set of matching rules.
-        InsertDefaultMatchingRules;
+        InsertDefaultMatchingRules();
 
         // [THEN] Bank Application Rule with "Related Party Matched" = "No", "Doc No. Matched" = "Yes" and "Amount Matched" = "Multiple Matches" exists.
         VerifyBankPmtApplRuleExists(
@@ -1343,7 +1344,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 272865] COD 11503 CHMgt.IsESRFormat() returns TRUE only in case of 27-chars length numeric "ESR Reference No." with check digit.
-        Initialize;
+        Initialize();
 
         // IsESRFormat returns FALSE, when set text with alphabetic chars as input.
         Assert.IsFalse(
@@ -1375,7 +1376,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT054 in case of "ESR Reference No." is not in ESR format, but contains "Document No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1417,7 +1418,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT054 in case of "ESR Reference No." is in ESR format and it contains "Document No." not in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1458,7 +1459,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02]
         // [SCENARIO 272865] Match "Doc No." for CAMT053-02 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
@@ -1501,7 +1502,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 272865] Match "Doc No." for CAMT053-04 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
@@ -1544,7 +1545,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 272865] Match "Doc No." for CAMT054 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001".
         LibrarySales.CreateCustomer(Customer);
@@ -1587,7 +1588,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-02]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT053-02 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1630,7 +1631,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 053-04]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT053-04 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1673,7 +1674,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT054 in case of "ESR Reference No." is in ESR format and it contains "Document No." in "xxxxxxxxx103001x" position.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "103001", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1715,7 +1716,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     begin
         // [FEATURE] [CAMT 054]
         // [SCENARIO 272865] Match "Doc No.", Amount, Customer Name for CAMT054 in case of "ESR Reference No." is in ESR format, but it does not contain "Document No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "D1", Amount = "A1" for Customer with Name = "CN1".
         CreateCustomerWithAddress(Customer, LibraryUtility.GenerateGUID, '', '', '');
@@ -1744,20 +1745,20 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Import CAMT Bank AccRecLine");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Import CAMT Bank AccRecLine");
 
         CustLedgerEntry.DeleteAll();
-        InsertDefaultMatchingRules;
+        InsertDefaultMatchingRules();
 
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Import CAMT Bank AccRecLine");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Import CAMT Bank AccRecLine");
 
         LibraryERM.SetLCYCode(GetEURCurrency);
         Commit();
 
         IsInitialized := true;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Import CAMT Bank AccRecLine");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Import CAMT Bank AccRecLine");
     end;
 
     local procedure PrepareValuesForImportCAMT054_OnePmtOneInv(var PmtCurrency: Text; var PmtAmount: Decimal; var InvCurrency: Text; var InvAmount: Decimal; var InvDbtrName: Text; var InvRefTxt: Text)
@@ -2549,7 +2550,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         BankPmtApplRule.DeleteAll();
-        BankPmtApplRule.InsertDefaultMatchingRules;
+        BankPmtApplRule.InsertDefaultMatchingRules();
     end;
 
     local procedure SetRule(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; RelatedPartyMatched: Option; DocNoMatched: Option; AmountInclToleranceMatched: Option)

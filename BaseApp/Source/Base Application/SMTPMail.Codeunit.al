@@ -426,7 +426,7 @@ codeunit 400 "SMTP Mail"
                         CcAddresses,
                         BccAddresses,
                         SmtpMailSetup."Allow Sender Substitution",
-                        SmtpMailSetup."Send As",
+                        ObsfuscateEmailAddress(SmtpMailSetup."Send As"),
                         SmtpMailSetup.Authentication,
                         SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end

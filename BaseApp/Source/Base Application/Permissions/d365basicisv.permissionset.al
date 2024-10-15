@@ -407,7 +407,8 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
                   tabledata "Interaction Log Entry" = r,
-                  tabledata "Interaction Template" = R,				  
+                  tabledata "Interaction Merge Data" = RIMD,
+                  tabledata "Interaction Template" = R,
                   tabledata "Interaction Template Setup" = i,
                   tabledata "Interaction Tmpl. Language" = RIMD,
                   tabledata "Intermediate Data Import" = RIMD,
@@ -636,7 +637,9 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Posted Payment Recon. Line" = RIMD,
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Customer Reports" = RIMD,
+#if not CLEAN18
                   tabledata "Power BI Ongoing Deployments" = RIMD,
+#endif
                   tabledata "Power BI Report Buffer" = RIMD,
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = R,

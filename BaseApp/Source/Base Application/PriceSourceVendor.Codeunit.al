@@ -59,5 +59,8 @@ codeunit 7035 "Price Source - Vendor" implements "Price Source"
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
         PriceSource.Description := Vendor.Name;
+        PriceSource."Currency Code" := Vendor."Currency Code";
+        PriceSource."Price Includes VAT" := Vendor."Prices Including VAT";
+        PriceSource."VAT Bus. Posting Gr. (Price)" := Vendor."VAT Bus. Posting Group";
     end;
 }

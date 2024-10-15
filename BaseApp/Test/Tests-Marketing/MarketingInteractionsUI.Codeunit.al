@@ -16,7 +16,7 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
-        CorrTypeNoAtachmentErr: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment. To continue, you can change contact’s correspondence type, select an interaction template with a different correspondence type, or select a template that ignores the contact correspondence type.';
+        CorrTypeNoAtachmentErr: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

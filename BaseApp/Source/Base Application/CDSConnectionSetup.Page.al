@@ -339,6 +339,50 @@ page 7200 "CDS Connection Setup"
                         Message(ConnectionFailedMsg, GetLastErrorText());
                 end;
             }
+            action("Use Certificate Authentication")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Use Cerificate Authentication';
+                Image = Certificate;
+                Visible = SoftwareAsAService;
+                Promoted = true;
+                Enabled = Rec."Is Enabled";
+                PromotedCategory = Process;
+                ToolTip = 'Upgrades the connection to Dataverse to use certificate-based OAuth2 service-to-service authentication.';
+
+                trigger OnAction()
+                var
+                    TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+                    CRMConnectionSetup: Record "CRM Connection Setup";
+                    CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                begin
+                    TempCDSConnectionSetup."Server Address" := "Server Address";
+                    TempCDSConnectionSetup."User Name" := "User Name";
+                    TempCDSConnectionSetup."Proxy Version" := CDSIntegrationImpl.GetLastProxyVersionItem();
+                    TempCDSConnectionSetup."Authentication Type" := TempCDSConnectionSetup."Authentication Type"::Office365;
+                    TempCDSConnectionSetup.Insert();
+
+                    CDSIntegrationImpl.SetupCertificateAuthentication(TempCDSConnectionSetup);
+
+                    if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> "User Name") then begin
+                        if CRMConnectionSetup.IsEnabled() then begin
+                            CRMConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
+                            CRMConnectionSetup.SetPassword('');
+                            CRMConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
+                            CRMConnectionSetup.SetConnectionString(TempCDSConnectionSetup."Connection String");
+                        end;
+
+                        "User Name" := TempCDSConnectionSetup."User Name";
+                        SetPassword('');
+                        "Proxy Version" := TempCDSConnectionSetup."Proxy Version";
+                        "Connection String" := TempCDSConnectionSetup."Connection String";
+                        Modify();
+                        CurrPage.Update(false);
+                        Session.LogMessage('0000FB4', CertificateConnectionSetupTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Message(StrSubstNo(CertificateConnectionSetupMsg, "User Name"));
+                    end;
+                end;
+            }
             action(ResetConfiguration)
             {
                 ApplicationArea = Suite;
@@ -709,6 +753,8 @@ page 7200 "CDS Connection Setup"
         CDSConnDisabledOnPageTxt: Label 'The connection to Dataverse has been disabled from the Dataverse Connection Setup page', Locked = true;
         SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has been successfully redeployed', Locked = true;
         UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has failed to be redeployed', Locked = true;
+        CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
+        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth2 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
         IsEditable: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;

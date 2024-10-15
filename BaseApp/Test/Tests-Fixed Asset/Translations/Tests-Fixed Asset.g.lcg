@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Asset Card - NamedType FoundFALedgerEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 893927009 - NamedType 4041431176" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are ready to acquire the fixed asset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType AcquireNotificationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 3399023593" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value in %2: %3=%4. It cannot be zero or empty.]]></Val>

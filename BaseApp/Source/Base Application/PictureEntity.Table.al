@@ -429,6 +429,7 @@ table 5468 "Picture Entity"
             end else
                 Error(MultipleParentsFoundErr);
 
+        OnAfterGetRecordRefFromFilter(IDFilter, ParentRecordRef, RecordFound);
         exit(RecordFound);
     end;
 
@@ -537,6 +538,11 @@ table 5468 "Picture Entity"
     procedure GetDefaultExtension(): Text
     begin
         exit('jpg');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef; var RecordFound: Boolean)
+    begin
     end;
 
     [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]

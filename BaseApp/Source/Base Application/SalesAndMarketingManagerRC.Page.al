@@ -585,12 +585,24 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Item Attributes';
                     RunObject = page "Item Attributes";
                 }
+#if not CLEAN19
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Price Worksheet';
-                    RunObject = page "Sales Price Worksheet";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7023)); // "Sales Price Worksheet";
+                    RunObject = Page "Role Center Page Dispatcher";
                 }
+#else
+                action("Sales Price Worksheet")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Sales Price Worksheet';
+                    Image = PriceWorksheet;
+                    RunObject = Page "Price Worksheet";
+                    ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+                }
+#endif
                 action("Adjust Item Costs/Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -646,12 +658,22 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Inventory Order Details';
                         RunObject = report "Inventory Order Details";
                     }
+#if not CLEAN19
                     action("Price List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Price List';
-                        RunObject = report "Price List";
+                        RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(715)); // "Price List";
+                        RunObject = Page "Role Center Page Dispatcher";
                     }
+#else
+                    action("Price List")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Price List';
+                        RunObject = Report "Item Price List";
+                    }
+#endif
                     action("Inventory - Sales Back Orders")
                     {
                         ApplicationArea = Basic, Suite;

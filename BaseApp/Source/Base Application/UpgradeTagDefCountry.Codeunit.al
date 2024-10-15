@@ -5,6 +5,14 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
+    local procedure RegisterPerDatabaseTags(var PerDatabaseUpgradeTags: List of [Code[250]])
+    begin
+#if not CLEAN19
+        PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppTagCh());
+#endif
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
@@ -36,6 +44,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-392540-CheckPartnerVATID-20210317');
     end;
+
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetDataOutOfGeoAppTagCh(): Code[250]
+    begin
+        exit('MS-390169-DataOutOfGeoAppTagCh-20210525');
+    end;
 #endif
 }
-
