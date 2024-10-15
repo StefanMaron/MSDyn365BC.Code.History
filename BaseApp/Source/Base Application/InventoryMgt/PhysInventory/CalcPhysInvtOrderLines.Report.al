@@ -234,7 +234,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
             (LastItemLedgEntry."Item No." <> ItemLedgEntry."Item No.") or
             (LastItemLedgEntry."Variant Code" <> ItemLedgEntry."Variant Code") or
             (LastItemLedgEntry."Location Code" <> ItemLedgEntry."Location Code");
-        OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry, LastItemLedgEntry, Result);
+        OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry, LastItemLedgEntry, Result, Item);
     end;
 
     local procedure SetWhseEntryFilters()
@@ -318,8 +318,8 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry: Record "Item Ledger Entry"; LastItemLedgEntry: Record "Item Ledger Entry"; var Result: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsNewItemLedgEntryGroup(ItemLedgEntry: Record "Item Ledger Entry"; LastItemLedgEntry: Record "Item Ledger Entry"; var Result: Boolean; var Item: Record Item)
     begin
     end;
 

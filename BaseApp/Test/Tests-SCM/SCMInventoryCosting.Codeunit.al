@@ -37,6 +37,7 @@ codeunit 137007 "SCM Inventory Costing"
         IncorrectCostPostedToGLErr: Label 'Incorrect Cost Posted to G/L.';
         UnexpectedCostAmtErr: Label '%1 does not match %2 posted by Revaluation Journal.', Comment = '%1: Field(Cost Amount (Actual)), %2: Field(Inventory Value (Revalued))';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        TotalRecordCountErr: Label 'Total record count must be equal to %1';
 
     [Test]
     [Scope('OnPrem')]
@@ -1264,6 +1265,58 @@ codeunit 137007 "SCM Inventory Costing"
         // [WHEN] Revaluation Journal is created and posted.
         // [THEN] No error is thrown.
         CreatePostRevaluation(Item, CostAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RevalueUnitCostEvenIfPurchasingBlockedIsEnabled()
+    var
+        Item: Record Item;
+        Item2: Record item;
+        ItemJournalLine: Record "Item Journal Line";
+        ValueEntry: Record "Value Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitCostOriginal: Decimal;
+        UnitCostRevalued: Decimal;
+        Quantity: Integer;
+    begin
+        // [SCENARIO 470333] "You cannot purchase this item because the Purchasing Blocked check box is selected on the item card", an error message appears when trying to revalue an Unit Cost in the Revaluation Journal when the Purchasing Blocked is enabled.
+        Initialize();
+
+        // [GIVEN] Create random UnitCostOrginal, UnitCostRevalued & Quantity.
+        UnitCostOriginal := LibraryRandom.RandDec(50, 2);
+        UnitCostRevalued := UnitCostOriginal + LibraryRandom.RandDec(100, 2);
+        Quantity := LibraryRandom.RandInt(20);
+
+        // [GIVEN] Create an Item with a Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", UnitCostOriginal);
+        Item.Validate("Last Direct Cost", UnitCostOriginal);
+        Item.Modify();
+
+        // [GIVEN] Create an Item Journal Line with Entry Type :: Purchase.
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate(), Item."No.", Quantity, '');
+
+        // [GIVEN] Post the created Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Find and Set "Purchasing Blocked" to true for the created Item.
+        Item2.Get(Item."No.");
+        Item2.Validate("Purchasing Blocked", true);
+        Item2.Modify();
+
+        // [WHEN] Calculate Inventory for the created Item & set a value in "Unit Cost (Revalued)", and Post Revaluation Entry.
+        CreatePostRevaluation(Item, UnitCostRevalued);
+
+        // [WHEN] Filter Value Entry with Item No & Entry Type Revaluation.
+        ValueEntry.SetFilter("Item No.", Item."No.");
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
+
+        // [WHEN] Filter Item Ledger ENtry with Item No.
+        ItemLedgerEntry.SetFilter("Item No.", Item."No.");
+
+        // [VERIFY] Verify Revalutaion has been done successfully.
+        Assert.AreEqual(ItemLedgerEntry.Count(), ValueEntry.Count(), StrSubstNo(TotalRecordCountErr, ItemLedgerEntry.Count()));
     end;
 
     local procedure Initialize()

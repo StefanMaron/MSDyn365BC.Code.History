@@ -489,7 +489,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     procedure GetOutboundBinsOnBasicWarehouseLocation(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
         Location: Record Location;
-        WhseEntry: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
         QtyInBin: Decimal;
     begin
         TempBinContentBuffer.DeleteAll();
@@ -503,27 +503,27 @@ codeunit 7314 "Warehouse Availability Mgt."
         WhseItemTrackingSetup."Serial No. Required" := true;
         WhseItemTrackingSetup."Lot No. Required" := true;
 
-        WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
-        WhseEntry.SetRange("Whse. Document Type", WhseEntry."Whse. Document Type"::Shipment);
-        WhseEntry.SetRange("Reference Document", WhseEntry."Reference Document"::Pick);
-        WhseEntry.SetFilter("Qty. (Base)", '>%1', 0);
-        if WhseEntry.FindSet() then
+        WarehouseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
+        WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
+        WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
+        WarehouseEntry.SetFilter("Qty. (Base)", '>%1', 0);
+        if WarehouseEntry.FindSet() then
             repeat
-                WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
-                QtyInBin := CalcQtyOnBin(LocationCode, WhseEntry."Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
+                WarehouseEntry.SetRange("Bin Code", WarehouseEntry."Bin Code");
+                QtyInBin := CalcQtyOnBin(LocationCode, WarehouseEntry."Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
                 if QtyInBin > 0 then begin
                     TempBinContentBuffer.Init();
                     TempBinContentBuffer."Location Code" := LocationCode;
-                    TempBinContentBuffer."Bin Code" := WhseEntry."Bin Code";
+                    TempBinContentBuffer."Bin Code" := WarehouseEntry."Bin Code";
                     TempBinContentBuffer."Item No." := ItemNo;
                     TempBinContentBuffer."Variant Code" := VariantCode;
                     TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
                     TempBinContentBuffer.Insert();
                 end;
 
-                WhseEntry.FindLast();
-                WhseEntry.SetRange("Bin Code");
-            until WhseEntry.Next() = 0;
+                WarehouseEntry.FindLast();
+                WarehouseEntry.SetRange("Bin Code");
+            until WarehouseEntry.Next() = 0;
 
         if Location."Shipment Bin Code" <> '' then begin
             TempBinContentBuffer.SetRange("Bin Code", Location."Shipment Bin Code");
@@ -533,22 +533,6 @@ codeunit 7314 "Warehouse Availability Mgt."
                     TempBinContentBuffer.Init();
                     TempBinContentBuffer."Location Code" := LocationCode;
                     TempBinContentBuffer."Bin Code" := Location."Shipment Bin Code";
-                    TempBinContentBuffer."Item No." := ItemNo;
-                    TempBinContentBuffer."Variant Code" := VariantCode;
-                    TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
-                    TempBinContentBuffer.Insert();
-                end;
-            end;
-        end;
-
-        if Location."To-Production Bin Code" <> '' then begin
-            TempBinContentBuffer.SetRange("Bin Code", Location."To-Production Bin Code");
-            if TempBinContentBuffer.IsEmpty() then begin
-                QtyInBin := CalcQtyOnBin(LocationCode, Location."To-Production Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
-                if QtyInBin > 0 then begin
-                    TempBinContentBuffer.Init();
-                    TempBinContentBuffer."Location Code" := LocationCode;
-                    TempBinContentBuffer."Bin Code" := Location."To-Production Bin Code";
                     TempBinContentBuffer."Item No." := ItemNo;
                     TempBinContentBuffer."Variant Code" := VariantCode;
                     TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
@@ -951,7 +935,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     local procedure OnAfterGetOutboundBinsOnBasicWarehouseLocation(Location: Record Location; var TempBinContentBuffer: Record "Bin Content Buffer" temporary; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSpecialBins(Location: Record Location; var SpecialBins: List of [Code[20]])
     begin

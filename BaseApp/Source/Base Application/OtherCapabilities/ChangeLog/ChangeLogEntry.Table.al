@@ -152,7 +152,7 @@ table 405 "Change Log Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Table No.", "Primary Key Field 1 Value")
+        key(Key2; "Table No.", "Primary Key Field 1 Value", "Primary Key Field 2 Value")
         {
         }
         key(Key3; "Table No.", "Date and Time")
@@ -165,6 +165,9 @@ table 405 "Change Log Entry"
         {
         }
         key(key6; SystemCreatedAt, Protected, "Field Log Entry Feature")
+        {
+        }
+        key(Key7; "Primary Key Field 2 Value", "Table No.", "Primary Key Field 1 Value")
         {
         }
     }

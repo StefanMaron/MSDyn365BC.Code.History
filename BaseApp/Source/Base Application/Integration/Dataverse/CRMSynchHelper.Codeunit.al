@@ -592,26 +592,51 @@ codeunit 5342 "CRM Synch. Helper"
             UpdateCRMInvoiceStatusFromEntry(CRMInvoice, CustLedgerEntry);
     end;
 
-    procedure UpdateCRMInvoiceStatusFromEntry(var CRMInvoice: Record "CRM Invoice"; CustLedgerEntry: Record "Cust. Ledger Entry"): Integer
+    internal procedure CancelCRMInvoice(var CRMInvoice: Record "CRM Invoice"): Integer
     var
         NewCRMInvoice: Record "CRM Invoice";
     begin
-        with CRMInvoice do begin
-            CalculateActualStatusCode(CustLedgerEntry, NewCRMInvoice);
-            if (NewCRMInvoice.StateCode <> StateCode) or (NewCRMInvoice.StatusCode <> StatusCode) then begin
-                ActivateInvoiceForFurtherUpdate(CRMInvoice);
-                StateCode := NewCRMInvoice.StateCode;
-                StatusCode := NewCRMInvoice.StatusCode;
-                Modify();
-                exit(1);
-            end;
+        NewCRMInvoice.StateCode := NewCRMInvoice.StateCode::Canceled;
+        NewCRMInvoice.StatusCode := NewCRMInvoice.StatusCode::Canceled;
+        if (NewCRMInvoice.StateCode <> CRMInvoice.StateCode) or (NewCRMInvoice.StatusCode <> CRMInvoice.StatusCode) then begin
+            ActivateInvoiceForFurtherUpdate(CRMInvoice);
+            CRMInvoice.StateCode := NewCRMInvoice.StateCode;
+            CRMInvoice.StatusCode := NewCRMInvoice.StatusCode;
+            CRMInvoice.Modify();
+            exit(1);
+        end;
+    end;
+
+    procedure UpdateCRMInvoiceStatusFromEntry(var CRMInvoice: Record "CRM Invoice"; CustLedgerEntry: Record "Cust. Ledger Entry"): Integer
+    var
+        NewCRMInvoice: Record "CRM Invoice";
+        ChangeNeeded: Boolean;
+    begin
+        CalculateActualStatusCode(CustLedgerEntry, NewCRMInvoice);
+        ChangeNeeded := false;
+        OnUpdateCRMInvoiceStatusFromEntryOnBeforeCheckFieldsChanged(CRMInvoice, NewCRMInvoice, CustLedgerEntry, ChangeNeeded);
+        if ChangeNeeded or (NewCRMInvoice.StateCode <> CRMInvoice.StateCode) or (NewCRMInvoice.StatusCode <> CRMInvoice.StatusCode) then begin
+            ActivateInvoiceForFurtherUpdate(CRMInvoice);
+            CRMInvoice.StateCode := NewCRMInvoice.StateCode;
+            CRMInvoice.StatusCode := NewCRMInvoice.StatusCode;
+            OnUpdateCRMInvoiceStatusFromEntryOnBeforeModify(CRMInvoice, NewCRMInvoice, CustLedgerEntry);
+            CRMInvoice.Modify();
+            exit(1);
         end;
     end;
 
     local procedure CalculateActualStatusCode(CustLedgerEntry: Record "Cust. Ledger Entry"; var CRMInvoice: Record "CRM Invoice")
+    var
+        IsHandled: Boolean;
     begin
         with CRMInvoice do begin
             CustLedgerEntry.CalcFields("Remaining Amount", Amount);
+
+            IsHandled := false;
+            OnBeforeCalculateActualStatusCode(CustLedgerEntry, CRMInvoice, IsHandled);
+            if IsHandled then
+                exit;
+
             if CustLedgerEntry."Remaining Amount" = 0 then begin
                 StateCode := StateCode::Paid;
                 StatusCode := StatusCode::Complete;
@@ -655,7 +680,6 @@ codeunit 5342 "CRM Synch. Helper"
 
     procedure UpdateCRMPriceListItems(var CRMProduct: Record "CRM Product") AdditionalFieldsWereModified: Boolean
     var
-        CRMProductpricelevel: Record "CRM Productpricelevel";
         CRMUom: Record "CRM Uom";
     begin
         if IsNullGuid(CRMProduct.ProductId) then
@@ -665,19 +689,40 @@ codeunit 5342 "CRM Synch. Helper"
         CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
         if CRMUom.FindSet() then
             repeat
-                CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-                CRMProductpricelevel.SetRange(PriceLevelId, CRMProduct.PriceLevelId);
-                CRMProductpricelevel.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
-                CRMProductpricelevel.SetRange(UoMId, CRMUom.UoMId);
-                if CRMProductpricelevel.FindFirst() then begin
-                    if UpdateCRMProductpricelevelWithUom(CRMProductpricelevel, CRMProduct, CRMUom) then
-                        AdditionalFieldsWereModified := true
-                end else begin
-                    CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMProduct.PriceLevelId, CRMUom);
+                if UpdateOrCreateCRMProductprivelevelForUom(CRMProduct, CRMUom) then
                     AdditionalFieldsWereModified := true;
-                end;
             until CRMUom.Next() = 0;
         exit(AdditionalFieldsWereModified);
+    end;
+
+    procedure UpdateCRMPriceListItemForUom(var CRMProduct: Record "CRM Product"; CRMUom: Record "CRM Uom") AdditionalFieldsWereModified: Boolean
+    begin
+        if IsNullGuid(CRMProduct.ProductId) or IsNullGuid(CRMUom.UoMId) then
+            exit(false);
+
+        AdditionalFieldsWereModified := SetCRMDefaultPriceListOnProduct(CRMProduct);
+
+        if UpdateOrCreateCRMProductprivelevelForUom(CRMProduct, CRMUom) then
+            AdditionalFieldsWereModified := true;
+
+        exit(AdditionalFieldsWereModified);
+    end;
+
+    local procedure UpdateOrCreateCRMProductprivelevelForUom(var CRMProduct: Record "CRM Product"; CRMUom: Record "CRM Uom"): Boolean
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+    begin
+        CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
+        CRMProductpricelevel.SetRange(PriceLevelId, CRMProduct.PriceLevelId);
+        CRMProductpricelevel.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+        CRMProductpricelevel.SetRange(UoMId, CRMUom.UoMId);
+        if CRMProductpricelevel.FindFirst() then begin
+            if UpdateCRMProductpricelevelWithUom(CRMProductpricelevel, CRMProduct, CRMUom) then
+                exit(true);
+        end else begin
+            CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMProduct.PriceLevelId, CRMUom);
+            exit(true);
+        end;
     end;
 
     procedure UpdateCRMProductPriceIfNegative(var CRMProduct: Record "CRM Product"): Boolean
@@ -1932,6 +1977,21 @@ codeunit 5342 "CRM Synch. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindAndSynchRecordIDFromIntegrationSystemId(IntegrationSystemId: Guid; TableId: Integer; var LocalRecordID: RecordID; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCRMInvoiceStatusFromEntryOnBeforeModify(var CRMInvoice: Record "CRM Invoice"; var NewCRMInvoice: Record "CRM Invoice"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCRMInvoiceStatusFromEntryOnBeforeCheckFieldsChanged(var CRMInvoice: Record "CRM Invoice"; var NewCRMInvoice: Record "CRM Invoice"; CustLedgerEntry: Record "Cust. Ledger Entry"; var ChangeNeeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateActualStatusCode(CustLedgerEntry: Record "Cust. Ledger Entry"; var CRMInvoice: Record "CRM Invoice"; var IsHandled: Boolean)
     begin
     end;
 }
