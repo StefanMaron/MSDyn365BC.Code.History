@@ -810,6 +810,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     var
         ReservEntry: Record "Reservation Entry";
         SurplusEntry: Record "Reservation Entry";
+        TempProcessedReservationEntry: Record "Reservation Entry" temporary;
         ReservationMgt: Codeunit "Reservation Management";
         AvailabilityDate: Date;
         FirstLoop: Boolean;
@@ -846,9 +847,14 @@ codeunit 99000831 "Reservation Engine Mgt."
                     ReservEntry.Validate("Quantity (Base)");
                     ReservEntry.Modify();
                 end;
-                TempReservEntry := SurplusEntry;
-                if not TempReservEntry.Insert() then
-                    TempReservEntry.Modify();
+                if not TempProcessedReservationEntry.Get(SurplusEntry."Entry No.", SurplusEntry.Positive) then begin
+                    TempReservEntry := SurplusEntry;
+                    if not TempReservEntry.Insert() then
+                        TempReservEntry.Modify();
+
+                    TempProcessedReservationEntry := SurplusEntry;
+                    TempProcessedReservationEntry.Insert();
+                end;
             end;
         end;
     end;

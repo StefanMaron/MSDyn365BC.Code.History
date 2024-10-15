@@ -253,16 +253,16 @@
 
             trigger OnValidate()
             begin
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+
                 if CurrFieldNo = FieldNo("Document Date") then
                     if Undo() then begin
                         "Document Date" := xRec."Document Date";
                         exit;
                     end;
                 Validate("Reminder Level");
-
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(23; "Due Date"; Date)

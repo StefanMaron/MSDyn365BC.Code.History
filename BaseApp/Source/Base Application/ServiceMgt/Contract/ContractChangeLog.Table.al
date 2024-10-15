@@ -89,7 +89,7 @@ table 5967 "Contract Change Log"
         ContractChangeLog: Record "Contract Change Log";
         NextChangeNo: Integer;
 
-    procedure LogContractChange(ContractNo: Code[20]; ContractPart: Option Header,Line,Discount; FieldName: Text[100]; ChangeType: Integer; OldValue: Text[100]; NewValue: Text[100]; ServItemNo: Code[20]; ServContractLineNo: Integer)
+    procedure LogContractChange(ContractNo: Code[20]; ContractPart: Option Header,Line,Discount; FieldName: Text; ChangeType: Integer; OldValue: Text[100]; NewValue: Text[100]; ServItemNo: Code[20]; ServContractLineNo: Integer)
     begin
         ContractChangeLog.Reset();
         ContractChangeLog.LockTable();
@@ -120,7 +120,7 @@ table 5967 "Contract Change Log"
             3:
                 ContractChangeLog."Type of Change" := ContractChangeLog."Type of Change"::Rename;
         end;
-        ContractChangeLog."Field Description" := FieldName;
+        ContractChangeLog."Field Description" := CopyStr(FieldName, 1, MaxStrLen(ContractChangeLog."Field Description"));
         ContractChangeLog."Old Value" := OldValue;
         ContractChangeLog."New Value" := NewValue;
         ContractChangeLog.Insert();

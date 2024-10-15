@@ -2783,6 +2783,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO] Duplicate warning when attempting to post both purchase order and invoice from same IC transaction when purchase order is posted first.
+        Initialize();
 
         // [GIVEN] No pre-existing posted purchase invoices
         PurchInvHeader.DeleteAll();
@@ -2833,6 +2834,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO] Duplicate warning when attempting to post both purchase order and invoice from same IC transaction when purchase invoice is posted first.
+        Initialize();
 
         // [GIVEN] No pre-existing posted purchase invoices
         PurchInvHeader.DeleteAll();

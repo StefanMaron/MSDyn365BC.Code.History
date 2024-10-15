@@ -153,6 +153,7 @@ report 99001026 "Replan Production Order"
                             ProdOrder."Location Code" := "Location Code";
                             ProdOrder.Validate("Source No.", "Item No.");
                             ProdOrder.Validate(Quantity, ReqQty);
+                            ProdOrder.Validate("Variant Code", "Variant Code");
                             OnProdOrderCompOnAfterGetRecordOnBeforeProdOrderModify(ProdOrder, MainProdOrder, "Prod. Order Component");
                             ProdOrder.Modify();
 

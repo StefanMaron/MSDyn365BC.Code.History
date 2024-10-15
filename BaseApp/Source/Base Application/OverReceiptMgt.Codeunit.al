@@ -50,6 +50,7 @@ codeunit 8510 "Over-Receipt Mgt."
         LineBaseQty: Decimal;
         MaxOverReceiptQtyAllowed: Decimal;
         IsHandled: Boolean;
+        ShouldCallError: Boolean;
     begin
         IsHandled := false;
         OnBeforeVerifyOverReceiptQuantity(PurchaseLine, xPurchaseLine, IsHandled);
@@ -62,7 +63,10 @@ codeunit 8510 "Over-Receipt Mgt."
         OverReceiptQtyBase := UOMMgt.CalcBaseQty(PurchaseLine."Over-Receipt Quantity", PurchaseLine."Qty. per Unit of Measure");
         LineBaseQty := UoMMgt.CalcBaseQty(xPurchaseLine.Quantity - xPurchaseLine."Over-Receipt Quantity", xPurchaseLine."Qty. per Unit of Measure");
         MaxOverReceiptQtyAllowed := UOMMgt.RoundQty(LineBaseQty / 100 * OverReceiptCode."Over-Receipt Tolerance %");
-        if OverReceiptQtyBase > MaxOverReceiptQtyAllowed then
+
+        ShouldCallError := OverReceiptQtyBase > MaxOverReceiptQtyAllowed;
+        OnVerifyOverReceiptQuantityOnAfterCalcShouldCallError(PurchaseLine, OverReceiptQtyBase, MaxOverReceiptQtyAllowed, ShouldCallError);
+        if ShouldCallError then
             Error(StrSubstNo(OverReceiptQuantityErr, MaxOverReceiptQtyAllowed));
     end;
 
@@ -157,6 +161,11 @@ codeunit 8510 "Over-Receipt Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultOverReceiptCode(PurchaseLine: Record "Purchase Line"; var DefaultOverReceipCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyOverReceiptQuantityOnAfterCalcShouldCallError(PurchaseLine: Record "Purchase Line"; OverReceiptQtyBase: Decimal; MaxOverReceiptQtyAllowed: Decimal; var ShouldCallError: Boolean)
     begin
     end;
 }

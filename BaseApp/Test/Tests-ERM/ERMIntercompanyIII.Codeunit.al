@@ -3290,6 +3290,95 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxTransaction.DeleteAll();
     end;
 
+    [Test]
+    procedure IncomingSalesOrderWithDiscountIncludingVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        DimensionValue: array[5] of Record "Dimension Value";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] A sales order with a discount amount and prices including VAT is received from intercompany. The amounts are preserved
+        // [GIVEN] A customer
+        Initialize();
+        CreateSetOfDimValues(DimensionValue);
+        CustomerNo := CreateCustomerWithDefaultDimensions(DimensionValue);
+        // [GIVEN] A sales order with a discount amount and prices including VAT
+        MockICInboxSalesOrder(ICInboxSalesHeader, DimensionValue, CustomerNo);
+        ICInboxSalesHeader."Prices Including VAT" := true;
+        ICInboxSalesHeader.Modify();
+        // [GIVEN] A sales line for that order with a discount
+        ICInboxSalesLine.SetRange("IC Transaction No.", ICInboxSalesHeader."IC Transaction No.");
+        ICInboxSalesLine.SetRange("IC Partner Code", ICInboxSalesHeader."IC Partner Code");
+        ICInboxSalesLine.SetRange("Transaction Source", ICInboxSalesHeader."Transaction Source");
+        ICInboxSalesLine.FindFirst();
+        // [WHEN] Received from IC
+        ICInboxSalesLine."Line Discount %" := 70;
+        ICInboxSalesLine."Line Discount Amount" := 700;
+        ICInboxSalesLine."Unit Price" := 1000;
+        ICInboxSalesLine."Line Amount" := 300;
+        ICInboxSalesLine."Amount Including VAT" := 300;
+        ICInboxSalesLine.Quantity := 1;
+        ICInboxSalesLine.Modify();
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+        // [THEN] The amounts are preserved
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(70, SalesLine."Line Discount %", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the discount % should be preserved');
+        Assert.AreEqual(700, SalesLine."Line Discount Amount", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the discount amount should be preserved');
+        Assert.AreEqual(1000, SalesLine."Unit Price", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the unit price should be preserved');
+        Assert.AreEqual(300, SalesLine."Line Amount", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the line amount should be preserved');
+        Assert.AreEqual(300, SalesLine."Amount Including VAT", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the amount including VAT should be preserved');
+    end;
+
+    [Test]
+    procedure IncomingSalesOrderWithDiscountExcludingVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        DimensionValue: array[5] of Record "Dimension Value";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] A sales order with a discount amount is received from intercompany. The amounts are preserved
+        // [GIVEN] A customer
+        Initialize();
+        CreateSetOfDimValues(DimensionValue);
+        CustomerNo := CreateCustomerWithDefaultDimensions(DimensionValue);
+        // [GIVEN] A sales order with a discount amount 
+        MockICInboxSalesOrder(ICInboxSalesHeader, DimensionValue, CustomerNo);
+        // [GIVEN] A sales line for that order with a discount
+        ICInboxSalesLine.SetRange("IC Transaction No.", ICInboxSalesHeader."IC Transaction No.");
+        ICInboxSalesLine.SetRange("IC Partner Code", ICInboxSalesHeader."IC Partner Code");
+        ICInboxSalesLine.SetRange("Transaction Source", ICInboxSalesHeader."Transaction Source");
+        ICInboxSalesLine.FindFirst();
+        // [WHEN] Received from IC
+        ICInboxSalesLine."Line Discount %" := 70;
+        ICInboxSalesLine."Line Discount Amount" := 700;
+        ICInboxSalesLine."Unit Price" := 1000;
+        ICInboxSalesLine."Line Amount" := 300;
+        ICInboxSalesLine."Amount Including VAT" := 300;
+        ICInboxSalesLine.Quantity := 1;
+        ICInboxSalesLine.Modify();
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
+        // [THEN] The amounts are preserved
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(70, SalesLine."Line Discount %", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the discount % should be preserved');
+        Assert.AreEqual(700, SalesLine."Line Discount Amount", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the discount amount should be preserved');
+        Assert.AreEqual(1000, SalesLine."Unit Price", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the unit price should be preserved');
+        Assert.AreEqual(300, SalesLine."Line Amount", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the line amount should be preserved');
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

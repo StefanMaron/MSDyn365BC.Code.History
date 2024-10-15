@@ -907,8 +907,15 @@ page 6050 "Service Contract"
                         i: Integer;
                         j: Integer;
                         LineFound: Boolean;
+                        IsHandled: Boolean;
                     begin
                         CurrPage.Update();
+			
+			IsHandled := false;
+                        OnCreateServiceCreditMemoOnBeforeAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         TestField(Status, Status::Signed);
                         if "No. of Unposted Credit Memos" <> 0 then
                             if not ConfirmManagement.GetResponseOrDefault(Text009, true) then
@@ -934,6 +941,7 @@ page 6050 "Service Contract"
                               '@1@@@@@@@@@@@@@@@@@@@@@');
                             Clear(ServContractMgt);
                             ServContractMgt.InitCodeUnit();
+                            OnCreateServiceCreditMemoOnAfterInitCodeunit(Rec, ServContractLine, ServContractMgt);
                             repeat
                                 ServContractLine1 := ServContractLine;
                                 CreditNoteNo := ServContractMgt.CreateContractLineCreditMemo(ServContractLine1, false);
@@ -1459,6 +1467,16 @@ page 6050 "Service Contract"
     local procedure FirstServiceDateOnAfterValidat()
     begin
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateServiceCreditMemoOnBeforeAction(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateServiceCreditMemoOnAfterInitCodeunit(var ServiceContractHeader: Record "Service Contract Header"; var ServiceContractLine: Record "Service Contract Line"; var ServContractManagement: Codeunit ServContractManagement)
+    begin
     end;
 }
 
