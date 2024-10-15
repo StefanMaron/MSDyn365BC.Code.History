@@ -311,6 +311,8 @@ codeunit 80 "Sales-Post"
         if IsHandled then
             exit;
 
+        GetSalesHeader(SalesHeader2);
+
         if not GuiAllowed then
             LockTimeout(false);
 
@@ -3184,7 +3186,7 @@ codeunit 80 "Sales-Post"
 
         OnFillInvoicePostingBufferOnBeforeDeferrals(SalesLine, TotalAmount, TotalAmountACY, SalesHeader.GetUseDate());
         DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
-          SalesLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
+          SalesLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount", SalesLineACY."Inv. Discount Amount" + SalesLineACY."Line Discount Amount");
 
         OnBeforeInvoicePostingBufferSetAmounts(
           SalesLine, TempInvoicePostBuffer, InvoicePostBuffer,
@@ -3210,7 +3212,7 @@ codeunit 80 "Sales-Post"
         if SalesLine."Deferral Code" <> '' then begin
             OnBeforeFillDeferralPostingBuffer(
               SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
-            FillDeferralPostingBuffer(SalesHeader, SalesLine, InvoicePostBuffer, AmtToDefer, AmtToDeferACY, DeferralAccount, SalesAccount);
+            FillDeferralPostingBuffer(SalesHeader, SalesLine, InvoicePostBuffer, AmtToDefer, AmtToDeferACY, DeferralAccount, SalesAccount, SalesLine."Inv. Discount Amount" + SalesLine."Line Discount Amount", SalesLineACY."Inv. Discount Amount" + SalesLineACY."Line Discount Amount");
             OnAfterFillDeferralPostingBuffer(
               SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, SalesHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
         end;
@@ -3615,6 +3617,16 @@ codeunit 80 "Sales-Post"
     local procedure Increment(var Number: Decimal; Number2: Decimal)
     begin
         Number := Number + Number2;
+    end;
+
+    local procedure GetSalesHeader(var SalesHeader: Record "Sales Header")
+    var
+        SalesHeaderCopy: Record "Sales Header";
+    begin
+        SalesHeaderCopy := SalesHeader;
+        SalesHeader.ReadIsolation := IsolationLevel::ReadCommitted;
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        SalesHeader := SalesHeaderCopy;
     end;
 
     procedure GetSalesLines(var SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping)
@@ -8578,7 +8590,7 @@ codeunit 80 "Sales-Post"
     end;
 
 #if not CLEAN23
-    local procedure FillDeferralPostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])
+    local procedure FillDeferralPostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20]; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
         DeferralTemplate: Record "Deferral Template";
         IsDeferralAmountCheck: boolean;
@@ -8600,7 +8612,7 @@ codeunit 80 "Sales-Post"
                 DeferralPostBuffer."Period Description" := DeferralTemplate."Period Description";
                 DeferralPostBuffer."Deferral Line No." := InvDefLineNo;
                 DeferralPostBuffer.PrepareInitialAmounts(
-                  InvoicePostBuffer.Amount, InvoicePostBuffer."Amount (ACY)", RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount);
+                  InvoicePostBuffer.Amount, InvoicePostBuffer."Amount (ACY)", RemainAmtToDefer, RemainAmtToDeferACY, SalesAccount, DeferralAccount, DiscountAmount, DiscountAmountACY);
                 DeferralPostBuffer.Update(DeferralPostBuffer);
                 if (RemainAmtToDefer <> 0) or (RemainAmtToDeferACY <> 0) then begin
                     DeferralPostBuffer.PrepareRemainderSales(
