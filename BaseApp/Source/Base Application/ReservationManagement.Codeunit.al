@@ -1118,6 +1118,9 @@ codeunit 99000845 "Reservation Management"
             if (CalcReservEntry."Source Subtype" = 5) and (ForSalesLine.Quantity >= 0) then
                 StopReservation := true;
 
+        if CalcReservEntry."Source Type" = DATABASE::"Job Planning Line" then
+            StopReservation := CalcReservEntry."Source Subtype" <> 2;
+
         if StopReservation then begin
             FullAutoReservation := true;
             exit;

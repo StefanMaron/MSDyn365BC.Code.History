@@ -1278,10 +1278,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TempSKU.SetCurrentKey("Item No.", "Transfer-Level Code");
         if TempSKU.Find('-') then
             repeat
-                IsReorderPointPlanning :=
-                  (TempSKU."Reorder Point" > TempSKU."Safety Stock Quantity") or
-                  (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty.") or
-                  (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Fixed Reorder Qty.");
+                IsReorderPointPlanning := IsSKUSetUpForReorderPointPlanning(TempSKU);
 
                 BucketSize := TempSKU."Time Bucket";
                 // Minimum bucket size is 1 day:
@@ -2324,18 +2321,23 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     local procedure SetQtyToHandle(var TrkgReservEntry: Record "Reservation Entry")
+    var
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        TypeHelper: Codeunit "Type Helper";
+        PickedQty: Decimal;
     begin
-        if not TrkgReservEntry.TrackingExists then
-            exit;
+        with TrkgReservEntry do begin
+            if not TrackingExists() then
+                exit;
 
-        if (TrkgReservEntry."Reservation Status" = TrkgReservEntry."Reservation Status"::Tracking) and
-           (TrkgReservEntry."Source Type" = DATABASE::"Sales Line") and not TrkgReservEntry.Positive
-        then begin
-            TrkgReservEntry."Qty. to Handle (Base)" := 0;
-            TrkgReservEntry."Qty. to Invoice (Base)" := 0;
-        end else begin
-            TrkgReservEntry."Qty. to Handle (Base)" := TrkgReservEntry."Quantity (Base)";
-            TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Quantity (Base)";
+            "Qty. to Handle (Base)" := "Quantity (Base)";
+            "Qty. to Invoice (Base)" := "Quantity (Base)";
+
+            PickedQty := WarehouseAvailabilityMgt.CalcQtyRegisteredPick(TrkgReservEntry);
+            if PickedQty > 0 then begin
+                "Qty. to Handle (Base)" := TypeHelper.Maximum(-PickedQty, "Quantity (Base)");
+                "Qty. to Invoice (Base)" := "Qty. to Handle (Base)";
+            end;
         end;
 
         OnAfterSetQtyToHandle(TrkgReservEntry);
@@ -2730,9 +2732,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ReqLine."Ending Date" :=
                   LeadTimeMgt.PlannedEndingDate(
                     "Item No.", "Location Code", "Variant Code", "Due Date", '', ReqLine."Ref. Order Type");
-                if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                    if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                        ReqLine."Ending Time" := "Due Time";
+                if not IsSKUSetUpForReorderPointPlanning(TempSKU) then
+                    if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                        if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                            ReqLine."Ending Time" := "Due Time";
             end else begin
                 ReqLine."Ending Date" := "Due Date";
                 ReqLine."Ending Time" := "Due Time";
@@ -4626,6 +4629,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         if LotAccumulationPeriodStartDate > 0D then
             exit(CalcDate(TempSKU."Lot Accumulation Period", LotAccumulationPeriodStartDate) >= DemandDueDate);
+    end;
+
+    local procedure IsSKUSetUpForReorderPointPlanning(SKU: Record "Stockkeeping Unit"): Boolean
+    begin
+        exit(
+          (SKU."Reorder Point" > SKU."Safety Stock Quantity") or
+          (SKU."Reordering Policy" in [SKU."Reordering Policy"::"Maximum Qty.", SKU."Reordering Policy"::"Fixed Reorder Qty."]));
     end;
 
     [IntegrationEvent(false, false)]

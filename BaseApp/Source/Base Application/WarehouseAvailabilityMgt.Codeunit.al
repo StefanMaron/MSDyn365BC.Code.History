@@ -463,6 +463,14 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(0);
     end;
 
+    procedure CalcQtyRegisteredPick(ReservationEntry: Record "Reservation Entry"): Decimal
+    begin
+        with ReservationEntry do
+            exit(
+              CalcQtyRegisteredPick(
+                "Location Code", "Source Type", "Source Subtype", "Source ID", "Source Ref. No.", "Source Prod. Order Line"));
+    end;
+
     local procedure CalcQtyOutstandingPick(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     var
         WhseActivityLine: Record "Warehouse Activity Line";

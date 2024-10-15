@@ -812,8 +812,8 @@
             begin
                 if "Price Includes VAT" then begin
                     SalesSetup.Get;
-                    if SalesSetup."VAT Bus. Posting Gr. (Price)" <> '' then
-                        "VAT Bus. Posting Gr. (Price)" := SalesSetup."VAT Bus. Posting Gr. (Price)";
+                    SalesSetup.TestField("VAT Bus. Posting Gr. (Price)");
+                    "VAT Bus. Posting Gr. (Price)" := SalesSetup."VAT Bus. Posting Gr. (Price)";
                     VATPostingSetup.Get("VAT Bus. Posting Gr. (Price)", "VAT Prod. Posting Group");
                 end;
                 Validate("Price/Profit Calculation");
