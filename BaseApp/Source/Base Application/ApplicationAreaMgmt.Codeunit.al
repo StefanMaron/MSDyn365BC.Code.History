@@ -540,6 +540,9 @@ codeunit 9178 "Application Area Mgmt."
 
         if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetViralSignupPlanId()) then
             exit(true);
+
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumPartnerSandboxPlanId()) then
+            exit(true);
     end;
 
     [Scope('OnPrem')]

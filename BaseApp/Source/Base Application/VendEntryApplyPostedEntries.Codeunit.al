@@ -266,7 +266,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         GenJnlLine: Record "Gen. Journal Line";
         DateComprReg: Record "Date Compr. Register";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
@@ -329,7 +328,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             OnBeforePostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine);
             CollectAffectedLedgerEntries(TempVendorLedgerEntry, DtldVendLedgEntry2);
             GenJnlPostLine.UnapplyVendLedgEntry(GenJnlLine, DtldVendLedgEntry2);
-            AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
+            RunVendExchRateAdjustment(GenJnlLine, TempVendorLedgerEntry);
             OnAfterPostUnapplyVendLedgEntry(
                 GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine, TempVendorLedgerEntry);
 
@@ -339,6 +338,19 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             Commit();
             Window.Close;
         end;
+    end;
+
+    local procedure RunVendExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    var
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunVendExchRateAdjustment(GenJnlLine, TempVendorLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
@@ -591,6 +603,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunUpdateAnalysisView(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunVendExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 

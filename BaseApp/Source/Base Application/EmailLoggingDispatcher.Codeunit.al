@@ -592,10 +592,16 @@
         OnAfterInsertInteractionLogEntry;
     end;
 
-    procedure IsSalesperson(Email: Text; var SalespersonCode: Code[20]): Boolean
+    procedure IsSalesperson(Email: Text; var SalespersonCode: Code[20]) Result: Boolean
     var
         Salesperson: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsSalesperson(Email, SalespersonCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Email = '' then begin
             Session.LogMessage('0000BWN', NotSalesPersonEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
@@ -618,11 +624,17 @@
         exit(false);
     end;
 
-    procedure IsContact(EMail: Text; var SegLine: Record "Segment Line"): Boolean
+    procedure IsContact(EMail: Text; var SegLine: Record "Segment Line") Result: Boolean
     var
         Cont: Record Contact;
         ContAltAddress: Record "Contact Alt. Address";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsContact(EMail, SegLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if EMail = '' then begin
             Session.LogMessage('0000BWR', NotContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
@@ -822,7 +834,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetInboundOutboundInteraction(SenderAddress: Text; var SegmentLine: Record "Segment Line")
+    local procedure OnBeforeIsSalesperson(var Email: Text; var SalespersonCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsContact(var Email: Text; var SegLine: Record "Segment Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInboundOutboundInteraction(var SenderAddress: Text; var SegmentLine: Record "Segment Line")
     begin
     end;
 
