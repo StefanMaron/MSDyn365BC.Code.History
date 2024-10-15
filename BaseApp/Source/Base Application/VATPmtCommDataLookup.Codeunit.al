@@ -67,7 +67,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
             Error(DatesInDifferentYearsErr);
         VATEntry.SetRange("Operation Occurred Date", StartDate, EndDate);
         PeriodicSettlementVATEntryFound :=
-          LastPeriodicSettlementVATEntry.Get(GetVATPeriodFromDate(StartDate));
+          LastPeriodicSettlementVATEntry.Get(GetVATPeriodFromDate(EndDate));
     end;
 
     [Scope('OnPrem')]

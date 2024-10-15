@@ -1403,7 +1403,8 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
-
+                if "Prepmt. Amt. Inv." <> 0 then
+                    Error(CannotChangeVATGroupWithPrepmInvErr);
                 if CurrFieldNo = FieldNo("VAT Prod. Posting Group") then begin
                     CustLedgEntry.SetCurrentKey("Document Type", "Document No.");
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
@@ -3425,6 +3426,8 @@
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.', Comment = '%1 = Type caption %2 = No.';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
+        CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
+        CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
 
     procedure InitOutstanding()
     begin
@@ -3957,6 +3960,8 @@
                 "Prepayment %" := 0;
             VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
             VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
+            if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
+                Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
             "Prepmt. VAT Calc. Type" := VATPostingSetup."VAT Calculation Type";
             "Prepayment VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -4812,8 +4817,10 @@
         TestField("No.");
         TestField(Quantity);
 
-        if Type <> Type::"Charge (Item)" then
-            Error(ItemChargeAssignmentErr);
+        if Type <> Type::"Charge (Item)" then begin
+            Message(ItemChargeAssignmentErr);
+            exit;
+        end;
 
         GetSalesHeader;
         Currency.Initialize(SalesHeader."Currency Code");

@@ -1431,7 +1431,8 @@ codeunit 144202 "FatturaPA II"
           ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A "CodiceFiscale" node has value "X"
-        // [THEN] A "IDCodice" node has no value
+        // TFS ID: 365067
+        // [THEN] IdFiscaleIVA parent node does not exist
         VerifyIndividualPersonData(ServerFileName, Customer."Fiscal Code");
     end;
 
@@ -2762,11 +2763,11 @@ codeunit 144202 "FatturaPA II"
     begin
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(
-          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici/CodiceFiscale');
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale');
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
-        TempXMLBuffer.Reset;
+        TempXMLBuffer.Reset();
         TempXMLBuffer.FindNodesByXPath(
-          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici/IDCodice');
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/IdFiscaleIVA');
         Assert.RecordCount(TempXMLBuffer, 0);
         DeleteServerFile(ServerFileName);
     end;

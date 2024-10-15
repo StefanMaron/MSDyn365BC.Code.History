@@ -1,17 +1,17 @@
 codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 {
-    // // [FEATURE] [VAT] [VAT Payment Communication]
-
     EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
+        // [FEATURE] [VAT] [VAT Payment Communication]
     end;
 
     var
         LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         VATPmtCommXMLGenerator: Codeunit "VAT Pmt. Comm. XML Generator";
@@ -22,6 +22,8 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
         Initialized: Boolean;
         MethodOfCalcAdvancedRef: Option "No advance",Historical,Budgeting,Analytical,"Specific Subjects";
         ModuleNumberRef: Option ,"1","2","3","4","5";
@@ -904,7 +906,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
-        MockPeriodicVATSettlementEntry(StartDate);
+        MockPeriodicVATSettlementEntry(CalcDate('<1Q - 1D>', StartDate));
 
         // [GIVEN] VAT Posting Setup with "Include in VAT Comm. Rep." enabled
         // [GIVEN] Three VAT enties with the same VAT Base = 150 on 01-01-18, 31-03-18, and 450 on 15-04-18
@@ -925,7 +927,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         // [THEN] 'FirmaDichiarazione' tag is exported as '1' (TFS 272151)
         LibraryXMLRead.VerifyNodeValue('NumeroModulo', ModuleNumberRef::"1");
         LibraryXMLRead.VerifyNodeValue('Metodo', MethodOfCalcAdvancedRef::Analytical);
-        LibraryXMLRead.VerifyNodeValue('Acconto', DecimalToText(GetAdvancedAmountFromPeriodicVATEntry(StartDate)));
+        LibraryXMLRead.VerifyNodeValue('Acconto', DecimalToText(GetAdvancedAmountFromPeriodicVATEntry(CalcDate('<1Q - 1D>', StartDate))));
         LibraryXMLRead.VerifyNodeValue('OperazioniStraordinarie', '1');
         LibraryXMLRead.VerifyNodeValue('TotaleOperazioniAttive', DecimalToText(-Amount * 2));
         LibraryXMLRead.VerifyNodeValue('Trimestre', Format(StartDate, 0, '<Quarter>'));
@@ -997,7 +999,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
-        MockPeriodicVATSettlementEntry(StartDate);
+        MockPeriodicVATSettlementEntry(CalcDate('<1Q - 1D>', StartDate));
 
         // [GIVEN] VAT Entry for VAT Posting Setup with "Include in VAT Comm. Rep." enabled
         CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
@@ -1034,7 +1036,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         StartDate := CalcDate('<-CQ>', VATEntryDate);
 
         // [GIVEN] Periodic Settlement VAT Entry has "Advanced Amount" = 100
-        MockPeriodicVATSettlementEntry(StartDate);
+        MockPeriodicVATSettlementEntry(CalcDate('<1Q - 1D>', StartDate));
 
         // [GIVEN] VAT Entry for VAT Posting Setup with "Include in VAT Comm. Rep." enabled
         CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
@@ -1062,6 +1064,98 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         Initialize;
         Commit;
         REPORT.Run(REPORT::"VAT Payment Communication");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportVATPmtCommReportQuarterWithPriorPeriodInputVAT()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        FileName: Text;
+        PrevPeriodVATAmount: Decimal;
+        CurrPeriodVATAmount: Decimal;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 366707] Run "Periodic VAT Payment Communication" report in case VAT Settlement with nonzero VAT was calculated for the previous quarter.
+        Initialize();
+        CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
+          VATPostingSetup, true, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup.
+        UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
+
+        // [GIVEN] Purchase Invoice with VAT Amount = "VA1", that was posted in a quarter Q2.
+        // [GIVEN] Report "Calc. And Post VAT Settlement" was run for the quarter Q2.
+        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate, GetLastVATSettlementEndDate));
+        EndDate := CalcDate('<CQ>', StartDate);
+        PrevPeriodVATAmount := CreateAndPostPurchaseInvoiceWithVAT(VATPostingSetup, StartDate);
+        RunCalcAndPostVATSettlementReport(VATPostingSetup, StartDate, EndDate);
+
+        // [GIVEN] Purchase Invoice with VAT Amount = "VA2", that was posted in the next quarter Q3.
+        // [GIVEN] Report "Calc. And Post VAT Settlement" was run for the quarter Q3.
+        StartDate := EndDate + 1;
+        EndDate := CalcDate('<CQ>', StartDate);
+        CurrPeriodVATAmount := CreateAndPostPurchaseInvoiceWithVAT(VATPostingSetup, StartDate);
+        RunCalcAndPostVATSettlementReport(VATPostingSetup, StartDate, EndDate);
+
+        // [WHEN] Run "Periodic VAT Payment Communication" report for Q3; VAT settlement ending date = 30.09.22, it is the last day of the quarter Q3.
+        FileName := RunVATPaymentCommunicationRep(EndDate);
+
+        // [THEN] XML file is created. It contains tag CreditoPeriodoPrecedente with value "VA1", it is VAT Settlement for the previous quarter Q2.
+        // [THEN] Tag ImportoACredito has value "VA1" + "VA2".
+        LibraryXPathXMLReader.Initialize(FileName, 'urn:www.agenziaentrate.gov.it:specificheTecniche:sco:ivp');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '//Comunicazione/DatiContabili/Modulo/CreditoPeriodoPrecedente', DecimalToText(PrevPeriodVATAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '//Comunicazione/DatiContabili/Modulo/IvaCredito', DecimalToText(CurrPeriodVATAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '//Comunicazione/DatiContabili/Modulo/ImportoACredito', DecimalToText(PrevPeriodVATAmount + CurrPeriodVATAmount));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportVATPmtCommReportQuarterWithoutPriorPeriodInputVAT()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        FileName: Text;
+        CurrPeriodVATAmount: Decimal;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 366707] Run "Periodic VAT Payment Communication" report in case VAT Settlement with zero VAT was calculated for the previous quarter.
+        Initialize();
+        CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
+          VATPostingSetup, true, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
+
+        // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup.
+        UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
+
+        // [GIVEN] "Periodic Settlement VAT Entry" record with "VAT Settlement" = 0 for a quarter Q2.
+        StartDate := CalcDate('<CQ + 1D>', LibraryERM.MaxDate(GetLastVATEntryOpOccrDate, GetLastVATSettlementEndDate));
+        EndDate := CalcDate('<CQ>', StartDate);
+        MockPeriodicVATSettlementEntry(EndDate);
+
+        // [GIVEN] Purchase Invoice with VAT Amount = "VA1", that was posted in the next quarter Q3.
+        // [GIVEN] Report "Calc. And Post VAT Settlement" was run for the quarter Q3.
+        StartDate := EndDate + 1;
+        EndDate := CalcDate('<CQ>', StartDate);
+        CurrPeriodVATAmount := CreateAndPostPurchaseInvoiceWithVAT(VATPostingSetup, StartDate);
+        RunCalcAndPostVATSettlementReport(VATPostingSetup, StartDate, EndDate);
+
+        // [WHEN] Run "Periodic VAT Payment Communication" report for Q3; VAT settlement ending date = 30.09.22, it is the last day of the quarter Q3.
+        FileName := RunVATPaymentCommunicationRep(EndDate);
+
+        // [THEN] XML file is created. It does not contain tag CreditoPeriodoPrecedente.
+        // [THEN] Tag ImportoACredito has value "VA1".
+        LibraryXPathXMLReader.Initialize(FileName, 'urn:www.agenziaentrate.gov.it:specificheTecniche:sco:ivp');
+        LibraryXPathXMLReader.VerifyNodeAbsence('//Comunicazione/DatiContabili/Modulo/CreditoPeriodoPrecedente');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '//Comunicazione/DatiContabili/Modulo/IvaCredito', DecimalToText(CurrPeriodVATAmount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '//Comunicazione/DatiContabili/Modulo/ImportoACredito', DecimalToText(CurrPeriodVATAmount));
     end;
 
     [Scope('OnPrem')]
@@ -1234,6 +1328,29 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           CalcDate('<+1Q>', VATEntryDate), VATEntry."VAT Calculation Type"::"Normal VAT");
     end;
 
+    local procedure CreateAndPostPurchaseInvoiceWithVAT(VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date) VATAmount: Decimal
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Document Date", PostingDate);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+          LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        VATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+    end;
+
     local procedure GetAdvancedAmountFromPeriodicVATEntry(PeriodDate: Date): Decimal
     var
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
@@ -1251,10 +1368,29 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         exit(VATEntry."Operation Occurred Date");
     end;
 
+    local procedure GetLastVATSettlementEndDate(): Date
+    var
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+    begin
+        PeriodicSettlementVATEntry.FindLast();
+        exit(GetEndDateFromVATPeriod(PeriodicSettlementVATEntry."VAT Period"));
+    end;
+
     local procedure GetVATPeriodFromDate(PeriodDate: Date): Code[10]
     begin
         exit(Format(Date2DMY(PeriodDate, 3)) + '/' +
           ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0'));
+    end;
+
+    local procedure GetEndDateFromVATPeriod(VATPeriod: Code[10]) EndDate: Date
+    var
+        Year: Integer;
+        Month: Integer;
+    begin
+        Evaluate(Year, CopyStr(VATPeriod, 1, 4));
+        Evaluate(Month, CopyStr(VATPeriod, 6, 2));
+        EndDate := DMY2Date(1, Month, Year);
+        EndDate := CalcDate('<CM>', EndDate);
     end;
 
     local procedure MockPeriodicVATSettlementEntry(PeriodDate: Date)
@@ -1291,6 +1427,19 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           ExtraordinaryOperation, MetodOfCalcAdvanced, ModuleNumber, FileName);
         VATPaymentCommunication.UseRequestPage(false);
         VATPaymentCommunication.Run;
+    end;
+
+    local procedure RunCalcAndPostVATSettlementReport(VATPostingSetup: Record "VAT Posting Setup"; StartDate: Date; PostingDate: Date)
+    var
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+    begin
+        VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(
+          StartDate, PostingDate, PostingDate, LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(),
+          LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo(), false, true);
+        CalcAndPostVATSettlement.UseRequestPage(false);
+        CalcAndPostVATSettlement.SaveAsXml('');
     end;
 
     local procedure UpdateVATEntryPostingGroups(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup")

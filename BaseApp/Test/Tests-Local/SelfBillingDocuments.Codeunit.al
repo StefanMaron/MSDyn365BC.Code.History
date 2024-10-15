@@ -602,8 +602,9 @@ codeunit 144206 "Self-Billing Documents"
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/IdFiscaleIVA');
         AssertElementValue(TempXMLBuffer, 'IdPaese', CompanyInformation."Country/Region Code");
         AssertElementValue(TempXMLBuffer, 'IdCodice', CompanyInformation."VAT Registration No.");
-        TempXMLBuffer.Reset;
-        TempXMLBuffer.Next;
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.Next(); // skip CodiceFiscale
+        TempXMLBuffer.Next(); // skip DatiAnagrafici
         AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
 
         TempXMLBuffer.FindNodesByXPath(

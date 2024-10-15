@@ -99,6 +99,8 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] "FormatoTrasmissione" = "FPA12"
         // [THEN] "CodiceDestinatario" = "123456"
         // [THEN] "Divisa" = "EUR" (BUG 308849)
+        // TFS ID: 365067
+        // [THEN] IdPaese and IdCodice specified for regular customer (non-individual person)
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
         TempXMLBuffer.Load(ServerFileName);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
@@ -1364,6 +1366,48 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBufferPart.TestField(Value, '00000');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrezzoUnitarioExportsUnitPriceWithoutRounding()
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [SCENARIO 364606] The XML file contains the PrezzoUnitario xml node with unit price without rounding
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with unit price = 0.073
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod());
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(50));
+        SalesLine.Validate("Unit Price", 0.073);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Generate XML file
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] The exported XML file has the PrezzoUnitario xml node with value of 0.073
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
+        TempXMLBuffer.Load(ServerFileName);
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario',
+          Format(SalesLine."Unit Price", 0, '<Precision,2:5><Standard Format,9>'));
+
+        // Tear down
+        DeleteServerFile(ServerFileName);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2090,12 +2134,12 @@ codeunit 144200 "FatturaPA Test"
         with TempXMLBuffer do begin
             FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente');
             AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
-            AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
-            AssertElementValue(TempXMLBuffer, 'IdPaese', Customer."Country/Region Code");
-            if Customer."Individual Person" then
-                AssertElementValue(TempXMLBuffer, 'CodiceFiscale', Customer."Fiscal Code")
-            else
+            if not Customer."Individual Person" then begin
+                AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
+                AssertElementValue(TempXMLBuffer, 'IdPaese', Customer."Country/Region Code");
                 AssertElementValue(TempXMLBuffer, 'IdCodice', Customer."VAT Registration No.");
+            end;
+            AssertElementValue(TempXMLBuffer, 'CodiceFiscale', Customer."Fiscal Code");
 
             // 1.4.1.3 Anagrafica
             AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
@@ -2632,6 +2676,14 @@ codeunit 144200 "FatturaPA Test"
           TransmissionIntermediaryVendor.FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
         LibraryErrorMessage.AssertLogIfMessageExists(TransmissionIntermediaryVendor,
           TransmissionIntermediaryVendor.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error);
+    end;
+
+    local procedure AssertCurrentElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; XPath: Text; ExpectedValue: Text)
+    begin
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
+        Assert.AreEqual(ExpectedValue, TempXMLBuffer.Value,
+          StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName(), ExpectedValue, TempXMLBuffer.Value));
     end;
 
     local procedure CreateCleanTaxRepresentative(var TaxRepresentativeVendor: Record Vendor)
