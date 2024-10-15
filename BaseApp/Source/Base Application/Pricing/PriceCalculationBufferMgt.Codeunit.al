@@ -199,11 +199,21 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     begin
         OnBeforeConvertAmountByCurrency(PriceListLine, Amount, PriceCalculationBuffer);
 
-        if (PriceCalculationBuffer."Currency Code" <> '') and (PriceListLine."Currency Code" = '') then
-            Amount :=
-                CurrExchRate.ExchangeAmtLCYToFCY(
-                    PriceCalculationBuffer."Document Date", PriceCalculationBuffer."Currency Code",
-                    Amount, PriceCalculationBuffer."Currency Factor");
+        if PriceCalculationBuffer."Currency Code" = '' then
+            exit;
+
+        if PriceCalculationBuffer."Calculation in LCY" then begin
+            if PriceListLine."Currency Code" <> '' then
+                Amount :=
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                        PriceCalculationBuffer."Document Date", PriceCalculationBuffer."Currency Code",
+                        Amount, PriceCalculationBuffer."Currency Factor");
+        end else
+            if PriceListLine."Currency Code" = '' then
+                Amount :=
+                    CurrExchRate.ExchangeAmtLCYToFCY(
+                        PriceCalculationBuffer."Document Date", PriceCalculationBuffer."Currency Code",
+                        Amount, PriceCalculationBuffer."Currency Factor");
     end;
 
     procedure SetLineDiscountPctForPickBestLine(var PriceListLine: Record "Price List Line")

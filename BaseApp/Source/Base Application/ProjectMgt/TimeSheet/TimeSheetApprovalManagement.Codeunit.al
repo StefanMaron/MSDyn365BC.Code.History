@@ -28,7 +28,15 @@ codeunit 951 "Time Sheet Approval Management"
         RejectLineQst: Label 'Do you want to reject line?';
 
     procedure ProcessAction(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+#if not CLEAN22
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+#endif
     begin
+#if not CLEAN22
+        FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Used);
+#endif
         case ActionType of
             ActionType::Submit:
                 Submit(TimeSheetLine);
@@ -41,6 +49,7 @@ codeunit 951 "Time Sheet Approval Management"
             ActionType::Reject:
                 Reject(TimeSheetLine);
         end;
+        FeatureTelemetry.LogUsage('0000JQU', 'NewTimeSheetExperience', 'Time Sheet action processed');
     end;
 
     procedure Submit(var TimeSheetLine: Record "Time Sheet Line")
