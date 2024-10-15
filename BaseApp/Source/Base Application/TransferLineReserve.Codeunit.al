@@ -365,6 +365,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             repeat
                 OldReservEntry.TestItemFields(TransLine."Item No.", TransLine."Variant Code", TransLine."Transfer-from Code");
                 ItemTrackingMgt.GetWhseItemTrkgSetup(TransLine."Item No.", WhseItemTrackingSetup);
+                OnTransferWhseShipmentToItemJnlLineOnAfterGetWhseItemTrkgSetup(TransLine, WhseItemTrackingSetup);
 
                 WarehouseEntry.SetSourceFilter(
                   OldReservEntry."Source Type", OldReservEntry."Source Subtype",
@@ -928,6 +929,11 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var TransLine: Record "Transfer Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var Direction: Enum "Transfer Direction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferWhseShipmentToItemJnlLineOnAfterGetWhseItemTrkgSetup(TransferLine: Record "Transfer Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

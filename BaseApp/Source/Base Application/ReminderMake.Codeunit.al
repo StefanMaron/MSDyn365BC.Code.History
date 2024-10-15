@@ -1,4 +1,4 @@
-codeunit 392 "Reminder-Make"
+﻿codeunit 392 "Reminder-Make"
 {
 
     trigger OnRun()
@@ -187,8 +187,8 @@ codeunit 392 "Reminder-Make"
                     if CustLedgEntry.FindSet() then begin
                         repeat
                             SetReminderLine(LineLevel, ReminderDueDate);
-                            IsGracePeriodExpired :=
-                                IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+                            IsGracePeriodExpired := IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+                            OnMakeReminderOnAfterCalcIsGracePeriodExpired(ReminderDueDate, ReminderHeaderReq, IsGracePeriodExpired);
                             if IsGracePeriodExpired then begin
                                 if (NextLineNo > 0) and not StartLineInserted then
                                     InsertReminderLine(
@@ -343,8 +343,8 @@ codeunit 392 "Reminder-Make"
             exit;
 
         SetReminderLine(LineLevel, ReminderDueDate);
-        IsGracePeriodExpired :=
-            IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+        IsGracePeriodExpired := IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+        OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(ReminderLevel, ReminderDueDate, ReminderHeaderReq, ReminderTerms, CustLedgEntry, ReminderHeader, LineLevel, IsGracePeriodExpired);
         MarkEntry := false;
         if IsGracePeriodExpired and
            ((LineLevel <= ReminderTerms."Max. No. of Reminders") or (ReminderTerms."Max. No. of Reminders" = 0))
@@ -486,11 +486,14 @@ codeunit 392 "Reminder-Make"
             if ReminderEntry.FindLast() then begin
                 ReminderDueDate2 := ReminderEntry."Due Date";
                 LineLevel2 := ReminderEntry."Reminder Level" + 1;
+                OnSetReminderLineOnAfterFindNextLineLevel(ReminderEntry, LineLevel2, ReminderDueDate2);
                 exit;
             end
         end;
         ReminderDueDate2 := CustLedgEntry."Due Date";
         LineLevel2 := 1;
+
+        OnAfterSetReminderLine(CustLedgEntry, LineLevel2, ReminderDueDate2);
     end;
 
     procedure AddLineFeeForCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var ReminderLevel: Record "Reminder Level"; NextLineNo: Integer)
@@ -639,6 +642,11 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReminderLine(CustLedgEntry: Record "Cust. Ledger Entry"; var LineLevel2: Integer; var ReminderDueDate2: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSuggestLines(ReminderHeader: Record "Reminder Header"; var CustLedgEntry2: Record "Cust. Ledger Entry"; OverdueEntriesOnly2: Boolean; IncludeEntriesOnHold2: Boolean; var CustLedgEntryLinefeeOn: Record "Cust. Ledger Entry")
     begin
     end;
@@ -731,6 +739,11 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnAfterCalcIsGracePeriodExpired(var ReminderDueDate: Date; var ReminderHeader: Record "Reminder Header"; var IsGracePeriodExpired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeCustLedgEntryFindSet(var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; ReminderHeader: Record "Reminder Header"; MaxReminderLevel: Integer; var OverDueEntriesOnly: Boolean)
     begin
     end;
@@ -746,7 +759,17 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMarkReminderCandidateOnAfterCalcIsGracePeriodExpired(var ReminderLevel: Record "Reminder Level"; var ReminderDueDate: Date; var ReminderHeaderReq: Record "Reminder Header"; var ReminderTerms: Record "Reminder Terms"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header"; var LineLevel: Integer; var IsGracePeriodExpired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetReminderLineOnAfterSetFilters(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReminderLineOnAfterFindNextLineLevel(ReminderEntry: Record "Reminder/Fin. Charge Entry"; var LineLevel2: Integer; var ReminderDueDate2: Date)
     begin
     end;
 

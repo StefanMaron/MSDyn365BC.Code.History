@@ -19,6 +19,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        WrongFileNameErr: Label 'File name should be: %1', Comment = '%1 - Client File Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -1101,6 +1102,39 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         VerifyTaxTotalNodeLCY('CreditNote', ServiceCrMemoHeader."Customer No.", ServiceCrMemoHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXmlToVerifyFileName()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        FileMgt: Codeunit "File Management";
+        ActualClientFileName: Text;
+        ExpectedClientFileName: Text;
+    begin
+        // [SCENARIO 435433] To verify if file name with Electronic Document option from Posted Sales Invoice is following a nomenclature : CompanyName - Invoice Document No.xml
+        Initialize();
+
+        // [GIVEN] Create a Posted Sales Invoice document.
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo);
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::Invoice));
+        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader."Your Reference" := LibraryRandom.RandText(35);
+        SalesInvoiceHeader.Modify();
+        MockTextSalesInvoiceLine(SalesInvoiceHeader."No.");
+        ExpectedClientFileName := CopyStr(
+            StrSubstNo('%1 - %2 %3.%4', FileMgt.StripNotsupportChrInFileName(CompanyName), Format("Sales Document Type"::Invoice), SalesInvoiceHeader."No.", 'XML'), 1, 250);
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter();
+        ActualClientFileName := GetXMLExportFileName(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] Client File Name should be CompanyName - Invoice Document No.xml
+        Assert.AreEqual(ExpectedClientFileName, ActualClientFileName, StrSubstNo(WrongFileNameErr, ExpectedClientFileName));
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -1601,6 +1635,16 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'Foretaksregisteret');
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'TAX');
+    end;
+
+    local procedure GetXMLExportFileName(DocumentVariant: Variant; FormatCode: Code[20]): Text
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+    begin
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, DocumentVariant, FormatCode);
+        exit(ClientFileName);
     end;
 }
 

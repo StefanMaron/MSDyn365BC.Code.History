@@ -790,9 +790,10 @@ table 15 "G/L Account"
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';
 
-    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
         PriceAsset.Init();
+        PriceAsset."Price Type" := PriceType;
         PriceAsset."Asset Type" := PriceAsset."Asset Type"::"G/L Account";
         PriceAsset."Asset No." := "No.";
     end;
@@ -802,7 +803,7 @@ table 15 "G/L Account"
         PriceAsset: Record "Price Asset";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        AsPriceAsset(PriceAsset);
+        AsPriceAsset(PriceAsset, PriceType);
         PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 

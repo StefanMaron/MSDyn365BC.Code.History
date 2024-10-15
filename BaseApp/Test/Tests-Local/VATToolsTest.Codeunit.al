@@ -701,6 +701,7 @@ codeunit 144001 "VAT Tools Test"
         VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
         VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
         VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Amount;
+        VATStmtLine."Incl. Non Deductible VAT" := true;
         VATStatement.CalcLineTotalWithBase(VATStmtLine, TotalAmount, TotalBase, 0);
         Assert.AreEqual(VATEntry.Base * 2, TotalBase, 'Incorrect base');
         Assert.AreEqual(VATEntry.Amount * 2, TotalAmount, 'Incorrect amount');
@@ -738,6 +739,7 @@ codeunit 144001 "VAT Tools Test"
         VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
         VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
         VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Amount;
+        VATStmtLine."Incl. Non Deductible VAT" := true;
         VATStatement.CalcLineTotalWithBase(VATStmtLine, TotalAmount, TotalBase, 0);
         Assert.AreEqual(0, TotalBase, 'Incorrect base');
         Assert.AreEqual(VATEntry.Amount * 2, TotalAmount, 'Incorrect amount');
@@ -771,6 +773,7 @@ codeunit 144001 "VAT Tools Test"
         VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
         VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
         VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Base;
+        VATStmtLine."Incl. Non Deductible VAT" := true;
         VATStatement.CalcLineTotalWithBase(VATStmtLine, TotalAmount, TotalBase, 0);
         Assert.AreEqual(VATEntry.Base * 2, TotalAmount, 'Incorrect base');
     end;
@@ -807,6 +810,7 @@ codeunit 144001 "VAT Tools Test"
         VATStmtLine.Type := VATStmtLine.Type::"VAT Entry Totaling";
         VATStmtLine."Gen. Posting Type" := VATStmtLine."Gen. Posting Type"::Sale;
         VATStmtLine."Amount Type" := VATStmtLine."Amount Type"::Amount;
+        VATStmtLine."Incl. Non Deductible VAT" := true;
         VATStatement.CalcLineTotalWithBase(VATStmtLine, TotalAmount, TotalBase, 0);
         Assert.AreEqual(VATEntry.Base, TotalBase, 'Incorrect base');
         Assert.AreEqual(Round(VATEntry.Base * VATPostingSetup."VAT %" / 100), TotalAmount, 'Incorrect amount');
@@ -917,7 +921,7 @@ codeunit 144001 "VAT Tools Test"
         Assert.AreEqual(VATEntry.Base, TotalBase, 'Incorrect base');
         Assert.AreEqual(VATEntry.Amount, TotalAmount, 'Incorrect amount');
     end;
-    
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();

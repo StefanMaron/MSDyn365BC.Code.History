@@ -1,4 +1,4 @@
-table 7321 "Warehouse Shipment Line"
+﻿table 7321 "Warehouse Shipment Line"
 {
     Caption = 'Warehouse Shipment Line';
     DrillDownPageID = "Whse. Shipment Lines";
@@ -1009,18 +1009,21 @@ table 7321 "Warehouse Shipment Line"
         AsmHeader: Record "Assembly Header";
         AsmLineMgt: Codeunit "Assembly Line Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
-        if "Assemble to Order" then begin
-            TestField("Source Type", DATABASE::"Sales Line");
-            ATOSalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
-            ATOSalesLine.AsmToOrderExists(AsmHeader);
-            AsmLineMgt.CreateWhseItemTrkgForAsmLines(AsmHeader);
-        end else begin
-            if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
-                  "Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.",
-                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
-        end;
+        IsHandled := false;
+        OnBeforeCreateWhseItemTrackingLines(Rec, IsHandled);
+        if not IsHandled then
+            if "Assemble to Order" then begin
+                TestField("Source Type", DATABASE::"Sales Line");
+                ATOSalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                ATOSalesLine.AsmToOrderExists(AsmHeader);
+                AsmLineMgt.CreateWhseItemTrkgForAsmLines(AsmHeader);
+            end else
+                if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
+                    ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+                      "Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.",
+                      "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
 
         OnAfterCreateWhseItemTrackingLines(Rec);
     end;
@@ -1221,6 +1224,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQtyToShipBase(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; xWarehouseShipmentLine: Record "Warehouse Shipment Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -17,7 +17,13 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         BaseQtyToPost: Decimal;
         SkipRecord: Boolean;
         IsLastOperation: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Order Type" <> "Order Type"::Production) or ("Order No." = '') then
             exit;
 
@@ -101,7 +107,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                               BaseQtyToPost / ProdOrderLine."Qty. per Unit of Measure",
                               IsLastOperation);
                             OnRunOnAfterInsertOutputJnlLineWithRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
-                            if IsLastOperation then 
+                            if IsLastOperation then
                                 ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
                             OnAfterCopyItemTracking(LastItemJnlLine, IsLastOperation, NextLineNo);
                         end;
@@ -209,6 +215,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertOutputJnlLineWithoutRtngLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

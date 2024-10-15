@@ -184,6 +184,8 @@
         ConfigPackageFilter: Record "Config. Package Filter";
         FieldRef: FieldRef;
     begin
+        OnBeforeApplyPackageFilter(ConfigPackageTable, RecRef);
+
         if ConfigPackageTable."Cross-Column Filter" then
             RecRef.FilterGroup(-1);
 
@@ -253,6 +255,7 @@
         ExportMetadata := true;
         RecRef.Open(ConfigPackageTable."Table ID");
         ApplyPackageFilter(ConfigPackageTable, RecRef);
+        OnCreateRecordNodesOnAfterApplyPackageFilter(ConfigPackageTable, ConfigPackage, RecRef);
         if RecRef.FindSet() then begin
             RecordCount := RecRef.Count();
             ShowDialog := (not HideDialog) and (RecordCount > 1000);
@@ -261,43 +264,47 @@
                 ConfigProgressBarRecord.Init(RecordCount, StepCount, ExportPackageTxt);
             end;
             repeat
-                RecordNode := PackageXML.CreateElement(GetTableElementName(ConfigPackageTable."Table Name"));
-                TableNode.AppendChild(RecordNode);
+                IsHandled := false;
+                OnCreateRecordNodesOnBeforeRecRefLoopIteration(ConfigPackageTable, ConfigPackage, RecRef, ConfigProgressBar, IsHandled);
+                if not IsHandled then begin
+                    RecordNode := PackageXML.CreateElement(GetTableElementName(ConfigPackageTable."Table Name"));
+                    TableNode.AppendChild(RecordNode);
 
-                ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
-                ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
-                ConfigPackageField.SetRange("Include Field", true);
-                ConfigPackageField.SetRange(Dimension, false);
-                ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
-                OnCreateRecordNodesOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
-                if ConfigPackageField.FindSet() then
-                    repeat
-                        FieldRef := RecRef.Field(ConfigPackageField."Field ID");
-                        if TypeHelper.GetField(RecRef.Number, FieldRef.Number, Field) then begin
-                            FieldNode :=
-                              PackageXML.CreateElement(GetFieldElementName(ConfigPackageField.GetValidatedElementName()));
-                            FieldNode.InnerText := FormatFieldValue(FieldRef, ConfigPackage);
-                            if Advanced and ConfigPackageField."Localize Field" then
-                                AddXMLComment(PackageXML, FieldNode, '_locComment_text="{MaxLength=' + Format(Field.Len) + '}"');
-                            RecordNode.AppendChild(FieldNode); // must be after AddXMLComment and before AddAttribute.
-                            if not ExcelMode and ExportMetadata then
-                                AddFieldAttributes(ConfigPackageField, FieldNode);
-                            if Advanced then
-                                if ConfigPackageField."Localize Field" then
-                                    XMLDOMMgt.AddAttribute(FieldNode, '_loc', 'locData')
-                                else
-                                    XMLDOMMgt.AddAttribute(FieldNode, '_loc', 'locNone');
-                        end;
-                    until ConfigPackageField.Next() = 0;
+                    ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
+                    ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
+                    ConfigPackageField.SetRange("Include Field", true);
+                    ConfigPackageField.SetRange(Dimension, false);
+                    ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
+                    OnCreateRecordNodesOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
+                    if ConfigPackageField.FindSet() then
+                        repeat
+                            FieldRef := RecRef.Field(ConfigPackageField."Field ID");
+                            if TypeHelper.GetField(RecRef.Number, FieldRef.Number, Field) then begin
+                                FieldNode :=
+                                  PackageXML.CreateElement(GetFieldElementName(ConfigPackageField.GetValidatedElementName()));
+                                FieldNode.InnerText := FormatFieldValue(FieldRef, ConfigPackage);
+                                if Advanced and ConfigPackageField."Localize Field" then
+                                    AddXMLComment(PackageXML, FieldNode, '_locComment_text="{MaxLength=' + Format(Field.Len) + '}"');
+                                RecordNode.AppendChild(FieldNode); // must be after AddXMLComment and before AddAttribute.
+                                if not ExcelMode and ExportMetadata then
+                                    AddFieldAttributes(ConfigPackageField, FieldNode);
+                                if Advanced then
+                                    if ConfigPackageField."Localize Field" then
+                                        XMLDOMMgt.AddAttribute(FieldNode, '_loc', 'locData')
+                                    else
+                                        XMLDOMMgt.AddAttribute(FieldNode, '_loc', 'locNone');
+                            end;
+                        until ConfigPackageField.Next() = 0;
 
-                if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
-                    AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, true);
-                OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable, ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, ExcelMode);
-                ExportMetadata := false;
-                ProcessedRecordCount += 1;
+                    if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
+                        AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, true);
+                    OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable, ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, ExcelMode);
+                    ExportMetadata := false;
+                    ProcessedRecordCount += 1;
 
-                if ShowDialog then
-                    ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
+                    if ShowDialog then
+                        ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
+                end;
             until RecRef.Next() = 0;
             // Tag used for analytics
             Session.LogMessage('0000BV0', StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
@@ -409,6 +416,7 @@
         FileFilter := GetFileDialogFilter;
         if ToFile = '' then
             ToFile := StrSubstNo(PackageFileNameTxt, ConfigPackage.Code);
+        OnExportPackageXMLOnAfterAssignToFile(ConfigPackage, ToFile);
 
         SetWorkingFolder(FileManagement.GetDirectoryName(XMLDataFile));
         PackageXML := PackageXML.XmlDocument;
@@ -425,6 +433,7 @@
 
         if not CalledFromCode then begin
             CompressedFileName := FileManagement.ServerTempFileName('');
+            OnOnExportPackageXMLOnAfterAssignToFileOnAfterSetCompressedFileName(CompressedFileName, XMLDataFile);
             ConfigPckgCompressionMgt.ServersideCompress(XMLDataFile, CompressedFileName);
 
             FileManagement.DownloadHandler(CompressedFileName, DownloadTxt, '', FileFilter, ToFile);
@@ -476,6 +485,8 @@
             OnExportPackageXMLDocumentOnAfterSetAttributes(ConfigPackage, XMLDOMMgt);
         end;
 
+        OnExportPackageXMLDocumentOnBeforeConfigProgressBarInit(ConfigPackageTable, ConfigPackage, XMLDOMMgt, Advanced, HideDialog);
+
         if not HideDialog then
             ConfigProgressBar.Init(ConfigPackageTable.Count, 1, ExportPackageTxt);
         ConfigPackageTable.SetAutoCalcFields("Table Name");
@@ -494,6 +505,8 @@
 
         if not HideDialog then
             ConfigProgressBar.Close();
+
+        OnAfterExportPackageXMLDocument(ConfigPackage, HideDialog);
     end;
 
     local procedure ExportConfigTableToXML(var ConfigPackageTable: Record "Config. Package Table"; var PackageXML: DotNet XmlDocument)
@@ -1539,7 +1552,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterExportPackageXMLDocument(var ConfigPackage: Record "Config. Package"; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterImportPackageXMLDocument(PackageCode: Code[20]; ExcelMode: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyPackageFilter(ConfigPackageTable: Record "Config. Package Table"; var RecRef: RecordRef)
     begin
     end;
 
@@ -1569,6 +1592,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnBeforeRecRefLoopIteration(ConfigPackageTable: Record "Config. Package Table"; ConfigPackage: Record "Config. Package"; var RecRef: RecordRef; var ConfigProgressBar: Codeunit "Config. Progress Bar"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnAfterApplyPackageFilter(ConfigPackageTable: Record "Config. Package Table"; ConfigPackage: Record "Config. Package"; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExcelMode: Boolean)
     begin
     end;
@@ -1585,6 +1618,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnExportPackageXMLDocumentOnAfterSetAttributes(var ConfigPackage: Record "Config. Package"; var XMLDOMMgt: Codeunit "XML DOM Management")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportPackageXMLDocumentOnBeforeConfigProgressBarInit(var ConfigPackageTable: Record "Config. Package Table"; var ConfigPackage: Record "Config. Package"; var XMLDOMMgt: Codeunit "XML DOM Management"; Advanced: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportPackageXMLOnAfterAssignToFile(ConfigPackage: Record "Config. Package"; var ToFile: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnExportPackageXMLOnAfterAssignToFileOnAfterSetCompressedFileName(var CompressedFileName: Text; XMLDataFile: Text)
     begin
     end;
 

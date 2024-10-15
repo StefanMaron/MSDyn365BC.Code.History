@@ -140,6 +140,7 @@ table 7001 "Price List Line"
 
             trigger OnLookup()
             begin
+                PriceCalculationMgt.FeatureCustomizedLookupUsage(Database::"Price List Line");
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupNo() then begin
                     FieldLookedUp := true;
@@ -596,6 +597,7 @@ table 7001 "Price List Line"
         PriceSource: Record "Price Source";
 
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         IsNewRecord: Boolean;
         FieldLookedUp: Boolean;
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',

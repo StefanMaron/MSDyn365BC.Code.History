@@ -440,6 +440,9 @@ report 12 "VAT Statement"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
+        If not VATStmtLine."Incl. Non Deductible VAT" then
+            exit;
+
         if not VATPostingSetup.Get(VATStmtLine."VAT Bus. Posting Group", VATStmtLine."VAT Prod. Posting Group") then
             exit;
         if not VATPostingSetup."Calc. Prop. Deduction VAT" then

@@ -229,7 +229,13 @@ table 5902 "Service Line"
             var
                 Item: Record Item;
                 ItemLedgEntry: Record "Item Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetServHeader;
                 TestField(Type);
                 TestField("No.");
@@ -564,11 +570,8 @@ table 5902 "Service Line"
                               SalesTaxCalculate.CalculateTax(
                                 "Tax Area Code", "Tax Group Code", "Tax Liable", ServHeader."Posting Date",
                                 "VAT Base Amount", "Quantity (Base)", ServHeader."Currency Factor");
-                            if "VAT Base Amount" <> 0 then
-                                "VAT %" :=
-                                  Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
-                            else
-                                "VAT %" := 0;
+                            OnAfterSalesTaxCalculate(Rec, ServHeader, Currency);
+                            UpdateVATPercent("VAT Base Amount", "Amount Including VAT" - "VAT Base Amount");
                             "Amount Including VAT" := Round("Amount Including VAT", Currency."Amount Rounding Precision");
                         end;
                 end;
@@ -611,11 +614,8 @@ table 5902 "Service Line"
                               SalesTaxCalculate.ReverseCalculateTax(
                                 "Tax Area Code", "Tax Group Code", "Tax Liable", ServHeader."Posting Date",
                                 "Amount Including VAT", "Quantity (Base)", ServHeader."Currency Factor");
-                            if Amount <> 0 then
-                                "VAT %" :=
-                                  Round(100 * ("Amount Including VAT" - Amount) / Amount, 0.00001)
-                            else
-                                "VAT %" := 0;
+                            OnAfterSalesTaxCalculateReverse(Rec, ServHeader, Currency);
+                            UpdateVATPercent(Amount, "Amount Including VAT" - Amount);
                             Amount := Round(Amount, Currency."Amount Rounding Precision");
                             "VAT Base Amount" := Amount;
                         end;
@@ -2794,6 +2794,11 @@ table 5902 "Service Line"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemAvailable(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ValidateNeededByDate();
 
         if CurrFieldNo <> CalledByFieldNo then
@@ -3395,13 +3400,13 @@ table 5902 "Service Line"
     local procedure InitHeaderDefaults(ServHeader: Record "Service Header")
     var
         ServOrderMgt: Codeunit ServOrderManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitHeaderDefaults(Rec, ServHeader, IsHandled);
+        if not IsHandled then begin
         "Customer No." := ServHeader."Customer No.";
-        if "Service Item Line No." <> 0 then begin
-            ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.");
-            "Ship-to Code" := ServItemLine."Ship-to Code";
-        end else
-            "Ship-to Code" := ServHeader."Ship-to Code";
+        InitServHeaderShipToCode();
         if "Posting Date" = 0D then
             "Posting Date" := ServHeader."Posting Date";
         "Document Type" := ServHeader."Document Type";
@@ -3440,21 +3445,38 @@ table 5902 "Service Line"
                 WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
             GetLocation("Location Code");
         end;
+        
+            "Account Code" := ServHeader."Account Code";
+            "Gen. Bus. Posting Group" := ServHeader."Gen. Bus. Posting Group";
+            "VAT Bus. Posting Group" := ServHeader."VAT Bus. Posting Group";
+            "Tax Area Code" := ServHeader."Tax Area Code";
+            "Tax Liable" := ServHeader."Tax Liable";
+            "Responsibility Center" := ServHeader."Responsibility Center";
+            "Posting Date" := ServHeader."Posting Date";
+            "Currency Code" := ServHeader."Currency Code";
 
-        "Account Code" := ServHeader."Account Code";
-        "Gen. Bus. Posting Group" := ServHeader."Gen. Bus. Posting Group";
-        "VAT Bus. Posting Group" := ServHeader."VAT Bus. Posting Group";
-        "Tax Area Code" := ServHeader."Tax Area Code";
-        "Tax Liable" := ServHeader."Tax Liable";
-        "Responsibility Center" := ServHeader."Responsibility Center";
-        "Posting Date" := ServHeader."Posting Date";
-        "Currency Code" := ServHeader."Currency Code";
-
-        "Shipping Agent Code" := ServHeader."Shipping Agent Code";
-        "Shipping Agent Service Code" := ServHeader."Shipping Agent Service Code";
-        "Shipping Time" := ServHeader."Shipping Time";
+            "Shipping Agent Code" := ServHeader."Shipping Agent Code";
+            "Shipping Agent Service Code" := ServHeader."Shipping Agent Service Code";
+            "Shipping Time" := ServHeader."Shipping Time";
+        end;
 
         OnAfterAssignHeaderValues(Rec, ServHeader);
+    end;
+
+    local procedure InitServHeaderShipToCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitServHeaderShipToCode(Rec, ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Service Item Line No." <> 0 then begin
+            ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.");
+            "Ship-to Code" := ServItemLine."Ship-to Code";
+        end else
+            "Ship-to Code" := ServHeader."Ship-to Code";
     end;
 
     procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
@@ -3474,7 +3496,14 @@ table 5902 "Service Line"
     end;
 
     procedure UpdateUnitPrice(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitPriceProcedure(Rec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearFieldCausedPriceCalculation();
         PlanPriceCalcByField(CalledByFieldNo);
         UpdateUnitPriceByField(CalledByFieldNo, false);
@@ -3483,7 +3512,13 @@ table 5902 "Service Line"
     local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer; CalcCost: Boolean)
     var
         PriceType: Enum "Price Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitPriceByField(Rec, CalledByFieldNo, CalcCost, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsPriceCalcCalledByField(CalledByFieldNo) then
             exit;
 
@@ -3643,17 +3678,22 @@ table 5902 "Service Line"
     procedure ShowNonstock()
     var
         NonstockItem: Record "Nonstock Item";
+        IsHandled: Boolean;
     begin
-        TestField(Type, Type::Item);
-        TestField("No.", '');
-        if PAGE.RunModal(PAGE::"Catalog Item List", NonstockItem) = ACTION::LookupOK then begin
-            CheckNonstockItemTemplate(NonstockItem);
+        IsHandled := false;
+        OnBeforeShowNonstock(Rec, xRec, IsHandled);
+        if not IsHandled then begin
+            TestField(Type, Type::Item);
+            TestField("No.", '');
+            if PAGE.RunModal(PAGE::"Catalog Item List", NonstockItem) = ACTION::LookupOK then begin
+                CheckNonstockItemTemplate(NonstockItem);
 
-            "No." := NonstockItem."Entry No.";
-            CatalogItemMgt.NonStockFSM(Rec);
-            Validate("No.", "No.");
-            Validate("Unit Price", NonstockItem."Unit Price");
-            OnShowNonstockOnAfterUpdateFromNonstockItem(Rec, xRec);
+                "No." := NonstockItem."Entry No.";
+                CatalogItemMgt.NonStockFSM(Rec);
+                Validate("No.", "No.");
+                Validate("Unit Price", NonstockItem."Unit Price");
+                OnShowNonstockOnAfterUpdateFromNonstockItem(Rec, xRec);
+            end;
         end;
 
         OnAfterShowNonstock(Rec);
@@ -4303,6 +4343,7 @@ table 5902 "Service Line"
         TotalInvDiscAmount: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
+        TotalVATDifference: Decimal;
         TotalQuantityBase: Decimal;
     begin
         OnBeforeUpdateVATAmounts(Rec);
@@ -4346,6 +4387,7 @@ table 5902 "Service Line"
                     TotalInvDiscAmount := ServiceLine2."Inv. Discount Amount";
                     TotalAmount := ServiceLine2.Amount;
                     TotalAmountInclVAT := ServiceLine2."Amount Including VAT";
+                    TotalVATDifference := ServiceLine2."VAT Difference";
                     TotalQuantityBase := ServiceLine2."Quantity (Base)";
                 end;
 
@@ -4380,11 +4422,8 @@ table 5902 "Service Line"
                                 TotalAmountInclVAT + "Amount Including VAT", TotalQuantityBase + "Quantity (Base)",
                                 ServHeader."Currency Factor") -
                               TotalAmount;
-                            if Amount <> 0 then
-                                "VAT %" :=
-                                  Round(100 * ("Amount Including VAT" - Amount) / Amount, 0.00001)
-                            else
-                                "VAT %" := 0;
+                            OnAfterSalesTaxCalculateReverse(Rec, ServHeader, Currency);
+                            UpdateVATPercent(Amount, "Amount Including VAT" - Amount);
                             Amount := Round(Amount, Currency."Amount Rounding Precision");
                             "VAT Base Amount" := Amount;
                         end;
@@ -4393,7 +4432,17 @@ table 5902 "Service Line"
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
                   "VAT Calculation Type"::"Reverse Charge VAT":
-                        Validate(Amount, Round(CalcLineAmount, Currency."Amount Rounding Precision"));
+                        begin
+                            Amount := Round(CalcLineAmount(), Currency."Amount Rounding Precision");
+                            "VAT Base Amount" :=
+                              Round(Amount * (1 - ServHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            "Amount Including VAT" :=
+                              TotalAmount + Amount +
+                              Round(
+                                (TotalAmount + Amount) * (1 - ServHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
+                                Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
+                              TotalAmountInclVAT + TotalVATDifference;
+                        end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
                             Amount := 0;
@@ -4412,11 +4461,8 @@ table 5902 "Service Line"
                                   TotalAmount + Amount, TotalQuantityBase + "Quantity (Base)",
                                   ServHeader."Currency Factor"), Currency."Amount Rounding Precision") -
                               TotalAmountInclVAT;
-                            if "VAT Base Amount" <> 0 then
-                                "VAT %" :=
-                                  Round(100 * ("Amount Including VAT" - "VAT Base Amount") / "VAT Base Amount", 0.00001)
-                            else
-                                "VAT %" := 0;
+                            OnAfterSalesTaxCalculate(Rec, ServHeader, Currency);
+                            UpdateVATPercent("VAT Base Amount", "Amount Including VAT" - "VAT Base Amount");
                         end;
                 end;
         end;
@@ -4877,6 +4923,7 @@ table 5902 "Service Line"
     procedure SetHideCostWarning(Value: Boolean)
     begin
         HideCostWarning := Value;
+        OnAfterSetHideCostWarning(Rec, HideCostWarning);
     end;
 
     local procedure CheckApplFromItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -4925,6 +4972,7 @@ table 5902 "Service Line"
     procedure SetHideWarrantyWarning(Value: Boolean)
     begin
         HideWarrantyWarning := Value;
+        OnAfterSetHideWarrantyWarning(rec, HideWarrantyWarning);
     end;
 
     procedure SplitResourceLine()
@@ -5734,6 +5782,14 @@ table 5902 "Service Line"
             "Line Discount %" := 0;
     end;
 
+    local procedure UpdateVATPercent(BaseAmount: Decimal; VATAmount: Decimal)
+    begin
+        if BaseAmount <> 0 then
+            "VAT %" := Round(100 * VATAmount / BaseAmount, 0.00001)
+        else
+            "VAT %" := 0;
+    end;
+
     local procedure CheckNonstockItemTemplate(NonstockItem: Record "Nonstock Item")
     var
         ItemTempl: Record "Item Templ.";
@@ -5784,7 +5840,7 @@ table 5902 "Service Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -5830,7 +5886,7 @@ table 5902 "Service Line"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -5947,6 +6003,16 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideCostWarning(var ServiceLine: Record "Service Line"; var HideCostWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideWarrantyWarning(var ServiceLine: Record "Service Line"; var HideWarrantyWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateServiceItemLineNumber(var Rec: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
     end;
@@ -6008,6 +6074,16 @@ table 5902 "Service Line"
     begin
     end;
 #endif
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesTaxCalculate(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesTaxCalculateReverse(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Currency: Record Currency)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetHideReplacementDialog(var ServiceLine: Record "Service Line"; var HideReplacementDialog: Boolean)
     begin
@@ -6086,6 +6162,16 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitServHeaderShipToCode(var ServiceLine: Record "Service Line"; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitHeaderDefaults(var ServiceLine: Record "Service Line"; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestBinCode(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6131,6 +6217,16 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitPriceProcedure(var ServiceLine: Record "Service Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitPriceByField(var ServiceLine: Record "Service Line"; CalledByFieldNo: Integer; CalcCost: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVATAmounts(var ServiceLine: Record "Service Line")
     begin
     end;
@@ -6152,6 +6248,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateServiceItemLineNumber(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6271,7 +6372,17 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemAvailable(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemSub(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowNonstock(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
