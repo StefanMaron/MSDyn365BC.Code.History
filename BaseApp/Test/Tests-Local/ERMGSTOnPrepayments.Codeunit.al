@@ -806,9 +806,9 @@ codeunit 141026 "ERM GST On Prepayments"
         PurchInvHeader.Get(PostPaymentJournalForPurchasePrepaymentAndInvoice(GenJournalLine, PurchaseHeader, PurchaseLine));
 
         // [THEN] Verify Purchase Invoice Statistics values.
-        VATBase := -Round(PurchaseLine."Prepmt. Line Amount" / (1 + PurchaseLine."VAT %" / 100));
+        VATBase := -PurchaseLine."Prepmt. Line Amount" / (1 + PurchaseLine."VAT %" / 100);
         VerifyVATAmountLine(
-          PurchaseLine, PurchInvHeader, VATBase, Round(VATBase * PurchaseLine."VAT %" / 100), -PurchaseLine."Prepmt. Line Amount");
+          PurchaseLine, PurchInvHeader, Round(VATBase), Round(VATBase * PurchaseLine."VAT %" / 100), -PurchaseLine."Prepmt. Line Amount");
 
         // Tear Down.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Full GST on Prepayment", GeneralLedgerSetup."Adjust for Payment Disc.");
