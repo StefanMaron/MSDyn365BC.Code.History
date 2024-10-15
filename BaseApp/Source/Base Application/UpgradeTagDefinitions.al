@@ -29,6 +29,7 @@
         PerCompanyUpgradeTags.Add(GetGLBankAccountNoTag());
         PerCompanyUpgradeTags.Add(GetServicePasswordToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetAddingIDToJobsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetJobPlanningLinePlanningDueDateUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEncryptedKeyValueToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetGraphMailRefreshCodeToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetStandardSalesCodeUpgradeTag());
@@ -405,6 +406,11 @@
     procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
     begin
         exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
+    end;
+
+    procedure GetJobPlanningLinePlanningDueDateUpgradeTag(): Code[250]
+    begin
+        exit('MS-402915-JobPlanningLinePlanningDueDate-20210809');
     end;
 }
 

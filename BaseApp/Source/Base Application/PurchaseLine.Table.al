@@ -373,26 +373,26 @@
         field(11; Description; Text[100])
         {
             Caption = 'Description';
-            TableRelation = IF (Type = CONST("G/L Account"),
-                                "System-Created Entry" = CONST(false)) "G/L Account".Name WHERE("Direct Posting" = CONST(true),
-                                                                                               "Account Type" = CONST(Posting),
-                                                                                               Blocked = CONST(false))
+            TableRelation = IF (Type = CONST("G/L Account"), "No." = CONST(''),
+                "System-Created Entry" = CONST(false)) "G/L Account".Name WHERE("Direct Posting" = CONST(true),
+                                                                                "Account Type" = CONST(Posting),
+                                                                                Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("G/L Account"),
-                                                                                                        "System-Created Entry" = CONST(true)) "G/L Account".Name
+            IF (Type = CONST("G/L Account"), "No." = CONST(''),
+                "System-Created Entry" = CONST(true)) "G/L Account".Name
             ELSE
-            IF (Type = CONST(Item),
-                                                                                                                 "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
-                                                                                                                                                                                                   "Purchasing Blocked" = CONST(false))
+            IF (Type = CONST(Item), "No." = CONST(''),
+                "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
+                                                                                    "Purchasing Blocked" = CONST(false))
             ELSE
-            IF (Type = CONST(Item),
-                                                                                                                                                                                                            "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
+            IF (Type = CONST(Item), "No." = CONST(''),
+                "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset".Description
+            IF (Type = CONST("Fixed Asset"), "No." = CONST('')) "Fixed Asset".Description
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge".Description
+            IF (Type = CONST("Charge (Item)"), "No." = CONST('')) "Item Charge".Description
             else
-            if (Type = const(Resource)) Resource.Name;
+            if (Type = CONST(Resource), "No." = CONST('')) Resource.Name;
             ValidateTableRelation = false;
 
             trigger OnValidate()
