@@ -1801,7 +1801,7 @@ Cstr(Fields!Page_Caption.Value) + Chr(177) +
 Cstr(Fields!Currency_Caption.Value) + Chr(177) +
 Cstr(Fields!FORMAT_ToDate_.Value) + Chr(177) +
 Cstr(Fields!Customer__No__.Value) + Chr(177) +
-Cstr(Fields!CurrReport_PAGENO.Value) + Chr(177) +
+Cstr("") + Chr(177) +
 Cstr(Fields!CurrencyLabel.Value) + Chr(177) +
 Cstr(Fields!CustomerAddress_1_.Value) + Chr(177) +
 Cstr(Fields!CustomerAddress_2_.Value) + Chr(177) +
@@ -3155,9 +3155,6 @@ End Function</Code>
         </Field>
         <Field Name="Customer__No__">
           <DataField>Customer__No__</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
         </Field>
         <Field Name="CurrencyLabel">
           <DataField>CurrencyLabel</DataField>

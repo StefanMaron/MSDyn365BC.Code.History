@@ -223,7 +223,7 @@ report 14309 "WHT PND 3"
             trigger OnPreDataItem()
             begin
                 LastFieldNo := FieldNo("WHT Prod. Posting Group");
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }

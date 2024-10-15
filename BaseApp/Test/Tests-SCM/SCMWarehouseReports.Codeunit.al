@@ -20,6 +20,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -48,6 +49,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseEmployee: Record "Warehouse Employee";
         WarehouseShipmentNo: Code[20];
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Pick for a Item.
         Initialize;
@@ -59,9 +61,9 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateWhseShipmentAndPick(WarehouseShipmentNo, SalesHeader);
 
         // Exercise: Generate the Picking List. Value used is important for test.
-        Commit;
+        Commit();
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        REPORT.Run(REPORT::"Picking List", true, false, WarehouseActivityHeader);
+        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
 
         // Verify: Source No shown in Picking List Report is equal to the Source No shown in Warehouse Activity Line Table.
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
@@ -124,6 +126,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Location: Record Location;
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Create and Release Purchase Order, Post Warehouse Receipt.
         Initialize;
@@ -132,10 +135,10 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // Exercise: Run Put-away List report.
-        Commit;
+        Commit();
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        REPORT.Run(REPORT::"Put-away List", true, false, WarehouseActivityHeader);
+        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
 
         // Verify.
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
@@ -169,7 +172,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateAndReleasePurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // Exercise: Run Inventory Put-away List report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Put-away List", true, false, Item);
 
@@ -200,6 +203,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptNo: Code[20];
         PurchaseQuantity: Decimal;
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Create and Release Purchase Order, Create Warehouse Receipt From Purchase Order.
         Initialize;
@@ -211,9 +215,9 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         // Exercise: Run Whse. - Receipt report.
-        Commit;
+        Commit();
         WarehouseReceiptHeader.SetRange("No.", WarehouseReceiptNo);
-        REPORT.Run(REPORT::"Whse. - Receipt", true, false, WarehouseReceiptHeader);
+        ReportSelectionWarehouse.PrintWhseReceiptHeader(WarehouseReceiptHeader, false);
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile;
@@ -339,7 +343,7 @@ codeunit 137305 "SCM Warehouse Reports"
         UpdateRankingOnAllBins(Location.Code);
 
         // Exercise: Run Warehouse Bin List Report.
-        Commit;
+        Commit();
         Bin.SetRange("Location Code", Location.Code);
         Bin.SetRange("Adjustment Bin", false);
         REPORT.Run(REPORT::"Warehouse Bin List", true, false, Bin);
@@ -350,7 +354,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Bin.SetRange("Adjustment Bin", false);
         Bin.FindSet;
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('Code_Bin', Bin.Code);
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_Bin', Location.Code);
@@ -414,6 +418,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Item: Record Item;
         Zone: Record Zone;
         WhseWorksheetLine: Record "Whse. Worksheet Line";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Warehouse Setup, Zone, Bin, Bin Content And Update Inventory, Calculate Bin Replenishment and Create Movement.
         Initialize;
@@ -432,7 +437,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // Exercise: Run Movement List Report.
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::Movement);
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        REPORT.Run(REPORT::"Movement List", true, false, WarehouseActivityHeader);
+        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Movement, false);
 
         // Verify: Check Bin Code with Generated report.
         LibraryReportDataset.LoadDataSetFile;
@@ -498,7 +503,7 @@ codeunit 137305 "SCM Warehouse Reports"
           TransferHeader, TransferLine, FromLocation.Code, ToLocation.Code, IntransitLocation.Code, Item."No.", TransferQuantity);
 
         // Exercise: Run Transfer Order report.
-        Commit;
+        Commit();
         TransferHeader.SetRange("Transfer-to Code", TransferHeader."Transfer-to Code");
         REPORT.Run(REPORT::"Transfer Order", true, false, TransferHeader);
 
@@ -592,6 +597,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WarehouseReceiptNo: Code[20];
         Quantity: Decimal;
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Warehouse receipt;
         Initialize;
@@ -606,8 +612,8 @@ codeunit 137305 "SCM Warehouse Reports"
         FindPostedWarehouseReceiptHeader(PostedWhseReceiptHeader, WarehouseReceiptNo, Location.Code);
 
         // Exercise: Run Posted Receipt report.
-        Commit;
-        REPORT.Run(REPORT::"Whse. - Posted Receipt", true, false, PostedWhseReceiptHeader);
+        Commit();
+        ReportSelectionWarehouse.PrintPostedWhseReceiptHeader(PostedWhseReceiptHeader, false);
 
         // Verify: Check Quantity To Receive, Item No. Quantity exist in Warehouse Posted Receipt Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -641,7 +647,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateWhseShipmentAndPick(WarehouseShipmentNo, SalesHeader);
 
         // Exercise: Generate the Picking List. Value used is important for test.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Picking List", true, false, Item);
 
@@ -666,6 +672,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee: Record "Warehouse Employee";
         WarehouseShipmentHeaderNo: Code[20];
         Quantity: Decimal;
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup : Create Setup to generate Pick for a Item.
         Initialize;
@@ -677,9 +684,9 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // Exercise: Generate the Picking List. Value used is important for test.
-        Commit;
+        Commit();
         WarehouseShipmentHeader.SetRange("No.", WarehouseShipmentHeaderNo);
-        REPORT.Run(REPORT::"Whse. - Shipment", true, false, WarehouseShipmentHeader);
+        ReportSelectionWarehouse.PrintWhseShipmentHeader(WarehouseShipmentHeader, false);
 
         // Verify: Item No, Quantity and Location shown in Warehouse Shipment Report is equal to the Sales Order.
         LibraryReportDataset.LoadDataSetFile;
@@ -713,7 +720,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // Exercise: Generate the Picking List. Value used is important for test.
-        Commit;
+        Commit();
         WarehouseShipmentHeader.SetRange("No.", WarehouseShipmentNo);
         REPORT.Run(REPORT::"Whse. Shipment Status", true, false, WarehouseShipmentHeader);
 
@@ -803,7 +810,7 @@ codeunit 137305 "SCM Warehouse Reports"
         RunWhseCalculateInventoryReport(LocationWhite.Code, Item."No.");
 
         // Exercise: Run Warehouse Physical Inventory List report.
-        Commit;
+        Commit();
         WarehouseJournalLine.SetRange("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Whse. Phys. Inventory List", true, false, WarehouseJournalLine);
@@ -829,7 +836,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateAndRegisterWhseJnlLine(LocationWhite, Item."No.", Quantity);
 
         // Exercise: Run Warehouse Register Quantity report.
-        Commit;
+        Commit();
         WarehouseRegister.SetRange("From Entry No.", FindWarehouseEntryNo(Item."No."));
         REPORT.Run(REPORT::"Warehouse Register - Quantity", true, false, WarehouseRegister);
 
@@ -856,7 +863,7 @@ codeunit 137305 "SCM Warehouse Reports"
         UpdateQuantityPhysicalInventoryOnPhysicalInventoryJournal(Item."No.");
 
         // Exercise: Run Inventory Posting Test report.
-        Commit;
+        Commit();
         ItemJournalLine.SetRange("Item No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Posting - Test", true, false, ItemJournalLine);
 
@@ -887,7 +894,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateSalesOrder(SalesHeader2, '', Item2."No.", Customer."No.", Quantity);
 
         // Exercise.
-        Commit;
+        Commit();
         Customer.SetRange("No.", Customer."No.");
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
@@ -951,14 +958,14 @@ codeunit 137305 "SCM Warehouse Reports"
         UpdateDateInSalesCommentLine(SalesCommentLine);
 
         // Exercise.
-        Commit;
+        Commit();
         SalesHeader.SetRange("No.", SalesHeader."No.");
         REPORT.Run(REPORT::"Work Order", true, false, SalesHeader);
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile;
         VerifyReportData('No_SalesLine', Item."No.", 'Quantity_SalesLine', Quantity);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('Comment_SalesCommentLine', SalesCommentLine.Comment);
     end;
 
@@ -977,7 +984,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
 
         // Exercise.
-        Commit;
+        Commit();
         Item.SetRange("No.", ProductionOrder."Source No.");
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(PeriodLength);
@@ -1033,6 +1040,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Bin: Record Bin;
         Quantity: Decimal;
         WarehouseShipmentNo: Code[20];
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Create and Register Pur away from Purchase Order. Create Pick from Warehouse Shipment.
         Initialize;
@@ -1049,10 +1057,10 @@ codeunit 137305 "SCM Warehouse Reports"
           WarehouseActivityLine."Activity Type"::Pick);
 
         // Exercise.
-        Commit;
+        Commit();
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityLine."Activity Type");
         WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
-        REPORT.Run(REPORT::"Picking List", true, false, WarehouseActivityHeader);
+        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile;
@@ -1102,10 +1110,11 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // Setup: Create Item with Sales Price.
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
         CreateItemWithSalesPrice(SalesPrice);
 
         // Exercise.
-        Commit;
+        Commit();
         Item.SetRange("No.", SalesPrice."Item No.");
         LibraryVariableStorage.Enqueue(SalesPrice."Starting Date");
         LibraryVariableStorage.Enqueue(SalesType::"All Customers");
@@ -1149,6 +1158,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee: Record "Warehouse Employee";
         BinCode: Code[20];
         PurchaseHeaderNo: Code[20];
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
     begin
         // Setup: Create Location with Bin Content and Inventory Put-away from Purchase.
         Initialize;
@@ -1161,7 +1171,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Purchase Order");
         WarehouseActivityHeader.SetRange("Source No.", PurchaseHeaderNo);
-        REPORT.Run(REPORT::"Put-away List", true, false, WarehouseActivityHeader);
+        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
 
         // Verify: verify that Bin code is presented on report Put-away List
         LibraryReportDataset.LoadDataSetFile;
@@ -1301,7 +1311,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [GIVEN] Whse Physical Inventory Journal Batch with Reason Code = "X"
         FindWhseJnlTemplateAndBatch(WarehouseJournalBatch, Location.Code, WarehouseJournalBatch."Template Type"::"Physical Inventory");
         WarehouseJournalBatch."Reason Code" := LibraryUtility.GenerateGUID;
-        WarehouseJournalBatch.Modify;
+        WarehouseJournalBatch.Modify();
 
         // [WHEN] Calculate Inventory report (7390) is ran
         RunWhseCalculateInventoryReportWithBatchAndRequestPage(WarehouseJournalBatch, Location.Code);
@@ -1377,7 +1387,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityHeader.FindFirst;
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
           WarehouseActivityLine."Activity Type"::"Invt. Put-away");
-        Commit;
+        Commit();
 
         // [WHEN] Call PrintInvtPutAwayHeader from codeunit Warehouse Document-Print
         WarehouseDocumentPrint.PrintInvtPutAwayHeader(WarehouseActivityHeader, true);
@@ -1445,45 +1455,6 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CombineShipmentsWithMixedSellToAndBillToCustomerCodes()
-    var
-        CustomerSell: Record Customer;
-        CustomerBill: Record Customer;
-        Item: Record Item;
-    begin
-        // [FEATURE] [Combine Shipments]
-        // [SCENARIO 345197] Combine shipments for sales orders sorted in mixed order of sell-to and bill-to customer codes.
-        Initialize();
-
-        // [GIVEN] Customer "B".
-        // [GIVEN] Customer "A" with bill-to customer "B".
-        CreateCustomer(CustomerBill);
-        CreateCustomer(CustomerSell);
-        CustomerSell.Validate("Bill-to Customer No.", CustomerBill."No.");
-        CustomerSell.Modify(true);
-
-        // [GIVEN] 4 sales orders posted in the following order:
-        // [GIVEN] 1st: Sell-to Customer "A", Bill-to Customer "B".
-        // [GIVEN] 2nd: Sell-to Customer "B", Bill-to Customer "B".
-        // [GIVEN] 3rd: Sell-to Customer "B", Bill-to Customer "B".
-        // [GIVEN] 4th: Sell-to Customer "A", Bill-to Customer "B".
-        LibraryInventory.CreateItem(Item);
-        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
-        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
-        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
-        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
-
-        // [WHEN] Run Combine Shipments for customers "A" and "B".
-        RunCombineShipments(StrSubstNo('%1|%2', CustomerSell."No.", CustomerBill."No."), false, false, false, false);
-
-        // [THEN] Two sales invoices are generated, each for two shipment lines.
-        VerifySalesInvoice(CustomerSell."No.", CustomerBill."No.", 2);
-        VerifySalesInvoice(CustomerBill."No.", CustomerBill."No.", 2);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1503,7 +1474,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateLocationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Reports");
     end;
 
@@ -1824,7 +1795,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseWorksheetLine."Worksheet Template Name" := WhseWorksheetName."Worksheet Template Name";
         WhseWorksheetLine.Name := WhseWorksheetName.Name;
         WhseWorksheetLine."Location Code" := LocationCode;
-        WhseInternalPutAwayHeader.Init;
+        WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);  // Value for destination Type.
 
         // Find and Update the created Whse. Worksheet Line.
@@ -1855,7 +1826,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
@@ -1873,7 +1844,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate, false));
     end;
 
@@ -1955,7 +1926,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BinContent: Record "Bin Content";
     begin
         FindWhseJnlTemplateAndBatch(WarehouseJournalBatch, LocationCode, WarehouseJournalBatch."Template Type"::"Physical Inventory");
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -1970,7 +1941,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseJournalLine: Record "Warehouse Journal Line";
         WhseCalculateInventory: Report "Whse. Calculate Inventory";
     begin
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -1978,7 +1949,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseCalculateInventory.UseRequestPage(true);
         EnqueueValuesForWhseCalculateInventoryRequestPage(WorkDate, LibraryUtility.GenerateGUID, false);
 
-        Commit;
+        Commit();
 
         WhseCalculateInventory.Run;
     end;
@@ -1992,19 +1963,19 @@ codeunit 137305 "SCM Warehouse Reports"
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::"Phys. Inventory");
         ItemJournalTemplate.Get(ItemJournalBatch."Journal Template Name");
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, ItemsNotOnInvt, false);
     end;
 
-    local procedure RunCombineShipments(CustomerNoFilter: Text; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    local procedure RunCombineShipments(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
-        SalesShipmentHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
           SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);

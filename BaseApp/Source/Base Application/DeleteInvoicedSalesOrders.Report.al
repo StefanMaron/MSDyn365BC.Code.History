@@ -26,15 +26,15 @@ report 299 "Delete Invoiced Sales Orders"
                 IsHandled := false;
                 OnBeforeSalesHeaderOnAfterGetRecord("Sales Header", IsHandled);
                 if IsHandled then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
-                ItemChargeAssgntSales.Reset;
+                ItemChargeAssgntSales.Reset();
                 ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
                 ItemChargeAssgntSales.SetRange("Document No.", "No.");
-                SalesOrderLine.Reset;
+                SalesOrderLine.Reset();
                 SalesOrderLine.SetRange("Document Type", "Document Type");
                 SalesOrderLine.SetRange("Document No.", "No.");
                 SalesOrderLine.SetFilter("Quantity Invoiced", '<>0');
@@ -46,7 +46,7 @@ report 299 "Delete Invoiced Sales Orders"
                         SalesOrderLine.SetRange("Outstanding Quantity");
                         SalesOrderLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
                         if not SalesOrderLine.Find('-') then begin
-                            SalesOrderLine.LockTable;
+                            SalesOrderLine.LockTable();
                             if not SalesOrderLine.Find('-') then begin
                                 SalesOrderLine.SetRange("Qty. Shipped Not Invoiced");
 
@@ -60,13 +60,13 @@ report 299 "Delete Invoiced Sales Orders"
                                         then begin
                                             if SalesOrderLine.Type = SalesOrderLine.Type::"Charge (Item)" then begin
                                                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
-                                                ItemChargeAssgntSales.DeleteAll;
+                                                ItemChargeAssgntSales.DeleteAll();
                                             end;
                                             if SalesOrderLine.Type = SalesOrderLine.Type::Item then
                                                 ATOLink.DeleteAsmFromSalesLine(SalesOrderLine);
                                             if SalesOrderLine.HasLinks then
                                                 SalesOrderLine.DeleteLinks;
-                                            SalesOrderLine.Delete;
+                                            SalesOrderLine.Delete();
                                             OnAfterDeleteSalesLine(SalesOrderLine);
                                         end else
                                             AllLinesDeleted := false;
@@ -82,7 +82,7 @@ report 299 "Delete Invoiced Sales Orders"
 
                                     SalesCommentLine.SetRange("Document Type", "Document Type");
                                     SalesCommentLine.SetRange("No.", "No.");
-                                    SalesCommentLine.DeleteAll;
+                                    SalesCommentLine.DeleteAll();
 
                                     WhseRequest.SetRange("Source Type", DATABASE::"Sales Line");
                                     WhseRequest.SetRange("Source Subtype", "Document Type");
@@ -101,7 +101,7 @@ report 299 "Delete Invoiced Sales Orders"
                                     OnBeforeDeleteSalesHeader("Sales Header");
                                     Delete;
                                 end;
-                                Commit;
+                                Commit();
                             end;
                         end;
                     end;

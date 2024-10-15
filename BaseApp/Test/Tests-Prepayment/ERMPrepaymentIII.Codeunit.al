@@ -65,8 +65,6 @@ codeunit 134102 "ERM Prepayment III"
         SalesPostPrepayments.CreditMemo(SalesHeader);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", PostedCreditMemoNo);
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
 
         // Exercise: Again apply Prepayment Credit Memo to Prepayment Invoice.
         LibraryLowerPermissions.SetSalesDocsPost;
@@ -111,8 +109,6 @@ codeunit 134102 "ERM Prepayment III"
           LibraryERM.ConvertCurrency(
             PurchaseLine."Line Amount" * PurchaseLine."Prepayment %" / 100, PurchaseHeader."Currency Code", '',
             PurchaseHeader."Posting Date");
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
 
         // Post Prepayment Invoice and Create Journal Line for Payment and Post it and Create new Exchange Rate for Currency.
         LibraryLowerPermissions.SetO365Setup;
@@ -173,8 +169,6 @@ codeunit 134102 "ERM Prepayment III"
         Amount :=
           LibraryERM.ConvertCurrency(
             SalesLine."Line Amount" * SalesLine."Prepayment %" / 100, SalesHeader."Currency Code", '', SalesHeader."Posting Date");
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
 
         // Post Prepayment Invoice and Create Journal Line for Payment and Post it and Create new Exchange Rate for Currency.
         LibraryLowerPermissions.SetO365Setup;
@@ -229,7 +223,6 @@ codeunit 134102 "ERM Prepayment III"
         VerifySalesLine(SalesHeader."Document Type", SalesLine."Document No.", PrepaymentAmount);
 
         // Tear Down.
-        LibraryLowerPermissions.SetO365Setup;
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
     end;
 
@@ -331,8 +324,6 @@ codeunit 134102 "ERM Prepayment III"
         Initialize;
         SalesPrepmtAccount := CreateSalesDocumentWithPremtSetup(SalesHeader, SalesLine);
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
 
         // Exercise.
         LibraryLowerPermissions.SetSalesDocsPost;
@@ -374,8 +365,6 @@ codeunit 134102 "ERM Prepayment III"
         PurchasePrepmtAccount :=
           UpdatePurchasePrepmtAccount(GLAccount."No.", PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
 
         // Exercise: Post Prepayment Purchase Invoice.
         LibraryLowerPermissions.SetPurchDocsPost;
@@ -408,8 +397,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Purchase Order, Update Purchase Prepayment Account and Post Prepayment Invoice.
         Initialize;
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
         CreatePurchaseDocument(PurchaseLine, '');
         PurchasePrepmtAccount :=
           UpdatePurchasePrepmtAccount(GLAccount."No.", PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -450,8 +437,6 @@ codeunit 134102 "ERM Prepayment III"
         Initialize;
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
         CreatePurchaseDocument(PurchaseLine, '');
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
         PurchasePrepmtAccount :=
           UpdatePurchasePrepmtAccount(GLAccount."No.", PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -490,8 +475,6 @@ codeunit 134102 "ERM Prepayment III"
         Initialize;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
         CreateAndModifySalesHeader(SalesHeader, CreateCustomer, LibraryRandom.RandDec(10, 2));
         CreateAndModifySalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
@@ -535,8 +518,6 @@ codeunit 134102 "ERM Prepayment III"
         CreateAndModifySalesHeader(SalesHeader, CreateCustomer, LibraryRandom.RandDec(10, 2));
         CreateAndModifySalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
         SalesPrepmtAccount :=
           UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
@@ -569,8 +550,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Sales Header with Zero Prepayment % and Create Sales Line with G/L Account and Random values.
         Initialize;
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        // TODO: Uncomment LibraryLowerPermissions.SetO365Setup;
-        // TODO: Uncomment LibraryLowerPermissions.AddSalesDocsPost;
         CreateAndModifySalesHeader(SalesHeader, CreateCustomer, 0);
         CreateAndModifySalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2),
@@ -580,7 +559,6 @@ codeunit 134102 "ERM Prepayment III"
 
         // Exercise: Assign Random values in Global Variables for Verification through SalesStatisticsPrepmtTotalAmountHandler.
         PrepaymentAmount := LibraryRandom.RandDec(10, 2);
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
         asserterror OpenSalesOrderStatistics(SalesLine."Document No.");
 
         // Verify: Verify Error on Prepayment Amount field with Statistics page.
@@ -607,8 +585,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Sales Header with Zero Prepayment %.
         Initialize;
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        // TODO: Uncomment LibraryLowerPermissions.SetSalesDocsPost;
-        // TODO: Uncomment LibraryLowerPermissions.AddO365Setup;
         CreateAndModifySalesHeader(SalesHeader, CreateCustomer, 0);
         CreateAndModifySalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2),
@@ -618,7 +594,6 @@ codeunit 134102 "ERM Prepayment III"
           UpdateSalesPrepmtAccount(GLAccount."No.", SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
 
         // Exercise: Assign Calculation in Global Variables for Verification through SalesStatisticsPrepmtTotalAmountHandler morethan Sales Line Amount.
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
         PrepaymentAmount := SalesLine."Line Amount" + LibraryRandom.RandDec(10, 2);
         asserterror OpenSalesOrderStatistics(SalesLine."Document No.");
 
@@ -648,8 +623,6 @@ codeunit 134102 "ERM Prepayment III"
         Initialize;
         CreatePurchaseDocument(PurchaseLine, '');
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
         PurchPrepaymentsAccount :=
           UpdatePurchasePrepmtAccount(GLAccount."No.", PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         PrepmtAmountInvLCY := Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost" * PurchaseLine."Prepayment %" / 100);
@@ -821,6 +794,7 @@ codeunit 134102 "ERM Prepayment III"
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
         DocumentNo: Code[20];
         PurchPrepmtAccount: Code[20];
+        CurrencyCode: Code[10];
         PrepaymentAmount: Decimal;
         Amount: Decimal;
     begin
@@ -828,9 +802,8 @@ codeunit 134102 "ERM Prepayment III"
 
         // Setup: Create Purchase Order and Update Purchase Prepayment Account in general Posting setup.
         Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
-        CreatePurchaseDocument(PurchaseLine, CreateCurrencyWithExchangeRate);
+        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CreatePurchaseDocument(PurchaseLine, CurrencyCode);
         PurchPrepmtAccount :=
           UpdatePurchasePrepmtAccount(
             CreateGLAccount(PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group"),
@@ -847,7 +820,7 @@ codeunit 134102 "ERM Prepayment III"
         PurchasePostPrepayments.Invoice(PurchaseHeader);
 
         // Verify: Verify VAT Amount in G/L Entry.
-        VerifyGLEntryWithAmount(DocumentNo, VATPostingSetup."Purchase VAT Account", Amount);
+        VerifyGLEntry(PurchaseHeader."Currency Code", Amount, DocumentNo, VATPostingSetup."Purchase VAT Account");
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(PurchPrepmtAccount, PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -866,8 +839,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Sales Header with Random Prepayment %.
         Initialize;
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
         CreateAndModifySalesHeader(SalesHeader, CreateCustomer, LibraryRandom.RandDec(10, 2));
 
         // Exercise: Create Sales Line with G/L Account Type and Zero Quantity.
@@ -895,7 +866,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Item with Sales Prepayment %.
         Initialize;
         LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
         CreateSalesPrepaymentPct(SalesPrepaymentPct, CreateCustomer);
         ItemNo := SalesPrepaymentPct."Item No.";
         CreateSalesPrepaymentPct(SalesPrepaymentPct, SalesPrepaymentPct."Sales Code");
@@ -931,7 +901,6 @@ codeunit 134102 "ERM Prepayment III"
         // Setup: Create Item with Sales Prepayment %.
         Initialize;
         LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsCreate;
         CreateSalesPrepaymentPct(SalesPrepaymentPct, CreateCustomer);
 
         // Exercise: Create Sales Order with Zero Quantity.
@@ -1098,7 +1067,7 @@ codeunit 134102 "ERM Prepayment III"
         SalesPostPrepayments.Invoice(SalesHeader);
 
         // Verify: Verify VAT Amount in G/L Entry.
-        VerifyGLEntryWithAmount(DocumentNo, VATPostingSetup."Sales VAT Account", -Amount);
+        VerifyGLEntry(SalesHeader."Currency Code", -Amount, DocumentNo, VATPostingSetup."Sales VAT Account");
 
         // Tear Down.
         LibraryLowerPermissions.SetOutsideO365Scope;
@@ -1170,8 +1139,6 @@ codeunit 134102 "ERM Prepayment III"
         PostedInvoiceNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
         UnrealizedBase := Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100);
         UnrealizedAmount := Round((SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100) * (VATPostingSetup."VAT %" / 100));
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
 
         // Exercise.
         LibraryLowerPermissions.SetSalesDocsPost;
@@ -1386,9 +1353,8 @@ codeunit 134102 "ERM Prepayment III"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        DisableGST(false);
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment III");
     end;
@@ -1525,7 +1491,7 @@ codeunit 134102 "ERM Prepayment III"
         GLAccount.Get(CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
         GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10])
@@ -1606,7 +1572,7 @@ codeunit 134102 "ERM Prepayment III"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
         SalesLine."Prepmt. Line Amount" := PrepmtLineAmount;
         SalesLine."Prepmt. Amt. Inv." := PrepmtAmtInv;
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreateSalesPrepaymentPct(var SalesPrepaymentPct: Record "Sales Prepayment %"; CustomerNo: Code[20])
@@ -1642,7 +1608,7 @@ codeunit 134102 "ERM Prepayment III"
         CreateSalesDocumentWithPremtSetup(SalesHeader, SalesLine);
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
         SalesPostPrepayments.Invoice(SalesHeader);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor(CurrencyCode: Code[10]; VATBusPostingGroup: Code[20]): Code[20]
@@ -1655,20 +1621,6 @@ codeunit 134102 "ERM Prepayment III"
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
-    end;
-
-    local procedure DisableGST(DisableGST: Boolean)
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        with GLSetup do begin
-            Get;
-            Validate("Enable GST (Australia)", DisableGST);
-            Validate("Full GST on Prepayment", DisableGST);
-            Validate("GST Report", DisableGST);
-            Validate("Adjustment Mandatory", DisableGST);
-            Modify(true);
-        end;
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -1785,7 +1737,7 @@ codeunit 134102 "ERM Prepayment III"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PostedPrepmtInvNosOld := PurchasesPayablesSetup."Posted Prepmt. Inv. Nos.";
         PurchasesPayablesSetup.Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
         PurchasesPayablesSetup.Modify(true);
@@ -1833,7 +1785,7 @@ codeunit 134102 "ERM Prepayment III"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Prepayment Unrealized VAT", PrepaymentUnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1877,15 +1829,6 @@ codeunit 134102 "ERM Prepayment III"
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
-    end;
-
-    local procedure VerifyGLEntryWithAmount(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
-        GLEntry.SetRange(Amount, Amount);
-        GLEntry.FindFirst;
     end;
 
     local procedure VerifyPrepaymentInvoice(PrepaymentOrderNo: Code[20]; PostedPrepmtInvNos: Code[20])

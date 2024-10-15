@@ -140,7 +140,7 @@ page 11609 "BAS Setup Preview"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if NewBASCalcSheet.Consolidated and not GLSetup."BAS Group Company" then
             Error(YouCannotPreviewErr, NewBASCalcSheet.FieldCaption(Consolidated), NewBASCalcSheet.TableCaption);
         BASCalcSheet.Copy(NewBASCalcSheet);

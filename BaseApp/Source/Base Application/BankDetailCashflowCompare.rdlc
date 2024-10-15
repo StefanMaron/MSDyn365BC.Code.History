@@ -5128,9 +5128,6 @@ End Function</Code>
         <Field Name="STRSUBSTNO_Text000_BankAccDateFilter_">
           <DataField>STRSUBSTNO_Text000_BankAccDateFilter_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>

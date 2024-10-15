@@ -170,7 +170,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        Commit;
+        Commit();
 
         exit(CountryRegion.Code);
     end;

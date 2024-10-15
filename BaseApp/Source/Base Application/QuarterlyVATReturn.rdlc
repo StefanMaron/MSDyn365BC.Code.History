@@ -839,7 +839,7 @@ Fields!CompanyAddr_3_.Value + Chr(177) +
 Fields!CompanyAddr_4_.Value + Chr(177) + 
 Fields!CompanyAddr_5_.Value + Chr(177) + 
 Fields!CompanyAddr_6_.Value + Chr(177) + 
-Fields!STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__.Value</Value>
+""</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -1790,9 +1790,6 @@ End Function
       <Fields>
         <Field Name="Text004">
           <DataField>Text004</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyAddr_1_">
           <DataField>CompanyAddr_1_</DataField>

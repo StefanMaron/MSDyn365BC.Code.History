@@ -28,7 +28,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         EntriesSuccessfullyUnappliedMsg: Label 'The entries were successfully unapplied.';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
-        ReasonCodeErr: Label 'Canceling the invoice failed because of the following error: \\Reason Code must have a value in Sales Header: Document Type=Credit Memo, No.=%1. It cannot be zero or empty.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesInvoicePageHandler')]
@@ -500,7 +499,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CurrencyExchangeRate.FindFirst;
         BillToCust.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -530,7 +529,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Get(SellToCust."No.");
         SellToCust.Validate(Blocked, SellToCust.Blocked::All);
         SellToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -568,7 +567,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Get(BillToCust."No.");
         BillToCust.Validate(Blocked, BillToCust.Blocked::All);
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -605,7 +604,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Get(SellToCust."No.");
         SellToCust.Validate("Privacy Blocked", true);
         SellToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -643,7 +642,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Get(BillToCust."No.");
         BillToCust.Validate("Privacy Blocked", true);
         BillToCust.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
         // EXERCISE
@@ -677,7 +676,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Item.Find;
         Item.Validate(Blocked, true);
         Item.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -937,10 +936,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := CalcDate('<-1D>', WorkDate);
         GLSetup.Modify(true);
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -952,10 +951,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Allow Posting To" := 0D;
         GLSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -981,11 +980,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         LibraryCosting.AdjustCostItemEntries('', '');
 
-        InvtPeriod.Init;
+        InvtPeriod.Init();
         InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InvtPeriod.Closed := true;
-        InvtPeriod.Insert;
-        Commit;
+        InvtPeriod.Insert();
+        Commit();
 
         GLEntry.FindLast;
 
@@ -997,8 +996,8 @@ codeunit 138015 "O365 Correct Sales Invoice"
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        InvtPeriod.Delete;
-        Commit;
+        InvtPeriod.Delete();
+        Commit();
     end;
 
     [Test]
@@ -1040,7 +1039,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         if GLEntry.FindLast then;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", false);
         SalesSetup.Modify(true);
 
@@ -1051,11 +1050,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         OldSalesSetup := SalesSetup;
         SalesSetup.Validate("Ext. Doc. No. Mandatory", true);
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -1071,10 +1070,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // VERIFY
         CheckNothingIsCreated(Cust."No.", GLEntry);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", OldSalesSetup."Ext. Doc. No. Mandatory");
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -1384,71 +1383,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.IsTrue(PostedSalesInvoices.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure CancelInvoiceWithoutDefaultReasonCode()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-    begin
-        // [SCENARIO] Cancel posted sales invoice with empty "Default Cancel Reason Code" in Sales Setup
-        Initialize;
-
-        // [GIVEN] "Default Cancel Reason Code" is empty in Sales Setup
-        SalesReceivablesSetup.Get;
-        SalesReceivablesSetup.Validate("Default Cancel Reason Code", '');
-        SalesReceivablesSetup.Modify(true);
-        // [GIVEN] Posted sales invoice
-        CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 1, 1, SalesInvoiceHeader);
-        // [WHEN] Cancel posted sales invoice
-        asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
-        // [THEN] Cancel failed due to testfield of "Reason Code" in the credit memo
-        SalesReceivablesSetup.Get;
-        Assert.ExpectedError(
-          StrSubstNo(
-            ReasonCodeErr,
-            NoSeriesManagement.GetNextNo(
-              SalesReceivablesSetup."Credit Memo Nos.",
-              SalesInvoiceHeader."Posting Date", false)));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CancelInvoiceWithDefaultReasonCode()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
-        ReasonCode: Code[10];
-    begin
-        // [SCENARIO] Cancel posted sales invoice with filled "Default Cancel Reason Code" in Sales Setup
-        Initialize;
-
-        // [GIVEN] "Sales Setup"."Default Cancel Reason Code" "DCRC" is filled (Initialize)
-        SalesReceivablesSetup.Get;
-        ReasonCode := SalesReceivablesSetup."Default Cancel Reason Code";
-        // [GIVEN] Posted sales invoice
-        CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 1, 1, SalesInvoiceHeader);
-        // [WHEN] Cancel posted sales invoice
-        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
-        // [THEN] "Sales Credit Memo"."Reason Code" = "DCRC"
-        SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
-        SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-        SalesCrMemoHeader.FindFirst;
-        SalesCrMemoHeader.TestField("Reason Code", ReasonCode);
-    end;
-
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        ReasonCode: Record "Reason Code";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Sales Invoice");
         // Initialize setup.
@@ -1461,24 +1398,25 @@ codeunit 138015 "O365 Correct Sales Invoice"
             LibraryFiscalYear.CreateFiscalYear;
 
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGenProdPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableFoundationSetup;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+
         if SalesSetup."Posted Shipment Nos." = '' then
             SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        LibraryERM.CreateReasonCode(ReasonCode);
-        SalesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
-        SalesSetup.Modify;
+
+        SalesSetup.Modify();
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Invoice");
     end;
 
@@ -1517,7 +1455,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // Make Dimension Mandatory
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           DefaultDim, DATABASE::"G/L Account", GLAcc."No.", DefaultDim."Value Posting"::"Code Mandatory");
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -1535,7 +1473,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         // Unblock the Dimension
         DefaultDim.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemsWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1548,7 +1486,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         LibraryResource.CreateResourceNew(Resource);
         Resource.Validate("Unit Price", UnitPrice);
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     local procedure CreateInventoryItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1556,7 +1494,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Inventory;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateServiceItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -1564,7 +1502,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Service;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1581,7 +1519,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         FromGLAcc.FindSet;
         repeat
             ToGLAcc := FromGLAcc;
-            if ToGLAcc.Insert then;
+            if ToGLAcc.Insert() then;
         until FromGLAcc.Next = 0;
     end;
 
@@ -1590,7 +1528,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, true);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockGLAcc(var GLAcc: Record "G/L Account")
@@ -1598,7 +1536,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc.Find;
         GLAcc.Validate(Blocked, false);
         GLAcc.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSellToWithDifferentBillToCust(var SellToCust: Record Customer; var BillToCust: Record Customer)
@@ -1613,7 +1551,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         CreateItemsWithPrice(Item, UnitPrice);
         Item.Description := 'Test Item';
-        Item.Modify;
+        Item.Modify();
         LibrarySmallBusiness.CreateCustomer(Cust);
         SellItem(Cust, Item, Qty, SalesInvoiceHeader);
     end;
@@ -1654,7 +1592,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PurchLine: Record "Purchase Line";
         Vend: Record Vendor;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchSetup.Modify(true);
 
@@ -1675,7 +1613,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         CreateItemsWithPrice(Item, UnitPrice);
         Item.Description := 'Test Item';
-        Item.Modify;
+        Item.Modify();
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibrarySmallBusiness.CreateSalesOrderHeader(SalesHeader, Cust);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, Qty);
@@ -1730,10 +1668,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Exact Cost Reversing Mandatory", false);
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckSomethingIsPosted(Item: Record Item; Cust: Record Customer)

@@ -82,7 +82,7 @@ page 740 "VAT Report"
                     var
                         BASCalculationSheet: Record "BAS Calculation Sheet";
                     begin
-                        BASCalculationSheet.Reset;
+                        BASCalculationSheet.Reset();
                         if PAGE.RunModal(0, BASCalculationSheet, BASCalculationSheet.A1) = ACTION::LookupOK then begin
                             "BAS ID No." := BASCalculationSheet.A1;
                             "BAS Version No." := BASCalculationSheet."BAS Version";
@@ -391,16 +391,15 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
-                        VATReportMediator: Codeunit "VAT Report Mediator";
                     begin
                         if "Include Prev. Open Entries" then
-                            CalcAndPostVATSettlement.InitializeRequest(0D, "End Date", WorkDate, "No.", '', false, false)
+                            CalcAndPostVATSettlement.InitializeRequest(0D, "End Date", WorkDate(), "No.", '', false, false)
                         else
-                            CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate, "No.", '', false, false);
+                            CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate(), "No.", '', false, false);
                         CalcAndPostVATSettlement.SetVATReport(Rec);
                         CalcAndPostVATSettlement.SetRequestOptionEditable(not VATReportMediator.DisableCalcAndPostVATTSettlementFields(Rec));
-                        CalcAndPostVATSettlement.Run;
-                        CurrPage.Update;
+                        CalcAndPostVATSettlement.Run();
+                        CurrPage.Update();
                     end;
                 }
                 action("GST Purchase Entries")

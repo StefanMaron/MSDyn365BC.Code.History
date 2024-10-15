@@ -75,7 +75,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a default document sending profile will be created and used - it will have the name Default and have "Send as PDF" as sending profile
         Initialize();
 
-        DocumentSendingProfile.DeleteAll;
+        DocumentSendingProfile.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesInvoiceList.OpenView();
@@ -172,7 +172,7 @@ codeunit 139151 DocumentSendingPostTests
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(BillToCustomer);
         BillToCustomer.Validate("Document Sending Profile", NonDefaultDocumentSendingProfile.Code);
-        BillToCustomer.Modify;
+        BillToCustomer.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
@@ -208,7 +208,7 @@ codeunit 139151 DocumentSendingPostTests
         LibrarySales.CreateCustomer(BillToCustomer);
 
         BillToCustomer.Validate("Document Sending Profile", NonDefaultDocumentSendingProfile.Code);
-        BillToCustomer.Modify;
+        BillToCustomer.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
@@ -310,7 +310,6 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateCustomerWithEmail(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -410,7 +409,8 @@ codeunit 139151 DocumentSendingPostTests
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, '123457890');
+        SalesHeader.Validate("Your Reference", '123457890');
+        SalesHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -468,10 +468,9 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := CustomerSpecificDocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -731,7 +730,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesCrMemoHeader2 := PostedDocumentVariant2;
 
         // for SelectSendingOptionHandler
-        DocumentSendingProfile.Init;
+        DocumentSendingProfile.Init();
         DocumentSendingProfile.Printer := DocumentSendingProfile.Printer::"Yes (Prompt for Settings)";
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
 
@@ -772,7 +771,6 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales credit memo
         CreateCustomerWithEmail(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -872,11 +870,11 @@ codeunit 139151 DocumentSendingPostTests
 
         CreateCustomerWithEmail(BillToCustomer);
         BillToCustomer."Document Sending Profile" := DocumentSendingProfile.Code;
-        BillToCustomer.Modify;
+        BillToCustomer.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
+        SalesHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -925,19 +923,19 @@ codeunit 139151 DocumentSendingPostTests
         InitializeTwoDocumentSendingProfilesForCustomer(CustomerSpecificDocumentSendingProfile);
         CustomerSpecificDocumentSendingProfile."E-Mail Attachment" := CustomerSpecificDocumentSendingProfile."E-Mail Attachment"::PDF;
         CustomerSpecificDocumentSendingProfile."E-Mail Format" := '';
-        CustomerSpecificDocumentSendingProfile.Modify;
+        CustomerSpecificDocumentSendingProfile.Modify();
 
         // create a sales credit memo
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := CustomerSpecificDocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader."Bill-to Address" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to City" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Post Code" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Country/Region Code" := 'US';
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
+        SalesHeader.Modify(true);
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -994,7 +992,6 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateElectronicDocumentCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -1287,7 +1284,6 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateElectronicDocumentCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -1326,7 +1322,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a Service invoice
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := DocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
         CreateServiceHeaderWithCustomer(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
 
         ServiceHeader."Bill-to Address" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(12, 1), 1, 12);
@@ -1339,7 +1335,7 @@ codeunit 139151 DocumentSendingPostTests
         ServiceHeader."Ship-to Post Code" := LibraryUtility.GenerateGUID;
         ServiceHeader."Ship-to Country/Region Code" := 'US';
 
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
         // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
@@ -1495,7 +1491,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a service invoice
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := CustomerSpecificDocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
         CreateServiceHeaderWithCustomer(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
 
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
@@ -1730,7 +1726,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a service credit memo
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := DocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
         ServiceHeader.Validate("Due Date", WorkDate);
         ServiceHeader.Modify(true);
@@ -1897,7 +1893,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a service credit memo
         CreateCustomerWithEmail(Customer);
         Customer."Document Sending Profile" := CustomerSpecificDocumentSendingProfile.Code;
-        Customer.Modify;
+        Customer.Modify();
         CreateServiceHeaderWithCustomer(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // For SelectDocumentSendingDialog
@@ -2383,15 +2379,15 @@ codeunit 139151 DocumentSendingPostTests
         // [SCENARIO 380826] Run UpdateDocument function with old RecRef if Sales Inv. Header record is modified
 
         // [GIVEN] Sales Invoice Header "SIH"
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
         DocRecRef.GetTable(SalesInvoiceHeader);
 
         // [GIVEN] "SIH"."Your Reference" = "YR"
         SalesInvoiceHeader."Your Reference" := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader.Modify;
-        Commit;
+        SalesInvoiceHeader.Modify();
+        Commit();
 
         // [WHEN] Run UpdateDocumentRecord function for old "SIH" RecordRef
         DocExchLinks.UpdateDocumentRecord(
@@ -2415,15 +2411,15 @@ codeunit 139151 DocumentSendingPostTests
         // [SCENARIO 380826] Run UpdateDocument function with old RecRef if Sales Cr. Memo Header record is modified
 
         // [GIVEN] Sales Cr. Memo Header "SCNH"
-        SalesCrMemoHeader.Init;
+        SalesCrMemoHeader.Init();
         SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader.Insert;
+        SalesCrMemoHeader.Insert();
         DocRecRef.GetTable(SalesCrMemoHeader);
 
         // [GIVEN] "SCNH"."Your Reference" = "YR"
         SalesCrMemoHeader."Your Reference" := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader.Modify;
-        Commit;
+        SalesCrMemoHeader.Modify();
+        Commit();
 
         // [WHEN] Run UpdateDocumentRecord function for old "SCNH" RecordRef
         DocExchLinks.UpdateDocumentRecord(
@@ -2447,15 +2443,15 @@ codeunit 139151 DocumentSendingPostTests
         // [SCENARIO 380826] Run UpdateDocument function with old RecRef if Service Inv. Header record is modified
 
         // [GIVEN] Service Invoice Header "SIH"
-        ServiceInvoiceHeader.Init;
+        ServiceInvoiceHeader.Init();
         ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceInvoiceHeader.Insert;
+        ServiceInvoiceHeader.Insert();
         DocRecRef.GetTable(ServiceInvoiceHeader);
 
         // [GIVEN] "SIH"."Your Reference" = "YR"
         ServiceInvoiceHeader."Your Reference" := LibraryUtility.GenerateGUID;
-        ServiceInvoiceHeader.Modify;
-        Commit;
+        ServiceInvoiceHeader.Modify();
+        Commit();
 
         // [WHEN] Run UpdateDocumentRecord function for old "SIH" RecordRef
         DocExchLinks.UpdateDocumentRecord(
@@ -2479,15 +2475,15 @@ codeunit 139151 DocumentSendingPostTests
         // [SCENARIO 380826] Run UpdateDocument function with old RecRef if Service Cr. Memo Header record is modified
 
         // [GIVEN] Service Cr. Memo Header "SCNH"
-        ServiceCrMemoHeader.Init;
+        ServiceCrMemoHeader.Init();
         ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceCrMemoHeader.Insert;
+        ServiceCrMemoHeader.Insert();
         DocRecRef.GetTable(ServiceCrMemoHeader);
 
         // [GIVEN] "SCNH"."Your Reference" = "YR"
         ServiceCrMemoHeader."Your Reference" := LibraryUtility.GenerateGUID;
-        ServiceCrMemoHeader.Modify;
-        Commit;
+        ServiceCrMemoHeader.Modify();
+        Commit();
 
         // [WHEN] Run UpdateDocumentRecord function for old "SCNH" RecordRef
         DocExchLinks.UpdateDocumentRecord(
@@ -3166,7 +3162,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(2); // for assert calls count in UseDefaultProfileSelectionMethodStrMenuHandler
         LibraryVariableStorage.Enqueue(Vendor[2]."E-Mail"); // for EmailDialogHandlerNo
         LibraryVariableStorage.Enqueue(DocumentNo[2]); // for EmailDialogHandlerNo
-        Commit;
+        Commit();
         PurchaseHeader.SendRecords;
 
         // [GIVEN] Profile selection method dialog is shown
@@ -3202,7 +3198,7 @@ codeunit 139151 DocumentSendingPostTests
             end;
 
             SetRange(Code, FormatCode);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -3319,7 +3315,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryApplicationArea.EnableEssentialSetup();
         InsertElectronicFormat();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.Validate(Name, LibraryUtility.GenerateGUID);
         CompanyInfo.Validate(IBAN, 'GB29NWBK60161331926819');
         CompanyInfo.Validate("SWIFT Code", 'MIDLGB22Z0K');
@@ -3335,7 +3331,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Rename(LibraryUtility.GenerateRandomText(2));
 
-        Commit;
+        Commit();
         IsInitialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::DocumentSendingPostTests);
@@ -3345,15 +3341,15 @@ codeunit 139151 DocumentSendingPostTests
     var
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
-        ReportLayoutSelection.DeleteAll;
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.DeleteAll();
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
         ReportLayoutSelection."Report ID" := REPORT::"Standard Sales - Invoice";
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
 
         ReportLayoutSelection."Report ID" := REPORT::"Standard Sales - Credit Memo";
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
     end;
 
     local procedure InitializeDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile"; EmailAttachmentType: Option; Printer: Option; Email: Option)
@@ -3378,7 +3374,7 @@ codeunit 139151 DocumentSendingPostTests
           DefaultDocumentSendingProfile.Printer::"Yes (Prompt for Settings)",
           DefaultDocumentSendingProfile."E-Mail"::No);
 
-        CustomerSpecificDocumentSendingProfile.Init;
+        CustomerSpecificDocumentSendingProfile.Init();
         CustomerSpecificDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         CustomerSpecificDocumentSendingProfile.Printer := CustomerSpecificDocumentSendingProfile.Printer::"Yes (Prompt for Settings)";
         CustomerSpecificDocumentSendingProfile."E-Mail" := CustomerSpecificDocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)";
@@ -3414,8 +3410,8 @@ codeunit 139151 DocumentSendingPostTests
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        DefaultDocumentSendingProfile.DeleteAll;
-        DefaultDocumentSendingProfile.Init;
+        DefaultDocumentSendingProfile.DeleteAll();
+        DefaultDocumentSendingProfile.Init();
         DefaultDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         DefaultDocumentSendingProfile.Default := true;
         DefaultDocumentSendingProfile.Validate(Printer, DefaultDocumentSendingProfile.Printer::"Yes (Use Default Settings)");
@@ -3423,7 +3419,7 @@ codeunit 139151 DocumentSendingPostTests
         DefaultDocumentSendingProfile.Validate("E-Mail Attachment", DefaultDocumentSendingProfile."E-Mail Attachment"::PDF);
         DefaultDocumentSendingProfile.Insert(true);
 
-        NonDefaultDocumentSendingProfile.Init;
+        NonDefaultDocumentSendingProfile.Init();
         NonDefaultDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         NonDefaultDocumentSendingProfile.Default := false;
         ElectronicDocumentFormat.FindLast();
@@ -3436,8 +3432,8 @@ codeunit 139151 DocumentSendingPostTests
 
     local procedure CreateDocumentSendingProfileWithAllTrue(var DefaultDocumentSendingProfile: Record "Document Sending Profile")
     begin
-        DefaultDocumentSendingProfile.DeleteAll;
-        DefaultDocumentSendingProfile.Init;
+        DefaultDocumentSendingProfile.DeleteAll();
+        DefaultDocumentSendingProfile.Init();
         DefaultDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         DefaultDocumentSendingProfile.Default := true;
         DefaultDocumentSendingProfile.Validate(Printer, DefaultDocumentSendingProfile.Printer::"Yes (Use Default Settings)");
@@ -3465,13 +3461,13 @@ codeunit 139151 DocumentSendingPostTests
     begin
         CreateElectronicDocumentCustomer(Customer);
         Customer.Validate("E-Mail", CopyStr(GenerateRandomEmailAddress, 1, MaxStrLen(Customer."E-Mail")));
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateCustomerWithEmailWithCustomNo(var Customer: Record Customer; CustomerNo: Code[20])
     begin
         CreateCustomerWithEmail(Customer);
-        Customer.Delete;
+        Customer.Delete();
         Customer."No." := CustomerNo;
         Customer.Insert(true);
     end;
@@ -3510,7 +3506,6 @@ codeunit 139151 DocumentSendingPostTests
         SalesPost: Codeunit "Sales-Post";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -3793,7 +3788,7 @@ codeunit 139151 DocumentSendingPostTests
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, DocName, DocNo));
         LibraryVariableStorage.Enqueue(StrSubstNo(ReportAsPdfFileNameMsg, DocName, DocNo));
     end;
@@ -3802,7 +3797,7 @@ codeunit 139151 DocumentSendingPostTests
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(StrSubstNo(EmailSubjectCapPluralTxt, CompanyInformation.Name, DocName));
         LibraryVariableStorage.Enqueue(StrSubstNo(ReportAsPdfFileNamePluralMsg, DocName));
     end;
@@ -3856,43 +3851,43 @@ codeunit 139151 DocumentSendingPostTests
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CountryRegion: Record "Country/Region";
     begin
-        ElectronicDocumentFormat.DeleteAll;
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.DeleteAll();
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Inv. - PEPPOL 2.1";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Invoice";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
         ElectronicDocumentFormat.Insert(true);
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Credit Memo";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
         ElectronicDocumentFormat.Insert(true);
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Invoice";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
         ElectronicDocumentFormat.Insert(true);
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Credit Memo";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
         ElectronicDocumentFormat.Insert(true);
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"PEPPOL Validation";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Validation";
         ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
         ElectronicDocumentFormat.Insert(true);
 
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
         ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"PEPPOL Service Validation";
         ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Validation";
@@ -3942,19 +3937,13 @@ codeunit 139151 DocumentSendingPostTests
     begin
         DocumentSendingProfile.SetRange(Default, true);
         if DocumentSendingProfile.FindFirst then begin
-            DocumentSendingProfile.Delete;
+            DocumentSendingProfile.Delete();
             Clear(DocumentSendingProfile);
         end else
-            DocumentSendingProfile.Init;
+            DocumentSendingProfile.Init();
 
         DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         DocumentSendingProfile.Default := true;
-    end;
-
-    local procedure UpdateYourReferenceSalesHeader(var SalesHeader: Record "Sales Header"; YourReference: Text[35])
-    begin
-        SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
     end;
 
     local procedure VerifyDocumentProfilesAreIdentical(ExpectedDocumentSendingProfile: Record "Document Sending Profile"; ActualDocumentSendingProfile: Record "Document Sending Profile")

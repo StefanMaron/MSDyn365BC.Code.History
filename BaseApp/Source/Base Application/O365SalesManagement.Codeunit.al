@@ -110,7 +110,7 @@ codeunit 2107 "O365 Sales Management"
             if Code = '' then
                 Validate(Code, CopyStr(Name, 1, MaxStrLen(Code)));
 
-            CountryRegion.Init;
+            CountryRegion.Init();
             CountryRegion.Validate(Code, Code);
             CountryRegion.Validate(Name, Name);
             CountryRegion.Validate("VAT Scheme",

@@ -297,7 +297,7 @@ codeunit 134209 "Workflow Overview Tests"
         UserSetup: Record "User Setup";
     begin
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         if IsInitialized then

@@ -107,7 +107,7 @@ xmlport 16630 "WHT-EFiling"
                         PayeeTIN := Vend."VAT Registration No.";
                         PayeeBranchCode := PayeeBranchCode;
                         RegName := Vend.Name;
-                        TempWHTEntry.Reset;
+                        TempWHTEntry.Reset();
                         TempWHTEntry.CopyFilters("Temp WHT Entry - EFiling3");
                         IncomePymt := 0;
                         if TempWHTEntry.Find('-') then
@@ -165,9 +165,9 @@ xmlport 16630 "WHT-EFiling"
 
     trigger OnPostXmlPort()
     begin
-        TempWHTEntry.Reset;
+        TempWHTEntry.Reset();
         if TempWHTEntry.Find('-') then
-            TempWHTEntry.DeleteAll;
+            TempWHTEntry.DeleteAll();
     end;
 
     trigger OnPreXmlPort()

@@ -22,6 +22,7 @@ codeunit 6704 "Booking Customer Sync."
         O365ContactSyncHelper: Codeunit "O365 Contact Sync. Helper";
         ProcessExchangeContactsMsg: Label 'Processing contacts from Exchange.';
         ProcessNavContactsMsg: Label 'Processing contacts in your company.';
+        BookingsCountTelemetryTxt: Label 'Retrieved %1 Bookings customers for synchronization.', Locked = true;
 
     procedure GetRequestParameters(var BookingSync: Record "Booking Sync"): Text
     var
@@ -63,6 +64,7 @@ codeunit 6704 "Booking Customer Sync."
     begin
         ExchangeSync.Get(UserId);
         O365ContactSyncHelper.GetO365Contacts(ExchangeSync, TempContact);
+        SendTraceTag('0000ACH', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(BookingsCountTelemetryTxt, TempContact.Count()), DataClassification::SystemMetadata);
 
         O365SyncManagement.ShowProgress(ProcessNavContactsMsg);
         ProcessNavContacts(BookingSync);
@@ -77,7 +79,7 @@ codeunit 6704 "Booking Customer Sync."
 
     local procedure ProcessExchangeContacts(var BookingSync: Record "Booking Sync")
     begin
-        TempContact.Reset;
+        TempContact.Reset();
         TempContact.SetLastDateTimeFilter(BookingSync."Last Customer Sync");
 
         ProcessExchangeContactRecordSet(TempContact, BookingSync);
@@ -93,11 +95,11 @@ codeunit 6704 "Booking Customer Sync."
 
         if LocalContact.FindSet then begin
             repeat
-                Contact.Reset;
+                Contact.Reset();
                 Clear(Contact);
                 Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
                 if not Contact.FindFirst then begin
-                    Contact.Init;
+                    Contact.Init();
                     Contact.Type := Contact.Type::Person;
                     Contact.Insert(true);
                 end;

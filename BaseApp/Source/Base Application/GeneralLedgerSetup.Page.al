@@ -82,7 +82,7 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user.';
+                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date cannot be deleted.';
                 }
                 field("Check G/L Account Usage"; "Check G/L Account Usage")
                 {
@@ -583,7 +583,7 @@ page 118 "General Ledger Setup"
                         Currency: Record Currency;
                         ChangePmtTol: Report "Change Payment Tolerance";
                     begin
-                        Currency.Init;
+                        Currency.Init();
                         ChangePmtTol.SetCurrency(Currency);
                         ChangePmtTol.RunModal;
                     end;
@@ -881,14 +881,14 @@ page 118 "General Ledger Setup"
             if SalesReceivablesSetup.Get then begin
                 SalesReceivablesSetup."Pre-GST Prod. Posting Group" := '';
                 SalesReceivablesSetup."Payment Discount Reason Code" := '';
-                SalesReceivablesSetup.Modify;
+                SalesReceivablesSetup.Modify();
             end;
             if PurchasesPayablesSetup.Get then begin
                 PurchasesPayablesSetup."Pre-GST Prod. Posting Group" := '';
                 PurchasesPayablesSetup."GST Prod. Posting Group" := '';
                 PurchasesPayablesSetup."Vendor Registration Warning" := false;
                 PurchasesPayablesSetup."Payment Discount Reason Code" := '';
-                PurchasesPayablesSetup.Modify;
+                PurchasesPayablesSetup.Modify();
             end;
         end;
     end;

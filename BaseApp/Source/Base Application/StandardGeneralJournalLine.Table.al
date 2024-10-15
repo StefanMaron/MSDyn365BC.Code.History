@@ -17,11 +17,9 @@ table 751 "Standard General Journal Line"
             Editable = false;
             NotBlank = true;
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
 
             trigger OnValidate()
             begin
@@ -128,11 +126,9 @@ table 751 "Standard General Journal Line"
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
             end;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -472,11 +468,9 @@ table 751 "Standard General Journal Line"
         {
             Caption = 'On Hold';
         }
-        field(35; "Applies-to Doc. Type"; Option)
+        field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(40; "Payment Discount %"; Decimal)
         {
@@ -641,18 +635,14 @@ table 751 "Standard General Journal Line"
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(60; "VAT Calculation Type"; Option)
+        field(60; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
-        field(63; "Bal. Account Type"; Option)
+        field(63; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
 
             trigger OnValidate()
             begin
@@ -742,12 +732,10 @@ table 751 "Standard General Journal Line"
                         Validate("Bal. VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(67; "Bal. VAT Calculation Type"; Option)
+        field(67; "Bal. VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Bal. VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(68; "Bal. VAT %"; Decimal)
         {
@@ -834,11 +822,9 @@ table 751 "Standard General Journal Line"
                       Text013, FieldCaption("Bal. VAT Difference"), Currency."Max. VAT Difference Allowed");
             end;
         }
-        field(70; "Bank Payment Type"; Option)
+        field(70; "Bank Payment Type"; Enum "Bank Payment Type")
         {
             Caption = 'Bank Payment Type';
-            OptionCaption = ' ,Computer Check,Manual Check';
-            OptionMembers = " ","Computer Check","Manual Check";
 
             trigger OnValidate()
             begin
@@ -1094,7 +1080,7 @@ table 751 "Standard General Journal Line"
                 "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
                 if "Gen. Posting Type" <> 0 then begin
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                        VATPostingSetup.Init;
+                        VATPostingSetup.Init();
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Normal VAT":
@@ -1142,7 +1128,7 @@ table 751 "Standard General Journal Line"
                 "Bal. VAT Calculation Type" := "Bal. VAT Calculation Type"::"Normal VAT";
                 if "Bal. Gen. Posting Type" <> 0 then begin
                     if not VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
-                        VATPostingSetup.Init;
+                        VATPostingSetup.Init();
                     "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                     case "Bal. VAT Calculation Type" of
                         "Bal. VAT Calculation Type"::"Normal VAT":

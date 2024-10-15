@@ -72,7 +72,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         CreditAmountLCY: Decimal;
     begin
         // Create a Vendor, Currency and Post General Journal Line with a Random Negative Amount. Reverse the Posted Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreditAmountLCY := -ReverseDocument(DetailedVendorLedgEntry, DocumentType, -LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Credit Amount LCY in Detailed Vendor Ledger Entries.
@@ -113,7 +113,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         DebitAmountLCY: Decimal;
     begin
         // Create a Vendor, Currency and Post General Journal Line with a Random Positive Amount. Reverse the Posted Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DebitAmountLCY := ReverseDocument(DetailedVendorLedgEntry, DocumentType, LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Debit Amount LCY in Detailed Vendor Ledger Entries.
@@ -135,7 +135,7 @@ codeunit 134137 "ERM Reverse Vendor Documents"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Vendor Documents");
     end;
 

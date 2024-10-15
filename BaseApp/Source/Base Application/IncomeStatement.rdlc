@@ -2974,9 +2974,6 @@ End Function
         <Field Name="LongText_1____LongText_2____LongText_3____LongText_4_">
           <DataField>LongText_1____LongText_2____LongText_3____LongText_4_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>

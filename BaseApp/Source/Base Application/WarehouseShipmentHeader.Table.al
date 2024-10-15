@@ -13,7 +13,7 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
-                WhseSetup.Get;
+                WhseSetup.Get();
                 if "No." <> xRec."No." then begin
                     NoSeriesMgt.TestManual(WhseSetup."Whse. Ship Nos.");
                     "No. Series" := '';
@@ -81,11 +81,9 @@ table 7320 "Warehouse Shipment Header"
             Caption = 'Assignment Time';
             Editable = false;
         }
-        field(6; "Sorting Method"; Option)
+        field(6; "Sorting Method"; Enum "Warehouse Shipment Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Destination';
-            OptionMembers = " ",Item,Document,"Shelf or Bin","Due Date",Destination;
 
             trigger OnValidate()
             begin
@@ -262,7 +260,7 @@ table 7320 "Warehouse Shipment Header"
             begin
                 with WhseShptHeader do begin
                     WhseShptHeader := Rec;
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Shipment Nos.");
                     if NoSeriesMgt.LookupSeries(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series") then
                         Validate("Shipping No. Series");
@@ -273,7 +271,7 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             begin
                 if "Shipping No. Series" <> '' then begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Shipment Nos.");
                     NoSeriesMgt.TestSeries(WhseSetup."Posted Whse. Shipment Nos.", "Shipping No. Series");
                 end;
@@ -309,7 +307,7 @@ table 7320 "Warehouse Shipment Header"
 
     trigger OnInsert()
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Ship Nos.");
             NoSeriesMgt.InitSeries(WhseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
@@ -349,7 +347,7 @@ table 7320 "Warehouse Shipment Header"
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         with WhseShptHeader do begin
             WhseShptHeader := Rec;
             WhseSetup.TestField("Whse. Ship Nos.");
@@ -394,7 +392,7 @@ table 7320 "Warehouse Shipment Header"
             SequenceNo := 10000;
             repeat
                 WhseShptLine."Sorting Sequence No." := SequenceNo;
-                WhseShptLine.Modify;
+                WhseShptLine.Modify();
                 SequenceNo := SequenceNo + 10000;
             until WhseShptLine.Next = 0;
         end;
@@ -462,7 +460,7 @@ table 7320 "Warehouse Shipment Header"
 
     procedure LookupWhseShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             WhseShptHeader.FilterGroup := 2;
             WhseShptHeader.SetRange("Location Code");
@@ -479,7 +477,7 @@ table 7320 "Warehouse Shipment Header"
     var
         Location: Record Location;
     begin
-        Commit;
+        Commit();
         Location.FilterGroup := 2;
         Location.SetRange(Code);
         if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then
@@ -500,12 +498,12 @@ table 7320 "Warehouse Shipment Header"
         WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
         WhsePickRqst.SetRange("Document No.", "No.");
         if not WhsePickRqst.IsEmpty then
-            WhsePickRqst.DeleteAll;
+            WhsePickRqst.DeleteAll();
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");
         WhseComment.SetRange(Type, WhseComment.Type::" ");
         WhseComment.SetRange("No.", "No.");
-        WhseComment.DeleteAll;
+        WhseComment.DeleteAll();
     end;
 
     local procedure DeleteWarehouseShipmentLines()
@@ -533,7 +531,7 @@ table 7320 "Warehouse Shipment Header"
                   '', 0, WhseShptLine."Line No.", WhseShptLine."Location Code", true);
 
                 OnBeforeWhseShptLineDelete(WhseShptLine);
-                WhseShptLine.Delete;
+                WhseShptLine.Delete();
             until WhseShptLine.Next = 0;
     end;
 

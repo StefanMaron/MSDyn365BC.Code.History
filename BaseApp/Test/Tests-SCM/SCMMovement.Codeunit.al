@@ -159,7 +159,7 @@ codeunit 137931 "SCM - Movement"
         WhseWorksheetLine.Next;
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine."Qty. to Handle" - Delta);
-            WhseWorksheetLine.Modify;
+            WhseWorksheetLine.Modify();
         until WhseWorksheetLine.Next = 0;
 
         // [GIVEN] Created Movement (3 Take Lines: Lot "L2", Bin "B1" with 2 PCS, Lot "L3", Bin "B2" with 10 PCS, Lot "L4", Bin "B3" with 4 PCS)
@@ -436,7 +436,7 @@ codeunit 137931 "SCM - Movement"
             ReservationEntry.SetRange("Lot No.", LotNo[Index]);
             ReservationEntry.FindFirst;
             ReservationEntry."Expiration Date" := ExpirationDate[Index];
-            ReservationEntry.Modify;
+            ReservationEntry.Modify();
         end;
     end;
 
@@ -476,7 +476,7 @@ codeunit 137931 "SCM - Movement"
         Location: Record Location;
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateFullWMSLocation(Location, Bins);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         Location.Validate("Pick According to FEFO", PickAccordingToFEFO);
@@ -489,7 +489,7 @@ codeunit 137931 "SCM - Movement"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, false, false, false, false);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
     end;
 

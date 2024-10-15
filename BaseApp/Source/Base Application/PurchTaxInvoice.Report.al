@@ -206,10 +206,10 @@ report 28071 "Purch. - Tax Invoice"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -234,7 +234,7 @@ report 28071 "Purch. - Tax Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Tax Inv. Line"; "Purch. Tax Inv. Line")
@@ -417,10 +417,10 @@ report 28071 "Purch. - Tax Invoice"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -445,7 +445,7 @@ report 28071 "Purch. - Tax Invoice"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Tax Inv. Line"."Dimension Set ID");
                             end;
@@ -456,7 +456,7 @@ report 28071 "Purch. - Tax Invoice"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -481,12 +481,12 @@ report 28071 "Purch. - Tax Invoice"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                             TotalLineAmt := 0;
                             TotalInvAmt := 0;
@@ -581,7 +581,7 @@ report 28071 "Purch. - Tax Invoice"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.GetTotalVATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -596,7 +596,7 @@ report 28071 "Purch. - Tax Invoice"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Tax Inv. Header"."Buy-from Vendor No." = "Purch. Tax Inv. Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -633,7 +633,7 @@ report 28071 "Purch. - Tax Invoice"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -642,8 +642,6 @@ report 28071 "Purch. - Tax Invoice"
                 begin
                     if Number > 1 then
                         CopyText := Text003;
-                    CurrReport.PageNo := 1;
-
                     OutputNO += 1;
                 end;
 
@@ -823,8 +821,8 @@ report 28071 "Purch. - Tax Invoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
     end;
 
     var

@@ -12,9 +12,6 @@ report 16629 "Quarterly VAT Return"
             column(Text004; Text004Lbl)
             {
             }
-            column(STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text005, Format(CurrReport.PageNo)))
-            {
-            }
             column(CompanyAddr_1_; CompanyAddr[1])
             {
             }
@@ -177,7 +174,7 @@ report 16629 "Quarterly VAT Return"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
             end;
         }

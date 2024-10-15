@@ -615,7 +615,7 @@ page 11601 "BAS Calculation Sheet"
 
                     trigger OnAction()
                     begin
-                        BASCalcSheet.Reset;
+                        BASCalcSheet.Reset();
                         BASCalcSheet.SetRange(A1, A1);
                         BASCalcSheet.SetRange("BAS Version", "BAS Version");
                         REPORT.RunModal(REPORT::"Calculate GST Settlement", true, false, BASCalcSheet);
@@ -666,7 +666,7 @@ page 11601 "BAS Calculation Sheet"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 
@@ -678,7 +678,7 @@ page 11601 "BAS Calculation Sheet"
 
     local procedure BASEntryDrillDown(FieldID: Text[30])
     begin
-        BASCalcSheetEntry.Reset;
+        BASCalcSheetEntry.Reset();
         if "Group Consolidated" then begin
             BASCalcSheetEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
             BASCalcSheetEntry.SetRange("Consol. BAS Doc. No.", A1);

@@ -4,7 +4,7 @@ codeunit 5919 "Serv Reg.-Show WarrLdgEntries"
 
     trigger OnRun()
     begin
-        WarrLedgEntry.Reset;
+        WarrLedgEntry.Reset();
         WarrLedgEntry.SetRange("Entry No.", "From Warranty Entry No.", "To Warranty Entry No.");
         PAGE.Run(PAGE::"Warranty Ledger Entries", WarrLedgEntry);
     end;

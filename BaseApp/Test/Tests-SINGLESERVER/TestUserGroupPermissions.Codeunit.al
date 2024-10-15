@@ -348,8 +348,8 @@ codeunit 134610 "Test User Group Permissions"
             LibraryPermissions.AddPermissionSetToUserGroup(PermissionSet2."Role ID", UserGroup.Code);
         end;
 
-        UserGroupCount := UserGroup.Count;
-        UserGroupPermissionSetCount := UserGroupPermissionSet.Count;
+        UserGroupCount := UserGroup.Count();
+        UserGroupPermissionSetCount := UserGroupPermissionSet.Count();
         Assert.AreEqual(3, UserGroupCount, '');
         Assert.AreEqual(6, UserGroupPermissionSetCount, '');
         FileName := FileManagement.ClientTempFileName('xml');
@@ -1301,7 +1301,7 @@ codeunit 134610 "Test User Group Permissions"
             LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::Currency);
         PermissionSet.SetRecFilter;
         Permission.SetRange("Role ID", PermissionSet."Role ID");
-        OrgCount := Permission.Count;
+        OrgCount := Permission.Count();
         if HasPermission then
             Assert.AreEqual(1, OrgCount, '')
         else
@@ -1589,13 +1589,13 @@ codeunit 134610 "Test User Group Permissions"
         // is modified during this test.
         // User Setup must cleaned too, due to reference to User table.
         DeleteAllUsers;
-        UserSetup.DeleteAll;
-        AccessControl.DeleteAll;
-        UserGroupMember.DeleteAll;
-        UserGroupAccessControl.DeleteAll;
-        UserGroupPermissionSet.DeleteAll;
-        UserGroupPlan.DeleteAll;
-        UserGroup.DeleteAll;
+        UserSetup.DeleteAll();
+        AccessControl.DeleteAll();
+        UserGroupMember.DeleteAll();
+        UserGroupAccessControl.DeleteAll();
+        UserGroupPermissionSet.DeleteAll();
+        UserGroupPlan.DeleteAll();
+        UserGroup.DeleteAll();
     end;
 
     local procedure GetGuidString(): Text
@@ -1610,8 +1610,8 @@ codeunit 134610 "Test User Group Permissions"
     begin
         if User.FindFirst then begin
             if UserPersonalization.Get(User."User Security ID") then
-                UserPersonalization.Delete;
-            User.Delete;
+                UserPersonalization.Delete();
+            User.Delete();
         end;
     end;
 
@@ -1660,22 +1660,22 @@ codeunit 134610 "Test User Group Permissions"
         PermissionSet: Record "Permission Set";
     begin
         // User Group
-        UserGroup.Init;
+        UserGroup.Init();
         UserGroup.Code := 'TEST USER GROUP';
         UserGroup.Name := 'TEST USER GROUP';
-        UserGroup.Insert;
+        UserGroup.Insert();
 
         // Permission
-        PermissionSet.Init;
+        PermissionSet.Init();
         PermissionSet."Role ID" := XTestPermissionTxt;
-        PermissionSet.Insert;
+        PermissionSet.Insert();
 
         // User Group PermissionSet
-        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet.Init();
         UserGroupPermissionSet."Role ID" := PermissionSet."Role ID";
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
-        UserGroupPermissionSet.Insert;
-        Commit;
+        UserGroupPermissionSet.Insert();
+        Commit();
 
         exit(UserGroup.Code)
     end;

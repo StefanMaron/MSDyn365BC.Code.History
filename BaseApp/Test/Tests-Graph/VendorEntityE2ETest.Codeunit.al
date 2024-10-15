@@ -25,7 +25,7 @@ codeunit 135503 "Vendor Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         Initialize;
 
         // [GIVEN] A payment term
-        Commit;
+        Commit();
 
         // [GIVEN] A JSON text with an vendor that has the Address as a property
         VendorWithComplexTypeJSON := GetVendorWithAddressJSON(Vendor);
@@ -231,7 +231,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         RequestBody := GetVendorWithAddressJSON(TempVendor);
 
         // [WHEN] The user makes a patch request to the service and specifies Address field.
-        Commit;        // Need to commit transaction to unlock integration record table.
+        Commit();        // Need to commit transaction to unlock integration record table.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
@@ -261,7 +261,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         RequestBody := '{ "address" : null }';
 
         // [WHEN] A user makes a PATCH request to the specific vendor.
-        Commit; // Need to commit in order to unlock integration record table.
+        Commit(); // Need to commit in order to unlock integration record table.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
@@ -315,7 +315,7 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [WHEN] We look through all vendors.
         // [THEN] The integration record for the vendor should have the same record id.
-        Vendor.Reset;
+        Vendor.Reset();
         if Vendor.Find('-') then begin
             repeat
                 Assert.IsTrue(IntegrationRecord.Get(Vendor.SystemId), 'The vendor id should exist in the integration record table');
@@ -328,12 +328,12 @@ codeunit 135503 "Vendor Entity E2E Test"
 
     local procedure CreateSimpleVendor(var Vendor: Record Vendor)
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := GetNextVendorID;
         Vendor.Name := LibraryUtility.GenerateGUID;
         Vendor.Insert(true);
 
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendorWithAddress(var Vendor: Record Vendor)

@@ -40,7 +40,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         LibraryERM.SetUnrealizedVAT(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Unreal VAT Option First");
     end;
 
@@ -976,7 +976,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         SalesInvoiceLine.FindFirst;
 
         // Return Payment Amount less than VAT Amount to use it as partial Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(
           Round(
             (SalesInvoiceLine.Amount * SalesInvoiceLine."VAT %") - LibraryRandom.RandInt(5),
@@ -1003,7 +1003,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         PurchInvLine.FindFirst;
 
         // Return Payment Amount less than VAT Amount to use it as partial Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(
           Round(
             (PurchInvLine.Amount * PurchInvLine."VAT %") - LibraryRandom.RandInt(5),
@@ -1138,7 +1138,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // As there is no need to run Ajdust Add. Reporting Currency Batch Job so we are not validating Additional Reporting Currency field.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
@@ -1191,7 +1191,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         GLEntry: Record "G/L Entry";
         AdditionalCurrencyAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         AdditionalCurrencyAmount :=
           Round(LibraryERM.ConvertCurrency(Amount, '', GeneralLedgerSetup."Additional Reporting Currency", WorkDate));
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Document Type"::Payment);

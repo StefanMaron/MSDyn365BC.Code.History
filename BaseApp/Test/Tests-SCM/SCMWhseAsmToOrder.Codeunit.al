@@ -65,8 +65,8 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         Initialized := true;
         LibraryPatterns.SETNoSeries;
-        ManufacturingSetup.Get;
-        Commit;
+        ManufacturingSetup.Get();
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Order");
     end;
 
@@ -88,14 +88,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockLocation(Location, false, false);
 
         // Create sales line for mix ATO
-        Bin.Init;
+        Bin.Init();
         AddItemToInventory(Item, Location, Bin, 3, '', ''); // add inventory of 3 PCS of Parent
         AddItemToInventory(ChildItem, Location, Bin, 7, '', ''); // add inventory of 7 PCS of Child
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         PostponeShptDateforAssemblyLeadTime(SalesHeader);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
         SalesLine.Validate("Qty. to Assemble to Order", 7);
-        SalesLine.Modify;
+        SalesLine.Modify();
         SalesLine.ShowReservation; // reserve the rest of qty on sales against ILE: Bug 273866
         Assert.IsTrue(SalesLine.AsmToOrderExists(AsmHeader), TXT_ASSEMBLY_EXISTS);
 
@@ -114,10 +114,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // Ship only 1 PCS of item from stock
         SalesLine.Validate("Qty. to Ship", 1);
-        SalesLine.Modify;
+        SalesLine.Modify();
         AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
         AsmHeader.Validate("Quantity to Assemble", 0);
-        AsmHeader.Modify;
+        AsmHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
 
@@ -135,7 +135,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // Ship only 1 PCS of item from assembly
         SalesLine.Validate("Qty. to Ship", 1); // should auto-fill the Qty to asm to 1.
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
 
@@ -157,7 +157,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         if QtyToShip <> SalesLine."Qty. to Ship" then begin
             SalesLine.Validate("Qty. to Ship", QtyToShip);
-            SalesLine.Modify;
+            SalesLine.Modify();
         end;
         AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
         if QtyToShip < AsmHeader."Quantity to Assemble" then
@@ -175,7 +175,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
     local procedure RelationOfQtyToAsmToQtyToShipForPartATO_SetQtyToAsmOnAsmOrder(AsmHeader: Record "Assembly Header"; NewQtyToAsm: Decimal; MinQty: Decimal; MaxQty: Decimal)
     begin
-        Commit;
+        Commit();
         asserterror AsmHeader.Validate("Quantity to Assemble", NewQtyToAsm);
         if NewQtyToAsm > AsmHeader."Remaining Quantity" then
             Assert.IsTrue(
@@ -205,9 +205,9 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockLocation(Location, false, false);
         MockATOItem(ParentItem, ChildItem);
         // no inventory for child item added to trigger error later on.
-        AsmSetup.Get;
+        AsmSetup.Get();
         AsmSetup."Stockout Warning" := false;
-        AsmSetup.Modify;
+        AsmSetup.Modify();
 
         MockATOAsmOrder(AsmHeader, ParentItem, Location, SalesLine, 1);
 
@@ -218,7 +218,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AsmLine.FindFirst;
         NewQtyToConsume := AsmLine."Quantity to Consume" + 1;
         AsmLine."Quantity to Consume" := NewQtyToConsume; // change Qty to consume
-        AsmLine.Modify;
+        AsmLine.Modify();
 
         LibraryAssembly.ReleaseAO(AsmHeader); // release Asm order
 
@@ -251,7 +251,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Initialize;
         MockLocation(Location, false, false);
         MockATOItem(ParentItem, ChildItem);
-        Bin.Init;
+        Bin.Init();
         AddItemToInventory(ChildItem, Location, Bin, 10, '', ''); // place enough components in the inventory.
 
         MockATOAsmOrder(AsmHeader, ParentItem, Location, SalesLine, 1);
@@ -262,7 +262,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AsmLine.ModifyAll("Quantity to Consume", 0);
 
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        Commit;
+        Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false); // try to ship sales but it will fail with nothing to post
 
         // verify that "Qty consumed" on asm lines = 0
@@ -331,7 +331,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Location.Validate("Asm.-to-Order Shpt. Bin Code", ShipmentBin.Code);
         MockBin(FromAsmBin, Location.Code);
         Location.Validate("From-Assembly Bin Code", FromAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
 
         // create a sales order for item
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -362,7 +362,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Bin.SetRange("Location Code", Location.Code);
         Bin.FindFirst;
         Location.Validate("From-Assembly Bin Code", Bin.Code);
-        Location.Modify;
+        Location.Modify();
 
         // create a sales order for item
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -494,7 +494,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         MockBin(Bin, Location.Code);
         Location."Asm.-to-Order Shpt. Bin Code" := Bin.Code;
-        Location.Modify;
+        Location.Modify();
         BinContent.SetRange("Location Code", Location.Code);
         BinContent.SetRange("Item No.", Item."No.");
         BinContent.SetRange(Default, true);
@@ -533,10 +533,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Initialize;
 
         // Change Assembly Setup to no auto creation
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         OldAutoCreateInvtMvmt := AssemblySetup."Create Movements Automatically";
         AssemblySetup."Create Movements Automatically" := true;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
 
         // Bin Code on Sales line is filled with BinAsm
         ToDecimalArray(ExpectedQtysOnPickLines, 7, 0, 0);
@@ -678,7 +678,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // revert to old setup
         AssemblySetup."Create Movements Automatically" := OldAutoCreateInvtMvmt;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     local procedure BinMandatoryRequirePick_CreateInventoryPickForATO_Setup(SalesLineBinCode: Option; SalesQty: Decimal; AssemblyQty: Decimal; InventoryInBinX: Decimal; InventoryInBinAsm: Decimal; AsmShptBinBlank: Boolean; ExpectedNoOfInvtPickLines: Integer; ExpectedQtyInPickLines: array[3] of Decimal; ExpectedBinInPickLines: array[3] of Option)
@@ -709,7 +709,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockBin(BinAsm, Location.Code); // assembly bin
         if not AsmShptBinBlank then begin
             Location.Validate("Asm.-to-Order Shpt. Bin Code", BinAsm.Code);
-            Location.Modify;
+            Location.Modify();
         end;
 
         // Add inventory to bins and BinContent records
@@ -725,7 +725,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AddItemToInventory(ChildItem, Location, ComponentBin, 100, '', '');
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
 
         // Create sales for SalesQty of which Assembly ATO is made for AssemblyQty
         case SalesLineBinCode of
@@ -855,7 +855,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AddItemToInventory(ChildItem, Location, ComponentBin, 100, '', '');
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
         SalesLine.Validate("Qty. to Assemble to Order", 7);
@@ -866,7 +866,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.Modify(true);
         SalesLine.AsmToOrderExists(AsmHeader);
         AsmHeader.Validate("Quantity to Assemble", 4);
-        AsmHeader.Modify;
+        AsmHeader.Modify();
 
         // Create invt pick
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -877,7 +877,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // Now change asm header Qty to Asm to another value
         AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
-        Commit;
+        Commit();
         asserterror AsmHeader.Validate("Quantity to Assemble", 3);
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_INVTPICK_EXISTS) > 0, 'Check for invt pick exists error');
         asserterror AsmHeader.Validate("Quantity to Assemble", 5);
@@ -902,7 +902,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         WhseActivityLine.FindFirst;
         WhseActivityLine.Validate("Bin Code", ToAsmBin.Code);  // empty bin- fill it up
-        WhseActivityLine.Modify;
+        WhseActivityLine.Modify();
         LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
     end;
 
@@ -949,7 +949,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockLocation(Location, true, true);
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, Item."No.", 1);
         LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, Item."No.", 1);
@@ -967,10 +967,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.AreEqual(1, ATOTotalMovementsToBeCreated, '1 Inventory movement to be created.');
 
         // Change Assembly Setup to auto creation of inventory movements
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         OldAutoCreateInvtMvmt := AssemblySetup."Create Movements Automatically";
         AssemblySetup."Create Movements Automatically" := true;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
 
         // Create inventory pick for sales order
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -978,7 +978,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WarehouseRequest.SetRange("Source Type", DATABASE::"Sales Line");
         WarehouseRequest.SetRange("Source Subtype", SalesHeader."Document Type");
         WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Create Invt Put-away/Pick/Mvmt", true, false, WarehouseRequest);
 
         // Now post the inventory movements & pick
@@ -1006,7 +1006,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // revert to old setup
         AssemblySetup."Create Movements Automatically" := OldAutoCreateInvtMvmt;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     [RequestPageHandler]
@@ -1057,7 +1057,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockLocation(Location, true, true);
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -1066,10 +1066,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AddItemToInventory(ChildItem, Location, StockBin, 100, '', '');
 
         // Change Assembly Setup to no auto creation
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         OldAutoCreateInvtMvmt := AssemblySetup."Create Movements Automatically";
         AssemblySetup."Create Movements Automatically" := false;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
 
         // Create inventory pick for sales order
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1100,7 +1100,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // revert to old setup
         AssemblySetup."Create Movements Automatically" := OldAutoCreateInvtMvmt;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     [Test]
@@ -1126,9 +1126,9 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockItemTrackingCode(ItemTrackingCode, true, false);
         MockATOItem(ParentItem, ChildItem);
         ParentItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ParentItem.Modify;
+        ParentItem.Modify();
         ChildItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ChildItem.Modify;
+        ChildItem.Modify();
         MockLocation(Location, true, true);
 
         // Put enough of child items on a new bin
@@ -1166,7 +1166,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
 
         // Register inventory pick
-        WhseActivityHeader.Reset;
+        WhseActivityHeader.Reset();
         WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::"Invt. Pick");
         WhseActivityHeader.SetRange("Source Type", DATABASE::"Sales Line");
         WhseActivityHeader.SetRange("Source No.", SalesLine."Document No.");
@@ -1218,7 +1218,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockItemTrackingCode(ItemTrackingCode, false, true);
         MockATOItem(Item, ChildItem);
         Item."Item Tracking Code" := ItemTrackingCode.Code;
-        Item.Modify;
+        Item.Modify();
         MockLocation(Location, true, true);
 
         // [GIVEN] Put enough of child items on a new bin
@@ -1236,12 +1236,12 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // [GIVEN] first set the lot no for existing inventory.
         SalesLine.Validate("Qty. to Assemble to Order", 0);
         SalesLine.Validate("Bin Code", '');
-        SalesLine.Modify;
+        SalesLine.Modify();
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', Lot1, Lot1Qty);
         // [GIVEN] make asm order for 7 PCS
         SalesLine.Validate("Qty. to Assemble to Order", QtyOnAssemly);
         SalesLine.Validate("Bin Code", '');
-        SalesLine.Modify;
+        SalesLine.Modify();
         // [GIVEN] reserve the rest of qty on sales against ILE (VSTF273866)
         SalesLine.ShowReservation;
         // [GIVEN] assign 2 lots to asm order taking care that it does not cover the whole qty
@@ -1397,11 +1397,11 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
         SalesLine.Validate("Qty. to Assemble to Order", 7);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // Release and create whse shipment
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1420,7 +1420,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // now try to set Qty to Asm on Asm Header to any other value
         asserterror
         begin
-            Commit; // to save setup til now
+            Commit(); // to save setup til now
             AsmHeader.Validate("Quantity to Assemble", AsmHeader."Quantity to Assemble" - 1);
         end;
         Assert.IsTrue(
@@ -1456,7 +1456,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // trying to change Qty to Asm to Order on the sales line
         asserterror
         begin
-            Commit; // to not lose setup made as yet
+            Commit(); // to not lose setup made as yet
             SalesLine.Validate("Qty. to Assemble to Order", SalesLine."Qty. to Assemble to Order" - 1);
         end;
         Assert.IsTrue(
@@ -1633,9 +1633,9 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockItemTrackingCode(ItemTrackingCode, true, false);
         MockATOItem(ParentItem, ChildItem);
         ParentItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ParentItem.Modify;
+        ParentItem.Modify();
         ChildItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ChildItem.Modify;
+        ChildItem.Modify();
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
         Location.Modify(true);
@@ -1729,7 +1729,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
         MockSalesHeaderWithItemsAndLocation(SalesHeader, ParentItem, Location);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", 2);
 
@@ -1811,9 +1811,9 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockItemTrackingCode(ItemTrackingCode, true, false);
         MockATOItem(ParentItem, ChildItem);
         ParentItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ParentItem.Modify;
+        ParentItem.Modify();
         ChildItem."Item Tracking Code" := ItemTrackingCode.Code;
-        ChildItem.Modify;
+        ChildItem.Modify();
         MockLocation(Location, true, true);
         Location.Validate("Require Shipment", true);
         MockBin(ToAsmBin, Location.Code);
@@ -1872,7 +1872,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.IsTrue(WhseWkshLine.IsEmpty, ''); // expecting that the line created above vanishes as the full pick has been made
         asserterror
         begin
-            Commit;
+            Commit();
             Assert.AreEqual(0, LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWkshLine, WhsePickRequest, Location.Code), ''); // all picks have been made. getting src docs should lead to error
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_NO_WHSE_WKSH_LINES_CREATED) > 0, '');
@@ -1891,7 +1891,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.IsTrue(WhseWkshLine.IsEmpty, ''); // expecting that the lines created above vanishes as the full pick has been made
         asserterror
         begin
-            Commit;
+            Commit();
             Assert.AreEqual(0, LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWkshLine, WhsePickRequest, Location.Code), ''); // all picks have been made. getting src docs should lead to error
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_NO_WHSE_WKSH_LINES_CREATED) > 0, '');
@@ -1938,7 +1938,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.AreEqual(2, LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWkshLine, WhsePickRequest, Location.Code), ''); // expecting two lines - one for ATO (with src doc Assembly) and another for non-ATO
         asserterror
         begin
-            Commit;
+            Commit();
             CreatePickWkshLine(WhseWkshLine);
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_NOTHING_TO_HANDLE) > 0, ''); // a pick for the EXTRA components must NOT have been made as there are no items
@@ -1991,11 +1991,11 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockATOItemAndSalesOrder(Item, ChildItem, Location, SalesLine, AsmLine);
 
         AsmLine."Bin Code" := ''; // empty the bin code
-        AsmLine.Modify;
+        AsmLine.Modify();
 
         LibraryWarehouse.CreateWarehouseShipmentHeader(WhseShptHeader);
         WhseShptHeader.Validate("Location Code", Location.Code);
-        WhseShptHeader.Modify;
+        WhseShptHeader.Modify();
         LibraryWarehouse.CreateWarehouseShipmentLine(WhseShptLine, WhseShptHeader);
         WhseShptLine.Validate("Location Code", Location.Code);
         WhseShptLine.Validate("Source Document", WhseShptLine."Source Document"::"Sales Order");
@@ -2008,11 +2008,11 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseShptLine.Validate("Item No.", Item."No.");
         WhseShptLine.Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
         WhseShptLine.Validate(Quantity, SalesLine.Quantity);
-        WhseShptLine.Modify;
+        WhseShptLine.Modify();
 
         // Create a dummy warehouse worksheet line using the above ATO warehouse shipment line
-        WhseActivityLine.Init;
-        WhseWkshLine.Init;
+        WhseActivityLine.Init();
+        WhseWkshLine.Init();
         WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Shipment;
         WhseWkshLine."Whse. Document No." := WhseShptLine."No.";
         WhseWkshLine."Whse. Document Line No." := WhseShptLine."Line No.";
@@ -2069,7 +2069,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseWkshLine."Source No." := AsmLine."Document No.";
         WhseWkshLine."Source Line No." := AsmLine."Line No.";
         WhseWkshLine."Source Subline No." := 0;
-        WhseWkshLine.Modify;
+        WhseWkshLine.Modify();
 
         // EXERCISE - Try to create a new pick worksheet line,
         // VERIFY - Creation of new pick worksheet line is unsuccessful.
@@ -2106,7 +2106,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // Exercise: Create Inv. Pick from Warehouse Tasks without Warehouse Request
         // by BinMandatoryRequirePick_ReportCreatePickHandled.
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Create Invt Put-away/Pick/Mvmt", true, false, WarehouseRequest);
 
         // Verify: Verify Inventory Pick created successfully.
@@ -2175,7 +2175,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
             exit; // for native database
         if WarehouseEmployee.Get(UserId, LocationCode) then
             exit;
-        WarehouseEmployee.Init;
+        WarehouseEmployee.Init();
         WarehouseEmployee.Validate("User ID", UserId);
         WarehouseEmployee.Validate("Location Code", LocationCode);
         WarehouseEmployee.Insert(true);
@@ -2225,7 +2225,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         EntrySummary: Record "Entry Summary";
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        EntrySummary.Init;
+        EntrySummary.Init();
         ReservationPage.First;
         if ReservationPage."Summary Type".Value =
            CopyStr(ItemLedgEntry.TableCaption, 1, MaxStrLen(EntrySummary."Summary Type"))
@@ -2248,7 +2248,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseEntry.SetRange("Reference No.", PostedAsmHeader."No.");
         WhseEntry.FindFirst;
         FirstWhseEntryNo := WhseEntry."Entry No.";
-        WhseEntry.Reset;
+        WhseEntry.Reset();
         WhseEntry.FindLast;
         LastWhseEntryNo := WhseEntry."Entry No.";
         WhseRegister.FindLast;
@@ -2272,7 +2272,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         LibraryInventory.CreateItem(ParentItem);
         ParentItem.Validate("Assembly Policy", ParentItem."Assembly Policy"::"Assemble-to-Stock");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryInventory.CreateItem(ChildItem);
         LibraryManufacturing.CreateBOMComponent(
@@ -2284,7 +2284,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         MockATSItem(ParentItem, ChildItem);
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
         ParentItem.Validate("Assembly Policy", ParentItem."Assembly Policy"::"Assemble-to-Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
     end;
 
     local procedure MockLocation(var Location: Record Location; BinMandatory: Boolean; RequirePick: Boolean)
@@ -2309,7 +2309,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         end;
 
         if CallModify then
-            Location.Modify;
+            Location.Modify();
     end;
 
     local procedure MockBin(var Bin: Record Bin; LocationCode: Code[10])
@@ -2328,7 +2328,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", VariantCode, Item."Base Unit of Measure");
         BinContent.Validate(Default, Default);
-        BinContent.Modify;
+        BinContent.Modify();
     end;
 
     local procedure MockSalesHeaderWithItemsAndLocation(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Location: Record Location)
@@ -2377,7 +2377,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Location.Validate("Shipment Bin Code", ShptBin.Code);
         MockBin(ToAsmBin, Location.Code);
         Location.Validate("To-Assembly Bin Code", ToAsmBin.Code);
-        Location.Modify;
+        Location.Modify();
 
         MockSalesHeaderWithItemsAndLocation(SalesHeader, Item, Location);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
@@ -2402,7 +2402,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
         ItemJournalLine.Validate("Location Code", Location.Code);
@@ -2435,14 +2435,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
             ItemTrackingCode."SN Warehouse Tracking" := true;
         if LotTracking then
             ItemTrackingCode."Lot Warehouse Tracking" := true;
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
     end;
 
     local procedure PostponeShptDateforAssemblyLeadTime(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.Validate(
           "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -2451,7 +2451,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseWkshLine: Record "Whse. Worksheet Line";
         CreatePick: Report "Create Pick";
     begin
-        Commit; // As there is a RUNMODAL inside the following call
+        Commit(); // As there is a RUNMODAL inside the following call
         WhseWkshLine.Copy(WhseWorksheetLine);
         CreatePick.SetWkshPickLine(WhseWkshLine);
         CreatePick.UseRequestPage(false);

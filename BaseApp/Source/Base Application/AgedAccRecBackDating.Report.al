@@ -16,9 +16,6 @@ report 17116 "Aged Acc. Rec. (BackDating)"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -417,7 +414,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                     else
                         OK := TempCurrency2.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     for i := 1 to 5 do
                         AccountTotalPerCurrency[i] := GetAccountTotalPerCurrency(TempCurrency2.Code, i);
@@ -546,12 +543,12 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 CreditLimit: Decimal;
             begin
                 if PrintTotalsPerCurrency then begin
-                    CVLedgerEntryBuffer2.Reset;
-                    CVLedgerEntryBuffer2.DeleteAll;
-                    TempCurrency2.DeleteAll;
+                    CVLedgerEntryBuffer2.Reset();
+                    CVLedgerEntryBuffer2.DeleteAll();
+                    TempCurrency2.DeleteAll();
                 end;
-                CVLedgerEntryBuffer4.Reset;
-                CVLedgerEntryBuffer4.DeleteAll;
+                CVLedgerEntryBuffer4.Reset();
+                CVLedgerEntryBuffer4.DeleteAll();
 
                 CustLedgerEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
                 CustLedgerEntry.SetRange("Customer No.", "No.");
@@ -561,7 +558,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 CustLedgerEntry.SetRange("Posting Date", 0D, PeriodStartDate[5]);
                 if AccountNetChange = 0 then
                     if not CustLedgerEntry.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 HasEntry := true;
 
@@ -570,7 +567,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                         begin
                             CurrencyCode := "Currency Code";
                             if not Currency.Get("Currency Code") then
-                                Currency.Init;
+                                Currency.Init();
                             CurrencyFactor := CurrencyExchangeRate.ExchangeRate(PeriodStartDate[5], "Currency Code");
                         end;
                     UseCurrency::LCY, UseCurrency::"Document Currency":
@@ -686,13 +683,13 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 OK: Boolean;
             begin
                 if not HasEntry then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if Number = 1 then
                     OK := TempCurrency3.Find('-')
                 else
                     OK := TempCurrency3.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 for i := 1 to 5 do
                     TotalPerCurrency[i] := GetTotalPerCurrency(TempCurrency3.Code, i);
@@ -744,7 +741,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
             trigger OnAfterGetRecord()
             begin
                 if not HasEntry then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 for i := 1 to 5 do
                     Total[i] := GetTotal(i);
@@ -1004,17 +1001,17 @@ report 17116 "Aged Acc. Rec. (BackDating)"
     local procedure UpdateTotal(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var TempCurrency: Record Currency; CurrencyCode: Code[20]; i: Integer; Amount: Decimal; AmountLCY: Decimal)
     begin
         if not TempCurrency.Get(CurrencyCode) then begin
-            TempCurrency.Init;
+            TempCurrency.Init();
             TempCurrency.Code := CurrencyCode;
-            TempCurrency.Insert;
+            TempCurrency.Insert();
         end;
-        CVLedgerEntryBuffer.Reset;
+        CVLedgerEntryBuffer.Reset();
         CVLedgerEntryBuffer.SetRange("Currency Code", CurrencyCode);
         CVLedgerEntryBuffer.SetRange("Transaction No.", i);
         if CVLedgerEntryBuffer.Find('-') then begin
             CVLedgerEntryBuffer.Amount := CVLedgerEntryBuffer.Amount + Amount;
             CVLedgerEntryBuffer."Amount (LCY)" := CVLedgerEntryBuffer."Amount (LCY)" + AmountLCY;
-            CVLedgerEntryBuffer.Modify;
+            CVLedgerEntryBuffer.Modify();
         end else begin
             EntryNo := EntryNo + 1;
             CVLedgerEntryBuffer."Entry No." := EntryNo;
@@ -1022,13 +1019,13 @@ report 17116 "Aged Acc. Rec. (BackDating)"
             CVLedgerEntryBuffer."Transaction No." := i;
             CVLedgerEntryBuffer.Amount := Amount;
             CVLedgerEntryBuffer."Amount (LCY)" := AmountLCY;
-            CVLedgerEntryBuffer.Insert;
+            CVLedgerEntryBuffer.Insert();
         end;
     end;
 
     local procedure GetTotalPerCurrency(CurrencyCode: Code[20]; i: Integer): Decimal
     begin
-        CVLedgerEntryBuffer3.Reset;
+        CVLedgerEntryBuffer3.Reset();
         CVLedgerEntryBuffer3.SetRange("Currency Code", CurrencyCode);
         CVLedgerEntryBuffer3.SetRange("Transaction No.", i);
         if CVLedgerEntryBuffer3.Find('-') then
@@ -1039,7 +1036,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
 
     local procedure GetAccountTotalPerCurrency(CurrencyCode: Code[20]; i: Integer): Decimal
     begin
-        CVLedgerEntryBuffer2.Reset;
+        CVLedgerEntryBuffer2.Reset();
         CVLedgerEntryBuffer2.SetRange("Currency Code", CurrencyCode);
         CVLedgerEntryBuffer2.SetRange("Transaction No.", i);
         if CVLedgerEntryBuffer2.Find('-') then
@@ -1052,7 +1049,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
     begin
         if CurrencyCode = '' then begin
             if not HasGLSetup then
-                HasGLSetup := GLSetup.Get;
+                HasGLSetup := GLSetup.Get();
             exit(GLSetup."LCY Code");
         end;
         exit(CurrencyCode);
@@ -1065,7 +1062,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
 
     local procedure GetTotal(i: Integer): Decimal
     begin
-        CVLedgerEntryBuffer5.Reset;
+        CVLedgerEntryBuffer5.Reset();
         CVLedgerEntryBuffer5.SetRange("Currency Code", '');
         CVLedgerEntryBuffer5.SetRange("Transaction No.", i);
         if CVLedgerEntryBuffer5.Find('-') then
@@ -1076,7 +1073,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
 
     local procedure GetAccountTotal(i: Integer): Decimal
     begin
-        CVLedgerEntryBuffer4.Reset;
+        CVLedgerEntryBuffer4.Reset();
         CVLedgerEntryBuffer4.SetRange("Currency Code", '');
         CVLedgerEntryBuffer4.SetRange("Transaction No.", i);
         if CVLedgerEntryBuffer4.Find('-') then

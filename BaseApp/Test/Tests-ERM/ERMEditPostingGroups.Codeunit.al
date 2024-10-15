@@ -54,7 +54,7 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment discount accounts
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         CustomerPostingGroups.OpenView;
         Assert.AreEqual(CustomerPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(CustomerPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -77,7 +77,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Payment tolerance accounts
-        GLSetup.Get;
+        GLSetup.Get();
         CustomerPostingGroups.OpenView;
         Assert.AreEqual(
           CustomerPostingGroups."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
@@ -98,7 +98,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Currency application accounts
-        SalesSetup.Get;
+        SalesSetup.Get();
         CustomerPostingGroups.OpenView;
         Assert.AreEqual(
           CustomerPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
@@ -140,7 +140,7 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment discount accounts
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         CustomerPostingGroupCard.OpenView;
         Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(CustomerPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -163,7 +163,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Payment tolerance accounts
-        GLSetup.Get;
+        GLSetup.Get();
         CustomerPostingGroupCard.OpenView;
         Assert.AreEqual(
           CustomerPostingGroupCard."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
@@ -184,7 +184,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Currency application accounts
-        SalesSetup.Get;
+        SalesSetup.Get();
         CustomerPostingGroupCard.OpenView;
         Assert.AreEqual(
           CustomerPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible, SalesSetup."Appln. between Currencies" > 0,
@@ -226,7 +226,7 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment discount accounts
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         VendorPostingGroups.OpenView;
         Assert.AreEqual(VendorPostingGroups."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(VendorPostingGroups."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -249,7 +249,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Payment tolerance accounts
-        GLSetup.Get;
+        GLSetup.Get();
         VendorPostingGroups.OpenView;
         Assert.AreEqual(
           VendorPostingGroups."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
@@ -270,7 +270,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Currency application accounts
-        PurchSetup.Get;
+        PurchSetup.Get();
         VendorPostingGroups.OpenView;
         Assert.AreEqual(
           VendorPostingGroups."Debit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
@@ -312,7 +312,7 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         // Payment discount accounts
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         VendorPostingGroupCard.OpenView;
         Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Debit Acc.".Visible, false, 'Payment discount off');
         Assert.AreEqual(VendorPostingGroupCard."Payment Disc. Credit Acc.".Visible, false, 'Payment discount off');
@@ -335,7 +335,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Payment tolerance accounts
-        GLSetup.Get;
+        GLSetup.Get();
         VendorPostingGroupCard.OpenView;
         Assert.AreEqual(
           VendorPostingGroupCard."Payment Tolerance Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0,
@@ -356,7 +356,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // Currency application accounts
-        PurchSetup.Get;
+        PurchSetup.Get();
         VendorPostingGroupCard.OpenView;
         Assert.AreEqual(
           VendorPostingGroupCard."Debit Curr. Appln. Rndg. Acc.".Visible, PurchSetup."Appln. between Currencies" > 0,
@@ -457,7 +457,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
         Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
@@ -473,7 +473,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(
           GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
@@ -572,7 +572,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
         Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
@@ -588,7 +588,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GeneralPostingSetup.OpenView;
         Assert.AreEqual(
           GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
@@ -687,7 +687,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Debit Acc.".Visible, false, 'Sales payment discount');
         Assert.AreEqual(GeneralPostingSetupCard."Sales Pmt. Disc. Credit Acc.".Visible, false, 'Sales payment discount');
@@ -703,7 +703,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(
           GeneralPostingSetupCard."Sales Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
@@ -802,7 +802,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.DeleteAll;
+        PaymentTerms.DeleteAll();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Debit Acc.".Visible, false, 'Purch. payment discount');
         Assert.AreEqual(GeneralPostingSetupCard."Purch. Pmt. Disc. Credit Acc.".Visible, false, 'Purch. payment discount');
@@ -818,7 +818,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GeneralPostingSetupCard.OpenView;
         Assert.AreEqual(
           GeneralPostingSetupCard."Purch. Pmt. Tol. Debit Acc.".Visible, GLSetup."Payment Tolerance %" <> 0, 'Payment tolerance');
@@ -836,7 +836,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         VATPostingSetup.OpenView;
         Assert.AreEqual(
           VATPostingSetup."Adjust for Payment Discount".Visible, GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
@@ -852,7 +852,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         Initialize;
 
-        GLSetup.Get;
+        GLSetup.Get();
         VATPostingSetupCard.OpenView;
         Assert.AreEqual(
           VATPostingSetupCard."Adjust for Payment Discount".Visible, GLSetup."Adjust for Payment Disc.", 'Adjust for Payment Disc.');
@@ -1062,10 +1062,10 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // [GIVEN] "Max. Payment Tolerance Amount" = 1 in General Ledger Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Payment Tolerance %" := 0;
         GeneralLedgerSetup."Max. Payment Tolerance Amount" := 1;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [WHEN] Open page "General Posting Setup"
         GeneralPostingSetup.OpenNew;
@@ -1086,10 +1086,10 @@ codeunit 134069 "ERM Edit Posting Groups"
         Initialize;
 
         // [GIVEN] "Max. Payment Tolerance Amount" = 0 in General Ledger Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Payment Tolerance %" := 0;
         GeneralLedgerSetup."Max. Payment Tolerance Amount" := 0;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [WHEN] Open page "General Posting Setup"
         GeneralPostingSetup.OpenNew;
@@ -1115,7 +1115,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLAccount.Modify(true);
 
         // [WHEN] Validate "Payment Tolerance Credit Acc." = Blocked GL Account in Customer Posting Group
-        CustomerPostingGroup.Init;
+        CustomerPostingGroup.Init();
         asserterror CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
 
         // [THEN] Error "Blocked must be equal to 'No'"
@@ -1140,7 +1140,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLAccount.Modify(true);
 
         // [WHEN] Validate "Payment Tolerance Credit Acc." = Blocked GL Account in Vendor Posting Group
-        VendorPostingGroup.Init;
+        VendorPostingGroup.Init();
         asserterror VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
 
         // [THEN] Error "Blocked must be equal to 'No'"
@@ -1283,61 +1283,61 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure SetSalesDiscountPosting(DiscountPosting: Option)
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Discount Posting" := DiscountPosting;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     local procedure SetPurchDiscountPosting(DiscountPosting: Option)
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Discount Posting" := DiscountPosting;
-        PurchSetup.Modify;
+        PurchSetup.Modify();
     end;
 
     local procedure ModifyPaymentTolerancePercentInGLSetup()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", LibraryRandom.RandDecInRange(10, 20, 2));
         GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure CreateCustomerPostingGroupWithPmtTolDebitAcc(var CustomerPostingGroup: Record "Customer Posting Group"; GLAccountNo: Code[20])
     begin
-        CustomerPostingGroup.Init;
+        CustomerPostingGroup.Init();
         CustomerPostingGroup.Code := LibraryUtility.GenerateGUID;
         CustomerPostingGroup."Payment Tolerance Debit Acc." := GLAccountNo;
-        CustomerPostingGroup.Insert;
+        CustomerPostingGroup.Insert();
     end;
 
     local procedure CreateVendorPostingGroupWithPmtTolDebitAcc(var VendorPostingGroup: Record "Vendor Posting Group"; GLAccountNo: Code[20])
     begin
-        VendorPostingGroup.Init;
+        VendorPostingGroup.Init();
         VendorPostingGroup.Code := LibraryUtility.GenerateGUID;
         VendorPostingGroup."Payment Tolerance Debit Acc." := GLAccountNo;
-        VendorPostingGroup.Insert;
+        VendorPostingGroup.Insert();
     end;
 
     local procedure CreateGLAccountCategoryWithDescription(AccountCategory: Integer; Description: Text): Integer
     var
         GLAccountCategory: Record "G/L Account Category";
     begin
-        GLAccountCategory.Init;
+        GLAccountCategory.Init();
         GLAccountCategory."Entry No." := LibraryUtility.GetNewRecNo(GLAccountCategory, GLAccountCategory.FieldNo("Entry No."));
         GLAccountCategory."Account Category" := AccountCategory;
         GLAccountCategory.Description := CopyStr(Description, 1, MaxStrLen(GLAccountCategory.Description));
-        GLAccountCategory.Insert;
+        GLAccountCategory.Insert();
         exit(GLAccountCategory."Entry No.");
     end;
 
@@ -1393,8 +1393,8 @@ codeunit 134069 "ERM Edit Posting Groups"
         FinanceChargeTerms: Record "Finance Charge Terms";
         ReminderTerms: Record "Reminder Terms";
     begin
-        FinanceChargeTerms.DeleteAll;
-        ReminderTerms.DeleteAll;
+        FinanceChargeTerms.DeleteAll();
+        ReminderTerms.DeleteAll();
     end;
 
     local procedure VerifyPmtTolFieldsVisibilityOnGeneralPostingSetup(var GeneralPostingSetup: TestPage "General Posting Setup"; ExpectedVisibility: Boolean)

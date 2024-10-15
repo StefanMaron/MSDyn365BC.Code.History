@@ -77,7 +77,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     trigger OnPreDataItem()
                     begin
                         if WarningStr = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("XBRL G/L Map Line"; "XBRL G/L Map Line")
@@ -117,8 +117,8 @@ report 506 "XBRL Mapping of G/L Accounts"
                     begin
                         if "G/L Account Filter" <> '' then begin
                             TempGLAcc1.SetFilter("No.", "G/L Account Filter");
-                            TempGLAcc1.DeleteAll;
-                            TempGLAcc1.Reset;
+                            TempGLAcc1.DeleteAll();
+                            TempGLAcc1.Reset();
 
                             TempGLAcc.SetFilter("No.", "G/L Account Filter");
                             if TempGLAcc.Find('-') then
@@ -126,14 +126,14 @@ report 506 "XBRL Mapping of G/L Accounts"
                                     TempGLAcc2 := TempGLAcc;
                                     TempGLAcc2.Totaling := Format("XBRL Taxonomy Line No.");
                                     TempGLAcc2.Blocked := false;
-                                    if not TempGLAcc2.Insert then begin
+                                    if not TempGLAcc2.Insert() then begin
                                         TempGLAcc2.Get(TempGLAcc."No.");
                                         if MaxStrLen(TempGLAcc2.Totaling) >
                                            StrLen(TempGLAcc2.Totaling + Format("XBRL Taxonomy Line No."))
                                         then begin
                                             TempGLAcc2.Totaling := TempGLAcc2.Totaling + ',' + Format("XBRL Taxonomy Line No.");
                                             TempGLAcc2.Blocked := true;
-                                            TempGLAcc2.Modify;
+                                            TempGLAcc2.Modify();
                                         end;
                                     end;
                                 until TempGLAcc.Next = 0;
@@ -195,7 +195,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     else
                         More := TempGLAcc1.Next <> 0;
                     if not More then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(DuplicateGLAccLoop; "Integer")
@@ -227,7 +227,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                     else
                         More := TempGLAcc2.Next <> 0;
                     if not More then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -238,16 +238,16 @@ report 506 "XBRL Mapping of G/L Accounts"
 
             trigger OnAfterGetRecord()
             begin
-                TempGLAcc1.Reset;
-                TempGLAcc1.DeleteAll;
-                TempGLAcc2.Reset;
-                TempGLAcc2.DeleteAll;
+                TempGLAcc1.Reset();
+                TempGLAcc1.DeleteAll();
+                TempGLAcc2.Reset();
+                TempGLAcc2.DeleteAll();
 
-                TempGLAcc.Reset;
+                TempGLAcc.Reset();
                 if TempGLAcc.Find('-') then
                     repeat
                         TempGLAcc1 := TempGLAcc;
-                        TempGLAcc1.Insert;
+                        TempGLAcc1.Insert();
                     until TempGLAcc.Next = 0;
             end;
 
@@ -257,7 +257,7 @@ report 506 "XBRL Mapping of G/L Accounts"
                 if GLAcc.Find('-') then
                     repeat
                         TempGLAcc := GLAcc;
-                        TempGLAcc.Insert;
+                        TempGLAcc.Insert();
                     until GLAcc.Next = 0;
             end;
         }

@@ -157,7 +157,7 @@ report 5065 "Segment - Labels"
             begin
                 NoOfRecords := 0;
                 SegLine.SetFilter("Segment No.", "No.");
-                NoOfRecords := SegLine.Count;
+                NoOfRecords := SegLine.Count();
             end;
         }
     }
@@ -192,7 +192,7 @@ report 5065 "Segment - Labels"
         var
             GLSetup: Record "General Ledger Setup";
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             /*REQUESTOPTIONSPAGE."Bar Code".ENABLED(
               (GLSetup."Address Validation" <> GLSetup."Address Validation"::"Post Code & City") AND
               (GLSetup."AMAS Software" <> 0));*/

@@ -88,7 +88,7 @@ table 5740 "Transfer Header"
                                   "Shipping Agent Code",
                                   "Shipping Agent Service Code");
                             end;
-                            TransLine.LockTable;
+                            TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
                         end;
                         UpdateTransLines(Rec, FieldNo("Transfer-from Code"));
@@ -261,7 +261,7 @@ table 5740 "Transfer Header"
                                   "Shipping Agent Code",
                                   "Shipping Agent Service Code");
                             end;
-                            TransLine.LockTable;
+                            TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
                         end;
                         UpdateTransLines(Rec, FieldNo("Transfer-to Code"));
@@ -627,11 +627,9 @@ table 5740 "Transfer Header"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
 
             trigger OnValidate()
             begin
@@ -768,7 +766,7 @@ table 5740 "Transfer Header"
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
         InvtCommentLine.SetRange("No.", "No.");
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Transfer Header", GetPosition);
     end;
@@ -841,7 +839,7 @@ table 5740 "Transfer Header"
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, InvtSetup, NoSeriesCode, IsHandled);
         if IsHandled then
@@ -878,7 +876,7 @@ table 5740 "Transfer Header"
     local procedure GetInventorySetup()
     begin
         if not HasInventorySetup then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             HasInventorySetup := true;
         end;
     end;
@@ -890,7 +888,7 @@ table 5740 "Transfer Header"
         TransferLine.SetRange("Document No.", "No.");
         TransferLine.SetFilter("Item No.", '<>%1', '');
         if TransferLine.FindSet then begin
-            TransferLine.LockTable;
+            TransferLine.LockTable();
             repeat
                 case FieldID of
                     FieldNo("In-Transit Code"):
@@ -1011,20 +1009,20 @@ table 5740 "Transfer Header"
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
         InvtCommentLine.SetRange("No.", No);
-        InvtCommentLine.DeleteAll;
+        InvtCommentLine.DeleteAll();
 
         ItemChargeAssgntPurch.SetCurrentKey(
           "Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", TransLine2."Document No.");
-        ItemChargeAssgntPurch.DeleteAll;
+        ItemChargeAssgntPurch.DeleteAll();
 
         OnBeforeTransLineDeleteAll(TransHeader2, TransLine2);
 
         if TransLine2.Find('-') then
-            TransLine2.DeleteAll;
+            TransLine2.DeleteAll();
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Transfer Header", TransHeader2.GetPosition);
-        TransHeader2.Delete;
+        TransHeader2.Delete();
         if not HideValidationDialog then
             Message(TransferOrderPostedMsg1, No);
     end;
@@ -1046,7 +1044,7 @@ table 5740 "Transfer Header"
     begin
         TestField(Status, Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         WhseRequest.SetFilter(
           "Source Document", '%1|%2',
@@ -1074,7 +1072,7 @@ table 5740 "Transfer Header"
 
     local procedure TransferLinesExist(): Boolean
     begin
-        TransLine.Reset;
+        TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");
         exit(TransLine.FindFirst);
     end;
@@ -1083,17 +1081,18 @@ table 5740 "Transfer Header"
     var
         NewDimSetID: Integer;
         ShippedLineDimChangeConfirmed: Boolean;
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         // Update all lines with changed dimensions.
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not Confirm(Text007) then
+        if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text007, true)) then
             exit;
 
-        TransLine.Reset;
+        TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");
-        TransLine.LockTable;
+        TransLine.LockTable();
         if TransLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(TransLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -1104,7 +1103,7 @@ table 5740 "Transfer Header"
 
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       TransLine."Dimension Set ID", TransLine."Shortcut Dimension 1 Code", TransLine."Shortcut Dimension 2 Code");
-                    TransLine.Modify;
+                    TransLine.Modify();
                 end;
             until TransLine.Next = 0;
     end;

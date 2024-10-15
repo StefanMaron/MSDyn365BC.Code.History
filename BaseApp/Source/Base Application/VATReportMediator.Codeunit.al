@@ -182,7 +182,7 @@ codeunit 740 "VAT Report Mediator"
     begin
         GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
         exit(VATReportsConfiguration."Disable Submit Action");
-    end;   
+    end;
     
 }
 

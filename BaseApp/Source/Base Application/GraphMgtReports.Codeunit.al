@@ -33,7 +33,7 @@ codeunit 5488 "Graph Mgt - Reports"
             repeat
                 GLAccount.CalcFields("Debit Amount", "Balance at Date");
                 GLAccount.CalcFields("Credit Amount", "Balance at Date");
-                TrialBalanceEntityBuffer.Init;
+                TrialBalanceEntityBuffer.Init();
                 TrialBalanceEntityBuffer."No." := GLAccount."No.";
                 TrialBalanceEntityBuffer.Name := GLAccount.Name;
                 TrialBalanceEntityBuffer."Account Type" := GLAccount."Account Type";
@@ -52,7 +52,7 @@ codeunit 5488 "Graph Mgt - Reports"
                     end;
                 end;
                 TrialBalanceEntityBuffer."Date Filter" := GetDateRangeMax(DateFilter);
-                TrialBalanceEntityBuffer.Insert;
+                TrialBalanceEntityBuffer.Insert();
             until GLAccount.Next = 0;
             NewTrialBalanceEntityBuffer.TransferFields(TrialBalanceEntityBuffer);
             TrialBalanceEntityBuffer.Copy(NewTrialBalanceEntityBuffer);
@@ -131,7 +131,7 @@ codeunit 5488 "Graph Mgt - Reports"
                 case ReportType of
                     ReportType::"Balance Sheet":
                         begin
-                            BalanceSheetBuffer.Init;
+                            BalanceSheetBuffer.Init();
                             BalanceSheetBuffer."Line No." := AccScheduleLine."Line No.";
                             BalanceSheetBuffer.Description := AccScheduleLine.Description;
                             if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
@@ -148,13 +148,13 @@ codeunit 5488 "Graph Mgt - Reports"
                                 end else
                                     BalanceSheetBuffer."Line Type" := FooterLineTypeTxt;
                             BalanceSheetBuffer.Indentation := AccScheduleLine.Indentation;
-                            BalanceSheetBuffer.Insert;
+                            BalanceSheetBuffer.Insert();
                         end;
                     ReportType::"Income Statement",
                     ReportType::"CashFlow Statement",
                     ReportType::"Retained Earnings":
                         begin
-                            AccScheduleLineEntity.Init;
+                            AccScheduleLineEntity.Init();
                             AccScheduleLineEntity."Line No." := AccScheduleLine."Line No.";
                             AccScheduleLineEntity.Description := AccScheduleLine.Description;
                             if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
@@ -171,7 +171,7 @@ codeunit 5488 "Graph Mgt - Reports"
                                 end else
                                     AccScheduleLineEntity."Line Type" := FooterLineTypeTxt;
                             AccScheduleLineEntity.Indentation := AccScheduleLine.Indentation;
-                            AccScheduleLineEntity.Insert;
+                            AccScheduleLineEntity.Insert();
                         end;
                 end;
                 AccSchedManagement.ForceRecalculate(false);
@@ -221,11 +221,11 @@ codeunit 5488 "Graph Mgt - Reports"
                 begin
                     if Customer.FindSet then
                         repeat
-                            CustLedgerEntry.Reset;
+                            CustLedgerEntry.Reset();
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
                             CustLedgerEntry.SetRange(Open, true);
 
-                            AgedReportEntity.Init;
+                            AgedReportEntity.Init();
                             if CustLedgerEntry.Count > 0 then
                                 GetAgedAmounts(AgedReportEntity, Customer)
                             else
@@ -242,17 +242,17 @@ codeunit 5488 "Graph Mgt - Reports"
                             if PeriodLengthFilter = '' then
                                 PeriodLengthFilter := AgedReportEntity."Period Length";
                             PeriodStartDate := AgedReportEntity."Period Start Date";
-                            if AgedReportEntity.Insert then;
+                            if AgedReportEntity.Insert() then;
                         until Customer.Next = 0;
                 end;
             ReportType::"Aged Accounts Payable":
                 begin
                     if Vendor.FindSet then
                         repeat
-                            VendorLedgerEntry.Reset;
+                            VendorLedgerEntry.Reset();
                             VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
                             VendorLedgerEntry.SetRange(Open, true);
-                            AgedReportEntity.Init;
+                            AgedReportEntity.Init();
                             if VendorLedgerEntry.Count > 0 then
                                 GetAgedAmounts(AgedReportEntity, Vendor)
                             else
@@ -269,12 +269,12 @@ codeunit 5488 "Graph Mgt - Reports"
                             if PeriodLengthFilter = '' then
                                 PeriodLengthFilter := AgedReportEntity."Period Length";
                             PeriodStartDate := AgedReportEntity."Period Start Date";
-                            if AgedReportEntity.Insert then;
+                            if AgedReportEntity.Insert() then;
                         until Vendor.Next = 0;
                 end;
         end;
 
-        AgedReportEntity.Init;
+        AgedReportEntity.Init();
         AgedReportEntity.AccountId := DummyGuid;
         AgedReportEntity.Name := 'Total';
         AgedReportEntity.CalcSums(Before);
@@ -291,7 +291,7 @@ codeunit 5488 "Graph Mgt - Reports"
         AgedReportEntity.Balance := AgedReportEntity.Balance;
         AgedReportEntity."Period Length" := Format(PeriodLengthFilter);
         AgedReportEntity."Period Start Date" := PeriodStartDate;
-        if AgedReportEntity.Insert then;
+        if AgedReportEntity.Insert() then;
     end;
 
     local procedure SetPeriodLengthAndStartDateOnAgedRep(var AgedReportEntity: Record "Aged Report Entity")

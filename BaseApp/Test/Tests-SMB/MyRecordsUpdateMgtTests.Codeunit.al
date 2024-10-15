@@ -30,7 +30,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize;
         CreateTestCustomer(Customer);
-        MyCustomer.Init;
+        MyCustomer.Init();
 
         // Execute
         MyCustomer.Validate("Customer No.", Customer."No.");
@@ -91,7 +91,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Execute
         Customer.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
         Customer.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name)));
-        Customer.Modify;
+        Customer.Modify();
 
         // Verify
         VerifyCustomerChangesPropagatedToMyCustomers(Customer);
@@ -128,10 +128,10 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         Customer.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
-        Customer.Modify;
+        Customer.Modify();
 
         Customer2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name)));
-        Customer2.Modify;
+        Customer2.Modify();
 
         // Verify
         VerifyCustomerChangesPropagatedToMyCustomers(Customer);
@@ -163,7 +163,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         Customer2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name)));
-        Customer2.Modify;
+        Customer2.Modify();
 
         // Verify
         VerifyCustomerChangesPropagatedToMyCustomers(Customer);
@@ -187,7 +187,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Customer Temporary record from Customer record mentioned above
         TempCustomer := Customer;
-        TempCustomer.Insert;
+        TempCustomer.Insert();
 
         // [WHEN] Modify "Name" and "Phone No." fields of Customer Temporary record
         TempCustomer.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(TempCustomer.Name)));
@@ -213,7 +213,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize;
         CreateTestVendor(Vendor);
-        MyVendor.Init;
+        MyVendor.Init();
 
         // Execute
         MyVendor.Validate("Vendor No.", Vendor."No.");
@@ -274,7 +274,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Execute
         Vendor.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
         Vendor.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name)));
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Verify
         VerifyVendorChangesPropagatedToMyVendors(Vendor);
@@ -311,10 +311,10 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         Vendor.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
-        Vendor.Modify;
+        Vendor.Modify();
 
         Vendor2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name)));
-        Vendor2.Modify;
+        Vendor2.Modify();
 
         // Verify
         VerifyVendorChangesPropagatedToMyVendors(Vendor);
@@ -346,7 +346,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         Vendor2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name)));
-        Vendor2.Modify;
+        Vendor2.Modify();
 
         // Verify
         VerifyVendorChangesPropagatedToMyVendors(Vendor);
@@ -370,7 +370,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Vendor Temporary record from Vendor record mentioned above
         TempVendor := Vendor;
-        TempVendor.Insert;
+        TempVendor.Insert();
 
         // [WHEN] Modify "Name" and "Phone No." fields of Vendor Temporary record
         TempVendor.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(TempVendor.Name)));
@@ -396,7 +396,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize;
         CreateTestItem(Item);
-        MyItem.Init;
+        MyItem.Init();
 
         // Execute
         MyItem.Validate("Item No.", Item."No.");
@@ -457,7 +457,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Execute
         Item.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
         Item.Validate(Description, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description)));
-        Item.Modify;
+        Item.Modify();
 
         // Verify
         VerifyItemChangesPropagatedToMyItems(Item);
@@ -494,11 +494,11 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         Item.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
-        Item.Modify;
+        Item.Modify();
 
         Item2.Validate(
           Description, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description)));
-        Item2.Modify;
+        Item2.Modify();
 
         // Verify
         VerifyItemChangesPropagatedToMyItems(Item);
@@ -531,7 +531,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Execute
         Item2.Validate(
           Description, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description)));
-        Item2.Modify;
+        Item2.Modify();
 
         // Verify
         VerifyItemChangesPropagatedToMyItems(Item);
@@ -555,7 +555,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create Item Temporary record from Item record mentioned above
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
 
         // [WHEN] Modify "Description" and "Unit Price" fields of Item Temporary record
         TempItem.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(TempItem.Description)));
@@ -581,7 +581,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // Setup
         Initialize;
         CreateTestAccount(GLAccount);
-        MyAccount.Init;
+        MyAccount.Init();
 
         // Execute
         MyAccount.Validate("Account No.", GLAccount."No.");
@@ -639,7 +639,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         GLAccount.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Verify
         VerifyAccountChangesPropagatedToMyAccounts(GLAccount);
@@ -670,10 +670,10 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         GLAccount.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         GLAccount2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
-        GLAccount2.Modify;
+        GLAccount2.Modify();
 
         // Verify
         VerifyAccountChangesPropagatedToMyAccounts(GLAccount);
@@ -702,7 +702,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // Execute
         GLAccount2.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name)));
-        GLAccount2.Modify;
+        GLAccount2.Modify();
 
         // Verify
         VerifyAccountChangesPropagatedToMyAccounts(GLAccount);
@@ -726,7 +726,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
 
         // [GIVEN] Create G/L Account Temporary record from G/L Account record mentioned above
         TempGLAccount := GLAccount;
-        TempGLAccount.Insert;
+        TempGLAccount.Insert();
 
         // [WHEN] Modify "Name" field of G/L Account Temporary record
         TempGLAccount.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(TempGLAccount.Name)));
@@ -797,10 +797,10 @@ codeunit 138076 "My Records Update Mgt. Tests"
         MyVendor: Record "My Vendor";
         MyAccount: Record "My Account";
     begin
-        MyCustomer.DeleteAll;
-        MyVendor.DeleteAll;
-        MyItem.DeleteAll;
-        MyAccount.DeleteAll;
+        MyCustomer.DeleteAll();
+        MyVendor.DeleteAll();
+        MyItem.DeleteAll();
+        MyAccount.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -812,10 +812,10 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Customer No." := CustomerNo;
         DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-        DetailedCustLedgEntry.Insert;
+        DetailedCustLedgEntry.Insert();
         exit(DetailedCustLedgEntry."Amount (LCY)");
     end;
 
@@ -823,17 +823,17 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
         DetailedVendorLedgEntry."Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
-        DetailedVendorLedgEntry.Insert;
+        DetailedVendorLedgEntry.Insert();
         exit(DetailedVendorLedgEntry."Amount (LCY)");
     end;
 
     [Scope('OnPrem')]
     procedure CreateTestCustomer(var Customer: Record Customer)
     begin
-        Customer.Init;
+        Customer.Init();
         Customer.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         Customer."Phone No." :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer."Phone No.")), 1,
@@ -845,7 +845,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyCustomer: Record "My Customer";
     begin
-        MyCustomer.Init;
+        MyCustomer.Init();
         MyCustomer.Validate("Customer No.", Customer."No.");
         MyCustomer."User ID" := CopyStr(UserID, 1, MaxStrLen(MyCustomer."User ID"));
         MyCustomer.Insert(true);
@@ -854,7 +854,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     [Scope('OnPrem')]
     procedure CreateTestVendor(var Vendor: Record Vendor)
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         Vendor."Phone No." := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor."Phone No.")), 1,
             LibraryRandom.RandIntInRange(100000000, 999999999));
@@ -865,7 +865,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyVendor: Record "My Vendor";
     begin
-        MyVendor.Init;
+        MyVendor.Init();
         MyVendor.Validate("Vendor No.", Vendor."No.");
         MyVendor."User ID" := CopyStr(UserID, 1, MaxStrLen(MyVendor."User ID"));
         MyVendor.Insert(true);
@@ -874,7 +874,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     [Scope('OnPrem')]
     procedure CreateTestItem(var Item: Record Item)
     begin
-        Item.Init;
+        Item.Init();
         Item.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description));
         Item."Unit Price" := LibraryRandom.RandDec(100, 1);
         Item.Insert(true);
@@ -884,7 +884,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     var
         MyItem: Record "My Item";
     begin
-        MyItem.Init;
+        MyItem.Init();
         MyItem.Validate("Item No.", Item."No.");
         MyItem."User ID" := CopyStr(UserID, 1, MaxStrLen(MyItem."User ID"));
         MyItem.Insert(true);
@@ -895,14 +895,14 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name)), 1, MaxStrLen(GLAccount.Name));
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     local procedure CreateMyAccount(GLAccount: Record "G/L Account"; UserID: Text)
     var
         MyAccount: Record "My Account";
     begin
-        MyAccount.Init;
+        MyAccount.Init();
         MyAccount.Validate("Account No.", GLAccount."No.");
         MyAccount."User ID" := CopyStr(UserID, 1, MaxStrLen(MyAccount."User ID"));
         MyAccount.Insert(true);

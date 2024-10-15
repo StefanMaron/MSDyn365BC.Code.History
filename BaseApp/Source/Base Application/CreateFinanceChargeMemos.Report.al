@@ -30,7 +30,7 @@ report 191 "Create Finance Charge Memos"
                     end;
                     Mark := not MakeFinChrgMemo.Code;
                 end;
-                Commit;
+                Commit();
             end;
 
             trigger OnPostDataItem()
@@ -67,7 +67,7 @@ report 191 "Create Finance Charge Memos"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

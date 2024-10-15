@@ -1,4 +1,4 @@
-﻿page 931 "Assembly Quote Subform"
+page 931 "Assembly Quote Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

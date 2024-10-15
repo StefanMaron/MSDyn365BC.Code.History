@@ -41,7 +41,7 @@ codeunit 132202 "Library - Manufacturing"
         CalcConsumption: Report "Calc. Consumption";
         CalcBasedOn: Option "Actual Output","Expected Output";
     begin
-        Commit;
+        Commit();
         if ActualOutput then
             CalcBasedOn := CalcBasedOn::"Actual Output"
         else
@@ -80,7 +80,7 @@ codeunit 132202 "Library - Manufacturing"
         TmpMachineCenter: Record "Machine Center";
         CalcMachineCenterCalendar: Report "Calc. Machine Center Calendar";
     begin
-        Commit;
+        Commit();
         CalcMachineCenterCalendar.InitializeRequest(StartingDate, EndingDate);
         if MachineCenter.HasFilter then
             TmpMachineCenter.CopyFilters(MachineCenter)
@@ -100,7 +100,7 @@ codeunit 132202 "Library - Manufacturing"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
     begin
-        Commit;
+        Commit();
         CalculatePlanPlanWksh.InitializeRequest(OrderDate, ToDate, false);
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
         ReqWkshTemplate.FindFirst;
@@ -135,7 +135,7 @@ codeunit 132202 "Library - Manufacturing"
         TmpWorkCenter: Record "Work Center";
         CalculateWorkCenterCalendar: Report "Calculate Work Center Calendar";
     begin
-        Commit;
+        Commit();
         CalculateWorkCenterCalendar.InitializeRequest(StartingDate, EndingDate);
         if WorkCenter.HasFilter then
             TmpWorkCenter.CopyFilters(WorkCenter)
@@ -228,7 +228,7 @@ codeunit 132202 "Library - Manufacturing"
     var
         RecRef: RecordRef;
     begin
-        BOMComponent.Init;
+        BOMComponent.Init();
         BOMComponent.Validate("Parent Item No.", ParentItemNo);
         RecRef.GetTable(BOMComponent);
         BOMComponent.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BOMComponent.FieldNo("Line No.")));
@@ -245,7 +245,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateCalendarAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; CapacityType: Option "Work Center","Machine Center"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time; Capacity: Decimal)
     begin
-        CalendarAbsenceEntry.Init;
+        CalendarAbsenceEntry.Init();
         CalendarAbsenceEntry.Validate("Capacity Type", CapacityType);
         CalendarAbsenceEntry.Validate("No.", No);
         CalendarAbsenceEntry.Validate(Date, Date);
@@ -259,7 +259,7 @@ codeunit 132202 "Library - Manufacturing"
     procedure CreateCapacityConstrainedResource(var CapacityConstrainedResource: Record "Capacity Constrained Resource"; CapacityType: Option; CapacityNo: Code[20])
     begin
         Clear(CapacityConstrainedResource);
-        CapacityConstrainedResource.Init;
+        CapacityConstrainedResource.Init();
         CapacityConstrainedResource.Validate("Capacity Type", CapacityType);
         CapacityConstrainedResource.Validate("Capacity No.", CapacityNo);
         CapacityConstrainedResource.Insert(true);
@@ -267,7 +267,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Integer)
     begin
-        CapacityUnitOfMeasure.Init;
+        CapacityUnitOfMeasure.Init();
         CapacityUnitOfMeasure.Validate(
           Code, LibraryUtility.GenerateRandomCode(CapacityUnitOfMeasure.FieldNo(Code), DATABASE::"Capacity Unit of Measure"));
         CapacityUnitOfMeasure.Insert(true);
@@ -277,7 +277,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateFamily(var Family: Record Family)
     begin
-        Family.Init;
+        Family.Init();
         Family.Validate("No.", LibraryUtility.GenerateRandomCode(Family.FieldNo("No."), DATABASE::Family));
         Family.Insert(true);
         Family.Validate(Description, Family."No.");
@@ -288,7 +288,7 @@ codeunit 132202 "Library - Manufacturing"
     var
         RecRef: RecordRef;
     begin
-        FamilyLine.Init;
+        FamilyLine.Init();
         FamilyLine.Validate("Family No.", FamilyNo);
         RecRef.GetTable(FamilyLine);
         FamilyLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FamilyLine.FieldNo("Line No.")));
@@ -360,7 +360,7 @@ codeunit 132202 "Library - Manufacturing"
         ItemJournalLine.Validate("Order No.", ProductionOrderNo);
         ItemJournalLine.Validate("Item No.", ItemNo);
         ItemJournalLine.Modify(true);
-        Commit;
+        Commit();
     end;
 
     procedure CreateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
@@ -390,7 +390,7 @@ codeunit 132202 "Library - Manufacturing"
         if ProductionBOMCommentLine.FindLast then;
         LineNo := ProductionBOMCommentLine."Line No." + 10000;
 
-        ProductionBOMCommentLine.Init;
+        ProductionBOMCommentLine.Init();
         ProductionBOMCommentLine.Validate("Production BOM No.", ProductionBOMLine."Production BOM No.");
         ProductionBOMCommentLine.Validate("BOM Line No.", ProductionBOMLine."Line No.");
         ProductionBOMCommentLine.Validate("Version Code", ProductionBOMLine."Version Code");
@@ -416,7 +416,7 @@ codeunit 132202 "Library - Manufacturing"
     var
         RecRef: RecordRef;
     begin
-        ProductionBOMLine.Init;
+        ProductionBOMLine.Init();
         ProductionBOMLine.Validate("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.Validate("Version Code", VersionCode);
         RecRef.GetTable(ProductionBOMLine);
@@ -456,7 +456,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateProductionBOMVersion(var ProductionBomVersion: Record "Production BOM Version"; BomNo: Code[20]; Version: Code[20]; UOMCode: Code[10])
     begin
-        ProductionBomVersion.Init;
+        ProductionBomVersion.Init();
         ProductionBomVersion.Validate("Production BOM No.", BomNo);
         ProductionBomVersion.Validate("Version Code", Version);
         ProductionBomVersion.Insert(true);
@@ -466,7 +466,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateProductionForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastName: Code[10]; ItemNo: Code[20]; LocationCode: Code[10]; ForecastDate: Date; ComponentForecast: Boolean)
     begin
-        ProductionForecastEntry.Init;
+        ProductionForecastEntry.Init();
         ProductionForecastEntry.Validate("Production Forecast Name", ProductionForecastName);
         ProductionForecastEntry.Validate("Item No.", ItemNo);
         ProductionForecastEntry.Validate("Location Code", LocationCode);
@@ -478,14 +478,14 @@ codeunit 132202 "Library - Manufacturing"
     procedure CreateProductionForecastName(var ProductionForecastName: Record "Production Forecast Name")
     begin
         Clear(ProductionForecastName);
-        ProductionForecastName.Init;
+        ProductionForecastName.Init();
         ProductionForecastName.Validate(
           Name, LibraryUtility.GenerateRandomCode(ProductionForecastName.FieldNo(Name), DATABASE::"Production Forecast Name"));
         ProductionForecastName.Validate(Description, ProductionForecastName.Name);
         ProductionForecastName.Insert(true);
     end;
 
-    procedure CreateProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; Quantity: Decimal)
+    procedure CreateProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         case Status of
             ProductionOrder.Status::Simulated:
@@ -503,7 +503,7 @@ codeunit 132202 "Library - Manufacturing"
         end;
 
         Clear(ProductionOrder);
-        ProductionOrder.Init;
+        ProductionOrder.Init();
         ProductionOrder.Validate(Status, Status);
         ProductionOrder.Insert(true);
         ProductionOrder.Validate("Source Type", SourceType);
@@ -516,7 +516,7 @@ codeunit 132202 "Library - Manufacturing"
     var
         RecRef: RecordRef;
     begin
-        ProdOrderComponent.Init;
+        ProdOrderComponent.Init();
         ProdOrderComponent.Validate(Status, Status);
         ProdOrderComponent.Validate("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.Validate("Prod. Order Line No.", ProdOrderLineNo);
@@ -543,7 +543,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateRegisteredAbsence(var RegisteredAbsence: Record "Registered Absence"; CapacityType: Option; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time)
     begin
-        RegisteredAbsence.Init;
+        RegisteredAbsence.Init();
         RegisteredAbsence.Validate("Capacity Type", CapacityType);
         RegisteredAbsence.Validate("No.", No);
         RegisteredAbsence.Validate(Date, Date);
@@ -566,7 +566,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateRoutingLine(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; VersionCode: Code[20]; OperationNo: Code[10]; Type: Option; No: Code[20])
     begin
-        RoutingLine.Init;
+        RoutingLine.Init();
         RoutingLine.Validate("Routing No.", RoutingHeader."No.");
         RoutingLine.Validate("Version Code", VersionCode);
         if OperationNo = '' then
@@ -591,21 +591,21 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateRoutingLink(var RoutingLink: Record "Routing Link")
     begin
-        RoutingLink.Init;
+        RoutingLink.Init();
         RoutingLink.Validate(Code, LibraryUtility.GenerateRandomCode(RoutingLink.FieldNo(Code), DATABASE::"Routing Link"));
         RoutingLink.Insert(true);
     end;
 
     procedure CreateQualityMeasure(var QualityMeasure: Record "Quality Measure")
     begin
-        QualityMeasure.Init;
+        QualityMeasure.Init();
         QualityMeasure.Validate(Code, LibraryUtility.GenerateRandomCode(QualityMeasure.FieldNo(Code), DATABASE::"Quality Measure"));
         QualityMeasure.Insert(true);
     end;
 
     procedure CreateRoutingQualityMeasureLine(var RoutingQualityMeasure: Record "Routing Quality Measure"; RoutingLine: Record "Routing Line"; QualityMeasure: Record "Quality Measure")
     begin
-        RoutingQualityMeasure.Init;
+        RoutingQualityMeasure.Init();
         RoutingQualityMeasure.Validate("Routing No.", RoutingLine."Routing No.");
         RoutingQualityMeasure.Validate("Operation No.", RoutingLine."Operation No.");
         RoutingQualityMeasure.Validate("Qlty Measure Code", QualityMeasure.Code);
@@ -614,7 +614,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateRoutingVersion(var RoutingVersion: Record "Routing Version"; RoutingNo: Code[20]; VersionCode: Code[20])
     begin
-        RoutingVersion.Init;
+        RoutingVersion.Init();
         RoutingVersion.Validate("Routing No.", RoutingNo);
         RoutingVersion.Validate("Version Code", VersionCode);
         RoutingVersion.Insert(true);
@@ -622,7 +622,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateShopCalendarCode(var ShopCalendar: Record "Shop Calendar"): Code[10]
     begin
-        ShopCalendar.Init;
+        ShopCalendar.Init();
         ShopCalendar.Validate(Code, LibraryUtility.GenerateRandomCode(ShopCalendar.FieldNo(Code), DATABASE::"Shop Calendar"));
         ShopCalendar.Insert(true);
         exit(ShopCalendar.Code);
@@ -651,7 +651,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateShopCalendarWorkingDays(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; ShopCalendarCode: Code[10]; Day: Option; WorkShiftCode: Code[10]; StartingTime: Time; EndingTime: Time)
     begin
-        ShopCalendarWorkingDays.Init;
+        ShopCalendarWorkingDays.Init();
         ShopCalendarWorkingDays.Validate("Shop Calendar Code", ShopCalendarCode);
         ShopCalendarWorkingDays.Validate(Day, Day);
         ShopCalendarWorkingDays.Validate("Starting Time", StartingTime);
@@ -662,7 +662,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateStandardTask(var StandardTask: Record "Standard Task")
     begin
-        StandardTask.Init;
+        StandardTask.Init();
         StandardTask.Validate(Code, LibraryUtility.GenerateRandomCode(StandardTask.FieldNo(Code), DATABASE::"Standard Task"));
         StandardTask.Insert(true);
     end;
@@ -690,7 +690,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateWorkCenterGroup(var WorkCenterGroup: Record "Work Center Group")
     begin
-        WorkCenterGroup.Init;
+        WorkCenterGroup.Init();
         WorkCenterGroup.Validate(Code, LibraryUtility.GenerateRandomCode(WorkCenterGroup.FieldNo(Code), DATABASE::"Work Center Group"));
         WorkCenterGroup.Insert(true);
     end;
@@ -723,7 +723,7 @@ codeunit 132202 "Library - Manufacturing"
 
     procedure CreateWorkShiftCode(var WorkShift: Record "Work Shift"): Code[10]
     begin
-        WorkShift.Init;
+        WorkShift.Init();
         WorkShift.Validate(Code, LibraryUtility.GenerateRandomCode(WorkShift.FieldNo(Code), DATABASE::"Work Shift"));
         WorkShift.Insert(true);
         exit(WorkShift.Code);
@@ -806,7 +806,7 @@ codeunit 132202 "Library - Manufacturing"
         TempTransactionType: TransactionType;
         Direction: Option Forward,Backward;
     begin
-        Commit;
+        Commit();
         TempTransactionType := CurrentTransactionType;
         CurrentTransactionType(TRANSACTIONTYPE::Update);
 
@@ -826,7 +826,7 @@ codeunit 132202 "Library - Manufacturing"
         RefreshProductionOrder.UseRequestPage := false;
         RefreshProductionOrder.RunModal;
 
-        Commit;
+        Commit();
         CurrentTransactionType(TempTransactionType);
     end;
 
@@ -835,7 +835,7 @@ codeunit 132202 "Library - Manufacturing"
         TmpProductionOrder: Record "Production Order";
         ReplanProductionOrder: Report "Replan Production Order";
     begin
-        Commit;
+        Commit();
         ReplanProductionOrder.InitializeRequest(NewDirection, NewCalcMethod);
         if ProductionOrder.HasFilter then
             TmpProductionOrder.CopyFilters(ProductionOrder)
@@ -854,7 +854,7 @@ codeunit 132202 "Library - Manufacturing"
         Item2: Record Item;
         RollUpStandardCost: Report "Roll Up Standard Cost";
     begin
-        Commit;
+        Commit();
         if Item.HasFilter then
             Item2.CopyFilters(Item)
         else begin
@@ -887,7 +887,7 @@ codeunit 132202 "Library - Manufacturing"
     procedure UpdateManufacturingSetup(var ManufacturingSetup: Record "Manufacturing Setup"; ShowCapacityIn: Code[10]; ComponentsAtLocation: Code[10]; DocNoIsProdOrderNo: Boolean; CostInclSetup: Boolean; DynamicLowLevelCode: Boolean)
     begin
         // Update Manufacturing Setup.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Doc. No. Is Prod. Order No.", DocNoIsProdOrderNo);
         ManufacturingSetup.Validate("Cost Incl. Setup", CostInclSetup);
         ManufacturingSetup.Validate("Show Capacity In", ShowCapacityIn);

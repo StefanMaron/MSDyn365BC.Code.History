@@ -60,7 +60,7 @@ page 11612 "BAS XML Field Setup Names"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 }

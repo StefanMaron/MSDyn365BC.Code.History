@@ -216,11 +216,5 @@ page 28078 "Posted Purch. Tax Cr. Memo Sub"
             }
         }
     }
-
-    [Scope('OnPrem')]
-    procedure ShowPurchCrMemo()
-    begin
-        ShowPurchCrMemo;
-    end;
 }
 

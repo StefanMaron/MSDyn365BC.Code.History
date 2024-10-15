@@ -16,7 +16,7 @@ report 11607 "Transfer EFT Register"
                     I += 1;
                     ProcessWindow.Update(1, Round(I / NoOfRec * 10000, 1.0));
                     GenJnlLine1 := GenJnlLine;
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Line No." += 10000;
                     GenJnlLine.SetUpNewLine(GenJnlLine1, 0, true);
                     GenJnlLine.Validate("Posting Date", PostingDate);
@@ -32,7 +32,7 @@ report 11607 "Transfer EFT Register"
                     GenJnlLine.Validate(Amount, "EFT Amount Transferred");
                     GenJnlLine.Validate("Applies-to Doc. Type", "Document Type");
                     GenJnlLine.Validate("Applies-to Doc. No.", "Document No.");
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
                 end;
             end;
 

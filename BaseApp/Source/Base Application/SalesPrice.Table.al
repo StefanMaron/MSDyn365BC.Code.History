@@ -2,6 +2,9 @@ table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
     LookupPageID = "Sales Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -266,7 +269,7 @@ table 7002 "Sales Price"
             if "Unit of Measure Code" = Item."Base Unit of Measure" then
                 "Unit Price" := Cost * (1 + "Cost-plus %" / 100)
             else begin
-                ItemUnitOfMeasure.Reset;
+                ItemUnitOfMeasure.Reset();
                 ItemUnitOfMeasure.SetRange("Item No.", "Item No.");
                 ItemUnitOfMeasure.SetRange(Code, "Unit of Measure Code");
                 if ItemUnitOfMeasure.FindFirst then
@@ -278,7 +281,7 @@ table 7002 "Sales Price"
             if "Unit of Measure Code" = Item."Base Unit of Measure" then
                 "Unit Price" := "Published Price" - "Discount Amount"
             else begin
-                ItemUnitOfMeasure.Reset;
+                ItemUnitOfMeasure.Reset();
                 ItemUnitOfMeasure.SetRange("Item No.", "Item No.");
                 ItemUnitOfMeasure.SetRange(Code, "Unit of Measure Code");
                 if ItemUnitOfMeasure.FindFirst then
@@ -308,7 +311,7 @@ table 7002 "Sales Price"
                 NewSalesPrice."Sales Type" := NewSalesPrice."Sales Type"::Customer;
                 NewSalesPrice."Sales Code" := CustNo;
                 OnBeforeNewSalesPriceInsert(NewSalesPrice, SalesPrice);
-                if NewSalesPrice.Insert then;
+                if NewSalesPrice.Insert() then;
             until SalesPrice.Next = 0;
     end;
 

@@ -140,7 +140,7 @@ report 6 "Trial Balance"
                     trigger OnAfterGetRecord()
                     begin
                         if BlankLineNo = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         BlankLineNo -= 1;
                     end;
@@ -199,7 +199,7 @@ report 6 "Trial Balance"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if not UseAmtsInAddCurr then
                     GLSetup.TestField("LCY Code");

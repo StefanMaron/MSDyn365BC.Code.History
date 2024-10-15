@@ -8,7 +8,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
     end;
 
@@ -52,7 +52,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryManufacturing.CreateBOMComponent(
           BomComponent, ParentItem."No.", BomComponent.Type::Item, ChildItem."No.", 1, ChildItem."Base Unit of Measure");
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
-        ParentItem.Modify;
+        ParentItem.Modify();
         CalculateAssemblyStandardCost(ParentItem."No.");
         ValidateUnitCost(ParentItem."No.", 10);
 
@@ -60,20 +60,20 @@ codeunit 137911 "SCM Calculate Assembly Cost"
 
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
 
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant."Item No." := ParentItem."No.";
         ItemVariant.Code := Variant;
-        if not ItemVariant.Insert then
-            ItemVariant.Modify;
+        if not ItemVariant.Insert() then
+            ItemVariant.Modify();
 
-        StockkeepingUnit.Init;
+        StockkeepingUnit.Init();
         StockkeepingUnit."Item No." := ParentItem."No.";
         StockkeepingUnit."Variant Code" := Variant;
         StockkeepingUnit."Location Code" := AsmHeader."Location Code";
         StockkeepingUnit."Standard Cost" := VArCost;
         StockkeepingUnit."Unit Cost" := VArCost;
-        if not StockkeepingUnit.Insert then
-            StockkeepingUnit.Modify;
+        if not StockkeepingUnit.Insert() then
+            StockkeepingUnit.Modify();
 
         AsmHeader.Validate("Variant Code", Variant);
 
@@ -103,7 +103,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemC."No.", 1, ItemC."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
-        ItemA.Modify;
+        ItemA.Modify();
         CalculateAssemblyStandardCost(ItemA."No.");
         ItemA.Get(ItemA."No.");
         Assert.AreEqual(ItemA."Standard Cost", 20,
@@ -130,13 +130,13 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(7, 10));
         ItemB."Overhead Rate" := 10;
-        ItemB.Modify;
+        ItemB.Modify();
 
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemB."No.", 1, ItemB."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
         ItemA."Overhead Rate" := 12;
-        ItemA.Modify;
+        ItemA.Modify();
 
         CalculateAssemblyStandardCost(ItemA."No.");
         ItemA.Get(ItemA."No.");
@@ -162,14 +162,14 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         Initialize;
         ItemA.Get(LibraryKitting.CreateStdCostItemWithNewUOMUsingItemNo(TEXT_ItemA, 10, 20, 1));
         ItemB.Get(LibraryKitting.CreateItemWithNewUOM(10, 10));
-        ItemB.Modify;
+        ItemB.Modify();
 
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, ItemA."No.", BOMComponent.Type::Item, ItemB."No.", 1, ItemB."Base Unit of Measure");
         ItemA.Validate("Replenishment System", ItemA."Replenishment System"::Assembly);
         ItemA."Overhead Rate" := 4;
         ItemA."Indirect Cost %" := 10;
-        ItemA.Modify;
+        ItemA.Modify();
 
         CalculateAssemblyStandardCost(ItemA."No.");
         ItemA.Get(ItemA."No.");
@@ -360,7 +360,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(10, 20));
         resource.Validate("Direct Unit Cost", 8);
         resource.Validate("Unit Cost", 10);
-        resource.Modify;
+        resource.Modify();
         LibraryKitting.CreateBOMComponentLine(
           parentItem, BOMComponent.Type::Resource, resource."No.", 10, resource."Base Unit of Measure", true);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
@@ -385,7 +385,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(10, 20));
         resource.Validate("Direct Unit Cost", 10);
         resource.Validate("Unit Cost", 15);
-        resource.Modify;
+        resource.Modify();
         LibraryKitting.CreateBOMComponentLine(
           parentItem, BOMComponent.Type::Resource, resource."No.", 1, resource."Base Unit of Measure", true);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
@@ -445,7 +445,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Calculate Assembly Cost");
 
         Initialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -563,7 +563,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
 
         with ItemLedgerEntry do begin

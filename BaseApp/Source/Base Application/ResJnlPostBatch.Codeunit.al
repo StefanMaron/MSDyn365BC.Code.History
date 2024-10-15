@@ -17,7 +17,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>';
+        Text007: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlBatch: Record "Res. Journal Batch";
@@ -53,7 +53,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
         with ResJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             ResJnlTemplate.Get("Journal Template Name");
             ResJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -65,7 +65,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit;
+                Commit();
                 exit;
             end;
 
@@ -96,9 +96,9 @@ codeunit 213 "Res. Jnl.-Post Batch"
             NoOfRecords := LineCount;
 
             // Find next register no.
-            ResLedgEntry.LockTable;
+            ResLedgEntry.LockTable();
             if ResLedgEntry.FindLast then;
-            ResReg.LockTable;
+            ResReg.LockTable();
             if ResReg.FindLast and (ResReg."To Entry No." = 0) then
                 ResRegNo := ResReg."No."
             else
@@ -137,7 +137,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                                       ArrayLen(NoSeriesMgt2));
                                 NoSeries.Code := "Posting No. Series";
                                 NoSeries.Description := Format(NoOfPostingNoSeries);
-                                NoSeries.Insert;
+                                NoSeries.Insert();
                             end;
                             LastDocNo := "Document No.";
                             Evaluate(PostingNoSeriesNo, NoSeries.Description);
@@ -174,7 +174,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                             ResJnlLine2."Total Cost" := 0;
                             ResJnlLine2."Total Price" := 0;
                         end;
-                        ResJnlLine2.Modify;
+                        ResJnlLine2.Modify();
                     until ResJnlLine2.Next = 0;
                 end else begin
                     // Not a recurring journal
@@ -182,28 +182,28 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     ResJnlLine2.SetFilter("Resource No.", '<>%1', '');
                     if ResJnlLine2.Find('+') then; // Remember the last line
                     ResJnlLine3.Copy(ResJnlLine);
-                    ResJnlLine3.DeleteAll;
-                    ResJnlLine3.Reset;
+                    ResJnlLine3.DeleteAll();
+                    ResJnlLine3.Reset();
                     ResJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                     ResJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     if ResJnlTemplate."Increment Batch Name" then
                         if not ResJnlLine3.FindLast then
                             if IncStr("Journal Batch Name") <> '' then begin
-                                ResJnlBatch.Delete;
+                                ResJnlBatch.Delete();
                                 ResJnlBatch.Name := IncStr("Journal Batch Name");
-                                if ResJnlBatch.Insert then;
+                                if ResJnlBatch.Insert() then;
                                 "Journal Batch Name" := ResJnlBatch.Name;
                             end;
 
                     ResJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     if (ResJnlBatch."No. Series" = '') and not ResJnlLine3.FindLast then begin
-                        ResJnlLine3.Init;
+                        ResJnlLine3.Init();
                         ResJnlLine3."Journal Template Name" := "Journal Template Name";
                         ResJnlLine3."Journal Batch Name" := "Journal Batch Name";
                         ResJnlLine3."Line No." := 10000;
-                        ResJnlLine3.Insert;
+                        ResJnlLine3.Insert();
                         ResJnlLine3.SetUpNewLine(ResJnlLine2);
-                        ResJnlLine3.Modify;
+                        ResJnlLine3.Modify();
                     end;
                 end;
             if ResJnlBatch."No. Series" <> '' then
@@ -214,10 +214,10 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
                 until NoSeries.Next = 0;
 
-            Commit;
+            Commit();
         end;
         UpdateAnalysisView.UpdateAll(0, true);
-        Commit;
+        Commit();
     end;
 
     local procedure CheckRecurringLine(var ResJnlLine2: Record "Res. Journal Line")

@@ -1075,7 +1075,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // [GIVEN] Regenerative plan is calculated for "I1" and "I2".
         PlanWkshtName := CreateRequisitionWorksheetName(PAGE::"Planning Worksheet");
         EnqueueFilters(ItemFilter, '');
-        Commit;
+        Commit();
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(PlanWkshtName);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;
@@ -1090,7 +1090,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         PlanningWorksheet.FILTER.SetFilter("Accept Action Message", Format(true));
 
         // [WHEN] Carry out action message for the planning worksheet with enabled "Combine Transfer Orders".
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(true);
         PlanningWorksheet.CarryOutActionMessage.Invoke;
 
@@ -1207,7 +1207,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Miscellaneous");
     end;
 
@@ -1215,7 +1215,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
-        Commit;
+        Commit();
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
@@ -1226,7 +1226,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
-        Commit;
+        Commit();
         ReqWorksheet.OpenEdit;
         ReqWorksheet.CurrentJnlBatchName.SetValue(Name);
         ReqWorksheet.CalculatePlan.Invoke;  // Open report on Handler CalculatePlanReqWkshRequestPageHandler.
@@ -1574,7 +1574,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         GetWarehouseDocumentFromPickWorksheet;
         PickWorksheet.OpenEdit;
-        Commit;
+        Commit();
         PickWorksheet.CreatePick.Invoke;
         PickWorksheet.OK.Invoke;
     end;
@@ -1823,7 +1823,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        Commit;
+        Commit();
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Reserve.Invoke;
@@ -1929,10 +1929,10 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ManufacturingSetup: Record "Manufacturing Setup";
         DefaultSafetyLeadTime: DateFormula;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use Random value for Safety Lead Time.
         UpdateManufacturingSetup(true, DefaultSafetyLeadTime);
     end;
@@ -1941,7 +1941,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
         ManufacturingSetup.Modify(true);
@@ -1978,7 +1978,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", CombinedMPSMRPCalculation);
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
@@ -1988,7 +1988,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);

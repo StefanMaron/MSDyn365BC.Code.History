@@ -40,9 +40,9 @@ codeunit 134268 "Payment Proposal UT 2"
         AppliedPaymentEntry.DeleteAll(true);
         CloseExistingEntries;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<0D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         if IsInitialized then
             exit;
@@ -54,7 +54,7 @@ codeunit 134268 "Payment Proposal UT 2"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Proposal UT 2");
     end;
@@ -1642,9 +1642,9 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1674,9 +1674,9 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1811,7 +1811,7 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Payment Application Proposal");
-        PaymentApplicationProposal.Init;
+        PaymentApplicationProposal.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Bank Account No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement Line No.")));
@@ -1895,7 +1895,7 @@ codeunit 134268 "Payment Proposal UT 2"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         Clear(VendorLedgerEntry);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.FindFirst;
         VendorLedgerEntry.CalcFields("Remaining Amount");
@@ -1915,7 +1915,7 @@ codeunit 134268 "Payment Proposal UT 2"
     local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20])
     begin
         Clear(TempPaymentApplicationProposal);
-        TempPaymentApplicationProposal.Init;
+        TempPaymentApplicationProposal.Init();
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         TempPaymentApplicationProposal."Account Type" := AccountType;
         TempPaymentApplicationProposal."Account No." := AccountNo;

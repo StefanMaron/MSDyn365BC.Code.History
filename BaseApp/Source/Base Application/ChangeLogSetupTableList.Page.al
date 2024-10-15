@@ -199,7 +199,7 @@ page 593 "Change Log Setup (Table) List"
     local procedure GetRec()
     begin
         if not ChangeLogSetupTable.Get("Object ID") then begin
-            ChangeLogSetupTable.Init;
+            ChangeLogSetupTable.Init();
             ChangeLogSetupTable."Table No." := "Object ID";
         end;
     end;
@@ -208,7 +208,7 @@ page 593 "Change Log Setup (Table) List"
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
-        DeleteAll;
+        DeleteAll();
 
         AllObjWithCaption.SetCurrentKey("Object Type", "Object ID");
         AllObjWithCaption.SetRange("Object Type", "Object Type"::Table);

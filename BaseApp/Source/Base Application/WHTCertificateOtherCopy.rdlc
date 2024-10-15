@@ -167,31 +167,6 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="PageNumberTextBox">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=First(Fields!STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__.Value)</Value>
-                    <Style>
-                      <FontSize>9pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Left</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Left>11.55cm</Left>
-            <Height>0.423cm</Height>
-            <Width>1.68cm</Width>
-            <ZIndex>38</ZIndex>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
           <Textbox Name="CompanyInfo__Bank_Name_1">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
@@ -1762,9 +1737,6 @@ End Function
         </Field>
         <Field Name="Text1500000">
           <DataField>Text1500000</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="Vendor__No__">
           <DataField>Vendor__No__</DataField>

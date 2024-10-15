@@ -17,7 +17,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         WebService: Record "Web Service";
     begin
-        WebService.LockTable;
+        WebService.LockTable();
 
         if WebService.Get(WebService."Object Type"::Page, ServiceNameTxt) then begin
             WebService.Validate("Object ID", PageNumber);
@@ -28,10 +28,10 @@ codeunit 130618 "Library - Graph Mgt"
             WebService.Validate("Object ID", PageNumber);
             WebService.Validate("Service Name", ServiceNameTxt);
             WebService.Validate(Published, true);
-            if WebService.Insert then;
+            if WebService.Insert() then;
         end;
 
-        Commit;
+        Commit();
     end;
 
     procedure UnpublishWebService(ServiceNameTxt: Text; PageNumber: Integer)
@@ -430,7 +430,7 @@ codeunit 130618 "Library - Graph Mgt"
     begin
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader."Table ID" := TableID;
-        ConfigTemplateHeader.Modify;
+        ConfigTemplateHeader.Modify();
 
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
         ConfigTemplateLine."Field ID" := TemplateField;
@@ -440,7 +440,7 @@ codeunit 130618 "Library - Graph Mgt"
         LibraryRapidStart.CreateTemplateSelectionRule(ConfigTmplSelectionRules, RuleField, RuleFieldValue, 1, PageID, ConfigTemplateHeader);
         ConfigTmplSelectionRules.Order := 0;
         ConfigTmplSelectionRules.Modify(true);
-        Commit; // Must commit in order for templates to get used in next web service call.
+        Commit(); // Must commit in order for templates to get used in next web service call.
     end;
 
     [Scope('OnPrem')]
@@ -692,7 +692,7 @@ codeunit 130618 "Library - Graph Mgt"
 
         Assert.AreEqual(UnitofMeasureCode, UnitCodeValue, 'Incorrect UoM in JSON');
 
-        Item.Reset;
+        Item.Reset();
         Item.Get(ItemIdValue);
         Assert.AreEqual(UnitofMeasureCode, Item."Base Unit of Measure", 'Incorrect UoM in table Item');
     end;

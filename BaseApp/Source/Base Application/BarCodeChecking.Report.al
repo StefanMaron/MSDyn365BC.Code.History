@@ -14,9 +14,6 @@ report 28000 "BarCode Checking"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -88,13 +85,13 @@ report 28000 "BarCode Checking"
             begin
                 if CurrentRec = 0 then begin
                     if not TempAddressID.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else begin
                     if TempAddressID.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
                 if (TempAddressID."Error Flag No." = '') and ShowErrorOnly then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 RecCode := '';
                 RecName := '';
@@ -254,16 +251,16 @@ report 28000 "BarCode Checking"
     begin
         Window.Update(1, TableNo);
         AddressID.SetRange("Table No.", TableNo);
-        TotalRec := AddressID.Count;
+        TotalRec := AddressID.Count();
         LocalCurrentRec := 1;
         if AddressID.Find('-') then
             repeat
                 Window.Update(2, Round((LocalCurrentRec / TotalRec) * 10000, 1));
-                TempAddressID.Init;
+                TempAddressID.Init();
                 TempAddressID := AddressID;
                 if AddressID."Bar Code System" = AddressID."Bar Code System"::"4-State Bar Code" then
                     BarCodeManagement.BuildBarCode(AddressID."Address ID", '', TempAddressID."Bar Code");
-                TempAddressID.Insert;
+                TempAddressID.Insert();
                 LocalCurrentRec := LocalCurrentRec + 1;
             until AddressID.Next = 0;
     end;

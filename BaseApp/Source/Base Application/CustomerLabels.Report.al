@@ -226,7 +226,7 @@ report 110 "Customer - Labels"
         var
             GLSetup: Record "General Ledger Setup";
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             /*REQUESTOPTIONSPAGE."Bar Code".ENABLED(
               (GLSetup."Address Validation" <> GLSetup."Address Validation"::"Post Code & City") AND
               (GLSetup."AMAS Software" <> 0));*/

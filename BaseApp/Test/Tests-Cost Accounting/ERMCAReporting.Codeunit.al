@@ -45,9 +45,9 @@ codeunit 134816 "ERM CA Reporting"
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        NoOfRegisterEntriesBefore := CostBudgetRegister.Count;
+        NoOfRegisterEntriesBefore := CostBudgetRegister.Count();
 
-        Commit;
+        Commit();
         GlobalCostBudget := CostBudgetName.Name;
         REPORT.Run(REPORT::"Cost Allocation");
         NoOfCostBudgetRegEntries := CostBudgetRegister.Count - NoOfRegisterEntriesBefore;
@@ -88,7 +88,7 @@ codeunit 134816 "ERM CA Reporting"
         Initialize;
 
         // Setup:
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Cost Allocation");
 
         CostRegister.SetRange(Source, CostRegister.Source::Allocation);
@@ -126,9 +126,9 @@ codeunit 134816 "ERM CA Reporting"
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        NoOfRegisterEntriesBefore := CostBudgetRegister.Count;
+        NoOfRegisterEntriesBefore := CostBudgetRegister.Count();
 
-        Commit;
+        Commit();
         GlobalCostBudget := CostBudgetName.Name;
         REPORT.Run(REPORT::"Cost Allocation");
 
@@ -179,13 +179,13 @@ codeunit 134816 "ERM CA Reporting"
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        NoOfRegisterEntriesBefore := CostBudgetRegister.Count;
+        NoOfRegisterEntriesBefore := CostBudgetRegister.Count();
 
-        Commit;
+        Commit();
         GlobalCostBudget := CostBudgetName.Name;
         REPORT.Run(REPORT::"Cost Allocation");
 
-        TotalNoOfBudgetRegEntries := CostBudgetRegister.Count;
+        TotalNoOfBudgetRegEntries := CostBudgetRegister.Count();
         NoOfBudgetRegEntriesToDelete := LibraryRandom.RandInt(TotalNoOfBudgetRegEntries - NoOfRegisterEntriesBefore);
 
         // Exercise:
@@ -214,7 +214,7 @@ codeunit 134816 "ERM CA Reporting"
         Initialize;
 
         // Setup
-        CostBudgetEntryCount := CostBudgetEntry.Count;
+        CostBudgetEntryCount := CostBudgetEntry.Count();
 
         // Exercise
         REPORT.Run(REPORT::"Delete Cost Budget Entries");
@@ -274,7 +274,7 @@ codeunit 134816 "ERM CA Reporting"
         Initialize;
 
         // Setup
-        CostEntryCount := CostEntry.Count;
+        CostEntryCount := CostEntry.Count();
 
         // Exercise
         REPORT.Run(REPORT::"Delete Cost Entries");
@@ -346,7 +346,7 @@ codeunit 134816 "ERM CA Reporting"
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
 
         // Exercise:
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Delete Old Cost Entries");
 
         // Validate
@@ -365,7 +365,7 @@ codeunit 134816 "ERM CA Reporting"
         Initialize;
 
         // Setup
-        CostEntryCount := CostEntry.Count;
+        CostEntryCount := CostEntry.Count();
 
         // Exercise
         REPORT.Run(REPORT::"Delete Old Cost Entries");
@@ -440,9 +440,9 @@ codeunit 134816 "ERM CA Reporting"
 
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
-        NoOfRegisterEntriesBefore := CostBudgetRegister.Count;
+        NoOfRegisterEntriesBefore := CostBudgetRegister.Count();
 
-        Commit;
+        Commit();
         GlobalCostBudget := CostBudgetName.Name;
         REPORT.Run(REPORT::"Cost Allocation");
 
@@ -510,7 +510,7 @@ codeunit 134816 "ERM CA Reporting"
 
         LibraryCostAccounting.InitializeCASetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA Reporting");
     end;
 
@@ -632,7 +632,7 @@ codeunit 134816 "ERM CA Reporting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         Assert.IsTrue(
           CostAccountingSetup."Last Allocation Doc. No." = ExpectedLastAllocDocNo,
           StrSubstNo(ExpectedValueIsDifferentError, CostAccountingSetup.FieldName("Last Allocation Doc. No.")));

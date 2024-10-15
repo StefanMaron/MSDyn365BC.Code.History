@@ -113,7 +113,7 @@ report 113 "Customer/Item Sales"
                     ValueEntry: Record "Value Entry";
                     EntryInBufferExists: Boolean;
                 begin
-                    ValueEntryBuffer.Init;
+                    ValueEntryBuffer.Init();
                     ValueEntryBuffer.SetRange("Item No.", "Item No.");
                     EntryInBufferExists := ValueEntryBuffer.FindFirst;
 
@@ -129,7 +129,7 @@ report 113 "Customer/Item Sales"
                     TempItemLedgerEntry.SetRange("Entry No.", "Item Ledger Entry No.");
                     if TempItemLedgerEntry.IsEmpty then begin
                         TempItemLedgerEntry."Entry No." := "Item Ledger Entry No.";
-                        TempItemLedgerEntry.Insert;
+                        TempItemLedgerEntry.Insert();
 
                         // Add item charges regardless of their posting date
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
@@ -151,13 +151,13 @@ report 113 "Customer/Item Sales"
                     if EntryInBufferExists then
                         ValueEntryBuffer.Modify
                     else
-                        ValueEntryBuffer.Insert;
+                        ValueEntryBuffer.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    ValueEntryBuffer.Reset;
-                    ValueEntryBuffer.DeleteAll;
+                    ValueEntryBuffer.Reset();
+                    ValueEntryBuffer.DeleteAll();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -208,7 +208,7 @@ report 113 "Customer/Item Sales"
                       ReportMgmnt.RoundAmount(ValueEntryBuffer."Discount Amount", Rounding);
                     ValueEntryBuffer."Cost Amount (Non-Invtbl.)" :=
                       ReportMgmnt.RoundAmount(ValueEntryBuffer."Cost Amount (Non-Invtbl.)", Rounding);
-                    ValueEntryBuffer.Modify;
+                    ValueEntryBuffer.Modify();
 
                     Profit :=
                       ValueEntryBuffer."Sales Amount (Actual)" +
@@ -220,7 +220,7 @@ report 113 "Customer/Item Sales"
 
                 trigger OnPreDataItem()
                 begin
-                    ValueEntryBuffer.Reset;
+                    ValueEntryBuffer.Reset();
                     SetRange(Number, 1, ValueEntryBuffer.Count);
                     Clear(Profit);
                 end;

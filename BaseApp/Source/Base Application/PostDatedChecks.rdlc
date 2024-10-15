@@ -1809,9 +1809,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Post_Dated_Check_Line_2__Account_Type_">
           <DataField>Post_Dated_Check_Line_2__Account_Type_</DataField>
         </Field>

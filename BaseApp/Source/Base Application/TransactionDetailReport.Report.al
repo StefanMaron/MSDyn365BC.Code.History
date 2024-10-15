@@ -16,9 +16,6 @@ report 17109 "Transaction Detail Report"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -422,13 +419,13 @@ report 17109 "Transaction Detail Report"
                                ((StartBalance = 0) or
                                 not PrintAllHavingBal)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else begin
                             if ("G/L Entry".Amount = 0) and
                                ((StartBalance = 0) or
                                 not PrintAllHavingBal)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
                     end;
 
@@ -464,7 +461,7 @@ report 17109 "Transaction Detail Report"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(Text001, GLSetup."Additional Reporting Currency")

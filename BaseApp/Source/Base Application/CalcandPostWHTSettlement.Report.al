@@ -15,9 +15,6 @@ report 28041 "Calc. and Post WHT Settlement"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -153,8 +150,8 @@ report 28041 "Calc. and Post WHT Settlement"
 
                 trigger OnAfterGetRecord()
                 begin
-                    SourceCodeSetup.Get;
-                    WHTEntry.Reset;
+                    SourceCodeSetup.Get();
+                    WHTEntry.Reset();
                     WHTEntry.SetCurrentKey("Document Type", "Transaction Type", Settled, "WHT Bus. Posting Group",
                       "WHT Prod. Posting Group", "Posting Date");
                     WHTEntry.SetFilter("Posting Date", '%1..%2', StartDate, EndDate);
@@ -192,7 +189,7 @@ report 28041 "Calc. and Post WHT Settlement"
                             GenJnlPostLine.Run(GenJnlLine);
 
                         Clear(GenJnlLine);
-                        GenJnlLine.Init;
+                        GenJnlLine.Init();
                         GenJnlLine."System-Created Entry" := true;
                         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
                         GenJnlLine.Description :=
@@ -275,7 +272,7 @@ report 28041 "Calc. and Post WHT Settlement"
             trigger OnPreDataItem()
             begin
                 LastFieldNo := FieldNo("WHT Business Posting Group");
-                WHTEntry.Reset;
+                WHTEntry.Reset();
                 WHTEntry.FindLast;
                 EntryNo := WHTEntry."Entry No." + 1;
             end;
@@ -440,7 +437,7 @@ report 28041 "Calc. and Post WHT Settlement"
         begin
             if DescTxt = '' then
                 DescTxt := 'WHT Settlement';
-            GLSetup.Get;
+            GLSetup.Get();
             RoundAccNoEnable := GLSetup."Enable GST (Australia)";
         end;
     }
@@ -457,7 +454,7 @@ report 28041 "Calc. and Post WHT Settlement"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable GST (Australia)" and (RoundAccNo = '') then
             Error(Text007);
 

@@ -9,7 +9,7 @@ codeunit 137906 "SCM Assembly Availability"
         MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
     end;
 
@@ -36,7 +36,7 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Availability");
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Availability");
     end;
 
@@ -199,7 +199,7 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryWarehouse.CreateLocation(otherLocation);
 
         AssemblyHeader.Validate("Location Code", Location.Code);
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
         ValidateInItemOnOrderLocation(parentItem."No.", QTYParent, Location.Code);
         ValidateInItemOnCompLocation(childItem."No.", QTYParent * QTYChild, Location.Code);
         ValidateInItemOnCompLocation(childItem."No.", 0, otherLocation.Code);
@@ -229,9 +229,9 @@ codeunit 137906 "SCM Assembly Availability"
         Initialize;
         LibraryKitting.SetLookahead('<1M>');
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         Clear(MfgSetup."Default Safety Lead Time");
-        MfgSetup.Modify;
+        MfgSetup.Modify();
 
         QTYParent := 1;
         QTYChild := 5;
@@ -291,7 +291,7 @@ codeunit 137906 "SCM Assembly Availability"
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        NbNotifs := TempNotificationContext.Count;
+        NbNotifs := TempNotificationContext.Count();
         EditAssemblyOrderQuantityPer(AssemblyHeader."No.", 0);
 
         // THEN the item availability notification is recalled
@@ -349,9 +349,9 @@ codeunit 137906 "SCM Assembly Availability"
         Initialize;
         LibraryKitting.SetLookahead('<1Y>');
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         Clear(MfgSetup."Default Safety Lead Time");
-        MfgSetup.Modify;
+        MfgSetup.Modify();
 
         QTYParent := 1;
         QTYChild := 16;     // must be 16
@@ -400,9 +400,9 @@ codeunit 137906 "SCM Assembly Availability"
         ExpectedDate: Date;
     begin
         Initialize;
-        MfgSetup.Get;
+        MfgSetup.Get();
         Evaluate(MfgSetup."Default Safety Lead Time", '<1D>');
-        MfgSetup.Modify;
+        MfgSetup.Modify();
 
         LibraryKitting.SetLookahead('<1M>');
         QTYParent := 8;
@@ -459,7 +459,7 @@ codeunit 137906 "SCM Assembly Availability"
         AssemblyHeader.Get(
           AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrderNo(WorkDate2, 'testAvailField', ParentItem."No.", 3));
         AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
         MockItemLedgerEntry(ChildItem."No.", 5, AssemblyHeader."Location Code", DMY2Date(1, 1, 2008));
 
         ValidateOrderRatio(AssemblyHeader, 0.25);
@@ -530,7 +530,7 @@ codeunit 137906 "SCM Assembly Availability"
         Item.SetRange("No.", ItemNo);
         Item.FindFirst;
         Item.Validate(Inventory, Quantity);
-        Item.Modify;
+        Item.Modify();
     end;
 
     [ModalPageHandler]
@@ -722,7 +722,7 @@ codeunit 137906 "SCM Assembly Availability"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         if LastEntryNo = 0 then begin
             if ItemLedgEntry.FindLast then;
             ItemLedgEntry."Entry No." += 1;
@@ -735,14 +735,14 @@ codeunit 137906 "SCM Assembly Availability"
         ItemLedgEntry.Quantity := Qty;
         ItemLedgEntry."Location Code" := LocationCode;
         ItemLedgEntry."Posting Date" := Date;
-        ItemLedgEntry.Insert;
+        ItemLedgEntry.Insert();
     end;
 
     local procedure MockSalesOrder(ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; Date: Date)
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine."Document Type" := SalesLine."Document Type"::Order;
         if LastEntryNo = 0 then begin
             if SalesLine.FindLast then;
@@ -757,14 +757,14 @@ codeunit 137906 "SCM Assembly Availability"
         SalesLine."Outstanding Qty. (Base)" := Qty;
         SalesLine."Location Code" := LocationCode;
         SalesLine."Shipment Date" := Date;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockPurchaseOrder(ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; Date: Date)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
         if LastEntryNo = 0 then begin
             if PurchaseLine.FindLast then;
@@ -780,7 +780,7 @@ codeunit 137906 "SCM Assembly Availability"
         PurchaseLine."Outstanding Quantity" := Qty;
         PurchaseLine."Location Code" := LocationCode;
         PurchaseLine."Expected Receipt Date" := Date;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     [MessageHandler]

@@ -69,7 +69,7 @@ report 5608 "Fixed Asset - Acquisition List"
                           (FADeprBook."Acquisition Date" <= EndingDate);
                 end;
                 if not PrintFA then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -125,7 +125,7 @@ report 5608 "Fixed Asset - Acquisition List"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

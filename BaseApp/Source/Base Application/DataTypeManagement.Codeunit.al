@@ -86,7 +86,7 @@ codeunit 701 "Data Type Management"
     begin
         TempField.TableNo := TableNumber;
         TempField."No." := FieldNumber;
-        TempField.Insert;
+        TempField.Insert();
     end;
 }
 

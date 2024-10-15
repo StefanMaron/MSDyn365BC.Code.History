@@ -74,7 +74,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibraryMarketing.CreateCompanyContact(ContactPerson);
         ContactPerson."Company No." := Contact."No.";
         ContactPerson.Type := ContactPerson.Type::Person;
-        ContactPerson.Modify;
+        ContactPerson.Modify();
 
         // [WHEN] Assign the Sales Quote to the Opportunity
         CreateAndAssignQuoteToOpportunity(Opportunity, ContactPerson."No.");
@@ -479,7 +479,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Sales Quote assigned to the Opportunity created earlier
         CreateAndAssignQuoteToOpportunity(Opportunity, Contact."No.");
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
-        OpportunityEntry.DeleteAll;
+        OpportunityEntry.DeleteAll();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Sales Order made from Sales Quote
@@ -531,7 +531,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         OpportunityEntry.FindLast;
         EstimatedValueAmount := LibraryRandom.RandInt(100);
         OpportunityEntry."Estimated Value (LCY)" := EstimatedValueAmount;
-        OpportunityEntry.Modify;
+        OpportunityEntry.Modify();
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Sales Order made from Sales Quote
@@ -593,7 +593,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Quotations Contacts");
     end;
 
@@ -652,7 +652,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     local procedure CreateSalesQuoteWOCustomer(var SalesHeader: Record "Sales Header"; ContactNo: Code[20]; CustomerTemplateCode: Code[10])
     begin
         LibrarySales.SetStockoutWarning(false);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Contact No.", ContactNo);
@@ -782,15 +782,15 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesCycle: Record "Sales Cycle";
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;  // Required to initialize the variable.
+        TempOpportunity.Init();  // Required to initialize the variable.
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;  // Insert temporary Opportunity to modify fields later.
+        TempOpportunity.Insert();  // Insert temporary Opportunity to modify fields later.
 
         LibraryMarketing.CreateSalesCycle(SalesCycle);
         TempOpportunity.Validate(Description, SalesCycle.Code);
         TempOpportunity.Validate("Sales Cycle Code", SalesCycle.Code);
         TempOpportunity.Validate("Activate First Stage", true);
-        TempOpportunity.Modify;
+        TempOpportunity.Modify();
         TempOpportunity.FinishWizard;
     end;
 
@@ -800,7 +800,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesQuote.GetRecord(SalesHeader);
         SalesHeader.Validate("Sell-to Customer Template Code", CustomerTemplateCode2);
         SalesHeader.Modify(true);
@@ -826,9 +826,9 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.FinishWizard;
     end;
 

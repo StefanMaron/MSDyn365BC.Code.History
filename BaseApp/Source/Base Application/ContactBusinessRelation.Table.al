@@ -35,7 +35,7 @@ table 5054 "Contact Business Relation"
                    ("Business Relation Code" <> '') and
                    (CurrFieldNo <> 0)
                 then begin
-                    RMSetup.Get;
+                    RMSetup.Get();
                     if "Business Relation Code" = RMSetup."Bus. Rel. Code for Customers" then
                         Error(Text001,
                           FieldCaption("Business Relation Code"), "Business Relation Code",
@@ -51,11 +51,9 @@ table 5054 "Contact Business Relation"
                 end;
             end;
         }
-        field(3; "Link to Table"; Option)
+        field(3; "Link to Table"; Enum "Contact Business Relation Link To Table")
         {
             Caption = 'Link to Table';
-            OptionCaption = ' ,Customer,Vendor,Bank Account';
-            OptionMembers = " ",Customer,Vendor,"Bank Account";
         }
         field(4; "No."; Code[20])
         {
@@ -120,11 +118,11 @@ table 5054 "Contact Business Relation"
                       Text000,
                       "Link to Table", "No.", TableCaption, Cont.TableCaption, ContBusRel."Contact No.");
 
-            ContBusRel.Reset;
+            ContBusRel.Reset();
             ContBusRel.SetRange("Contact No.", "Contact No.");
             ContBusRel.SetRange("Business Relation Code", "Business Relation Code");
             ContBusRel.SetRange("No.", '');
-            ContBusRel.DeleteAll;
+            ContBusRel.DeleteAll();
         end;
     end;
 
@@ -138,15 +136,18 @@ table 5054 "Contact Business Relation"
         Customer: Record Customer;
         Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
+        RecordRead: Boolean;
     begin
         case ContactBusinessRelation."Link to Table" of
             ContactBusinessRelation."Link to Table"::"Bank Account":
-                exit(BankAccount.Get(ContactBusinessRelation."No."));
+                RecordRead := BankAccount.Get(ContactBusinessRelation."No.");
             ContactBusinessRelation."Link to Table"::Customer:
-                exit(Customer.Get(ContactBusinessRelation."No."));
+                RecordRead := Customer.Get(ContactBusinessRelation."No.");
             ContactBusinessRelation."Link to Table"::Vendor:
-                exit(Vendor.Get(ContactBusinessRelation."No."));
+                RecordRead := Vendor.Get(ContactBusinessRelation."No.");
         end;
+        OnGetContactBusinessRelation(ContactBusinessRelation, RecordRead);
+        exit(RecordRead);
     end;
 
     procedure FindByContact(LinkType: Option; ContactNo: Code[20]): Boolean
@@ -218,7 +219,7 @@ table 5054 "Contact Business Relation"
         MarketingSetup: Record "Marketing Setup";
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         case LinkToTable of
             ContactBusinessRelation."Link to Table"::Customer:
                 begin
@@ -253,11 +254,29 @@ table 5054 "Contact Business Relation"
             if ContactBusinessRelation.FindByContact(LinkToTableOption, CompanyContact."No.") then
                 if ContactBusinessRelation."No." = '' then begin
                     ContactBusinessRelation."No." := EntityNo;
-                    ContactBusinessRelation.Modify;
+                    ContactBusinessRelation.Modify();
                     exit(true);
                 end;
 
         exit(false);
+    end;
+
+    procedure FindContactsByRelation(var Contact: Record Contact; LinkType: Option; LinkNo: Code[20]): Boolean
+    begin
+        if FindByRelation(LinkType, LinkNo) then begin
+            Contact.SetRange("Company No.", "Contact No.");
+            if Contact.IsEmpty then begin
+                Contact.SetRange("Company No.");
+                Contact.SetRange("No.", "Contact No.");
+            end;
+            exit(Contact.FindSet());
+        end;
+        exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; var RecordRead: Boolean)
+    begin
     end;
 }
 

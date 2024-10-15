@@ -36,11 +36,11 @@ codeunit 138009 "O365 Customer Statistics"
         ValidateAvgDaysToPay(0, Customer);
 
         CustLedgEntry."Document Type" := CustLedgEntry."Document Type"::Invoice;
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
         ValidateAvgDaysToPay(0, Customer);
 
         CustLedgEntry.Open := false;
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
         ValidateAvgDaysToPay(0, Customer);
     end;
 
@@ -147,7 +147,7 @@ codeunit 138009 "O365 Customer Statistics"
 
         LibraryApplicationArea.EnableFoundationSetup;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
         if SalesSetup."Blanket Order Nos." = '' then
             SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -157,10 +157,10 @@ codeunit 138009 "O365 Customer Statistics"
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         if SalesSetup."Quote Nos." = '' then
             SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Customer Statistics");
     end;
 
@@ -311,7 +311,7 @@ codeunit 138009 "O365 Customer Statistics"
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
         LibrarySmallBusiness.CreateItem(Item);
         Item."Unit Price" := InvAmount;
-        Item.Modify;
+        Item.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 

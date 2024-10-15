@@ -86,7 +86,7 @@ page 99000891 "Work Center Group Load"
     var
         MgfSetup: Record "Manufacturing Setup";
     begin
-        MgfSetup.Get;
+        MgfSetup.Get();
         MgfSetup.TestField("Show Capacity In");
         CapacityUoM := MgfSetup."Show Capacity In";
     end;

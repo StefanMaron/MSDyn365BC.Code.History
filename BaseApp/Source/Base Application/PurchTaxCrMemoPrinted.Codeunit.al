@@ -8,7 +8,7 @@ codeunit 28073 "Purch. Tax Cr.Memo-Printed"
         Find;
         "No. Printed" := "No. Printed" + 1;
         Modify;
-        Commit;
+        Commit();
     end;
 }
 

@@ -437,7 +437,7 @@ page 28090 "Post Dated Checks"
             CustomerBalance := Customer."Balance (LCY)";
         end else
             CustomerBalance := 0;
-        PostDatedCheck.Reset;
+        PostDatedCheck.Reset();
         PostDatedCheck.SetCurrentKey("Account Type", "Account No.");
         if DateFilter <> '' then
             PostDatedCheck.SetFilter("Check Date", DateFilter);
@@ -448,7 +448,7 @@ page 28090 "Post Dated Checks"
             repeat
                 LineAmount := LineAmount + PostDatedCheck."Amount (LCY)";
             until PostDatedCheck.Next = 0;
-            LineCount := PostDatedCheck.Count;
+            LineCount := PostDatedCheck.Count();
         end;
     end;
 

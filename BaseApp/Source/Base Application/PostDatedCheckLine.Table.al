@@ -41,7 +41,7 @@ table 28090 "Post Dated Check Line"
                         begin
                             Customer.Get("Account No.");
                             Description := Customer.Name;
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Post Dated Check Batch");
                             SalesSetup.TestField("Post Dated Check Template");
                             "Batch Name" := SalesSetup."Post Dated Check Batch";
@@ -55,7 +55,7 @@ table 28090 "Post Dated Check Line"
                         begin
                             Vendor.Get("Account No.");
                             Description := Vendor.Name;
-                            PurchSetup.Get;
+                            PurchSetup.Get();
                             PurchSetup.TestField("Post Dated Check Batch");
                             PurchSetup.TestField("Post Dated Check Template");
                             if "Batch Name" = '' then
@@ -204,12 +204,12 @@ table 28090 "Post Dated Check Line"
                 case "Account Type" of
                     "Account Type"::Customer:
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             JnlBatch.SetRange("Journal Template Name", SalesSetup."Post Dated Check Template");
                         end;
                     "Account Type"::Vendor:
                         begin
-                            PurchSetup.Get;
+                            PurchSetup.Get();
                             JnlBatch.SetRange("Journal Template Name", PurchSetup."Post Dated Check Template");
                         end;
                 end;
@@ -231,12 +231,12 @@ table 28090 "Post Dated Check Line"
                 case "Account Type" of
                     "Account Type"::Customer:
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             JnlBatch.Get(SalesSetup."Post Dated Check Template", "Batch Name");
                         end;
                     "Account Type"::Vendor:
                         begin
-                            PurchSetup.Get;
+                            PurchSetup.Get();
                             JnlBatch.Get(PurchSetup."Post Dated Check Template", "Batch Name");
                         end;
                 end;
@@ -244,11 +244,9 @@ table 28090 "Post Dated Check Line"
                 JnlBatch.TestField("Bal. Account Type", JnlBatch."Bal. Account Type"::"Bank Account");
             end;
         }
-        field(42; "Applies-to Doc. Type"; Option)
+        field(42; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(43; "Applies-to Doc. No."; Code[20])
         {

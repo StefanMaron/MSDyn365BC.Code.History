@@ -18,9 +18,6 @@ report 28028 "VAT Report - Customer"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -97,7 +94,7 @@ report 28028 "VAT Report - Customer"
             trigger OnAfterGetRecord()
             begin
                 if "Bill-to/Pay-to No." = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if TempBillTo <> "Bill-to/Pay-to No." then begin
                     TempBillTo := "Bill-to/Pay-to No.";

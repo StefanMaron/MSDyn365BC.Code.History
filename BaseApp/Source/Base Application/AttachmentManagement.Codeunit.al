@@ -101,7 +101,7 @@ codeunit 5052 AttachmentManagement
             FromAttachment.ExportAttachmentToServerFile(FileName); // Export blob to UNC location
             with ToAttachment do begin
                 Clear("Attachment File");
-                RMSetup.Get;
+                RMSetup.Get();
                 RMSetup.TestField("Attachment Storage Location");
                 "Storage Pointer" := RMSetup."Attachment Storage Location";
                 Modify;
@@ -112,10 +112,10 @@ codeunit 5052 AttachmentManagement
            (ToAttachment."Storage Type" = ToAttachment."Storage Type"::"Disk File")
         then begin
             // Copy external attachment (to new storage)
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Attachment Storage Location");
             ToAttachment."Storage Pointer" := RMSetup."Attachment Storage Location";
-            ToAttachment.Modify;
+            ToAttachment.Modify();
             FILE.Copy(FromAttachment.ConstDiskFileName, ToAttachment.ConstDiskFileName);
         end;
 
@@ -209,10 +209,10 @@ codeunit 5052 AttachmentManagement
         if FileName = '' then
             exit;
 
-        TempAttachment.Init;
+        TempAttachment.Init();
         TempAttachment.ImportAttachmentFromServerFile(FileName, true, true);
         TempAttachment."No." := 0;
-        TempAttachment.Insert;
+        TempAttachment.Insert();
         Result := TempAttachment.Read;
         TempAttachment.RemoveAttachment(false);
     end;
@@ -225,11 +225,11 @@ codeunit 5052 AttachmentManagement
         if FileName = '' then
             exit(false);
 
-        Attachment.Delete;
-        Attachment.Init;
+        Attachment.Delete();
+        Attachment.Init();
         Attachment.ImportAttachmentFromServerFile(FileName, true, true);
         Attachment."No." := 0;
-        Attachment.Insert;
+        Attachment.Insert();
 
         exit(true);
     end;
@@ -258,7 +258,7 @@ codeunit 5052 AttachmentManagement
     var
         User: Record User;
     begin
-        Commit;
+        Commit();
         User.SetRange("User Name", UserId);
         if not User.FindFirst and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeExchangeWithCredentials(ExchangeWebServicesServer) then
@@ -272,15 +272,15 @@ codeunit 5052 AttachmentManagement
         WebCredentials: DotNet WebCredentials;
         WebCredentialsLogin: Text[250];
     begin
-        TempOfficeAdminCredentials.Init;
-        TempOfficeAdminCredentials.Insert;
-        Commit;
+        TempOfficeAdminCredentials.Init();
+        TempOfficeAdminCredentials.Insert();
+        Commit();
         ClearLastError;
         if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
             Error('');
         WebCredentialsLogin := TempOfficeAdminCredentials.Email;
         WebCredentials := WebCredentials.WebCredentials(WebCredentialsLogin, TempOfficeAdminCredentials.GetPassword);
-        TempOfficeAdminCredentials.Delete;
+        TempOfficeAdminCredentials.Delete();
         ExchangeWebServicesServer.Initialize(
           WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
     end;
@@ -299,7 +299,7 @@ codeunit 5052 AttachmentManagement
             exit;
         end;
 
-        ExchangeServiceSetup.Get;
+        ExchangeServiceSetup.Get();
 
         ExchangeWebServicesServer.InitializeWithCertificate(
           ExchangeServiceSetup."Azure AD App. ID", ExchangeServiceSetup."Azure AD App. Cert. Thumbprint",
@@ -328,7 +328,7 @@ codeunit 5052 AttachmentManagement
         if IsHandled then
             exit;
 
-        InteractLogEntry.LockTable;
+        InteractLogEntry.LockTable();
         repeat
             InteractLogEntry.Get(TempDeliverySorterHtml."No.");
 
@@ -339,7 +339,7 @@ codeunit 5052 AttachmentManagement
                 OnDeliverHTMLEmailOnBeforeSendEmail(
                   TempDeliverySorterHtml, Attachment, InteractLogEntry, EmailBodyFilePath);
 
-                Commit;
+                Commit();
                 SendHTMLEmail(
                   TempDeliverySorterHtml, InteractLogEntry, EmailBodyFilePath);
                 // Clean up
@@ -355,7 +355,7 @@ codeunit 5052 AttachmentManagement
         FileMgt: Codeunit "File Management";
         EmailBodyFilePath: Text;
     begin
-        InteractLogEntry.LockTable;
+        InteractLogEntry.LockTable();
         repeat
             InteractLogEntry.Get(TempDeliverySorterHtml."No.");
 
@@ -364,7 +364,7 @@ codeunit 5052 AttachmentManagement
                 EmailBodyFilePath := FileMgt.ServerTempFileName('HTML');
                 Attachment.ExportAttachmentToServerFile(EmailBodyFilePath);
 
-                Commit;
+                Commit();
                 SendHTMLEmailViaExchange(
                   ExchangeWebServicesServer, TempDeliverySorterHtml, InteractLogEntry, Attachment);
                 // Clean up
@@ -386,7 +386,7 @@ codeunit 5052 AttachmentManagement
             exit;
 
         repeat
-            InteractLogEntry.LockTable;
+            InteractLogEntry.LockTable();
             InteractLogEntry.Get(TempDeliverySorterOther."No.");
             if TempDeliverySorterOther."Correspondence Type" = TempDeliverySorterOther."Correspondence Type"::Email then begin
                 // Export the attachment to the client TEMP directory, giving it a GUID
@@ -395,7 +395,7 @@ codeunit 5052 AttachmentManagement
                 OnDeliverEmailWithAttachmentOnBeforeSendEmail(
                   TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
 
-                Commit;
+                Commit();
                 SendEmailWithAttachment(
                   TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
                 // Clean up
@@ -424,9 +424,9 @@ codeunit 5052 AttachmentManagement
         Window.Update(2, 10000);
         Window.Update(3, Text002);
         I := 0;
-        NoOfAttachments := TempDeliverySorterOther.Count;
+        NoOfAttachments := TempDeliverySorterOther.Count();
         repeat
-            InteractLogEntry.LockTable;
+            InteractLogEntry.LockTable();
             InteractLogEntry.Get(TempDeliverySorterOther."No.");
             if TempDeliverySorterOther."Correspondence Type" = TempDeliverySorterOther."Correspondence Type"::Email then begin
                 // Export the attachment to the server TEMP directory, giving it a GUID
@@ -519,8 +519,8 @@ codeunit 5052 AttachmentManagement
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::" "
         else
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::Error;
-        InteractLogEntry.Modify;
-        Commit;
+        InteractLogEntry.Modify();
+        Commit();
     end;
 
     local procedure ProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterWord: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary)
@@ -542,7 +542,7 @@ codeunit 5052 AttachmentManagement
         Window.Update(3, Text002);
 
         if DeliverySorter.Find('-') then begin
-            NoOfAttachments := DeliverySorter.Count;
+            NoOfAttachments := DeliverySorter.Count();
             repeat
                 DeliverySorter.TestField("Correspondence Type");
                 if not Attachment.Get(DeliverySorter."Attachment No.") then
@@ -554,23 +554,23 @@ codeunit 5052 AttachmentManagement
                         begin
                             TempDeliverySorterHtml := DeliverySorter;
                             OnProcessDeliverySorterHtml(DeliverySorter, TempDeliverySorterHtml, Attachment, I);
-                            TempDeliverySorterHtml.Insert;
+                            TempDeliverySorterHtml.Insert();
                         end;
                     WordManagement.IsWordDocumentExtension(Attachment."File Extension") and not
                   (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]):
                         if WordManagement.CanRunWordApp then begin
                             TempDeliverySorterWord := DeliverySorter;
                             OnProcessDeliverySorterWord(DeliverySorter, TempDeliverySorterWord, Attachment, I);
-                            TempDeliverySorterWord.Insert;
+                            TempDeliverySorterWord.Insert();
                         end else begin
                             TempDeliverySorterOther := DeliverySorter;
                             OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
-                            TempDeliverySorterOther.Insert;
+                            TempDeliverySorterOther.Insert();
                         end;
                     else begin
                             TempDeliverySorterOther := DeliverySorter;
                             OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
-                            TempDeliverySorterOther.Insert;
+                            TempDeliverySorterOther.Insert();
                         end;
                 end;
                 I := I + 1;

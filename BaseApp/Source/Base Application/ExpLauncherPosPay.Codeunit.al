@@ -97,7 +97,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         HdrCount: Integer;
     begin
         HdrCount := 0;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
         if DataExchLineDef.FindSet then begin
@@ -106,8 +106,8 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
-                Commit;
+                DataExch.Insert();
+                Commit();
 
                 HdrCount := HdrCount + 1;
                 HeaderArray[HdrCount] := DataExch."Entry No.";
@@ -144,7 +144,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         DetailCount: Integer;
     begin
         DetailCount := 0;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
         if DataExchLineDef.FindSet then begin
@@ -153,8 +153,8 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
-                Commit;
+                DataExch.Insert();
+                Commit();
 
                 DetailCount := DetailCount + 1;
                 DetailArray[DetailCount] := DataExch."Entry No.";
@@ -202,7 +202,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         FooterCount: Integer;
     begin
         FooterCount := 0;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
         if DataExchLineDef.FindSet then begin
@@ -211,8 +211,8 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
-                Commit;
+                DataExch.Insert();
+                Commit();
 
                 FooterCount := FooterCount + 1;
                 FooterArray[FooterCount] := DataExch."Entry No.";

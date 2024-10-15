@@ -43,7 +43,7 @@ report 11605 "Export BAS Setup to Excel"
 
             trigger OnPreDataItem()
             begin
-                ExcelBuf.DeleteAll;
+                ExcelBuf.DeleteAll();
                 RowNo := 1;
                 EnterCell(RowNo, 1, Text006, true, false, '', ExcelBuf."Cell Type"::Text);
                 EnterCell(RowNo, 2, '', false, false, '', ExcelBuf."Cell Type"::Text);
@@ -90,7 +90,7 @@ report 11605 "Export BAS Setup to Excel"
 
     trigger OnPreReport()
     begin
-        ExcelBuf.LockTable;
+        ExcelBuf.LockTable();
     end;
 
     var
@@ -109,7 +109,7 @@ report 11605 "Export BAS Setup to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30]; CellType: Option)
     begin
-        ExcelBuf.Init;
+        ExcelBuf.Init();
         ExcelBuf.Validate("Row No.", RowNo);
         ExcelBuf.Validate("Column No.", ColumnNo);
         ExcelBuf."Cell Value as Text" := CellValue;
@@ -118,7 +118,7 @@ report 11605 "Export BAS Setup to Excel"
         ExcelBuf.Underline := UnderLine;
         ExcelBuf.NumberFormat := NumberFormat;
         ExcelBuf."Cell Type" := CellType;
-        ExcelBuf.Insert;
+        ExcelBuf.Insert();
     end;
 
     [Scope('OnPrem')]

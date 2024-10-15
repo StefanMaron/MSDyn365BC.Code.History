@@ -12,7 +12,7 @@ codeunit 428 "IC Mapping"
         GlAcc.SetRange("No.", ICGLAcc."No.");
         if GlAcc.FindFirst and (ICGLAcc."Account Type" = GlAcc."Account Type") then begin
             ICGLAcc."Map-to G/L Acc. No." := GlAcc."No.";
-            ICGLAcc.Modify;
+            ICGLAcc.Modify();
         end;
     end;
 
@@ -25,7 +25,7 @@ codeunit 428 "IC Mapping"
         Dimension.SetRange(Code, ICDimension.Code);
         if Dimension.FindFirst then begin
             ICDimension."Map-to Dimension Code" := Dimension.Code;
-            ICDimension.Modify;
+            ICDimension.Modify();
             ICDimensionValue.SetRange("Dimension Code", ICDimension.Code);
             if ICDimensionValue.Find('-') then begin
                 ICDimensionValue.ModifyAll("Map-to Dimension Code", ICDimension."Map-to Dimension Code");
@@ -37,7 +37,7 @@ codeunit 428 "IC Mapping"
                                (DimensionValue."Dimension Value Type" = ICDimensionValue."Dimension Value Type")
                             then begin
                                 ICDimensionValue."Map-to Dimension Value Code" := DimensionValue.Code;
-                                ICDimensionValue.Modify;
+                                ICDimensionValue.Modify();
                             end;
                         end;
                     until ICDimensionValue.Next = 0;
@@ -54,7 +54,7 @@ codeunit 428 "IC Mapping"
         ICDimension.SetRange(Code, Dimension.Code);
         if ICDimension.FindFirst then begin
             Dimension."Map-to IC Dimension Code" := ICDimension.Code;
-            Dimension.Modify;
+            Dimension.Modify();
             DimensionValue.SetRange("Dimension Code", Dimension.Code);
             if DimensionValue.Find('-') then begin
                 DimensionValue.ModifyAll("Map-to IC Dimension Code", Dimension."Map-to IC Dimension Code");
@@ -66,7 +66,7 @@ codeunit 428 "IC Mapping"
                                (DimensionValue."Dimension Value Type" = ICDimensionValue."Dimension Value Type")
                             then begin
                                 DimensionValue."Map-to IC Dimension Value Code" := ICDimensionValue.Code;
-                                DimensionValue.Modify;
+                                DimensionValue.Modify();
                             end;
                         end;
                     until DimensionValue.Next = 0;

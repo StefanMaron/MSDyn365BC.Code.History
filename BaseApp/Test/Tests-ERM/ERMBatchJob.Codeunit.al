@@ -164,7 +164,7 @@ codeunit 134900 "ERM Batch Job"
         DeletePurchaseOrderArchive(PurchaseHeader);
 
         // [THEN] Verify Archived Purchase Order Version deleted.
-        PurchaseHeaderArchive.Init;
+        PurchaseHeaderArchive.Init();
         PurchaseHeaderArchive.SetRange("No.", DocumentNo);
         Assert.RecordIsEmpty(PurchaseHeaderArchive);
     end;
@@ -237,7 +237,7 @@ codeunit 134900 "ERM Batch Job"
         CreateFinanceCharge(GenJournalLine."Account No.");
 
         // [THEN] Verify Finance Charge Memo Line after Running Batch Job.
-        FinanceChargeMemoLine.Init;
+        FinanceChargeMemoLine.Init();
         FinanceChargeMemoLine.SetRange("Document No.", GenJournalLine."Document No.");
         Assert.RecordIsNotEmpty(FinanceChargeMemoLine);
     end;
@@ -483,7 +483,7 @@ codeunit 134900 "ERM Batch Job"
             LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader[Index], SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
             LibrarySales.ReleaseSalesDocument(SalesHeader[Index]);
-            Commit;
+            Commit();
         end;
 
         PostingDate :=
@@ -697,7 +697,7 @@ codeunit 134900 "ERM Batch Job"
         REPORT.Run(REPORT::"Date Compress General Ledger");
 
         // 3. Verify: G/L Entry must be deleted after running the Date Compress General Ledger Report.
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.RecordIsEmpty(GLEntry);
     end;
@@ -722,7 +722,7 @@ codeunit 134900 "ERM Batch Job"
         RunDeleteEmptyGLRegisters;
 
         // 3. Verify: G/L Register must be deleted after running the Delete Empty G/L Registers Report.
-        GLRegister.Init;
+        GLRegister.Init();
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
         Assert.RecordIsEmpty(GLRegister);
     end;
@@ -1118,7 +1118,7 @@ codeunit 134900 "ERM Batch Job"
         // [WHEN] Create Purchase Order. Get Special Order then Get Drop Shipment.
         CreatePurchHeader(PurchHeader, SalesHeader."Sell-to Customer No.", '');
         DistIntegration.GetSpecialOrders(PurchHeader);
-        Commit;
+        Commit();
         asserterror LibraryPurchase.GetDropShipment(PurchHeader);
 
         // [THEN] Verify Error message.
@@ -1149,7 +1149,7 @@ codeunit 134900 "ERM Batch Job"
         // [WHEN] Create Purchase Order. Get Drop Shipment then Get Special Order.
         CreatePurchHeader(PurchHeader, SalesHeader."Sell-to Customer No.", '');
         LibraryPurchase.GetDropShipment(PurchHeader);
-        Commit;
+        Commit();
         asserterror DistIntegration.GetSpecialOrders(PurchHeader);
 
         // [THEN] Verify Error Message.
@@ -1733,7 +1733,7 @@ codeunit 134900 "ERM Batch Job"
         CreateSalesOrderWithUnpaidPrepayment(SalesHeader, LineGLAccount, LocationCode, Item."No.", Qty);
         // [GIVEN] Create payment and release Sales Order.
         CreatePaymentAndReleaseSalesOrder(SalesHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Create Inventory Pick
         LibraryVariableStorage.Enqueue(NoOfPicksCreatedMsg);
@@ -1900,7 +1900,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [GIVEN] Sales Order "SO" and Purchase Order "PO" with "Drop Shipment".
         CreateSalesAndPurchOrdersWithDropShipment(SalesHeader, PurchaseHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Post the "SO".
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1979,7 +1979,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [GIVEN] Sales Order "SO" and Purchase Order "PO" with "Drop Shipment".
         CreateSalesAndPurchOrdersWithDropShipment(SalesHeader, PurchaseHeader);
-        Commit;
+        Commit();
 
         // [WHEN] Post Purchase Receipt for "PO".
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2222,7 +2222,7 @@ codeunit 134900 "ERM Batch Job"
         // [GIVEN] Purchase Order is approved
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchaseHeader.RecordId);
         ApprovalsMgmt.ApproveRecordApprovalRequest(PurchaseHeader.RecordId);
-        Commit;
+        Commit();
 
         // [WHEN] Inventory Put-Away created and posted from Purchase Order with Posting Date = WORKDATE + 1
         PurchaseHeader.Find;
@@ -2272,7 +2272,7 @@ codeunit 134900 "ERM Batch Job"
         // [GIVEN] Sales Order is approved
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
         ApprovalsMgmt.ApproveRecordApprovalRequest(SalesHeader.RecordId);
-        Commit;
+        Commit();
 
         // [WHEN] Inventory Pick created and posted from Sales Order with Posting Date = WORKDATE + 1
         SalesHeader.Find;
@@ -2412,7 +2412,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         LibraryWorkflow.DisableAllWorkflows;
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Batch Job");
@@ -2426,7 +2426,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Batch Job");
         BindSubscription(LibraryJobQueue);
     end;
@@ -2566,7 +2566,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(1000, 2));
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -3327,7 +3327,7 @@ codeunit 134900 "ERM Batch Job"
     var
         PurchLine: Record "Purchase Line";
     begin
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("No.", No);
@@ -3444,7 +3444,7 @@ codeunit 134900 "ERM Batch Job"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Commit;  // Commit is used to avoid Test failure.
+        Commit();  // Commit is used to avoid Test failure.
         SalesHeader.SetRange("No.", SalesHeaderNo);
         REPORT.Run(REPORT::"Batch Post Sales Orders", true, false, SalesHeader);
     end;
@@ -3453,7 +3453,7 @@ codeunit 134900 "ERM Batch Job"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -3475,9 +3475,9 @@ codeunit 134900 "ERM Batch Job"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
         GenPostingSetup.SetRange("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
-        GenPostingSetup.DeleteAll;
+        GenPostingSetup.DeleteAll();
     end;
 
     local procedure RunBatchPostPurchaseOrders(DocNoFilter: Text; Receive: Boolean; Invoice: Boolean; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocDate: Boolean; CalcInvDiscount: Boolean)
@@ -3485,7 +3485,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeaderToPost: Record "Purchase Header";
         BatchPostPurchaseOrders: Report "Batch Post Purchase Orders";
     begin
-        Commit;
+        Commit();
         PurchaseHeaderToPost.SetFilter("No.", DocNoFilter);
         BatchPostPurchaseOrders.SetTableView(PurchaseHeaderToPost);
         BatchPostPurchaseOrders.InitializeRequest(Receive, Invoice, PostingDate, ReplacePostingDate, ReplaceDocDate, CalcInvDiscount);
@@ -3498,7 +3498,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeader: Record "Sales Header";
         BatchPostSalesReturnOrders: Report "Batch Post Sales Return Orders";
     begin
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(Receive);
         LibraryVariableStorage.Enqueue(Invoice);
         SalesHeader.SetRange("No.", No);
@@ -3515,7 +3515,7 @@ codeunit 134900 "ERM Batch Job"
         RetrieveDimensionsFrom: Option Item,"Sales Line";
     begin
         FindRequisitionWkshName(RequisitionWkshName);
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
 
@@ -3549,7 +3549,7 @@ codeunit 134900 "ERM Batch Job"
     var
         CopyGeneralPostingSetup: Report "Copy - General Posting Setup";
     begin
-        Commit;  // COMMIT required for batch report.
+        Commit();  // COMMIT required for batch report.
         CopyGeneralPostingSetup.SetGenPostingSetup(GeneralPostingSetup);
         CopyGeneralPostingSetup.Run;
     end;
@@ -3558,7 +3558,7 @@ codeunit 134900 "ERM Batch Job"
     var
         CopyVATPostingSetup: Report "Copy - VAT Posting Setup";
     begin
-        Commit;  // COMMIT required for batch report.
+        Commit();  // COMMIT required for batch report.
         CopyVATPostingSetup.SetVATSetup(VATPostingSetup);
         CopyVATPostingSetup.Run;
     end;
@@ -3702,7 +3702,7 @@ codeunit 134900 "ERM Batch Job"
     local procedure UpdateVATIdentifierForVATpostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateRandomCode(13, 325);
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
     end;
 
     local procedure UpdateCopyCommentsOnSalesPurchaseSetup()
@@ -3710,12 +3710,12 @@ codeunit 134900 "ERM Batch Job"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Copy Comments Order to Shpt." := true;
-        SalesReceivablesSetup.Modify;
-        PurchasesPayablesSetup.Get;
+        SalesReceivablesSetup.Modify();
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Copy Comments Order to Receipt" := true;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateShipToAddressOnSalesHeader(var SalesHeader: Record "Sales Header")
@@ -3730,7 +3730,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeader."Ship-to Contact" := LibraryUtility.GenerateGUID;
         SalesHeader."Ship-to County" := LibraryUtility.GenerateGUID;
         SalesHeader."Ship-to Country/Region Code" := CountryRegion.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

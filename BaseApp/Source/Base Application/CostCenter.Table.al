@@ -210,7 +210,7 @@ table 1112 "Cost Center"
         DimensionMgt: Codeunit DimensionManagement;
         DimFilter: Text;
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if CostCenter.FindSet then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostCenter.Code);
@@ -241,7 +241,7 @@ table 1112 "Cost Center"
             if not Confirm(Text001, true) then
                 Error('');
         if not CalledFromOnInsert then
-            CostCenter.DeleteAll;
+            CostCenter.DeleteAll();
     end;
 
     local procedure ConfirmModifyIfEntriesExist(var CostCenter: Record "Cost Center")

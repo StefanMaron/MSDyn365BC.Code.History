@@ -9,6 +9,9 @@ page 1920 "Container Sandbox Environment"
     PageType = NavigatePage;
     ShowFilter = false;
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
+    ObsoleteTag = '16.0';
 
     layout
     {
@@ -21,7 +24,7 @@ page 1920 "Container Sandbox Environment"
                 Visible = TopBannerVisible;
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
                 {
-                    ApplicationArea = Basic, "#Suite";
+                    ApplicationArea = Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -55,7 +58,7 @@ page 1920 "Container Sandbox Environment"
         {
             action(AzureVM)
             {
-                ApplicationArea = Basic, "#Suite";
+                ApplicationArea = Basic, Suite;
                 Caption = 'Host in Azure';
                 InFooterBar = true;
                 ToolTip = 'Create a container sandbox environment hosted on an Azure VM';
@@ -67,7 +70,7 @@ page 1920 "Container Sandbox Environment"
             }
             action(HostLocally)
             {
-                ApplicationArea = Basic, "#Suite";
+                ApplicationArea = Basic, Suite;
                 Caption = 'Host locally';
                 InFooterBar = true;
                 ToolTip = 'Create a container sandbox environment hosted on your local machine';

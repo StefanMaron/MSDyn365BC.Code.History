@@ -220,7 +220,6 @@ page 116 "G/L Registers"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'WHT Entries';
-                    Image = "VAT Rate Change Setup";
                     RunObject = Codeunit "G/L Reg.-WHT Entries";
                     ToolTip = 'View the withholding tax entries for the register.';
                 }

@@ -406,12 +406,12 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         // Setup: Create Lot for Lot Item with Replenishment System Production Order.
         Initialize;
-        OrderPromisingSetup.Get;
+        OrderPromisingSetup.Get();
         ReqWkshTemplate.Get(OrderPromisingSetup."Order Promising Template");
         OldReqTemplateType := ReqWkshTemplate.Type;
         if ReqWkshTemplate.Type <> ReqWkshTemplate.Type::Planning then begin
             ReqWkshTemplate.Type := ReqWkshTemplate.Type::Planning;
-            ReqWkshTemplate.Modify;
+            ReqWkshTemplate.Modify();
         end;
 
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
@@ -432,7 +432,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         // Restore Order Promising Setup
         if ReqWkshTemplate.Type <> OldReqTemplateType then begin
             ReqWkshTemplate.Type := OldReqTemplateType;
-            ReqWkshTemplate.Modify;
+            ReqWkshTemplate.Modify();
         end;
     end;
 
@@ -1104,7 +1104,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         AcceptActionMessage(RequisitionLine, MidLevelItem."No.");
 
         // [GIVEN] Carry out requisition plan - one production order with 2 lines is created. Item "I2" is reserved as a component for the item "I1"
-        RequisitionLine.Reset;
+        RequisitionLine.Reset();
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionLine."Journal Batch Name");
         LibraryPlanning.CarryOutPlanWksh(RequisitionLine, ProdOrderChoice::"Firm Planned", 0, 0, 0, '', '', '', '');
@@ -1275,7 +1275,7 @@ codeunit 137077 "SCM Supply Planning -IV"
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, WorkDate);
 
         // [THEN] "Due Date" in requisition line is WORKDATE + 1M
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         SelectRequisitionLine(ReqLine, Item."No.");
         ExpectedDueDate := CalcDate(StrSubstNo('<1M+%1>', ManufacturingSetup."Default Safety Lead Time"), WorkDate);
         ReqLine.TestField("Due Date", ExpectedDueDate);
@@ -1336,7 +1336,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [WHEN] Run "Calculate Regenerative Plan" from planning worksheet
         PlanningWorksheet.OpenEdit;
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);  // Stop and Show First Error = FALSE
         LibraryVariableStorage.Enqueue(Item."No.");
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;
@@ -1368,7 +1368,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [WHEN] Run "Calculate Regenerative Plan" from planning worksheet with option "Stop and Show First Error" = FALSE
         PlanningWorksheet.OpenEdit;
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);  // Stop and Show First Error = FALSE
         LibraryVariableStorage.Enqueue(Item."No.");  // Enqueue item no. for MessageHandler
         LibraryVariableStorage.Enqueue(StrSubstNo(NotAllItemsPlannedMsg, 1));
@@ -1401,7 +1401,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [WHEN] Run "Calculate Regenerative Plan" from planning worksheet with option "Stop and Show First Error" = TRUE
         PlanningWorksheet.OpenEdit;
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(true);  // Stop and Show First Error = TRUE
         LibraryVariableStorage.Enqueue(Item."No.");
 
@@ -1432,7 +1432,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [GIVEN] Work center "W" is not properly configured, because its Gen. Prod. Posting Group does not exist
         WorkCenter."Gen. Prod. Posting Group" := LibraryUtility.GenerateGUID;
-        WorkCenter.Modify;
+        WorkCenter.Modify();
 
         // [GIVEN] Create a production order involving the usage of the work center "W"
         LibraryManufacturing.CreateProductionOrder(
@@ -1447,7 +1447,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         asserterror CarryOutActionMessageSubcontractWksh(Item."No.");
 
         // [THEN] Creation of a subcontracting purchase order fails, purchase header is not saved
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.SetRange("Buy-from Vendor No.", WorkCenter."Subcontractor No.");
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
@@ -1930,7 +1930,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [GIVEN] Manufacturing Setup had Default Safety Lead Time = '0D'
         Evaluate(BlankDefaultSafetyLeadTime, '<0D>');
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Safety Lead Time", BlankDefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
 
@@ -2052,8 +2052,8 @@ codeunit 137077 "SCM Supply Planning -IV"
         ReservationEntry: Record "Reservation Entry";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning -IV");
-        RequisitionLine.DeleteAll;
-        ReservationEntry.DeleteAll;
+        RequisitionLine.DeleteAll();
+        ReservationEntry.DeleteAll();
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
 
@@ -2072,7 +2072,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibrarySetupStorage.SaveManufacturingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Supply Planning -IV");
     end;
 
@@ -2080,7 +2080,7 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2098,12 +2098,12 @@ codeunit 137077 "SCM Supply Planning -IV"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
     end;
 
@@ -3231,7 +3231,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine: Record "Requisition Line";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         VerifyRequisitionLineEndingTime(RequisitionLine, ItemNo, ManufacturingSetup."Normal Ending Time");
         RequisitionLine.TestField("Starting Time", ManufacturingSetup."Normal Starting Time");
     end;

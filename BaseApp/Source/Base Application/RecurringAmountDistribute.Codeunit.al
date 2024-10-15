@@ -33,7 +33,7 @@ codeunit 17100 "Recurring Amount - Distribute"
             if WhatToCalculate = WhatToCalculate::"Net Change" then
                 "G/L Account".SetRange("Date Filter", FromDate, ToDate);
 
-            "G/L Alloc. Line".Reset;
+            "G/L Alloc. Line".Reset();
             "G/L Alloc. Line".SetRange("Journal Template Name", "Journal Template Name");
             "G/L Alloc. Line".SetRange("Journal Batch Name", "Journal Batch Name");
             "G/L Alloc. Line".SetRange("Journal Line No.", "Line No.");
@@ -73,13 +73,13 @@ codeunit 17100 "Recurring Amount - Distribute"
                             "G/L Account".Balance / SumOnAllocAccounts * 100,
                             0.01, '='));
                 end;
-                "G/L Alloc. Line".Modify;
+                "G/L Alloc. Line".Modify();
                 SumAllocationPercent += "G/L Alloc. Line"."Allocation %";
             until "G/L Alloc. Line".Next = 0;
             PercentageRoundDiff := 100 - SumAllocationPercent;
             "G/L Alloc. Line".FindLast;
             "G/L Alloc. Line"."Allocation %" := "G/L Alloc. Line"."Allocation %" + PercentageRoundDiff;
-            "G/L Alloc. Line".Modify;
+            "G/L Alloc. Line".Modify();
             Message(Text1450002);
         end;
     end;

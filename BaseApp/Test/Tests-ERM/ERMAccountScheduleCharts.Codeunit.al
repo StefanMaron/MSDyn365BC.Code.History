@@ -32,7 +32,7 @@ codeunit 134561 "ERM Account Schedule Charts"
 
         // Setup : Delete the record from table Account Schedule Chart Setup.
         Initialize;
-        AccountSchedulesChartSetup.DeleteAll;
+        AccountSchedulesChartSetup.DeleteAll();
 
         // Call function OnOpenPage.
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, '', 0);
@@ -208,7 +208,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         CreateAccountScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Cost Type", '');
         LibraryERM.CreateAccScheduleLine(AccScheduleLine2, AccScheduleLine."Schedule Name");
         AccScheduleLine2.Description := AccScheduleLine.Description;
-        AccScheduleLine2.Modify;
+        AccScheduleLine2.Modify();
 
         // Exercise: To capture the error generated when Acc. Schedule Name, having duplicate description values, is set on Account Schedule Chart Setup.
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, '', 0);
@@ -233,7 +233,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         CreateColumnLayout(ColumnLayout, ColumnLayout."Column Type"::Formula);
         LibraryERM.CreateColumnLayout(ColumnLayout2, ColumnLayout."Column Layout Name");
         ColumnLayout2."Column Header" := ColumnLayout."Column Header";
-        ColumnLayout2.Modify;
+        ColumnLayout2.Modify();
 
         // Exercise: To capture the error generated when Column Layout Name, having duplicate description values, is set on Account Schedule Chart Setup.
         AccSchedChartManagement.GetSetupRecordset(AccountSchedulesChartSetup, '', 0);
@@ -258,7 +258,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Default Column Layout" := ColumnLayoutName.Name;
-        AccScheduleName.Modify;
+        AccScheduleName.Modify();
 
         // Exercise: To set Acc. Schedule Name on Account Schedule Chart Setup.
         AccountSchedulesChartSetup.OpenEdit;
@@ -432,7 +432,7 @@ codeunit 134561 "ERM Account Schedule Charts"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Account Schedule Charts");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Account Schedule Charts");
     end;
 
@@ -450,7 +450,7 @@ codeunit 134561 "ERM Account Schedule Charts"
             LibraryUtility.GetFieldLength(DATABASE::"Column Layout", ColumnLayout.FieldNo("Column Header")));
         ColumnLayout."Column Type" := ColumnType;
         ColumnLayout.Formula := ColumnLayout."Column No.";
-        ColumnLayout.Modify;
+        ColumnLayout.Modify();
         exit(ColumnLayout."Column Layout Name");
     end;
 
@@ -460,7 +460,7 @@ codeunit 134561 "ERM Account Schedule Charts"
     begin
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Analysis View Name" := AnalysisViewCode;
-        AccScheduleName.Modify;
+        AccScheduleName.Modify();
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         AccScheduleLine."Row No." :=
           LibraryUtility.GenerateRandomCode(AccScheduleLine.FieldNo("Row No."), DATABASE::"Acc. Schedule Line");
@@ -469,7 +469,7 @@ codeunit 134561 "ERM Account Schedule Charts"
             LibraryUtility.GetFieldLength(DATABASE::"Acc. Schedule Line", AccScheduleLine.FieldNo(Description)));
         AccScheduleLine."Totaling Type" := TotalingType;
         AccScheduleLine.Totaling := AccScheduleLine."Row No.";
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
         exit(AccScheduleName.Name);
     end;
 
@@ -479,7 +479,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         i: Integer;
     begin
         with AccountSchedulesChartSetup do begin
-            DeleteAll;
+            DeleteAll();
 
             for i := 1 to 3 do begin
                 Init;

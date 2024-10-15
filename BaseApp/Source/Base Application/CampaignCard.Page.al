@@ -1,4 +1,4 @@
-﻿page 5086 "Campaign Card"
+page 5086 "Campaign Card"
 {
     Caption = 'Campaign Card';
     PageType = Card;

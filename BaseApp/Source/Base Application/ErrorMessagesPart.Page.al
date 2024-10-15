@@ -106,9 +106,9 @@ page 701 "Error Messages Part"
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         if TempErrorMessage.FindFirst then
             Copy(TempErrorMessage, true);
     end;

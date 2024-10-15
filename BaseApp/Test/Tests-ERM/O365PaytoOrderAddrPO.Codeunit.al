@@ -234,7 +234,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPayToEditableState(PurchaseOrder: TestPage "Purchase Order"; ExpectedState: Boolean)

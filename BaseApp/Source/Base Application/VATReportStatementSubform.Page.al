@@ -99,7 +99,7 @@ page 742 "VAT Report Statement Subform"
                     VATStatementLine2.SetRange("Row No.", VATStatementLine1."Row Totaling");
                     if VATStatementLine2.FindSet then
                         repeat
-                            VATEntry.Reset;
+                            VATEntry.Reset();
                             VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
                             VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine2."VAT Bus. Posting Group");
                             VATEntry.SetRange("VAT Prod. Posting Group", VATStatementLine2."VAT Prod. Posting Group");
@@ -115,11 +115,11 @@ page 742 "VAT Report Statement Subform"
                                 repeat
                                     if not TempVATEntry.Get(VATEntry."Entry No.") then begin
                                         TempVATEntry.Copy(VATEntry);
-                                        TempVATEntry.Insert;
+                                        TempVATEntry.Insert();
                                     end;
                                 until VATEntry.Next = 0;
                         until VATStatementLine2.Next = 0;
-                    TempVATEntry.Reset;
+                    TempVATEntry.Reset();
                     PAGE.Run(PAGE::"VAT Entries", TempVATEntry);
                 end;
             VATStatementLine1.Type::"Account Totaling":

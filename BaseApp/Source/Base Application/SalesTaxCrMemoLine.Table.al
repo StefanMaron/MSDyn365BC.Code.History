@@ -206,11 +206,9 @@ table 28074 "Sales Tax Cr.Memo Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -540,11 +538,11 @@ table 28074 "Sales Tax Cr.Memo Line"
     [Scope('OnPrem')]
     procedure CalcVATAmountLines(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var VATAmountLine: Record "VAT Amount Line")
     begin
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
         SetRange("Document No.", SalesCrMemoHeader."No.");
         if Find('-') then
             repeat
-                VATAmountLine.Init;
+                VATAmountLine.Init();
                 VATAmountLine."VAT Identifier" := "VAT Identifier";
                 VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                 VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -576,7 +574,7 @@ table 28074 "Sales Tax Cr.Memo Line"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         if not SalesCrMemoHeader.Get("Document No.") then
-            SalesCrMemoHeader.Init;
+            SalesCrMemoHeader.Init();
         if SalesCrMemoHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
 

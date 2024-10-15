@@ -101,7 +101,7 @@ table 5310 "Outlook Synch. Setup Detail"
         if OSynchEntityElement."No. of Dependencies" = 0 then
             exit;
 
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", OSynchEntityElement."Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", OSynchEntityElement."Element No.");
         if OSynchDependency.Find('-') then

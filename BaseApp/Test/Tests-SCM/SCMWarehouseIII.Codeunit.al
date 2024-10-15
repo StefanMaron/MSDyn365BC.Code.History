@@ -1844,7 +1844,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 2); // Find Bin of Index 2.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
-        LocationSilver3.Modify;
+        LocationSilver3.Modify();
 
         CreateTrackedItem(Item, true, false, false, false, false);
         Quantity := LibraryRandom.RandIntInRange(10, 100);
@@ -1898,7 +1898,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 3); // Find Bin of Index 3.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
-        LocationSilver3.Modify;
+        LocationSilver3.Modify();
 
         CreateTrackedItem(Item, true, false, false, false, false);
         PartQty := LibraryRandom.RandIntInRange(10, 50);
@@ -2009,7 +2009,7 @@ codeunit 137051 "SCM Warehouse - III"
 
         LibraryWarehouse.FindBin(Bin, LocationSilver3.Code, '', 3); // Find Bin of Index 3.
         LocationSilver3.Validate("Shipment Bin Code", Bin.Code);
-        LocationSilver3.Modify;
+        LocationSilver3.Modify();
 
         CreateTrackedItem(Item, true, false, false, false, false);
         PartQty := LibraryRandom.RandIntInRange(10, 50);
@@ -3471,7 +3471,7 @@ codeunit 137051 "SCM Warehouse - III"
         SetLotBlocked(Item."No.", LotNos, 1);
 
         // [WHEN] Create pick from the warehouse shipment.
-        Commit;
+        Commit();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
@@ -3529,7 +3529,7 @@ codeunit 137051 "SCM Warehouse - III"
         UpdateInventoryWithTrackingUsingWhseJournal(Location.Code, BinContent."Bin Code", Item."No.", '', LotNos[1], -LotQty);
 
         // [WHEN] Create pick from the warehouse shipment.
-        Commit;
+        Commit();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
@@ -3582,7 +3582,7 @@ codeunit 137051 "SCM Warehouse - III"
         PrepareInventoryWithExpDatesAndSalesShipment(WarehouseShipmentHeader, Location.Code, Item."No.", LotNos, LotQty);
 
         // [WHEN] Create pick from the warehouse shipment.
-        Commit;
+        Commit();
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
 
@@ -3640,7 +3640,7 @@ codeunit 137051 "SCM Warehouse - III"
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Reservation page
-        Commit;
+        Commit();
         SalesOrder.SalesLines.Reserve.Invoke;
 
         // [THEN] Units that are in Open Shop Floor bin are not included in Total Available Quantity
@@ -3691,7 +3691,7 @@ codeunit 137051 "SCM Warehouse - III"
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Reservation page
-        Commit;
+        Commit();
         SalesOrder.SalesLines.Reserve.Invoke;
 
         // [THEN] Units that are in the To-Production bin are not included in Total Available Quantity
@@ -3725,7 +3725,7 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandIntInRange(3, 5), false);
         LibraryWarehouse.FindBin(Bin, Location.Code, '', 3); // Find Bin with Index 3.
         Location.Validate("Shipment Bin Code", Bin.Code);
-        Location.Modify;
+        Location.Modify();
 
         // [GIVEN] Item with Item Tracking Code having Lot Tracking enabled
         CreateTrackedItem(Item, true, false, false, false, false);
@@ -4150,7 +4150,7 @@ codeunit 137051 "SCM Warehouse - III"
         ItemJournalSetup;
         OutputJournalSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - III");
     end;
 
@@ -4207,13 +4207,13 @@ codeunit 137051 "SCM Warehouse - III"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         AssignNoSeriesForItemJournalBatch(ItemJournalBatch, '');  // Value required.
     end;
@@ -4221,13 +4221,13 @@ codeunit 137051 "SCM Warehouse - III"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
         OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
         OutputItemJournalBatch.Modify(true);
@@ -4633,7 +4633,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateFullWMSLocation(Location, BinsPerZone);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
     end;
 
@@ -5192,7 +5192,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
@@ -5802,7 +5802,7 @@ codeunit 137051 "SCM Warehouse - III"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindWhseActivityLine(
           WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SourceNo,
           WarehouseActivityLine."Action Type"::Take);
@@ -5855,7 +5855,7 @@ codeunit 137051 "SCM Warehouse - III"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindRegisterWarehouseActivityLine(
           RegisteredWhseActivityLine, WarehouseActivityLine."Activity Type", WarehouseActivityLine."Action Type",
           WarehouseActivityLine."Location Code", WarehouseActivityLine."Source No.");

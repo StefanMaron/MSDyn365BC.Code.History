@@ -57,7 +57,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         LineJSON := CreateDimensionJSON(CustomerPaymentsGUID, Dimension.Code, DimensionValue.Code);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionIdNameTxt, Dimension.Id);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionValueIdNameTxt, DimensionValue.Id);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
@@ -94,7 +94,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', DimensionCodeNameTxt, Dimension.Code);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, DimensionValueCodeNameTxt, DimensionValue.Code);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] the request fails because it doesn't have a parent Id
@@ -137,7 +137,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         DimensionValueCode[2] := DimensionValue.Code;
         LineJSON[1] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode, DimensionValueCode[1]);
         LineJSON[2] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode, DimensionValueCode[2]);
-        Commit;
+        Commit();
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, LineJSON[1], ResponseText);
@@ -192,7 +192,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         LineJSON[1] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode[1], DimensionValueCode[1]);
         LineJSON[2] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode[2], DimensionValueCode[2]);
-        Commit;
+        Commit();
 
         // [GIVEN] the dimension lines are added in the customer payment
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
@@ -247,7 +247,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         LineJSON[2] := CreateDimensionJSON(JournalLineGUID, DimensionCode[2], DimensionValueCode[2]);
         LineJSON[1] := CreateDimensionJSON(JournalLineGUID, DimensionCode[1], DimensionValueCode[1]);
-        Commit;
+        Commit();
 
         // [GIVEN] the dimension lines are added in the customer payment
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
@@ -349,7 +349,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         // [GIVEN] a json text with the new dimension value
         LineJSON[2] := LibraryGraphMgt.AddPropertytoJSON('', DimensionValueCodeNameTxt, DimensionValueCode[2]);
-        Commit;
+        Commit();
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, LineJSON[1], ResponseText);
@@ -364,7 +364,7 @@ codeunit 135532 "Dimension Lines E2E Test"
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         VerifyJSONContainsDimensionValues(ResponseText, DimensionCode, DimensionValueCode[2]);
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
@@ -414,7 +414,7 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         LineJSON[1] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode[1], DimensionValueCode[1]);
         LineJSON[2] := CreateDimensionJSON(CustomerPaymentsGUID, DimensionCode[2], DimensionValueCode[2]);
-        Commit;
+        Commit();
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, LineJSON[1], ResponseText);
@@ -462,10 +462,10 @@ codeunit 135532 "Dimension Lines E2E Test"
 
         // [GIVEN] a dimension line in the journal line
         LibraryDimension.CreateDimension(Dimension);
-        DimensionValue.Reset;
+        DimensionValue.Reset();
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LineJSON := CreateDimensionJSON(CustomerPaymentsGUID, Dimension.Code, DimensionValue.Code);
-        Commit;
+        Commit();
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimension Lines Entity", ServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, LineJSON, ResponseText);

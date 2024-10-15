@@ -10,7 +10,6 @@ report 742 "VAT Report Request Page"
 
             trigger OnPostDataItem()
             begin
-                "Created Date-Time" := CurrentDateTime();
                 "Include Prev. Open Entries" := PeriodSelection = PeriodSelection::"Before and Within Period";
                 Modify;
             end;
@@ -34,20 +33,20 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
                 VATStatementLine.SetRange("Statement Name", "Statement Name");
                 VATStatementLine.SetFilter("Box No.", '<>%1', '');
-                VATStatementLine.FindSet;
+                VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
                   VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency");
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
-                VATStatementReportLine.DeleteAll;
+                VATStatementReportLine.DeleteAll();
 
                 repeat
                     VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, 0);
                     if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then
                         ColumnValue := -ColumnValue;
-                    VATStatementReportLine.Init;
+                    VATStatementReportLine.Init();
                     VATStatementReportLine.Validate("VAT Report No.", "No.");
                     VATStatementReportLine.Validate("VAT Report Config. Code", "VAT Report Config. Code");
                     VATStatementReportLine.Validate("Line No.", VATStatementLine."Line No.");
@@ -55,8 +54,8 @@ report 742 "VAT Report Request Page"
                     VATStatementReportLine.Validate(Description, VATStatementLine.Description);
                     VATStatementReportLine.Validate("Box No.", VATStatementLine."Box No.");
                     VATStatementReportLine.Validate(Amount, ColumnValue);
-                    VATStatementReportLine.Insert;
-                until VATStatementLine.Next = 0;
+                    VATStatementReportLine.Insert();
+                until VATStatementLine.Next() = 0;
             end;
         }
     }
@@ -161,18 +160,18 @@ report 742 "VAT Report Request Page"
             VATStatementName: Record "VAT Statement Name";
         begin
             CopyFilters("VAT Report Header");
-            FindFirst;
+            FindFirst();
 
-            if VATStatementTemplate.Count = 1 then begin
-                VATStatementTemplate.FindFirst;
+            if VATStatementTemplate.Count() = 1 then begin
+                VATStatementTemplate.FindFirst();
                 "Statement Template Name" := VATStatementTemplate.Name;
-                Modify;
+                Modify();
 
                 VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
-                if VATStatementName.Count = 1 then begin
-                    VATStatementName.FindFirst;
+                if VATStatementName.Count() = 1 then begin
+                    VATStatementName.FindFirst();
                     "Statement Name" := VATStatementName.Name;
-                    Modify;
+                    Modify();
                 end;
             end;
 

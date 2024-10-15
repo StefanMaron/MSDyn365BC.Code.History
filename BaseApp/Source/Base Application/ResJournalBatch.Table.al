@@ -98,7 +98,7 @@ table 236 "Res. Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ResJnlTemplate.Get("Journal Template Name");
     end;
 

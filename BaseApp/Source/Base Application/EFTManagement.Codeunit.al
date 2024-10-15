@@ -32,14 +32,14 @@ codeunit 11603 "EFT Management"
         VendLedgEntry: Record "Vendor Ledger Entry";
         EFTRegister: Record "EFT Register";
     begin
-        EFTRegister.Reset;
-        VendLedgEntry.Reset;
+        EFTRegister.Reset();
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("EFT Register No.");
         if EFTRegister.FindSet then
             repeat
                 VendLedgEntry.SetRange("EFT Register No.", EFTRegister."No.");
                 if not VendLedgEntry.FindFirst then
-                    EFTRegister.Delete;
+                    EFTRegister.Delete();
             until EFTRegister.Next = 0;
     end;
 
@@ -114,8 +114,8 @@ codeunit 11603 "EFT Management"
     [Scope('OnPrem')]
     procedure GetSetup()
     begin
-        CompanyInfo.Get;
-        GLSetup.Get;
+        CompanyInfo.Get();
+        GLSetup.Get();
     end;
 
     [Scope('OnPrem')]
@@ -141,14 +141,14 @@ codeunit 11603 "EFT Management"
     [Scope('OnPrem')]
     procedure CloseFile(EFTRegister: Record "EFT Register"; FileDescription: Text[12]; BankAccount: Record "Bank Account")
     begin
-        EFTRegister.LockTable;
+        EFTRegister.LockTable();
         EFTRegister.Find;
         EFTRegister."Total Amount (LCY)" := TotalAmountLCY;
         EFTRegister."File Created" := Today;
         EFTRegister.Time := Time;
         EFTRegister."File Description" := FileDescription;
         EFTRegister."Bank Account Code" := BankAccount."No.";
-        EFTRegister.Modify;
+        EFTRegister.Modify();
         FileVar.Close;
 
         if CanDownloadFile then begin
@@ -270,10 +270,10 @@ codeunit 11603 "EFT Management"
         WHTManagement: Codeunit WHTManagement;
         WHTAmount: Decimal;
     begin
-        TempGenJnlLine.DeleteAll;
-        GLSetup.Get;
+        TempGenJnlLine.DeleteAll();
+        GLSetup.Get();
         with VendLedgEntry do begin
-            TempGenJnlLine.Init;
+            TempGenJnlLine.Init();
             TempGenJnlLine."Line No." += 10000;
             TempGenJnlLine.Validate("Posting Date", "Posting Date");
             TempGenJnlLine.Validate("Account Type", TempGenJnlLine."Account Type"::Vendor);
@@ -283,7 +283,7 @@ codeunit 11603 "EFT Management"
             TempGenJnlLine.Validate(Amount, "EFT Amount Transferred");
             TempGenJnlLine.Validate("Applies-to Doc. Type", "Document Type");
             TempGenJnlLine.Validate("Applies-to Doc. No.", "Document No.");
-            TempGenJnlLine.Insert;
+            TempGenJnlLine.Insert();
         end;
         if TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Vendor then
             if WHTSetup.Get(TempGenJnlLine."WHT Business Posting Group", TempGenJnlLine."WHT Product Posting Group") then
@@ -361,7 +361,7 @@ codeunit 11603 "EFT Management"
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
                     until TempVendorLedgerEntry.Next = 0;
-                    PaymentBufferGenJournalLine.Insert;
+                    PaymentBufferGenJournalLine.Insert();
                 end;
             until VendorLedgerEntry.Next = 0;
     end;
@@ -380,7 +380,7 @@ codeunit 11603 "EFT Management"
           GenJournalLine."Document No.",
           GenJournalLine.Amount);
         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
-        PaymentBufferGenJournalLine.Insert;
+        PaymentBufferGenJournalLine.Insert();
     end;
 
     local procedure FillBufferFromAppliedEntries(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
@@ -402,13 +402,13 @@ codeunit 11603 "EFT Management"
             repeat
                 UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
             until VendorLedgerEntry.Next = 0;
-            PaymentBufferGenJournalLine.Insert;
+            PaymentBufferGenJournalLine.Insert();
         end;
     end;
 
     local procedure FillBufferFromPaymentLine(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Enable WHT" and not GenJournalLine."Skip WHT" then
             CheckRealizedWHTType(GenJournalLine);
         InitPaymentBuffer(
@@ -418,7 +418,7 @@ codeunit 11603 "EFT Management"
           GenJournalLine."Document No.",
           GenJournalLine.Amount);
         PaymentBufferGenJournalLine."WHT Absorb Base" := 0;
-        PaymentBufferGenJournalLine.Insert;
+        PaymentBufferGenJournalLine.Insert();
     end;
 
     local procedure CheckRealizedWHTType(GenJournalLine: Record "Gen. Journal Line")
@@ -450,7 +450,7 @@ codeunit 11603 "EFT Management"
                 if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
                 then begin
-                    DtldVendLedgEntry2.Init;
+                    DtldVendLedgEntry2.Init();
                     DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                     DtldVendLedgEntry2.SetRange(
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
@@ -476,7 +476,7 @@ codeunit 11603 "EFT Management"
     begin
         if not ApliedVendorLedgerEntry.Get(VendorLedgerEntry."Entry No.") then begin
             ApliedVendorLedgerEntry := VendorLedgerEntry;
-            ApliedVendorLedgerEntry.Insert;
+            ApliedVendorLedgerEntry.Insert();
         end;
     end;
 
@@ -491,7 +491,8 @@ codeunit 11603 "EFT Management"
 
     local procedure InitPaymentBuffer(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; EFTBankAccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
     begin
-        PaymentBufferGenJournalLine.Init;
+        PaymentBufferGenJournalLine.Init();
+        OnBeforeInitPaymentBuffer(PaymentBufferGenJournalLine, VendorNo, EFTBankAccountNo, DocumentNo, Amount);
         PaymentBufferGenJournalLine."Line No." += 10000;
         PaymentBufferGenJournalLine."Account No." := VendorNo;
         PaymentBufferGenJournalLine."Document No." := DocumentNo;
@@ -526,6 +527,11 @@ codeunit 11603 "EFT Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadFile(var DoNotDownloadFile: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPaymentBuffer(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; var VendorNo: Code[20]; var EFTBankAccountNo: Code[20]; var DocumentNo: Code[20]; var Amount: Decimal)
     begin
     end;
 }

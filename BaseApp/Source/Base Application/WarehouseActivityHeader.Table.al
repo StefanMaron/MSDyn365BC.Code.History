@@ -80,11 +80,9 @@ table 5766 "Warehouse Activity Header"
             Caption = 'Assignment Time';
             Editable = false;
         }
-        field(7; "Sorting Method"; Option)
+        field(7; "Sorting Method"; Enum "Whse. Activity Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Ship-To,Bin Ranking,Action Type';
-            OptionMembers = " ",Item,Document,"Shelf or Bin","Due Date","Ship-To","Bin Ranking","Action Type";
 
             trigger OnValidate()
             begin
@@ -174,7 +172,7 @@ table 5766 "Warehouse Activity Header"
             begin
                 with WhseActivHeader do begin
                     WhseActivHeader := Rec;
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetRegisteringNoSeriesCode, "Registering No. Series") then
                         Validate("Registering No. Series");
@@ -185,7 +183,7 @@ table 5766 "Warehouse Activity Header"
             trigger OnValidate()
             begin
                 if "Registering No. Series" <> '' then begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetRegisteringNoSeriesCode, "Registering No. Series");
                 end;
@@ -346,11 +344,9 @@ table 5766 "Warehouse Activity Header"
             OptionCaption = '0,1,2,3,4,5,6,7,8,9,10';
             OptionMembers = "0","1","2","3","4","5","6","7","8","9","10";
         }
-        field(7310; "Destination Type"; Option)
+        field(7310; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(7311; "Destination No."; Code[20])
         {
@@ -455,32 +451,32 @@ table 5766 "Warehouse Activity Header"
         case Type of
             Type::"Put-away":
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     NoSeriesCode := WhseSetup."Whse. Put-away Nos.";
                 end;
             Type::Pick:
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     NoSeriesCode := WhseSetup."Whse. Pick Nos.";
                 end;
             Type::Movement:
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     NoSeriesCode := WhseSetup."Whse. Movement Nos.";
                 end;
             Type::"Invt. Put-away":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     NoSeriesCode := InvtSetup."Inventory Put-away Nos.";
                 end;
             Type::"Invt. Pick":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     NoSeriesCode := InvtSetup."Inventory Pick Nos.";
                 end;
             Type::"Invt. Movement":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     NoSeriesCode := InvtSetup."Inventory Movement Nos.";
                 end;
         end;
@@ -494,32 +490,32 @@ table 5766 "Warehouse Activity Header"
         case Type of
             Type::"Put-away":
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Whse. Put-away Nos.");
                 end;
             Type::Pick:
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Whse. Pick Nos.");
                 end;
             Type::Movement:
                 begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Whse. Movement Nos.");
                 end;
             Type::"Invt. Put-away":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     InvtSetup.TestField("Inventory Put-away Nos.");
                 end;
             Type::"Invt. Pick":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     InvtSetup.TestField("Inventory Pick Nos.");
                 end;
             Type::"Invt. Movement":
                 begin
-                    InvtSetup.Get;
+                    InvtSetup.Get();
                     InvtSetup.TestField("Inventory Movement Nos.");
                 end;
         end;
@@ -529,7 +525,7 @@ table 5766 "Warehouse Activity Header"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         case Type of
             Type::"Put-away":
                 exit(WhseSetup."Registered Whse. Put-away Nos.");
@@ -539,7 +535,7 @@ table 5766 "Warehouse Activity Header"
                 exit(WhseSetup."Registered Whse. Movement Nos.");
             Type::"Invt. Movement":
                 begin
-                    InventorySetup.Get;
+                    InventorySetup.Get();
                     exit(InventorySetup."Registered Invt. Movement Nos.");
                 end;
         end;
@@ -557,7 +553,7 @@ table 5766 "Warehouse Activity Header"
         if IsHandled then
             exit;
 
-        WhseActivLine2.LockTable;
+        WhseActivLine2.LockTable();
         WhseActivLine2.SetRange("Activity Type", Type);
         WhseActivLine2.SetRange("No.", "No.");
         case "Sorting Method" of
@@ -589,12 +585,12 @@ table 5766 "Warehouse Activity Header"
                     if WhseActivLine3.Find('-') then
                         repeat
                             WhseActivLine3."Sorting Sequence No." := SequenceNo;
-                            WhseActivLine3.Modify;
+                            WhseActivLine3.Modify();
                             SequenceNo := SequenceNo + 10000;
                         until WhseActivLine3.Next = 0;
 
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                    WhseActivLine2.Modify;
+                    WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
                 until WhseActivLine2.Next = 0;
             end;
@@ -618,9 +614,9 @@ table 5766 "Warehouse Activity Header"
                     WhseActivLine2.SetRange("Breakbulk No.", 0);
                     if WhseActivLine2.Find('-') then
                         repeat
-                            TempWhseActivLine.Init;
+                            TempWhseActivLine.Init();
                             TempWhseActivLine.Copy(WhseActivLine2);
-                            TempWhseActivLine.Insert;
+                            TempWhseActivLine.Insert();
                         until WhseActivLine2.Next = 0;
                     TempWhseActivLine.SetRange("Breakbulk No.", 0);
                     if TempWhseActivLine.Find('-') then
@@ -637,7 +633,7 @@ table 5766 "Warehouse Activity Header"
                                       TempWhseActivLine."Activity Type",
                                       TempWhseActivLine."No.", TempWhseActivLine."Line No.");
                                     WhseActivLine3."Sorting Sequence No." := SequenceNo;
-                                    WhseActivLine3.Modify;
+                                    WhseActivLine3.Modify();
                                     SequenceNo := SequenceNo + 10000;
                                 until WhseActivLine2.Next = 0;
                         until TempWhseActivLine.Next = 0;
@@ -667,7 +663,7 @@ table 5766 "Warehouse Activity Header"
                     if WhseActivLine3.Find('-') then
                         repeat
                             WhseActivLine3."Sorting Sequence No." := SequenceNo;
-                            WhseActivLine3.Modify;
+                            WhseActivLine3.Modify();
                             SequenceNo := SequenceNo + 10000;
                             BreakBulkWhseActivLine.Copy(WhseActivLine3);
                             BreakBulkWhseActivLine.SetRange("Action Type", WhseActivLine3."Action Type"::Place);
@@ -675,12 +671,12 @@ table 5766 "Warehouse Activity Header"
                             if BreakBulkWhseActivLine.Find('-') then
                                 repeat
                                     BreakBulkWhseActivLine."Sorting Sequence No." := SequenceNo;
-                                    BreakBulkWhseActivLine.Modify;
+                                    BreakBulkWhseActivLine.Modify();
                                     SequenceNo := SequenceNo + 10000;
                                 until BreakBulkWhseActivLine.Next = 0;
                         until WhseActivLine3.Next = 0;
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                    WhseActivLine2.Modify;
+                    WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
                 until WhseActivLine2.Next = 0;
             WhseActivLine2.SetRange("Action Type", WhseActivLine2."Action Type"::Place);
@@ -688,7 +684,7 @@ table 5766 "Warehouse Activity Header"
             if WhseActivLine2.Find('-') then
                 repeat
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                    WhseActivLine2.Modify;
+                    WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
                 until WhseActivLine2.Next = 0;
         end;
@@ -704,7 +700,7 @@ table 5766 "Warehouse Activity Header"
             SequenceNo := 10000;
             repeat
                 WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                WhseActivLine2.Modify;
+                WhseActivLine2.Modify();
                 SequenceNo := SequenceNo + 10000;
                 if WhseActivLine2."Breakbulk No." <> 0 then begin
                     WhseActivLine3.Copy(WhseActivLine2);
@@ -713,7 +709,7 @@ table 5766 "Warehouse Activity Header"
                     if WhseActivLine3.Find('-') then
                         repeat
                             WhseActivLine3."Sorting Sequence No." := SequenceNo;
-                            WhseActivLine3.Modify;
+                            WhseActivLine3.Modify();
                             SequenceNo := SequenceNo + 10000;
                         until WhseActivLine3.Next = 0;
                 end;
@@ -724,7 +720,7 @@ table 5766 "Warehouse Activity Header"
         if WhseActivLine2.Find('-') then
             repeat
                 WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                WhseActivLine2.Modify;
+                WhseActivLine2.Modify();
                 SequenceNo := SequenceNo + 10000;
             until WhseActivLine2.Next = 0;
     end;
@@ -741,13 +737,13 @@ table 5766 "Warehouse Activity Header"
             if WhseActivLine3.Find('-') then
                 repeat
                     WhseActivLine3."Sorting Sequence No." := NewSequenceNo;
-                    WhseActivLine3.Modify;
+                    WhseActivLine3.Modify();
                     NewSequenceNo := NewSequenceNo + 10000;
                 until WhseActivLine3.Next = 0;
 
             NewWhseActivLine2.Mark(true);
             NewWhseActivLine2."Sorting Sequence No." := NewSequenceNo;
-            NewWhseActivLine2.Modify;
+            NewWhseActivLine2.Modify();
             NewSequenceNo := NewSequenceNo + 10000;
         end;
     end;
@@ -758,7 +754,7 @@ table 5766 "Warehouse Activity Header"
         TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
         NewSequenceNo: Integer;
     begin
-        TempWarehouseActivityLine.DeleteAll;
+        TempWarehouseActivityLine.DeleteAll();
         SeqNo := 0;
         WarehouseActivityLineLocal.Copy(WarehouseActivityLineParam);
         WarehouseActivityLineLocal.SetCurrentKey("Activity Type", "No.", "Line No.");
@@ -771,7 +767,7 @@ table 5766 "Warehouse Activity Header"
                (WarehouseActivityLineLocal."Action Type" = WarehouseActivityLineLocal."Action Type"::" ")
             then begin
                 TempWarehouseActivityLine := WarehouseActivityLineLocal;
-                TempWarehouseActivityLine.Insert;
+                TempWarehouseActivityLine.Insert();
             end;
         until WarehouseActivityLineLocal.Next = 0;
         case SortOrder of
@@ -788,12 +784,12 @@ table 5766 "Warehouse Activity Header"
             WarehouseActivityLineLocal.Get(
               TempWarehouseActivityLine."Activity Type", TempWarehouseActivityLine."No.", TempWarehouseActivityLine."Line No.");
             WarehouseActivityLineLocal."Sorting Sequence No." := NewSequenceNo;
-            WarehouseActivityLineLocal.Modify;
+            WarehouseActivityLineLocal.Modify();
             NewSequenceNo += 10000;
             if WarehouseActivityLineLocal.Next <> 0 then
                 if WarehouseActivityLineLocal."Action Type" = WarehouseActivityLineLocal."Action Type"::Place then begin
                     WarehouseActivityLineLocal."Sorting Sequence No." := NewSequenceNo;
-                    WarehouseActivityLineLocal.Modify;
+                    WarehouseActivityLineLocal.Modify();
                 end;
         until TempWarehouseActivityLine.Next = 0;
         SeqNo := NewSequenceNo;
@@ -835,7 +831,7 @@ table 5766 "Warehouse Activity Header"
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Whse. Activity Header");
         WhseCommentLine.SetRange(Type, Type);
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
 
         OnAfterDeleteWhseActivHeader(Rec);
     end;
@@ -851,7 +847,7 @@ table 5766 "Warehouse Activity Header"
 
     procedure LookupActivityHeader(var CurrentLocationCode: Code[10]; var WhseActivHeader: Record "Warehouse Activity Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             WhseActivHeader.FilterGroup := 2;
             WhseActivHeader.SetRange("Location Code");

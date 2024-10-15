@@ -44,31 +44,31 @@ table 394 "XBRL Taxonomy"
     begin
         with XBRLTaxonomyLine do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLCommentLine do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLGLMap do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLRollupLine do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLSchema do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLLinkbase do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLTaxonomyLabel do begin
             SetRange("XBRL Taxonomy Name", Rec.Name);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 

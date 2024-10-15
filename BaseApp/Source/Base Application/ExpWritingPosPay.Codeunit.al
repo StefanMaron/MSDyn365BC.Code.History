@@ -32,7 +32,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
             ExportFile.CreateInStream(InStream);
             DataExchDetail."File Content".CreateOutStream(OutStream);
             CopyStream(OutStream, InStream);
-            DataExchDetail.Modify;
+            DataExchDetail.Modify();
         end;
         ExportFile.Close;
 
@@ -45,7 +45,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
                 DataExchFooter."Entry No." := DataExchEntryCodeFooterArray[RecordCount];
                 DataExchFooter."File Name" := '';
                 Clear(DataExchFooter."File Content");
-                DataExchFooter.Modify;
+                DataExchFooter.Modify();
                 RecordCount := RecordCount + 1;
             end;
         end;
@@ -63,7 +63,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         RecordCount := 1;
         while (DataExchEntryCodeHeaderArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             PositivePayHeader.SetRange("Data Exch. Entry No.", DataExchEntryCodeHeaderArray[RecordCount]);
-            PositivePayHeader.DeleteAll;
+            PositivePayHeader.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -71,7 +71,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         RecordCount := 1;
         while (DataExchEntryCodeDetailArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             PositivePayDetail.SetRange("Data Exch. Entry No.", DataExchEntryCodeDetailArray[RecordCount]);
-            PositivePayDetail.DeleteAll;
+            PositivePayDetail.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -79,7 +79,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         RecordCount := 1;
         while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             PositivePayFooter.SetRange("Data Exch. Entry No.", DataExchEntryCodeFooterArray[RecordCount]);
-            PositivePayFooter.DeleteAll;
+            PositivePayFooter.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
     end;

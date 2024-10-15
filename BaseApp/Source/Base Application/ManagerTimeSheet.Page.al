@@ -32,7 +32,7 @@ page 952 "Manager Time Sheet"
 
                     trigger OnValidate()
                     begin
-                        TimeSheetHeader.Reset;
+                        TimeSheetHeader.Reset();
                         TimeSheetMgt.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Approver User ID"));
                         TimeSheetMgt.CheckTimeSheetNo(TimeSheetHeader, CurrTimeSheetNo);
                         CurrPage.SaveRecord;

@@ -20,7 +20,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         // Init
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
 
         // Execute
         OCRServiceSetup.Validate("Service URL", '');
@@ -36,7 +36,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         // Init
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
 
         // Execute
         asserterror OCRServiceSetup.Validate("Service URL", 'http://this is an invalid url');
@@ -52,7 +52,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         // Init
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
 
         // Execute
         OCRServiceSetup.Validate("Service URL", 'https://microsoft.com/');
@@ -80,7 +80,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard.Close;
 
         // Validate
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         Assert.AreNotEqual('', OCRServiceSetup."Service URL", '');
     end;
 
@@ -110,7 +110,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard.Close;
 
         // Verify
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         Assert.IsTrue(OCRServiceSetup.HasPassword(OCRServiceSetup."Password Key"), '');
         Assert.IsTrue(OCRServiceSetup.HasPassword(OCRServiceSetup."Authorization Key"), '');
         Assert.AreEqual(PasswordTxt, OCRServiceSetup.GetPassword(OCRServiceSetup."Password Key"), '');
@@ -144,7 +144,7 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetupCard.Close;
 
         // Verify
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         Assert.IsFalse(OCRServiceSetup.HasPassword(OCRServiceSetup."Password Key"), '');
         Assert.IsFalse(OCRServiceSetup.HasPassword(OCRServiceSetup."Authorization Key"), '');
     end;
@@ -159,7 +159,7 @@ codeunit 134415 "Test OCR Service Setup"
     begin
         // Init
         if OCRServiceSetup.Delete(true) then;
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
         OCRServiceSetup.Insert(true);
 
         // Execute
@@ -201,7 +201,7 @@ codeunit 134415 "Test OCR Service Setup"
         // [SCENARIO 223653]
 
         if OCRServiceSetup.Delete(true) then;
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
         OCRServiceSetup.Insert(true);
 
         LibraryVariableStorage.Enqueue('The OCR service is not enabled.\\Do you want to open the OCR Service Setup window?');
@@ -221,7 +221,7 @@ codeunit 134415 "Test OCR Service Setup"
         // [SCENARIO 223653]
 
         if OCRServiceSetup.Delete(true) then;
-        OCRServiceSetup.Init;
+        OCRServiceSetup.Init();
         OCRServiceSetup.Insert(true);
 
         asserterror SendIncomingDocumentToOCR.SendDocToOCR(IncomingDocument);

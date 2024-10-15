@@ -1,4 +1,4 @@
-﻿page 6657 "Return Shipment Lines"
+page 6657 "Return Shipment Lines"
 {
     Caption = 'Return Shipment Lines';
     Editable = false;
@@ -202,7 +202,7 @@
     var
         ReturnShptLine: Record "Return Shipment Line";
     begin
-        TempReturnShptLine.Reset;
+        TempReturnShptLine.Reset();
         TempReturnShptLine.CopyFilters(Rec);
         TempReturnShptLine.SetRange("Document No.", DocNo);
         if not TempReturnShptLine.FindFirst then begin
@@ -210,7 +210,7 @@
             ReturnShptLine.SetRange("Document No.", DocNo);
             ReturnShptLine.FindFirst;
             TempReturnShptLine := ReturnShptLine;
-            TempReturnShptLine.Insert;
+            TempReturnShptLine.Insert();
         end;
         if TempReturnShptLine."Line No." = LineNo then
             exit(true);

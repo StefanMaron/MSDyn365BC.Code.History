@@ -313,8 +313,8 @@ page 8624 "Config. Package Fields"
         ProcessingOrder := ConfigPackageField1."Processing Order";
         ConfigPackageField1."Processing Order" := ConfigPackageField2."Processing Order";
         ConfigPackageField2."Processing Order" := ProcessingOrder;
-        ConfigPackageField1.Modify;
-        ConfigPackageField2.Modify;
+        ConfigPackageField1.Modify();
+        ConfigPackageField2.Modify();
     end;
 }
 

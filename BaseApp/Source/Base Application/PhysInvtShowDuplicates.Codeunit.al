@@ -30,7 +30,7 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
 
             LineCount := 0;
             DuplicateCount := 0;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             PhysInvtOrderLine.ClearMarks;
             if PhysInvtOrderLine.Find('-') then

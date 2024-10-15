@@ -203,11 +203,9 @@ table 28071 "Sales Tax Invoice Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -584,14 +582,14 @@ table 28071 "Sales Tax Invoice Header"
 
     trigger OnDelete()
     begin
-        SalesTaxInvLine.Reset;
+        SalesTaxInvLine.Reset();
         SalesTaxInvLine.SetRange("Document No.", "No.");
-        SalesTaxInvLine.DeleteAll;
+        SalesTaxInvLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Sell-to Customer No.", 1) then begin
                 SalesSetup.TestField("Posted Non Tax Invoice Nos.");

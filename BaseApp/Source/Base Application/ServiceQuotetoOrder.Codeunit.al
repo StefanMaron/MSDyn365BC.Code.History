@@ -16,7 +16,7 @@ codeunit 5923 "Service-Quote to Order"
 
         ServOrderHeader := Rec;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
 
         ServOrderHeader."Document Type" := "Document Type"::Order;
         Customer.Get("Customer No.");
@@ -77,7 +77,7 @@ codeunit 5923 "Service-Quote to Order"
         ServiceHeaderOrder."Document Date" := ServiceHeaderQuote."Document Date";
         ServiceHeaderOrder."Location Code" := ServiceHeaderQuote."Location Code";
         OnBeforeServiceHeaderOrderModify(ServiceHeaderOrder, ServiceHeaderQuote);
-        ServiceHeaderOrder.Modify;
+        ServiceHeaderOrder.Modify();
 
         OnAfterInsertServHeader(ServiceHeaderOrder, ServiceHeaderQuote);
     end;
@@ -108,7 +108,7 @@ codeunit 5923 "Service-Quote to Order"
             RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
             InsertServHeader(ServOrderHeader, ServiceHeader);
 
-            ServCommentLine.Reset;
+            ServCommentLine.Reset();
             ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
             ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
             ServCommentLine.SetRange("No.", ServiceHeader."No.");
@@ -119,10 +119,10 @@ codeunit 5923 "Service-Quote to Order"
                     ServCommentLine2."Table Subtype" := "Document Type";
                     ServCommentLine2."No." := "No.";
                     OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
-                    ServCommentLine2.Insert;
+                    ServCommentLine2.Insert();
                 until ServCommentLine.Next = 0;
 
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
             ServOrderAlloc.SetRange("Document Type", ServiceHeader."Document Type");
             ServOrderAlloc.SetRange("Document No.", ServiceHeader."No.");
@@ -132,10 +132,10 @@ codeunit 5923 "Service-Quote to Order"
                 ServOrderAlloc."Document No." := "No.";
                 ServOrderAlloc."Service Started" := true;
                 ServOrderAlloc.Status := ServOrderAlloc.Status::"Reallocation Needed";
-                ServOrderAlloc.Modify;
+                ServOrderAlloc.Modify();
             end;
 
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             ServItemLine.SetRange("Document Type", ServiceHeader."Document Type");
             ServItemLine.SetRange("Document No.", ServiceHeader."No.");
             if ServItemLine.Find('-') then
@@ -148,7 +148,7 @@ codeunit 5923 "Service-Quote to Order"
                     ServItemLine2."Actual Response Time (Hours)" := 0;
                     ServItemLine2."Finishing Date" := 0D;
                     ServItemLine2."Finishing Time" := 0T;
-                    RepairStatus.Reset;
+                    RepairStatus.Reset();
                     RepairStatus.SetRange(Initial, true);
                     if RepairStatus.FindFirst then
                         ServItemLine2."Repair Status Code" := RepairStatus.Code;
@@ -159,17 +159,17 @@ codeunit 5923 "Service-Quote to Order"
 
             UpdateResponseDateTime;
 
-            LoanerEntry.Reset;
+            LoanerEntry.Reset();
             LoanerEntry.SetCurrentKey("Document Type", "Document No.");
             LoanerEntry.SetRange("Document Type", ServiceHeader."Document Type" + 1);
             LoanerEntry.SetRange("Document No.", ServiceHeader."No.");
             while LoanerEntry.FindFirst do begin
                 LoanerEntry."Document Type" := "Document Type" + 1;
                 LoanerEntry."Document No." := "No.";
-                LoanerEntry.Modify;
+                LoanerEntry.Modify();
             end;
 
-            ServCommentLine.Reset;
+            ServCommentLine.Reset();
             ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
             ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
             ServCommentLine.SetRange("No.", ServiceHeader."No.");
@@ -179,10 +179,10 @@ codeunit 5923 "Service-Quote to Order"
                     ServCommentLine2 := ServCommentLine;
                     ServCommentLine2."Table Subtype" := "Document Type";
                     ServCommentLine2."No." := "No.";
-                    ServCommentLine2.Insert;
+                    ServCommentLine2.Insert();
                 until ServCommentLine.Next = 0;
 
-            ServOrderLine.Reset;
+            ServOrderLine.Reset();
             ServOrderLine.SetRange("Document Type", ServiceHeader."Document Type");
             ServOrderLine.SetRange("Document No.", ServiceHeader."No.");
             if ServOrderLine.Find('-') then
@@ -192,7 +192,7 @@ codeunit 5923 "Service-Quote to Order"
                     ServOrderLine2."Document No." := "No.";
                     ServOrderLine2."Posting Date" := "Posting Date";
                     OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine);
-                    ServOrderLine2.Insert;
+                    ServOrderLine2.Insert();
                     ReserveServiceLine.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
                 until ServOrderLine.Next = 0;
 
@@ -213,7 +213,7 @@ codeunit 5923 "Service-Quote to Order"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
     begin
-        ServiceQuoteLine.Reset;
+        ServiceQuoteLine.Reset();
         ServiceQuoteLine.SetRange("Document Type", ServiceQuoteHeader."Document Type");
         ServiceQuoteLine.SetRange("Document No.", ServiceQuoteHeader."No.");
         ServiceQuoteLine.SetRange(Type, ServiceQuoteLine.Type::Item);

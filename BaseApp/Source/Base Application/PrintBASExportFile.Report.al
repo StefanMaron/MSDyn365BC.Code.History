@@ -24,9 +24,6 @@ report 11606 "Print BAS Export File"
             column(FileName; FileName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -49,7 +46,7 @@ report 11606 "Print BAS Export File"
             trigger OnAfterGetRecord()
             begin
                 if TextFile.Len = TextFile.Pos then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 TextFile.Read(TextLine);
                 if CopyStr(TextLine, 1, 4) = Text001 then begin

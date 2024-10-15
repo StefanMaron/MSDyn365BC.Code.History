@@ -2381,32 +2381,6 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="textbox60">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=Fields!STRSUBSTNO_Text007_CurrReport_PAGENO_.Value</Value>
-                    <Style>
-                      <FontSize>8pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Left</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Top>0.89947cm</Top>
-            <Left>14.61111cm</Left>
-            <Height>0.31746cm</Height>
-            <Width>2.85714cm</Width>
-            <ZIndex>6</ZIndex>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
           <Textbox Name="Title1">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
@@ -2687,9 +2661,6 @@ End Function
         </Field>
         <Field Name="STRSUBSTNO_Text006_USERID_">
           <DataField>STRSUBSTNO_Text006_USERID_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text007_CurrReport_PAGENO_">
-          <DataField>STRSUBSTNO_Text007_CurrReport_PAGENO_</DataField>
         </Field>
         <Field Name="GLEntry2_TABLECAPTION__________Filter">
           <DataField>GLEntry2_TABLECAPTION__________Filter</DataField>

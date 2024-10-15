@@ -23,9 +23,9 @@ report 99003805 "Reg. Abs. (from Work Center)"
                     AbsenceChange.Description := Description;
                     AbsenceChange.Capacity := Capacity2;
                     AbsenceChange.UpdateDatetime;
-                    if not AbsenceChange.Insert then
+                    if not AbsenceChange.Insert() then
                         if Overwrite then
-                            AbsenceChange.Modify;
+                            AbsenceChange.Modify();
                     Date := Date + 1;
                 until Date = EndingDate + 1;
             end;

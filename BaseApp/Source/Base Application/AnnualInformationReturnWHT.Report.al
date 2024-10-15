@@ -165,13 +165,13 @@ report 16628 "Annual Information Return  WHT"
 
             trigger OnPreDataItem()
             begin
-                CI.Get;
+                CI.Get();
                 if ForYear > 1900 then begin
                     ForMonth := 1;
                     CurrYear := ForYear;
                 end else
                     Error(Text001);
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 1, CurrYear), DMY2Date(31, 1, CurrYear));
@@ -179,7 +179,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtJan := AmtJan + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 2, CurrYear), CalcDate('CM', DMY2Date(1, 2, CurrYear)));
@@ -187,7 +187,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtFeb := AmtFeb + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 3, CurrYear), DMY2Date(31, 3, CurrYear));
@@ -195,7 +195,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtMarch := AmtMarch + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 4, CurrYear), DMY2Date(30, 4, CurrYear));
@@ -203,7 +203,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtApril := AmtApril + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 5, CurrYear), DMY2Date(31, 5, CurrYear));
@@ -211,7 +211,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtMay := AmtMay + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 6, CurrYear), DMY2Date(30, 6, CurrYear));
@@ -219,7 +219,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtJune := AmtJune + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 7, CurrYear), DMY2Date(31, 7, CurrYear));
@@ -227,7 +227,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtJuly := AmtJuly + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 8, CurrYear), DMY2Date(31, 8, CurrYear));
@@ -235,7 +235,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtAug := AmtAug + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 9, CurrYear), DMY2Date(30, 9, CurrYear));
@@ -243,7 +243,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtSept := AmtSept + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 10, CurrYear), DMY2Date(31, 10, CurrYear));
@@ -251,7 +251,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtOct := AmtOct + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 11, CurrYear), DMY2Date(30, 11, CurrYear));
@@ -259,7 +259,7 @@ report 16628 "Annual Information Return  WHT"
                     repeat
                         AmtNov := AmtNov + WHTEntry1."Amount (LCY)";
                     until WHTEntry1.Next = 0;
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
                 WHTEntry1.SetFilter("Posting Date", '%1..%2', DMY2Date(1, 12, CurrYear), DMY2Date(31, 12, CurrYear));
@@ -339,7 +339,7 @@ report 16628 "Annual Information Return  WHT"
 
             trigger OnPreDataItem()
             begin
-                CI.Get;
+                CI.Get();
                 SetFilter("Posting Date", '%1..%2', DMY2Date(1, 1, CurrYear), DMY2Date(31, 12, CurrYear));
             end;
         }
@@ -433,13 +433,13 @@ report 16628 "Annual Information Return  WHT"
                 ATC := "WHT Revenue Type";
                 VendNo := "Bill-to/Pay-to No.";
 
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.Copy("WHT Entry");
                 WHTEntry1.SetRange("WHT Prod. Posting Group", "WHT Prod. Posting Group");
                 WHTEntry1.SetRange("Bill-to/Pay-to No.", "Bill-to/Pay-to No.");
                 WHTEntry1.SetRange("WHT Revenue Type", "WHT Revenue Type");
                 if WHTEntry1.Find('-') then
-                    rcount := WHTEntry1.Count;
+                    rcount := WHTEntry1.Count();
                 if rcount = 0 then
                     rcount := 1;
             end;

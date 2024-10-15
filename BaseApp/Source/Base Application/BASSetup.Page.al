@@ -48,7 +48,7 @@ page 11600 "BAS Setup"
                         BASCalcSheet: Record "BAS Calculation Sheet";
                     begin
                         if BASIdNoCtrlEditable then begin
-                            BASCalcSheet.Reset;
+                            BASCalcSheet.Reset();
                             if PAGE.RunModal(0, BASCalcSheet, BASCalcSheet.A1) = ACTION::LookupOK then begin
                                 BASIdNo := BASCalcSheet.A1;
                                 BASVersionNo := BASCalcSheet."BAS Version";
@@ -203,7 +203,7 @@ page 11600 "BAS Setup"
         CurrentBASSetupNameCtrlEditabl := true;
         BASVersionNoCtrlEditable := true;
         BASIdNoCtrlEditable := true;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 

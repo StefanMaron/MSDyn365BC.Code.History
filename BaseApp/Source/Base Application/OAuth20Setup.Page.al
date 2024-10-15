@@ -112,7 +112,7 @@ page 1140 "OAuth 2.0 Setup"
                     MessageText: Text;
                 begin
                     if not RefreshAccessToken(MessageText) then begin
-                        Commit; // save new "Status" value
+                        Commit(); // save new "Status" value
                         Error(MessageText);
                     end;
 

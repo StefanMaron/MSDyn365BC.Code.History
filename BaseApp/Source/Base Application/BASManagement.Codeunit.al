@@ -64,12 +64,12 @@ codeunit 11601 "BAS Management"
             LoadXMLFile(BASFileName);
             LoadXMLNodesInTempTable;
 
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("BAS GST Division Factor");
 
             Init;
             A1 := ReadXMLNodeValues(FieldNo(A1));
-            BASCalcSheet.LockTable;
+            BASCalcSheet.LockTable();
             BASCalcSheet.SetRange(A1, A1);
             if BASCalcSheet.FindLast then begin
                 if not Confirm(Text1450002, false) then
@@ -80,7 +80,7 @@ codeunit 11601 "BAS Management"
 
             A2 := ReadXMLNodeValues(FieldNo(A2));
             A2a := ReadXMLNodeValues(FieldNo(A2a));
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             TestField(A2, CompanyInfo.ABN);
             if A2a <> '' then
                 TestField(A2a, CompanyInfo."ABN Division Part No.");
@@ -122,7 +122,7 @@ codeunit 11601 "BAS Management"
             if Exported then
                 if not Confirm(Text1450004, false) then
                     exit;
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."BAS Group Company" then
                 TestField(Consolidated, true);
             if GLSetup."BAS Group Company" then
@@ -191,11 +191,11 @@ codeunit 11601 "BAS Management"
                     if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
                         Error(Text1450007, BASBusUnits."Document No.", BASBusUnits."BAS Version", BASBusUnits."Company Name");
                     BASCalcSheetSubsid.Exported := true;
-                    BASCalcSheetSubsid.Modify;
+                    BASCalcSheetSubsid.Modify();
                 until BASBusUnits.Next = 0;
             end;
 
-            BASCalcEntry.Reset;
+            BASCalcEntry.Reset();
             if GLSetup."BAS Group Company" then begin
                 BASCalcEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
                 BASCalcEntry.SetRange("Consol. BAS Doc. No.", A1);
@@ -221,7 +221,7 @@ codeunit 11601 "BAS Management"
                                 GLEntry."BAS Version" := BASCalcEntry."BAS Version";
                                 GLEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
                                 GLEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
-                                GLEntry.Modify;
+                                GLEntry.Modify();
                             end;
                         BASCalcEntry.Type::"GST Entry":
                             begin
@@ -231,7 +231,7 @@ codeunit 11601 "BAS Management"
                                 VATEntry."BAS Version" := BASCalcEntry."BAS Version";
                                 VATEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
                                 VATEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
-                                VATEntry.Modify;
+                                VATEntry.Modify();
                             end;
                     end;
                 until BASCalcEntry.Next = 0;
@@ -248,7 +248,7 @@ codeunit 11601 "BAS Management"
         if BASFileName = '' then
             Error(Text1450003);
 
-        GLSetup.Get;
+        GLSetup.Get();
         CheckBASCalcSheetExported(VATReportHeader."BAS ID No.", VATReportHeader."BAS Version No.");
         LoadXMLFile(BASFileName);
         LoadXMLNodesInTempTable;
@@ -300,7 +300,7 @@ codeunit 11601 "BAS Management"
 
         DownloadBASToClient(XMLDocument, VATReportHeader."No." + '.xml');
         VATReportHeader.Status := VATReportHeader.Status::Submitted;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -324,7 +324,7 @@ codeunit 11601 "BAS Management"
         TempBASCalcSheet: Record "BAS Calculation Sheet";
         BASCalcScheduleList: Page "BAS Calc. Schedule List";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
         GLSetup.TestField("BAS to be Lodged as a Group", true);
         GLSetup.TestField("BAS Group Company", true);
@@ -359,7 +359,7 @@ codeunit 11601 "BAS Management"
                       BASBusUnits."BAS Version",
                       BASBusUnits."Company Name");
                 GLSetupSubsid.ChangeCompany(BASBusUnits."Company Name");
-                GLSetupSubsid.Get;
+                GLSetupSubsid.Get();
                 if GLSetupSubsid."BAS GST Division Factor" <> GLSetup."BAS GST Division Factor" then
                     Error(
                       Text1450024,
@@ -404,9 +404,9 @@ codeunit 11601 "BAS Management"
                 if BASCalcSheetSubsid.Consolidated then
                     Error(Text1450011, BASBusUnits."Company Name");
                 BASCalcSheetSubsid.Consolidated := true;
-                BASCalcSheetSubsid.Modify;
+                BASCalcSheetSubsid.Modify();
 
-                BASCalcEntry.Reset;
+                BASCalcEntry.Reset();
                 BASCalcEntry.SetRange("Company Name", BASBusUnits."Company Name");
                 BASCalcEntry.SetRange("BAS Document No.", BASCalcSheetSubsid.A1);
                 BASCalcEntry.SetRange("BAS Version", BASCalcSheetSubsid."BAS Version");
@@ -416,7 +416,7 @@ codeunit 11601 "BAS Management"
                 end;
             until BASBusUnits.Next = 0;
 
-            BASCalcEntry.Reset;
+            BASCalcEntry.Reset();
             BASCalcEntry.SetRange("Company Name", CompanyName);
             BASCalcEntry.SetRange("BAS Document No.", A1);
             BASCalcEntry.SetRange("BAS Version", "BAS Version");
@@ -444,7 +444,7 @@ codeunit 11601 "BAS Management"
 
     local procedure UpdateXMLNodeValuesLabelNo(FieldLabelNo: Text[30]; Amount: Text[100])
     begin
-        BASXMLFieldID.Reset;
+        BASXMLFieldID.Reset();
         BASXMLFieldID.SetRange("Field Label No.", FieldLabelNo);
         if BASXMLFieldID.FindFirst then
             if TempBASXMLFieldID.Get(BASXMLFieldID."XML Field ID") then begin
@@ -490,8 +490,8 @@ codeunit 11601 "BAS Management"
     var
         FirstNode: Boolean;
     begin
-        TempBASXMLFieldID.Reset;
-        TempBASXMLFieldID.DeleteAll;
+        TempBASXMLFieldID.Reset();
+        TempBASXMLFieldID.DeleteAll();
         if XMLDocument.HasChildNodes then begin
             XMLNode := XMLDocument.DocumentElement.FirstChild;
             XMLNodeLast := XMLDocument.DocumentElement.LastChild;
@@ -502,9 +502,9 @@ codeunit 11601 "BAS Management"
                 else
                     XMLNode := XMLNode.NextSibling;
                 if not TempBASXMLFieldID.Get(XMLNode.Name) then begin
-                    TempBASXMLFieldID.Init;
+                    TempBASXMLFieldID.Init();
                     TempBASXMLFieldID."XML Field ID" := XMLNode.Name;
-                    TempBASXMLFieldID.Insert;
+                    TempBASXMLFieldID.Insert();
                 end;
             until XMLNode.Name = XMLNodeLast.Name;
         end;
@@ -527,9 +527,9 @@ codeunit 11601 "BAS Management"
                 else
                     XMLNode := XMLNode.NextSibling;
                 if not BASXMLFieldID.Get(XMLNode.Name) then begin
-                    BASXMLFieldID.Init;
+                    BASXMLFieldID.Init();
                     BASXMLFieldID."XML Field ID" := XMLNode.Name;
-                    BASXMLFieldID.Insert;
+                    BASXMLFieldID.Insert();
                 end;
             until XMLNode.Name = XMLNodeLast.Name;
         end;
@@ -554,16 +554,16 @@ codeunit 11601 "BAS Management"
                 else
                     XMLNode := XMLNode.NextSibling;
 
-                BASXMLFieldIDSetup.Reset;
+                BASXMLFieldIDSetup.Reset();
                 BASXMLFieldIDSetup.SetCurrentKey("XML Field ID");
                 BASXMLFieldIDSetup.SetRange("Setup Name", BASSetupName);
                 BASXMLFieldIDSetup.SetRange("XML Field ID", XMLNode.Name);
                 if not BASXMLFieldIDSetup.FindFirst then begin
-                    BASXMLFieldIDSetup.Init;
+                    BASXMLFieldIDSetup.Init();
                     BASXMLFieldIDSetup."Setup Name" := BASSetupName;
                     BASXMLFieldIDSetup."XML Field ID" := XMLNode.Name;
                     BASXMLFieldIDSetup."Line No." := LineNo;
-                    BASXMLFieldIDSetup.Insert;
+                    BASXMLFieldIDSetup.Insert();
                 end;
                 LineNo := LineNo + 10000;
             until XMLNode.Name = XMLNodeLast.Name;
@@ -588,7 +588,7 @@ codeunit 11601 "BAS Management"
         CompanyInfo: Record "Company Information";
         Date: Record Date;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if InvDocDate < 20000701D then
             exit(false);
         case CompanyInfo."Tax Period" of
@@ -610,9 +610,9 @@ codeunit 11601 "BAS Management"
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         with GenJnlLine do begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup.GSTEnabled("Document Date") then begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 if not AdjmtSet then begin
                     Adjustment := true;
                     AdjmtSet := Adjustment;
@@ -625,7 +625,7 @@ codeunit 11601 "BAS Management"
                 if not Modify then begin
                     VendLedgEntry."Pre Adjmt. Reason Code" := VendLedgEntry."Reason Code";
                     VendLedgEntry."Reason Code" := PurchSetup."Payment Discount Reason Code";
-                    VendLedgEntry.Modify;
+                    VendLedgEntry.Modify();
                 end;
             end;
         end;
@@ -637,9 +637,9 @@ codeunit 11601 "BAS Management"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         with GenJnlLine do begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup.GSTEnabled("Document Date") then begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Payment Discount Reason Code");
                 if not AdjmtSet then begin
                     Adjustment := true;
@@ -653,7 +653,7 @@ codeunit 11601 "BAS Management"
                 if not Modify then;
                 CustLedgEntry."Pre Adjmt. Reason Code" := CustLedgEntry."Reason Code";
                 CustLedgEntry."Reason Code" := SalesSetup."Payment Discount Reason Code";
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
             end;
         end;
     end;
@@ -661,22 +661,22 @@ codeunit 11601 "BAS Management"
     [Scope('OnPrem')]
     procedure VendLedgEntryReplReasonCodes(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup.GSTEnabled(VendLedgEntry."Document Date") then begin
             VendLedgEntry."Reason Code" := VendLedgEntry."Pre Adjmt. Reason Code";
             VendLedgEntry."Pre Adjmt. Reason Code" := '';
-            VendLedgEntry.Modify;
+            VendLedgEntry.Modify();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure CustLedgEntryReplReasonCodes(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup.GSTEnabled(CustLedgEntry."Document Date") then begin
             CustLedgEntry."Reason Code" := CustLedgEntry."Pre Adjmt. Reason Code";
             CustLedgEntry."Pre Adjmt. Reason Code" := '';
-            CustLedgEntry.Modify;
+            CustLedgEntry.Modify();
         end;
     end;
 
@@ -684,7 +684,7 @@ codeunit 11601 "BAS Management"
     var
         Vendor: Record Vendor;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup.GSTEnabled(0D) then begin
             Vendor.Get(VendorNo);
             exit(Vendor.Registered);
@@ -699,7 +699,7 @@ codeunit 11601 "BAS Management"
         PurchSetup: Record "Purchases & Payables Setup";
         GSTPostingSetup: Record "VAT Posting Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("GST Prod. Posting Group");
         Vendor.Get(VendorNo);
         GSTPostingSetup.Get(GSTBusPostGroup, PurchSetup."GST Prod. Posting Group");
@@ -748,11 +748,11 @@ codeunit 11601 "BAS Management"
     begin
         if not BASSetupName.Get(CurrentBASSetupName) then
             if not BASSetupName.FindFirst then begin
-                BASSetupName.Init;
+                BASSetupName.Init();
                 BASSetupName.Name := Text1450029;
                 BASSetupName.Description := Text1450028;
-                BASSetupName.Insert;
-                Commit;
+                BASSetupName.Insert();
+                Commit();
             end;
         CurrentBASSetupName := BASSetupName.Name;
     end;
@@ -785,7 +785,7 @@ codeunit 11601 "BAS Management"
     var
         BASSetupName: Record "BAS Setup Name";
     begin
-        Commit;
+        Commit();
         BASSetupName.Name := CurrentBASSetupName;
         if PAGE.RunModal(0, BASSetupName) = ACTION::LookupOK then begin
             CurrentBASSetupName := BASSetupName.Name;
@@ -805,7 +805,7 @@ codeunit 11601 "BAS Management"
     var
         BASSetupName: Record "BAS XML Field Setup Name";
     begin
-        Commit;
+        Commit();
         BASSetupName.Name := CurrentBASSetupName;
         if PAGE.RunModal(0, BASSetupName) = ACTION::LookupOK then begin
             CurrentBASSetupName := BASSetupName.Name;

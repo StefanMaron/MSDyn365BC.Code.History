@@ -15,19 +15,19 @@ report 28091 "Create Check Installments"
                     Error(Text000);
                 if StartDocNo = '' then
                     Error(text001);
-                PostDatedCheck.Reset;
+                PostDatedCheck.Reset();
                 if PostDatedCheck.FindLast then
                     LineNo := PostDatedCheck."Line Number";
                 CheckDate := "Check Date";
                 NextDocNo := StartDocNo;
                 CheckNo := "Check No.";
-                GLSetup.Get;
-                TempPostDatedCheck.Reset;
+                GLSetup.Get();
+                TempPostDatedCheck.Reset();
                 TempPostDatedCheck.SetRange("Document No.", "Document No.");
                 if TempPostDatedCheck.FindFirst then begin
                     if NoInstallments > 1 then
                         for i := 1 to (NoInstallments - 1) do begin
-                            PostDatedCheck.Init;
+                            PostDatedCheck.Init();
                             PostDatedCheck.TransferFields(PostDatedCheckLine);
                             PostDatedCheck."Line Number" := LineNo + 10000;
                             PostDatedCheck."Check No." := IncStr(PostDatedCheck."Check No.");
@@ -43,7 +43,7 @@ report 28091 "Create Check Installments"
                             end;
                             TempAmount := TempAmount + (Amount / NoInstallments);
                             PostDatedCheck.Validate("Check Date", CalcDate("Period Length", CheckDate));
-                            PostDatedCheck.Insert;
+                            PostDatedCheck.Insert();
                             LineNo := LineNo + 10000;
                             CheckNo := IncStr(CheckNo);
                             NextDocNo := IncStr(NextDocNo);
@@ -145,14 +145,14 @@ report 28091 "Create Check Installments"
             if (TempPostDatedCheck."Applies-to Doc. Type" = TempPostDatedCheck."Applies-to Doc. Type"::Invoice) and
                (TempPostDatedCheck."Applies-to Doc. No." <> '')
             then begin
-                VendorLedgerEntry.Reset;
+                VendorLedgerEntry.Reset();
                 VendorLedgerEntry.SetRange(Open, true);
                 VendorLedgerEntry.SetRange("Document Type", TempPostDatedCheck."Applies-to Doc. Type");
                 VendorLedgerEntry.SetRange("Document No.", TempPostDatedCheck."Applies-to Doc. No.");
                 if VendorLedgerEntry.FindSet then
                     repeat
                         VendorLedgerEntry.CalcFields(Amount);
-                        PurchInvLine.Reset;
+                        PurchInvLine.Reset();
                         PurchInvLine.SetRange("Document No.", VendorLedgerEntry."Document No.");
                         if PurchInvLine.Find('-') then
                             repeat

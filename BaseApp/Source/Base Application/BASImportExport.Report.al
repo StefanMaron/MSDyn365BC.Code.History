@@ -20,7 +20,7 @@ report 28166 "BAS - Import/Export"
                     else
                         CurrReport.Quit;
                 end;
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

@@ -30,7 +30,7 @@ codeunit 139313 "Test Sana Interface calls"
         Code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(Code10));
         Code20 := CopyStr(Format(LibraryUtility.GenerateRandomText(20)), 1, MaxStrLen(Code20));
         Bool := true;
-        SalesHeader.Init;
+        SalesHeader.Init();
         I := 0;
         // Verify
         SalesPriceCalcMgt.FindSalesPrice(TempSalesPrice, Code20, Code20, Code10, Code20, Code20, Code10, Code10, Code10, WorkDate, Bool);
@@ -68,7 +68,7 @@ codeunit 139313 "Test Sana Interface calls"
     begin
         // Prepare
         Initialize;
-        SalesHeader.Init;
+        SalesHeader.Init();
         Bool := false;
         // Verify
         ArchiveManagement.StoreSalesDocument(SalesHeader, Bool);
@@ -88,7 +88,7 @@ codeunit 139313 "Test Sana Interface calls"
         // Prepare
         Initialize;
         Text30 := CopyStr(Format(LibraryUtility.GenerateRandomText(30)), 1, MaxStrLen(Text30));
-        SalesHeader.Init;
+        SalesHeader.Init();
         // Verify
         SalesPostPrepayments.SumPrepmt(SalesHeader, SalesLine, VATAmountLine, Dec, Dec, Text30);
     end;
@@ -107,7 +107,7 @@ codeunit 139313 "Test Sana Interface calls"
         // Prepare
         Initialize;
         Text50 := CopyStr(Format(LibraryUtility.GenerateRandomText(50)), 1, MaxStrLen(Text50));
-        SalesLine.Init;
+        SalesLine.Init();
 
         // Verify
         SalesLineReserve.ReservQuantity(SalesLine, Dec, Dec);
@@ -124,7 +124,7 @@ codeunit 139313 "Test Sana Interface calls"
     begin
         // Prepare
         Initialize;
-        SalesHeader.Init;
+        SalesHeader.Init();
         // Verify
         SalesQuoteToOrder.SetHideValidationDialog(true);
         SalesQuoteToOrder.GetSalesOrderHeader(SalesHeader);
@@ -211,7 +211,7 @@ codeunit 139313 "Test Sana Interface calls"
     begin
         // Prepare
         Initialize;
-        SalesHeader.Init;
+        SalesHeader.Init();
         // Verify
         SalesLine.SetSalesHeader(SalesHeader);
         SalesLine.UpdateVATOnLines(QtyType, SalesHeader, SalesLine, VATAmountLine);

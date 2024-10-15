@@ -70,11 +70,11 @@ page 9901 "Export Data"
                         begin
                             if Selected then begin
                                 SelectedCompany := Rec;
-                                if SelectedCompany.Insert then;
+                                if SelectedCompany.Insert() then;
                             end else begin
                                 IncludeAllCompanies := false;
                                 if SelectedCompany.Get(Name) then
-                                    SelectedCompany.Delete;
+                                    SelectedCompany.Delete();
                             end;
                         end;
                     }
@@ -158,12 +158,12 @@ page 9901 "Export Data"
 
     local procedure MarkAll()
     begin
-        SelectedCompany.DeleteAll;
+        SelectedCompany.DeleteAll();
         if IncludeAllCompanies then begin
             if FindSet then
                 repeat
                     SelectedCompany := Rec;
-                    SelectedCompany.Insert;
+                    SelectedCompany.Insert();
                 until Next = 0;
         end;
 

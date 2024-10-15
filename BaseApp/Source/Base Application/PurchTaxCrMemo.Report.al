@@ -194,10 +194,10 @@ report 28073 "Purch. - Tax Cr. Memo"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -222,7 +222,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Tax Cr. Memo Line"; "Purch. Tax Cr. Memo Line")
@@ -411,10 +411,10 @@ report 28073 "Purch. - Tax Cr. Memo"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -439,7 +439,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Tax Cr. Memo Line"."Dimension Set ID");
                             end;
@@ -450,7 +450,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -473,12 +473,12 @@ report 28073 "Purch. - Tax Cr. Memo"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                             TotalLineAmt := 0;
                             TotalInvAmt := 0;
@@ -557,7 +557,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.GetTotalVATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -568,7 +568,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Tax Cr. Memo Hdr."."Buy-from Vendor No." = "Purch. Tax Cr. Memo Hdr."."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total2; "Integer")
@@ -605,7 +605,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -614,8 +614,6 @@ report 28073 "Purch. - Tax Cr. Memo"
                 begin
                     if Number > 1 then
                         CopyText := Text004;
-                    CurrReport.PageNo := 1;
-
                     OutputNO += 1;
                 end;
 
@@ -653,7 +651,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                 else
                     ReturnOrderNoText := FieldCaption("Return Order No.");
                 if "Purchaser Code" = '' then begin
-                    SalesPurchPerson.Init;
+                    SalesPurchPerson.Init();
                     PurchaserText := '';
                 end else begin
                     SalesPurchPerson.Get("Purchaser Code");
@@ -791,8 +789,8 @@ report 28073 "Purch. - Tax Cr. Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
     end;
 
     var

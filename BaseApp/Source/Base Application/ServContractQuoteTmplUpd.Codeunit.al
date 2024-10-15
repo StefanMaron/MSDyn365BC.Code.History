@@ -4,7 +4,7 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
 
     trigger OnRun()
     begin
-        ServiceContractTemplate.Reset;
+        ServiceContractTemplate.Reset();
         if not ServiceContractTemplate.FindFirst then
             exit;
 
@@ -52,12 +52,12 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
               DATABASE::"Responsibility Center", "Responsibility Center",
               DATABASE::"Service Order Type", "Service Order Type");
 
-            ContractServiceDiscount.Reset;
+            ContractServiceDiscount.Reset();
             ContractServiceDiscount.SetRange("Contract Type", "Contract Type");
             ContractServiceDiscount.SetRange("Contract No.", "Contract No.");
-            ContractServiceDiscount.DeleteAll;
+            ContractServiceDiscount.DeleteAll();
 
-            TemplateContractServiceDiscount.Reset;
+            TemplateContractServiceDiscount.Reset();
             TemplateContractServiceDiscount.SetRange("Contract Type", TemplateContractServiceDiscount."Contract Type"::Template);
             TemplateContractServiceDiscount.SetRange("Contract No.", ServiceContractTemplate."No.");
             if TemplateContractServiceDiscount.Find('-') then
@@ -65,7 +65,7 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
                     ContractServiceDiscount := TemplateContractServiceDiscount;
                     ContractServiceDiscount."Contract Type" := "Contract Type";
                     ContractServiceDiscount."Contract No." := "Contract No.";
-                    ContractServiceDiscount.Insert;
+                    ContractServiceDiscount.Insert();
                 until TemplateContractServiceDiscount.Next = 0;
         end;
         OnAfterApplyTemplate(ServiceContractHeader, ServiceContractTemplate);

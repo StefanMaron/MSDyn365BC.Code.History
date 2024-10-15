@@ -26,6 +26,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo;
         isInitialized: Boolean;
         ApplyItemEntryError: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4';
@@ -360,7 +361,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
         LibraryVariableStorage.Enqueue(ItemJournalLine."Item No.");  // Enqueue for PhysInvtItemSelectionPageHandler.
         CreateItemJournalLineForPhysInv(ItemJournalLine2);
-        Commit;
+        Commit();
 
         // Exercise: Calculate Counting Period on Physical Inventory Journal.
         LibraryInventory.CalculateCountingPeriod(ItemJournalLine2);
@@ -519,9 +520,9 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(InventorySetup."Automatic Cost Adjustment"::Always);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create and post Purchase Order, Create Purchase Return Order.
@@ -561,9 +562,9 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(InventorySetup."Automatic Cost Adjustment"::Always);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create and post Purchase Order, Create Purchase Return Order.
@@ -625,9 +626,9 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Inventory Setup and Purchase Payable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(InventorySetup."Automatic Cost Adjustment"::Always);
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create and post Purchase Order, Create Purchase Return Order.
@@ -669,9 +670,9 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(InventorySetup."Automatic Cost Adjustment"::Always);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         // Create and post Sales order, create Sales Return Order.
@@ -777,6 +778,7 @@ codeunit 137295 "SCM Inventory Misc. III"
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code, 0, '');  // 0 for Minimum Quantity.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(
@@ -800,6 +802,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Setup: Create Item, create Sales Price with Type Customer Pricing Group, create Customer.
         Initialize;
         CreateSalesPriceWithCustomerPriceGroup(SalesPrice);
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(SalesLine, CreateCustomer, SalesPrice."Item No.", WorkDate, '', SalesPrice."Minimum Quantity");
@@ -824,6 +827,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::"All Customers", '', 0, '');  // 0 for Minimum Quantity.
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(SalesLine, CreateCustomer, SalesPrice."Item No.", WorkDate, '', SalesPrice."Minimum Quantity");
@@ -847,6 +851,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::Customer, CreateCustomer, 0, CreateCurrency);  // 0 for Minimum Qunatity.
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise: Create Sales Order with Currency.
         CreateSalesOrderWithOrderDate(
@@ -873,8 +878,10 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::Customer, CreateCustomer, 0, '');  // 0 for Minimum Quantity.
+        CopyAllSalesPriceToPriceListLine();
         CreateAndUpdateSalesOrder(SalesLine, SalesPrice."Sales Code", SalesPrice."Item No.", LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
         UpdateUnitPriceOnSalesPrice(SalesPrice);
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise: Post Sales Order.
         DocumentNo := PostSalesDocument(SalesLine, true);  // TRUE for Invoice.
@@ -901,7 +908,7 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Create Sales Price, create Sales Order.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(false, false);
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
@@ -911,8 +918,9 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Post Sales Order, update Sales Price, create Sales Invoice using Copy Document.
         DocumentNo := PostSalesDocument(SalesLine, false);  // FALSE for Invoice.
         UnitPrice := UpdateUnitPriceOnSalesPrice(SalesPrice);
+        CopyAllSalesPriceToPriceListLine();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesPrice."Sales Code");
-        Commit;  // COMMIT required to run CopySalesDocument.
+        Commit();  // COMMIT required to run CopySalesDocument.
         LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Shipment", DocumentNo, false, true);
 
         // Exercise: Post Sales Invoice.
@@ -923,6 +931,17 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Tear Down.
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Exact Cost Reversing Mandatory", SalesReceivablesSetup."Stockout Warning");
+    end;
+
+    local procedure CopyAllSalesPriceToPriceListLine()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -965,6 +984,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::"All Customers", '', LibraryRandom.RandDec(10, 2), '');
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise: Create Item Journal Line.
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Sale, SalesPrice."Item No.", SalesPrice."Minimum Quantity", 0);  // 0 for Unit Cost
@@ -985,6 +1005,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Setup: Create Sales Line Discount for Sales Type Customer.
         Initialize;
         CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount."Sales Type"::Customer, CreateCustomer);
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(
@@ -1010,6 +1031,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
         CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(
@@ -1032,6 +1054,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Setup: Create Item, create Line Discount for Customer.
         Initialize;
         CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount."Sales Type"::"All Customers", '');
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise.
         CreateSalesOrderWithOrderDate(SalesLine, CreateCustomer, SalesLineDiscount.Code, WorkDate, '', SalesLineDiscount."Minimum Quantity");
@@ -1055,8 +1078,10 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Setup: Create Item, create Customer, create Sales Line Discount and Update Line Discount, create Sales Order.
         Initialize;
         CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount."Sales Type"::Customer, CreateCustomer);
+        CopyAllSalesPriceToPriceListLine();
         CreateAndUpdateSalesOrder(SalesLine, SalesLineDiscount."Sales Code", SalesLineDiscount.Code, SalesLineDiscount."Minimum Quantity");
         UpdateDiscOnSalesLineDiscount(SalesLineDiscount);
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise: Post Sales Order.
         DocumentNo := PostSalesDocument(SalesLine, true);  // TRUE for Invoice.
@@ -1084,7 +1109,7 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Create Item, create Customer, create Sales Line Discount, create Sales Order.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(false, false);
         CreateLineDiscForCustomer(SalesLineDiscount, SalesLineDiscount."Sales Type"::Customer, CreateCustomer);
         CreateAndUpdateSalesOrder(SalesLine, SalesLineDiscount."Sales Code", SalesLineDiscount.Code, SalesLineDiscount."Minimum Quantity");
@@ -1092,8 +1117,9 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Post Sales Order, update Line Discount, create Sales Invoice using Copy Document.
         DocumentNo := PostSalesDocument(SalesLine, false);  // FALSE for Invoice.
         LineDiscPct := UpdateDiscOnSalesLineDiscount(SalesLineDiscount);
+        CopyAllSalesPriceToPriceListLine();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesLineDiscount."Sales Code");
-        Commit;  // COMMIT required to run CopySalesDocument.
+        Commit();  // COMMIT required to run CopySalesDocument.
         LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Shipment", DocumentNo, false, true);
 
         // Exercise: Post Sales Invoice.
@@ -1612,7 +1638,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
 
         // [THEN] General Ledger contains entries with Reason Code "R".
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry.SetRange("Reason Code", ReasonCode.Code);
         Assert.RecordIsNotEmpty(GLEntry);
     end;
@@ -1644,6 +1670,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. III");
         LibraryVariableStorage.Clear;
@@ -1651,6 +1678,9 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Lazy Setup.
         if isInitialized then
             exit;
+
+        PriceListLine.DeleteAll();
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. III");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -1659,7 +1689,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         UpdateInventorySetupCostPosting;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. III");
     end;
 
@@ -1713,7 +1743,7 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Sales Receivable Setup: "Exact Cost Reversing Mandatory" is enabled.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
         // Create Tracked Item, Create and post Purchase and Sales Order with Item Tracking.
@@ -1774,7 +1804,7 @@ codeunit 137295 "SCM Inventory Misc. III"
 
         // Setup: Update Purchase Payable Setup: "Exact Cost Reversing Mandatory" is enabled.
         Initialize;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesPayablesSetup(true);
 
         // Create Item, Create and post Purchase Order with Item Tracking.
@@ -1906,7 +1936,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesLine: Record "Sales Line";
         LotNo: Code[20];
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
 
@@ -2168,7 +2198,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory");
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
     end;
@@ -2247,6 +2277,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateSalesPrice(
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           SalesPrice."Sales Type"::Customer, CreateCustomer, 0, '');  // 0 for Minimum Qunatity.
+        CopyAllSalesPriceToPriceListLine();
         CreateSalesOrderWithOrderDate(
           SalesLine, SalesPrice."Sales Code", SalesPrice."Item No.", PostingDate, '', LibraryRandom.RandDec(10, 2));  // Take random for Quantity.
     end;
@@ -2335,7 +2366,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
     end;
 
@@ -2638,7 +2669,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         Item: Record Item;
         RollUpStandardCost: Report "Roll Up Standard Cost";
     begin
-        Commit;  // Commit required for batch job reports.
+        Commit();  // Commit required for batch job reports.
         Item.SetFilter("No.", StrSubstNo(ItemFilter, ItemNo, ItemNo2));
         Item.Get(ItemNo);
         Item.SetRange("Inventory Posting Group", Item."Inventory Posting Group");
@@ -2658,6 +2689,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CreateAndUpdateSalesPrice(
           SalesPrice, VATPostingSetup."VAT Bus. Posting Group", CreateItemWithVAT(VATPostingSetup."VAT Prod. Posting Group"), SalesType,
           SalesCode);
+        CopyAllSalesPriceToPriceListLine();
 
         // Exercise: Create Sales Order.
         CreateSalesOrderWithOrderDate(SalesLine, CusomerNo, SalesPrice."Item No.", WorkDate, '', SalesPrice."Minimum Quantity");
@@ -2705,7 +2737,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         InventorySetup: Record "Inventory Setup";
     begin
         LibraryVariableStorage.Enqueue(UnadjustedValueEntriesMessage);
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
     end;
@@ -2790,7 +2822,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2799,7 +2831,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -2943,7 +2975,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;

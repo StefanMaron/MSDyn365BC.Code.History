@@ -8,12 +8,12 @@ codeunit 28066 "Purch. Cr. Memo Hdr. - Edit"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr := Rec;
-        PurchCrMemoHdr.LockTable;
+        PurchCrMemoHdr.LockTable();
         PurchCrMemoHdr.Find;
         PurchCrMemoHdr."Adjustment Applies-to" := "Adjustment Applies-to";
         PurchCrMemoHdr."Reason Code" := "Reason Code";
         PurchCrMemoHdr.TestField("No.", "No.");
-        PurchCrMemoHdr.Modify;
+        PurchCrMemoHdr.Modify();
         Rec := PurchCrMemoHdr;
     end;
 }

@@ -62,16 +62,16 @@ codeunit 136354 "UT T Job WIP Method"
 
             // Verify that entries with referenced WIP entries can't be deleted.
             CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
             asserterror Delete(true);
 
             // Verify that the default WIP Method can't be deleted.
-            JobsSetup.Get;
+            JobsSetup.Get();
             CreateUserDefinedEntry(JobWIPMethod);
             JobsSetup.Validate("Default WIP Method", Code);
-            JobsSetup.Modify;
+            JobsSetup.Modify();
             asserterror Delete(true);
         end;
     end;
@@ -103,10 +103,10 @@ codeunit 136354 "UT T Job WIP Method"
         JobsSetup: Record "Jobs Setup";
     begin
         // Verify that "Valid" from the default WIP Method can't be unchecked.
-        JobsSetup.Get;
+        JobsSetup.Get();
         CreateUserDefinedEntry(JobWIPMethod);
         JobsSetup.Validate("Default WIP Method", JobWIPMethod.Code);
-        JobsSetup.Modify;
+        JobsSetup.Modify();
         asserterror JobWIPMethod.Validate(Valid, false);
     end;
 
@@ -175,9 +175,9 @@ codeunit 136354 "UT T Job WIP Method"
 
             // Verify that "Recognized Costs" from the default WIP Method can't be unchecked.
             CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
             asserterror Validate("Recognized Costs", LibraryRandom.RandInt(4));
         end;
     end;
@@ -201,9 +201,9 @@ codeunit 136354 "UT T Job WIP Method"
 
             // Verify that "Recognized Sales" from the default WIP Method can't be unchecked.
             CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init;
+            JobWIPEntry.Init();
             JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert;
+            JobWIPEntry.Insert();
             asserterror Validate("Recognized Sales", LibraryRandom.RandInt(4));
         end;
     end;
@@ -227,7 +227,7 @@ codeunit 136354 "UT T Job WIP Method"
         // [SCENARIO 376881] Error must be thrown on validating "Job WIP Method"."WIP Cost" when "Recognized Cost" is not equal to "Usage (Total Cost)"
 
         // [GIVEN] Record "Job WIP Method" with "Recognized Cost" <> "Usage (Total Cost)"
-        JobWIPMethod.Init;
+        JobWIPMethod.Init();
         JobWIPMethod."System Defined" := false;
         JobWIPMethod."Recognized Costs" := LibraryRandom.RandInt(4);
 

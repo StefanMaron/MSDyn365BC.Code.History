@@ -1,4 +1,4 @@
-﻿page 6653 "Posted Return Shipment Lines"
+page 6653 "Posted Return Shipment Lines"
 {
     Caption = 'Posted Return Shipment Lines';
     Editable = false;

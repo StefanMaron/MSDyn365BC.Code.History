@@ -56,7 +56,7 @@ codeunit 136121 "Service Reservation"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateVATData;
         isInitialized := true;
-        Commit;
+        Commit();
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Reservation");
     end;
@@ -78,7 +78,7 @@ codeunit 136121 "Service Reservation"
         CreateServiceDocument(ServiceLine, '', Item."No.", ServiceLine."Document Type"::Order);
 
         // 2. Exercise: Try to Reserve from Service Line.
-        Commit;  // Commit is required to save values to match error message.
+        Commit();  // Commit is required to save values to match error message.
         asserterror ServiceLine.ShowReservation;
 
         // 3. Verify: Check that the application generates an error on trying to Reserve if the Service Line has value as 'Never' in
@@ -628,7 +628,7 @@ codeunit 136121 "Service Reservation"
         CreateItemWithReserve(Item, Item.Reserve::Optional);
         ItemNo := Item."No.";  // Assign Item No. to global variable.
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Open Service Lines page.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -656,7 +656,7 @@ codeunit 136121 "Service Reservation"
         CreatePurchaseOrderNoLocation(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Open Service Lines page.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -689,7 +689,7 @@ codeunit 136121 "Service Reservation"
         CreatePurchaseOrderNoLocation(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Open Service Lines page.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -732,7 +732,7 @@ codeunit 136121 "Service Reservation"
         OpenPurchaseOrderPage(PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Open Service Lines page.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -762,7 +762,7 @@ codeunit 136121 "Service Reservation"
         CreatePurchaseOrderNoLocation(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Open Service Lines Page and Invoke Auto Reserve action on Reservation Page.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -952,7 +952,7 @@ codeunit 136121 "Service Reservation"
         CreateJournalLine(ItemJournalLine, ItemNo, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Set values on Service Line Page in ServiceLinePageLocationHandler, Find Service Line and change Location.
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -990,7 +990,7 @@ codeunit 136121 "Service Reservation"
         CreateJournalLine(ItemJournalLine, ItemNo, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
 
         // 2. Exercise: Set values on Service Line Page in ServiceLinePageTypeHandler, Find Service Line and change Type
         OpenServiceLinesPage(ServiceHeader."No.");
@@ -1030,7 +1030,7 @@ codeunit 136121 "Service Reservation"
         CreateJournalLine(ItemJournalLine, ItemNo, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         CreateServiceOrder(ServiceHeader, Customer."No.", ItemNo);
-        Commit;
+        Commit();
         OpenServiceLinesPage(ServiceHeader."No.");
 
         // 2. Exercise: Delete all service lines.
@@ -1535,6 +1535,7 @@ codeunit 136121 "Service Reservation"
     [Scope('OnPrem')]
     procedure ServiceOrderReservationWithResourceShouldFail()
     var
+        Resource: Record Resource;
         ServiceLine: Record "Service Line";
     begin
         // Verify the error message while reserving the Item from Purchase Order to Service Order when Type is Resource on Service Line.
@@ -1542,6 +1543,9 @@ codeunit 136121 "Service Reservation"
         // 1. Setup: Create Purchase Order and Service Order and update Service Line with Type Resource.
         Initialize;
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
+        Resource.Init();
+        Resource."No." := ServiceLine."No.";
+        if Resource.Insert() then;
         ServiceLine.Validate(Type, ServiceLine.Type::Resource);
         ServiceLine.Modify(true);
 
@@ -1866,7 +1870,7 @@ codeunit 136121 "Service Reservation"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.PurchLines."Item Tracking Lines".Invoke;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -2007,7 +2011,7 @@ codeunit 136121 "Service Reservation"
         ServiceOrder.OpenEdit;
         ServiceOrder.FILTER.SetFilter("No.", No);
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure OpenServiceInvoicePage(No: Code[20])
@@ -2044,7 +2048,7 @@ codeunit 136121 "Service Reservation"
         ServiceHeader: Record "Service Header";
     begin
         // Exercise: Try to post the Service Order as Ship.
-        Commit;  // Commit is required to match error message.
+        Commit();  // Commit is required to match error message.
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
@@ -2058,7 +2062,7 @@ codeunit 136121 "Service Reservation"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Reserve := Customer.Reserve::Always;
-        Customer.Modify;
+        Customer.Modify();
         exit(Customer.Name);
     end;
 
@@ -2090,7 +2094,7 @@ codeunit 136121 "Service Reservation"
         ProductionOrder.SetRange(Status, ProductionOrder.Status);
         ProductionOrder.SetRange("No.", ProductionOrder."No.");
         RefreshProductionOrder.SetTableView(ProductionOrder);
-        Commit;
+        Commit();
         RefreshProductionOrder.UseRequestPage(false);
         RefreshProductionOrder.RunModal;
         exit(ProductionOrder."Location Code");
@@ -2142,7 +2146,7 @@ codeunit 136121 "Service Reservation"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
           ItemNo, Quantity);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; ItemNo: Code[20]; DocumentType: Option)
@@ -2322,7 +2326,7 @@ codeunit 136121 "Service Reservation"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.PurchLines.Reserve.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
@@ -2336,7 +2340,7 @@ codeunit 136121 "Service Reservation"
     var
         ServiceHeader: Record "Service Header";
     begin
-        ServiceHeader.Reset;
+        ServiceHeader.Reset();
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Quote No.", QuoteNo);
         ServiceHeader.FindFirst;
@@ -2377,7 +2381,7 @@ codeunit 136121 "Service Reservation"
         ServiceLines."No.".SetValue(ItemNo);
         ServiceLines."Location Code".SetValue('');
         ServiceLines.Quantity.SetValue(QuantityOnServiceLine);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyReservationEntry(ServiceLine: Record "Service Line"; Quantity: Decimal)
@@ -2526,7 +2530,7 @@ codeunit 136121 "Service Reservation"
 
         // Verify: Verify Reserved Quantity.
         AvailableItemLedgEntries."Reserved Quantity".AssertEquals(QuantityOnServiceLine);
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]
@@ -2673,7 +2677,7 @@ codeunit 136121 "Service Reservation"
     begin
         // Invoke Reserve Action from Available Item Ledger Entries Page.
         AvailableItemLedgEntries.Reserve.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]
@@ -2693,7 +2697,7 @@ codeunit 136121 "Service Reservation"
     procedure ReserveFromServiceLinePageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         CreateServiceLineWithItemAndQuantityUsingPage(ServiceLines);
-        Commit;
+        Commit();
         ServiceLines.Reserve.Invoke;
         ServiceLines.OK.Invoke;
     end;
@@ -2703,7 +2707,7 @@ codeunit 136121 "Service Reservation"
     procedure OpenReservationFromServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         CreateServiceLineWithItemAndQuantityUsingPage(ServiceLines);
-        Commit;
+        Commit();
         ServiceLines.ReservationEntries.Invoke;
         ServiceLines.OK.Invoke;
     end;

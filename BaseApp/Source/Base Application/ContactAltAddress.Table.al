@@ -196,7 +196,7 @@ table 5051 "Contact Alt. Address"
 
         ContAltAddrDateRange.SetRange("Contact No.", "Contact No.");
         ContAltAddrDateRange.SetRange("Contact Alt. Address Code", Code);
-        ContAltAddrDateRange.DeleteAll;
+        ContAltAddrDateRange.DeleteAll();
 
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Contact Alt. Address", Rec.GetPosition);
     end;

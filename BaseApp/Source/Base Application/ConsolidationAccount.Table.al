@@ -51,12 +51,12 @@ table 1829 "Consolidation Account"
     var
         ConsolidationAccount: Record "Consolidation Account";
     begin
-        ConsolidationAccount.Init;
+        ConsolidationAccount.Init();
         ConsolidationAccount.Validate("No.", AccountNo);
         ConsolidationAccount.Validate(Name, AccountName);
         ConsolidationAccount.Validate("Direct Posting", DirectPosting);
         ConsolidationAccount.Validate("Income/Balance", IncomeBalance);
-        ConsolidationAccount.Insert;
+        ConsolidationAccount.Insert();
     end;
 
     procedure PopulateConsolidationAccountsForExistingCompany(ConsolidatedCompany: Text[50])
@@ -64,7 +64,7 @@ table 1829 "Consolidation Account"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.ChangeCompany(ConsolidatedCompany);
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetFilter("Account Type", Format(GLAccount."Account Type"::Posting));
         if GLAccount.Find('-') then
             repeat

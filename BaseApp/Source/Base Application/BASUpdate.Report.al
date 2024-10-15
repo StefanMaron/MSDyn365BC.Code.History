@@ -20,9 +20,6 @@ report 11604 "BAS-Update"
             column(Heading; Heading)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -171,9 +168,6 @@ report 11604 "BAS-Update"
                 PageGroupNo := NextPageGroupNo;
                 if "New Page" then
                     NextPageGroupNo := PageGroupNo + 1;
-
-                if CurrReport.PageNo <> 1 then
-                    FirstPage := false;
             end;
 
             trigger OnPostDataItem()
@@ -182,7 +176,7 @@ report 11604 "BAS-Update"
                     BASCalcSheet."BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
                     BASCalcSheet."BAS Setup Name" := GetFilter("Setup Name");
                     BASCalcSheet.Updated := true;
-                    BASCalcSheet.Modify;
+                    BASCalcSheet.Modify();
                     Window.Close;
                 end;
             end;
@@ -199,7 +193,7 @@ report 11604 "BAS-Update"
                         SetRange("Setup Name", SetupName);
 
                 SetRange("Setup Name", GetRangeMin("Setup Name"));
-                GLSetup.Get;
+                GLSetup.Get();
                 if UpdateBASCalcSheet then begin
                     BASCalcSheet.TestField(A1);
                     BASCalcSheet.TestField("BAS Version");
@@ -222,7 +216,7 @@ report 11604 "BAS-Update"
                             Error(Text1450010);
                         if GLSetup."BAS Group Company" then
                             BASCalcSheet.TestField("Group Consolidated", true);
-                        BASCalcEntry.Reset;
+                        BASCalcEntry.Reset();
                         BASCalcEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
                         BASCalcEntry.SetRange("Consol. BAS Doc. No.", BASCalcSheet.A1);
                         BASCalcEntry.SetRange("Consol. Version No.", BASCalcSheet."BAS Version");
@@ -230,7 +224,7 @@ report 11604 "BAS-Update"
                             repeat
                                 BASCalcEntry."Consol. BAS Doc. No." := '';
                                 BASCalcEntry."Consol. Version No." := 0;
-                                BASCalcEntry.Modify;
+                                BASCalcEntry.Modify();
                             until not BASCalcEntry.FindFirst;
 
                         if BASBusUnits.Find('-') then
@@ -238,7 +232,7 @@ report 11604 "BAS-Update"
                                 BASCalcSheet1.ChangeCompany(BASBusUnits."Company Name");
                                 BASCalcSheet1.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version");
                                 BASCalcSheet1.Consolidated := false;
-                                BASCalcSheet1.Modify;
+                                BASCalcSheet1.Modify();
                             until BASBusUnits.Next = 0;
                         BASCalcSheet.Consolidated := false;
                         BASCalcSheet."Group Consolidated" := false;
@@ -248,12 +242,12 @@ report 11604 "BAS-Update"
                         if not Confirm(Text1450011 + Text1450012, false) then
                             CurrReport.Quit;
 
-                    BASCalcEntry.Reset;
+                    BASCalcEntry.Reset();
                     BASCalcEntry.SetRange("Company Name", CompanyName);
                     BASCalcEntry.SetRange("BAS Document No.", BASCalcSheet.A1);
                     BASCalcEntry.SetRange("BAS Version", BASCalcSheet."BAS Version");
                     if BASCalcEntry.FindFirst then
-                        BASCalcEntry.DeleteAll;
+                        BASCalcEntry.DeleteAll();
 
                     GLEntry.SetCurrentKey("BAS Doc. No.", "BAS Version");
                     GLEntry.SetRange("BAS Doc. No.", BASCalcSheet.A1);
@@ -261,7 +255,7 @@ report 11604 "BAS-Update"
                         GLEntry.ModifyAll("BAS Doc. No.", '');
                         GLEntry.ModifyAll("BAS Version", 0);
                     end;
-                    GLEntry.Reset;
+                    GLEntry.Reset();
 
                     VATEntry.SetCurrentKey("BAS Doc. No.", "BAS Version");
                     VATEntry.SetRange("BAS Doc. No.", BASCalcSheet.A1);
@@ -269,7 +263,7 @@ report 11604 "BAS-Update"
                         VATEntry.ModifyAll("BAS Doc. No.", '');
                         VATEntry.ModifyAll("BAS Version", 0);
                     end;
-                    VATEntry.Reset;
+                    VATEntry.Reset();
 
                     BASCalcSheet."1A" := 0;
                     BASCalcSheet."1C" := 0;
@@ -408,7 +402,7 @@ report 11604 "BAS-Update"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 
@@ -425,7 +419,7 @@ report 11604 "BAS-Update"
         Heading2 := StrSubstNo(Text1450005, BASCalcSheet.A3, BASCalcSheet.A4);
         BASSetupFilter := "BAS Setup".GetFilters;
         BASSetupName := "BAS Setup".GetFilter("Setup Name");
-        BASSetup.Reset;
+        BASSetup.Reset();
         BASSetup.SetRange("Setup Name", BASSetupName);
         BASSetup.SetFilter(Type, '%1', BASSetup.Type::"Row Totaling");
         BASSetup.SetRange(Print, false);
@@ -504,7 +498,7 @@ report 11604 "BAS-Update"
         case BASSetup2.Type of
             BASSetup2.Type::"Account Totaling":
                 begin
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetCurrentKey(
                       "G/L Account No.",
                       "BAS Adjustment",
@@ -539,7 +533,7 @@ report 11604 "BAS-Update"
                                             Amount := Amount + GLEntry."VAT Amount";
                                     end;
                                     if UpdateBASCalcSheet then begin
-                                        BASCalcEntry.Init;
+                                        BASCalcEntry.Init();
                                         BASCalcEntry."Company Name" := CompanyName;
                                         BASCalcEntry."BAS Document No." := BASCalcSheet.A1;
                                         BASCalcEntry."BAS Version" := BASCalcSheet."BAS Version";
@@ -560,8 +554,8 @@ report 11604 "BAS-Update"
                                         BASCalcEntry."GST Bus. Posting Group" := BASSetup2."GST Bus. Posting Group";
                                         BASCalcEntry."GST Prod. Posting Group" := BASSetup2."GST Prod. Posting Group";
                                         BASCalcEntry."BAS Adjustment" := BASSetup2."BAS Adjustment";
-                                        if not BASCalcEntry.Insert then
-                                            BASCalcEntry.Modify;
+                                        if not BASCalcEntry.Insert() then
+                                            BASCalcEntry.Modify();
                                     end;
                                 end;
                             until GLEntry.Next = 0;
@@ -570,7 +564,7 @@ report 11604 "BAS-Update"
                 end;
             BASSetup2.Type::"GST Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(
                       Type,
                       Closed,
@@ -620,7 +614,7 @@ report 11604 "BAS-Update"
                     end;
                     if UpdateBASCalcSheet and VATEntry.Find('-') then
                         repeat
-                            BASCalcEntry.Init;
+                            BASCalcEntry.Init();
                             BASCalcEntry."Company Name" := CompanyName;
                             BASCalcEntry."BAS Document No." := BASCalcSheet.A1;
                             BASCalcEntry."BAS Version" := BASCalcSheet."BAS Version";
@@ -645,8 +639,8 @@ report 11604 "BAS-Update"
                             BASCalcEntry."GST Bus. Posting Group" := BASSetup2."GST Bus. Posting Group";
                             BASCalcEntry."GST Prod. Posting Group" := BASSetup2."GST Prod. Posting Group";
                             BASCalcEntry."BAS Adjustment" := BASSetup2."BAS Adjustment";
-                            if not BASCalcEntry.Insert then
-                                BASCalcEntry.Modify;
+                            if not BASCalcEntry.Insert() then
+                                BASCalcEntry.Modify();
                         until VATEntry.Next = 0;
 
                     CalcTotalAmount(BASSetup2, TotalAmount);
@@ -732,7 +726,7 @@ report 11604 "BAS-Update"
           CLEAR(RowNo);
           CLEAR(FieldLabelNo);
         END;
-        BASCalcSheetEntry.RESET;
+        BASCalcSheetEntry.Reset();
         BASCalcSheetEntry.SETCURRENTKEY(
           "Company Name",
           "BAS Document No.",
@@ -770,7 +764,7 @@ report 11604 "BAS-Update"
         case BASSetup2.Type of
             BASSetup2.Type::"Account Totaling":
                 begin
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetCurrentKey(
                       "G/L Account No.",
                       "BAS Adjustment",
@@ -794,7 +788,7 @@ report 11604 "BAS-Update"
                                     (GLEntry."Posting Date" = NormalDate(GLEntry."Posting Date"))) or
                                    (not ExcludeClosingEntries)
                                 then begin
-                                    BASCalcEntry1.Reset;
+                                    BASCalcEntry1.Reset();
                                     BASCalcEntry1.SetCurrentKey("Company Name", Type, "Entry No.", "BAS Document No.", "BAS Version");
                                     BASCalcEntry1.SetRange("Company Name", CompanyName);
                                     BASCalcEntry1.SetRange(Type, BASCalcEntry1.Type::"G/L Entry");
@@ -815,7 +809,7 @@ report 11604 "BAS-Update"
                 end;
             BASSetup2.Type::"GST Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(
                       Type,
                       Closed,
@@ -840,7 +834,7 @@ report 11604 "BAS-Update"
                     VATEntry.SetRange("BAS Doc. No.", DocumentNo);
                     if VATEntry.Find('-') then
                         repeat
-                            BASCalcEntry1.Reset;
+                            BASCalcEntry1.Reset();
                             BASCalcEntry1.SetCurrentKey("Company Name", Type, "Entry No.", "BAS Document No.", "BAS Version");
                             BASCalcEntry1.SetRange("Company Name", CompanyName);
                             BASCalcEntry1.SetRange(Type, BASCalcEntry1.Type::"GST Entry");

@@ -53,7 +53,7 @@ codeunit 81 "Sales-Post (Yes/No)"
 
         OnAfterConfirmPost(SalesHeader);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         CheckTaxNoSeries(SalesHeader, SalesSetup);
         if SalesSetup."Post with Job Queue" and not PostAndSend then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
@@ -116,7 +116,7 @@ codeunit 81 "Sales-Post (Yes/No)"
     begin
         with SalesHeader do
             if Invoice or ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Enable Tax Invoices" then begin
                     if "Tax Document Marked" then
                         SalesSetup.TestField("Posted Tax Invoice Nos.");

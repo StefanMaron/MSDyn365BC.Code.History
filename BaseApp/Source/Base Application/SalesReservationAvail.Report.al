@@ -104,7 +104,7 @@ report 209 "Sales Reservation Avail."
             dataitem("Reservation Entry"; "Reservation Entry")
             {
                 DataItemLink = "Source ID" = FIELD("Document No."), "Source Ref. No." = FIELD("Line No.");
-                DataItemTableView = SORTING("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date") WHERE("Reservation Status" = CONST(Reservation), "Source Type" = CONST(37), "Source Batch Name"=CONST(''), "Source Prod. Order Line" = CONST(0));
+                DataItemTableView = SORTING("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date") WHERE("Reservation Status" = CONST(Reservation), "Source Type" = CONST(37), "Source Batch Name" = CONST(''), "Source Prod. Order Line" = CONST(0));
                 column(ReservText; ReservText)
                 {
                 }
@@ -157,12 +157,11 @@ report 209 "Sales Reservation Avail."
                     else begin
                         ReserveSalesLine.ReservQuantity("Sales Line", QtyToReserve, QtyToReserveBase);
                         if QtyToReserveBase > 0 then begin
-                            ReservEntry.Reset;
-                            ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-                            ReserveSalesLine.FilterReservFor(ReservEntry, "Sales Line");
+                            ReservEntry.InitSortingAndFilters(true);
+                            SetReservationFilters(ReservEntry);
                             if ReservEntry.FindSet then
                                 repeat
-                                    ReservEntryFrom.Reset;
+                                    ReservEntryFrom.Reset();
                                     ReservEntryFrom.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
                                     if ReservEntryFrom."Source Type" = DATABASE::"Item Ledger Entry" then
                                         LineQuantityOnHand := LineQuantityOnHand + ReservEntryFrom.Quantity;

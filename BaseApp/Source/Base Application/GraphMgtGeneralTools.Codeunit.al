@@ -100,7 +100,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             ODataEdmType.Insert(true);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure ProcessNewRecordFromAPI(var InsertedRecordRef: RecordRef; var TempFieldSet: Record "Field"; ModifiedDateTime: DateTime)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -206,7 +206,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             exit(CurrencyCode);
 
         if CachedLCYCurrencyCode = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             CachedLCYCurrencyCode := GeneralLedgerSetup."LCY Code";
         end;
 
@@ -222,7 +222,7 @@ codeunit 5465 "Graph Mgt - General Tools"
 
         // Update LCY cache
         if CachedLCYCurrencyCode = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             CachedLCYCurrencyCode := GeneralLedgerSetup."LCY Code";
         end;
 
@@ -283,7 +283,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         MainRecordRef: RecordRef;
     begin
         MainRecordRef.GetTable(MainRecordVariant);
-        MainRecordRef.Delete;
+        MainRecordRef.Delete();
         SendTraceTag(
           '00001QW', AggregateErrorTxt, VERBOSITY::Error, AggregateIsMissingMainRecordTxt, DATACLASSIFICATION::SystemMetadata);
     end;
@@ -317,7 +317,7 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
         if RunTrigger then begin
             ConfigTmplSelectionRules.SetRange("Template Code", Rec.Code);
-            ConfigTmplSelectionRules.DeleteAll;
+            ConfigTmplSelectionRules.DeleteAll();
         end;
     end;
 }
