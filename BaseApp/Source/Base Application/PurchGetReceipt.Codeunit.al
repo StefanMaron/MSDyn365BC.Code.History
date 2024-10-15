@@ -81,6 +81,7 @@
                     end;
                     if TransferLine then begin
                         PurchRcptLine := PurchRcptLine2;
+                        CheckPurchRcptLineVATBusPostingGroup(PurchRcptLine, PurchHeader);
                         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
                         CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
                     end;
@@ -284,6 +285,18 @@
         end;
     end;
 
+    local procedure CheckPurchRcptLineVATBusPostingGroup(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestPurchRcptLineVATBusPostingGroup(PurchRcptLine, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchRcptLine.TestField("VAT Bus. Posting Group", PurchHeader."VAT Bus. Posting Group");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcInvoiceDiscount(var PurchaseHeader: Record "Purchase Header")
     begin
@@ -331,6 +344,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader: Record "Purchase Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TransferLine: Boolean; var ShowDifferentPayToVendMsg: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchRcptLineVATBusPostingGroup(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

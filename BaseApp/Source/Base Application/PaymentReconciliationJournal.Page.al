@@ -595,10 +595,11 @@ page 1290 "Payment Reconciliation Journal"
                     group(StatementEndingBalanceGroup)
                     {
                         Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
-                            ShowCaption = false;
+                        Caption = 'Statement Ending Balance';
                         field(StatementEndingBalanceFixedLayout; BankAccReconciliation."Statement Ending Balance")
                         {
                             ApplicationArea = Basic, Suite;
+                            ShowCaption = false;
                             AutoFormatType = 1;
                             Editable = false;
                             Caption = 'Statement Ending Balance';

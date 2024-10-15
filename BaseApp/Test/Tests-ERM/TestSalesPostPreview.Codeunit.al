@@ -29,6 +29,7 @@ codeunit 134763 "Test Sales Post Preview"
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         AmountMustBePositiveErr: Label 'Amount must be positive';
         InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
+        TotalInvoiceAmountNegativeErr: Label 'The total amount for the invoice must be 0 or greater.';
 
     [Test]
     [Scope('OnPrem')]
@@ -197,11 +198,12 @@ codeunit 134763 "Test Sales Post Preview"
         PostingPreviewEventHandler.GetEntries(Database::"Cust. Ledger Entry", RecRef);
         Assert.RecordIsEmpty(RecRef);
         PostingPreviewEventHandler.GetEntries(Database::"G/L Entry", RecRef);
-        Assert.RecordCount(RecRef, 2);
+        // TFS 423695 the error arrises in "Sales-Post".CheckTotalInvoiceAmount(...)
+        Assert.RecordIsEmpty(RecRef);
         // [THEN] Error message found: "Amount must be positive"
         Assert.IsTrue(ErrorMessageMgt.IsActive(), 'ErroMsgMgt inactive');
         Assert.AreNotEqual(0, ErrorMessageMgt.GetLastError(ErrorMsg), 'Errors not found');
-        Assert.ExpectedMessage(AmountMustBePositiveErr, ErrorMsg);
+        Assert.ExpectedMessage(TotalInvoiceAmountNegativeErr, ErrorMsg);
         // Cleanup
         asserterror Error('');
     end;
@@ -980,6 +982,84 @@ codeunit 134763 "Test Sales Post Preview"
         VerifyAmountOnGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('GetShipmentLinesHandler')]
+    procedure PreviewSalesInvoiceCreditMemoWithNegativeShipmentLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippedSalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        DocumentNo: Code[20];
+        UnitPrice: Integer;
+        Quantity: Integer;
+    begin
+        // [SCENARIO 423695] Posting preview for Sales Invoice and Sales Cr. Memo must be success when there is shipment line with negative Quantity.
+        Initialize();
+
+        // [GIVEN] Shipped sales order with sales line with negative sales line
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ItemNo := LibraryInventory.CreateItemNo();
+        UnitPrice := LibraryRandom.RandIntInRange(10, 100);
+        Quantity := LibraryRandom.RandIntInRange(1, 10);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
+            ItemNo, -Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Sales Invoice with negative shipped line and positive line
+        Clear(SalesHeader);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        Clear(SalesLine);
+        ShippedSalesLine."Document Type" := SalesHeader."Document Type"::Invoice;
+        ShippedSalesLine."Document No." := SalesHeader."No.";
+        LibrarySales.GetShipmentLines(ShippedSalesLine);
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
+            ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+        Commit();
+
+        // [GIVEN] Posting preview has not failed
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        BindSubscription(SalesPostYesNo);
+        GenJnlPostPreview.SetContext(SalesPostYesNo, SalesHeader);
+        Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
+        Assert.IsTrue(GenJnlPostPreview.IsSuccess(), 'Preview has failed');
+
+        // [GIVEN] Post sales invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create corrective Cr. memo
+        Clear(SalesHeader);
+        SalesInvoiceHeader.Get(DocumentNo);
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+        SalesHeader."Applies-to Doc. No." := '';
+        SalesHeader.Modify();
+        Commit();
+
+        // [WHEN] Run Posting preview for Cr. memo
+        Clear(ErrorMessageMgt);
+        Clear(GenJnlPostPreview);
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Clear(SalesPostYesNo);
+        GenJnlPostPreview.SetContext(SalesPostYesNo, SalesHeader);
+        Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
+
+        // [THEN] Posting preview has not failed
+        Assert.IsTrue(GenJnlPostPreview.IsSuccess(), 'Preview has failed');
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1261,6 +1341,13 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         VATAmountLines."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
         VATAmountLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK.Invoke;
     end;
 }
 
