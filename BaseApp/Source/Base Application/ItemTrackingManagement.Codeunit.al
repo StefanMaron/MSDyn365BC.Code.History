@@ -1621,12 +1621,16 @@
         exit(WhseItemTrackingSetup.TrackingRequired());
     end;
 
-    procedure GetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean;
+    procedure GetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup") Result: Boolean;
     var
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
+        IsHandled: Boolean;
     begin
-        OnBeforeGetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        IsHandled := false;
+        OnBeforeGetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         Clear(WhseItemTrackingSetup);
         if Item."No." <> ItemNo then
@@ -3962,7 +3966,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnBeforeGetWhseItemTrkgSetup(ItemNo: Code[20]; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -3365,6 +3365,145 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure FlushingQtyThatDiffersFromRemQtyByLessThanRoundingPrec()
+    var
+        ProdItem: Record Item;
+        InterimItem: Record Item;
+        CompItem: Record Item;
+        ProdItemUnitOfMeasure: Record "Item Unit of Measure";
+        InterimItemUnitOfMeasure: Record "Item Unit of Measure";
+        CompItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitOfMeasureMgt: Codeunit "Unit of Measure Management";
+        ProdItemQtyPer: Decimal;
+        InterimItemQtyPer: Decimal;
+        CompItemQtyPer: Decimal;
+        ProdBOMQtyPer: Decimal;
+        InterimBOMQtyPer: Decimal;
+    begin
+        // [FEATURE] [Flushing] [Consumption]
+        // [SCENARIO 423544] Flushing consumption on finishing production order takes remaining qty. of component item when the difference between remaining qty. and actual qty. is less than the rounding precision.
+        Initialize();
+        ProdItemQtyPer := 12240;
+        InterimItemQtyPer := 60.96;
+        CompItemQtyPer := 0.44444;
+        ProdBOMQtyPer := 3;
+        InterimBOMQtyPer := 0.22;
+
+        // [GIVEN] Component item "C" set up for backward flushing.
+        // [GIVEN] Base unit of measure = "CAN", alternate unit of measure = "KG" = 0.44444 "CAN".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Backward);
+        CompItem.Validate("Rounding Precision", UnitOfMeasureMgt.QtyRndPrecision());
+        CompItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure, CompItem."No.", CompItemQtyPer);
+
+        // [GIVEN] Interim production item "I" set up for backward flushing.
+        // [GIVEN] Base unit of measure = "KG", alternate unit of measure = "BOX" = 60.96 "KG".
+        CreateProductionItem(InterimItem, '');
+        InterimItem.Validate("Manufacturing Policy", InterimItem."Manufacturing Policy"::"Make-to-Order");
+        InterimItem.Validate("Flushing Method", InterimItem."Flushing Method"::Backward);
+        InterimItem.Validate("Rounding Precision", UnitOfMeasureMgt.QtyRndPrecision());
+        InterimItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(InterimItemUnitOfMeasure, InterimItem."No.", InterimItemQtyPer);
+
+        // [GIVEN] Finished item "P".
+        // [GIVEN] Base unit of measure = "PCS", alternate unit of measure = "PALLET" = 12240 "PCS".
+        CreateProductionItem(ProdItem, '');
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure, ProdItem."No.", ProdItemQtyPer);
+
+        // [GIVEN] Create and cerfity production BOM. 1 "PALLET" of item "P" = 3 "BOX" of item "I".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, InterimItem."No.", ProdBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", InterimItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM. 1 "BOX" of item "I" = 0.22 "KG" of item "C".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, InterimItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", InterimBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        InterimItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        InterimItem.Modify(true);
+
+        // [GIVEN] Create make-to-order production order for items "P" and "C".
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", ProdItemQtyPer, '', '');
+
+        // [GIVEN] Post component item "C" to inventory.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(20, 40), '', '', false);
+
+        // [GIVEN] Post output of the interim item "C".
+        // [GIVEN] Post output of the finished good "P".
+        FindProductionOrderLine(ProdOrderLine, InterimItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        FindProductionOrderLine(ProdOrderLine, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The production order is finished.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [THEN] The component item "C" is backward flushed.
+        // [THEN] Consumption quantity = 3 * 0.22 * 0.44444 = 0.29333 "CAN".
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(
+          Quantity, -Round(ProdBOMQtyPer * InterimBOMQtyPer * CompItemQtyPer, CompItem."Rounding Precision"));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputJournalValidateItemNo()
+    var
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        SavedGenProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Output Journal]
+        // [SCENARIO 429057] Gen. Prod. Posting Group is not changed when validating Item No. for output journal filled in with Explode Routing
+        Initialize();
+
+        // [GIVEN] Item with "Gen. Prod. Posting Group" = "X" 
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Mock output journal line with "Gen. Prod. Posting Group" = "Y"
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Output, Item."No.", 1);
+        ChangeItemJnlLineGenProdPostingGroup(ItemJournalLine);
+        SavedGenProdPostingGroup := ItemJournalLine."Gen. Prod. Posting Group";
+        Assert.AreNotEqual(Item."Gen. Prod. Posting Group", SavedGenProdPostingGroup, 'Groups must be different');
+
+        // [WHEN] Validate same Item No.
+        ItemJournalLine.Validate("Item No.", Item."No.");
+
+        // [THEN] "Gen. Prod. Posting Group" is not changed
+        ItemJournalLine.TestField("Gen. Prod. Posting Group", SavedGenProdPostingGroup);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3396,6 +3535,16 @@ codeunit 137072 "SCM Production Orders II"
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Orders II");
+    end;
+
+    local procedure ChangeItemJnlLineGenProdPostingGroup(var ItemJournalLine: Record "Item Journal Line")
+    var
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        GenProductPostingGroup.SetFilter(Code, '<>%1', ItemJournalLine."Gen. Prod. Posting Group");
+        GenProductPostingGroup.FindFirst();
+        ItemJournalLine."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        ItemJournalLine.Modify();
     end;
 
     local procedure CreateLocationSetup()

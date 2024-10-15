@@ -1,4 +1,4 @@
-table 5767 "Warehouse Activity Line"
+﻿table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -2671,7 +2671,14 @@ table 5767 "Warehouse Activity Line"
     end;
 
     procedure ValidateQtyWhenSNDefined()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateQtyWhenSNDefined(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."Serial No." = '' then
             exit;
 
@@ -3210,6 +3217,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantityIsBalanced(var WhseActivLine: Record "Warehouse Activity Line"; xWhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyWhenSNDefined(WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
