@@ -573,13 +573,19 @@ codeunit 5812 "Calculate Standard Cost"
                     case Type of
                         Type::Item:
                             begin
-                                CalcMfgItem("No.", CompItem, Level + 1);
-                                IncrCost(SLMat, CompItem."Standard Cost", CompItemQtyBase);
-                                IncrCost(RUMat, CompItem."Rolled-up Material Cost", CompItemQtyBase);
-                                IncrCost(RUCap, CompItem."Rolled-up Capacity Cost", CompItemQtyBase);
-                                IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
-                                IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
-                                IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
+                                GetItem("No.", CompItem);
+                                if CompItem.IsMfgItem() or CompItem.IsAssemblyItem() then begin
+                                    CalcMfgItem("No.", CompItem, Level + 1);
+                                    IncrCost(SLMat, CompItem."Standard Cost", CompItemQtyBase);
+                                    IncrCost(RUMat, CompItem."Rolled-up Material Cost", CompItemQtyBase);
+                                    IncrCost(RUCap, CompItem."Rolled-up Capacity Cost", CompItemQtyBase);
+                                    IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
+                                    IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
+                                    IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
+                                end else begin
+                                    IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
+                                    IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
+                                end;
                             end;
                         Type::"Production BOM":
                             CalcProdBOMCost(
