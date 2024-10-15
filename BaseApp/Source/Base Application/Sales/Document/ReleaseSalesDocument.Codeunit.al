@@ -184,7 +184,7 @@ codeunit 414 "Release Sales Document"
                 if Item.Get(SalesLine."No.") then
                     if Item.IsVariantMandatory() then
                         SalesLine.TestField("Variant Code");
-                OnCodeOnAfterSalesLineCheck(SalesLine);
+                OnCodeOnAfterSalesLineCheck(SalesLine, SalesHeader);
             until SalesLine.Next() = 0;
         SalesLine.SetFilter(Type, '>0');
     end;
@@ -504,7 +504,7 @@ codeunit 414 "Release Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSalesLineCheck(var SalesLine: Record "Sales Line")
+    local procedure OnCodeOnAfterSalesLineCheck(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

@@ -139,12 +139,13 @@ codeunit 7764 "AOAI Chat Messages Impl"
     end;
 
     [NonDebuggable]
-    procedure PrepareHistory() HistoryResult: JsonArray
+    procedure PrepareHistory(var SystemMessageTokenCount: Integer; var MessagesTokenCount: Integer) HistoryResult: JsonArray
     var
         AzureOpenAIImpl: Codeunit "Azure OpenAI Impl";
         Counter: Integer;
         MessageJsonObject: JsonObject;
         Message: Text;
+        TotalMessages: Text;
         Name: Text[2048];
         Role: Enum "AOAI Chat Roles";
         UsingMicrosoftMetaprompt: Boolean;
@@ -159,6 +160,8 @@ codeunit 7764 "AOAI Chat Messages Impl"
             MessageJsonObject.Add('role', Format(Enum::"AOAI Chat Roles"::System));
             MessageJsonObject.Add('content', SystemMessage.Unwrap());
             HistoryResult.Add(MessageJsonObject);
+
+            SystemMessageTokenCount := AzureOpenAIImpl.ApproximateTokenCount(SystemMessage.Unwrap());
         end;
 
         Counter := History.Count - HistoryLength + 1;
@@ -181,7 +184,12 @@ codeunit 7764 "AOAI Chat Messages Impl"
                 MessageJsonObject.Add('name', Name);
             HistoryResult.Add(MessageJsonObject);
             Counter += 1;
+            TotalMessages += Format(Role);
+            TotalMessages += Message;
+            TotalMessages += Name;
         until Counter > History.Count;
+
+        MessagesTokenCount := AzureOpenAIImpl.ApproximateTokenCount(TotalMessages);
     end;
 
     local procedure Initialize()
@@ -228,13 +236,15 @@ codeunit 7764 "AOAI Chat Messages Impl"
         EnvironmentInformation: Codeunit "Environment Information";
         KVSecret: Text;
     begin
-        if EnvironmentInformation.IsSaaSInfrastructure() then
-            if AzureKeyVault.GetAzureKeyVaultSecret('AOAI-Metaprompt-Chat', KVSecret) then
-                UsingMicrosoftMetaprompt := true
-            else begin
-                Telemetry.LogMessage('0000LX6', TelemetryMetapromptRetrievalErr, Verbosity::Error, DataClassification::SystemMetadata);
-                Error(MetapromptLoadingErr);
-            end;
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
+            exit;
+
+        if AzureKeyVault.GetAzureKeyVaultSecret('AOAI-Metaprompt-Chat', KVSecret) then
+            UsingMicrosoftMetaprompt := true
+        else begin
+            Telemetry.LogMessage('0000LX6', TelemetryMetapromptRetrievalErr, Verbosity::Error, DataClassification::SystemMetadata);
+            Error(MetapromptLoadingErr);
+        end;
         Metaprompt := KVSecret;
     end;
 

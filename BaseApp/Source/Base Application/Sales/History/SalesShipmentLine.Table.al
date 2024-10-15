@@ -887,8 +887,10 @@ table 111 "Sales Shipment Line"
         OnInsertInvLineFromShptLineOnAfterInsertAllLines(Rec, SalesLine);
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then begin
-            SalesOrderHeader."Get Shipment Used" := true;
-            SalesOrderHeader.Modify();
+            if not SalesOrderHeader."Get Shipment Used" then begin
+                SalesOrderHeader."Get Shipment Used" := true;
+                SalesOrderHeader.Modify();
+            end;
         end;
     end;
 

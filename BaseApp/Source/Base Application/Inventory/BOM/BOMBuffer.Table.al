@@ -699,7 +699,7 @@ table 5870 "BOM Buffer"
         SetRange("Location Code");
         SetRange("Variant Code");
 
-        OnAfterInitFromItem(Rec, Item);
+        OnAfterInitFromItem(Rec, Item, SKU);
     end;
 
     procedure InitFromRes(Resourse: Record Resource)
@@ -1299,7 +1299,7 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item);
+    local procedure OnAfterInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit");
     begin
     end;
 

@@ -2346,6 +2346,75 @@ codeunit 137080 "SCM Planning And Manufacturing"
         VefiryTimeBetweenOperations(ProductionOrder."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAssemblyOrderIsCreatedForBothItemsUsingGetActionMessage()
+    var
+        CompItem, ParentItem, ChildItem : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BOMComponent: Record "BOM Component";
+        RequisitionLine: Record "Requisition Line";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [SCENARIO 491334] Verify the assembly order is created for both items using "Get Action Message."
+        Initialize();
+
+        // [GIVEN] Create a component item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create a child item.
+        CreateItemWithOrderTrackingPolicy(ChildItem, "Order Tracking Policy"::"Tracking & Action Msg.");
+
+        // [GIVEN] Create a parent item.
+        CreateItemWithOrderTrackingPolicy(ParentItem, "Order Tracking Policy"::"Tracking & Action Msg.");
+
+        // [GIVEN] Create a BOM component for the child item.
+        LibraryManufacturing.CreateBOMComponent(
+            BOMComponent, ChildItem."No.", BOMComponent.Type::Item,
+            CompItem."No.", LibraryRandom.RandIntInRange(1, 1), '');
+
+        // [GIVEN] Create a BOM component for the parent item.
+        LibraryManufacturing.CreateBOMComponent(
+            BOMComponent, ParentItem."No.", BOMComponent.Type::Item,
+            ChildItem."No.", LibraryRandom.RandIntInRange(1, 1), '');
+
+        // [GIVEN] Create a purchase order for the parent item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ParentItem."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Perform "Get Action Message" for the parent item.
+        LibraryPlanning.GetActionMessages(ParentItem);
+
+        // [GIVEN] Find Requisition Line for the parent item.
+        RequisitionLine.SetRange("No.", ParentItem."No.");
+        RequisitionLine.FindFirst();
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [GIVEN] Create an assembly order for the parent item.
+        RunRequisitionCarryOutReportAssemblyOrder(RequisitionLine);
+
+        // [WHEN] Perform "Get Action Message" for the child item.
+        LibraryPlanning.GetActionMessages(ChildItem);
+
+        // [GIVEN] Find Requisition Line for the child item.
+        RequisitionLine.SetRange("No.", ChildItem."No.");
+        RequisitionLine.FindFirst();
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Create an assembly order for the child item.
+        RunRequisitionCarryOutReportAssemblyOrder(RequisitionLine);
+
+        // [Verify] Verify the assembly order is created for both items.
+        AssemblyHeader.SetFilter("Item No.", '%1|%2', ParentItem."No.", ChildItem."No.");
+        Assert.RecordCount(AssemblyHeader, 2);
+    end;
+
     local procedure Initialize()
     var
         PlanningErrorLog: Record "Planning Error Log";
@@ -3659,6 +3728,24 @@ codeunit 137080 "SCM Planning And Manufacturing"
                 StartingTime := ProdOrderRoutingLine."Starting Time";
             end;
         until ProdOrderRoutingLine.Next() = 0;
+    end;
+
+    local procedure CreateItemWithOrderTrackingPolicy(var Item: Record Item; OrderTrackingPolicy: Enum "Order Tracking Policy")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Order Tracking Policy", OrderTrackingPolicy);
+        Item.Modify(true);
+    end;
+
+    local procedure RunRequisitionCarryOutReportAssemblyOrder(RequisitionLine: Record "Requisition Line")
+    var
+        CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
+        NewAsmOrderChoice: Enum "Planning Create Assembly Order";
+    begin
+        CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMsgPlan.InitializeRequest(0, 0, 0, NewAsmOrderChoice::"Make Assembly Orders".Asinteger());
+        CarryOutActionMsgPlan.UseRequestPage(false);
+        CarryOutActionMsgPlan.RunModal();
     end;
 
     [ConfirmHandler]

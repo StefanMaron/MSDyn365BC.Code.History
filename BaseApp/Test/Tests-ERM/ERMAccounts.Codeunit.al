@@ -694,6 +694,51 @@ codeunit 134020 "ERM Accounts"
         Assert.AreEqual(ExpectedDateFilter, GeneralLedgerEntries.Filter.GetFilter("Posting Date"), 'Invalid date filter');
     end;
 
+    [Test]
+    procedure RunningBalance()
+    var
+        GLEntry: Record "G/L Entry";
+        GLAccount: Record "G/L Account";
+        CalcRunningGLAccBalance: Codeunit "Calc. Running GL. Acc. Balance";
+        i: Integer;
+        TotalAmt: Decimal;
+        TotalAmtACY: Decimal;
+    begin
+        // [SCENARIO] Bank ledger entries show a running balance
+        // [FEATURE] [Bank]
+        Initialize();
+
+        // [GIVEN] Bank Account and some entries - also more on same day.
+        LibraryERM.CreateGLAccount(GLAccount);
+        if GLEntry.FindLast() then;
+        for i := 1 to 5 do begin
+            GLEntry."Entry No." += 1;
+            GLEntry."G/L Account No." := GLAccount."No.";
+            GLEntry."Posting Date" := DMY2Date(1 + i div 2, 1, 2025);  // should give Januar 1,2,2,3,3,4
+            GLEntry.Amount := 1;
+            GLEntry."Debit Amount" := 1;
+            GLEntry."Credit Amount" := 0;
+            GLEntry."Amount" := 1;
+            GLEntry."Additional-Currency Amount" := 1;
+            GLEntry.Insert();
+        end;
+
+        // [WHEN] Running balance is calculated per entry
+        // [THEN] RunningBalance and RunningBalanceLCY are the sum of entries up till then.
+        GLAccount.CalcFields(Balance, "Additional-Currency Balance");
+        Assert.AreEqual(5, GLAccount.Balance, 'Amount out of balance.');
+        Assert.AreEqual(5, GLAccount."Additional-Currency Balance", 'Amount (LCY) out of balance.');
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.SetCurrentKey("Posting Date", "Entry No.");
+        if GLEntry.FindSet() then
+            repeat
+                TotalAmt += GLEntry.Amount;
+                TotalAmtACY += GLEntry."Additional-Currency Amount";
+                Assert.AreEqual(TotalAmt, CalcRunningGLAccBalance.GetGLAccBalance(GLEntry), 'TotalAmt out of balance');
+                Assert.AreEqual(TotalAmtACY, CalcRunningGLAccBalance.GetGLAccBalanceACY(GLEntry), 'TotalAmtACY out of balance');
+            until GLEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

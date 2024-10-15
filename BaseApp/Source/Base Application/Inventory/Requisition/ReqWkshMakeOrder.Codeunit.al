@@ -541,6 +541,13 @@ codeunit 333 "Req. Wksh.-Make Order"
                   OrderCounter,
                   OrderLineCounter);
 
+                if PrintPurchOrders and PlanningResiliency then
+                    if PurchOrderHeader."No." <> '' then
+                        if not TempPurchaseOrderToPrint.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
+                            TempPurchaseOrderToPrint := PurchOrderHeader;
+                            TempPurchaseOrderToPrint.Insert();
+                        end;
+
                 if not HideProgressWindow then begin
                     Window.Update(3, OrderCounter);
                     Window.Update(4, LineCount);
@@ -577,7 +584,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             OnBeforePurchOrderLineValidateNo(PurchOrderLine, RequisitionLine);
             PurchOrderLine.Validate("No.", "No.");
             OnAfterPurchOrderLineValidateNo(PurchOrderLine, RequisitionLine);
-            PurchOrderLine."Variant Code" := "Variant Code";
+            PurchOrderLine.Validate("Variant Code", "Variant Code");
             OnInitPurchOrderLineOnAfterPurchOrderLineAssignVariantCode(PurchOrderLine, RequisitionLine);
             PurchOrderLine.Validate("Location Code", "Location Code");
             PurchOrderLine.Validate("Unit of Measure Code", "Unit of Measure Code");
@@ -1007,11 +1014,12 @@ codeunit 333 "Req. Wksh.-Make Order"
         IsHandled := false;
         OnFinalizeOrderHeaderOnBeforePrint(PrintPurchOrders, PurchOrderHeader, IsHandled);
         if not IsHandled then
-            if PrintPurchOrders then
-                if PurchOrderHeader.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
-                    TempPurchaseOrderToPrint := PurchOrderHeader;
-                    TempPurchaseOrderToPrint.Insert();
-                end;
+            if PrintPurchOrders and not PlanningResiliency then
+                if PurchOrderHeader.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then
+                    if not TempPurchaseOrderToPrint.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
+                        TempPurchaseOrderToPrint := PurchOrderHeader;
+                        TempPurchaseOrderToPrint.Insert();
+                    end;
 
         OnAfterFinalizeOrderHeaderProcedure(PurchOrderHeader, ReqLine);
     end;

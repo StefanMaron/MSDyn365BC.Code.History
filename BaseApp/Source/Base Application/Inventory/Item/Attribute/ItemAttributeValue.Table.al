@@ -139,6 +139,7 @@ table 7501 "Item Attribute Value"
         ReuseValueTranslationsQst: Label 'There are translations for item attribute value ''%1''.\\Do you want to reuse these translations for the new value ''%2''?', Comment = '%1 - arbitrary name,%2 - arbitrary name';
         DeleteUsedAttributeValueQst: Label 'This item attribute value has been assigned to at least one item.\\Are you sure you want to delete it?';
         RenameUsedAttributeValueQst: Label 'This item attribute value has been assigned to at least one item.\\Are you sure you want to rename it?';
+        CategoryStructureNotValidErr: Label 'The item category structure is not valid. The category %1 is a parent of itself or any of its children.', Comment = '%1 - Category Name';
 
     procedure LookupAttributeValue(AttributeID: Integer; var AttributeValueID: Integer)
     var
@@ -338,6 +339,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         ItemAttributeValue: Record "Item Attribute Value";
         ItemCategory: Record "Item Category";
+        Categories: List of [Code[20]];
     begin
         Reset();
         DeleteAll();
@@ -345,6 +347,11 @@ table 7501 "Item Attribute Value"
             exit;
         ItemAttributeValueMapping.SetRange("Table ID", Database::"Item Category");
         repeat
+            if not Categories.Contains(CategoryCode) then
+                Categories.Add(CategoryCode)
+            else
+                Error(CategoryStructureNotValidErr, CategoryCode);
+
             ItemAttributeValueMapping.SetRange("No.", CategoryCode);
             if ItemAttributeValueMapping.FindSet() then
                 repeat

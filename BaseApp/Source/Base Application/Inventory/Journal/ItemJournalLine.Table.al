@@ -2833,6 +2833,7 @@ table 83 "Item Journal Line"
         ItemJournalTemplate: Record "Item Journal Template";
         SourceCode: Code[10];
         IsHandled: Boolean;
+        OldDimSetID: Integer;
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
@@ -2846,10 +2847,12 @@ table 83 "Item Journal Line"
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := Rec."Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCode,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", InheritFromDimSetID, InheritFromTableNo);
+        OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if "Entry Type" = "Entry Type"::Transfer then begin
@@ -4312,7 +4315,13 @@ table 83 "Item Journal Line"
     end;
 
     procedure ValidateTypeWithItemNo()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateTypeWithItemNo(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
         // Validate the item type when defining a relation with another table
 
         // Service is not a valid item type
@@ -5468,6 +5477,16 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSigned(ItemJournalLine: Record "Item Journal Line"; var Value: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTypeWithItemNo(var ItemJournalLine: Record "Item Journal Line"; Item: Record "Item"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
 }

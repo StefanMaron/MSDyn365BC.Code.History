@@ -2496,6 +2496,58 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.AreEqual(ItemCard."No.".Value, ExpectedItemNo, 'Expected Item No. is not equal to actual.');
     end;
 
+    [Test]
+    procedure RunningBalance()
+    var
+        ItemledgerEntry: Record "Item Ledger Entry";
+        Item: Record "Item";
+        Location: Record Location;
+        CalcRunningInvBalance: Codeunit "Calc. Running Inv. Balance";
+        i: Integer;
+        TotalQuantity: Decimal;
+        TotalQuantityLoc: Decimal;
+        TotalQuantityNoLoc: Decimal;
+    begin
+        // [SCENARIO] Item ledger entries show a running balance
+        // [FEATURE] [Item]
+
+        // [GIVEN] Item and some entries - also more on same day.
+        LibraryInventory.CreateItem(Item);
+        Location.Code := CopyStr(format(CreateGuid()), 1, MaxStrLen(Location.Code));
+
+        if ItemledgerEntry.FindLast() then;
+        for i := 1 to 15 do begin
+            ItemledgerEntry."Entry No." += 1;
+            ItemledgerEntry."Item No." := Item."No.";
+            ItemledgerEntry."Posting Date" := DMY2Date(1 + i div 3, 1, 2025);  // should give Januar 1,2,2,3,3,4,4,...
+            if i mod 2 = 0 then
+                ItemledgerEntry."Location Code" := Location.Code
+            else
+                ItemledgerEntry."Location Code" := '';
+            ItemledgerEntry.Quantity := 1;
+            ItemledgerEntry.Insert();
+        end;
+
+        // [WHEN] Running balance is calculated per entry
+        // [THEN] Inventory and InventoryLoc are the sum of entries up till then.
+        Item.CalcFields(Inventory);
+        Assert.AreEqual(15, Item.Inventory, 'Quantity out of balance.');
+        ItemledgerEntry.SetRange("Item No.", Item."No.");
+        ItemledgerEntry.SetCurrentKey("Posting Date", "Entry No.");
+        if ItemledgerEntry.FindSet() then
+            repeat
+                TotalQuantity += ItemledgerEntry.Quantity;
+                Assert.AreEqual(TotalQuantity, CalcRunningInvBalance.GetItemBalance(ItemledgerEntry), 'Inventory out of balance');
+                if ItemledgerEntry."Location Code" = Location.Code then begin
+                    TotalQuantityLoc += ItemledgerEntry.Quantity;
+                    Assert.AreEqual(TotalQuantityLoc, CalcRunningInvBalance.GetItemBalanceLoc(ItemledgerEntry), 'InventoryLoc nonblank out of balance');
+                end else begin
+                    TotalQuantityNoLoc += ItemledgerEntry.Quantity;
+                    Assert.AreEqual(TotalQuantityNoLoc, CalcRunningInvBalance.GetItemBalanceLoc(ItemledgerEntry), 'InventoryLoc blank out of balance');
+                end;
+            until ItemledgerEntry.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         NonstockItemSetup: Record "Nonstock Item Setup";

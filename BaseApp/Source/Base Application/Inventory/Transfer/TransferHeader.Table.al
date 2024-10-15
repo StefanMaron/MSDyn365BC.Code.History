@@ -462,7 +462,14 @@ table 5740 "Transfer Header"
             TableRelation = "Shipping Agent";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShippingAgentCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if "Shipping Agent Code" <> xRec."Shipping Agent Code" then
                     Validate("Shipping Agent Service Code", '');
@@ -908,7 +915,7 @@ table 5740 "Transfer Header"
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, InvtSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         NoSeriesCode := InvtSetup."Transfer Order Nos.";
         OnAfterGetNoSeriesCode(Rec, NoSeriesCode);
@@ -1791,6 +1798,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyNoInboundWhseHandlingOnLocation(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShippingAgentCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

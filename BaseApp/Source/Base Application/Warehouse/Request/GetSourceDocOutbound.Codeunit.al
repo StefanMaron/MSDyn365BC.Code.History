@@ -121,9 +121,13 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     procedure CreateFromSalesOrder(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromSalesOrder(SalesHeader);
-        ShowResult(CreateFromSalesOrderHideDialog(SalesHeader));
+        IsHandled := false;
+        OnBeforeCreateFromSalesOrder(SalesHeader, IsHandled);
+        if not IsHandled then
+            ShowResult(CreateFromSalesOrderHideDialog(SalesHeader));
     end;
 
     procedure CreateFromSalesOrderHideDialog(SalesHeader: Record "Sales Header"): Boolean
@@ -634,7 +638,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromSalesOrder(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeCreateFromSalesOrder(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

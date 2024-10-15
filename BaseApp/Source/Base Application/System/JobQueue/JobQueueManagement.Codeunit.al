@@ -183,6 +183,7 @@ codeunit 456 "Job Queue Management"
         clear(JobQueueEntry."Expiration Date/Time");
         clear(JobQueueEntry."System Task ID");
         JobQueueEntry.Insert(true);
+        OnRunJobQueueEntryOnceOnAfterJobQueueEntryInsert(SelectedJobQueueEntry, JobQueueEntry);
         Commit();
 
         CurrentLanguage := GlobalLanguage();
@@ -370,7 +371,7 @@ codeunit 456 "Job Queue Management"
             case JobQueueLogEntry."Object ID to Run" of
                 Codeunit::"Import Config. Package Files":
                     Process := false;
-        end;
+            end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ScheduleReport', '', false, false)]
@@ -402,6 +403,11 @@ codeunit 456 "Job Queue Management"
         Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunJobQueueEntryOnceOnAfterJobQueueEntryInsert(SelectedJobQueueEntry: Record "Job Queue Entry"; JobQueueEntry: Record "Job Queue Entry")
+    begin
     end;
 }
 
