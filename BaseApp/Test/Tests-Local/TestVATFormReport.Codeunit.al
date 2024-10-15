@@ -18,6 +18,7 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryXMLRead: Codeunit "Library - XML Read";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
         MessageWhenValidationErr: Label 'Validation error';
 
@@ -237,6 +238,46 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('VATFormRepRequestPageWithCommentHandler')]
+    [Scope('OnPrem')]
+    procedure VATReportFormWithComment()
+    var
+        Customer: Record Customer;
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        FileManagement: Codeunit "File Management";
+        IncludeVATEntries: Option Open,Closed,OpenAndClosed;
+        Prepayment: Option PrintPrepmt,PrintZero,LeaveEmpty;
+        StartDate: Date;
+        xmlFileName: Text[1024];
+        Period: Option Month,Quarter;
+        Comment: Text;
+    begin
+        // [SCENARIO 462300] Stan can add a comment to the VAT Form Report
+
+        Initialize();
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
+
+        // [GIVEN] Sales invoice with "Posting Date" = "01.01.2023"
+        LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
+        xmlFileName := LibraryReportDataset.GetFileName();
+
+        // [GIVEN] Run VAT Form Report
+        // [GIVEN] Set "Starting Date" = "01.01.2023" and "Comment" = "Y"
+        Comment := LibraryUtility.GenerateGUID();
+        // [WHEN] Stan clicks "OK"
+        OpenVATFormRepWithComment(Period::Quarter, 1, Date2DMY(StartDate, 3), IncludeVATEntries::Open,
+          Prepayment::LeaveEmpty, false, false, false, false, xmlFileName, false, 0, Comment);
+
+        // [THEN] /VATConsignment/VATDeclaration/Declarant/common:Comment is "Y"
+        TempXMLBuffer.Load(xmlFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/VATConsignment/VATDeclaration/Declarant/common:Comment');
+        TempXMLBuffer.TestField(Value, Comment);
+        LibraryVariableStorage.AssertEmpty();
+
+        FileManagement.DeleteServerFile(xmlFileName);
+    end;
+
     local procedure Initialize()
     var
         ManualVATCorrection: Record "Manual VAT Correction";
@@ -344,6 +385,31 @@ codeunit 144021 "Test VAT - Form Report"
     var
         VATForm: Report "VAT - Form";
     begin
+        EnqueueBasicDataToReport(
+          DeclarationType, MonthOrQuarter, Year, IncludeVATEntries, Prepayment, ClaimForReimbursement,
+          OrderPaymentForms, NoAnnualListing, AddRepresentative, IsCorrection, SequenceNo);
+        Commit();
+
+        VATForm.SetFileName(FileName);
+        VATForm.Run();
+    end;
+
+    local procedure OpenVATFormRepWithComment(DeclarationType: Option Month,Quarter; MonthOrQuarter: Integer; Year: Integer; IncludeVATEntries: Option Open,Closed,OpenAndClosed; Prepayment: Option PrintPrepmt,PrintZero,LeaveEmpty; ClaimForReimbursement: Boolean; OrderPaymentForms: Boolean; NoAnnualListing: Boolean; AddRepresentative: Boolean; FileName: Text[1024]; IsCorrection: Boolean; SequenceNo: Integer; Comment: Text)
+    var
+        VATForm: Report "VAT - Form";
+    begin
+        EnqueueBasicDataToReport(
+          DeclarationType, MonthOrQuarter, Year, IncludeVATEntries, Prepayment, ClaimForReimbursement,
+          OrderPaymentForms, NoAnnualListing, AddRepresentative, IsCorrection, SequenceNo);
+        LibraryVariableStorage.Enqueue(Comment);
+        Commit();
+
+        VATForm.SetFileName(FileName);
+        VATForm.Run();
+    end;
+
+    local procedure EnqueueBasicDataToReport(DeclarationType: Option Month,Quarter; MonthOrQuarter: Integer; Year: Integer; IncludeVATEntries: Option Open,Closed,OpenAndClosed; Prepayment: Option PrintPrepmt,PrintZero,LeaveEmpty; ClaimForReimbursement: Boolean; OrderPaymentForms: Boolean; NoAnnualListing: Boolean; AddRepresentative: Boolean; IsCorrection: Boolean; SequenceNo: Integer)
+    begin
         LibraryVariableStorage.Enqueue(MonthOrQuarter);
         LibraryVariableStorage.Enqueue(DeclarationType);
         LibraryVariableStorage.Enqueue(Year);
@@ -355,15 +421,27 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryVariableStorage.Enqueue(AddRepresentative);
         LibraryVariableStorage.Enqueue(IsCorrection);
         LibraryVariableStorage.Enqueue(SequenceNo);
-        Commit();
-
-        VATForm.SetFileName(FileName);
-        VATForm.Run;
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VATFormRepRequestPageHandler(var VATForm: TestRequestPage "VAT - Form")
+    begin
+        VATFormRepCustRequestPageHandler(VATForm);
+
+        VATForm.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATFormRepRequestPageWithCommentHandler(var VATForm: TestRequestPage "VAT - Form")
+    begin
+        VATFormRepCustRequestPageHandler(VATForm);
+        VATForm.CommentControl.SetValue(LibraryVariableStorage.DequeueText);
+        VATForm.OK.Invoke();
+    end;
+
+    local procedure VATFormRepCustRequestPageHandler(var VATForm: TestRequestPage "VAT - Form")
     var
         DequeuedVar: Variant;
     begin
@@ -399,8 +477,6 @@ codeunit 144021 "Test VAT - Form Report"
 
         LibraryVariableStorage.Dequeue(DequeuedVar);
         VATForm.PrevSequenceNoControl.SetValue(DequeuedVar);
-
-        VATForm.OK.Invoke;
     end;
 
     [MessageHandler]

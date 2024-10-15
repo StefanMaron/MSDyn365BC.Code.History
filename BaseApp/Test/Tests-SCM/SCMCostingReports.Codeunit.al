@@ -594,7 +594,7 @@ codeunit 137306 "SCM Costing Reports"
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(
-          StrPos(ConfirmMessage, 'If you change the Expected Cost Posting to G/L') > 0, 'Unexpected confirm dialog: ' + ConfirmMessage);
+          StrPos(ConfirmMessage, 'If you enable the Expected Cost Posting to G/L') > 0, 'Unexpected confirm dialog: ' + ConfirmMessage);
 
         Reply := true;
     end;
