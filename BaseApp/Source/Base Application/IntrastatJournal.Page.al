@@ -1,4 +1,4 @@
-page 311 "Intrastat Journal"
+﻿page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
@@ -184,6 +184,12 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies an additional quantity if a quantity other than weight needs to be reported.';
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
                 }
             }
             group(Control40)
