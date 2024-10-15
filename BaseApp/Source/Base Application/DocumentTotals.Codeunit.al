@@ -73,7 +73,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalSalesHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalSalesHeader."Recalculate Invoice Disc." then
-                if TotalSalesLine2.FindFirst then begin
+                if TotalSalesLine2.FindFirst() then begin
                     SalesCalcDiscount.CalculateInvoiceDiscountOnLine(TotalSalesLine2);
                     NeedRefreshSalesLine := true;
                 end;
@@ -644,7 +644,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalPurchaseHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalPurchaseHeader."Recalculate Invoice Disc." then
-                if TotalPurchaseLine2.FindFirst then begin
+                if TotalPurchaseLine2.FindFirst() then begin
                     PurchCalcDiscount.CalculateInvoiceDiscountOnLine(TotalPurchaseLine2);
                     NeedRefreshPurchaseLine := true;
                 end;
@@ -881,7 +881,7 @@ codeunit 57 "Document Totals"
         Clear(TempTotalSalesLine);
         SalesLine.SetRange("Document Type", TempCurrentSalesLine."Document Type");
         SalesLine.SetRange("Document No.", TempCurrentSalesLine."Document No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if ((SalesLine."Tax Group Code" = '') or
                    ((SalesLine."Tax Area Code" = '') and (TaxAreaCode <> '')))
@@ -905,7 +905,7 @@ codeunit 57 "Document Totals"
         Clear(TempTotalPurchaseLine);
         PurchaseLine.SetRange("Document Type", TempCurrentPurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", TempCurrentPurchaseLine."Document No.");
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 if ((PurchaseLine."Tax Group Code" = '') or
                    ((PurchaseLine."Tax Area Code" = '') and (TaxAreaCode <> '')))

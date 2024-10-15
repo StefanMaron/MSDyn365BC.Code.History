@@ -35,7 +35,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // Setup: Create Purchase Return Order with a number of lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
         CreatePurchLines(TempPurchaseLine, PurchaseHeader, 1 + LibraryRandom.RandInt(5));
         DocumentNo := PurchaseHeader."No.";
@@ -58,7 +58,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // Setup: Create Purchase Return Order with a number of lines. Archive.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
         CreatePurchLines(TempPurchaseLine, PurchaseHeader, 1 + LibraryRandom.RandInt(5));
         DocumentNo := PurchaseHeader."No.";
@@ -119,7 +119,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Quote]
         // Setup: Create Purchase Return Order with a number of lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '');
         CreatePurchLines(TempPurchaseLine, PurchaseHeader, 1 + LibraryRandom.RandInt(5));
         DocumentNo := PurchaseHeader."No.";
@@ -146,7 +146,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Order]
         // Setup: Create Purchase Return Order with a number of lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchLines(TempPurchaseLine, PurchaseHeader, 1 + LibraryRandom.RandInt(5));
         DocumentNo := PurchaseHeader."No.";
@@ -173,7 +173,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // Setup: Create Purchase Return Order with a number of lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
         CreatePurchLines(TempPurchaseLine, PurchaseHeader, 1 + LibraryRandom.RandInt(5));
         DocumentNo := PurchaseHeader."No.";
@@ -200,7 +200,7 @@ codeunit 137207 "SCM Archive Orders"
         // [FEATURE] [Sales] [Quote] [Email]
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 0 after "Email" and "Sales & Receivables Setup"."Archive Orders" = FALSE
         // this test also refers to tfs id 255792
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = FALSE
         LibrarySales.SetArchiveOrders(false);
@@ -225,7 +225,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Quote] [Email]
         // [SCENARIO 379837] Sales Quote's Number of Archived Version = 1 after "Email" and "Sales & Receivables Setup"."Archive Orders" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
         LibrarySales.SetArchiveOrders(true);
@@ -249,7 +249,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [UT] [Doc. No. Occurrence] [Purchase]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on PurchaseHeader.InitRecord()
-        Initialize;
+        Initialize();
 
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
@@ -265,7 +265,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [UT] [Doc. No. Occurrence] [Purchase]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on PurchaseHeader.INSERT(TRUE)
-        Initialize;
+        Initialize();
 
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
@@ -301,7 +301,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Doc. No. Occurrence] [Purchase]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 after clear "Buy-from Vendor No." field value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -321,7 +321,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [UT] [Doc. No. Occurrence] [Sales]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on SalesHeader.InitRecord()
-        Initialize;
+        Initialize();
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
@@ -337,7 +337,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [UT] [Doc. No. Occurrence] [Sales]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on SalesHeader.INSERT(TRUE)
-        Initialize;
+        Initialize();
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
@@ -355,7 +355,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [UT] [Doc. No. Occurrence] [Sales]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 2 on SalesHeader.InitRecord() after archive
-        Initialize;
+        Initialize();
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
@@ -374,7 +374,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Doc. No. Occurrence] [Sales]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 after clear "Sell-to Customer No." field value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -397,7 +397,7 @@ codeunit 137207 "SCM Archive Orders"
         // [FEATURE] [Purchase] [Report] [Standard Purchase - Order]
         // [SCENARIO 205113] REP 1322 "Standard Purchase - Order" doesn't archive order in case of "Archive Orders" = FALSE
         // this test also refers to tfs id 255792
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup"."Archive Orders" = FALSE
         LibraryPurchase.SetArchiveOrders(false);
@@ -427,7 +427,7 @@ codeunit 137207 "SCM Archive Orders"
         // [FEATURE] [Purchase] [Report] [Standard Purchase - Order]
         // [SCENARIO 205113] REP 1322 "Standard Purchase - Order" archives order in case of "Archive Orders" = TRUE
         // this test also refers to tfs id 255792
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup"."Archive Orders" = TRUE
         LibraryPurchase.SetArchiveOrders(true);
@@ -457,7 +457,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Purchase Order must not be created when you delete a fully received and invoiced Blanket Purchase order with Delete Invoiced Blanket Purchase Order Report and option Archive Blanket Orders is enabled in Purchas
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order and Receipt for it
         CreateBlanketPurchOrderAndReceiptForIt(PurchaseHeader, PurchaseHeaderOrder);
@@ -488,7 +488,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Purchase Order must not be created when you delete a fully received and invoiced Blanket Purchase order with Delete Invoiced Blanket Purchase Order Report and option Archive Blanket Orders is disabled in Purcha
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order and Receipt for it
         CreateBlanketPurchOrderAndReceiptForIt(PurchaseHeader, PurchaseHeaderOrder);
@@ -521,7 +521,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 255792] Archive Purchase Order must be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Orders is enabled in Purchases & Payables Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order and Receipt for it
         PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
@@ -550,7 +550,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 255792] Archive Purchase Return Order must be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Return Orders is enabled in Purchases & Payables Set
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order and Receipt for it
         PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
@@ -579,7 +579,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 255792] Archive Purchase Return Order must not be created when you delete a fully received and invoiced purchase order with Delete Invoiced Purchase Order Report and option Archive Return Orders is disabled in Purchases & Payables Se
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order and Receipt for it
         PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
@@ -608,7 +608,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 255792] Archive Sales Order must be created when you delete a fully shiped and invoiced sales order with Delete Invoiced Sales Order Report and option Archive Orders is enabled in Sales & Receivables Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order and Shipment for it
         PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
@@ -637,7 +637,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 255792] Archive Sales Return Order must be created when you delete a fully shipped and invoiced sales return order with Delete Invd Sales Ret. Orders Report and option Archive Return Orders is enabled in Sales & Receivables Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order and Shipment for it
         PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -666,7 +666,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 255792] Archive Sales Return Order must not be created when you delete a fully shipped and invoiced sales order with Delete Invoiced Sales Order Report and option Archive Quote and Order is disabled in Sales & Receivables Setup.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order and Shipment for it
         PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -697,7 +697,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Sales Order must be created when you delete a fully shiped and invoiced Blanket sales order with Delete Invoiced Blanket Sales Order Report and option Archive Blanket Orders is enabled in Sales & Receivable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order and Shipment for it
         CreateBlanketSalesOrderAndShipmentForIt(SalesHeaderBlanketOrder, SalesHeaderOrder);
@@ -716,7 +716,7 @@ codeunit 137207 "SCM Archive Orders"
 
         // [THEN] Blanket Sales Order is archived
         VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::"Blanket Order", SalesHeaderOrder."No.", 1, 1);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -731,7 +731,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // [FEATURE] [Sales] [Blanket Order]
         // [SCENARIO 255792] Archive Blanket Sales Order must not be created when you delete a fully shiped and invoiced Blanket sales order with Delete Invoiced Blanket Sales Order Report and option Archive Blanket Orders is disabled in Sales & Receivabl
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order and Shipment for it
         CreateBlanketSalesOrderAndShipmentForIt(SalesHeaderBlanketOrder, SalesHeaderOrder);
@@ -749,7 +749,7 @@ codeunit 137207 "SCM Archive Orders"
         // [THEN] Blanket Sales Order is not archived
         VerifySalesDocumentIsNotArchived(SalesHeaderArchive."Document Type"::"Blanket Order", SalesHeaderOrder."No.", 1, 1);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -758,16 +758,16 @@ codeunit 137207 "SCM Archive Orders"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Archive Orders");
         Clear(DocumentNo);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Archive Orders");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
@@ -785,7 +785,7 @@ codeunit 137207 "SCM Archive Orders"
         CODEUNIT.Run(CODEUNIT::"Blnkt Purch Ord. to Ord. (Y/N)", PurchaseHeader);
         PurchaseHeaderOrder.SetRange("Document Type", PurchaseHeaderOrder."Document Type"::Order);
         PurchaseHeaderOrder.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchaseHeaderOrder.FindFirst;
+        PurchaseHeaderOrder.FindFirst();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
     end;
 
@@ -800,7 +800,7 @@ codeunit 137207 "SCM Archive Orders"
         BlanketSalesOrderToOrder.Run(SalesHeader);
         SalesHeaderOrder.SetRange("Document Type", SalesHeaderOrder."Document Type"::Order);
         SalesHeaderOrder.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesHeaderOrder.FindFirst;
+        SalesHeaderOrder.FindFirst();
         LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
     end;
 
@@ -928,7 +928,7 @@ codeunit 137207 "SCM Archive Orders"
         Clear(ArchivedPurchaseQuote);
         PurchaseHeaderArchive.SetRecFilter;
         ArchivedPurchaseQuote.SetTableView(PurchaseHeaderArchive);
-        ArchivedPurchaseQuote.Run;
+        ArchivedPurchaseQuote.Run();
     end;
 
     local procedure SaveArchivedPurchOrder(var PurchaseHeaderArchive: Record "Purchase Header Archive")
@@ -939,7 +939,7 @@ codeunit 137207 "SCM Archive Orders"
         Clear(ArchivedPurchaseOrder);
         PurchaseHeaderArchive.SetRecFilter;
         ArchivedPurchaseOrder.SetTableView(PurchaseHeaderArchive);
-        ArchivedPurchaseOrder.Run;
+        ArchivedPurchaseOrder.Run();
     end;
 
     local procedure SaveArchivedPurchReturnOrder(var PurchaseHeaderArchive: Record "Purchase Header Archive")
@@ -950,7 +950,7 @@ codeunit 137207 "SCM Archive Orders"
         Clear(ArchPurchReturnOrder);
         PurchaseHeaderArchive.SetRecFilter;
         ArchPurchReturnOrder.SetTableView(PurchaseHeaderArchive);
-        ArchPurchReturnOrder.Run;
+        ArchPurchReturnOrder.Run();
     end;
 
     local procedure RunDeletionReport(ReportID: Integer; Rec: Variant)
@@ -968,7 +968,7 @@ codeunit 137207 "SCM Archive Orders"
         Commit();
         SalesQuote.SetTableView(SalesHeader);
         SalesQuote.UseRequestPage(UseRequestPage);
-        SalesQuote.RunModal;
+        SalesQuote.RunModal();
     end;
 
     local procedure RunStandardPurchaseOrderReport(OrderNo: Code[20]; ExpectedArchiveValue: Boolean)
@@ -1065,7 +1065,7 @@ codeunit 137207 "SCM Archive Orders"
             TempPurchaseLine.SetRange("Unit of Measure", PurchaseLineArchive."Unit of Measure");
             TempPurchaseLine.SetRange(Amount, PurchaseLineArchive.Amount);
             Assert.AreEqual(1, TempPurchaseLine.Count, 'Archive line mismatch for line ' + Format(TempPurchaseLine."Line No."));
-            TempPurchaseLine.FindFirst;
+            TempPurchaseLine.FindFirst();
             TempPurchaseLine.Delete();
         until PurchaseLineArchive.Next = 0;
 

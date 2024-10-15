@@ -1,4 +1,4 @@
-report 393 "Suggest Vendor Payments"
+﻿report 393 "Suggest Vendor Payments"
 {
     Caption = 'Suggest Vendor Payments';
     ProcessingOnly = true;
@@ -34,7 +34,7 @@ report 393 "Suggest Vendor Payments"
                     CopyFilters(Vend2);
                     SetCurrentKey(Priority);
                     SetRange(Priority, 0);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             Clear(VendorBalance);
                             CalcFields("Balance (LCY)");
@@ -53,7 +53,7 @@ report 393 "Suggest Vendor Payments"
                     Reset;
                     CopyFilters(Vend2);
                     Window2.Open(Text007);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             Clear(VendorBalance);
                             CalcFields("Balance (LCY)");
@@ -69,7 +69,7 @@ report 393 "Suggest Vendor Payments"
                         until (Next() = 0) or StopPayments;
                     Window2.Close;
                 end else
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             ClearNegative;
                         until Next() = 0;
@@ -80,7 +80,7 @@ report 393 "Suggest Vendor Payments"
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                if GenJnlLine.FindLast then begin
+                if GenJnlLine.FindLast() then begin
                     LastLineNo := GenJnlLine."Line No.";
                     GenJnlLine.Init();
                 end;
@@ -610,7 +610,7 @@ report 393 "Suggest Vendor Payments"
         VendLedgEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
         VendLedgEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
 
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 IsHandled := false;
                 OnGetVendLedgEntriesOnBeforeLoop(VendLedgEntry, PostingDate, LastDueDateToPayReq, Future, IsHandled);
@@ -695,7 +695,7 @@ report 393 "Suggest Vendor Payments"
         PayableVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         PayableVendLedgEntry.SetRange(Future, Future);
 
-        if PayableVendLedgEntry.FindSet then begin
+        if PayableVendLedgEntry.FindSet() then begin
             repeat
                 if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance > 0 then
@@ -901,7 +901,7 @@ report 393 "Suggest Vendor Payments"
                 DimBuf.Reset();
                 DimBuf.DeleteAll();
                 DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
-                if DimBuf.FindSet then
+                if DimBuf.FindSet() then
                     repeat
                         DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                         TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
@@ -912,12 +912,7 @@ report 393 "Suggest Vendor Payments"
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
             end;
-            CreateDim(
-              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-              DATABASE::Job, "Job No.",
-              DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-              DATABASE::Campaign, "Campaign No.");
+            CreateDimFromDefaultDim(0);
             if NewDimensionID <> "Dimension Set ID" then begin
                 DimSetIDArr[1] := "Dimension Set ID";
                 DimSetIDArr[2] := NewDimensionID;
@@ -968,14 +963,14 @@ report 393 "Suggest Vendor Payments"
                 if BankAcc."Currency Code" <> '' then begin
                     TmpPayableVendLedgEntry2.Reset();
                     TmpPayableVendLedgEntry2.DeleteAll();
-                    if TmpPayableVendLedgEntry.FindSet then
+                    if TmpPayableVendLedgEntry.FindSet() then
                         repeat
                             TmpPayableVendLedgEntry2 := TmpPayableVendLedgEntry;
                             TmpPayableVendLedgEntry2.Insert();
                         until TmpPayableVendLedgEntry.Next() = 0;
 
                     TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
-                    SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst;
+                    SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst();
 
                     if SeveralCurrencies then
                         MessageText :=
@@ -1083,10 +1078,10 @@ report 393 "Suggest Vendor Payments"
 
     local procedure AdjustAgainstSelectedDim(var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TempDimSetEntry2: Record "Dimension Set Entry" temporary): Boolean
     begin
-        if SelectedDim.FindSet then begin
+        if SelectedDim.FindSet() then begin
             repeat
                 TempDimSetEntry.SetRange("Dimension Code", SelectedDim."Dimension Code");
-                if TempDimSetEntry.FindFirst then begin
+                if TempDimSetEntry.FindFirst() then begin
                     TempDimSetEntry2.TransferFields(TempDimSetEntry, true);
                     TempDimSetEntry2.Insert();
                 end;
@@ -1105,7 +1100,7 @@ report 393 "Suggest Vendor Payments"
         if SummarizePerDim then begin
             DimBuf.Reset();
             DimBuf.DeleteAll();
-            if SelectedDim.FindSet then
+            if SelectedDim.FindSet() then
                 repeat
                     if DimSetEntry.Get(VendLedgEntry."Dimension Set ID", SelectedDim."Dimension Code") then
                         InsertDimBuf(DimBuf, DATABASE::"Dimension Buffer", 0, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
@@ -1175,7 +1170,7 @@ report 393 "Suggest Vendor Payments"
             if IsEmpty() then
                 exit(true);
 
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if ("Journal Batch Name" <> GenJournalLine."Journal Batch Name") or
                        ("Journal Template Name" <> GenJournalLine."Journal Template Name")

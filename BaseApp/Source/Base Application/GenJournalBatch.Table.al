@@ -208,6 +208,14 @@ table 232 "Gen. Journal Batch"
         field(9000; "Background Error Check"; Boolean)
         {
             Caption = 'Background Error Check';
+            ObsoleteReason = 'Replaced with GLSetup.Enable Data Check';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 
@@ -236,10 +244,12 @@ table 232 "Gen. Journal Batch"
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Name);
         GenJnlLine.DeleteAll(true);
+#if not CLEAN20
         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
         DepositHeader.SetRange("Journal Template Name", "Journal Template Name");
         DepositHeader.SetRange("Journal Batch Name", Name);
         DepositHeader.DeleteAll(true);
+#endif
     end;
 
     trigger OnInsert()
@@ -271,7 +281,9 @@ table 232 "Gen. Journal Batch"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
+#if not CLEAN20
         DepositHeader: Record "Deposit Header";
+#endif
         BankStmtImpFormatBalAccErr: Label 'must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used', Comment = 'FIELDERROR ex: Bank Statement Import Format must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used in Gen. Journal Batch Journal Template Name=''GENERAL'',Name=''CASH''.';
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';

@@ -207,7 +207,7 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Order:
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
                     NoPrinted := SalesShipmentHeader."No. Printed";
                     SalesShipmentHeader.PrintRecords(false);
@@ -218,7 +218,7 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Invoice:
                 begin
                     SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesInvoiceHeader.FindFirst;
+                    SalesInvoiceHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
                     NoPrinted := SalesInvoiceHeader."No. Printed";
                     SalesInvoiceHeader.PrintRecords(false);
@@ -229,7 +229,7 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Return Order":
                 begin
                     ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
-                    ReturnReceiptHeader.FindFirst;
+                    ReturnReceiptHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
                     NoPrinted := ReturnReceiptHeader."No. Printed";
                     ReturnReceiptHeader.PrintRecords(false);
@@ -240,7 +240,7 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Credit Memo":
                 begin
                     SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesCrMemoHeader.FindFirst;
+                    SalesCrMemoHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
                     NoPrinted := SalesCrMemoHeader."No. Printed";
                     SalesCrMemoHeader.PrintRecords(false);

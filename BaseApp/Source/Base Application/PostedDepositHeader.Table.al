@@ -158,7 +158,7 @@ table 10143 "Posted Deposit Header"
     begin
         NavigateForm.SetExternal;
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     procedure ShowDocDim()

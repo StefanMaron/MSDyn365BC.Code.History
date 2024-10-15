@@ -32,7 +32,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // Purpose of the test is to validate Currency - OnAfterGetRecord trigger of Report ID - 10308.
         // Setup: Create Currency and Currency Exchange Rate.
-        Initialize;
+        Initialize();
         CreateCurrencyAndExchangeRate(CurrencyExchangeRate);
 
         // Exercise.
@@ -55,7 +55,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // Purpose of the test is to validate Language - OnAfterGetRecord trigger of Report ID - 10310.
         // Setup: Create Language.
-        Initialize;
+        Initialize();
         LanguageCode := CreateLanguage;
 
         // Exercise.
@@ -77,7 +77,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // Purpose of the test is to validate Reason Code - OnPreReport trigger of Report ID - 10312.
         // Setup: Create Reason Code.
-        Initialize;
+        Initialize();
         Code := CreateReasonCode;
 
         // Exercise.
@@ -99,7 +99,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 10307 Country/Region List.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCountryRegion(CountryRegion);
 
         // Exercise.
@@ -121,7 +121,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // [FEATURE] [G/L Register] [UT]
         // [SCENARIO 331052] Settings of the "G/L Register" report are saved after its run.
-        Initialize;
+        Initialize();
         Assert.IsFalse(
           ObjectOptions.Get(LastUsedTxt, REPORT::"G/L Register", ObjectOptions."Object Type"::Report, UserId, CompanyName), '');
 
@@ -142,7 +142,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // [FEATURE] [Report Selection] [UT]
         // [SCENARIO 314076] A line with Report ID 1316 "Standard Statement" is added to Report Selections for Usage "Customer Statement" when "Company-Initialize" runs.
-        Initialize;
+        Initialize();
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"C.Statement");
         ReportSelections.DeleteAll();
 
@@ -164,7 +164,7 @@ codeunit 142067 "UT REPORTS GENERAL"
     begin
         // [FEATURE] [Report Selection] [UT]
         // [SCENARIO 314076] Run report 153 "Customer Statement" in case Report Selections for "C.Statement" contains the only line with Report 10072 "Customer Statements".
-        Initialize;
+        Initialize();
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"C.Statement");
         ReportSelections.DeleteAll();
 
@@ -261,7 +261,7 @@ codeunit 142067 "UT REPORTS GENERAL"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region")

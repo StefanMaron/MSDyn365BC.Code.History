@@ -173,7 +173,7 @@ report 10136 "Item Transaction Detail"
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                     ValueEntry.SetRange("Posting Date", FromDate, ToDate);
 
-                    if ValueEntry.FindSet then begin
+                    if ValueEntry.FindSet() then begin
                         repeat
                             Adjustment := Adjustment + ValueEntry."Cost Amount (Actual)";
                         until ValueEntry.Next() = 0;

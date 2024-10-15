@@ -651,23 +651,19 @@ page 9309 "Purchase Credit Memos"
 
     local procedure CheckPurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader: Record "Purchase Header")
     var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader);
     end;
 
     local procedure PostDocument(PostingCodeunitID: Integer)
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -687,7 +683,7 @@ page 9309 "Purchase Credit Memos"
 
         if IsOfficeAddin then begin
             PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-            if PurchCrMemoHdr.FindFirst then
+            if PurchCrMemoHdr.FindFirst() then
                 PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
@@ -700,11 +696,11 @@ page 9309 "Purchase Credit Memos"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-        if PurchCrMemoHdr.FindFirst then
+        if PurchCrMemoHdr.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchCrMemoQst, PurchCrMemoHdr."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                InstructionMgt.ShowPostedDocument(PurchCrMemoHdr, Page::"Purchase Credit Memos");
     end;
 
     [IntegrationEvent(true, false)]

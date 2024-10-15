@@ -111,7 +111,7 @@ page 10040 "Sales Tax Lines Subform"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if FindFirst then
+        if FindFirst() then
             exit(true);
     end;
 
@@ -136,7 +136,7 @@ page 10040 "Sales Tax Lines Subform"
     procedure SetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
         DeleteAll();
-        if NewSalesTaxLine.FindFirst then
+        if NewSalesTaxLine.FindFirst() then
             repeat
                 Copy(NewSalesTaxLine);
                 Insert;
@@ -147,7 +147,7 @@ page 10040 "Sales Tax Lines Subform"
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
         NewSalesTaxLine.DeleteAll();
-        if FindFirst then
+        if FindFirst() then
             repeat
                 NewSalesTaxLine.Copy(Rec);
                 NewSalesTaxLine.Insert();

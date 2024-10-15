@@ -33,7 +33,7 @@ codeunit 134020 "ERM Accounts"
     var
         BalAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         BalAccount.SetRange("Direct Posting", true);
         BalAccount.SetRange("Account Type", BalAccount."Account Type"::Posting);
         BalAccount.FindSet();
@@ -77,7 +77,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Lines with Different Dimension,Open G/L Balance by Dimension with G/L account filter and Verify G/L Balance by Dim. Matrix Page.
 
         // Setup: Create Multiple Dimension Value.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
         DimensionValueCode3 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
@@ -110,7 +110,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Dimension,Open G/L Balance by Dimension with different Dimension filter and Verify G/L Balance by Dim. Matrix Page.
 
         // Setup: Create Dimension Value with Different Dimension.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
         DimensionValueCode3 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 2 Code");  // Global Variavle used for Page Handler.
@@ -138,7 +138,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Dimension,Open G/L Balance by Dimension with Amount Filed as Debit Amount and Verify G/L Balance by Dim. Matrix Page.
 
         // Setup: Create Dimension Value.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
 
@@ -166,7 +166,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Dimension,Open G/L Balance by Dimension with Amount Filed as Credit Amount and Verify G/L Balance by Dim. Matrix Page.
 
         // Setup: Create Dimension Value.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
 
@@ -191,7 +191,7 @@ codeunit 134020 "ERM Accounts"
         // Create New G/L Account by Page and verify it.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create New G/L Account by Chart Of Accounts Page.
         SourceGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -213,7 +213,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Account Type as G/L Account. Open G/L Balance Page Without Filters and Verify Balance.
 
         // Setup: Create and Post General Journal Line with Account Type as G/L Account and Random Values.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         Amount2 := Amount + LibraryRandom.RandDec(50, 2);
         CreateAndPostGeneralJnlLines(GenJournalLine, -Amount, Amount2);
@@ -236,7 +236,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Account Type as G/L Account. Open G/L Balance Page with Debit and Credit Totals as True and Verify Balance.
 
         // Setup: Create and Post General Journal Line with Account Type as G/L Account and Random Values.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         CreateAndPostGeneralJnlLines(GenJournalLine, -Amount, Amount);
 
@@ -261,7 +261,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Account Type as G/L Account. Open G/L Account Balance Page Without Filters and Verify Balance.
 
         // Setup: Create and Post General Journal Line with Account Type as G/L Account and Random Values.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         Amount2 := Amount + LibraryRandom.RandDec(50, 2);
         CreateAndPostGeneralJnlLines(GenJournalLine, -Amount, Amount2);
@@ -287,7 +287,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Account Type as G/L Account. Open G/L Account Balance Page with Debit and Credit Totals as True and Verify Balance.
 
         // Setup: Create and Post General Journal Line with Account Type as G/L Account and Random Values.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         CreateAndPostGeneralJnlLines(GenJournalLine, -Amount, Amount);
 
@@ -310,7 +310,7 @@ codeunit 134020 "ERM Accounts"
         // Verify Amount on Analysis by Dimension Matrix without Updating Analysis View.
 
         // Setup: Create and Post Invoice from General Journal.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJournalLine(GenJournalLine);
 
         // Create Analysis View.
@@ -333,7 +333,7 @@ codeunit 134020 "ERM Accounts"
         // Verify Amount on Analysis by Dimension Matrix with Updating Analysis View.
 
         // Setup: Create and Post Invoice from General Journal.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJournalLine(GenJournalLine);
         TotalAmount := GenJournalLine.Amount;
 
@@ -354,7 +354,7 @@ codeunit 134020 "ERM Accounts"
         AnalysisViewList: TestPage "Analysis View List";
     begin
         // [SCENARIO 122000] Date Filter is not cleared after value input.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open Page Analysis View List
         AnalysisViewList.OpenView;
@@ -377,7 +377,7 @@ codeunit 134020 "ERM Accounts"
         // Set Dimension Combination value to Limited on Dimension Combination page.
 
         // Setup: Create Dimension and set the Value of option as Limited.
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
@@ -402,7 +402,7 @@ codeunit 134020 "ERM Accounts"
         // Set Dimension Combination value to Limited on Dimension Combination page.
 
         // Setup: Create Dimension and set the Value of option as Limited.
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
@@ -429,7 +429,7 @@ codeunit 134020 "ERM Accounts"
         // Post General Line with Dimension and Verify Entries in G/L entry Dimension Overview Matrix.
 
         // Setup: Create Dimension Value. Create and Post General Journal Line with Dimension.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         SelectGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJnlLineWithDimension(
@@ -453,7 +453,7 @@ codeunit 134020 "ERM Accounts"
         GLBalByDimMatrix: TestPage "G/L Balance by Dim. Matrix";
     begin
         // Verify that G/L Balance By Dim. Matrix can be opened without Load() func
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GLBalByDimMatrix.OpenView;
 
         GLBalByDimMatrix.Code.AssertEquals(GLAccount."No.");
@@ -483,7 +483,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [Posting]
         // [SCENARIO 361902] Zero posting is not allowed if posting type is blank in the general journal and zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with G/L Account with blank Gen. Posting Type and 0 amount
         CreateGenJournalLine(
@@ -507,7 +507,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [Posting]
         // [SCENARIO 361902] Zero posting is not allowed if posting type is not blank in the general journal and zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with G/L Account with not blank Gen. Posting Type and 0 amount
         CreateGenJournalLine(
@@ -532,7 +532,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [UI] [G/L Balance] [Date Filter]
         // [SCENARIO 381766] Page 414 "G/L Balance" shows "Date Filter" field value in case of "View As" = "Net Change"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open "G/L Balance" page
         GLBalance.OpenView;
@@ -555,7 +555,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [UI] [G/L Balance] [Date Filter]
         // [SCENARIO 381766] Page 414 "G/L Balance" shows "Date Filter" field value in case of "View As" = "Balance at Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open "G/L Balance" page
         GLBalance.OpenView;
@@ -576,7 +576,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 203574] "Income/Balance" should not be changed when revalidate "Account Category" with empty value
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with empty "Account Category" and "Income/Balance" = "Income Statement"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -600,7 +600,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 205100] "Name" should not be changed when revalidate "Account Category" with empty value on G/L Account Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with empty "Account Category"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -608,7 +608,7 @@ codeunit 134020 "ERM Accounts"
         GLAccount.Modify(true);
 
         // [GIVEN] Set Name = "ABC" on the G/L Account Card
-        AccName := LibraryUtility.GenerateGUID;
+        AccName := LibraryUtility.GenerateGUID();
         GLAccountCard.OpenEdit;
         GLAccountCard.GotoRecord(GLAccount);
         GLAccountCard.Name.SetValue(AccName);
@@ -712,8 +712,8 @@ codeunit 134020 "ERM Accounts"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Accounts");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Accounts");
@@ -773,7 +773,7 @@ codeunit 134020 "ERM Accounts"
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccountNo: Code[20];
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         SelectGeneralJournalBatch(GenJournalBatch);
 
         // Create General Journal Line with Random Values.
@@ -806,7 +806,7 @@ codeunit 134020 "ERM Accounts"
     begin
         // Create Fiscal Year greater than 20 times according to Test Case.
         for Counter := 1 to LibraryRandom.RandIntInRange(21, 25) do
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
     end;
 
     local procedure SelectGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -885,7 +885,7 @@ codeunit 134020 "ERM Accounts"
     var
         ChartOfAccounts: TestPage "Chart of Accounts";
     begin
-        ChartOfAccounts.OpenNew;
+        ChartOfAccounts.OpenNew();
         ChartOfAccounts."No.".SetValue(LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"));
         ChartOfAccounts."Income/Balance".SetValue(GLAccount."Income/Balance");
         ChartOfAccounts."Account Type".SetValue(GLAccount."Account Type");

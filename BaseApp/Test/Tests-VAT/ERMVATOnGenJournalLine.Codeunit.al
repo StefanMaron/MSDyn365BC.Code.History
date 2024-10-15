@@ -37,7 +37,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // Covers document TFS_TC_ID = 11117, 11118.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Positive", false);
     end;
 
@@ -48,7 +48,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // Covers document TFS_TC_ID = 11117, 11119.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Negative", false);
     end;
 
@@ -59,7 +59,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // Covers document TFS_TC_ID = 11117, 11120.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Base", false);
     end;
 
@@ -70,7 +70,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // Covers document TFS_TC_ID = 11117, 11121, 11122.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::Posting, true);
     end;
 
@@ -84,9 +84,9 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATAmount: Decimal;
     begin
         // Check VAT Amount of Sales Journal in G/L Entry and VAT Entry with Additional Currency.
-        LibraryLowerPermissions.SetOutsideO365Scope; // This test is inside O365 scope but can only run on O365 DB / Company
+        LibraryLowerPermissions.SetOutsideO365Scope(); // This test is inside O365 scope but can only run on O365 DB / Company
         // 1. Setup: Update Sales & Receivables Setup and GeneralLedgerSetup.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         UpdateAdditionalCurrency(CurrencyCode);
@@ -117,7 +117,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         i: Integer;
     begin
         // [SCENARIO 121626] "Country Code","VAT Registration No.","Bill-to/Pay-to No." are copied to VAT Entry from Customer that is set as "Bal. Account" while "Account No." is empty in the Gen. Journal Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
         for i := 1 to 2 do begin
@@ -182,7 +182,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         i: Integer;
     begin
         // [SCENARIO 121626] "Country Code","VAT Registration No.","Bill-to/Pay-to No." are copied to VAT Entry from Vendor that is set as "Bal. Account" while "Account No." is empty in the Gen. Journal Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
         for i := 1 to 2 do begin
@@ -244,7 +244,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 304717] "Country Code","VAT Registration No." are copied to VAT Entry from Customer when 2 lines for the same document are posted in Recurring journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Country Code" = "X1" and "VAT Registration No." = "Y1"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
@@ -283,7 +283,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304717] "Country Code","VAT Registration No." are copied to VAT Entry from Vendor when 2 lines for the same document are posted in Recurring journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Country Code" = "X1" and "VAT Registration No." = "Y1"
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
@@ -400,13 +400,14 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -458,7 +459,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         MaxVATDiffAmt: Decimal;
     begin
         // Setup: Update the General Ledger Setup, Update General Journal Template and Find General Journal Batch.
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := LibraryRandom.RandDec(2, 2);
         // Take a random decimal amount between 0.01 to 2.00, value is not important.
         LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
@@ -564,7 +565,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreateCountryRegion(CountryRegion);
         Vendor.Validate("Country/Region Code", CountryRegion.Code);
-        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID;
+        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID();
         Vendor.Modify();
     end;
 
@@ -585,7 +586,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -593,7 +594,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -610,7 +611,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATAmount: Decimal;
     begin
         GenJournalLine.SetRange("Document No.", DocumentNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         VATAmount := LibraryERM.ConvertCurrency(GenJournalLine."Bal. VAT Amount", CurrencyCode, '', WorkDate);
         exit(VATAmount);
     end;
@@ -646,7 +647,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Name, GenJournalBatch."Journal Template Name");
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GenJournalTemplate.Validate("Allow VAT Difference", true);
         GenJournalTemplate.Modify(true);
@@ -684,10 +685,10 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATAmount: Decimal;
     begin
         // Verify the Amount, VAT Amount in GL Entry after posting General Journal Line.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         // Calculate the VAT Amount.
         VATAmount := Round(Amount * VATPercent / (100 + VATPercent), LibraryERM.GetInvoiceRoundingPrecisionLCY);
@@ -702,7 +703,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(VATAmountError, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount",
@@ -714,7 +715,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount,
@@ -742,7 +743,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     begin
         with VATEntry do begin
             SetRange("Transaction No.", TransactionNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedCountryCode, "Country/Region Code", StrSubstNo(VATEntryFieldErr, FieldCaption("Country/Region Code")));
             Assert.AreEqual(ExpectedVATRegNo, "VAT Registration No.", StrSubstNo(VATEntryFieldErr, FieldCaption("VAT Registration No.")));
             Assert.AreEqual(ExpectedBillToPayToNo, "Bill-to/Pay-to No.", StrSubstNo(VATEntryFieldErr, FieldCaption("Bill-to/Pay-to No.")));

@@ -97,8 +97,8 @@ codeunit 142101 "Item Chrg. Upd. Doc. Ln. Gr."
     begin
         if IsInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
     end;

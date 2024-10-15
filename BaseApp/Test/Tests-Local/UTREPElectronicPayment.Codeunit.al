@@ -38,7 +38,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate CheckICPartner function of Report 10089 - Payment Journal - Test.
 
         // Setup: Create General Journal Line Account Type - IC Partner.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, WorkDate);  // Posting Date - WORKDATE.
 
         // Exercise: Execute function - CheckICPartner of Report - Payment Journal - Test.
@@ -59,7 +59,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate General Journal Line - OnAfterGetRecord Trigger of Report 10089 - Payment Journal - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, WorkDate);  // Posting Date - WORKDATE.
     end;
 
@@ -74,7 +74,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate General Journal Line - OnAfterGetRecord Trigger of Report 10089 - Payment Journal - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Customer, CreateCustomer, WorkDate);  // Posting Date - WORKDATE.
     end;
 
@@ -89,7 +89,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate General Journal Line - OnAfterGetRecord Trigger of Report 10089 - Payment Journal - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Vendor, CreateVendor, WorkDate);  // Posting Date - WORKDATE.
     end;
 
@@ -104,7 +104,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate General Journal Line - OnAfterGetRecord Trigger of Report 10089 - Payment Journal - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, WorkDate);  // Posting Date - WORKDATE.
     end;
 
@@ -119,7 +119,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate General Journal Line - OnAfterGetRecord Trigger of Report 10089 - Payment Journal - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset, 0D);  // Posting Date - 0D.
     end;
 
@@ -146,7 +146,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportInternetFileTransfer(0D, 0D);  // Start Date and End Date - 0D.
     end;
 
@@ -159,7 +159,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportInternetFileTransfer(WorkDate, 0D);  // Start Date - WorkDate and End Date - 0D.
     end;
 
@@ -172,7 +172,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate OnPreReport Trigger of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         OnPreReportInternetFileTransfer(CalcDate('<1D>', WorkDate), WorkDate);  // Start Date greater than End Date.
     end;
 
@@ -200,7 +200,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate WriteToFile function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // Enqueue value for Request Page handler - GSTHSTInternetFileTransferRequestPageHandler.
@@ -224,7 +224,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate FormatDecimals function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Execute function - GSTHSTInternetFileTransfer of Report - GST/HST Internet File Transfer.
         asserterror
@@ -246,7 +246,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate FormatDecimals function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup: Create Random Decimal number with one Decimal digit.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         Amount := LibraryRandom.RandDec(10, 1);
@@ -271,7 +271,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate FormatDecimals function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup: Create Random Decimal number with Decimal digits in Range 2 to 8(Maximum).
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         Amount := LibraryRandom.RandDec(10, LibraryRandom.RandIntInRange(2, 8));
@@ -293,7 +293,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate FormatDecimals function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Execute function - GSTHSTInternetFileTransfer with Decimal value - 0 and Maximum digits Range 1 to 10. Verify returned string with expected string - 000.
         Assert.AreEqual(
@@ -312,7 +312,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate FormatDates function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         ExpectedDateString := Format(WorkDate, 0, '<Closing><Year4><Month,2><Day,2>');  // Format String based on function - FormatDates of Report - GST/HST Internet File Transfer.
 
         // Exercise & Verify: Execute function - FormatDates with WORKDATE. Verify function returned string with expected date string.
@@ -330,7 +330,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate CheckForPositive function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(10, 2);
 
         // Exercise & Verify: Execute function - CheckForPositive with Negative value. Verify returned value with expected Amount.
@@ -347,7 +347,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate CheckForPositive function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Execute function - CheckForPositive with Positive value. Verify returned value with 0.
         Assert.AreEqual(0, GSTHSTInternetFileTransfer.CheckForPositive(LibraryRandom.RandDec(10, 2)), ValueMustEqualMsg);
@@ -364,7 +364,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate CheckForNegative function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(10, 2);
 
         // Exercise & Verify: Execute function - CheckForNegative with Positive value. Verify returned value with expected Amount.
@@ -381,7 +381,7 @@ codeunit 141038 "UT REP Electronic Payment"
         // Purpose of the test is to validate CheckForNegative function of Report 10500 - GST/HST Internet File Transfer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & Verify: Execute function - CheckForNegative with Negative value. Verify returned value with 0.
         Assert.AreEqual(0, GSTHSTInternetFileTransfer.CheckForNegative(-LibraryRandom.RandDec(10, 2)), ValueMustEqualMsg);
@@ -403,11 +403,11 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         // [FEATURE] [Payment Journal] [Report]
         // [SCENARIO 276941] Report 10089 prints lines with same Document No, Account No, Posting Date, Amount correctly when Applies to doc.no is different
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Purchase general journal lines with same Document No, Account No, Posting Date, Amount, but different Applies To Doc No
         LibraryPurchase.CreateVendor(Vendor);
-        DocNo := LibraryUtility.GenerateGUID;
+        DocNo := LibraryUtility.GenerateGUID();
         Amount := LibraryRandom.RandDecInRange(10, 1000, 2);
         NumberOfLines := 3;
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
@@ -419,7 +419,7 @@ codeunit 141038 "UT REP Electronic Payment"
         GenJournalLine.SetRange("Account No.", Vendor."No.");
         PaymentJournalTest.SetTableView(GenJournalLine);
         LibraryReportValidation.SetFileName(Vendor."No.");
-        PaymentJournalTest.Run;  // Invokes PaymentJournalTestExcelRequestPageHandler.
+        PaymentJournalTest.Run();  // Invokes PaymentJournalTestExcelRequestPageHandler.
 
         // [THEN] Report prints all 3 lines
         LibraryReportValidation.OpenExcelFile;
@@ -441,12 +441,12 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         // [FEATURE] [UT] [Payment Journal]
         // [SCENARIO 296949] Report 10089 "Payment Journal - Test" prints all lines with the same Document No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Journal Batch with 3 lines sharing same Vendor and Document No. but with different amounts
         LibraryPurchase.CreateVendor(Vendor);
-        DocNo := LibraryUtility.GenerateGUID;
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccNo := LibraryERM.CreateGLAccountNo();
 
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
         for Index := 1 to ArrayLen(GenJournalLine) do begin
@@ -481,7 +481,7 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         // [FEATURE] [UT] [Payment Journal]
         // [SCENARIO 310578] Report 10089 "Payment Journal - Test" fills report caption, company name, template and batch correctly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line.
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateGLAccount, WorkDate);
@@ -505,7 +505,7 @@ codeunit 141038 "UT REP Electronic Payment"
     begin
         // [FEATURE] [UT] [Payment Journal]
         // [SCENARIO 310578] Report 10089 "Payment Journal - Test" prints report caption, company name, template and batch correctly.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line.
         LibraryPurchase.CreateVendor(Vendor);
@@ -543,8 +543,8 @@ codeunit 141038 "UT REP Electronic Payment"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -623,7 +623,7 @@ codeunit 141038 "UT REP Electronic Payment"
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
         GenJournalLine.Validate("Document No.", DocNo);
-        GenJournalLine.Validate("Applies-to Doc. No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Applies-to Doc. No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
     end;
 

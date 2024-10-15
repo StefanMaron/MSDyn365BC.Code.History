@@ -1,4 +1,4 @@
-page 9036 "Bookkeeper Activities"
+﻿page 9036 "Bookkeeper Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -12,19 +12,19 @@ page 9036 "Bookkeeper Activities"
             cuegroup(Payables)
             {
                 Caption = 'Payables';
-                field("Purchase Documents Due Today"; "Purchase Documents Due Today")
+                field("Purchase Documents Due Today"; Rec."Purchase Documents Due Today")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
                     ToolTip = 'Specifies the number of purchase invoices where you are late with payment.';
                 }
-                field("Vendors - Payment on Hold"; "Vendors - Payment on Hold")
+                field("Vendors - Payment on Hold"; Rec."Vendors - Payment on Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor List";
                     ToolTip = 'Specifies the number of vendor to whom your payment is on hold.';
                 }
-                field("Approved Purchase Orders"; "Approved Purchase Orders")
+                field("Approved Purchase Orders"; Rec."Approved Purchase Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
@@ -53,19 +53,19 @@ page 9036 "Bookkeeper Activities"
             cuegroup(Receivables)
             {
                 Caption = 'Receivables';
-                field("SOs Pending Approval"; "SOs Pending Approval")
+                field("SOs Pending Approval"; Rec."SOs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales orders that are pending approval.';
                 }
-                field("Overdue Sales Documents"; "Overdue Sales Documents")
+                field("Overdue Sales Documents"; Rec."Overdue Sales Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer Ledger Entries";
                     ToolTip = 'Specifies the number of sales invoices where the customer is late with payment.';
                 }
-                field("Approved Sales Orders"; "Approved Sales Orders")
+                field("Approved Sales Orders"; Rec."Approved Sales Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
@@ -91,38 +91,10 @@ page 9036 "Bookkeeper Activities"
                     }
                 }
             }
-            cuegroup(Approvals)
-            {
-                Caption = 'Approvals';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Approvals Activities part';
-                Visible = false;
-                ObsoleteTag = '17.0';
-                field("Requests Sent for Approval"; "Requests Sent for Approval")
-                {
-                    ApplicationArea = Suite;
-                    DrillDownPageID = "Approval Entries";
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Approvals Activities part';
-                    Visible = false;
-                    ToolTip = 'Specifies requests for certain documents, cards, or journal lines that your approver must approve before you can proceed.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Requests to Approve"; "Requests to Approve")
-                {
-                    ApplicationArea = Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Approvals Activities part';
-                    Visible = false;
-                    DrillDownPageID = "Requests to Approve";
-                    ToolTip = 'Specifies requests for certain documents, cards, or journal lines that you must approve for other users before they can proceed.';
-                    ObsoleteTag = '17.0';
-                }
-            }
             cuegroup("Cash Management")
             {
                 Caption = 'Cash Management';
-                field("Non-Applied Payments"; "Non-Applied Payments")
+                field("Non-Applied Payments"; Rec."Non-Applied Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Reconciliation Journals';
@@ -145,12 +117,18 @@ page 9036 "Bookkeeper Activities"
                     ToolTip = 'Specifies that the bank reconciliations are ready to post.';
                     Visible = NOT BankReconWithAutoMatch;
                 }
+#if not CLEAN20
                 field("Deposits to Post"; "Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Deposit List";
                     ToolTip = 'Specifies deposits that are ready to be posted.';
+                    Visible = not BankDepositFeatureEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Bank Deposits extension.';
                 }
+#endif
 
                 actions
                 {
@@ -164,14 +142,14 @@ page 9036 "Bookkeeper Activities"
                         var
                             BankAccReconciliation: Record "Bank Acc. Reconciliation";
                         begin
-                            BankAccReconciliation.OpenNewWorksheet
+                            BankAccReconciliation.OpenNewWorksheet();
                         end;
                     }
                     action("New Deposit")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'New Deposit';
-                        RunObject = Page Deposit;
+                        RunObject = codeunit "Open Deposit Page";
                         RunPageMode = Create;
                         ToolTip = 'Create a new deposit. ';
                     }
@@ -189,33 +167,6 @@ page 9036 "Bookkeeper Activities"
                             BankReconciliationMgt.New(BankAccReconciliation, UseSharedTable);
                         end;
                     }
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
         }
@@ -236,21 +187,23 @@ page 9036 "Bookkeeper Activities"
     end;
 
     trigger OnOpenPage()
+    var
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
+        Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
     end;
 
     var
-        UserTaskManagement: Codeunit "User Task Management";
         BankReconWithAutoMatch: Boolean;
         UseSharedTable: Boolean;
+        BankDepositFeatureEnabled: Boolean;
 }
 

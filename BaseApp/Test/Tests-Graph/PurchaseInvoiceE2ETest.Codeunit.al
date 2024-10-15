@@ -37,7 +37,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Purchase invoices and use a GET method to retrieve them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreatePurchaseInvoices(InvoiceID1, InvoiceID2);
         Commit();
 
@@ -69,7 +69,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Purchase invoices and use HTTP POST to delete them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         VendorNo := Vendor."No.";
@@ -114,7 +114,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 184721] Create posted and unposted with specific currency set and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] an Invoice with a non-LCY currencyCode set
         LibraryPurchase.CreateVendor(Vendor);
@@ -180,7 +180,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         ComplexTypeJSON: Text;
     begin
         // [SCENARIO 184721] Create Purchase Invoice, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // [GIVEN] an order with the previously created vendor
@@ -198,7 +198,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         PurchaseHeader.Reset();
         PurchaseHeader.SetRange("No.", InvoiceID);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         InvoiceIntegrationID := PurchaseHeader.SystemId;
         Assert.AreNotEqual('', InvoiceIntegrationID, 'ID should not be empty');
 
@@ -242,7 +242,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
     begin
         // [SCENARIO 184721] Create posted and unposted Purchase invoices and use HTTP DELETE to delete them
         // [GIVEN] 2 invoices, one posted and one unposted
-        Initialize;
+        Initialize();
         CreatePurchaseInvoices(InvoiceID1, InvoiceID2);
 
         PurchInvHeader.Get(InvoiceID1);
@@ -287,7 +287,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         // [SCENARIO 184721] Create an invoice both through the client UI and through the API
         // [SCENARIO] and compare them. They should be the same and have the same fields autocompleted wherever needed.
         // [GIVEN] An unposted invoice
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.InitializeUIPage;
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -335,11 +335,11 @@ codeunit 135537 "Purchase Invoice E2E Test"
         CurrencyCode: Code[10];
     begin
         // [SCENARIO 184721] Create an invoice wihtout Vendor throws an error
-        Initialize;
+        Initialize();
 
         // [GIVEN] a purchase invoice JSON with currency only
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON('', 'currencyCode', CurrencyCode);
         Commit();
@@ -387,7 +387,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
 
     local procedure CreateInvoiceThroughTestPage(var PurchaseInvoice: TestPage "Purchase Invoice"; Vendor: Record Vendor; DocumentDate: Date)
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");
         PurchaseInvoice."Document Date".SetValue(DocumentDate);
     end;
@@ -403,7 +403,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         Currency: Record Currency;
     begin
         Currency.SetFilter(Code, '<>%1', '');
-        if Currency.FindFirst then
+        if Currency.FindFirst() then
             exit(Currency.Code);
     end;
 

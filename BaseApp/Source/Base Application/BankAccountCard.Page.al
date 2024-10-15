@@ -115,6 +115,12 @@ page 370 "Bank Account Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
                 }
+                field("Use as Default for Currency"; "Use as Default for Currency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether this is the default company account for payments in sales and service documents in the currency specified for this account. Each currency can have only one default bank account.';
+                }
                 field("Check Date Format"; "Check Date Format")
                 {
                     ApplicationArea = Basic, Suite;
@@ -557,6 +563,7 @@ page 370 "Bank Account Card"
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     RunPageView = SORTING("Bank Account No.");
                     ToolTip = 'View the list of posted deposits for the bank account.';
+                    Visible = not BankDepositFeatureEnabled;
                 }
                 action("Ledger E&ntries")
                 {
@@ -638,7 +645,6 @@ page 370 "Bank Account Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -948,15 +954,16 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
-        EmailFeature: Codeunit "Email Feature";
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
+        BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
     end;
 
     var
+        BankDepositFeatureEnabled: Boolean;
         [InDataSet]
         "Client No.Enable": Boolean;
         [InDataSet]
@@ -975,7 +982,6 @@ page 370 "Bank Account Card"
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
         EFTNotSupportedMsg: Label 'The specified payment export format does not support EFT. To use a format other than EFT, set the Country Export Format field to Other.';
         EFTSupportedMsg: Label 'The specified payment export format supports EFT. Set the Country Export Format field to the relevant country/region.';
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetCountrySpecificControls()
     begin

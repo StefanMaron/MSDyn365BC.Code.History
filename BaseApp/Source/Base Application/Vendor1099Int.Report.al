@@ -289,7 +289,7 @@ report 10111 "Vendor 1099 Int"
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetFilter("IRS 1099 Amount", '<>0');
             SetRange("IRS 1099 Code", 'INT-', 'INT-99');
-            if FindSet then
+            if FindSet() then
                 repeat
                     Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
                 until Next() = 0;

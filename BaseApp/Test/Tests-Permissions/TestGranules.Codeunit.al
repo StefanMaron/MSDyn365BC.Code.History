@@ -45,7 +45,7 @@ codeunit 132532 "Test Granules"
         XTEAMMEMBERTxt: Label 'D365 TEAM MEMBER';
         D365AccountantsTxt: Label 'D365 ACCOUNTANTS';
         D365CompanyHubTxt: Label 'D365 COMPANY HUB';
-        UserGroupMissingLocalErr: Label '%1 User Group doesn''t contain %2 permission set.', Comment= '%1 = User Group Code, %2 = Permission Set ID';
+        UserGroupMissingLocalErr: Label '%1 User Group doesn''t contain %2 permission set.', Comment = '%1 = User Group Code, %2 = Permission Set ID';
         D365PermissionSetPrefixFilterTok: Label 'D365*';
         ReadTok: Label 'D365 READ', Locked = true;
         D365EssentialPermissionSetFilterTok: Label '<>D365PREM*&D365*';
@@ -55,6 +55,7 @@ codeunit 132532 "Test Granules"
         XSnapshotDebugTok: Label 'D365 SNAPSHOT DEBUG';
         D365AutomationTok: Label 'D365 AUTOMATION';
         D365DIMCORRECTIONTok: Label 'D365 DIM CORRECTION', Locked = true;
+        LocalReadTxt: Label 'LOCAL READ', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -137,12 +138,12 @@ codeunit 132532 "Test Granules"
         CopyAllAppTableObjectsToTempBuffer(TempTableDataAllObj);
         RemoveNonLocalObjectsFromObjects(TempTableDataAllObj);
         CopyPSToTemp(TempAllLocalPermission, XO365BUSFULLTxt);
-            if TempTableDataAllObj.FindSet() then
-                repeat
-                    TempAllLocalPermission.SetRange("Object Type", TempTableDataAllObj."Object Type");
-                    TempAllLocalPermission.SetRange("Object ID", TempTableDataAllObj."Object ID");
-                    Assert.IsFalse(TempAllLocalPermission.IsEmpty, StrSubstNo(TableDataNotInFullPermissionSetTxt, TempTableDataAllObj."Object ID", TempTableDataAllObj."Object Name"));
-                until TempTableDataAllObj.Next() = 0;
+        if TempTableDataAllObj.FindSet() then
+            repeat
+                TempAllLocalPermission.SetRange("Object Type", TempTableDataAllObj."Object Type");
+                TempAllLocalPermission.SetRange("Object ID", TempTableDataAllObj."Object ID");
+                Assert.IsFalse(TempAllLocalPermission.IsEmpty, StrSubstNo(TableDataNotInFullPermissionSetTxt, TempTableDataAllObj."Object ID", TempTableDataAllObj."Object Name"));
+            until TempTableDataAllObj.Next() = 0;
     end;
 
     [Test]
@@ -163,9 +164,9 @@ codeunit 132532 "Test Granules"
             TempTableDataAllObj.SetRange("Object ID", TempPermission."Object ID");
 
             // Temporary Tables are not included in TempTableDataAllObj
-            if (TempPermission."Object Type" <> TempPermission."Object Type"::"Table Data") or 
+            if (TempPermission."Object Type" <> TempPermission."Object Type"::"Table Data") or
                     not TableMetadata.Get(TempPermission."Object ID") or
-                    (TableMetadata.TableType <> 6 ) then
+                    (TableMetadata.TableType <> 6) then
                 Assert.IsFalse(TempTableDataAllObj.IsEmpty, StrSubstNo(PermissionDoesNotExistsTxt, TempPermission."Object ID", TempPermission."Role ID"));
         until TempPermission.Next() = 0;
     end;
@@ -329,6 +330,7 @@ codeunit 132532 "Test Granules"
             exit;
 
         // [THEN] All the User groups should contain LOCAL permission set
+        // Each user group must contain LOCAL permission set
         UserGroup.FindSet();
         repeat
             UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
@@ -337,7 +339,6 @@ codeunit 132532 "Test Granules"
                 UserGroup.Code, XLOCALTxt));
         until UserGroup.Next() = 0;
     end;
-
     local procedure CopyAllAppTableObjectsToTempBuffer(var TempTableDataAllObj: Record AllObj temporary)
     var
         AllObj: Record AllObj;

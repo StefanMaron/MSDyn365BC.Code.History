@@ -295,7 +295,7 @@ report 10112 "Vendor 1099 Misc"
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetFilter("IRS 1099 Amount", '<>0');
             SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
-            if FindSet then
+            if FindSet() then
                 repeat
                     IRS1099Management.Calculate1099Amount(
                       Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");

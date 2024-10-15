@@ -37,7 +37,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Posted Deposit Line - OnAfterGetRecord of the Report ID: 10403, Deposit with Cust. Ledger Entry.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDeposit(PostedDepositLine, PostedDepositLine."Account Type"::Customer, CreateCustomer);
         CreateCustomerLedgerEntry(CustLedgerEntry, PostedDepositLine."Document No.", PostedDepositLine."Account No.");
         UpdateEntryNoPostedDepositLine(PostedDepositLine, CustLedgerEntry."Entry No.");
@@ -68,7 +68,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Posted Deposit Line - OnAfterGetRecord of the Report ID: 10403, Deposit with Vendor Ledger Entry.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDeposit(PostedDepositLine, PostedDepositLine."Account Type"::Vendor, CreateVendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, PostedDepositLine."Document No.", PostedDepositLine."Account No.");
         UpdateEntryNoPostedDepositLine(PostedDepositLine, VendorLedgerEntry."Entry No.");
@@ -99,7 +99,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Posted Deposit Line - OnAfterGetRecord of the Report ID: 10403, Deposit with Account Type Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDeposit(PostedDepositLine, PostedDepositLine."Account Type"::"Bank Account", CreateBankAccount);
 
         // Enqueue values for use in DepositRequestPageHandler.
@@ -125,7 +125,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Posted Deposit Line - OnAfterGetRecord of the Report ID: 10403, Deposit with Account Type GL Account.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedDeposit(PostedDepositLine, PostedDepositLine."Account Type"::"G/L Account", CreateGLAccount);
 
         // Enqueue values for use in DepositRequestPageHandler.
@@ -153,7 +153,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Gen. Journal Line - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type IC Partner.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"IC Partner", '');  // Blank IC Partner Code.
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
@@ -179,7 +179,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Gen. Journal Line - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type IC Partner.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"IC Partner", CreateICPartner);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
@@ -206,7 +206,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Vendor Ledger Entry - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type Vendor.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Vendor, CreateVendor);
         UpdateApplyToDocGenJournalLine(GenJournalLine);
@@ -239,7 +239,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Cust. Ledger Entry - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type Customer.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         UpdateApplyToDocGenJournalLine(GenJournalLine);
@@ -272,7 +272,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Cust. Ledger Entry - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Applies To ID.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
@@ -304,7 +304,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate Vendor Ledger Entry - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Applies To ID.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Vendor, CreateVendor);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
@@ -336,7 +336,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate DimensionLoop1 - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
         CreateDimension(DimensionSetEntry);
@@ -366,7 +366,7 @@ codeunit 141009 "UT REP Bank Deposit"
     begin
         // Purpose of the test is to validate DimensionLoop1 - OnAfterGetRecord of the Report ID: 10402, Deposit Test Report with Account Type GL Account.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepositHeader(DepositHeader);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
         CreateDimension(DimensionSetEntry);
@@ -395,7 +395,7 @@ codeunit 141009 "UT REP Bank Deposit"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 256390] Print "Deposit Test Report" with Account Type is Employee and descrition the same as employee's Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit with line where Account Type is Employee "E" which has Name "N" and description "N"
         CreateDepositHeader(DepositHeader);
@@ -427,7 +427,7 @@ codeunit 141009 "UT REP Bank Deposit"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 256390] Print "Deposit Test Report" with Account Type is Employee and descrition different from employee's Name
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit with line where Account Type is Employee "E" which has Name "N" and description "D"
         CreateDepositHeader(DepositHeader);
@@ -460,7 +460,7 @@ codeunit 141009 "UT REP Bank Deposit"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 256390] Print "Deposit Test Report" with Account Type is Employee and Employee is removed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit with line where Account Type is Employee "E" which has Name "N"
         CreateDepositHeader(DepositHeader);
@@ -510,7 +510,7 @@ codeunit 141009 "UT REP Bank Deposit"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header")
@@ -622,7 +622,7 @@ codeunit 141009 "UT REP Bank Deposit"
     var
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + 1;
         DimensionSetEntry."Dimension Code" := DimensionCode;
         DimensionSetEntry."Dimension Value Code" := DimensionValueCode;
@@ -633,7 +633,7 @@ codeunit 141009 "UT REP Bank Deposit"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := DocumentNo;
@@ -647,7 +647,7 @@ codeunit 141009 "UT REP Bank Deposit"
         DetailedCustomerLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustomerLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustomerLedgEntry2.FindLast;
+        DetailedCustomerLedgEntry2.FindLast();
         DetailedCustomerLedgEntry."Entry No." := DetailedCustomerLedgEntry2."Entry No." + 1;
         DetailedCustomerLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustomerLedgEntry."Customer No." := CustomerNo;
@@ -659,7 +659,7 @@ codeunit 141009 "UT REP Bank Deposit"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." := DocumentNo;
@@ -673,7 +673,7 @@ codeunit 141009 "UT REP Bank Deposit"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry."Vendor No." := VendorNo;

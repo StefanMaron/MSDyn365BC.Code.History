@@ -44,14 +44,14 @@ codeunit 1002 "Job Create-Invoice"
         if not IsHandled then
             if not CrMemo then begin
                 GetSalesInvoiceNo.SetCustomer(JobPlanningLine."Job No.");
-                GetSalesInvoiceNo.RunModal;
+                GetSalesInvoiceNo.RunModal();
                 IsHandled := false;
                 OnBeforeGetInvoiceNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
                 if not IsHandled then
                     GetSalesInvoiceNo.GetInvoiceNo(Done, NewInvoice, PostingDate, InvoiceNo);
             end else begin
                 GetSalesCrMemoNo.SetCustomer(JobPlanningLine."Job No.");
-                GetSalesCrMemoNo.RunModal;
+                GetSalesCrMemoNo.RunModal();
                 IsHandled := false;
                 OnBeforeGetCrMemoNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
                 if not IsHandled then
@@ -127,7 +127,7 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLine.Copy(JobPlanningLineSource);
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
 
-        if JobPlanningLine.FindSet then
+        if JobPlanningLine.FindSet() then
             repeat
                 if TransferLine(JobPlanningLine) then begin
                     LineCounter := LineCounter + 1;
@@ -332,7 +332,6 @@ codeunit 1002 "Job Create-Invoice"
     local procedure CreateSalesHeader(Job: Record Job; PostingDate: Date; JobPlanningLine: Record "Job Planning Line")
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
         IsHandled: Boolean;
     begin
         OnBeforeCreateSalesHeader(Job, PostingDate, SalesHeader2, JobPlanningLine);
@@ -347,13 +346,21 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader."Posting Date" := PostingDate;
         OnBeforeInsertSalesHeader(SalesHeader, Job, JobPlanningLine);
         SalesHeader.Insert(true);
-        Cust.Get(Job."Bill-to Customer No.");
+
         IsHandled := false;
         OnCreateSalesHeaderOnBeforeCheckBillToCustomerNo(SalesHeader, Job, JobPlanningLine, IsHandled);
+
         if not IsHandled then begin
-            Cust.TestField("Bill-to Customer No.", '');
-            SalesHeader.Validate("Sell-to Customer No.", Job."Bill-to Customer No.");
+            SalesHeader.SetHideValidationDialog(true);
+            SalesHeader.Validate("Sell-to Customer No.", Job."Sell-to Customer No.");
+            SalesHeader.Validate("Bill-to Customer No.", Job."Bill-to Customer No.");
         end;
+
+        if Job."Payment Method Code" <> '' then
+            SalesHeader.Validate("Payment Method Code", Job."Payment Method Code");
+        if Job."Payment Terms Code" <> '' then
+            SalesHeader.Validate("Payment Terms Code", Job."Payment Terms Code");
+
         if Job."Currency Code" <> '' then
             SalesHeader.Validate("Currency Code", Job."Currency Code")
         else
@@ -528,7 +535,7 @@ codeunit 1002 "Job Create-Invoice"
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
         NextLineNo := 10000;
-        if SalesLine.FindLast then
+        if SalesLine.FindLast() then
             NextLineNo := SalesLine."Line No." + 10000;
         exit(NextLineNo);
     end;
@@ -578,7 +585,7 @@ codeunit 1002 "Job Create-Invoice"
             end;
             SetRange("Document No.", SalesLine."Document No.");
             SetRange("Line No.", SalesLine."Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
                     Delete;
@@ -602,7 +609,7 @@ codeunit 1002 "Job Create-Invoice"
         case DetailLevel of
             DetailLevel::All:
                 begin
-                    if JobPlanningLineInvoice.FindSet then
+                    if JobPlanningLineInvoice.FindSet() then
                         TempJobPlanningLineInvoice := JobPlanningLineInvoice;
                     exit;
                 end;
@@ -622,7 +629,7 @@ codeunit 1002 "Job Create-Invoice"
         end;
 
         TempJobPlanningLineInvoice.DeleteAll();
-        if JobPlanningLineInvoice.FindSet then begin
+        if JobPlanningLineInvoice.FindSet() then begin
             repeat
                 RecordFound := false;
                 case DetailLevel of
@@ -694,7 +701,7 @@ codeunit 1002 "Job Create-Invoice"
             JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
             JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
             if JobPlanningLineInvoice.Count = 1 then begin
-                JobPlanningLineInvoice.FindFirst;
+                JobPlanningLineInvoice.FindFirst();
                 OpenSalesInvoice(JobPlanningLineInvoice);
             end else
                 PAGE.RunModal(PAGE::"Job Invoices", JobPlanningLineInvoice);
@@ -755,37 +762,42 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader."Bill-to Contact No." := Job."Bill-to Contact No.";
         SalesHeader."Bill-to Contact" := Job."Bill-to Contact";
         SalesHeader."Bill-to Name" := Job."Bill-to Name";
+        SalesHeader."Bill-to Name 2" := Job."Bill-to Name 2";
         SalesHeader."Bill-to Address" := Job."Bill-to Address";
         SalesHeader."Bill-to Address 2" := Job."Bill-to Address 2";
         SalesHeader."Bill-to City" := Job."Bill-to City";
         SalesHeader."Bill-to Post Code" := Job."Bill-to Post Code";
         SalesHeader."Bill-to Country/Region Code" := Job."Bill-to Country/Region Code";
 
-        SalesHeader."Sell-to Contact No." := Job."Bill-to Contact No.";
-        SalesHeader."Sell-to Contact" := Job."Bill-to Contact";
-        SalesHeader."Sell-to Customer Name" := Job."Bill-to Name";
-        SalesHeader."Sell-to Address" := Job."Bill-to Address";
-        SalesHeader."Sell-to Address 2" := Job."Bill-to Address 2";
-        SalesHeader."Sell-to City" := Job."Bill-to City";
-        SalesHeader."Sell-to Post Code" := Job."Bill-to Post Code";
-        SalesHeader."Sell-to Country/Region Code" := Job."Bill-to Country/Region Code";
+        SalesHeader."Sell-to Contact No." := Job."Sell-to Contact No.";
+        SalesHeader."Sell-to Contact" := Job."Sell-to Contact";
+        SalesHeader."Sell-to Customer Name" := Job."Sell-to Customer Name";
+        SalesHeader."Sell-to Customer Name 2" := Job."Sell-to Customer Name 2";
+        SalesHeader."Sell-to Address" := Job."Sell-to Address";
+        SalesHeader."Sell-to Address 2" := Job."Sell-to Address 2";
+        SalesHeader."Sell-to City" := Job."Sell-to City";
+        SalesHeader."Sell-to Post Code" := Job."Sell-to Post Code";
+        SalesHeader."Sell-to Country/Region Code" := Job."Sell-to Country/Region Code";
 
-        if SalesHeader."Ship-to Code" = '' then begin
-            SalesHeader."Ship-to Contact" := Job."Bill-to Contact";
-            SalesHeader."Ship-to Name" := Job."Bill-to Name";
-            SalesHeader."Ship-to Address" := Job."Bill-to Address";
-            SalesHeader."Ship-to Address 2" := Job."Bill-to Address 2";
-            SalesHeader."Ship-to City" := Job."Bill-to City";
-            SalesHeader."Ship-to Post Code" := Job."Bill-to Post Code";
-            SalesHeader."Ship-to Country/Region Code" := Job."Bill-to Country/Region Code";
-            if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then
-                SalesHeader."Ship-to County" := Job."Bill-to County";
-        end;
+        if Job."Ship-to Code" <> '' then
+            SalesHeader.Validate("Ship-to Code", Job."Ship-to Code")
+        else
+            if SalesHeader."Ship-to Code" = '' then begin
+                SalesHeader."Ship-to Contact" := Job."Ship-to Contact";
+                SalesHeader."Ship-to Name" := Job."Ship-to Name";
+                SalesHeader."Ship-to Address" := Job."Ship-to Address";
+                SalesHeader."Ship-to Address 2" := Job."Ship-to Address 2";
+                SalesHeader."Ship-to City" := Job."Ship-to City";
+                SalesHeader."Ship-to Post Code" := Job."Ship-to Post Code";
+                SalesHeader."Ship-to Country/Region Code" := Job."Ship-to Country/Region Code";
+                if FormatAddress.UseCounty(SalesHeader."Ship-to Country/Region Code") then
+                    SalesHeader."Ship-to County" := Job."Ship-to County";
+            end;
 
-        if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then begin
+        if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then
             SalesHeader."Bill-to County" := Job."Bill-to County";
-            SalesHeader."Sell-to County" := Job."Bill-to County";
-        end;
+        if FormatAddress.UseCounty(SalesHeader."Sell-to Country/Region Code") then
+            SalesHeader."Sell-to County" := Job."Sell-to County";
     end;
 
     local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; JobPlanningLine: Record "Job Planning Line")
@@ -798,7 +810,7 @@ codeunit 1002 "Job Create-Invoice"
             exit;
 
         SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
-        SalesHeader.TestField("Sell-to Customer No.", Job."Bill-to Customer No.");
+        SalesHeader.TestField("Sell-to Customer No.", Job."Sell-to Customer No.");
 
         if Job."Currency Code" <> '' then
             SalesHeader.TestField("Currency Code", Job."Currency Code")

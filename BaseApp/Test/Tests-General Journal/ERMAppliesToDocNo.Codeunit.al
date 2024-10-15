@@ -309,7 +309,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     begin
         // [FEATURE] [UT]
         // [SCENARIO 275071] Bal. Account Type is not changed when validate Applies-to Doc. No. in Payment Line
-        DocNo := LibraryUtility.GenerateGUID;
+        DocNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Cust. Ledger Entry with Document No. = "D"
         MockCustLedgerEntryWithDocNo(DocNo);
@@ -479,7 +479,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     begin
         CustLedgerEntry.SetRange("Document Type", LibraryVariableStorage.DequeueInteger);
         CustLedgerEntry.SetRange("Document No.", LibraryVariableStorage.DequeueText);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ApplyCustomerEntries.GotoRecord(CustLedgerEntry);
         ApplyCustomerEntries.OK.Invoke;
     end;
@@ -492,7 +492,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     begin
         VendorLedgerEntry.SetRange("Document Type", LibraryVariableStorage.DequeueInteger);
         VendorLedgerEntry.SetRange("Document No.", LibraryVariableStorage.DequeueText);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         ApplyVendorEntries.GotoRecord(VendorLedgerEntry);
         ApplyVendorEntries.OK.Invoke;
     end;
@@ -505,7 +505,7 @@ codeunit 134930 "ERM Applies-To Doc. No."
     begin
         EmployeeLedgerEntry.SetRange("Document Type", LibraryVariableStorage.DequeueInteger);
         EmployeeLedgerEntry.SetRange("Document No.", LibraryVariableStorage.DequeueText);
-        EmployeeLedgerEntry.FindFirst;
+        EmployeeLedgerEntry.FindFirst();
         ApplyEmployeeEntries.GotoRecord(EmployeeLedgerEntry);
         ApplyEmployeeEntries.OK.Invoke;
     end;

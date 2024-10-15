@@ -293,7 +293,7 @@ table 10807 "Sales Tax Setup Wizard"
 
         if NewJurisdiction then begin
             TaxJurisdiction.SetRange(Name, JurisdictionName);
-            if TaxJurisdiction.FindFirst then begin
+            if TaxJurisdiction.FindFirst() then begin
                 JurisdictionCode := TaxJurisdiction.Code;
                 NewJurisdiction := false;
             end;

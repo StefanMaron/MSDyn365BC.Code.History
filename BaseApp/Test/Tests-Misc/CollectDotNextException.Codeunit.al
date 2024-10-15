@@ -30,7 +30,7 @@ codeunit 132568 "Collect DotNext Exception"
         Commit();
 
         // Exercise
-        ReadMasterDataFromCache2.Run;
+        ReadMasterDataFromCache2.Run();
         ReadMasterDataFromCache2.GetTempBlob(TempBlob);
 
         // Pre-Verify

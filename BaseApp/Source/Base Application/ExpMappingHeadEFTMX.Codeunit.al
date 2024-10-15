@@ -16,9 +16,9 @@ codeunit 10333 "Exp. Mapping Head EFT MX"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindFirst then begin
+        if DataExchLineDef.FindFirst() then begin
             DataExch.SetRange("Entry No.", "Entry No.");
-            if DataExch.FindFirst then
+            if DataExch.FindFirst() then
                 if ACHCecobanHeader.Get("Entry No.") then begin
                     RecordRef.GetTable(ACHCecobanHeader);
                     EFTExportMgt.InsertDataExchLineForFlatFile(

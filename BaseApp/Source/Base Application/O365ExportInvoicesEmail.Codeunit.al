@@ -89,7 +89,7 @@ codeunit 2129 "O365 Export Invoices + Email"
         TempExcelBuffer.DeleteAll();
         SalesInvoiceHeader.SetRange("Document Date", StartDate, EndDate);
 
-        if not SalesInvoiceHeader.FindSet then
+        if not SalesInvoiceHeader.FindSet() then
             Error(NoInvoicesExportedErr);
 
         TempExcelBuffer.Reset();
@@ -129,7 +129,7 @@ codeunit 2129 "O365 Export Invoices + Email"
 
         if CompanyInformation.IsCanada then begin
             GetTaxSummarizedLines(TempSalesTaxAmountLine);
-            if TempSalesTaxAmountLine.FindSet then
+            if TempSalesTaxAmountLine.FindSet() then
                 repeat
                     case TempSalesTaxAmountLine."Print Description" of
                         'GST':
@@ -222,13 +222,13 @@ codeunit 2129 "O365 Export Invoices + Email"
 
     local procedure InsertSalesInvoices()
     begin
-        if SalesInvoiceHeader.FindSet then begin
+        if SalesInvoiceHeader.FindSet() then begin
             repeat
                 RowNo := RowNo + 1;
                 SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Work Description", "Invoice Discount Amount");
                 InsertSalesInvoiceSummary;
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                if SalesInvoiceLine.FindSet then begin
+                if SalesInvoiceLine.FindSet() then begin
                     repeat
                         LineRowNo := LineRowNo + 1;
                         InsertSalesLineItem;

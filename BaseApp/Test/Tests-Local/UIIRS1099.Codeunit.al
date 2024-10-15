@@ -26,7 +26,7 @@ codeunit 142078 "UI IRS 1099"
     begin
         // [SCENARIO 332661] Stan can open the "IRS 1099 Adjustments" page from the "IRS 1099 Form-Box" page under Basic application area setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Application Area - Basic
         LibraryApplicationArea.EnableBasicSetup;
@@ -67,7 +67,7 @@ codeunit 142078 "UI IRS 1099"
     begin
         // [SCENARIO 332661] Stan can drill-down to adjustments from field "Adjustments Exists" on the "IRS 1099 Form-Box" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Application Area - Basic
         LibraryApplicationArea.EnableBasicSetup;
@@ -108,7 +108,7 @@ codeunit 142078 "UI IRS 1099"
     begin
         // [SCENARIO 332661] Only adjustments related to particular IRS 1099 code opens
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Application Area - Basic
         LibraryApplicationArea.EnableBasicSetup;

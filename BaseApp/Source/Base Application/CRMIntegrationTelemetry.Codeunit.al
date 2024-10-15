@@ -12,8 +12,8 @@ codeunit 5333 "CRM Integration Telemetry"
     var
         CRMConnectionCategoryTxt: Label 'AL CRM Connection', Locked = true;
         CRMIntegrationCategoryTxt: Label 'AL CRM Integration', Locked = true;
-        EnabledConnectionTelemetryTxt: Label '{"Enabled": "Yes", "AuthenticationType": "%1", "CRMVersion": "%2", "ProxyVersion": "%3", "CRMSolutionInstalled": "%4", "SOIntegration": "%5", "AutoCreateSO": "%6", "AutoProcessSQ": "%7", "UsersMapRequired": "%8", "ItemAvailablityEnabled": "%9"}', Locked = true;
-        DisabledConnectionTelemetryTxt: Label '{"Enabled": "No", "DisableReason": "%1","AuthenticationType": "%2", "ProxyVersion": "%3", "AutoCreateSO": "%4", "UsersMapRequired": "%5"}', Locked = true;
+        EnabledConnectionTelemetryTxt: Label '{"Enabled": "Yes", "AuthenticationType": "%1", "CRMVersion": "%2", "ProxyVersion": "%3", "CRMSolutionInstalled": "%4", "SOIntegration": "%5", "AutoCreateSO": "%6", "AutoProcessSQ": "%7", "ItemAvailablityEnabled": "%8"}', Locked = true;
+        DisabledConnectionTelemetryTxt: Label '{"Enabled": "No", "DisableReason": "%1","AuthenticationType": "%2", "ProxyVersion": "%3", "AutoCreateSO": "%4"}', Locked = true;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IntegrationTableStatsTxt: Label '{"IntegrationName": "%1", "TableID": "%2", "IntTableID": "%3", "TableName": "%4", "IntegrationTableName": "%5", Direction": "%6", "SyncCoupledOnly": "%7", "SyncJobsTotal": "%8", "TotalRecords": "%9", "CoupledRecords": "%10", "CoupledErrors": "%11"}', Locked = true;
         NoPermissionTxt: Label '{"READPERMISSION": "No"}', Locked = true;
@@ -29,7 +29,7 @@ codeunit 5333 "CRM Integration Telemetry"
                 EnabledConnectionTelemetryTxt,
                 Format("Authentication Type"), "CRM Version", "Proxy Version", "Is CRM Solution Installed",
                 "Is S.Order Integration Enabled", "Auto Create Sales Orders", "Auto Process Sales Quotes",
-                "Is User Mapping Required", CRMIntegrationManagement.IsItemAvailabilityEnabled));
+                CRMIntegrationManagement.IsItemAvailabilityEnabled));
     end;
 
     local procedure GetDisabledConnectionTelemetryData(CRMConnectionSetup: Record "CRM Connection Setup"): Text
@@ -38,7 +38,7 @@ codeunit 5333 "CRM Integration Telemetry"
             exit(
               StrSubstNo(
                 DisabledConnectionTelemetryTxt,
-                "Disable Reason", Format("Authentication Type"), "Proxy Version", "Auto Create Sales Orders", "Is User Mapping Required"));
+                "Disable Reason", Format("Authentication Type"), "Proxy Version", "Auto Create Sales Orders"));
     end;
 
     local procedure GetIntegrationStatsTelemetryData() Data: Text
@@ -54,7 +54,7 @@ codeunit 5333 "CRM Integration Telemetry"
 
         Data := '[';
         with IntegrationTableMapping do
-            if FindSet then
+            if FindSet() then
                 repeat
                     TableRecRef.Open("Table ID");
                     IntTableRecRef.Open("Integration Table ID");

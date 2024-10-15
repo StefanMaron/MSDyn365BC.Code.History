@@ -6082,12 +6082,6 @@ End Function
         <Field Name="TransHeaderAmountFormat">
           <DataField>TransHeaderAmountFormat</DataField>
         </Field>
-        <Field Name="CrossReferenceNo">
-          <DataField>CrossReferenceNo</DataField>
-        </Field>
-        <Field Name="CrossReferenceNo_Lbl">
-          <DataField>CrossReferenceNo_Lbl</DataField>
-        </Field>
         <Field Name="ItemReferenceNo">
           <DataField>ItemReferenceNo</DataField>
         </Field>

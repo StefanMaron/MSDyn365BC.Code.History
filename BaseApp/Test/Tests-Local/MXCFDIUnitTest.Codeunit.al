@@ -41,7 +41,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check that error comes when the PAC code setup is deleted defined on General Ledger Setup.
 
         // Setup : Create new PAC Setup with unique PAC Code and update that in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService);
         UpdateGLSetupPACCode(GeneralLedgerSetup, PACWebService.Code, true);
 
@@ -64,7 +64,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check if value on General Ledger Setup is updated with new PAC code created after deletion of other PAC code.
 
         // Setup : Create 2 new PAC Setups with unique PAC Code and update General Ledger Setup with 2nd new PAC code.
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService[1]);
         CreatePACSetup(PACWebService[2]);
         UpdateGLSetupPACCode(GeneralLedgerSetup, PACWebService[2].Code, true);
@@ -88,7 +88,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check PAC Web Service details is deleted on deletion of related PAC code.
 
         // Setup : Create new PAC Setup with unique PAC Code
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService);
         PACCode := PACWebService.Code;
         CreateMultiplePACDetails(PACWebService.Code);
@@ -112,7 +112,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check GL setup is renamed when the PAC code attached is renamed.
 
         // Setup : Create new PAC Setup with unique PAC Code
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService);
         UpdateGLSetupPACCode(GeneralLedgerSetup, PACWebService.Code, true);
 
@@ -136,7 +136,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check PAC Web Service details is renamed on renaming of related PAC code.
 
         // Setup : Create new PAC Setup with unique PAC Code
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService);
         CreateMultiplePACDetails(PACWebService.Code);
 
@@ -161,7 +161,7 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check if value of Environment code on General Ledger Setup is updated to Disabled when the PAC code is made balnk.
 
         // Setup : Create new PAC Setup with unique PAC Code
-        Initialize;
+        Initialize();
         CreatePACSetup(PACWebService);
 
         // Exercise : Update General Ledger Setup with new PAC code and set Environment code to Test,then make PAC code blank on GL Setup.
@@ -258,7 +258,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         asserterror EInvoiceMgt.EDocActionValidation(Action, Status);
@@ -749,7 +749,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(false);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::" ", LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::" ", LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -760,7 +760,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::" ", LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::" ", LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -770,7 +770,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Stamp Received", LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Stamp Received", LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -780,7 +780,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::Sent, LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::Sent, LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -791,7 +791,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::Canceled, LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::Canceled, LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -802,7 +802,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Stamp Request Error", LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Stamp Request Error", LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -813,7 +813,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         UpdateGLSetupPACEnvironment(true);
-        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Cancel Error", LibraryUtility.GenerateGUID);
+        EInvoiceMgt.EDocPrintValidation(EDocStatus::"Cancel Error", LibraryUtility.GenerateGUID());
     end;
 
     [Test]
@@ -829,19 +829,19 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 304691] CFDI Purpose and CFDI Relation fields are enabled for Sales Documents
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesOrder."CFDI Relation".Enabled, '');
         SalesOrder.Close;
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesInvoice."CFDI Relation".Enabled, '');
         SalesInvoice.Close;
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
         SalesCreditMemo.Close;
@@ -858,7 +858,7 @@ codeunit 144000 "MX CFDI Unit Test"
         Assert.IsFalse(PostedSalesCreditMemo."CFDI Purpose".Editable, '');
         Assert.IsFalse(PostedSalesCreditMemo."CFDI Relation".Editable, '');
 
-        SalesReturnOrder.OpenNew;
+        SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesReturnOrder."CFDI Relation".Enabled, '');
         SalesReturnOrder.Close;
@@ -874,19 +874,19 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Service]
         // [SCENARIO 304691] CFDI Purpose and CFDI Relation fields are enabled for Service Documents
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
-        ServiceOrder.OpenNew;
+        ServiceOrder.OpenNew();
         Assert.IsTrue(ServiceOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceOrder."CFDI Relation".Enabled, '');
         ServiceOrder.Close;
 
-        ServiceInvoice.OpenNew;
+        ServiceInvoice.OpenNew();
         Assert.IsTrue(ServiceInvoice."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceInvoice."CFDI Relation".Enabled, '');
         ServiceInvoice.Close;
 
-        ServiceCreditMemo.OpenNew;
+        ServiceCreditMemo.OpenNew();
         Assert.IsTrue(ServiceCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceCreditMemo."CFDI Relation".Enabled, '');
         ServiceCreditMemo.Close;
@@ -970,7 +970,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 304691] CFDI Purpose and CFDI Relation fields are taken from Customer in Posted Sales Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
@@ -989,13 +989,13 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 304691] CFDI Purpose and CFDI Relation fields are taken from Customer in Posted Service Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("CFDI Purpose", Customer."CFDI Purpose");
         ServiceInvoiceHeader.TestField("CFDI Relation", Customer."CFDI Relation");
     end;
@@ -1010,7 +1010,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 304691] Changed CFDI Purpose and CFDI Relation fields are taken from Service Header in Posted Sales Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
@@ -1032,7 +1032,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 304691] Changed CFDI Purpose and CFDI Relation fields are taken from Service Header in Posted Service Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
@@ -1041,7 +1041,7 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceHeader.Modify();
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("CFDI Purpose", ServiceHeader."CFDI Purpose");
         ServiceInvoiceHeader.TestField("CFDI Relation", ServiceHeader."CFDI Relation");
     end;
@@ -1058,7 +1058,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 319131] Post Sales Invoice with CFDI Relation Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
@@ -1092,7 +1092,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 319131] Post Service Invoice with CFDI Relation Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
@@ -1105,7 +1105,7 @@ codeunit 144000 "MX CFDI Unit Test"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
           DATABASE::"Service Invoice Header", 0, ServiceInvoiceHeader."No.",
@@ -1128,7 +1128,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 319131] Add CFDI Related Documents from Sales Invoice page
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
@@ -1160,7 +1160,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 319131] Add CFDI Related Documents from Sales Order page
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
@@ -1193,7 +1193,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 319131] Add CFDI Related Documents from Sales Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for customer, posted sales invoice and two credit memos applied to the invoice
         // [GIVEN] Fiscal Invoice Numbers assigned to invoice and credit memos as "UUID-Inv","UUID-1", "UUID-2"
@@ -1239,7 +1239,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Service]
         // [SCENARIO 319131] Add CFDI Related Documents from Service Invoice page
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
@@ -1271,7 +1271,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Service]
         // [SCENARIO 319131] Add CFDI Related Documents from Service Order page
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
@@ -1304,7 +1304,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Service]
         // [SCENARIO 319131] Add CFDI Related Documents from Service Order page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order for customer, posted service invoice and two credit memos applied to the invoice
         // [GIVEN] Fiscal Invoice Numbers assigned to invoice and credit memos as "UUID-Inv","UUID-1", "UUID-2"
@@ -1350,7 +1350,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 319131] Cannot request for Replacement Sales Invoice stamp when "CFDI Relation" = Substitution of previous CFDIs
-        Initialize;
+        Initialize();
         UpdateGLSetupSAT;
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
@@ -1376,14 +1376,14 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 319131] Cannot request for Replacement Service Invoice stamp when "CFDI Relation" = Substitution of previous CFDIs
-        Initialize;
+        Initialize();
         UpdateGLSetupSAT;
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader."CFDI Relation" := '04';
         ServiceInvoiceHeader.Modify();
         ErrorMessages.Trap;
@@ -1435,7 +1435,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Invoice Header with long values in fields "Bill-to Name" etc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Invoice Line, field "Description" contains value with maximum field length.
@@ -1468,7 +1468,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Credit Memo Header with long values in fields "Bill-to Name" etc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Credit Memo Line, field "Description" contains value with maximum field length.
@@ -1501,7 +1501,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Invoice Header with long values in fields "Bill-to Name" etc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice Header, fields "Bill-to Name/Address/Contact", "Name/Address/Contact Name" contain values with maximum field length.
         // [GIVEN] Service Invoice Line, field "Description" contains value with maximum field length.
@@ -1534,7 +1534,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Credit Memo Header with long values in fields "Bill-to Name" etc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Service Credit Memo Line, field "Description" contains value with maximum field length.
@@ -1568,7 +1568,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 334952] Post Sales Credit Memo with CFDI Relation Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
@@ -1605,7 +1605,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 334952] Post Service Credit Memo with CFDI Relation Documents
-        Initialize;
+        Initialize();
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
@@ -1620,7 +1620,7 @@ codeunit 144000 "MX CFDI Unit Test"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceCrMemoHeader.SetRange("Customer No.", Customer."No.");
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
           DATABASE::"Service Cr.Memo Header", 0, ServiceCrMemoHeader."No.",
@@ -1643,7 +1643,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 334952] Add CFDI Related Documents from Sales Credit Memo page
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
@@ -1675,7 +1675,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI] [Service]
         // [SCENARIO 334952] Add CFDI Related Documents from Service Credit Memo page
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
@@ -1778,7 +1778,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 338353] 'VAT Exemption' and 'No Taxable' fields are enabled in VAT Posting Setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         VATPostingSetup.OpenEdit;
         Assert.IsTrue(VATPostingSetup."CFDI VAT Exemption".Enabled, '');
@@ -2009,7 +2009,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
 
         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         VerifyCancelOfRetentionLines(SalesCrMemoHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
     end;
 
@@ -2034,13 +2034,13 @@ codeunit 144000 "MX CFDI Unit Test"
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
 
         SalesHeader.SetRange("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         VerifyCopyOfRetentionLines(SalesHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
     end;
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -2187,9 +2187,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Bill-to Customer No." := CustomerNo;
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
         SalesInvoiceHeader.Insert();
         MockCustomerLedgerEntry(CustomerNo, DummyCustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeader."No.");
@@ -2200,9 +2200,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SalesCrMemoHeader.Init();
-        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader."Bill-to Customer No." := CustomerNo;
-        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
         SalesCrMemoHeader."Applies-to Doc. Type" := SalesCrMemoHeader."Applies-to Doc. Type"::Invoice;
         SalesCrMemoHeader."Applies-to Doc. No." := AppliesToDocNo;
@@ -2215,9 +2215,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         ServiceInvoiceHeader.Init();
-        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader."Bill-to Customer No." := CustomerNo;
-        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader.Insert();
         MockCustomerLedgerEntry(CustomerNo, DummyCustLedgerEntry."Document Type"::Invoice, ServiceInvoiceHeader."No.");
     end;
@@ -2227,9 +2227,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         ServiceCrMemoHeader.Init();
-        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         ServiceCrMemoHeader."Bill-to Customer No." := CustomerNo;
-        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceCrMemoHeader."Applies-to Doc. Type" := ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice;
         ServiceCrMemoHeader."Applies-to Doc. No." := AppliesToDocNo;
         ServiceCrMemoHeader.Insert();
@@ -2255,7 +2255,7 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
         SalesInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, SalesInvoiceLine.FieldNo("Line No."));
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
-        SalesInvoiceLine."No." := LibraryInventory.CreateItemNo;
+        SalesInvoiceLine."No." := LibraryInventory.CreateItemNo();
         SalesInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesInvoiceLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesInvoiceLine.Insert();
@@ -2267,7 +2267,7 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
         SalesCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, SalesCrMemoLine.FieldNo("Line No."));
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::Item;
-        SalesCrMemoLine."No." := LibraryInventory.CreateItemNo;
+        SalesCrMemoLine."No." := LibraryInventory.CreateItemNo();
         SalesCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesCrMemoLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesCrMemoLine.Insert();
@@ -2279,7 +2279,7 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceInvoiceLine."Document No." := ServiceInvoiceHeader."No.";
         ServiceInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(ServiceInvoiceLine, ServiceInvoiceLine.FieldNo("Line No."));
         ServiceInvoiceLine.Type := ServiceInvoiceLine.Type::Item;
-        ServiceInvoiceLine."No." := LibraryInventory.CreateItemNo;
+        ServiceInvoiceLine."No." := LibraryInventory.CreateItemNo();
         ServiceInvoiceLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceInvoiceLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -2293,7 +2293,7 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
         ServiceCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(ServiceCrMemoLine, ServiceCrMemoLine.FieldNo("Line No."));
         ServiceCrMemoLine.Type := ServiceCrMemoLine.Type::Item;
-        ServiceCrMemoLine."No." := LibraryInventory.CreateItemNo;
+        ServiceCrMemoLine."No." := LibraryInventory.CreateItemNo();
         ServiceCrMemoLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceCrMemoLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -2341,13 +2341,13 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         with CompanyInformation do begin
             Get;
-            Name := LibraryUtility.GenerateGUID;
-            "RFC No." := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
-            City := LibraryUtility.GenerateGUID;
-            "Post Code" := LibraryUtility.GenerateGUID;
-            "E-Mail" := LibraryUtility.GenerateGUID;
-            "Tax Scheme" := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
+            "RFC No." := LibraryUtility.GenerateGUID();
+            Address := LibraryUtility.GenerateGUID();
+            City := LibraryUtility.GenerateGUID();
+            "Post Code" := LibraryUtility.GenerateGUID();
+            "E-Mail" := LibraryUtility.GenerateGUID();
+            "Tax Scheme" := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -2378,7 +2378,7 @@ codeunit 144000 "MX CFDI Unit Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."SAT Certificate" := LibraryUtility.GenerateGUID;
+        GeneralLedgerSetup."SAT Certificate" := LibraryUtility.GenerateGUID();
         GeneralLedgerSetup.Modify();
     end;
 
@@ -2433,7 +2433,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CFDIRelationDocument.SetRange("Document Type", DocumentType);
         CFDIRelationDocument.SetRange("Document No.", DocumentNo);
         CFDIRelationDocument.SetRange("Related Doc. No.", RelatedDocNo);
-        CFDIRelationDocument.FindFirst;
+        CFDIRelationDocument.FindFirst();
         CFDIRelationDocument.TestField("Fiscal Invoice Number PAC", FiscalInvoiceNo);
     end;
 

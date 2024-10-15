@@ -263,7 +263,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -310,25 +316,25 @@ codeunit 131305 "Library - ERM Country Data"
         GLAccount.SetCurrentKey("Gen. Prod. Posting Group");
         GLAccount.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
         GLAccount.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             GLAccount.ModifyAll("VAT Prod. Posting Group", VATProdPostingGroup, false);
 
         Item.SetCurrentKey("Gen. Prod. Posting Group");
         Item.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        if Item.FindSet then
+        if Item.FindSet() then
             Item.ModifyAll("VAT Prod. Posting Group", VATProdPostingGroup, false);
 
         ItemCharge.SetCurrentKey("Gen. Prod. Posting Group");
         ItemCharge.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
         ItemCharge.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        if ItemCharge.FindSet then
+        if ItemCharge.FindSet() then
             ItemCharge.ModifyAll("VAT Prod. Posting Group", VATProdPostingGroup, false);
 
         Resource.SetCurrentKey("Gen. Prod. Posting Group");
         Resource.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
         Resource.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        if Resource.FindSet then
+        if Resource.FindSet() then
             Resource.ModifyAll("VAT Prod. Posting Group", VATProdPostingGroup, false);
     end;
 
@@ -340,7 +346,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         // Assign Def. VAT Prod. Posting Group to a Gen. Prod. Posting Group based on W1.
         GenProdPostingGroup.SetFilter("Def. VAT Prod. Posting Group", '');
-        if GenProdPostingGroup.FindSet then
+        if GenProdPostingGroup.FindSet() then
             repeat
                 DefVATProdPostingGroup := '';
                 if GenProdPostingGroup.Code in ['SERVICIOS', 'SERVICES'] then // Hardcoding to match MX.

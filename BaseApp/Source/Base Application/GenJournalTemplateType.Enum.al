@@ -42,6 +42,9 @@ enum 89 "Gen. Journal Template Type"
     value(9; Deposits)
     {
         Caption = 'Deposits';
+        ObsoleteReason = 'Replaced by new Bank Deposits extension';
+        ObsoleteState = Pending;
+        ObsoleteTag = '20.0';
     }
     value(10; "Sales Tax")
     {

@@ -222,7 +222,7 @@ page 10045 "Purchase Invoice Stats."
         with TempSalesTaxAmtLine do begin
             Reset;
             SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if ("Print Order" = 0) or
                        ("Print Order" <> PrevPrintOrder) or

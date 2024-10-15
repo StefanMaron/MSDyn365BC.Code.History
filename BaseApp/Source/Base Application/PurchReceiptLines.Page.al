@@ -216,7 +216,7 @@ page 5806 "Purch. Receipt Lines"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedOnly = true;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -278,12 +278,12 @@ page 5806 "Purch. Receipt Lines"
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
-        if not TempPurchRcptLine.FindFirst then begin
+        if not TempPurchRcptLine.FindFirst() then begin
             FilterGroup(2);
             PurchRcptLine.CopyFilters(Rec);
             FilterGroup(0);
             PurchRcptLine.SetRange("Document No.", "Document No.");
-            if not PurchRcptLine.FindFirst then
+            if not PurchRcptLine.FindFirst() then
                 exit(false);
             TempPurchRcptLine := PurchRcptLine;
             TempPurchRcptLine.Insert();
@@ -296,7 +296,7 @@ page 5806 "Purch. Receipt Lines"
     begin
         FromPurchRcptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(FromPurchRcptLine);
-        if FromPurchRcptLine.FindFirst then begin
+        if FromPurchRcptLine.FindFirst() then begin
             ItemChargeAssgntPurch."Unit Cost" := UnitCost;
             AssignItemChargePurch.CreateRcptChargeAssgnt(FromPurchRcptLine, ItemChargeAssgntPurch);
         end;

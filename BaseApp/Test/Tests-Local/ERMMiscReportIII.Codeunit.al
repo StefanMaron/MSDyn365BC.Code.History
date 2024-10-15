@@ -202,7 +202,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Payment Journal Test report with Show Dimensions option.
 
         // Setup: Create a payment entry for a vendor with dimensions.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, CreateVendor, Dimension.Code, DimensionValue.Code);
@@ -240,7 +240,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Top Vendor List Report with Show as Balances.
 
         // Setup: Create and post invoices for two vendors.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use random for Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Use random for Direct Unit Cost.
         CreateAndPostInvoiceAndFindVendorLedgerEntry(VendorLedgerEntry, Quantity, 3 * DirectUnitCost);  // To generate greater amount.
@@ -270,7 +270,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Top Vendor List Report with Show as Purchases.
 
         // Setup: Create and post invoices for two vendors.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use random for Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Use random for Direct Unit Cost.
         CreateAndPostInvoiceAndFindVendorLedgerEntry(VendorLedgerEntry, Quantity, 3 * DirectUnitCost);  // To generate greater amount.
@@ -295,7 +295,7 @@ codeunit 142062 "ERM Misc. Report III"
         CompanyInformation: Record "Company Information";
     begin
         // Verify Sales Invoice Report with Company Address and without Log Interaction.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         RunAndVerifySalesInvoiceReport(CompanyInformation.Name, true, false, true);
     end;
@@ -306,7 +306,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure SalesInvoiceReportWithLogInteraction()
     begin
         // Verify Sales Invoice Report without Company Address and with Log Interaction.
-        Initialize;
+        Initialize();
         RunAndVerifySalesInvoiceReport('', false, true, false);
     end;
 
@@ -322,7 +322,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Sales Shipment Report with Company Address and Log Interaction.
 
         // Setup: Create and post Sales Invoice.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, false);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for SalesShipmentRequestPageHandler.
@@ -349,7 +349,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Sales Quote Report with Company Address and Log Interaction.
 
         // Setup: Create Sales Quote.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for SalesQuoteRequestPageHandler.
@@ -374,7 +374,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Sales Order Report with Company Address and Log Interaction.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for SalesOrderRequestPageHandler.
@@ -400,7 +400,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Sales Credit Memo Report with Company Address and Log Interaction.
 
         // Setup: Create and post Sales Credit Memo.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", true);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for SalesCreditMemoRequestPageHandler.
@@ -422,7 +422,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Item Turnover Report with Item No. filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(ItemJournalLine);
 
         // Exercise.
@@ -444,7 +444,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Item Turnover Report with only Date filter and other fields are blank.
 
         // Setup: Create and post Item Journal with different Items.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(ItemJournalLine);
         CreateAndPostItemJournalLine(ItemJournalLine2);
 
@@ -481,7 +481,7 @@ codeunit 142062 "ERM Misc. Report III"
     local procedure RunAndVerifyPurchaseAdviceReport(var SalesLine: Record "Sales Line"; DateFilter: Date; No: Code[20])
     begin
         // Setup: Create Sales Order
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
@@ -519,7 +519,7 @@ codeunit 142062 "ERM Misc. Report III"
     local procedure RunAndVerifyPurchaseOrderStatusReport(var PurchaseLine: Record "Purchase Line"; DateFilter: Date; No: Code[20])
     begin
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, CreateItem,
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));  // Used Random value for Quantity.
@@ -555,7 +555,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify the error thrown when report GST/HST Internet File Transfer is run without mandatory filters.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         LibraryVariableStorage.Enqueue(StartDate);  // Enqueue values for GSTHSTInternetFileTransferRequestPageHandler.
@@ -579,7 +579,7 @@ codeunit 142062 "ERM Misc. Report III"
         // Verify Sales Order Report with Line Amount Excl. Tax. BUGID:151937.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for SalesOrderRequestPageHandler.
         Commit();  // Codeunit 313 Sales-Printed OnRun Calls Commit();
@@ -598,7 +598,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure SalesInvoiceReportWithAssemblyComponents()
     begin
         // Verify Sales Invoice Report with 'Show Assembly Components' option.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         RunAndVerifySalesInvoiceReportAssembly(2);
     end;
@@ -609,7 +609,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure SalesInvoiceReportTotalsWithCurrency()
     begin
         // Verify Total caption for Sales Invoice Report (given currency).
-        Initialize;
+        Initialize();
         RunAndVerifySalesInvoiceReportTotals(CreateCurrencyWithExchangeRate);
     end;
 
@@ -619,7 +619,7 @@ codeunit 142062 "ERM Misc. Report III"
     procedure SalesInvoiceReportTotalsWithoutCurrency()
     begin
         // Verify Total caption for Sales Invoice Report (local currency).
-        Initialize;
+        Initialize();
         RunAndVerifySalesInvoiceReportTotals('');
     end;
 
@@ -631,7 +631,7 @@ codeunit 142062 "ERM Misc. Report III"
         Vendor: Record Vendor;
     begin
         // Verify Total caption for Purchase Invoice Report (given currency).
-        Initialize;
+        Initialize();
         CreateVendorWithCurrency(Vendor);
         RunAndVerifyPurchInvoiceReportTotals(Vendor);
     end;
@@ -644,7 +644,7 @@ codeunit 142062 "ERM Misc. Report III"
         Vendor: Record Vendor;
     begin
         // Verify Total caption for Purchase Invoice Report (local currency).
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         RunAndVerifyPurchInvoiceReportTotals(Vendor);
     end;
@@ -662,7 +662,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Sales Invoice] [Assembly]
         // [SCENARIO 375200] Sales Invoice Report should not take into account adjustment Value Entry for calculating Order Qty of assembly components
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [GIVEN] Component Item with "Quantity Per" = "X" of Assembly Item
@@ -698,19 +698,19 @@ codeunit 142062 "ERM Misc. Report III"
         TotalDepositAmount: Decimal;
     begin
         // [SCENARIO 376193] Totals should be showing and correct in Deposit report after applying
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deposit with one line applying to posted sales invoice
         // [GIVEN] Total Deposit Amount = "X"
         UpdateGLSetupDepositNos;
         DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, true);
         TotalDepositAmount := CreateAndPostDepositWithApplyDoc(DocumentNo, SalesLine."Sell-to Customer No.");
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
         // [WHEN] Invoke Deposit report
-        Deposit.Run;
+        Deposit.Run();
 
         // [THEN] Field of total = "X"
         LibraryReportValidation.OpenExcelFile;
@@ -728,7 +728,7 @@ codeunit 142062 "ERM Misc. Report III"
         DescLineNo: array[2] of Integer;
     begin
         // [SCENARIO 378362] Additional descriptions in posted sales invoice should be show on Sales Invoice report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with additional descriptions in lines
         // [GIVEN] First line has Type = Item
@@ -759,10 +759,10 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [SCENARIO 256995] "Picking List by Order" report should be available under #Suite application area
 
-        Initialize;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        Initialize();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         SalesOrder.OpenView;
         Assert.IsTrue(SalesOrder."Report Picking List by Order".Enabled, 'Action must be enabled in Foundation');
     end;
@@ -775,8 +775,8 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [SCENARIO 256995] "Picking List by Order" report should not be available under #Basic application area
 
-        Initialize;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        Initialize();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
         LibraryApplicationArea.EnableBasicSetup;
         SalesOrder.OpenView;
@@ -801,7 +801,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Vendor]
         // [SCENARIO 294940] Vendor Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -856,7 +856,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Customer]
         // [SCENARIO 294940] Customer Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -911,7 +911,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Vendor]
         // [SCENARIO 294940] Vendor Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -966,7 +966,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Customer]
         // [SCENARIO 294940] Customer Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1021,7 +1021,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Vendor]
         // [SCENARIO 294940] Vendor Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1076,7 +1076,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Customer]
         // [SCENARIO 294940] Customer Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1131,7 +1131,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Vendor]
         // [SCENARIO 294940] Vendor Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1186,7 +1186,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Report] [Check] [Customer]
         // [SCENARIO 294940] Customer Check total is equal to Payment Amount, when Payment Amount is larger than sum of 10 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1234,7 +1234,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Order" available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1262,9 +1262,9 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Order" available under #Suite application area
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Commit();
 
         REPORT.Run(REPORT::"Purchase Order", true, false, PurchaseHeader);
@@ -1290,7 +1290,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Order (Pre-Printed)" available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1318,9 +1318,9 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Order (Pre-Printed)" available under #Suite application area
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Commit();
 
         REPORT.Run(REPORT::"Purchase Order (Pre-Printed)", true, false, PurchaseHeader);
@@ -1346,7 +1346,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Return Order Confirm" available under #PurchaseReturnOrder application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnablePurchaseReturnOrderSetup;
         Commit();
@@ -1374,7 +1374,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Return Order Confirm" are not available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1402,9 +1402,9 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Blanket Order" available under #Suite application area
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         Commit();
 
         REPORT.Run(REPORT::"Purchase Blanket Order", true, false, PurchaseHeader);
@@ -1429,7 +1429,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Purchase Blanket Order" are not available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1456,7 +1456,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Service Credit Memo-Sales Tax" available under #Service application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableServiceManagementSetup;
         Commit();
@@ -1482,7 +1482,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Service Credit Memo-Sales Tax" are not available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1508,7 +1508,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Service Credit Memo-Sales Tax" available under #Service application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableServiceManagementSetup;
         Commit();
@@ -1535,7 +1535,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [Application Area] [UT]
         // [SCENARIO 313611] Request page options of report "Service Credit Memo-Sales Tax" are not available under #Basic application area
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
@@ -1562,7 +1562,7 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Report "Purchase Advice" is being printed to PDF
@@ -1751,15 +1751,15 @@ codeunit 142062 "ERM Misc. Report III"
         InventorySetup: Record "Inventory Setup";
         TaxSetup: Record "Tax Setup";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
 
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         TaxSetup.DeleteAll();
         TaxSetup.Init();
@@ -1968,7 +1968,7 @@ codeunit 142062 "ERM Misc. Report III"
         RecRef.GetTable(SalesLine);
         SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
         DescLineNo := SalesLine."Line No.";
-        SalesLine.Description := LibraryUtility.GenerateGUID;
+        SalesLine.Description := LibraryUtility.GenerateGUID();
         Desc := SalesLine.Description + ' ';
         SalesLine.Insert();
     end;
@@ -2153,7 +2153,7 @@ codeunit 142062 "ERM Misc. Report III"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry."Applies-to Doc. No." := GenJnlLineNo;
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.Modify();
@@ -2171,7 +2171,7 @@ codeunit 142062 "ERM Misc. Report III"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
@@ -2179,7 +2179,7 @@ codeunit 142062 "ERM Misc. Report III"
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure RunAndVerifySalesInvoiceReport(CompanyInformationName: Text[100]; PrintCompany: Boolean; LogInteraction: Boolean; ActualLogInteraction: Boolean)

@@ -48,7 +48,7 @@ codeunit 2003 "ML Prediction Management"
         ApiKey := Key;
         ApiTimeout := TimeOutSeconds;
         UsingKeyvaultCredentials := false;
-        DefaultInitialize;
+        DefaultInitialize();
     end;
 
     [NonDebuggable]
@@ -67,7 +67,7 @@ codeunit 2003 "ML Prediction Management"
         GetMachineLearningCredentials(ApiUri, ApiKey, LimitType, LimitValue);
         ApiTimeout := TimeOutSeconds;
         UsingKeyvaultCredentials := true;
-        DefaultInitialize;
+        DefaultInitialize();
     end;
 
     [Scope('OnPrem')]
@@ -312,7 +312,7 @@ codeunit 2003 "ML Prediction Management"
         TestFeatureLabelInitialized;
         DataTypeManagement.GetRecordRef(RecordVar, RecRef);
 
-        if not RecRef.FindSet then
+        if not RecRef.FindSet() then
             exit(false);
 
         // 20 is the minimum number of data points for which the decision
@@ -384,7 +384,7 @@ codeunit 2003 "ML Prediction Management"
         AzureMLConnector.AddInputColumnName('label');
 
         DataTypeManagement.GetRecordRef(RecordVar, RecRef);
-        if not RecRef.FindSet then
+        if not RecRef.FindSet() then
             exit(false);
 
         repeat
@@ -478,7 +478,7 @@ codeunit 2003 "ML Prediction Management"
         LabelColumnNumber := MaxNoFeatures + 1;
         ConfidenceColumnNumber := LabelColumnNumber + 1;
         DataTypeManagement.GetRecordRef(RecordVar, RecRef);
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             repeat
                 if ConfidenceNo <> 0 then begin
                     AzureMLConnector.GetOutput(RowNumber, ConfidenceColumnNumber, OutputValue);
@@ -494,7 +494,7 @@ codeunit 2003 "ML Prediction Management"
                 RecRef.Modify(true);
                 RowNumber := RowNumber + 1;
             until RecRef.Next() = 0;
-        if RecRef.FindSet then
+        if RecRef.FindSet() then
             RecRef.SetTable(RecordVar);
     end;
 

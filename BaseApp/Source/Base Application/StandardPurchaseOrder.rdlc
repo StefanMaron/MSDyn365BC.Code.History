@@ -527,9 +527,6 @@ End Function
         <Field Name="VendorItemNo_PurchLine">
           <DataField>VendorItemNo_PurchLine</DataField>
         </Field>
-        <Field Name="CrossReferenceNo_PurchLine">
-          <DataField>CrossReferenceNo_PurchLine</DataField>
-        </Field>
         <Field Name="ItemReferenceNo_PurchLine">
           <DataField>ItemReferenceNo_PurchLine</DataField>
         </Field>

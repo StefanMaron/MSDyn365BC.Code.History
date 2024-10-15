@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 10141 "Deposit Subform"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 10141 "Deposit Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Gen. Journal Line";
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -44,7 +48,7 @@ page 10141 "Deposit Subform"
                         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
                         DepositHeader.SetRange("Journal Template Name", "Journal Template Name");
                         DepositHeader.SetRange("Journal Batch Name", "Journal Batch Name");
-                        if DepositHeader.FindFirst then begin
+                        if DepositHeader.FindFirst() then begin
                             Validate("Currency Code", DepositHeader."Currency Code");
                             Validate("Posting Date", DepositHeader."Posting Date");
                         end;
@@ -122,6 +126,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -135,6 +140,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -148,6 +154,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -161,6 +168,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -174,6 +182,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -187,6 +196,7 @@ page 10141 "Deposit Subform"
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
+                    ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
                     TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
                                                                   "Dimension Value Type" = CONST(Standard),
@@ -332,7 +342,7 @@ page 10141 "Deposit Subform"
         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
         DepositHeader.SetRange("Journal Template Name", "Journal Template Name");
         DepositHeader.SetRange("Journal Batch Name", "Journal Batch Name");
-        DepositHeader.FindFirst;
+        DepositHeader.FindFirst();
         "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
         "Bal. Account No." := DepositHeader."Bank Account No.";
         "Currency Code" := DepositHeader."Currency Code";
@@ -378,3 +388,4 @@ page 10141 "Deposit Subform"
     end;
 }
 
+#endif

@@ -149,7 +149,7 @@ report 6004 "Batch Post Service Invoices"
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Service Header"."Document Type");
         ServLine.SetRange("Document No.", "Service Header"."No.");
-        if ServLine.FindFirst then
+        if ServLine.FindFirst() then
             if ServCalcDisc.Run(ServLine) then begin
                 "Service Header".Get("Service Header"."Document Type", "Service Header"."No.");
                 Commit();

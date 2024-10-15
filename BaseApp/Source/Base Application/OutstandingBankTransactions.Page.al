@@ -86,7 +86,7 @@ page 1284 "Outstanding Bank Transactions"
 
     trigger OnOpenPage()
     begin
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     var

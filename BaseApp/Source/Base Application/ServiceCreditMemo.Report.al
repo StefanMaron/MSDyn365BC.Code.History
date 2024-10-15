@@ -75,10 +75,10 @@ report 5912 "Service - Credit Memo"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_ServCrMemoHdr; "Service Cr.Memo Header"."Bill-to Customer No.")
@@ -585,6 +585,9 @@ report 5912 "Service - Credit Memo"
 
                 FormatAddressFields("Service Cr.Memo Header");
                 FormatDocumentFields("Service Cr.Memo Header");
+		
+                if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
@@ -662,6 +665,7 @@ report 5912 "Service - Credit Memo"
         Text006: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

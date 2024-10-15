@@ -1,3 +1,5 @@
+#if not CLEAN18
+#pragma warning disable
 codeunit 5450 "Graph Subscription Management"
 {
     ObsoleteState = Pending;
@@ -22,7 +24,6 @@ codeunit 5450 "Graph Subscription Management"
     end;
 
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
         SyncModeOption: Option Full,Delta;
         ChangeType: Option Created,Updated,Deleted,Missed;
 
@@ -55,7 +56,7 @@ codeunit 5450 "Graph Subscription Management"
         WebhookSubscription: Record "Webhook Subscription";
         WebhookSubscription2: Record "Webhook Subscription";
     begin
-        if WebhookSubscription.FindSet then
+        if WebhookSubscription.FindSet() then
             repeat
                 if (WebhookSubscription.Endpoint = ResourceUrl) and
                    (WebhookSubscription."Company Name" = CompName)
@@ -69,11 +70,7 @@ codeunit 5450 "Graph Subscription Management"
     [Obsolete('This function will be removed, Graph Integration Record is not supported any more.', '18.0')]
     procedure GetDestinationRecordRef(var NAVRecordRef: RecordRef; WebhookNotification: Record "Webhook Notification"; TableID: Integer) Retrieved: Boolean
     var
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        DestinationRecordId: RecordID;
     begin
-        if GraphIntegrationRecord.FindRecordIDFromID(WebhookNotification."Resource ID", TableID, DestinationRecordId) then
-            Retrieved := NAVRecordRef.Get(DestinationRecordId);
     end;
 
     procedure GetGraphSubscriptionType(): Text[250]
@@ -104,69 +101,18 @@ codeunit 5450 "Graph Subscription Management"
 
     [Obsolete('This function will be removed, Graph Integration Record is not supported any more.', '18.0')]
     procedure UpdateGraphOnAfterDelete(var EntityRecordRef: RecordRef)
-    var
-        IntegrationRecordArchive: Record "Integration Record Archive";
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
-        if EntityRecordRef.IsTemporary then
-            exit;
-
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Background then
-            exit;
-
-        if not GraphSyncRunner.IsGraphSyncEnabled then
-            exit;
-
-        if not IntegrationRecordArchive.FindByRecordId(EntityRecordRef.RecordId) then
-            exit;
-
-        if CanScheduleSyncTasks then
-            TASKSCHEDULER.CreateTask(CODEUNIT::"Graph Sync. Runner - OnDelete", 0, true, CompanyName, 0DT, IntegrationRecordArchive.RecordId)
-        else
-            CODEUNIT.Run(CODEUNIT::"Graph Sync. Runner - OnDelete", IntegrationRecordArchive);
+        exit;
     end;
 
     procedure UpdateGraphOnAfterInsert(var EntityRecordRef: RecordRef)
-    var
-        GraphDataSetup: Codeunit "Graph Data Setup";
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
-        if EntityRecordRef.IsTemporary then
-            exit;
-
-        if not GraphSyncRunner.IsGraphSyncEnabled then
-            exit;
-
-        if not CanSyncOnInsert() then
-            exit;
-
-        if not GraphDataSetup.CanSyncRecord(EntityRecordRef) then
-            exit;
-
-        // When a record is inserted, schedule a sync after a short period of time
-        RescheduleTask(CODEUNIT::"Graph Subscription Management", CODEUNIT::"Graph Delta Sync", 0, 10000);
+        exit;
     end;
 
     procedure UpdateGraphOnAfterModify(var EntityRecordRef: RecordRef)
-    var
-        IntegrationRecord: Record "Integration Record";
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
-        if EntityRecordRef.IsTemporary then
-            exit;
-
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Background then
-            exit;
-
-        if not GraphSyncRunner.IsGraphSyncEnabled then
-            exit;
-
-        if not IntegrationRecord.FindByRecordId(EntityRecordRef.RecordId) then
-            exit;
-
-        RescheduleTask(CODEUNIT::"Graph Sync. Runner - OnModify", 0, IntegrationRecord.RecordId, 10000);
-        if not CanScheduleSyncTasks then
-            CODEUNIT.Run(CODEUNIT::"Graph Sync. Runner - OnModify", IntegrationRecord);
+        exit;
     end;
 
     local procedure CanScheduleSyncTasks() AllowBackgroundSessions: Boolean
@@ -175,12 +121,6 @@ codeunit 5450 "Graph Subscription Management"
             AllowBackgroundSessions := true;
             OnBeforeRunGraphSyncBackgroundSession(AllowBackgroundSessions);
         end;
-    end;
-
-    local procedure CanSyncOnInsert() CanSync: Boolean
-    begin
-        CanSync := not GuiAllowed;
-        OnCanSyncOnInsert(CanSync);
     end;
 
     local procedure CheckGraphSubscriptions(var SyncMode: Option)
@@ -209,26 +149,6 @@ codeunit 5450 "Graph Subscription Management"
         if GraphSubscription.CreateGraphSubscription(GraphSubscription, EntityEndpoint) then
             if GraphSubscription.CreateWebhookSubscription(WebhookSubscription) then
                 Commit();
-    end;
-
-    local procedure RescheduleTask(CodeunitID: Integer; FailureCodeunitID: Integer; RecordID: Variant; DelayMillis: Integer)
-    var
-        ScheduledTask: Record "Scheduled Task";
-        NextTask: DateTime;
-    begin
-        NextTask := CurrentDateTime + DelayMillis;
-
-        ScheduledTask.SetRange(Company, CompanyName);
-        ScheduledTask.SetRange("Run Codeunit", CodeunitID);
-        ScheduledTask.SetFilter("Not Before", '<%1', NextTask);
-
-        if RecordID.IsRecordId then
-            ScheduledTask.SetRange(Record, RecordID);
-
-        if ScheduledTask.FindFirst then
-            TASKSCHEDULER.CancelTask(ScheduledTask.ID);
-
-        OnScheduleSyncTask(CodeunitID, FailureCodeunitID, NextTask, RecordID);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnScheduleSyncTask', '', false, false)]
@@ -267,4 +187,6 @@ codeunit 5450 "Graph Subscription Management"
     begin
     end;
 }
+#pragma warning restore
 
+#endif

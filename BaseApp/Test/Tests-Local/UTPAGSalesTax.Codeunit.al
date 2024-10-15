@@ -29,7 +29,7 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9318 Service Orders.
 
         // Setup: Create Service Order with Tax Area Code.
-        Initialize;
+        Initialize();
         TaxArea := CreateTaxAreaWithTaxDetail(TaxDetail);
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order, TaxArea, TaxDetail."Tax Group Code");
         TaxAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -57,7 +57,7 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9317 Service Quotes.
 
         // Setup: Create Service Quote with Tax Area Code.
-        Initialize;
+        Initialize();
         TaxArea := CreateTaxAreaWithTaxDetail(TaxDetail);
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Quote, TaxArea, TaxDetail."Tax Group Code");
         TaxAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -85,7 +85,7 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9319 Service Invoices.
 
         // Setup: Create Service Invoice with Tax Area Code.
-        Initialize;
+        Initialize();
         TaxArea := CreateTaxAreaWithTaxDetail(TaxDetail);
         CreatePostedServiceInvoice(ServiceInvoiceLine, TaxArea, TaxDetail."Tax Group Code");
         TaxAmount := ServiceInvoiceLine."Unit Price" * ServiceInvoiceLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -113,7 +113,7 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9320 Service Credit Memos.
 
         // Setup: Create Service Credit Memo with Tax Area Code.
-        Initialize;
+        Initialize();
         TaxArea := CreateTaxAreaWithTaxDetail(TaxDetail);
         CreatePostedServiceCreditMemo(ServiceCrMemoLine, TaxArea, TaxDetail."Tax Group Code");
         TaxAmount := ServiceCrMemoLine."Unit Price" * ServiceCrMemoLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
@@ -140,8 +140,8 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to  ApplyEntries on SetSales function of Page ID - 232 Apply Customer Entries.
 
         // Setup: Create Sales Credit Memo with Tax Area Code.
-        Initialize;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        Initialize();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Document No.");  // ApplyCustomerEntriesPageHandler
         CreateDetailedCustomerLedgerEntries(CustLedgerEntry."Entry No.", CustLedgerEntry."Customer No.");
@@ -168,7 +168,7 @@ codeunit 142058 "UT PAG Sales Tax"
         // Purpose of the test is to  ApplyEntries on SetPurch function of Page ID - 233 Apply Vendor Entries.
 
         // Setup: Create Purchase Credit Memo with Tax Area Code.
-        Initialize;
+        Initialize();
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
         CreateVendorLedgerEntry(VendorLedgerEntry);
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Document No.");  // ApplyVendorEntriesPageHandler
@@ -212,7 +212,7 @@ codeunit 142058 "UT PAG Sales Tax"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -232,7 +232,7 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -246,7 +246,7 @@ codeunit 142058 "UT PAG Sales Tax"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustomerLedgerEntryNo;
         DetailedCustLedgEntry."Customer No." := CustomerNo;
@@ -260,7 +260,7 @@ codeunit 142058 "UT PAG Sales Tax"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
@@ -438,7 +438,7 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;

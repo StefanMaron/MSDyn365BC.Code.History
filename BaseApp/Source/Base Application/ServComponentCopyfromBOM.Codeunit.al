@@ -11,7 +11,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
         ServItemComponent.Reset();
         ServItemComponent.SetRange(Active, true);
         ServItemComponent.SetRange("Parent Service Item No.", ServItem."No.");
-        if ServItemComponent.FindLast then
+        if ServItemComponent.FindLast() then
             LineNo := ServItemComponent."Line No."
         else
             LineNo := 0;

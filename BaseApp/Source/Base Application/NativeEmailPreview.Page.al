@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2823 "Native - Email Preview"
 {
     Caption = 'nativeInvoicingEmailPreview', Locked = true;
@@ -146,11 +147,11 @@ page 2823 "Native - Email Preview"
             Error(DocumentIDNotSpecifiedErr);
 
         SalesHeader.SetFilter(SystemId, DocumentIdFilter);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             DocumentRecordRef.GetTable(SalesHeader)
         else begin
             SalesInvoiceHeader.SetFilter(SystemId, DocumentIdFilter);
-            if SalesInvoiceHeader.FindFirst then
+            if SalesInvoiceHeader.FindFirst() then
                 DocumentRecordRef.GetTable(SalesInvoiceHeader)
             else
                 Error(DocumentDoesNotExistErr);
@@ -185,4 +186,4 @@ page 2823 "Native - Email Preview"
         Insert(true);
     end;
 }
-
+#endif

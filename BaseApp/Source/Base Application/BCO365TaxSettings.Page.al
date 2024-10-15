@@ -59,7 +59,7 @@ page 10352 "BC O365 Tax Settings"
     begin
         TaxAreaCode := O365TaxSettingsManagement.GetDefaultTaxArea;
         TaxArea.SetRange(Code, TaxAreaCode);
-        if TaxArea.FindFirst then
+        if TaxArea.FindFirst() then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
     end;
 }

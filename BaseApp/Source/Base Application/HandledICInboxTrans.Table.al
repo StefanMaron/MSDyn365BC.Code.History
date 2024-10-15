@@ -121,7 +121,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICInboxJnlLines);
                     HandledICInboxJnlLines.SetTableView(HandledICInboxJnlLine);
-                    HandledICInboxJnlLines.RunModal;
+                    HandledICInboxJnlLines.RunModal();
                 end;
             "Source Type"::"Sales Document":
                 begin
@@ -130,7 +130,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICInboxSalesDoc);
                     HandledICInboxSalesDoc.SetTableView(HandledICInboxSalesHeader);
-                    HandledICInboxSalesDoc.RunModal;
+                    HandledICInboxSalesDoc.RunModal();
                 end;
             "Source Type":
                 begin
@@ -139,7 +139,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxPurchHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(HandledICInboxPurchDoc);
                     HandledICInboxPurchDoc.SetTableView(HandledICInboxPurchHeader);
-                    HandledICInboxPurchDoc.RunModal;
+                    HandledICInboxPurchDoc.RunModal();
                 end;
         end;
 

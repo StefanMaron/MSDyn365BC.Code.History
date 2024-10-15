@@ -166,7 +166,7 @@ report 10133 "Back Order Fill by Item"
                     SalesOrderLine.Copy("Sales Line");
                     SalesOrderLine.SetRange("Sell-to Customer No.", Cust."No.");
                     SalesOrderLine.SetFilter("No.", '<>' + Item."No.");
-                    OtherBackOrders := SalesOrderLine.FindFirst;
+                    OtherBackOrders := SalesOrderLine.FindFirst();
                 end;
             }
 

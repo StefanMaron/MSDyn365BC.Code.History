@@ -72,7 +72,7 @@ codeunit 50 "SaaS Log In Management"
         SessionSetting.Init();
 
         SelectedCompany.SetRange("Evaluation Company", true);
-        if SelectedCompany.FindFirst then
+        if SelectedCompany.FindFirst() then
             SessionSetting.Company(SelectedCompany.Name)
         else
             Error(MissingEvaluationCompanyErr);
@@ -94,7 +94,7 @@ codeunit 50 "SaaS Log In Management"
         if not ShouldShowTermsAndConditions(CompanyName) then
             exit;
 
-        ThirtyDayTrialDialog.RunModal;
+        ThirtyDayTrialDialog.RunModal();
 
         if not ThirtyDayTrialDialog.Confirmed then begin
             if RoleCenterNotificationMgt.IsEvaluationNotificationClicked then

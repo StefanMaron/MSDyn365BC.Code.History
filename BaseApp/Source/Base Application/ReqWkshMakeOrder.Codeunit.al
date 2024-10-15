@@ -187,7 +187,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     // Not a recurring journal
                     ReqLine2.Copy(ReqLine);
                     ReqLine2.SetFilter("Vendor No.", '<>%1', '');
-                    if ReqLine2.FindFirst then; // Remember the last line
+                    if ReqLine2.FindFirst() then; // Remember the last line
 
                     IsHandled := false;
                     OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled, ReqLine2);
@@ -202,7 +202,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     ReqLine3.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     ReqLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     OnCodeOnAfterReqLine3SetFilters(ReqLine, ReqLine3);
-                    if not ReqLine3.FindLast then
+                    if not ReqLine3.FindLast() then
                         if IncStr("Journal Batch Name") <> '' then begin
                             ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
                             NewReqWkshName := true;
@@ -301,7 +301,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                   TableCaption, "Worksheet Template Name", "Journal Batch Name", "Line No.",
                   DimMgt.GetDimCombErr);
 
-            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+            TableID[1] := DimMgt.ReqLineTypeToTableID(Type);
             No[1] := "No.";
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                 if "Line No." <> 0 then
@@ -704,7 +704,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 TransferExtendedText.InsertPurchExtText(PurchOrderLine);
                 PurchOrderLine2.SetRange("Document Type", PurchOrderHeader."Document Type");
                 PurchOrderLine2.SetRange("Document No.", PurchOrderHeader."No.");
-                if PurchOrderLine2.FindLast then
+                if PurchOrderLine2.FindLast() then
                     NextLineNo := PurchOrderLine2."Line No.";
             end;
             if PurchasingCode."Special Order" and
@@ -908,7 +908,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             IsHandled := false;
             OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled);
             if not IsHandled then
-                if ReqLine2.FindSet then begin
+                if ReqLine2.FindSet() then begin
                     ReqLine2.BlockDynamicTracking(true);
                     ReservEntry.SetCurrentKey(
                         "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
@@ -963,7 +963,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 Month := Date2DMY("Order Date", 2);
                 MonthText := Format("Order Date", 0, Text007);
                 AccountingPeriod.SetRange("Starting Date", 0D, "Order Date");
-                if not AccountingPeriod.FindLast then
+                if not AccountingPeriod.FindLast() then
                     AccountingPeriod.Name := '';
                 Description :=
                   DelChr(
@@ -1027,7 +1027,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             DATABASE::"Job Planning Line":
                 begin
                     JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
-                    JobPlanningLine.FindFirst;
+                    JobPlanningLine.FindFirst();
                     JobPlanningLineReserve.BindToPurchase(JobPlanningLine, PurchLine, ReservQty, ReservQtyBase);
                     if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
                         JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;

@@ -597,12 +597,12 @@ codeunit 132547 "Test Data Exch.Import - XML"
         // Exercise.
         RecRef.GetTable(Customer);
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         ProcessDataExch.ProcessColumnMapping(DataExch, DataExchLineDef, RecRef);
 
         // Verify.
         Customer.SetRange(Name, Reference);
-        Customer.FindFirst;
+        Customer.FindFirst();
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         CODEUNIT.Run(DataExchDef."Reading/Writing Codeunit", DataExch);
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        DataExchField.FindLast;
+        DataExchField.FindLast();
         DataExchField.CalcFields("Value BLOB");
         DataExchField."Line No." += 1;
         DataExchField.Insert();
@@ -651,12 +651,12 @@ codeunit 132547 "Test Data Exch.Import - XML"
         // Exercise.
         RecRef.GetTable(GLAccount);
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         ProcessDataExch.ProcessColumnMapping(DataExch, DataExchLineDef, RecRef);
 
         // Verify.
         TempBlobBigXml.CreateInStream(InStream);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GLAccount.CalcFields(Picture);
         GLAccount.Picture.CreateInStream(InStream2, TEXTENCODING::UTF8);
         Assert.AreEqual(
@@ -699,18 +699,18 @@ codeunit 132547 "Test Data Exch.Import - XML"
 
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchMapping.ModifyAll("Use as Intermediate Table", true);
-        DataExchMapping.FindFirst;
+        DataExchMapping.FindFirst();
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchFieldMapping.ModifyAll("Target Table ID", DATABASE::"G/L Account");
         DataExchFieldMapping.ModifyAll("Target Field ID", GLAccount.FieldNo(Picture));
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
 
         // Exercise.
         CODEUNIT.Run(CODEUNIT::"Map DataExch To Intermediate", DataExch);
 
         // Verify.
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
-        IntermediateDataImport.FindFirst;
+        IntermediateDataImport.FindFirst();
         TempBlobBigXml.CreateInStream(InStream);
         Assert.AreEqual(Base64Convert.ToBase64(InStream), IntermediateDataImport.GetValue, 'Big Xml Data does not match!');
     end;
@@ -1230,7 +1230,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchMapping.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code,
           TableId, DataExchDef.Code, 0, 0);
         DataExchFieldMapping.InsertRec(DataExchDef.Code, DataExchLineDef.Code,
@@ -1241,8 +1241,8 @@ codeunit 132547 "Test Data Exch.Import - XML"
     var
         LineNo: Integer;
     begin
-        ExpectedDataExchField.FindFirst;
-        ActualDataExchField.FindFirst;
+        ExpectedDataExchField.FindFirst();
+        ActualDataExchField.FindFirst();
         repeat
             LineNo += 1;
             AreEqualRecords(ExpectedDataExchField, ActualDataExchField, StrSubstNo(TableErrorMsg, Msg, LineNo));

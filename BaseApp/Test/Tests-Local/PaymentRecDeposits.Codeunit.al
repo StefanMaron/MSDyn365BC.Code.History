@@ -26,332 +26,6 @@ codeunit 142059 "Payment Rec Deposits"
         ValidationErr: Label 'Sum of %1 must be %2 in Report.';
 
     [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TestDepositsOutstandingBankTrxs()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        NoOfOutstandingBankTrxEntries: Integer;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view the breakdown of the deposits in the Outstanding Bank Transactions window
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted
-        CreateDeposits(DepositHeader, BankAcc);
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [WHEN] Outstanding Bank Transactions is opened
-        NoOfOutstandingBankTrxEntries := OutstandingBankTrxsCount(PmtReconJnl);
-
-        // [THEN] Verify 3 lines are in the Outstanding Bank Transactions window
-        Assert.AreEqual(3, NoOfOutstandingBankTrxEntries, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TestDepositsOutstandingBankTrxsTotal()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-    begin
-        // [FEATURE] [Payment Reconciliation Journal]
-        // [SCENARIO 167357] Annie can see the Outstanding Transactions Amount matches the Total Deposit Amount from the Deposit
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted
-        CreateDeposits(DepositHeader, BankAcc);
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [THEN] Verify 3 lines are in the Outstanding Bank Transactions window
-        PmtReconJnl.OutstandingTransactions.AssertEquals(DepositHeader."Total Deposit Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TestDepOneSaleOnePayOutstBankTrxs()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        NoOfOutstandingBankTrxEntries: Integer;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view the breakdown of the deposits and a bank transaction in the Outstanding Bank Transactions window
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted, One Sale is created and One Payment Posted
-        CreateDeposits(DepositHeader, BankAcc);
-        CreateOneSaleOnePmtTwoDepositLines(CustLedgEntry, OutStream, TempBlobUTF8, DepositHeader);
-
-        PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [WHEN] Outstanding Bank Transactions is opened
-        NoOfOutstandingBankTrxEntries := OutstandingBankTrxsCount(PmtReconJnl);
-
-        // [THEN] Verify 4 lines are in the Outstanding Bank Transactions window
-        Assert.AreEqual(4, NoOfOutstandingBankTrxEntries, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestOneDepositPostPaymentReconOutstBankTrxs()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccRecon2: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        PmtReconJnl2: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        EntryNoArray: array[2] of Integer;
-        DoesPostedLineExist: Boolean;
-        DoesUnPostedLineExist: Boolean;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view that deposits, once posted, don't show up in the Outstanding Bank Transactions
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted
-        CreateDeposits(DepositHeader, BankAcc);
-
-        // [WHEN] One Deposit line is imported from the bank
-        CreateOneDepositLine(OutStream, TempBlobUTF8, DepositHeader);
-
-        LibraryLowerPermissions.SetBanking;
-        ImportBankStmt(BankAccRecon, TempBlobUTF8);
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        // [WHEN] Automatically Apply the 1 line
-        // [WHEN] Post the Applied line
-        ApplyLineAndPost(PmtReconJnl, EntryNoArray, BankAcc."No.", BankAccRecon);
-
-        // [WHEN] Reopen up the Payment Reconcilation Journal
-        LibraryERM.CreateBankAccReconciliation(BankAccRecon2, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
-        OpenPmtReconJnl(BankAccRecon2, PmtReconJnl2);
-
-        DoesPostedLineExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[1]);
-        DoesUnPostedLineExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[2]);
-
-        // [THEN] Verify that the posted line is gone and the second one is still there
-        Assert.IsFalse(DoesPostedLineExist, 'This line should have been posted');
-        Assert.IsTrue(DoesUnPostedLineExist, 'This line should not have been posted');
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestOneDepositOneSalePostPaymentReconOutstBankTrxs()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccRecon2: Record "Bank Acc. Reconciliation";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        PmtReconJnl2: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        EntryNoArray: array[3] of Integer;
-        DoesPostedLineExist: Boolean;
-        DoesUnPostedLineExist: Boolean;
-        DoesSalesPaymentExits: Boolean;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view that deposits and Payments, once posted, don't show up in the Outstanding Bank Transactions
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted
-        CreateDeposits(DepositHeader, BankAcc);
-
-        // [WHEN] One Sale/Payment and Deposit line is imported from the bank
-        CreateOneSaleOnePmtOneDepositLine(CustLedgEntry, OutStream, TempBlobUTF8, DepositHeader);
-
-        LibraryLowerPermissions.SetBanking;
-        ImportBankStmt(BankAccRecon, TempBlobUTF8);
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        // [WHEN] Automatically Apply the 1 line
-        // [WHEN] Post the Applied line
-        ApplyLineAndPost(PmtReconJnl, EntryNoArray, BankAcc."No.", BankAccRecon);
-
-        // [WHEN] Reopen up the Payment Reconcilation Journal
-        LibraryERM.CreateBankAccReconciliation(BankAccRecon2, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
-        OpenPmtReconJnl(BankAccRecon2, PmtReconJnl2);
-
-        DoesPostedLineExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[1]);
-        DoesUnPostedLineExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[2]);
-        DoesSalesPaymentExits := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[3]);
-
-        // [THEN] Verify that the posted line is gone and the second one is still there
-        Assert.IsFalse(DoesPostedLineExist, 'This line should have been posted');
-        Assert.IsTrue(DoesUnPostedLineExist, 'This line should not have been posted');
-        Assert.IsFalse(DoesSalesPaymentExits, 'This line should have been posted');
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPostTwoDepositKeepOneSalePayment()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccRecon2: Record "Bank Acc. Reconciliation";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        PmtReconJnl2: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        NoOfOutstandingBankTrxEntries: Integer;
-        EntryNoArray: array[3] of Integer;
-        DoesFirstDepositExist: Boolean;
-        DoesSecondDepositExist: Boolean;
-        DoesSalesPaymentExits: Boolean;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view that deposits and Payments, once posted, don't show up in the Outstanding Bank Transactions
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted
-        CreateDeposits(DepositHeader, BankAcc);
-
-        // [WHEN] One Sale/Payment and Deposit line is imported from the bank
-        CreateTwoDepositLines(OutStream, TempBlobUTF8, DepositHeader);
-
-        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
-
-        LibraryLowerPermissions.SetBanking;
-        ImportBankStmt(BankAccRecon, TempBlobUTF8);
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        // [WHEN] Automatically Apply the 1 line
-        // [WHEN] Post the Applied line
-        ApplyLineAndPost(PmtReconJnl, EntryNoArray, BankAcc."No.", BankAccRecon);
-
-        // [WHEN] Reopen up the Payment Reconcilation Journal
-        LibraryERM.CreateBankAccReconciliation(BankAccRecon2, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
-        OpenPmtReconJnl(BankAccRecon2, PmtReconJnl2);
-
-        NoOfOutstandingBankTrxEntries := OutstandingBankTrxsCount(PmtReconJnl2);
-
-        Assert.AreEqual(1, NoOfOutstandingBankTrxEntries, '');
-
-        DoesFirstDepositExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[1]);
-        DoesSecondDepositExist := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[2]);
-        DoesSalesPaymentExits := OutstandingBankTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[3]);
-
-        // [THEN] Verify that the posted line is gone and the second one is still there
-        Assert.IsFalse(DoesFirstDepositExist, 'This line should have been posted');
-        Assert.IsFalse(DoesSecondDepositExist, 'This line should not have been posted');
-        Assert.IsTrue(DoesSalesPaymentExits, 'This line should not have been posted');
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,MsgHandler')]
-    [Scope('OnPrem')]
-    procedure TestDepOneSaleOnePayVerifyNumLines()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view that after automatically applying that Outstanding totals are zero
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted, One Sale is created and One Payment Posted
-        CreateDeposits(DepositHeader, BankAcc);
-        CreateOneSaleOnePmtTwoDepositLines(CustLedgEntry, OutStream, TempBlobUTF8, DepositHeader);
-
-        LibraryLowerPermissions.SetBanking;
-        ImportBankStmt(BankAccRecon, TempBlobUTF8);
-        PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [WHEN] Automatically Apply the 2 lines
-        ApplyAutomatically(PmtReconJnl);
-
-        // [THEN] Verify Outstanding Transactions Total is 0 and Outstanding Payments total stays 0
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-        PmtReconJnl.OutstandingPayments.AssertEquals(0);
-    end;
-
-    [Test]
-    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,PmtApplnAllOpenBankTrxsHandler')]
-    [Scope('OnPrem')]
-    procedure TestDepOneSaleOnePayManualApply()
-    var
-        BankAcc: Record "Bank Account";
-        DepositHeader: Record "Deposit Header";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        AmountArray: array[3] of Decimal;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 167357] Annie can view the breakdown of the deposits, one sale and payment and manually apply them
-        CreateBankAccRecon(BankAccRecon, BankAcc, '');
-
-        // [GIVEN] Deposit is created with 2 lines and is posted, One Sale is created and One Payment Posted
-        CreateDeposits(DepositHeader, BankAcc);
-        CreateOneSaleOnePmtTwoDepositLines(CustLedgEntry, OutStream, TempBlobUTF8, DepositHeader);
-
-        LibraryLowerPermissions.SetBanking;
-        ImportBankStmt(BankAccRecon, TempBlobUTF8);
-        PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
-        GetBankAccLedgEntryAmounts(AmountArray, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [THEN]  Verify Outstanding Trx total gets updated after applying each line manually
-        PmtReconJnl.OutstandingTransactions.AssertEquals(AmountArray[1] + AmountArray[2] + AmountArray[3]);
-        PmtReconJnl.First;
-        HandlePmtEntries(PmtReconJnl);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(AmountArray[1] + AmountArray[2]);
-        PmtReconJnl.Next;
-        HandlePmtEntries(PmtReconJnl);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(AmountArray[2]);
-        PmtReconJnl.Next;
-        HandlePmtEntries(PmtReconJnl);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-    end;
-
-    [Test]
     [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler,BankRecTestReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestDepositsOutstandingBankTransacReport()
@@ -529,13 +203,13 @@ codeunit 142059 "Payment Rec Deposits"
         NoSeriesLine: Record "No. Series Line";
         GLSetup: Record "General Ledger Setup";
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         GLSetup.Get();
@@ -583,7 +257,7 @@ codeunit 142059 "Payment Rec Deposits"
     var
         BankStmtFormat: Code[20];
     begin
-        Initialize;
+        Initialize();
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAcc, CurrencyCode);
 
@@ -715,7 +389,7 @@ codeunit 142059 "Payment Rec Deposits"
         with PostedDepositLine do begin
             SetRange("Deposit No.", DepositHeader."No.");
 
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     WriteCAMTStmtLine(OutStream, "Posting Date", "Document No.", Amount, "Currency Code");
                 until Next = 0;
@@ -747,7 +421,7 @@ codeunit 142059 "Payment Rec Deposits"
         CustLedgEntry.SetRange("Customer No.", CustNo);
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
 
         CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
@@ -813,7 +487,7 @@ codeunit 142059 "Payment Rec Deposits"
         with PostedDepositLine do begin
             SetRange("Deposit No.", DepositHeader."No.");
 
-            FindFirst;
+            FindFirst();
             WriteCAMTStmtLine(OutStream, "Posting Date", "Document No.", Amount, "Currency Code");
         end;
     end;
@@ -837,37 +511,6 @@ codeunit 142059 "Payment Rec Deposits"
         PmtReconciliationJournals.EditJournal.Invoke;
     end;
 
-    local procedure OutstandingBankTrxsCount(PmtReconJnl: TestPage "Payment Reconciliation Journal") NoOfOutstandingBankTrxEntries: Integer
-    var
-        OutstandingBankTrxs: TestPage "Outstanding Bank Transactions";
-    begin
-        OutstandingBankTrxs.Trap;
-        PmtReconJnl.OutstandingTransactions.DrillDown;
-        // Outstanding Bank Trxs page shows and count records
-        OutstandingBankTrxs.Expand(true);
-        OutstandingBankTrxs.First;
-        repeat
-            if OutstandingBankTrxs."Entry No.".Value <> '' then
-                NoOfOutstandingBankTrxEntries += 1;
-        until not OutstandingBankTrxs.Next;
-        OutstandingBankTrxs.Close;
-    end;
-
-    local procedure OutstandingBankTrxsVerifyEntryNo(PmtReconJnl: TestPage "Payment Reconciliation Journal"; EntryNo: Integer) EntryNoExists: Boolean
-    var
-        OutstandingBankTrxs: TestPage "Outstanding Bank Transactions";
-    begin
-        OutstandingBankTrxs.Trap;
-        EntryNoExists := false;
-        PmtReconJnl.OutstandingTransactions.DrillDown;
-        OutstandingBankTrxs.Expand(true);
-        OutstandingBankTrxs.First;
-        repeat
-            if OutstandingBankTrxs."Entry No.".AsInteger = EntryNo then
-                EntryNoExists := true;
-        until not OutstandingBankTrxs.Next;
-        OutstandingBankTrxs.Close;
-    end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]

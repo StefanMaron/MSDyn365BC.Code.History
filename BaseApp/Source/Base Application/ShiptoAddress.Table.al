@@ -257,7 +257,7 @@ table 222 "Ship-to Address"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::"Ship-to Address", GetPosition)
         else
             Message(Text001);

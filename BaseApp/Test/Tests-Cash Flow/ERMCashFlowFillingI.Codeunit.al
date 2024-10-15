@@ -46,7 +46,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateManualRevenue(CFManualRevenue);
 
@@ -72,7 +72,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateManualPayment(CFManualExpense);
 
@@ -99,7 +99,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify that it does not exist in journal
 
         // Setup
-        Initialize;
+        Initialize();
         CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, CalcDate('<1M>', WorkDate));
         CreateManualRevenueWithStartingDate(CFManualRevenue[1], CalcDate('<-1D>', CashFlowForecast."Manual Payments From"));
         CreateManualRevenueWithStartingDate(CFManualRevenue[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
@@ -131,7 +131,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify that it does not exist in journal
 
         // Setup
-        Initialize;
+        Initialize();
         CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, CalcDate('<1M>', WorkDate));
         CreateManualExpenseWithStartingDate(CFManualExpense[1], CalcDate('<-1D>', CashFlowForecast."Manual Payments From"));
         CreateManualExpenseWithStartingDate(CFManualExpense[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
@@ -163,7 +163,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify that it does not exist in journal
 
         // Setup
-        Initialize;
+        Initialize();
         CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, 0D);
         CreateManualRevenueWithStartingDate(CFManualRevenue, CashFlowForecast."Manual Payments From");
 
@@ -193,7 +193,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify that it does not exist in journal
 
         // Setup
-        Initialize;
+        Initialize();
         CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, 0D);
         CreateManualExpenseWithStartingDate(CFManualExpense, CashFlowForecast."Manual Payments From");
 
@@ -222,7 +222,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
 
@@ -248,12 +248,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
 
         // Exercise
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
@@ -275,7 +275,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
@@ -302,7 +302,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -332,7 +332,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -434,7 +434,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificSalesOrder(SalesHeader, PaymentTerms.Code, '');
@@ -465,7 +465,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // CF payment terms set. Verify computed due and cash flow date and discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificSalesOrder(SalesHeader, '', PaymentTerms.Code);
@@ -500,7 +500,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // where customer has CF payment terms set. Verify computed due and cash flow date and discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms); // default pmt terms
         CFHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code); // cf pmt terms
@@ -536,7 +536,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and a payment discount grace period set. Verify computed due and cash flow date and discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         CFHelper.SetPmtToleranceOptionsOnCashFlowForecast(CashFlowForecast, true, false);
         GeneralLedgerSetup.Get();
@@ -576,7 +576,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificSalesOrder(SalesHeader, PaymentTerms.Code, '');
@@ -611,7 +611,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificSalesOrder(SalesHeader, '', PaymentTerms.Code);
@@ -650,7 +650,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and customer CF payment terms set. Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -686,7 +686,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '');
@@ -720,7 +720,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // CF payment terms set. Verify computed due, cash flow date and expected amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, '', PaymentTerms.Code);
@@ -760,7 +760,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // and vendor CF payment terms set. Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -797,7 +797,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, PaymentTerms.Code, '');
@@ -829,7 +829,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // CF payment terms set. Verify computed due and cash flow date and non-discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificPurchaseOrder(PurchaseHeader, '', PaymentTerms.Code);
@@ -863,7 +863,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // CF payment terms set. Verify computed due and cash flow date and discounted amount
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscountAndCFPmtTerms(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -897,7 +897,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Verify computed due and cash flow date, discounted amount and order discount percentage
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CFHelper.CreateSpecificServiceOrder(ServiceHeader, PaymentTerms.Code, '');
@@ -966,7 +966,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // CF payment terms set. Verify computed due and cash flow date and discounted/full amount
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         if ConsiderDiscount then begin
             CFHelper.GetDifferentDsctPaymentTerms(PaymentTerms2, PaymentTerms.Code);
@@ -1040,7 +1040,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Test filling a CF journal by using Fill batch with 1 sales orders
         // and verify computed due and cash flow date
 
-        Initialize;
+        Initialize();
 
         // Setup account to pay taxes to (vendor)
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
@@ -1068,7 +1068,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Setup - create an entry in the Bank Account Leger Entry for a valid tax payment date (represents payment of taxes)
         TaxDueDate := CashFlowSetup.GetTaxPaymentDueDate(DocumentDate);
-        BankAccountLedgerEntry.FindLast;
+        BankAccountLedgerEntry.FindLast();
         BankAccountLedgerEntry."Entry No." += 1;
         BankAccountLedgerEntry."Bal. Account Type" := BankAccountLedgerEntry."Bal. Account Type"::Vendor;
         BankAccountLedgerEntry."Bal. Account No." := CashFlowSetup."Tax Bal. Account No.";
@@ -1099,7 +1099,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         // Test that the tax amounts are correctly calculated for purchase orders
 
-        Initialize;
+        Initialize();
 
         // Setup - set the Tax schedule on CashFlowSetup
         CashFlowSetup.Get();
@@ -1135,7 +1135,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // with a sales order which requires prepayment. The prepayment invoice has not been posted yet.
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtSalesOrder(SalesHeader, '', '');
         CFHelper.AddSOPrepayment(SalesHeader, LibraryRandom.RandInt(10));
@@ -1191,7 +1191,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtSalesOrder(SalesHeader, '', '');
 
@@ -1264,7 +1264,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         // If second Prepayment is not applied, the first prepayment is applied.
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtSalesOrder(SalesHeader, '', '');
 
@@ -1310,14 +1310,14 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, '', '');
         CFHelper.AddPOPrepayment(PurchaseHeader, LibraryRandom.RandInt(10));
         ExpectedPOAmount := CFHelper.GetTotalPurchaseAmount(PurchaseHeader, false);
 
         // Exercise
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
 
@@ -1367,7 +1367,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, '', '');
 
@@ -1382,7 +1382,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
               GenJournalLine."Account Type"::Vendor, PrepaymentInvNo, ExpectedPrepaymentAmount);
 
         // Exercise
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
@@ -1441,7 +1441,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         // If second Prepayment is not applied, the first prepayment is applied.
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreatePrepmtPurchaseOrder(PurchaseHeader, '', '');
 
@@ -1462,7 +1462,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
               GenJournalLine."Account Type"::Vendor, FirstPrepaymentInvNo, FirstPrepaymentAmount);
 
         // Exercise
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
@@ -1584,7 +1584,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
@@ -1608,7 +1608,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
@@ -1621,7 +1621,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Verify
         CFForecastEntry.SetRange("Document No.", ServiceHeader."No.");
-        CFForecastEntry.FindFirst;
+        CFForecastEntry.FindFirst();
         CFForecastEntry.TestField("Source Type", CFForecastEntry."Source Type"::"Service Orders");
     end;
 
@@ -1636,7 +1636,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Suggest lines should set source type accordingly
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CashFlowForecast.Validate("G/L Budget From", WorkDate);
         CashFlowForecast.Validate("G/L Budget To", WorkDate);
@@ -1763,7 +1763,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // [SCENARIO] Purchase Orders are only included in the CF if Suite App Area is enabled
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
 
@@ -1775,7 +1775,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Assert.AreEqual(CashFlowForecast."Amount (LCY)", 0, 'Unexpected Cashflow ammount');
 
         // GIVEN application area Suite is enabled
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
@@ -1788,7 +1788,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         PostSalesPrepaymentInvoice(SalesHeader, PricesInclVAT);
         VerifySalesOrderInCashFlowWorksheet(SalesHeader);
@@ -1798,7 +1798,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         PostSalesPrepaymentInvoice(SalesHeader, PricesInclVAT);
         AddSalesLineAndPostAdditionalPrepaymentInvoice(SalesHeader);
@@ -1821,7 +1821,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         GLAccount.Get(SalesLine."No.");
         CFHelper.CreateSalesLine(SalesHeader, GLAccount);
         exit(CFHelper.PostSOPrepaymentInvoice(SalesHeader));
@@ -1872,7 +1872,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         PostPurchasePrepaymentInvoice(PurchaseHeader, PricesInclVAT);
         VerifyPurchaseOrderInCashFlowWorksheet(PurchaseHeader);
@@ -1882,7 +1882,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         PostPurchasePrepaymentInvoice(PurchaseHeader, PricesInclVAT);
         AddPurchaseLineAndPostAdditionalPrepaymentInvoice(PurchaseHeader);
@@ -1906,7 +1906,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         PurchaseHeader.Validate("Vendor Invoice No.",
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
         PurchLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchLine.FindLast;
+        PurchLine.FindLast();
         GLAccount.Get(PurchLine."No.");
         CFHelper.CreatePurchaseLine(PurchaseHeader, GLAccount);
         exit(CFHelper.PostPOPrepaymentInvoice(PurchaseHeader));
@@ -1917,7 +1917,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
         SetPrepaymentPctOnPurchaseLines(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
 
         PurchPostPrepayments.Invoice(PurchaseHeader);
     end;
@@ -1943,7 +1943,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         DimensionValue: array[2] of Record "Dimension Value";
     begin
         // [SCENARIO 208630] Default dimension have to been exist after renaming record of "Cash Flow Manual Revenue"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cash Flow Manual Revenue" with Code = "NAME1"
         LibraryCF.CreateManualLineRevenue(CashFlowManualRevenue, '');
@@ -1974,7 +1974,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         DimensionValue: array[2] of Record "Dimension Value";
     begin
         // [SCENARIO 208630] Default dimension have to been exist after renaming record of "Cash Flow Manual Expense"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cash Flow Manual Expense" with Code = "NAME1"
         LibraryCF.CreateManualLinePayment(CashFlowManualExpense, '');
@@ -2006,9 +2006,9 @@ codeunit 134551 "ERM Cash Flow Filling I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cash Flow Filling I");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -2022,7 +2022,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 PrepaymentAmount := Round(PurchaseLine.Amount * PurchaseHeader."Prepayment %" / 100, InvoiceRoundingPrecision);
                 PrepaymentAmount += Round(PrepaymentAmount * PurchaseLine."VAT %" / 100, InvoiceRoundingPrecision);
@@ -2037,7 +2037,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 PrepaymentAmount := Round(SalesLine.Amount * SalesHeader."Prepayment %" / 100, InvoiceRoundingPrecision);
                 PrepaymentAmount += Round(PrepaymentAmount * SalesLine."VAT %" / 100, InvoiceRoundingPrecision);
@@ -2238,7 +2238,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateSpecificCashFlowCard(CashFlowForecast, ConsiderDiscount, ConsiderCFPmtTerms);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibrarySales.CreateCustomer(Customer);
@@ -2283,7 +2283,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateSpecificCashFlowCard(CashFlowForecast, ConsiderDiscount, ConsiderCFPmtTerms);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryPurchase.CreateVendor(Vendor);
@@ -2403,7 +2403,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Customer: Record Customer;
     begin
         // Setup - create the entities
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultJob(Job);
 
@@ -2419,7 +2419,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     local procedure SetupCashFlowForJobs(var CashFlowForecast: Record "Cash Flow Forecast"; var Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var OldDate: Date; var NewDate: Date)
     begin
         // Setup - create the entities
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CFHelper.CreateDefaultJob(Job);
 
@@ -2429,18 +2429,16 @@ codeunit 134551 "ERM Cash Flow Filling I"
     local procedure SetupJobPlanningLines(Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var OldDate: Date; var NewDate: Date)
     begin
         JobPlanningLine.SetRange("Job No.", Job."No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
         OldDate := JobPlanningLine."Planning Date";
 
         // Setup - add two lines for a different date
         NewDate := CalcDate('<1D>', OldDate);
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::Billable, JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
-        JobPlanningLine."Planning Due Date" := 0D;
         JobPlanningLine.Modify(true);
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
-        JobPlanningLine."Planning Due Date" := 0D;
         JobPlanningLine.Modify(true);
     end;
 
@@ -2453,24 +2451,24 @@ codeunit 134551 "ERM Cash Flow Filling I"
         TaxDetail: Record "Tax Detail";
         SalesLine: Record "Sales Line";
     begin
-        if not TaxArea.FindFirst then begin
+        if not TaxArea.FindFirst() then begin
             TaxArea.Code := 'MyTaxArea';
             TaxArea.Insert();
         end;
 
-        if not TaxJurisdiction.FindFirst then begin
+        if not TaxJurisdiction.FindFirst() then begin
             TaxJurisdiction.Code := 'MyTaxJur';
             TaxJurisdiction.Insert();
         end;
 
         TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
-        if not TaxAreaLine.FindFirst then begin
+        if not TaxAreaLine.FindFirst() then begin
             TaxAreaLine."Tax Area" := TaxArea.Code;
             TaxAreaLine."Tax Jurisdiction Code" := TaxJurisdiction.Code;
             TaxAreaLine.Insert();
         end;
 
-        if not TaxGroup.FindFirst then begin
+        if not TaxGroup.FindFirst() then begin
             TaxGroup.Code := 'MyTaxGroup';
             TaxGroup.Insert();
         end;
@@ -2478,7 +2476,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
         TaxDetail.SetRange("Tax Group Code", TaxGroup.Code);
         TaxDetail.SetFilter("Effective Date", '<=%1', SalesHeader."Document Date");
-        if not TaxDetail.FindFirst then begin
+        if not TaxDetail.FindFirst() then begin
             TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdiction.Code);
             TaxDetail.Validate("Tax Group Code", TaxGroup.Code);
             TaxDetail.Validate("Effective Date", CalcDate('<-1d>', SalesHeader."Document Date"));
@@ -2492,7 +2490,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesLine.Validate("Tax Liable", true);
                 SalesLine.Validate("Tax Area Code", SalesHeader."Tax Area Code");

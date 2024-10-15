@@ -76,7 +76,7 @@ page 6710 "OData Column Choose SubForm"
         ApplicationObjectMetadata: Record "Application Object Metadata";
         inStream: InStream;
     begin
-        if FindFirst then
+        if FindFirst() then
             exit;
 
         ActionType := InActionType;
@@ -111,7 +111,7 @@ page 6710 "OData Column Choose SubForm"
     procedure GetColumns(var TempTenantWebServiceColumns: Record "Tenant Web Service Columns" temporary)
     begin
         SetRange(Include, true);
-        if FindFirst then
+        if FindFirst() then
             repeat
                 TempTenantWebServiceColumns.TransferFields(Rec);
                 TempTenantWebServiceColumns.Insert();
@@ -209,7 +209,7 @@ page 6710 "OData Column Choose SubForm"
             TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceColumns.SetRange("Field Number", FieldNumber);
             TenantWebServiceColumns.SetRange("Data Item", TableNo);
-            if TenantWebServiceColumns.FindFirst then
+            if TenantWebServiceColumns.FindFirst() then
                 exit(true);
         end;
     end;

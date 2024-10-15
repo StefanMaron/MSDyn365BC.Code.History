@@ -7,7 +7,7 @@ codeunit 134388 "ERM Sales Tax"
     trigger OnRun()
     begin
         // [FEATURE] [Sales Tax]
-        Initialize;
+        Initialize();
     end;
 
     var
@@ -31,7 +31,7 @@ codeunit 134388 "ERM Sales Tax"
         // Test VAT Posting Setup with Sales Tax.
 
         // Setup: Create new VAT Posting Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
@@ -54,7 +54,7 @@ codeunit 134388 "ERM Sales Tax"
         // Test creation of Sales Tax Group.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibraryERM.CreateTaxGroup(TaxGroup);
@@ -73,7 +73,7 @@ codeunit 134388 "ERM Sales Tax"
         // Test creation of Sales Tax Jurisdiction.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         JurisdictionCode := CreateSalesTaxJurisdiction;
@@ -91,7 +91,7 @@ codeunit 134388 "ERM Sales Tax"
         // Test creation of Sales Tax Detail.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateSalesTaxDetail(TaxDetail);
@@ -111,7 +111,7 @@ codeunit 134388 "ERM Sales Tax"
         VATEntry: array[4] of Record "VAT Entry";
     begin
         // [SCENARIO 287174] Sales Taxes Collected report clears tax amounts in dataset for each new Tax Jurisdiction and VAT Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry for Tax Jurisdiction "A" with Base = 110, Amount = 10
         CreateSalesTaxDetail(TaxDetail[1]);
@@ -167,7 +167,7 @@ codeunit 134388 "ERM Sales Tax"
         Initialize();
 
         // [GIVEN] Tax Detail line for Tax Jurisdiction with Tax Group = blank
-        TaxSetup.Get;
+        TaxSetup.Get();
         CreateTaxJurisditionWithTaxArea(TaxJurisdiction, TaxArea);
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, '', TaxDetail."Tax Type"::"Sales and Use Tax", 0D);
 
@@ -264,7 +264,7 @@ codeunit 134388 "ERM Sales Tax"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Tax");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Tax");

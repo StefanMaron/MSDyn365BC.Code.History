@@ -35,10 +35,10 @@ codeunit 136105 "Service - Price Management"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service - Price Management");
 
         // Create Demonstration Database
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service - Price Management");
@@ -62,7 +62,7 @@ codeunit 136105 "Service - Price Management"
         // Test Unit Price and Amount on Service Line after Service Price Adjustment.
 
         // 1. Setup: Create Service Order - Create Service Price Group, Service Price Adjustmnet Group, Service Price Group Setup.
-        Initialize;
+        Initialize();
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
         LibraryService.CreateServPriceAdjustmentGroup(ServicePriceAdjustmentGroup);
         CreateServicePriceGroupSetup(ServicePriceAdjustmentGroup.Code, ServicePriceGroup.Code, AdjustmentType::Fixed, false, false);
@@ -98,7 +98,7 @@ codeunit 136105 "Service - Price Management"
         // Test error occurs "no service lines to adjust" on Service Price Adjustment.
 
         // 1. Setup: Create Service Price Group Setup.
-        Initialize;
+        Initialize();
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
         LibraryService.CreateServPriceAdjustmentGroup(ServicePriceAdjustmentGroup);
         CreateServicePriceGroupSetup(ServicePriceAdjustmentGroup.Code, ServicePriceGroup.Code, AdjustmentType::Fixed, false, false);
@@ -134,7 +134,7 @@ codeunit 136105 "Service - Price Management"
         // Test error occurs on Service Price Group Code updation on Service Item Line.
 
         // 1. Setup:  Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine);
         SignServContractDoc.SignContract(ServiceContractHeader);
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
@@ -424,7 +424,7 @@ codeunit 136105 "Service - Price Management"
     begin
         // 1. Setup: Create Service Price Group Setup with Adjustment Type Fixed, Include Discount and Include VAT False and Create
         // Service Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
         LibraryService.CreateServPriceAdjustmentGroup(ServicePriceAdjustmentGroup);
         LibraryResource.FindResource(Resource);
@@ -468,7 +468,7 @@ codeunit 136105 "Service - Price Management"
     begin
         // 1. Setup: Create Service Price Group Setup with Adjustment Type Maximum, Include Discount False and Include VAT False and Create
         // Service Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
         LibraryService.CreateServPriceAdjustmentGroup(ServicePriceAdjustmentGroup);
         CreateItem(Item);
@@ -595,7 +595,7 @@ codeunit 136105 "Service - Price Management"
         ServPriceGroupSetup.Init();
         ServPriceGroupSetup.SetRange("Service Price Group Code", ServiceItemLine2."Service Price Group Code");
         ServPriceGroupSetup.SetRange("Serv. Price Adjmt. Gr. Code", ServiceItemLine2."Serv. Price Adjmt. Gr. Code");
-        ServPriceGroupSetup.FindFirst;
+        ServPriceGroupSetup.FindFirst();
         exit(Round(ServPriceGroupSetup.Amount * (Amount * 100 / TotalAmount) / 100, RoundingPrecision));
     end;
 
@@ -667,7 +667,7 @@ codeunit 136105 "Service - Price Management"
             TotalAmount := TempServiceLine."Amount Including VAT"
         else
             TotalAmount := TempServiceLine.Amount;
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
     end;
 
     local procedure CreateItem(var Item: Record Item)
@@ -704,7 +704,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLine.SetRange("Document Type", ServiceItemLine2."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine2."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine2."Line No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServicePriceManagement.CheckServItemGrCode(ServiceLine);
         ServicePriceManagement.ResetAdjustedLines(ServiceLine);
     end;
@@ -749,7 +749,7 @@ codeunit 136105 "Service - Price Management"
     var
         ServiceLine: Record "Service Line";
     begin
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
         ServiceLine.SetRange("Document Type", ServiceItemLine2."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine2."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine2."Line No.");
@@ -952,7 +952,7 @@ codeunit 136105 "Service - Price Management"
         ServiceLinePriceAdjmt.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLinePriceAdjmt.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLinePriceAdjmt.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
-        ServiceLinePriceAdjmt.FindFirst;
+        ServiceLinePriceAdjmt.FindFirst();
         ServiceHeader.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.");
         ServicePriceManagement.GetServPriceGrSetup(ServPriceGroupSetup, ServiceHeader, ServiceItemLine);
         ServicePriceManagement.AdjustLines(ServiceLinePriceAdjmt, ServPriceGroupSetup);

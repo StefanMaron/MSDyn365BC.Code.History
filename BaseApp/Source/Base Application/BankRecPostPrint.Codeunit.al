@@ -1,6 +1,11 @@
+#if not CLEAN20
 codeunit 10122 "Bank Rec.-Post + Print"
 {
     TableNo = "Bank Rec. Header";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+
 
     trigger OnRun()
     begin
@@ -25,3 +30,4 @@ codeunit 10122 "Bank Rec.-Post + Print"
         DocPrint: Codeunit "Document-Print";
 }
 
+#endif

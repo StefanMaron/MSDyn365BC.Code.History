@@ -1,6 +1,12 @@
+#if not CLEAN20
 codeunit 141050 "Bank Recon. with Matching"
 {
+    ObsoleteReason = 'Replaced by Standardized bank deposits and reconciliations feature.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#if not CLEAN20
     Permissions = TableData "Bank Rec. Header" = r;
+#endif
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -16,14 +22,10 @@ codeunit 141050 "Bank Recon. with Matching"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        AutoSelectReportTxt: Label 'We have chosen the following report layouts: %1 for %2.';
-        ReportIsSelectedTxt: Label 'No report was selected for %1. Based on the current setup of %2, a compatible report has been selected.', Comment = '%1=OptionValue,%2=FieldCaption';
-        TooManyReportsAreSelectedTxt: Label 'One or more reports selected for bank reconciliation may not be compatible with the current setup of %1. Make sure the report %2 is selected for %3.', Comment = '%1=FieldCaption,%2=ReportNumber,%3=OptionValue';
         PageNotRefreshedErr: Label '%1 was not refreshed.', Comment = '%1=PageName';
         RecordNotCreatedErr: Label '%1 was not created.', Comment = '%1=TableCaption';
         RecordNotDeletedErr: Label '%1 was not deleted.', Comment = '%1=TableCaption';
         RecordNotFoundErr: Label '%1 was not found.', Comment = '%1=TableCaption';
-        UnexpectedMessageErr: Label 'The expected message %1 is not a sub-string of the actual message %2.', Comment = '%1=ExpectedMessage,%2=ActualMessage';
         WrongFilterErr: Label 'The filter on %1 is wrong.', Comment = '%1=FieldCaption';
         WrongValueErr: Label '%1 has a wrong value.', Comment = '%1=FieldCaption';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -45,7 +47,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliation card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -133,7 +135,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Rec. Worksheet card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -189,7 +191,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliation card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -235,7 +237,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Rec. Worksheet card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -280,7 +282,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliation card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -340,7 +342,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
         // [THEN] Bank Rec. Worksheet card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -392,7 +394,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the Edit action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliation card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -444,7 +446,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the Edit action on the Bank Acc. Reconciliation List
         // [THEN] Bank Rec. Worksheet card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccount(BankAccount);
@@ -533,7 +535,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Account Statement List is opened
         // [THEN] Bank Account Statement card is opened
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -585,12 +587,12 @@ codeunit 141050 "Bank Recon. with Matching"
 
         Commit();
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
-        SuggestBankAccReconLines.RunModal;
+        SuggestBankAccReconLines.RunModal();
 
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliationLine."Statement Amount");
         BankAccReconciliation.Modify(true);
     end;
@@ -652,7 +654,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Acc. Reconciliation is posted
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -693,7 +695,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Rec. Header is posted
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -709,7 +711,7 @@ codeunit 141050 "Bank Recon. with Matching"
         CreateBankAccReconFromBankRecHeader(BankAccReconciliation, BankRecHeader);
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankAccReconciliationList.OpenView;
         BankAccReconciliationList.GotoRecord(BankAccReconciliation);
         BankAccReconciliationList.Post.Invoke;
@@ -740,7 +742,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Acc. Reconciliation is posted
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -780,7 +782,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Rec. Header is posted
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -793,7 +795,7 @@ codeunit 141050 "Bank Recon. with Matching"
         ActivateLocalPages;
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankRecWorksheet.OpenView;
         BankRecWorksheet.GotoRecord(BankRecHeader);
         BankRecWorksheet.Post.Invoke;
@@ -823,7 +825,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Acc. Reconciliation is posted and printed
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -905,7 +907,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Rec. Header is posted and printed
         // [THEN] Bank Acc. Reconciliation List becomes empty
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
@@ -923,7 +925,7 @@ codeunit 141050 "Bank Recon. with Matching"
         CreateBankAccReconFromBankRecHeader(BankAccReconciliation, BankRecHeader);
 
         // Exercise
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
+        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
         BankAccReconciliationList.OpenView;
         BankAccReconciliationList.GotoRecord(BankAccReconciliation);
         BankAccReconciliationList.PostAndPrint.Invoke;
@@ -947,7 +949,6 @@ codeunit 141050 "Bank Recon. with Matching"
     end;
 
     [Test]
-    [HandlerFunctions('ReportIsSelectedMessageHandler')]
     [Scope('OnPrem')]
     procedure EnableAutoMatchMissingReportSelection()
     var
@@ -961,7 +962,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to checked
         // [THEN] Bank Account Statement report is added to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateLocalPages;
@@ -980,24 +981,6 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Tear Down
         RestoreReconciliationReports;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure ReportIsSelectedMessageHandler(Message: Text[1024])
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        ReportSelections: Record "Report Selections";
-        BankStmtLine: Text;
-        BankReconTestLine: Text;
-    begin
-        BankStmtLine := StrSubstNo(ReportIsSelectedTxt,
-            Format(ReportSelections.Usage::"B.Stmt"), GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"));
-        Assert.AreNotEqual(0, StrPos(Message, BankStmtLine), StrSubstNo(UnexpectedMessageErr, BankStmtLine, Message));
-
-        BankReconTestLine := StrSubstNo(ReportIsSelectedTxt,
-            Format(ReportSelections.Usage::"B.Recon.Test"), GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"));
-        Assert.AreNotEqual(0, StrPos(Message, BankReconTestLine), StrSubstNo(UnexpectedMessageErr, BankReconTestLine, Message));
     end;
 
     local procedure CheckSelectedReport(Usage: Enum "Report Selection Usage"; ReportID: Integer)
@@ -1020,7 +1003,6 @@ codeunit 141050 "Bank Recon. with Matching"
     end;
 
     [Test]
-    [HandlerFunctions('ReportIsSelectedMessageHandler')]
     [Scope('OnPrem')]
     procedure DisableAutoMatchMissingReportSelection()
     var
@@ -1034,7 +1016,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to unchecked
         // [THEN] Bank Reconciliation report is added to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateAutoMatchPages;
@@ -1056,7 +1038,6 @@ codeunit 141050 "Bank Recon. with Matching"
     end;
 
     [Test]
-    [HandlerFunctions('AutoSelectReportMessageHandler')]
     [Scope('OnPrem')]
     procedure EnableAutoMatchSingleReportSelected()
     var
@@ -1071,7 +1052,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to checked
         // [THEN] Bank Account Statement report is added to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateLocalPages;
@@ -1096,40 +1077,7 @@ codeunit 141050 "Bank Recon. with Matching"
         RestoreReconciliationReports;
     end;
 
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure AutoSelectReportMessageHandler(Message: Text[1024])
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        ReportSelections: Record "Report Selections";
-        BankStmtLine: Text;
-        BankReconTestLine: Text;
-        AutoMatchingEnabled: Boolean;
-    begin
-        AutoMatchingEnabled := LibraryVariableStorage.DequeueBoolean();
-
-        if AutoMatchingEnabled then
-            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Stmt", REPORT::"Bank Account Statement", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Stmt")))
-        else
-            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Stmt", REPORT::"Bank Reconciliation", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Stmt")));
-
-        BankStmtLine := StrSubstNo(AutoSelectReportTxt, ReportSelections."Report Caption",
-             Format(ReportSelections.Usage::"B.Stmt"));
-
-        Assert.AreNotEqual(0, StrPos(Message, BankStmtLine), StrSubstNo(UnexpectedMessageErr, BankStmtLine, Message));
-
-        if AutoMatchingEnabled then
-            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Recon.Test", REPORT::"Bank Acc. Recon. - Test", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Recon.Test")))
-        else
-            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Recon.Test", REPORT::"Bank Rec. Test Report", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Recon.Test")));
-
-        BankReconTestLine := StrSubstNo(AutoSelectReportTxt, ReportSelections."Report Caption",
-            Format(ReportSelections.Usage::"B.Recon.Test"));
-        Assert.AreNotEqual(0, StrPos(Message, BankReconTestLine), StrSubstNo(UnexpectedMessageErr, BankReconTestLine, Message));
-    end;
-
     [Test]
-    [HandlerFunctions('AutoSelectReportMessageHandler')]
     [Scope('OnPrem')]
     procedure DisableAutoMatchSingleReportSelected()
     var
@@ -1144,7 +1092,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to unchecked
         // [THEN] Bank Reconciliation report is added to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateAutoMatchPages;
@@ -1170,7 +1118,6 @@ codeunit 141050 "Bank Recon. with Matching"
     end;
 
     [Test]
-    [HandlerFunctions('TooManyReportsSelectedMessageHandler')]
     [Scope('OnPrem')]
     procedure EnableAutoMatchMultipleReportsSelected()
     var
@@ -1185,7 +1132,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to checked
         // [THEN] No change to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateLocalPages;
@@ -1196,10 +1143,6 @@ codeunit 141050 "Bank Recon. with Matching"
         AddReconciliationReport(ReportSelections.Usage::"B.Stmt", 2, REPORT::"Bank Account - List");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 1, REPORT::"Bank Rec. Test Report");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 2, REPORT::"Bank Account - List");
-
-        // Pre-Exercise
-        LibraryVariableStorage.Enqueue(REPORT::"Bank Account Statement");
-        LibraryVariableStorage.Enqueue(REPORT::"Bank Acc. Recon. - Test");
 
         // Exercise
         LibraryLowerPermissions.SetBanking;
@@ -1213,37 +1156,10 @@ codeunit 141050 "Bank Recon. with Matching"
         Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
 
         // Tear Down
-        LibraryVariableStorage.AssertEmpty;
         RestoreReconciliationReports;
     end;
 
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure TooManyReportsSelectedMessageHandler(Message: Text[1024])
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        ReportSelections: Record "Report Selections";
-        PrintingReportID: Variant;
-        TestingReportID: Variant;
-        BankStmtLine: Text;
-        BankReconTestLine: Text;
-    begin
-        LibraryVariableStorage.Dequeue(PrintingReportID);
-        LibraryVariableStorage.Dequeue(TestingReportID);
-
-        BankStmtLine :=
-          StrSubstNo(TooManyReportsAreSelectedTxt, GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"),
-            PrintingReportID, Format(ReportSelections.Usage::"B.Stmt"));
-        Assert.AreNotEqual(0, StrPos(Message, BankStmtLine), StrSubstNo(UnexpectedMessageErr, BankStmtLine, Message));
-
-        BankReconTestLine :=
-          StrSubstNo(TooManyReportsAreSelectedTxt, GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"),
-            TestingReportID, Format(ReportSelections.Usage::"B.Recon.Test"));
-        Assert.AreNotEqual(0, StrPos(Message, BankReconTestLine), StrSubstNo(UnexpectedMessageErr, BankReconTestLine, Message));
-    end;
-
     [Test]
-    [HandlerFunctions('TooManyReportsSelectedMessageHandler')]
     [Scope('OnPrem')]
     procedure DisableAutoMatchMultipleReportsSelected()
     var
@@ -1258,7 +1174,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User sets the Auto. Match checkbox to unchecked
         // [THEN] No change to Report Selections
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ActivateAutoMatchPages;
@@ -1269,10 +1185,6 @@ codeunit 141050 "Bank Recon. with Matching"
         AddReconciliationReport(ReportSelections.Usage::"B.Stmt", 2, REPORT::"Bank Account - List");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 1, REPORT::"Bank Rec. Test Report");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 2, REPORT::"Bank Account - List");
-
-        // Pre-Exercise
-        LibraryVariableStorage.Enqueue(REPORT::"Bank Reconciliation");
-        LibraryVariableStorage.Enqueue(REPORT::"Bank Rec. Test Report");
 
         // Exercise
         LibraryLowerPermissions.SetBanking;
@@ -1287,7 +1199,6 @@ codeunit 141050 "Bank Recon. with Matching"
         Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
 
         // Tear Down
-        LibraryVariableStorage.AssertEmpty;
         RestoreReconciliationReports;
     end;
 
@@ -1310,7 +1221,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Selected Bank Acc. Reconciliation is deleted
         // [THEN] Other Bank Acc. Reconciliations remain on the Bank Acc. Reconciliation List
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1361,7 +1272,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Selected Bank Rec. Header is deleted
         // [THEN] Other Bank Rec. Headers remain on the Bank Acc. Reconciliation List
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccount(BankAccount);
@@ -1378,7 +1289,7 @@ codeunit 141050 "Bank Recon. with Matching"
         CreateBankAccReconFromBankRecHeader(BankAccReconciliation3, BankRecHeader3);
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankAccReconciliationList.OpenEdit;
         BankAccReconciliationList.GotoRecord(BankAccReconciliation2);
         BankAccReconciliationList.DeleteRec.Invoke;
@@ -1416,7 +1327,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the Refresh action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliations get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1465,7 +1376,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the Refresh action on the Bank Acc. Reconciliation List
         // [THEN] Bank Acc. Reconciliation with Statement Type as Bank Reconciliation gets re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1516,7 +1427,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User clicks the Refresh action on the Bank Acc. Reconciliation List
         // [THEN] Bank Rec. Headers get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccount(BankAccount);
@@ -1539,7 +1450,7 @@ codeunit 141050 "Bank Recon. with Matching"
         Commit();
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankAccReconciliationList.RefreshList.Invoke;
 
         // Verify
@@ -1567,7 +1478,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Acc. Reconciliation List gets displayed with the Bank Account No. used as a filter
         // [THEN] Bank Acc. Reconciliations get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Setup
         ActivateAutoMatchPages;
@@ -1623,7 +1534,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [THEN] Bank Acc. Reconciliation List gets displayed with the Bank Account No. used as a filter
         // [THEN] Bank Rec. Headers get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Setup
         ActivateLocalPages;
@@ -1635,7 +1546,7 @@ codeunit 141050 "Bank Recon. with Matching"
         LibraryVariableStorage.Enqueue(BankAccount."No.");
 
         // Exercise
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         BankAccountCard.OpenEdit;
         BankAccountCard.GotoRecord(BankAccount);
         OpenBankReconciliationList(BankAccountCard."No.".Value);
@@ -1666,7 +1577,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User closes the Bank Acc. Reconciliation card
         // [THEN] Bank Acc. Reconciliations get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -1737,7 +1648,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User closes the Bank Rec. Worksheet card
         // [THEN] Bank Acc. Reconciliations get re-fetched from the database
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBankAccount(BankAccount);
@@ -1796,7 +1707,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User starts NAV with Accounting Manager or Bookkeeper role centers
         // [THEN] Number of Bank Acc. Reconciliations shown on Finance Cue equals two
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation1.DeleteAll(true);
@@ -1844,7 +1755,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [WHEN] User starts NAV with Accounting Manager or Bookkeeper role centers
         // [THEN] Number of Bank Rec. Headers shown on Finance Cue equals one
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
@@ -1882,7 +1793,7 @@ codeunit 141050 "Bank Recon. with Matching"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 224588] "Posted Bank Reconciliations" opens on button PostedReconciliations from "Bank Account Card"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account "A"
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1903,7 +1814,7 @@ codeunit 141050 "Bank Recon. with Matching"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."Bank Rec. Adj. Doc. Nos." = '' then begin
@@ -1919,8 +1830,9 @@ codeunit 141050 "Bank Recon. with Matching"
     begin
         BankAccReconciliation.SetRange("Bank Account No.", No);
         BankAccReconciliationList.SetTableView(BankAccReconciliation);
-        BankAccReconciliationList.Run;
+        BankAccReconciliationList.Run();
         if BankAccReconciliationList.Caption <> '' then;
     end;
 }
 
+#endif

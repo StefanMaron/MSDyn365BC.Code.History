@@ -441,7 +441,7 @@ codeunit 139161 "CRM Integration Record Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         CRMIntegrationRecord.SetFilter("CRM ID", CRMAccount.AccountId);
-        CRMIntegrationRecord.FindFirst;
+        CRMIntegrationRecord.FindFirst();
 
         Assert.IsTrue(CRMIntegrationRecord.IsModifiedAfterLastSynchonizedCRMRecord(
             CRMAccount.AccountId, DATABASE::Customer,

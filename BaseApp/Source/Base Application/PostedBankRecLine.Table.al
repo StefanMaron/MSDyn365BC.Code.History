@@ -1,4 +1,4 @@
-table 10124 "Posted Bank Rec. Line"
+﻿table 10124 "Posted Bank Rec. Line"
 {
     Caption = 'Posted Bank Rec. Line';
     DrillDownPageID = "Posted Bank Rec. Lines";
@@ -199,6 +199,8 @@ table 10124 "Posted Bank Rec. Line"
         BankRecCommentLine: Record "Bank Comment Line";
         DimMgt: Codeunit DimensionManagement;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -224,6 +226,24 @@ table 10124 "Posted Bank Rec. Line"
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         DimMgt.GetDefaultDimID(TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN20
+        RunEventOnCreateDimOnAfterSetTableIDs(DefaultDimSource, IsHandled);
+#endif
+        OnBeforeCreateDim(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        DimMgt.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     procedure ShowDimensions()
@@ -251,8 +271,27 @@ table 10124 "Posted Bank Rec. Line"
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
+#if not CLEAN20
+    local procedure RunEventOnCreateDimOnAfterSetTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Rec, DefaultDimSource, TableID, No);
+        OnCreateDimOnAfterSetTableIDs(Rec, TableID, No, IsHandled);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Posted Bank Rec. Line", DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Replaced by OnBeforeCreateDim()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnAfterSetTableIDs(var PostedBankAccRecLine: Record "Posted Bank Rec. Line"; TableID: array[10] of Integer; No: array[10] of Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var PostedBankAccRecLine: Record "Posted Bank Rec. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
     begin
     end;
 

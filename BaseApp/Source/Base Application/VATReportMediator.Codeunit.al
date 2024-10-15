@@ -146,17 +146,21 @@ codeunit 740 "VAT Report Mediator"
         end;
     end;
 
-    local procedure GetVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    procedure GetVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
     begin
-        case VATReportHeader."VAT Report Config. Code" of
-            VATReportHeader."VAT Report Config. Code"::"VAT Return":
-                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
-            VATReportHeader."VAT Report Config. Code"::"EC Sales List":
-                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"EC Sales List");
-        end;
+        if VATReportHeader."VAT Report Config. Code" in
+            [VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader."VAT Report Config. Code"::"EC Sales List"]
+        then
+            VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
         if VATReportHeader."VAT Report Version" <> '' then
             VATReportsConfiguration.SetRange("VAT Report Version", VATReportHeader."VAT Report Version");
+        OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(VATReportsConfiguration, VATReportHeader);
         VATReportsConfiguration.FindFirst();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
     end;
 }
 

@@ -37,7 +37,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::FIFO;
 
         // Random Consumption Quantity used inside page handler - ProdJournalConsumpPageHandler.
@@ -66,7 +66,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::FIFO;
 
         // Random Consumption Quantity used inside page handler - ProdJournalConsumpPageHandler.
@@ -104,7 +104,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::FIFO;
 
         // Random Consumption Quantity used inside page handler - ProdJournalConsumpPageHandler.
@@ -145,7 +145,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
         CostingMethod[2] := Item."Costing Method"::FIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, false);
@@ -178,7 +178,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
         CostingMethod[2] := Item."Costing Method"::FIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, false);
@@ -190,7 +190,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ChildItemNo := TempItem."No.";
         SelectPurchaseLine(PurchaseLine, PurchaseHeader."No.", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("No.", ChildItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ConsumptionCostAmount := (ItemConsumptionQuantity * StandardCost) + (ItemConsumptionQuantity2 * PurchaseLine."Direct Unit Cost");
 
         // Calculate Expected Output Cost Amount.
@@ -226,7 +226,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
         CostingMethod[2] := Item."Costing Method"::FIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, false);
@@ -271,7 +271,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::LIFO;
         CostingMethod[2] := Item."Costing Method"::LIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, true);
@@ -306,7 +306,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::LIFO;
         CostingMethod[2] := Item."Costing Method"::LIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, true);
@@ -356,7 +356,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         LastDirectCost2: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::LIFO;
         CostingMethod[2] := Item."Costing Method"::LIFO;
         ReleasedProductionOrderSetup(TempItem, PurchaseHeader, ProductionOrder, CostingMethod, 2, true);
@@ -408,7 +408,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
 
         // Random Scrap Quantity used inside page handler - ProdJournalScrapPageHandler.
@@ -440,7 +440,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
 
         // Random Scrap Quantity used inside page handler - ProdJournalScrapPageHandler.
@@ -485,7 +485,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CostingMethod[1] := Item."Costing Method"::Standard;
 
         // Random Scrap Quantity used inside page handler - ProdJournalScrapPageHandler.
@@ -570,15 +570,15 @@ codeunit 137037 "SCM Inventory Adjustment"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Adjustment");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Adjustment");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
@@ -657,7 +657,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         // Open Production Journal based on selected Production Order Line.
         ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
@@ -683,9 +683,9 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         TempItem.Reset();
         TempItem.SetRange("Costing Method", ItemCostingMethod);
-        TempItem.FindFirst;
+        TempItem.FindFirst();
         ProductionBOMLine.SetRange("No.", TempItem."No.");
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         exit(ProductionBOMLine."Quantity per");
     end;
 
@@ -732,7 +732,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         ProductionBOMLine.SetRange("No.", No);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         exit(ProductionOrderQuantity * ProductionBOMLine."Quantity per");
     end;
 
@@ -803,7 +803,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
     begin
         CapacityLedgerEntry.SetRange("Document No.", DocumentNo);
-        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.FindFirst();
         CapacityLedgerEntry.TestField("Scrap Quantity", ScrapQuantity);
     end;
 
@@ -816,7 +816,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + RandomConsumptionQty);  // Random values not important.
         ItemJournalLine.Modify(true);
         ItemJournalLine.Reset();
@@ -839,7 +839,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Scrap Quantity", RandomScrapQty);  // Random values not important.
         ItemJournalLine.Modify(true);
         ItemJournalLine.Reset();

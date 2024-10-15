@@ -110,7 +110,7 @@ table 322 "Tax Detail"
               TaxDetailRec."Tax Type"::"Use Tax Only")
         else
             TaxDetailTemp.SetRange("Tax Type", TaxDetailRec."Tax Type"::"Sales and Use Tax");
-        if TaxDetailTemp.FindFirst then
+        if TaxDetailTemp.FindFirst() then
             exit(false)
         else
             exit(true);
@@ -125,7 +125,7 @@ table 322 "Tax Detail"
         TaxDetail.SetRange("Tax Jurisdiction Code", TaxDetailRec."Tax Jurisdiction Code");
         TaxDetail.SetRange("Tax Group Code", TaxDetailRec."Tax Group Code");
         TaxDetail.SetRange("Effective Date", TaxDetailRec."Effective Date");
-        if TaxDetail.FindSet then
+        if TaxDetail.FindSet() then
             repeat
                 TaxDetailTemp.Init();
                 TaxDetailTemp := TaxDetail;
@@ -154,7 +154,7 @@ table 322 "Tax Detail"
         TaxGroup.Get(TaxGroupCode);
         TaxSetup.Get();
         TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
-        if TaxAreaLine.FindSet then
+        if TaxAreaLine.FindSet() then
             repeat
                 if TaxGroupCode <> TaxSetup."Non-Taxable Tax Group Code" then begin
                     ApplyCommonFilters(TaxAreaLine."Tax Jurisdiction Code", '', "Tax Type"::"Sales and Use Tax", EffectiveDate);
@@ -175,7 +175,7 @@ table 322 "Tax Detail"
         if not TaxLiable then
             exit(0);
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-        if TaxAreaLine.FindSet then
+        if TaxAreaLine.FindSet() then
             repeat
                 TotalTaxRate += GetTaxRate(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales and Use Tax", EffectiveDate);
             until TaxAreaLine.Next() = 0;
@@ -204,7 +204,7 @@ table 322 "Tax Detail"
         TotalTaxRate := 0;
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
         TaxAreaLine.SetFilter("Tax Jurisdiction Code", '<>%1', '');
-        if TaxAreaLine.FindSet then
+        if TaxAreaLine.FindSet() then
             repeat
                 if TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code") then begin
                     TotalTaxRate += GetTaxRate(TaxJurisdiction.Code, TaxGroupCode, "Tax Type"::"Sales and Use Tax", EffectiveDate);
@@ -234,7 +234,7 @@ table 322 "Tax Detail"
         end;
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
         TaxAreaLine.SetFilter("Tax Jurisdiction Code", '<>%1', '');
-        if TaxAreaLine.FindSet then
+        if TaxAreaLine.FindSet() then
             repeat
                 if TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code") then begin
                     i += 1;
@@ -272,7 +272,7 @@ table 322 "Tax Detail"
     local procedure GetTaxRate(TaxJurisdictionCode: Code[20]; TaxGroupCode: Code[20]; TaxType: Option; EffectiveDate: Date): Decimal
     begin
         ApplyCommonFilters(TaxJurisdictionCode, TaxGroupCode, TaxType, EffectiveDate);
-        if FindLast then
+        if FindLast() then
             exit("Tax Below Maximum");
         exit(0);
     end;
@@ -282,7 +282,7 @@ table 322 "Tax Detail"
         ApplyCommonFilters(TaxJurisdictionCode, TaxGroupCode, TaxType, EffectiveDate);
         SetRange("Effective Date", EffectiveDate);
         LockTable();
-        if not FindLast then begin
+        if not FindLast() then begin
             Init;
             "Tax Jurisdiction Code" := TaxJurisdictionCode;
             "Tax Group Code" := TaxGroupCode;

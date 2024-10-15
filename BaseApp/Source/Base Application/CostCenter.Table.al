@@ -211,13 +211,13 @@ table 1112 "Cost Center"
         DimFilter: Text;
     begin
         CostAccSetup.Get();
-        if CostCenter.FindSet then
+        if CostCenter.FindSet() then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostCenter.Code);
                 DimFilter := DimensionMgt.GetDimSetFilter;
                 if DimFilter <> '' then begin
                     GLEntry.SetFilter("Dimension Set ID", DimFilter);
-                    if GLEntry.FindFirst then
+                    if GLEntry.FindFirst() then
                         EntriesFound := true;
                 end;
 

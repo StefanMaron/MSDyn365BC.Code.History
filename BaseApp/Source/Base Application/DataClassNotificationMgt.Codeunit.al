@@ -119,7 +119,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     local procedure FireNotificationForNonEmptyDataSensitivityTable(DataSensitivity: Record "Data Sensitivity")
     begin
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
-        if DataSensitivity.FindFirst then
+        if DataSensitivity.FindFirst() then
             FireUnclassifiedFieldsNotification
         else
             ShowSyncFieldsNotificationIfThereAreUnsynchedFields;
@@ -131,7 +131,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     begin
         Vendor.SetRange("Partner Type", Vendor."Partner Type"::Person);
         Vendor.SetFilter("Country/Region Code", RegionFilter);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(true);
         exit(false);
     end;
@@ -151,7 +151,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     begin
         Contact.SetRange(Type, Contact.Type::Person);
         Contact.SetFilter("Country/Region Code", RegionFilter);
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(true);
         exit(false);
     end;
@@ -162,7 +162,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     begin
         Resource.SetRange(Type, Resource.Type::Person);
         Resource.SetFilter("Country/Region Code", RegionFilter);
-        if Resource.FindFirst then
+        if Resource.FindFirst() then
             exit(true);
         exit(false);
     end;
@@ -172,7 +172,7 @@ codeunit 1756 "Data Class. Notification Mgt."
         Employee: Record Employee;
     begin
         Employee.SetFilter("Country/Region Code", RegionFilter);
-        if Employee.FindFirst then
+        if Employee.FindFirst() then
             exit(true);
         exit(false);
     end;
@@ -222,7 +222,7 @@ codeunit 1756 "Data Class. Notification Mgt."
     var
         FilterText: Text;
     begin
-        if RecRef.FindSet then begin
+        if RecRef.FindSet() then begin
             repeat
                 FilterText := StrSubstNo('%1|%2', FilterText, RecRef.Field(FieldNo));
             until RecRef.Next() = 0;

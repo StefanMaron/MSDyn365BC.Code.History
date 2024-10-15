@@ -171,7 +171,7 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

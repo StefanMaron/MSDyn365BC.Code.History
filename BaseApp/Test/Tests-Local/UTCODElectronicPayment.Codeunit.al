@@ -704,7 +704,7 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        if CheckLedgerEntry.FindLast then
+        if CheckLedgerEntry.FindLast() then
             exit(CheckLedgerEntry."Entry No." + 1);
         exit(1);
     end;

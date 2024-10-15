@@ -435,7 +435,7 @@ report 10042 "Customer Account Detail"
                             SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
                         SetRange("Customer No.", Customer."No.");
                         SetFilter("Currency Code", '=%1', '');
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
@@ -446,7 +446,7 @@ report 10042 "Customer Account Detail"
                         if Find('-') then
                             repeat
                                 CustLedgerEntry2.SetRange("Currency Code", Code);
-                                if CustLedgerEntry2.FindFirst then begin
+                                if CustLedgerEntry2.FindFirst() then begin
                                     TempCurrency.Init();
                                     TempCurrency.Code := Code;
                                     TempCurrency.Description := Description;
@@ -525,7 +525,7 @@ report 10042 "Customer Account Detail"
                     BalanceTotal := BalanceTotal + Cust."Net Change (LCY)";
                 end;
 
-                CustLedgerEntry2_Temp := CustLedgerEntry2.FindFirst;
+                CustLedgerEntry2_Temp := CustLedgerEntry2.FindFirst();
 
                 if OnlyOnePerPage then
                     NewPagePerGroupNo := NewPagePerGroupNo + 1;

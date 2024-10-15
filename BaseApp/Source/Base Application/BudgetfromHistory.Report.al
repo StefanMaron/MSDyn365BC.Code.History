@@ -63,7 +63,7 @@ report 10031 "Budget from History"
                 trigger OnPreDataItem()
                 begin
                     GLBudgetEntry.Reset();
-                    if GLBudgetEntry.FindLast then
+                    if GLBudgetEntry.FindLast() then
                         EntryNo := GLBudgetEntry."Entry No.";
                     CurrentPeriod := 0;
                     RunHistoryDate := HistoryDate;
@@ -218,7 +218,7 @@ report 10031 "Budget from History"
             PeriodLength::"Accounting Period":
                 begin
                     AcctPeriod.SetFilter("Starting Date", '>%1', CurrentDate);
-                    if not AcctPeriod.FindFirst then
+                    if not AcctPeriod.FindFirst() then
                         Error(Text000);
                     CalculatedDate := AcctPeriod."Starting Date";
                 end;

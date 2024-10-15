@@ -99,7 +99,7 @@ page 99000833 "Check Prod. Order Status"
         ReservEntry.InitSortingAndFilters(true);
         SalesLine2.SetReservationFilters(ReservEntry);
 
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 if ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
                     case ReservEntry2."Source Type" of

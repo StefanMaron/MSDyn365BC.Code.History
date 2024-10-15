@@ -38,7 +38,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Customer of Report 10047 - Customer Sales Statistics without Sales and Profit.
 
         // Setup: Create Customer Ledger Entry without Sales and Profit.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue used for CustomerSalesStatisticsTestReqPageHandler.
 
@@ -62,7 +62,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Customer of Report 10047 - Customer Sales Statistics with Sales and Profit.
 
         // Setup: Create Customer Ledger Entry with Sales and Profit.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
         UpdateSalesLCYAndProfitLCYOnCustomerLedgerEntry(CustLedgerEntry);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue used for CustomerSalesStatisticsTestReqPageHandler.
@@ -89,7 +89,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Customer Ledger Entry of Report 10041 - Cash Applied.
 
         // Setup: Create Customer Ledger Entry and Detailed Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
         CreateDetailedCustomerLedgerEntry(
           CustLedgerEntry."Entry No.", CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
@@ -118,7 +118,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Applied Entries of Report 10041 - Cash Applied.
 
         // Setup: Create Customer Ledger Entry, Create Detailed Customer Ledger Entry for multiple Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntryWithDiscount(CustLedgerEntry, CreateCustomer);
         CreateDetailedCustomerLedgerEntry(
           CustLedgerEntry."Entry No.", CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::Application);
@@ -153,7 +153,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Line Comments of Report 10069 - Sales Blanket Order.
 
         // Setup: Create Sales Document with Description.
-        Initialize;
+        Initialize();
         CreateSalesBlanketOrder(SalesLine);
         CreateCommentLineForBlanketSalesOrder(SalesLine."Document No.", LibraryUTUtility.GetNewCode);
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD313: Sales-Printed.
@@ -177,7 +177,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Comment Line of Report 10069 - Sales Blanket Order.
 
         // Setup: Create Sales Document and create Sales Comment Line.
-        Initialize;
+        Initialize();
         CreateSalesBlanketOrder(SalesLine);
         CreateCommentLineForBlanketSalesOrder(SalesLine."Document No.", CommentTxt);  // Need a value containing more than 60 Characters.
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD313: Sales-Printed.
@@ -200,7 +200,7 @@ codeunit 142070 "UT REP Sales Receivables"
         // Test and verify Vendor Account Detail report does not show any error while Vendor No. length is more than 10 Characters.
 
         // Setup: Create Vendor with Vendor No. length is more than 10 Characters.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         LibraryVariableStorage.Enqueue(VendorNo);  // Enqueue required for VendorAccountDetailRequestPageHandler.
 
@@ -221,7 +221,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord trigger of Report ID - 10042.
         // Setup: Create Customer and Cust. Ledger Entry.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerLedgerEntryWithDimension;
 
         // Exercise.
@@ -242,7 +242,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Comment Line - OnAfterGetRecord trigger of Report ID - 10043.
         // Setup: Create Comment Line.
-        Initialize;
+        Initialize();
         No := CreateCommentLine;
 
         // Exercise.
@@ -263,7 +263,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord trigger of Report ID - 10044.
         // Setup: Create Customer.
-        Initialize;
+        Initialize();
         No := CreateCustomerWithDimension;
         LibraryVariableStorage.Enqueue(No);  // Enqueue required for CustomerLabelsRequestPageHandler.
 
@@ -285,7 +285,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Sales Invoice Line - OnAfterGetRecord trigger of Report ID - 10070.
         // Setup: Create Sales Invoice Document and Sales Comment Line.
-        Initialize;
+        Initialize();
         CreatePostedSalesInvoice(SalesInvoiceLine);
         CreateSalesCommentLine(
           SalesCommentLine."Document Type"::"Posted Invoice",
@@ -310,7 +310,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Sales Comment Line - OnAfterGetRecord trigger of Report ID - 10081.
         // Setup: Create Sales Document and Sales Comment Line.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order");
         CreateSalesCommentLine(
           SalesCommentLine."Document Type"::"Return Order",
@@ -334,7 +334,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Return Receipt Header - OnAfterGetRecord trigger of Report ID - 10082.
         // Setup: Create Return Receipt.
-        Initialize;
+        Initialize();
         No := CreateReturnReceipt;
         Commit();  // Codeunit 6661 Retrun Receipt Printed -  On Run trigger Calls Commit();
 
@@ -356,7 +356,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate Sales Line - OnAfterGetRecord trigger of Report ID - 10153.
         // Setup: Create Sales Document and Sales Comment Line.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
 
         // Exercise.
@@ -378,7 +378,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Customer Trigger of Report ID - 10045 Customer Listing for Customer Balance and Customer Filter.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         CreateDetailedCustomerLedgerEntryWithNegativeAmount(CustLedgerEntry."Entry No.", CustLedgerEntry."Customer No.");
         Customer.Get(CustLedgerEntry."Customer No.");
@@ -404,7 +404,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Customer Trigger of Report ID - 10045 Customer Listing for Customer Balance and Payment terms.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
         CreateCustomerLedgerEntry(CustLedgerEntry);
         Customer.Get(CustLedgerEntry."Customer No.");
@@ -432,7 +432,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10048  Customer/Item Statistics for Filters and Item Description.
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         Customer.Get(CreateCustomer);
         CreateValueEntry(ValueEntry, Customer."No.", Item."No.");
@@ -457,7 +457,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10048  Customer/Item Statistics for Value Entry without Item.
         // Setup.
-        Initialize;
+        Initialize();
         CreateValueEntry(ValueEntry, CreateCustomer, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
@@ -478,7 +478,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10049 Customer/Item Statistics by SalesPerson for Value Entry with Item.
         // Setup.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         OnAfterGetRecordCustItemStatbySalespers(Item."No.", Item.Description);
     end;
@@ -491,7 +491,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetrecord - ValueEntry Trigger of Report ID - 10049 Customer/Item Statistics by SalesPerson for Value Entry without Item.
         // Setup.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCustItemStatbySalespers(LibraryUTUtility.GetNewCode10, 'Others');  // Use random value for Item No.
     end;
 
@@ -531,7 +531,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         // Purpose of the test is to validate OnAfterGetRecord -  CustLedgerEntry Trigger of Report ID -10046 Customer Register.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         CreateGLRegister(CustLedgerEntry."Entry No.");
 
@@ -551,7 +551,7 @@ codeunit 142070 "UT REP Sales Receivables"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCommentLine(): Code[20]
@@ -693,7 +693,7 @@ codeunit 142070 "UT REP Sales Receivables"
         GLRegister: Record "G/L Register";
         GLRegister2: Record "G/L Register";
     begin
-        GLRegister2.FindLast;
+        GLRegister2.FindLast();
         GLRegister."No." := GLRegister2."No." + 1;
         GLRegister."From Entry No." := FromEntryNo;
         GLRegister."To Entry No." := GLRegister."From Entry No.";
@@ -809,7 +809,7 @@ codeunit 142070 "UT REP Sales Receivables"
     var
         ValueEntry2: Record "Value Entry";
     begin
-        ValueEntry2.FindLast;
+        ValueEntry2.FindLast();
         ValueEntry."Entry No." := ValueEntry2."Entry No." + 1;
         ValueEntry."Source Type" := ValueEntry."Source Type"::Customer;
         ValueEntry."Source No." := CustomerNo;
@@ -835,7 +835,7 @@ codeunit 142070 "UT REP Sales Receivables"
     begin
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntryNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         exit(DetailedCustLedgEntry."Amount (LCY)");
     end;
 

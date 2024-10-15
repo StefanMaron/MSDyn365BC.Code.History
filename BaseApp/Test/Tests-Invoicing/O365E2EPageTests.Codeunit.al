@@ -13,6 +13,7 @@ codeunit 138910 "O365 E2E Page Tests"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
+        LibraryWorkflow: Codeunit "Library - Workflow";
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
@@ -47,7 +48,7 @@ codeunit 138910 "O365 E2E Page Tests"
         UnhandledNotificationErr: Label 'Unhandled notification: %1.';
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCannotSendInvoiceWithNegativeAmount()
     var
@@ -116,7 +117,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoice()
     begin
@@ -130,7 +131,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceForPhoneByTypingName()
     var
@@ -143,14 +144,14 @@ codeunit 138910 "O365 E2E Page Tests"
         // [GIVEN] A clean Invoicing App
         // [WHEN] User creates and sends a simple invoice, customer and item from the pages
         // [THEN] An invoice has been sent
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice.PhoneSellToCustomerName.Value(LibraryInvoicingApp.CreateCustomerWithEmail);
 
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.0);
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         BCO365SalesInvoice.Close;
 
@@ -158,7 +159,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,LookupCustomerHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,LookupCustomerHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceForPhoneByClickingDropDown()
     var
@@ -171,7 +172,7 @@ codeunit 138910 "O365 E2E Page Tests"
         // [GIVEN] A clean Invoicing App
         // [WHEN] User creates and sends a simple invoice, customer and item from the pages
         // [THEN] An invoice has been sent
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
         BCO365SalesInvoice.PhoneSellToCustomerName.Lookup;
         Assert.AreNotEqual(BCO365SalesInvoice.PhoneSellToCustomerName.Value, '', 'Customer has not been set');
 
@@ -179,7 +180,7 @@ codeunit 138910 "O365 E2E Page Tests"
         BCO365SalesInvoice.Lines."Unit Price".SetValue(100.0);
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         BCO365SalesInvoice.Close;
 
@@ -187,7 +188,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,MarkAsUnpaidConfirmHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,MarkAsUnpaidConfirmHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestMarkAsFullyPaidE2E()
     var
@@ -223,7 +224,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,MarkAsUnpaidHandler,MarkAsUnpaidConfirmHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,MarkAsUnpaidHandler,MarkAsUnpaidConfirmHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestMarkAsPartiallyPaidE2E()
     var
@@ -262,7 +263,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestFirstInvoiceE2E()
     var
@@ -302,7 +303,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,InvoiceCanceledConfirmHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,InvoiceCanceledConfirmHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCancelSentInvoice()
     var
@@ -329,23 +330,6 @@ codeunit 138910 "O365 E2E Page Tests"
     [Test]
     [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
-    procedure TestSetupEmailFromSettings()
-    begin
-        Init;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [GIVEN] A clean Invoicing App
-        // [GIVEN] The user set up Email from the settings pages
-        SetupEmailThroughMenu;
-
-        // [WHEN] User creates and sends a simple invoice
-        // [THEN] No Email setup dialog appears and it has been successfully sent
-        CreateAndSendInvoice;
-    end;
-
-    [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
     procedure TestSetupEmailFromAdvancedSettings()
     begin
         Init;
@@ -353,7 +337,7 @@ codeunit 138910 "O365 E2E Page Tests"
 
         // [GIVEN] A clean Invoicing App
         // [GIVEN] The user set up Email from the settings pages
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [WHEN] User creates and sends a simple invoice
         // [THEN] No Email setup dialog appears and it has been successfully sent
@@ -361,7 +345,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,MessageHandler,MarkAsPaidHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,MessageHandler,MarkAsPaidHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestFirstInvoiceWithTaxE2E()
     var
@@ -404,7 +388,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestFirstInvoiceWithTaxChangeTaxSettingsE2E()
     var
@@ -446,7 +430,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceWithTax()
     var
@@ -470,7 +454,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreateInvoiceWithoutTaxThenAddTax()
     var
@@ -503,7 +487,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreateInvoiceWithTaxThenChangeTax()
     var
@@ -574,19 +558,19 @@ codeunit 138910 "O365 E2E Page Tests"
         LibraryLowerPermissions.SetInvoiceApp;
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] User looks up customer name, creates a new customer and then decides to delete it
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        BCO365SalesCustomerCard.OpenNew;
+        BCO365SalesCustomerCard.OpenNew();
         BCO365SalesCustomerCard.Name.Value := CustomerName;
         Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
+        Customer.FindFirst();
         O365SalesManagement.BlockOrDeleteCustomerAndDeleteContact(Customer);
 
         // [THEN] The customer is deleted
         Customer.SetRange(Name, CustomerName);
-        asserterror Customer.FindFirst;
+        asserterror Customer.FindFirst();
 
         // [WHEN] The user manually inserts the customer name
         LibraryVariableStorage.Enqueue(StrSubstNo(CustomerCreatedMsg, CustomerName));
@@ -601,7 +585,7 @@ codeunit 138910 "O365 E2E Page Tests"
         // [WHEN] The customer has open invoices and the customer is deleted
         Customer.SetRange(Name, CustomerName);
         Assert.RecordCount(Customer, 1);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Customer.TestField(Blocked, Customer.Blocked::" ");
         BCO365SalesCustomerCard.OpenEdit;
         BCO365SalesCustomerCard.GotoRecord(Customer);
@@ -613,10 +597,10 @@ codeunit 138910 "O365 E2E Page Tests"
         // [THEN] Customer is blocked
         Customer.SetRange(Name, CustomerName);
         Assert.RecordCount(Customer, 1);
-        Customer.FindFirst;
+        Customer.FindFirst();
         Assert.AreEqual(Customer.Blocked, Customer.Blocked::All, 'Customer is not realy blocked.');
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure AddPaymentForInvoice(DocumentNo: Code[20]; PartialPayment: Boolean)
@@ -662,7 +646,7 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         exit(SalesHeader."No.");
     end;
 
@@ -698,16 +682,6 @@ codeunit 138910 "O365 E2E Page Tests"
 
         // [THEN] The send email contains a message
         VerifyEmailContent(PostedInvoiceNo);
-    end;
-
-    local procedure SetupEmailThroughMenu()
-    var
-        O365EmailAccountSettings: TestPage "O365 Email Account Settings";
-    begin
-        O365EmailAccountSettings.OpenEdit;
-        O365EmailAccountSettings."User ID".Value('test@microsoft.com');
-        O365EmailAccountSettings.EmailPassword.Value('pass');
-        O365EmailAccountSettings.Close;
     end;
 
     local procedure SetupTaxFromSettingsMenu()
@@ -750,7 +724,7 @@ codeunit 138910 "O365 E2E Page Tests"
 
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         if IsClosed then begin
             Assert.AreNotEqual(0, CustLedgerEntry."Closed by Entry No.", 'Invoice should be closed.');
             CustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.");
@@ -772,7 +746,7 @@ codeunit 138910 "O365 E2E Page Tests"
 
         SalesLine.SetRange("Document No.", InvoiceNo);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         O365SalesInvoiceLineCard.OpenEdit;
         O365SalesInvoiceLineCard.GotoRecord(SalesLine);
 
@@ -862,13 +836,11 @@ codeunit 138910 "O365 E2E Page Tests"
 
     local procedure Init()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll();
         Clear(CustomerName);
         Clear(ItemDescription);
         Clear(ItemPrice);
@@ -904,20 +876,6 @@ codeunit 138910 "O365 E2E Page Tests"
         if SetRecipientEmailAddress then
             O365SalesEmailDialog.SendToText.Value('test@microsoft.com');
         O365SalesEmailDialog.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure BCEmailSetupPageHandler(var BCO365EmailSetupWizard: TestPage "BC O365 Email Setup Wizard")
-    begin
-        with BCO365EmailSetupWizard.EmailSettingsWizardPage do begin
-            "Email Provider".SetValue(EmailProvider::"Office 365");
-            FromAccount.SetValue('test@microsoft.com');
-            Password.SetValue('pass');
-        end;
-
-        HasEmailSetupBeenCalled := true;
-        BCO365EmailSetupWizard.OK.Invoke;
     end;
 
     [MessageHandler]
@@ -976,8 +934,8 @@ codeunit 138910 "O365 E2E Page Tests"
     procedure FirstInvoiceWizardHandler(var O365FirstInvoiceWizard: TestPage "O365 First Invoice Wizard")
     begin
         // Welcome page
-        CustomerName := LibraryUtility.GenerateGUID;
-        ItemDescription := LibraryUtility.GenerateGUID;
+        CustomerName := LibraryUtility.GenerateGUID();
+        ItemDescription := LibraryUtility.GenerateGUID();
         ItemPrice := LibraryRandom.RandDec(100, 2);
         O365FirstInvoiceWizard.ActionCreateInvoice.Invoke;
         O365FirstInvoiceWizard.CustomerName.Value(CustomerName);
@@ -1004,12 +962,12 @@ codeunit 138910 "O365 E2E Page Tests"
     begin
         BCO365SalesCustomerCard.Trap;
         BCO365ContactLookup._NEW_TEMP_.Invoke;
-        CustomerName := LibraryUtility.GenerateGUID;
+        CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard."E-Mail".Value('test@microsoft.com');
         BCO365SalesCustomerCard.Close;
         Contact.SetRange(Name, CustomerName);
-        Contact.FindFirst;
+        Contact.FindFirst();
         BCO365ContactLookup.GotoRecord(Contact);
         BCO365ContactLookup.OK.Invoke;
     end;

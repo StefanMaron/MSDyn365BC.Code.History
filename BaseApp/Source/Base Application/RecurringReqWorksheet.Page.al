@@ -458,7 +458,7 @@ page 296 "Recurring Req. Worksheet"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -485,7 +485,7 @@ page 296 "Recurring Req. Worksheet"
                     trigger OnAction()
                     begin
                         ReorderItems.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
-                        ReorderItems.RunModal;
+                        ReorderItems.RunModal();
                         Clear(ReorderItems);
                     end;
                 }
@@ -548,7 +548,8 @@ page 296 "Recurring Req. Worksheet"
             ReqJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        ReqJnlManagement.TemplateSelection(PAGE::"Recurring Req. Worksheet", true, 0, Rec, JnlSelected);
+        ReqJnlManagement.WkshTemplateSelection(
+            PAGE::"Recurring Req. Worksheet", true, "Req. Worksheet Template Type"::"Req.", Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ReqJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
@@ -578,7 +579,7 @@ page 296 "Recurring Req. Worksheet"
             exit;
 
         MakePurchOrder.SetReqWkshLine(Rec);
-        MakePurchOrder.RunModal;
+        MakePurchOrder.RunModal();
         MakePurchOrder.GetReqWkshLine(Rec);
     end;
 

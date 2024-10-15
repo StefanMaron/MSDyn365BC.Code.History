@@ -50,7 +50,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10004 Account Balances by GIFI Code.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Account Balances by GIFI Code");
@@ -70,7 +70,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - GLAccount Trigger of Report ID - 10004 Account Balances by GIFI Code.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         GLAccount."GIFI Code" := CreateGIFICode;
         GLAccount.Modify();
@@ -94,7 +94,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify Actual Error Code: Please enter the Starting date for the consolidation period.
-        Initialize;
+        Initialize();
         OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance", 0D);  // Starting Date - 0D.
     end;
 
@@ -107,7 +107,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify Actual Error Code: Please enter the ending date for the consolidation period.
-        Initialize;
+        Initialize();
         OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance", WorkDate);  // Starting Date - WORKDATE.
     end;
 
@@ -120,7 +120,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify Actual Error Code: Please enter the Starting date for the consolidation period.
-        Initialize;
+        Initialize();
         OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance (4)", 0D);  // Starting Date - 0D.
     end;
 
@@ -133,7 +133,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify Actual Error Code: Please enter the ending date for the consolidation period.
-        Initialize;
+        Initialize();
         OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance (4)", WorkDate);  // Starting Date - WORKDATE.
     end;
 
@@ -159,7 +159,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10007 Consolidated Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
 
         // Exercise: Run Report - Consolidated Trial Balance with Filter on G/L Account.
@@ -182,7 +182,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10007 Consolidated Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
 
@@ -203,7 +203,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate Business Unit -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount when UseAdditionalReportingCurrency - TRUE on ConsolidatedTrialBalanceUseAddRptCurrRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordBusinessUnitConsolidatedTrialBalance(1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
     end;
 
@@ -216,7 +216,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate Business Unit -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount divided by 1000 when AmountsInWhole1000s - TRUE on ConsolidatedTrialBalanceInThousandsRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordBusinessUnitConsolidatedTrialBalance(1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
     end;
 
@@ -250,7 +250,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate Business Unit -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
 
@@ -273,7 +273,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate ConsolidCounter -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify Additional-Currency Net Change is updated as Elimination Amount on Report Consolidated Trial Balance.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAmtConsolidatedTrialBalance(1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
     end;
 
@@ -286,7 +286,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate ConsolidCounter -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
 
         // Setup: Test to verify Additional-Currency Net Change in Thousands is updated when AmountsInWhole1000s - TRUE on ConsolidatedTrialBalanceInThousandsRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordAmtConsolidatedTrialBalance(1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
     end;
 
@@ -320,7 +320,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate ConsolidCounter -OnAfterGetRecord Trigger of Report ID - 10007 Consolidated Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
 
@@ -345,7 +345,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Register -OnAfterGetRecord Trigger of Report ID - 10019  G/L Register.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSourceCode(SourceCode);
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
@@ -373,7 +373,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
 
         // Setup: Test to verify Source Name and Source Type is updated with Customer on Report G/L Register.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateCustomer, GLEntry."Bal. Account Type"::Customer);
     end;
 
@@ -402,7 +402,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
 
         // Setup: Test to verify Source Name and Source Type is updated with Fixed Asset on Report G/L Register.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateFixedAsset, GLEntry."Bal. Account Type"::"Fixed Asset");
     end;
 
@@ -417,7 +417,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
 
         // Setup: Test to verify Source Name and Source Type is updated with Bank Account on Report G/L Register.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateBankAccount, GLEntry."Bal. Account Type"::"Bank Account");
     end;
 
@@ -458,7 +458,7 @@ codeunit 141012 "UT REP General Ledger"
         // [SCENARIO 381127] Source Name contains a value if "IC Partner".Name has length = 50
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartner;
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", ICPartnerCode, '', GLEntry."Bal. Account Type"::"IC Partner");
@@ -489,7 +489,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10018 General Ledger Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
 
@@ -513,7 +513,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10018 General Ledger Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         UpdateGLSetupAdditionalReportingCurrency;
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
@@ -540,7 +540,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10018 General Ledger Worksheet.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
         UpdateGLEntryAdditionalCurrencyAmount(GLEntry);
@@ -565,7 +565,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10001 Budget.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
 
         // Exercise.
@@ -588,7 +588,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10002 Chart of Accounts.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
 
@@ -611,7 +611,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10003 Closing Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue('Test');  // Using Test to avoid Queue Underflow. Value is not important for test.
         LibraryVariableStorage.Enqueue(0D);  // Required inside ClosingTrialBalanceRequestPageHandler.
 
@@ -633,7 +633,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10003 Closing Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type"::"Bank Account");
         UpdateGLEntryPostingDate(GLEntry);
@@ -662,9 +662,9 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10003 Closing Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
         LibraryVariableStorage.Enqueue(AccountingPeriod."Starting Date"); // Required inside ClosingTrialBalanceUseAddRptCurrRequestPageHandler.
 
@@ -687,7 +687,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10003 Closing Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", CreateBusinessUnit, '', GLEntry."Bal. Account Type");
         UpdateGLEntryPostingDate(GLEntry);
@@ -714,7 +714,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10009 Cross Reference by Account No.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type"::"Bank Account");
 
@@ -741,8 +741,8 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate Currency -OnAfterGetRecord Trigger of Report ID - 10017 Currency Balances - Rec./Pay.
         // Setup.
-        Initialize;
-        CurrencyExchangeRate.FindFirst;
+        Initialize();
+        CurrencyExchangeRate.FindFirst();
         CreateDetailedCustomerLedgerEntries(DetailedCustLedgEntry, CurrencyExchangeRate."Currency Code");
         CreateDetailedVendorLedgerEntries(DetailedVendorLedgEntry, CurrencyExchangeRate."Currency Code");
 
@@ -774,7 +774,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10008 Consolidated Trial Balance (4).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
         CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
@@ -800,7 +800,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 10008 Consolidated Trial Balance (4).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
 
@@ -823,7 +823,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount when UseAdditionalReportingCurrency - TRUE on ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit, AmountCap, 1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
     end;
 
@@ -836,7 +836,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount divided by 1000s when AmountsInWhole1000s - TRUE on ConsolidatedTrialBalance4InThousandsRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit, AmountCap, 1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
     end;
 
@@ -849,7 +849,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify EliminationAmountCap is updated with Additional Currency Amount when UseAdditionalReportingCurrency - TRUE on ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4('', EliminationAmountCap, 1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
     end;
 
@@ -862,7 +862,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify EliminationAmountCap is updated with Additional Currency Amount divided by 1000s when AmountsInWhole1000s - TRUE on ConsolidatedTrialBalance4InThousandsRequestPageHandler.
-        Initialize;
+        Initialize();
         OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4('', EliminationAmountCap, 1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
     end;
 
@@ -896,7 +896,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify AmountCap is updated with Net Change.
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeConsolidatedTrialBal4(CreateBusinessUnit, AmountCap);
     end;
 
@@ -909,7 +909,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
 
         // Setup: Test to verify Net Change is updated as Elimination Amount on Report Consolidated Trial Balance (4).
-        Initialize;
+        Initialize();
         OnAfterGetRecordNetChangeConsolidatedTrialBal4('', EliminationAmountCap);
     end;
 
@@ -945,7 +945,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateBusinessUnit;  // Business Unit Required to avoid Report Break.
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
@@ -973,7 +973,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Account -OnAfterGetRecord Trigger of Report ID - 10008 Consolidated Trial Balance (4).
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateBusinessUnit;  // Business Unit Required to avoid Report Break.
         CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
@@ -1001,7 +1001,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10010 Cross Reference by Source.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSourceCode(SourceCode);
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
@@ -1026,7 +1026,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 333888] Report "Cash Appliction" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         // [WHEN] Report "Cash Application" is being printed to PDF
         Report.Run(Report::"Cash Application");
@@ -1035,8 +1035,8 @@ codeunit 141012 "UT REP General Ledger"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
@@ -1062,7 +1062,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."Source Type" := GLEntry."Source Type"::" ";
         GLEntry."IC Partner Code" := LibraryUTUtility.GetNewCode;
@@ -1083,7 +1083,7 @@ codeunit 141012 "UT REP General Ledger"
         GLRegister2: Record "G/L Register";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister2.FindLast;
+        GLRegister2.FindLast();
         GLRegister."No." := GLRegister2."No." + 1;
         GLRegister."From Entry No." := GLEntryNo;
         GLRegister."To Entry No." := GLEntryNo;
@@ -1171,7 +1171,7 @@ codeunit 141012 "UT REP General Ledger"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
@@ -1182,7 +1182,7 @@ codeunit 141012 "UT REP General Ledger"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");
@@ -1192,7 +1192,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CreateCustomerLedgerEntry;
         DetailedCustLedgEntry."Currency Code" := CurrencyCode;
@@ -1205,7 +1205,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := CreateVendorLedgerEntry;
         DetailedVendorLedgEntry."Currency Code" := CurrencyCode;
@@ -1265,7 +1265,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         GLEntry."Posting Date" := AccountingPeriod."Starting Date";
         GLEntry.Modify();
     end;

@@ -2,11 +2,6 @@ page 1828 "Extend Trial Wizard"
 {
     Caption = 'Extend Trial';
     PageType = NavigatePage;
-    SourceTable = "SMTP Mail Setup";
-    SourceTableTemporary = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'The source table for this page will be removed.';
-    ObsoleteTag = '17.0';
 
     layout
     {

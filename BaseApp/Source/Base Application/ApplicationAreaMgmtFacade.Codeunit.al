@@ -1,5 +1,7 @@
 codeunit 9179 "Application Area Mgmt. Facade"
 {
+    SingleInstance = true;
+
     procedure GetApplicationAreaSetupRecFromCompany(var ApplicationAreaSetup: Record "Application Area Setup"; CompanyName: Text): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";

@@ -1131,7 +1131,7 @@ page 10052 "Service Order Stats."
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
         ServLine.SetFilter(Type, '>0');
-        ServLine.FindFirst;
+        ServLine.FindFirst();
 
         if TempSalesTaxLine1.GetAnyLineModified then begin
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -1180,7 +1180,7 @@ page 10052 "Service Order Stats."
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempTaxAmountLine(VATLinesToDrillDown);
     end;
 

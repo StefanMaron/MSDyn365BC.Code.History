@@ -26,7 +26,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Purchase Invoice with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchInvSetup('');  // Blank value for Currency Code.
     end;
 
@@ -40,7 +40,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Purchase Invoice using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -82,7 +82,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Purchase Invoice with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         UnApplyPstdPurchInvSetup('');  // Blank value for Currency Code.
     end;
 
@@ -96,7 +96,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Purchase Invoice using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -139,7 +139,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Purchase Credit Memo with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchCrMemoSetup('');  // Blank value for Currency Code.
     end;
 
@@ -154,7 +154,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Purchase Credit Memo using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -194,7 +194,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Purchase Credit Memo with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         UnApplyPstdPurchCrMemoSetup('');  // Blank value for Currency Code.
     end;
 
@@ -209,7 +209,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Purchase Credit Memo using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -249,7 +249,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Sales Invoice with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         SalesInvSetup('');  // Blank value for Currency Code.
     end;
 
@@ -263,7 +263,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Sales Invoice using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -305,7 +305,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Sales Invoice with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         UnApplyPstdSalesInvSetup('');  // Blank value for Currency Code.
     end;
 
@@ -319,7 +319,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Sales Invoice using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -363,7 +363,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Sales Credit Memo with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         SalesCrMemoSetup('');  // Blank value for Currency Code.
     end;
 
@@ -378,7 +378,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries created from Purchase Credit Memo using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CurrencyCode := CreateCurrencyACY;
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -418,7 +418,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Sales Credit Memo with out Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         UnApplyPstdSalesCrMemoSetup('');  // Blank value for Currency Code.
     end;
 
@@ -433,7 +433,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify VAT Entries and General Ledger Entries after Unapply Posted Sales Credit Memo using Additional Currency.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyACY;
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
@@ -478,7 +478,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify General Ledger Entries after partial apply Posted Sales Invoice with Multiple Payment.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create multiple Payment and apply Customer Ledger Entries.
         ApplySalesInvWithPartialPayment(SalesLine, TotalVATAmount, TotalVATAmount2, CreateAndPostSalesInv(SalesLine, ''));
@@ -503,7 +503,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify General Ledger Entries after fully apply Posted Sales Invoice with Multiple Payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInv(SalesLine, '');
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
 
@@ -529,7 +529,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify General Ledger Entries after partial apply Posted Purchase Invoice with Multiple Payment.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create multiple Payment and apply Vendor Ledger Entries.
         ApplyPurchaseInvWithPartialPayment(
@@ -555,7 +555,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Verify General Ledger Entries after fully apply Posted Purchase Invoice with Multiple Payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchInv(PurchaseLine, '');
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
 
@@ -576,7 +576,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
     begin
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         isInitialized := true;
     end;
@@ -728,7 +728,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Document No.", DocumentNo);
             SetFilter(Base, '<>0');
-            FindFirst;
+            FindFirst();
             exit(Amount);
         end;
     end;
@@ -740,7 +740,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", SalesVATUnrealAccount);
-            FindFirst;
+            FindFirst();
             exit(Amount);
         end;
     end;
@@ -806,7 +806,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         VATEntry.SetFilter(Base, '<>0');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
@@ -820,7 +820,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(

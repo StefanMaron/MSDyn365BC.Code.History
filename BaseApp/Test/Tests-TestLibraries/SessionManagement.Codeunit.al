@@ -28,7 +28,7 @@ codeunit 132455 "Session Management"
         ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
 
         Stopped := 0;
-        if ActiveSession.FindSet then
+        if ActiveSession.FindSet() then
             repeat
                 StopSession(ActiveSession."Session ID", StrSubstNo(Text001, UserId));
                 Stopped := Stopped + 1;

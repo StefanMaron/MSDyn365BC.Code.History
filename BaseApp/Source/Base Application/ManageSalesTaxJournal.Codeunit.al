@@ -23,7 +23,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         GeneralJnlLine.ModifyAll("Bal. Account No.", '');
 
         GeneralJnlLine.SetRange("Document No.", GeneralJnlLine."Document No.");
-        GeneralJnlLine.FindLast;
+        GeneralJnlLine.FindLast();
         GenJnlLine.Init();
         GenJnlLine.TransferFields(GeneralJnlLine, false);
         GenJnlLine."Journal Template Name" := GeneralJnlLine."Journal Template Name";
@@ -47,7 +47,7 @@ codeunit 10102 "Manage Sales Tax Journal"
 
         TempGenJnlLine.DeleteAll();
 
-        if GenJnlLine.FindSet then
+        if GenJnlLine.FindSet() then
             repeat
                 TempGenJnlLine.Init();
                 TempGenJnlLine.TransferFields(GenJnlLine, true);
@@ -72,13 +72,13 @@ codeunit 10102 "Manage Sales Tax Journal"
     local procedure GetLastNosForVAT()
     begin
         GLEntry.LockTable();
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             NextTransactionNo := GLEntry."Transaction No." + 1
         else
             NextTransactionNo := 1;
 
         VATEntry.LockTable();
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             NextVATEntryNo := VATEntry."Entry No." + 1
         else
             NextVATEntryNo := 1;
@@ -108,13 +108,13 @@ codeunit 10102 "Manage Sales Tax Journal"
     begin
         TotalAmount := 0;
         GenJournlLine.SetRange("Document No.", GenJournlLine."Document No.");
-        if GenJournlLine.FindSet then
+        if GenJournlLine.FindSet() then
             repeat
                 TotalAmount := TotalAmount - GenJournlLine.Amount;
             until GenJournlLine.Next() = 0;
 
         if TotalAmount = 0 then begin
-            GenJournlLine.FindFirst;
+            GenJournlLine.FindFirst();
             Error(Text001, GenJournlLine."Journal Template Name", GenJournlLine."Journal Batch Name", GenJournlLine."Line No.");
         end;
     end;

@@ -7,7 +7,7 @@ page 17 "G/L Account Card"
     SourceTable = "G/L Account";
 
     AboutTitle = 'About G/L account details';
-    AboutText = 'Choose the G/L account settings appropriate for the transactions that are posted to this G/L account.';
+    AboutText = 'Choose the settings appropriate for the transactions that are posted to this *general ledger* account.';
 
     layout
     {
@@ -135,9 +135,9 @@ page 17 "G/L Account Card"
                 field("Direct Posting"; "Direct Posting")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether you will be able to post directly or only indirectly to this general ledger account. To allow Direct Posting to the G/L account, place a check mark in the check box.';
+                    ToolTip = 'Specifies if you can post directly to this general ledger account. If the field is not selected, then users must use sales documents, for example, and not post directly to the general ledger.';
                     AboutTitle = 'Is direct posting allowed?';
-                    AboutText = 'If you have control accounts for receivables and payables, then keep Direct Posting turned off as all transactions should be posted through customers and vendors.';
+                    AboutText = 'If you have control accounts for receivables and payables, then keep *Direct Posting* turned off as all transactions should be posted through customers and vendors.';
                 }
                 field(Blocked; Blocked)
                 {

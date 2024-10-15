@@ -912,7 +912,7 @@ report 7151 "Item Dimensions - Total"
         end;
     end;
 
-    local procedure Iteration(var FindFirst: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]; var IterationTotaling: Text[250]; var IterationIndentation: Integer; var IterationPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total"): Boolean
+    local procedure Iteration(var FindFirstRec: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]; var IterationTotaling: Text[250]; var IterationIndentation: Integer; var IterationPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total"): Boolean
     var
         SearchResult: Boolean;
     begin
@@ -921,7 +921,7 @@ report 7151 "Item Dimensions - Total"
                 begin
                     TempItem.Reset();
                     TempItem.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempItem.Find('-')
                     else
                         if TempItem.Get(IterationDimValCode) then
@@ -937,7 +937,7 @@ report 7151 "Item Dimensions - Total"
                 begin
                     TempLocation.Reset();
                     TempLocation.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempLocation.Find('-')
                     else
                         if TempLocation.Get(IterationDimValCode) then
@@ -956,7 +956,7 @@ report 7151 "Item Dimensions - Total"
                     TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
@@ -977,7 +977,7 @@ report 7151 "Item Dimensions - Total"
             IterationIndentation := 0;
             IterationPostingType := 0;
         end;
-        FindFirst := false;
+        FindFirstRec := false;
         exit(SearchResult);
     end;
 

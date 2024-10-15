@@ -47,7 +47,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [FEATURE] [Sales] [Comment]
         // Verify Sales Comment Line after post Sales Order with CopyCommentOrderToShpt as true on Sales & Receivable Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SalesCommentLineWithSalesDocument(SalesHeader."Document Type"::Order, SalesCommentLine."Document Type"::Shipment, false);  // Post as Ship.
     end;
 
@@ -61,7 +61,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [FEATURE] [Sales] [Comment]
         // Verify Sales Comment Line after post Sales Order with CopyCommentsOrderToInvoice as true on Sales & Receivable Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SalesCommentLineWithSalesDocument(SalesHeader."Document Type"::Order, SalesCommentLine."Document Type"::"Posted Invoice", true);  // Post as Invoice.
     end;
 
@@ -75,7 +75,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [FEATURE] [Sales] [Comment]
         // Verify Sales Comment Line after post Sales Return Order as Ship with CopyCmtsRetOrdToRetRcpt as true on Sales & Receivable Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SalesCommentLineWithSalesDocument(
           SalesHeader."Document Type"::"Return Order", SalesCommentLine."Document Type"::"Posted Return Receipt", false);  // Post as Ship.
     end;
@@ -90,7 +90,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [FEATURE] [Sales] [Comment]
         // Verify Sales Comment Line after post Sales Return Order as Invoice with CopyCmtsRetOrdToCrMemo as true on Sales & Receivable Setup.
         // Setup.
-        Initialize;
+        Initialize();
         SalesCommentLineWithSalesDocument(
           SalesHeader."Document Type"::"Return Order", SalesCommentLine."Document Type"::"Posted Credit Memo", true);  // Post as Invoice.
     end;
@@ -120,7 +120,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after post Sales Order with CopyCommentOrderToShpt as false on Sales & Receivable Setup.
 
         // Setup: Update CopyCommentOrderToShpt field on Sales & Receivable Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Copy Comments Order to Shpt."), false);
 
         // Exercise: Create and post Sales Order with Sales Comment Line.
@@ -143,7 +143,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after post Sales Order with CopyCommentsOrderToInvoice as false on Sales & Receivable Setup.
 
         // Setup: Update CopyCommentsOrderToInvoice field on Sales & Receivable Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Copy Comments Order to Invoice"), false);
 
         // Exercise: Create and post Sales Order with Sales Comment Line.
@@ -166,7 +166,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after Make Order from Blanket Sales Order with CopyCommentsBlanketToOrder as true on Sales & Receivable Setup.
 
         // Setup: Update CopyCommentsBlanketToOrder field on Sales & Receivable Setup. Create Blanket Sales Order with Sales Comment Line.
-        Initialize;
+        Initialize();
         UpdateWarningsOnSalesReceivablesSetup;
         ItemNo := CreateSalesDocumentWithCommentLine(SalesCommentLine, SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.Get(SalesHeader."Document Type"::"Blanket Order", SalesCommentLine."No.");
@@ -194,7 +194,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after Make Order from Blanket Sales Order with CopyCommentsBlanketToOrder as false on Sales & Receivable Setup.
 
         // Setup: Update CopyCommentsBlanketToOrder field on Sales & Receivable Setup. Create Blanket Sales Order with Sales Comment Line.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Copy Comments Blanket to Order"), false);
         ItemNo := CreateSalesDocumentWithCommentLine(SalesCommentLine, SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.Get(SalesHeader."Document Type"::"Blanket Order", SalesCommentLine."No.");
@@ -220,7 +220,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after post Sales Return Order as Ship with CopyCmtsRetOrdToRetRcpt as false on Sales & Receivable Setup.
 
         // Setup: Update CopyCmtsRetOrdToRetRcpt field on Sales & Receivable Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Copy Cmts Ret.Ord. to Ret.Rcpt"), false);
 
         // Exercise: Create and Post Sales return Order with Sales Comment Line.
@@ -243,7 +243,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Comment Line after post Sales Return Order as Invoice with CopyCmtsRetOrdToCrMemo as false on Sales & Receivable Setup.
 
         // Setup: Update CopyCmtsRetOrdToCrMemo field on Sales & Receivable Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Copy Cmts Ret.Ord. to Cr. Memo"), false);
 
         // Exercise: Create and Post Sales Return Order with Sales Comment Line.
@@ -266,7 +266,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify InvDiscountAmount field is not editable on Sales Statistics with CalcInvDiscount as true on Sales & Receivable Setup.
 
         // Setup: Update CalcInvDiscount on Sales & Receivable Setup. Create Sales Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Calc. Inv. Discount"), false);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice);
 
@@ -291,7 +291,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Report Sales Shipment with Package Tracking No field on Sales Order as True.
 
         // Setup: Create and post Sales Order with PackageTrackingNo as True.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         UpdatePackageTrackingNoOnSalesHeader(SalesHeader, SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship.
@@ -317,7 +317,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Report Sales Shipment with Package Tracking No field on Sales Order as False.
 
         // Setup: Create and post Sales Order with PackageTrackingNo as False.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         UpdatePackageTrackingNoOnSalesHeader(SalesHeader, SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship.
@@ -342,7 +342,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Line without FreightAmount on Sales Order Shipment.
 
         // Setup: Create Sales Order and G/L Account.
-        Initialize;
+        Initialize();
         CreateSalesOrderUsingGLAccount(SalesLine);
 
         // Exercise: Open Post from Sales Order Shipment page.
@@ -366,7 +366,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Invoice Line without FreightAmount on Sales Order Shipment.
 
         // Setup: Create Sales Order and G/L Account. Open post from Sales Order Shipment page.
-        Initialize;
+        Initialize();
         CreateSalesOrderUsingGLAccount(SalesLine);
         OpenPostFromSalesOrderShipment(SalesLine."Document No.", 0);  // FreightAmount as 0.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -391,7 +391,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Line with FreightAmount is updated on Sales Order Shipment.
 
         // Setup: Create Sales Order and G/L Account.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateSalesOrderUsingGLAccount(SalesLine);
 
         // Exercise: Open Post from Sales Order Shipment page.
@@ -417,7 +417,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Sales Invoice Line with FreightAmount is updated on Sales Order Shipment.
 
         // Setup: Create Sales Order and G/L Account. Open post from Sales Order Shipment page.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateSalesOrderUsingGLAccount(SalesLine);
         OpenPostFromSalesOrderShipment(SalesLine."Document No.", LibraryRandom.RandDec(10, 2));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -438,7 +438,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [Intercompany]
         // Verify G/L Entry and IC Outbox Transaction without General Posting Type and General Product Posting Group in G/L Account.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceUsingICPartnerCode(GLAccount."Gen. Posting Type"::" ", '');  // General Product Posting Group as blank.
     end;
 
@@ -450,7 +450,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [Intercompany]
         // Verify G/L Entry and IC Outbox Transaction with General Posting Type and General Product Posting Group in G/L Account.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceUsingICPartnerCode(GLAccount."Gen. Posting Type"::Purchase, FindGenProdPostingGroup);
     end;
 
@@ -492,7 +492,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry after partial post Purchase Return Order and then post Purchase Credit Memo.
 
         // Setup: Create and Post Purchase Return Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Take random Quantity.
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", false, Quantity, Quantity / 2);  // Post as Ship and partial posting required.
 
@@ -524,7 +524,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry after post Purchase Return Order and then post Purchase Credit Memo.
 
         // Setup: Create and Post Purchase Return Order. Create and Post Purchase Credit Memo and Get Shipment Lines.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Take random Quantity.
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", false, Quantity, Quantity / 2);  // Post as Ship and Partial posting required.
         PostPurchaseCreditMemoAfterGetShipmentLines(PurchaseLine."Tax Area Code", PurchaseLine."Buy-from Vendor No.");
@@ -554,7 +554,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Item Ledger Entry after post Purchase Return Order with Tax Area.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Take random Quantity.
 
         // Exercise: Create and Post Purchase Return Order.
@@ -580,7 +580,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry and VAT Entry after post Purchase Credit Memo with Tax Area.
 
         // Setup: Create and Post Purchase Return Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Take random Quantity.
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", false, Quantity, Quantity);  // Post as Ship.
         Amount := PurchaseLine.Amount * FindTaxDetail(PurchaseLine."Tax Group Code") / 100;
@@ -612,7 +612,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Item Ledger Entry after post Sales Return Order with Tax Area.
 
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
@@ -640,7 +640,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry and VAT Entry after post Sales Credit Memo with Tax Area.
 
         // Create and Post Sales Return Order.
-        Initialize;
+        Initialize();
         TaxPerc := CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order");
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship.
@@ -679,7 +679,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [General Journal] [FCY] [ACY]
         // [SCENARIO] Journal line in FCY is posted successfuly if ACY is equal to FCY.
-        Initialize;
+        Initialize();
         // [GIVEN] Additional Reporting Currency is 'USD', LCY is 'CAD'
         CurrencyCode := CreateCurrencyWithExchRate;
         ModifyAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
@@ -689,7 +689,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         CreateVatPostingSetup(VATPostingSetup);
         GLAccNo[1] :=
           CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale, FindGenProdPostingGroup, TaxDetail."Tax Group Code");
-        GLAccNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccNo[2] := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] Creates the journal line, where "Account No." is 'X', "Currency Code" is 'USD', "Bal. Account No." is 'CASH'
         Amount := LibraryRandom.RandDec(100, 2);
@@ -707,7 +707,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Posted transaction, where are G/L Entries for sales tax and ACY amounts are proportional to LCY amounts
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         GLEntry.FindSet();
         repeat
@@ -715,14 +715,14 @@ codeunit 142053 "ERM Sales/Purchase Document"
               GLEntry."Additional-Currency Amount", CalcACYFromLCY(GLEntry, CurrencyCode), 0.01, 'Wrong Additional-Currency Amount');
         until GLEntry.Next = 0;
         GLEntry.SetRange("G/L Account No.", GLAccNo[1]);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Additional-Currency Amount", GenJournalLine."VAT Base Amount");
         GLEntry.SetRange("G/L Account No.", GLAccNo[2]);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Additional-Currency Amount", -Amount);
         // [THEN] VAT Entry posted, where "VAT Calculation Type" is 'Sales Tax'
         VATEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Sales Tax");
     end;
 
@@ -744,7 +744,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [General Journal] [FCY] [ACY] [Expense]
         // [SCENARIO] Journal line in FCY is posted successfuly if ACY is equal to FCY and tax details include expenses.
-        Initialize;
+        Initialize();
         // [GIVEN] Additional Reporting Currency is 'USD', LCY is 'CAD'
         CurrencyCode := CreateCurrencyWithExchRate;
         ModifyAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
@@ -758,7 +758,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         CreateVatPostingSetup(VATPostingSetup);
         GLAccNo[1] :=
           CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale, FindGenProdPostingGroup, TaxDetail."Tax Group Code");
-        GLAccNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccNo[2] := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] Creates the journal line, where "Account No." is 'X', "Currency Code" is 'USD', "Bal. Account No." is 'CASH'
         Amount := LibraryRandom.RandDec(1000, 2);
@@ -777,7 +777,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Posted transaction, where are G/L Entries for sales tax and ACY amounts are proportional to LCY amounts
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         GLEntry.FindSet();
         repeat
@@ -805,7 +805,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry after post Sales Order with additional Currency.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchRate;
         ModifyAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
         TaxPerc := CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
@@ -843,7 +843,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry after post Purchase Order with additional Currency.
 
         // Setup:  Create Currency with Exchange Rate.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchRate;
         ModifyAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
 
@@ -879,7 +879,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify G/L Entry after post Service Order with additional Currency.
 
         // Setup: Create Currency with Exchange Rate.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchRate;
         ModifyAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
 
@@ -926,7 +926,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Verify Amount Including VAt on IC Outbox Jnl line when a sales invoice is posted with IC Partner Code.
 
         // Setup: Create Tax Setup and create GL Account with VAT and Gen Posting setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail, TaxDetail."Tax Type"::"Sales Tax Only");
         CreateVatPostingSetup(VATPostingSetup);
         GLAccountNo :=
@@ -964,7 +964,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [Invoice] [Statistics]
         // Setup: Create Tax detail with Jurisdiction and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTaxAreaCode(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -984,9 +984,9 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Statistics]
         // Setup: Create Tax detail with Jurisdiction and Post Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithTaxAreaCode(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Post Purchase Credit Memo
@@ -1007,13 +1007,13 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Cancelled Document] [G/L Account] [Sales]
         // [SCENARIO 218359] Posted sales invoice with G/L Account and blanked Gen Bus.\Prod. Groups can be Cancelled
-        Initialize;
+        Initialize();
 
         if GeneralPostingSetup.Get('', '') then
             GeneralPostingSetup.Delete();
 
         // [GIVEN] Customer "Cust" with blank "Gen. Bus. Posting Group"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         UpdateCustomerGenBusPostingGroup(CustomerNo, '');
 
         // [GIVEN] G/L Account "GLAcc" with blank "Gen. Prod. Posting Group"
@@ -1043,13 +1043,13 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Cancelled Document] [G/L Account] [Purchase]
         // [SCENARIO 218359] Posted purchase invoice with G/L Account and blanked Gen Bus.\Prod. Groups can be Cancelled
-        Initialize;
+        Initialize();
 
         if GeneralPostingSetup.Get('', '') then
             GeneralPostingSetup.Delete();
 
         // [GIVEN] Vendor "Vend" with blank "Gen. Bus. Posting Group"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         UpdateVendorGenBusPostingGroup(VendorNo, '');
 
         // [GIVEN] G/L Account "GLAcc" with blank "Gen. Prod. Posting Group"
@@ -1080,7 +1080,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Freight Amount]
         // [SCENARIO 285744] User posts separate Sales Order Shipments for one Sales order, which results in multiple Freight Amount Sales lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with two Sales Lines "S1" and "S2"
         FreightGLAccountNo := CreateSalesOrderWithTwoSalesLinesUsingGLAccount(SalesLine);
@@ -1117,7 +1117,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Freight Amount]
         // [SCENARIO 292273] When error occurs in posting Sales Order Shipping duplicate Freight Amount lines are not generated
-        Initialize;
+        Initialize();
 
         // [GIVEN] Freight G/L Account No. is set to "F"
         LibraryERM.CreateGLAccount(FreightGLAccount);
@@ -1174,7 +1174,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE]
         // [SCENARIO 306145] Posting Purchase Invoice with Discounted Purchase Line leads to G/L Entry with discounted Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting setup "X" with "VAT %" = 0 and "VAT Calculation Type" = Sales Tax.
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1209,7 +1209,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         GLEntry.SetRange("Document Type", PurchaseHeader."Document Type".AsInteger());
         GLEntry.SetRange("Document No.", PostedDocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::" ");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.RecordCount(GLEntry, 1);
         ExpectedAmount := -PurchaseLine."Direct Unit Cost" * (100 - PurchaseLine."Line Discount %") / 100;
         Assert.AreEqual(Round(ExpectedAmount), GLEntry.Amount, '');
@@ -1226,7 +1226,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 309283] Lines of Type Charge (Item) with blank "Gen. Prod. Posting Group" on a Purchase Order can't be posted as Received
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Application Area Enabled
         LibraryApplicationArea.EnableSalesTaxSetup();
@@ -1263,7 +1263,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 309283] Lines of Type Charge (Item) with blank "Gen. Prod. Posting Group" on a Sales Order can't be posted as Shipped
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Application Area Enabled
         LibraryApplicationArea.EnableSalesTaxSetup();
@@ -1303,7 +1303,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 322043] Purchase Invoice with blank "Gen. Bus. Posting Group" on Purchase Lines can be posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Application Area Enabled
         LibraryApplicationArea.EnableSalesTaxSetup();
@@ -1351,7 +1351,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 322043] Sales Invoice with blank "Gen. Bus. Posting Group" on Sales Lines can be posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Tax Application Area Enabled
         LibraryApplicationArea.EnableSalesTaxSetup();
@@ -1399,7 +1399,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Order page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1441,7 +1441,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Quote page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1483,7 +1483,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Invoice page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1525,7 +1525,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Credit Memo page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1568,7 +1568,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Blanket Order page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1611,7 +1611,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Sales Return Order page changes Tax area on Sales Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1655,7 +1655,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Quoute page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1699,7 +1699,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Order page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1743,7 +1743,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Invoice page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1787,7 +1787,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Credit Memo page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1831,7 +1831,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Blanket Order page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1875,7 +1875,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 322892] Changing Tax Area after changing Quantity on Purchase Return Order page changes Tax area on Purchase Lines subpage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Tax Areas "TA1"/"TA2" with one Tax Group.
         TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
@@ -1915,7 +1915,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Report]
         // [SCENARIO 329239] When report "Standard Sales - Order Conf." is printed, Amount Subject To Sales Tax is calculated and shown.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Sales line with Item with Unit Price = 100, Quanity = 3 and Sales Tax 5%.
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
@@ -1943,13 +1943,13 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Report]
         // [SCENARIO 329239] When report "Standard Sales - Order Conf." is printed, Amount Exempt From Sales Tax is calculated and shown.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Sales line with Item with Unit Price = 100, Quanity = 3 and Sales Tax 0%.
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
         AmountExemptFromSalesTax := SalesLine.Quantity * SalesLine."Unit Price";
         TaxDetail.SetRange("Tax Group Code", SalesLine."Tax Group Code");
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
         TaxDetail.Validate("Tax Below Maximum", 0);
         TaxDetail.Modify(true);
 
@@ -1973,7 +1973,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Order] [Report]
         // [SCENARIO 331886] NA-localized "Sales Order" report prints lines sorted as in the document.
-        Initialize;
+        Initialize();
 
         CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::Order);
         SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -2003,7 +2003,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Return Order] [Report]
         // [SCENARIO 331886] NA-localized "Return Authorization" report prints lines sorted as in the document.
-        Initialize;
+        Initialize();
 
         CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::"Return Order");
         SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -2033,7 +2033,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Sales] [Blanket Order] [Report]
         // [SCENARIO 331886] NA-localized "Sales Blanket Order" report prints lines sorted as in the document.
-        Initialize;
+        Initialize();
 
         CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::"Blanket Order");
         SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -2061,7 +2061,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         // [FEATURE] [Purchases] [Order] [UI]
         // [SCENARIO 338888] "Import Electronic Invoice" action is enabled on Purchase Order page in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SaaS setup
         LibraryPermissions.SetTestabilitySoftwareAsAService(true);
@@ -2147,8 +2147,8 @@ codeunit 142053 "ERM Sales/Purchase Document"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.SetStockoutWarning(false);
 
         SetVatInUseInGeneralLedgerSetup(false);
@@ -2378,7 +2378,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         DocumentNo: Code[20];
     begin
         // Setup: Create Tax Setup and create GL Account with VAT and Gen Posting setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail, TaxType);
         CreateVatPostingSetup(VATPostingSetup);
         GLAccountNo :=
@@ -2698,7 +2698,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2707,7 +2707,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         TaxDetail: Record "Tax Detail";
     begin
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
         exit(TaxDetail."Tax Below Maximum");
     end;
 
@@ -2725,21 +2725,21 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"G/L Account");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FilterSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Option)
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, Type);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; No: Code[20])
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure ModifyAdditionalReportingCurrencyOnGLSetup(AdditionalReportingCurrency: Code[10])
@@ -2833,7 +2833,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     local procedure UpdatePackageTrackingNoOnSalesHeader(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
-        SalesHeader.Validate("Package Tracking No.", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Package Tracking No.", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
     end;
 
@@ -2927,7 +2927,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(-Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountNotEqualMsg);
         GLEntry.TestField("Gen. Posting Type", GenPostingType);
         GLEntry.TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
@@ -2940,7 +2940,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountNotEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount",
@@ -2953,7 +2953,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountNotEqualMsg);
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountNotEqualMsg);
     end;
@@ -2964,7 +2964,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(Quantity, ItemLedgerEntry.Quantity, LibraryERM.GetAmountRoundingPrecision, AmountNotEqualMsg);
     end;
 
@@ -2974,7 +2974,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         ICOutboxTransaction.SetRange("Document Type", ICOutboxTransaction."Document Type"::Invoice);
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
-        ICOutboxTransaction.FindFirst;
+        ICOutboxTransaction.FindFirst();
         ICOutboxTransaction.TestField("IC Partner Code", ICPartnerCode);
     end;
 
@@ -2985,7 +2985,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         with ICOutboxJnlLine do begin
             SetRange("Account Type", "Account Type"::"IC Partner");
             SetRange("Account No.", ICPartnerCode);
-            FindFirst;
+            FindFirst();
             // The amount validation needs to be fixed, it's effectively testing Amount = Amount
             TaxAmount := Amount; // Needed to satisfy PreCAL
             TestField(Amount, TaxAmount);
@@ -3007,7 +3007,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         with SalesCrMemoLine do begin
             SetRange(Type, Type::"G/L Account");
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("No.", ExpectedNo);
         end;
     end;
@@ -3032,7 +3032,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         with PurchCrMemoLine do begin
             SetRange(Type, Type::"G/L Account");
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("No.", ExpectedNo);
         end;
     end;

@@ -638,7 +638,7 @@
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
             VendLedgEntry.SetRange(Open, true);
-            VendLedgEntry.FindFirst;
+            VendLedgEntry.FindFirst();
             VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if (VendLedgEntry."Pmt. Discount Date" >= GenJnlLine."Document Date") and
                (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
@@ -671,7 +671,7 @@
             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             CustLedgEntry.SetRange("Customer No.", Customer."No.");
             CustLedgEntry.SetRange(Open, true);
-            CustLedgEntry.FindFirst;
+            CustLedgEntry.FindFirst();
             CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if (CustLedgEntry."Pmt. Discount Date" >= GenJnlLine."Document Date") and
                (CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and

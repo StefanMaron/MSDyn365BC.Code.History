@@ -30,7 +30,7 @@ codeunit 133771 "Remittance REP Check UT"
         // Purpose of the test is to validate PrintLoop - OnAfterGetRecord Trigger of Report 399 - Remittance Advice - Journal.
 
         // Setup: Create General Journal Line, Vendor Ledger Entries and Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor);
         CreateVendorLedgerEntry(
           VendorLedgerEntry, GenJournalLine."Applies-to ID", GenJournalLine."Account No.", VendorLedgerEntry."Document Type");
@@ -65,7 +65,7 @@ codeunit 133771 "Remittance REP Check UT"
         // Purpose of the test is to validate VendLedgEntry - OnAfterGetRecord Trigger of Report 400 - Remittance Advice - Entries.
 
         // Setup: Create Vendor Ledger Entries and Detailed Vendor Ledger Entries.
-        Initialize;
+        Initialize();
         EntryNo := CreateAndUpdateMultipleVendorLedgerEntries(VendorLedgerEntry, VendorLedgerEntry2);
         CreateDetailedVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Entry No.", DetailedVendorLedgEntry."Entry Type"::"Payment Discount",
@@ -100,7 +100,7 @@ codeunit 133771 "Remittance REP Check UT"
         // Purpose of the test is to validate CurrencyCode function of Report 400 - Remittance Advice - Entries.
 
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryUTUtility.GetNewCode10;
 
         // Exercise & Verify: Execute function - CurrencyCode. Verify Currency Code with return value of function.
@@ -119,7 +119,7 @@ codeunit 133771 "Remittance REP Check UT"
         // [FEATURE] [Remittance Advice - Journal]
         // [SCENARIO 380011] The report should list the payed documents and the Remaining Amount should be shown only for documents that will be partially paid.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Gen. Journal Line for vendor
         CreateGeneralJournalLineWithCurrencyCode(GenJournalLine, GenJournalLine."Account Type"::Vendor);
@@ -162,7 +162,7 @@ codeunit 133771 "Remittance REP Check UT"
         // [FEATURE] [Remittance Advice - Journal]
         // [SCENARIO 380011] The report should list the payed documents without partially paid
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Gen. Journal Line for vendor
         CreateGeneralJournalLineWithCurrencyCode(GenJournalLine, GenJournalLine."Account Type"::Vendor);
@@ -191,7 +191,7 @@ codeunit 133771 "Remittance REP Check UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -303,7 +303,7 @@ codeunit 133771 "Remittance REP Check UT"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        if DetailedVendorLedgEntry.FindLast then
+        if DetailedVendorLedgEntry.FindLast() then
             exit(DetailedVendorLedgEntry."Entry No." + 1);
         exit(1);
     end;
@@ -312,7 +312,7 @@ codeunit 133771 "Remittance REP Check UT"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if VendorLedgerEntry.FindLast then
+        if VendorLedgerEntry.FindLast() then
             exit(VendorLedgerEntry."Entry No." + 1);
         exit(1);
     end;

@@ -84,7 +84,7 @@ page 10811 "Generate EFT File Lines"
     begin
         TempEFTExportWorkset.DeleteAll();
         SetRange(Include, true);
-        if FindFirst then
+        if FindFirst() then
             repeat
                 TempEFTExportWorkset.TransferFields(Rec);
                 TempEFTExportWorkset.Insert();
@@ -97,7 +97,7 @@ page 10811 "Generate EFT File Lines"
     begin
         SetCurrentKey("Bal. Account No.");
         SetRange("Bal. Account No.", BankAccountNumber);
-        if FindFirst then
+        if FindFirst() then
             repeat
                 Include := SetInclude;
                 Modify;

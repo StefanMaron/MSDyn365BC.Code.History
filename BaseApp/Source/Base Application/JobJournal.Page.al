@@ -27,6 +27,7 @@ page 201 "Job Journal"
                 begin
                     CurrPage.SaveRecord;
                     JobJnlManagement.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -464,6 +465,15 @@ page 201 "Job Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Job Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -509,7 +519,7 @@ page 201 "Job Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category8;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -574,7 +584,7 @@ page 201 "Job Journal"
                         Clear(JobCalcRemainingUsage);
                         JobCalcRemainingUsage.SetBatch("Journal Template Name", "Journal Batch Name");
                         JobCalcRemainingUsage.SetDocNo("Document No.");
-                        JobCalcRemainingUsage.RunModal;
+                        JobCalcRemainingUsage.RunModal();
                     end;
                 }
                 action(SuggestLinesFromTimeSheets)
@@ -592,7 +602,7 @@ page 201 "Job Journal"
                         SuggestJobJnlLines: Report "Suggest Job Jnl. Lines";
                     begin
                         SuggestJobJnlLines.SetJobJnlLine(Rec);
-                        SuggestJobJnlLines.RunModal;
+                        SuggestJobJnlLines.RunModal();
                     end;
                 }
             }
@@ -614,7 +624,7 @@ page 201 "Job Journal"
                     trigger OnAction()
                     begin
                         JobJnlReconcile.SetJobJnlLine(Rec);
-                        JobJnlReconcile.Run;
+                        JobJnlReconcile.Run();
                     end;
                 }
                 action("Test Report")
@@ -690,6 +700,44 @@ page 201 "Job Journal"
                         ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
                     end;
                 }
+                group(Errors)
+                {
+                    Caption = 'Issues';
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category7;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                }
             }
         }
     }
@@ -743,6 +791,7 @@ page 201 "Job Journal"
         JobJnlManagement: Codeunit JobJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        JobJournalErrorsMgt: Codeunit "Job Journal Errors Mgt.";
         JobJnlReconcile: Page "Job Journal Reconcile";
         JobDescription: Text[100];
         AccName: Text[100];
@@ -750,6 +799,8 @@ page 201 "Job Journal"
         CurrentJnlBatchName: Code[10];
         ExtendedPriceEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -766,6 +817,7 @@ page 201 "Job Journal"
     begin
         CurrPage.SaveRecord;
         JobJnlManagement.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
@@ -782,12 +834,14 @@ page 201 "Job Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         JobJnlManagement.TemplateSelection(PAGE::"Job Journal", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -807,6 +861,20 @@ page 201 "Job Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetControlAppearanceFromBatch()
+    var
+        JobJournalBatch: Record "Job Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not JobJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JobJournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     [IntegrationEvent(false, false)]

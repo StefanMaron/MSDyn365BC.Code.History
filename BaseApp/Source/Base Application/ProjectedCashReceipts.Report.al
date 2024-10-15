@@ -462,7 +462,7 @@ report 10057 "Projected Cash Receipts"
 
             trigger OnAfterGetRecord()
             begin
-                if Currency.FindSet then begin
+                if Currency.FindSet() then begin
                     if PrintDetail then
                         SubTitle := Text002
                     else
@@ -474,7 +474,7 @@ report 10057 "Projected Cash Receipts"
                         SetRange(Open, true);
                         SetFilter("On Hold", '');
                         SetFilter("Currency Code", '=%1', '');
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
@@ -484,7 +484,7 @@ report 10057 "Projected Cash Receipts"
                     with Currency do
                         repeat
                             CustLedgEntry2.SetRange("Currency Code", Code);
-                            if CustLedgEntry2.FindFirst then begin
+                            if CustLedgEntry2.FindFirst() then begin
                                 TempCurrency.Init();
                                 TempCurrency.Code := Code;
                                 TempCurrency.Description := Description;

@@ -299,7 +299,7 @@ page 10007 "Customer Credit Information"
     procedure GetLatestPayment()
     begin
         // Find the Latest Payment
-        if LatestCustLedgerEntry.FindLast then
+        if LatestCustLedgerEntry.FindLast() then
             LatestCustLedgerEntry.CalcFields("Amount (LCY)")
         else
             LatestCustLedgerEntry.Init();

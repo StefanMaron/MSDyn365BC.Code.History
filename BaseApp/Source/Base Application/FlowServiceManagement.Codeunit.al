@@ -271,7 +271,7 @@ codeunit 6400 "Flow Service Management"
                             FlowUserEnvironmentConfig.Reset();
                             FlowUserEnvironmentConfig.SetRange("Environment ID", JToken.ToString);
                             FlowUserEnvironmentConfig.SetRange("User Security ID", UserSecurityId);
-                            TempFlowUserEnvironmentBuffer.Enabled := FlowUserEnvironmentConfig.FindFirst;
+                            TempFlowUserEnvironmentBuffer.Enabled := FlowUserEnvironmentConfig.FindFirst();
 
                             // check if environment is the default
                             JProperty := JObjProp.Property('isDefault');
@@ -317,7 +317,7 @@ codeunit 6400 "Flow Service Management"
     begin
         GetEnvironments(TempFlowUserEnvironmentBuffer);
         TempFlowUserEnvironmentBuffer.SetRange(Default, true);
-        if TempFlowUserEnvironmentBuffer.FindFirst then
+        if TempFlowUserEnvironmentBuffer.FindFirst() then
             SaveFlowUserEnvironmentSelection(TempFlowUserEnvironmentBuffer)
         else begin
             // No environment found so make a post call to create default environment. Post call returns error but actually creates environment
@@ -330,7 +330,7 @@ codeunit 6400 "Flow Service Management"
             // we should have environments now so go ahead and set selected environment
             GetEnvironments(TempFlowUserEnvironmentBuffer);
             TempFlowUserEnvironmentBuffer.SetRange(Default, true);
-            if TempFlowUserEnvironmentBuffer.FindFirst then
+            if TempFlowUserEnvironmentBuffer.FindFirst() then
                 SaveFlowUserEnvironmentSelection(TempFlowUserEnvironmentBuffer)
         end;
     end;
@@ -357,7 +357,7 @@ codeunit 6400 "Flow Service Management"
         FlowServiceConfiguration: Record "Flow Service Configuration";
     begin
         FlowUrl := FlowUrlProdTxt;
-        if FlowServiceConfiguration.FindFirst then
+        if FlowServiceConfiguration.FindFirst() then
             case FlowServiceConfiguration."Flow Service" of
                 FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)":
                     FlowUrl := FlowUrlTip1Txt;
@@ -377,7 +377,7 @@ codeunit 6400 "Flow Service Management"
         FlowServiceConfiguration: Record "Flow Service Configuration";
     begin
         FlowEnvironmentsApi := FlowEnvironmentsProdApiTxt;
-        if FlowServiceConfiguration.FindFirst then
+        if FlowServiceConfiguration.FindFirst() then
             case FlowServiceConfiguration."Flow Service" of
                 FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)":
                     FlowEnvironmentsApi := FlowEnvironmentsTip1ApiTxt;

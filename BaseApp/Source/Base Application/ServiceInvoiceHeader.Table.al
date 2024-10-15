@@ -1,4 +1,4 @@
-table 5992 "Service Invoice Header"
+﻿table 5992 "Service Invoice Header"
 {
     Caption = 'Service Invoice Header';
     DataCaptionFields = "No.", Name;
@@ -469,6 +469,11 @@ table 5992 "Service Invoice Header"
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+        }
+        field(129; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
         }
         field(180; "Payment Reference"; Code[50])
         {
@@ -952,7 +957,7 @@ table 5992 "Service Invoice Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure SendRecords()

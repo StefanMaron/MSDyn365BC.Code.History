@@ -43,12 +43,17 @@ page 2399 "BC O365 My Settings"
                     UpdatePropagation = Both;
                     Visible = GraphMailVisible;
                 }
-                part(SmtpMailPage; "BC O365 Email Account Settings")
+#if not CLEAN20
+                part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     UpdatePropagation = Both;
-                    Visible = SmtpMailVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Part has been removed.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
             }
             group("Email settings")
             {
@@ -214,26 +219,17 @@ page 2399 "BC O365 My Settings"
         ExportInvoicesLbl: Label 'Send overview of invoices';
         QuickBooksVisible: Boolean;
         GraphMailVisible: Boolean;
-        SmtpMailVisible: Boolean;
         LanguageVisible: Boolean;
         IsDevice: Boolean;
 
     local procedure SetMailProviderVisibility()
     var
-        O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMail: Codeunit "Graph Mail";
-        EmailFeature: Codeunit "Email Feature";
     begin
         GraphMailVisible := false;
         if GraphMail.HasConfiguration then
-            if GraphMail.IsEnabled then
-                GraphMailVisible := true
-            else
-                if not O365SetupEmail.SMTPEmailIsSetUp or EmailFeature.IsEnabled() then
-                    if GraphMail.UserHasLicense then
-                        GraphMailVisible := true;
-
-        SmtpMailVisible := not GraphMailVisible;
+            if GraphMail.IsEnabled or GraphMail.UserHasLicense() then
+                GraphMailVisible := true;
     end;
 
     local procedure SetLanguageVisibility()

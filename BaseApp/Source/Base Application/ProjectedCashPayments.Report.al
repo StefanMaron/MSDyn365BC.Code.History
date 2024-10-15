@@ -489,7 +489,7 @@ report 10098 "Projected Cash Payments"
                         SetRange(Open, true);
                         SetFilter("On Hold", '');
                         SetFilter("Currency Code", '=%1', '');
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
@@ -500,7 +500,7 @@ report 10098 "Projected Cash Payments"
                         if Find('-') then
                             repeat
                                 VendLedgEntry2.SetRange("Currency Code", Code);
-                                if VendLedgEntry2.FindFirst then begin
+                                if VendLedgEntry2.FindFirst() then begin
                                     TempCurrency.Init();
                                     TempCurrency.Code := Code;
                                     TempCurrency.Description := Description;

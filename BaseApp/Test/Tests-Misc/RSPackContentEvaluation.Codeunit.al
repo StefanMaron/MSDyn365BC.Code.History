@@ -205,7 +205,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
                 // [THEN] Cust. Ledger Entries are created
-                CustLedgEntry.FindLast;
+                CustLedgEntry.FindLast();
                 CustLedgEntry.TestField("Document No.", PostedInvoiceNo);
             until Next = 0;
         end;
@@ -263,9 +263,9 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         PurchaseHeader.Reset();
         PurchaseHeader.SetCurrentKey("Due Date");
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PeriodStart := PurchaseHeader."Due Date";
-        PurchaseHeader.FindLast;
+        PurchaseHeader.FindLast();
         LastOrderDate := PurchaseHeader."Due Date";
         // First of the month
         PeriodStart := CalcDate('<CM + 1D>', CalcDate('<-1M>', PeriodStart));
@@ -307,7 +307,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
                 // [THEN] Vendor Ledger Entries are created
-                VendLedgEntry.FindLast;
+                VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
             until Next = 0;
         end;
@@ -334,7 +334,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
                 // [THEN] Vendor Ledger Entries are created
-                VendLedgEntry.FindLast;
+                VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedOrderNo);
             until Next = 0;
         end;
@@ -354,19 +354,19 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] There are two contacts (Company, Person) per each Customer, Vendor, Bank
         Initialize();
 
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
             until Customer.Next = 0;
 
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
             until Vendor.Next = 0;
 
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
             until BankAccount.Next = 0;
@@ -402,7 +402,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", No);
         Assert.RecordCount(ContactBusinessRelation, 1);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         CompanyNo := ContactBusinessRelation."Contact No.";
     end;
 

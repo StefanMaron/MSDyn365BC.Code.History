@@ -26,7 +26,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to validate SetupNew Line fucntion for Table 10122 Bank Comment Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankCommentLine;
 
         // Exercise.
@@ -34,7 +34,7 @@ codeunit 142077 "UT TAB Bank Rec"
 
         // Verify:
         BankCommentLine.SetRange("Bank Account No.", BankAccountNo);
-        BankCommentLine.FindFirst;
+        BankCommentLine.FindFirst();
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 142077 "UT TAB Bank Rec"
         BankRecSubLine: Record "Bank Rec. Sub-line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankRecHeaderAndBankRecSubLine(BankRecSubLine, CurrencyCode);
 
         // Exercise.
@@ -81,7 +81,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to run PrintRecords function of Table 10123 Posted Bank Rec. Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecHeader(PostedBankRecHeader);
 
         // Pre-Exercise
@@ -104,7 +104,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to run ShowDocDim function of Table 10123 Posted Bank Rec. Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecHeader(PostedBankRecHeader);
 
         // Exercise.
@@ -124,7 +124,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to run Navigate function of Table 10123 Posted Bank Rec. Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecHeader(PostedBankRecHeader);
 
         // Exercise.
@@ -143,7 +143,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to On Delete function of Table 10123 Posted Bank Rec. Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecHeader(PostedBankRecHeader);
 
         // Exercise.
@@ -163,7 +163,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to run CreateDimPosted function of Table 10124 Posted Bank Rec. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecLine(PostedBankRecLine);
 
         // Exercise.
@@ -188,7 +188,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to run ShowDimensionPosted function of Table 10124 Posted Bank Rec. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecLine(PostedBankRecLine);
 
         // Exercise.
@@ -207,7 +207,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to ValidateShortcutDimCode function of Table 10124 Posted Bank Rec. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecLine(PostedBankRecLine);
 
         // Exercise.
@@ -227,7 +227,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to ValidateLookUpShortcutDimCode function of Table 10124 Posted Bank Rec. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankRecLine(PostedBankRecLine);
 
         // Exercise.
@@ -246,7 +246,7 @@ codeunit 142077 "UT TAB Bank Rec"
         // Purpose of the test is to On Delete function of Table 10124 Posted Bank Rec. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedBankCommentLine(PostedBankRecLine);
 
         // Exercise.
@@ -258,7 +258,7 @@ codeunit 142077 "UT TAB Bank Rec"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankCommentLine(): Code[20]

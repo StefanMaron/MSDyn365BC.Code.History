@@ -103,7 +103,7 @@ codeunit 5900 ServOrderManagement
             Cust.SetRange(Name, Name);
             Cust.SetRange(Address, Address);
             Cust.SetRange(City, City);
-            if Cust.FindFirst then
+            if Cust.FindFirst() then
                 if not ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(NewCustomerQst, Cust.TableCaption), false)
                 then begin
@@ -150,7 +150,7 @@ codeunit 5900 ServOrderManagement
             IsHandled := false;
             OnReplacementCreateServItemAfterNewServItemFilterSet(IsHandled, NewServItem);
             if not IsHandled then
-                if NewServItem.FindFirst then
+                if NewServItem.FindFirst() then
                     Error(
                       Text006,
                       NewServItem.TableCaption, NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
@@ -236,7 +236,7 @@ codeunit 5900 ServOrderManagement
                     ServCost.SetCurrentKey("Service Zone Code");
                     ServCost.SetRange("Service Zone Code", ServHeader."Service Zone Code");
                     ServCost.SetRange("Cost Type", ServCost."Cost Type"::Travel);
-                    if not ServCost.FindFirst then
+                    if not ServCost.FindFirst() then
                         Error(
                           Text009,
                           ServCost.TableCaption, ServCost.FieldCaption("Service Zone Code"), ServHeader."Service Zone Code");
@@ -301,14 +301,14 @@ codeunit 5900 ServOrderManagement
             Cont.Reset();
             Cont.SetCurrentKey("Company No.");
             Cont.SetRange(Type, Cont.Type::Person);
-            if ContBusRel.FindFirst then begin
+            if ContBusRel.FindFirst() then begin
                 Cont.SetRange("Company No.", ContBusRel."Contact No.");
                 if Cont.Find('-') then
                     repeat
                         ContJobResp.Reset();
                         ContJobResp.SetRange("Contact No.", Cont."No.");
                         ContJobResp.SetRange("Job Responsibility Code", ServMgtSetup."Serv. Job Responsibility Code");
-                        ContactFound := ContJobResp.FindFirst;
+                        ContactFound := ContJobResp.FindFirst();
                     until (Cont.Next() = 0) or ContactFound;
             end;
             if ContactFound then begin
@@ -326,7 +326,7 @@ codeunit 5900 ServOrderManagement
         ResLocation.SetCurrentKey("Resource No.", "Starting Date");
         ResLocation.SetRange("Resource No.", ResourceNo);
         ResLocation.SetRange("Starting Date", 0D, StartDate);
-        if ResLocation.FindLast then
+        if ResLocation.FindLast() then
             exit(ResLocation."Location Code");
     end;
 
@@ -372,7 +372,7 @@ codeunit 5900 ServOrderManagement
             TempDay := Date2DWY(TempDate, 1) - 1;
             ServHour.SetFilter("Starting Date", '<=%1', TempDate);
             ServHour.SetRange(Day, TempDay);
-            if ServHour.FindLast then begin
+            if ServHour.FindLast() then begin
                 Holiday := CalendarMgmt.IsNonworkingDay(TempDate, CalChange);
                 if not Holiday or ServHour."Valid on Holidays" then begin
                     if StartingDate > FinishingDate then
@@ -562,7 +562,7 @@ codeunit 5900 ServOrderManagement
             repeat
                 ServCommentLine2 := ServCommentLine;
                 ServCommentLine2."Table Name" := "Service Comment Table Name".FromInteger(ToDocumentType);
-                ServCommentLine2."Table Subtype" := 0;
+                ServCommentLine2."Table Subtype" := ServCommentLine2."Table Subtype"::"0";
                 ServCommentLine2."No." := ToNo;
                 ServCommentLine2.Insert();
             until ServCommentLine.Next() = 0;

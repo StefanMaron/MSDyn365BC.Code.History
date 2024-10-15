@@ -47,6 +47,7 @@ page 10129 "Posted Bank Rec. List"
         }
     }
 
+#if not CLEAN20
     actions
     {
         area(reporting)
@@ -64,5 +65,6 @@ page 10129 "Posted Bank Rec. List"
             }
         }
     }
+#endif
 }
 

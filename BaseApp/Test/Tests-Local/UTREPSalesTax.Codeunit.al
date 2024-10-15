@@ -49,7 +49,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludeSalesSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Sales of REP24.
-        Initialize;
+        Initialize();
 
         // Parameters used for TaxJurisdictionCode, IncludeSales,IncludePurchases,IncludeUseTax.
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Taxes Collected From Sales Only', true, false, false);
@@ -62,7 +62,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludeSalesPurchUseTaxSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Sales,Include Purchases and Include Use Tax of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Taxes Collected, Recoverable Taxes Paid, and Use Taxes', true, true, true);
     end;
 
@@ -73,7 +73,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludeSalesPurchSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Sales and Include Purchases of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Taxes Collected and Recoverable Taxes Paid', true, true, false);
     end;
 
@@ -84,7 +84,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludeSalesUseTaxSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Sales and Include Use Tax of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Taxes Collected From Sales and Use Taxes', true, false, true);
     end;
 
@@ -95,7 +95,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludePurchUseTaxSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Purchases and Include Use Tax of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Recoverable Taxes Paid On Purchases and Use Taxes', false, true, true);
     end;
 
@@ -106,7 +106,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludePurchSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Purchase of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Recoverable Taxes Paid On Purchases Only', false, true, false);
     end;
 
@@ -117,7 +117,7 @@ codeunit 142066 "UT REP Sales Tax"
     procedure OnPreReportWithIncludeUseTaxSalesTaxesCollected()
     begin
         // Purpose of the test is to validate Trigger OnPreReport with Include Use Tax of REP24.
-        Initialize;
+        Initialize();
         OnPreReportTaxInclusionsSalesTaxesCollected('Includes Use Taxes Only', false, false, true);
     end;
 
@@ -148,7 +148,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Trigger OnPreReport without Tax Inclusions of REP24.
 
         // Setup.
-        Initialize;
+        Initialize();
         TaxJurisdictionCode := MockTaxJurisdiction;
         EnqueueValuesForSalesTaxesCollected(TaxJurisdictionCode, false, false, false);
 
@@ -170,7 +170,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Trigger OnPreReport of REP10325.
 
         // Setup.
-        Initialize;
+        Initialize();
         TaxJurisdictionCode := MockTaxJurisdiction;
         LibraryVariableStorage.Enqueue(TaxJurisdictionCode);  // Enqueue value for SalesTaxJurisdictionListRequestPageHandler.
 
@@ -195,7 +195,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Trigger OnPreReport of Report 10321.
 
         // Setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := MockTaxArea;
 
         // Exercise.
@@ -220,7 +220,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Trigger OnPreReport of Report 10322.
 
         // Setup.
-        Initialize;
+        Initialize();
         TaxAreaCode := MockTaxArea;
         CreateTaxDetailWithJurisdiction(TaxDetail);
         LibraryVariableStorage.Enqueue(TaxDetail."Tax Group Code");  // Enqueue value to use in SalesTaxesCollectedRequestPageHandler.
@@ -246,7 +246,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // Purpose of the test is to validate Tax Jurisdiction - OnAfterGetRecord trigger of Report ID - 10323.
         // Setup: Create Tax Jurisdiction.
-        Initialize;
+        Initialize();
         TaxJurisdiction.Get(MockTaxJurisdiction);
 
         // Enqueue required for SalesTaxDetailListRequestPageHandler.
@@ -272,7 +272,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // Purpose of the test is to validate Tax Group - OnPreReport trigger of Report ID - 10324.
         // Setup: Create Tax Group.
-        Initialize;
+        Initialize();
         TaxGroupCode := MockTaxGroup;
 
         // Exercise.
@@ -375,7 +375,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Purchase Header - OnAfterGetRecord of Report ID - 402 Purchase Document - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateAndUpdateCurrency, '', '');  // Tax Area Code and Tax Group Code as blank.
 
         // Exercise.
@@ -400,7 +400,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate RoundLoop - OnAfterGetRecord of Report ID - 402 Purchase Document - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         LCYCode := UpdateVATInUseOnGLSetup;
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxArea.Code, TaxGroupCode);  // Currency Code as blank.
@@ -425,7 +425,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnPreDataItem Trigger of Service Invoice Header of Report 10474 - Service Invoice-Sales Tax.
 
         // Setup: Create Service Invoice Header.
-        Initialize;
+        Initialize();
         CreatePostedServiceInvoice(ServiceInvoiceHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceInvoiceHeader."No.", true, 0);
         ResponsibilityCenter.Get(ServiceInvoiceHeader."Responsibility Center");
@@ -449,7 +449,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord of Service Invoice Header of Report 10474 - Service Invoice-Sales Tax.
 
         // Setup: Create Service Invoice Header with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordServInvHeaderTaxArea(TaxArea."Country/Region"::US, TotalSalesTaxTxt);
     end;
 
@@ -463,7 +463,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord of Service Invoice Header of Report 10474 - Service Invoice-Sales Tax.
 
         // Setup: Create Service Invoice Header with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordServInvHeaderTaxArea(TaxArea."Country/Region"::CA, TotalTaxTxt);
     end;
 
@@ -496,7 +496,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop Service Invoice Header of Report 10474 - Service Invoice-Sales Tax.
 
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         NumberOfCopies := LibraryRandom.RandInt(10);
         CreatePostedServiceInvoice(ServiceInvoiceHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceInvoiceHeader."No.", false, NumberOfCopies);
@@ -521,7 +521,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Service Invoice Line of Report 10474 - Service Invoice-Sales Tax.
 
         // Setup: Create Service Invoice with Type - Item.
-        Initialize;
+        Initialize();
         CreatePostedServiceInvoice(ServiceInvoiceHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceInvoiceHeader."No.", false, 0);
         ItemNo := UpdateItemInServiceInvoiceLine(ServiceInvoiceHeader."No.");
@@ -545,7 +545,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnPreDataItem Trigger of Service Credit Memo Header of Report 10173 - Service Credit Memo-Sales Tax
 
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreatePostedServiceCreditMemo(ServiceCrMemoHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceCrMemoHeader."No.", true, 0);
         ResponsibilityCenter.Get(ServiceCrMemoHeader."Responsibility Center");
@@ -569,7 +569,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord of Service Credit Memo Header of Report 10173 - Service Credit Memo-Sales Tax
 
         // Setup: Create Service Credit Memo Header Invoice Header with Tax Area Country US.
-        Initialize;
+        Initialize();
         OnAfterGetRecordServCrMemoHeaderTaxArea(TaxArea."Country/Region"::US, TotalSalesTaxTxt);
     end;
 
@@ -583,7 +583,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord of Service Credit Memo Header of Report 10173 - Service Credit Memo-Sales Tax
 
         // Setup: Create Service Credit Memo Header with Tax Area Country CA.
-        Initialize;
+        Initialize();
         OnAfterGetRecordServCrMemoHeaderTaxArea(TaxArea."Country/Region"::CA, TotalTaxTxt);
     end;
 
@@ -616,7 +616,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of CopyLoop Service Credit Memo Header of Report 10173 - Service Credit Memo-Sales Tax.
 
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         NumberOfCopies := LibraryRandom.RandInt(10);
         CreatePostedServiceCreditMemo(ServiceCrMemoHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceCrMemoHeader."No.", false, NumberOfCopies);
@@ -641,7 +641,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Service Credit Memo Header of Report 10173 - Service Credit Memo-Sales Tax.
 
         // Setup: Create Service Credit Memo with Type - Item.
-        Initialize;
+        Initialize();
         CreatePostedServiceCreditMemo(ServiceCrMemoHeader, '');
         EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceCrMemoHeader."No.", false, 0);
         ItemNo := UpdateItemInServiceCreditMemoLine(ServiceCrMemoHeader."No.");
@@ -663,7 +663,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Header of Report 10076 - Sales Quote.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesHeaderSalesDocument(SalesHeader."Document Type"::Quote, REPORT::"Sales Quote NA");
     end;
 
@@ -676,7 +676,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Header of Report 10075 - Sales Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesHeaderSalesDocument(SalesHeader."Document Type"::Order, REPORT::"Sales Order");
     end;
 
@@ -689,7 +689,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Header of Report 10069 - Sales Blanket Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesHeaderSalesDocument(SalesHeader."Document Type"::"Blanket Order", REPORT::"Sales Blanket Order");
     end;
 
@@ -718,7 +718,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Line of Report 10076 - Sales Quote.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesLineSalesDocument(SalesHeader."Document Type"::Quote, REPORT::"Sales Quote NA");
     end;
 
@@ -730,7 +730,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Line of  Report 10075 - Sales Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesLineSalesDocument(SalesHeader."Document Type"::Order, REPORT::"Sales Order");
     end;
 
@@ -742,7 +742,7 @@ codeunit 142066 "UT REP Sales Tax"
         SalesHeader: Record "Sales Header";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Line of Report 10069 - Sales Blanket Order.
-        Initialize;
+        Initialize();
         OnAfterGetRecordSalesLineSalesDocument(SalesHeader."Document Type"::"Blanket Order", REPORT::"Sales Blanket Order");
     end;
 
@@ -781,7 +781,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Cr. Memo Header of Report 10073 - Sales Credit Memo with external tax engines on Tax Area.
 
         // Setup: Create Tax Area With External Tax Engines, Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreatePostedSalesCreditMemo(TaxArea.Code, TaxGroupCode);
 
@@ -804,7 +804,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Cr. Memo Header of Report 10073 - Sales Credit Memo without external tax engine on Tax Area.
 
         // Setup: Create Tax Area Without External Tax Engines, Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         ItemNo := CreatePostedSalesCreditMemo(TaxArea.Code, TaxGroupCode);
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD316: Sales Cr. Memo-Printed.
@@ -828,7 +828,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Invoice Header of Report 10074 - Sales Invoice with external tax engines on Tax Area.
 
         // Setup: Create Tax Area With External Tax Engines, Create Sales Invoice.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreatePostedSalesInvoice(TaxArea.Code, TaxGroupCode);
 
@@ -851,7 +851,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Sales Invoice Header of Report 10074 - Sales Invoice without external tax engine on Tax Area.
 
         // Setup: Create Tax Area Without External Tax Engines. Create Sales Invoice.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         ItemNo := CreatePostedSalesInvoice(TaxArea.Code, TaxGroupCode);
         Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD315: Sales Inv.-Printed.
@@ -874,7 +874,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Sales Header - OnAfterGetRecord of Report ID - 202 Sales Document - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', '', CreateAndUpdateCurrency);
 
         // Exercise.
@@ -899,7 +899,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Copy Loop - OnAfterGetRecord of Report ID - 202 Sales Document - Test.
 
         // Setup:
-        Initialize;
+        Initialize();
         LCYCode := UpdateVATInUseOnGLSetup;
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, TaxArea.Code, TaxGroupCode, '');
@@ -926,7 +926,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Round Loop - OnAfterGetRecord of Report ID - 202 Sales Document - Test.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateVATInUseOnGLSetup;
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, TaxArea.Code, TaxGroupCode, '');
@@ -950,7 +950,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purch. Inv. Header of Report 10121 - Purchase Invoice with external tax engines on Tax Area.
 
         // Setup: Create Tax Area With External Tax Engines, Create Purchase Invoice.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreatePostedPurchaseInvoice(TaxArea.Code, TaxGroupCode);
 
@@ -973,7 +973,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of Purch. Inv. Header of Report 10121 - Purchase Invoice without external tax engine on Tax Area.
 
         // Setup: Create Tax Area Without External Tax Engines. Create Purchase Invoice.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         No := CreatePostedPurchaseInvoice(TaxArea.Code, TaxGroupCode);
         Commit();  // Codeunit 319 (Purch. Inv.-Printed) OnRun calls commit.
@@ -1016,7 +1016,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // Setup: Create Tax Area With External Tax Engines, Create Purchase Document.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreatePurchaseDocument(PurchaseHeader, DocumentType, '', TaxArea.Code, TaxGroupCode);  // Use blank for Currency.
 
@@ -1069,7 +1069,7 @@ codeunit 142066 "UT REP Sales Tax"
         AmountExcludingDiscount: Decimal;
     begin
         // Setup: Create Tax Area Without External Tax Engines, Create Purchase Document.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         AmountExcludingDiscount := CreatePurchaseDocument(PurchaseHeader, DocumentType, '', TaxArea.Code, TaxGroupCode);  // Use blank for Currency.
         Commit();  // Codeunit 317 Purch.Header - Printed OnRUN calls commit.
@@ -1115,7 +1115,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate Purchase Cr. Memo Header OnAfterGetRecord of Report 10120 - Purchase Credit Memo with external tax engines on Tax Area.
 
         // Setup: Create Tax Area With External Tax Engines, Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, true);
         CreatePostedPurchaseCreditMemo(TaxArea.Code, TaxGroupCode);
 
@@ -1157,7 +1157,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // Setup: Create Tax Area and Purchase Blanket Order.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
         TaxArea."Country/Region" := Country;
         TaxArea.Modify();
@@ -1183,7 +1183,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Purpose of the test is to validate CopyLoop - OnAfterGetRecord of Report ID - 10119 Purchase Blanket Order when Tax Area Code is Blank.
 
         // Setup: Create Purchase Blanket Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', TaxArea.Code, LibraryUTUtility.GetNewCode10);  // Currrency Code as blank.
         Commit();  // Codeunit 317 (Purch.Header - Printed) Calls commit.
@@ -1209,7 +1209,7 @@ codeunit 142066 "UT REP Sales Tax"
         // Verify Sales Invoice can be post successfully with a tax detail when Line Amount Excl. Tax on Sales Line is 0.
 
         // Setup: Create a Sales Order with a tax detail, and set Unit Price.
-        Initialize;
+        Initialize();
         UpdateMissingVATPostingSetup; // VAT Bus. Posting Group and VAT Prod. Posting Group must be blank when Sales Liable is TRUE
 
         TaxBelowMaximum := CreateTaxAreaSetup(TaxAreacode, TaxGroupCode);
@@ -1237,7 +1237,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO 122253] "Sales Document - Test" report prints several Sales Tax Amount lines with "Tax %" = "Tax Detail"."Tax Below Maximum"
-        Initialize;
+        Initialize();
         UpdateMissingVATPostingSetup;
 
         // [GIVEN] Tax Area with several "Tax Detail" where "Tax Detail"."Tax Below Maximum" <> 0
@@ -1265,7 +1265,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO 122253] "Purchase Document - Test" report prints several Sales Tax Amount lines with "Tax %" = "Tax Detail"."Tax Below Maximum"
-        Initialize;
+        Initialize();
         UpdateMissingVATPostingSetup;
 
         // [GIVEN] Tax Area with several "Tax Detail" where "Tax Detail"."Tax Below Maximum" <> 0
@@ -1291,7 +1291,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO] Run report Standard Purchase - Order to verify additional fields are added in NA environment.
-        Initialize;
+        Initialize();
         TaxGroupCode := CreateTaxAreaWithTaxAreaLine(TaxArea, false);
 
         // [GIVEN] A purchase header and lines
@@ -1322,7 +1322,7 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroupCode: Code[20];
     begin
         // [SCENARIO] Run report Standard Purchase - Order to verify total fields are correct in NA environment.
-        Initialize;
+        Initialize();
         UpdateMissingVATPostingSetup;
 
         TaxJurisdiction.Init();
@@ -1381,7 +1381,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 281006] Print posted Sales Invoice if Sales Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         // [GIVEN] Sales Line with "Tax Group Code" = ''
@@ -1406,7 +1406,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 281006] Print posted Sales Credit Memo if Sales Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo
         // [GIVEN] Sales Line with "Tax Group Code" = ''
@@ -1431,7 +1431,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 281006] Print posted Purchase Invoice if Purchase Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         // [GIVEN] Purchase Line with "Tax Group Code" = ''
@@ -1456,7 +1456,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 281006] Print posted Purchase Credit Memo if Purchase Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo
         // [GIVEN] Purchase Line with "Tax Group Code" = ''
@@ -1481,7 +1481,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 281006] Print posted Service Invoice if Service Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice
         // [GIVEN] Service Line with "Tax Group Code" = ''
@@ -1509,7 +1509,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 281006] Print posted Service Credit Memo if Service Line does not contain Tax Group Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo
         // [GIVEN] Service Line with "Tax Group Code" = ''
@@ -1529,7 +1529,7 @@ codeunit 142066 "UT REP Sales Tax"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndUpdateCurrency(): Code[10]
@@ -1537,7 +1537,7 @@ codeunit 142066 "UT REP Sales Tax"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CreateCurrencyAndExchangeRate);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate."Relational Exch. Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount";
         CurrencyExchangeRate.Modify();
         exit(CurrencyExchangeRate."Currency Code");
@@ -1997,17 +1997,17 @@ codeunit 142066 "UT REP Sales Tax"
         TaxAreaLine: Record "Tax Area Line";
     begin
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-        TaxAreaLine.FindFirst;
+        TaxAreaLine.FindFirst();
         TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
         TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
-        TaxDetail.FindFirst;
+        TaxDetail.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure UpdateMissingVATPostingSetup()
@@ -2037,7 +2037,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.Type := ServiceCrMemoLine.Type::Item;
         ServiceCrMemoLine."No." := LibraryUTUtility.GetNewCode;
         ServiceCrMemoLine.Modify();
@@ -2049,7 +2049,7 @@ codeunit 142066 "UT REP Sales Tax"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.Type := ServiceInvoiceLine.Type::Item;
         ServiceInvoiceLine."No." := LibraryUTUtility.GetNewCode;
         ServiceInvoiceLine.Modify();
@@ -2104,7 +2104,7 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, LineType);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         Assert.AreEqual(Qty, SalesInvoiceLine.Quantity, StrSubstNo(QtyErr, SalesInvoiceLine.TableCaption));
         Assert.AreEqual(

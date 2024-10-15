@@ -43,7 +43,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] The user will get an error that he cannot post a Sales ReturnOrder that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
@@ -74,7 +74,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] The user will get an error that he cannot release a Sales ReturnOrder that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
@@ -107,7 +107,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] The user will get an error that he cannot release the sales returnorder that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -153,7 +153,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] The user will get an error that he cannot reopen the sales returnorder.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -198,7 +198,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales ReturnOrder is released.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -255,7 +255,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Salesperson rejects the approval request.
         // [THEN] Sales ReturnOrder is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -316,7 +316,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Approval Request is approved.
         // [THEN] Sales ReturnOrder is released.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 usersetups
@@ -393,7 +393,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Sales ReturnOrder is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -442,7 +442,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
@@ -521,7 +521,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
@@ -587,7 +587,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Return Order is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
@@ -654,7 +654,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
 
@@ -723,10 +723,10 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Sales RtOrder Approval");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -774,7 +774,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifySalesReturnOrderIsReleased(var SalesHeader: Record "Sales Header")

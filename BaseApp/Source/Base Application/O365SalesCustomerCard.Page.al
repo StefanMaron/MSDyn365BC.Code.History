@@ -225,7 +225,7 @@ page 2107 "O365 Sales Customer Card"
                     O365CustInvoiceDiscount: Page "O365 Cust. Invoice Discount";
                 begin
                     O365CustInvoiceDiscount.FillO365CustInvDiscount("No.");
-                    O365CustInvoiceDiscount.Run;
+                    O365CustInvoiceDiscount.Run();
                 end;
             }
             action(ImportDeviceContact)

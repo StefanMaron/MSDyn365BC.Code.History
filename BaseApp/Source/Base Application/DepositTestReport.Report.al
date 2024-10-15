@@ -1,3 +1,4 @@
+#if not CLEAN20
 report 10402 "Deposit Test Report"
 {
     DefaultLayout = RDLC;
@@ -5,6 +6,9 @@ report 10402 "Deposit Test Report"
     ApplicationArea = Basic, Suite;
     Caption = 'Deposit Test Report';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -772,7 +776,7 @@ report 10402 "Deposit Test Report"
                                         SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
                                         SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
                                         SetRange("Customer No.", "Gen. Journal Line"."Account No.");
-                                        if FindFirst then begin
+                                        if FindFirst() then begin
                                             CalcFields("Remaining Amount");
                                             "Gen. Journal Line"."Due Date" := "Due Date";
                                             "Gen. Journal Line".Description := Description;
@@ -809,7 +813,7 @@ report 10402 "Deposit Test Report"
                                         SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
                                         SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
                                         SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
-                                        if FindFirst then begin
+                                        if FindFirst() then begin
                                             CalcFields("Remaining Amount");
                                             "Gen. Journal Line"."Due Date" := "Due Date";
                                             "Gen. Journal Line".Description := Description;
@@ -1212,3 +1216,4 @@ report 10402 "Deposit Test Report"
     end;
 }
 
+#endif

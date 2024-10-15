@@ -1,6 +1,10 @@
+#if not CLEAN20
 codeunit 10141 "Deposit-Post (Yes/No)"
 {
     TableNo = "Deposit Header";
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -19,3 +23,4 @@ codeunit 10141 "Deposit-Post (Yes/No)"
         Text000: Label 'Do you want to post the Deposit?';
 }
 
+#endif

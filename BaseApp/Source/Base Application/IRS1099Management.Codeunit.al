@@ -228,7 +228,7 @@ codeunit 10500 "IRS 1099 Management"
             else
                 Confirmed := true;
             if Confirmed then begin
-                UpgradeIRS1099FormBoxes.Run;
+                UpgradeIRS1099FormBoxes.Run();
                 Message(FormBoxesUpgradedMsg);
             end;
         end;

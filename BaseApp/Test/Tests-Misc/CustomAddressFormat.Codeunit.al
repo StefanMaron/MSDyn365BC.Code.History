@@ -27,7 +27,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 279413] Action Custom Address Format is enabled for country with Address Format = Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with custom address format
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -51,7 +51,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 279413] Action Custom Address Format is disabled for country with Address Format <> Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with default address format
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -72,7 +72,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] Custom Address Format initialized when user change Address Format to Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with default Address Format = City+Post Code
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -92,7 +92,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] Custom Address Format initialized when user chage Address Format from City+County+Post Code to Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with Address Format = City+County+Post Code
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -115,7 +115,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] Custom Address Format records should be deleted when user change Address Format from Custom to another value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with default Address Format = City+Post Code
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -141,7 +141,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 279413] "Field Id" field of Custom Address Format page uses page 9806 for lookup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with custom address format
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -169,7 +169,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] When Line No. field of table Custom Address Format is 0 then user is not able to setup Custom Address Format lines
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Address Format", CountryRegion."Address Format"::Custom);
@@ -196,7 +196,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] When Field ID field of Custom Address Format record updated with 0 value then linked Custom Address Format Line records deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -205,7 +205,7 @@ codeunit 134448 "Custom Address Format"
 
         // [GIVEN] Find defalut CustomAddressFormat wiht Field ID <> 0
         CustomAddressFormat.SetFilter("Field ID", '<>0');
-        CustomAddressFormat.FindFirst;
+        CustomAddressFormat.FindFirst();
 
         // [WHEN] Field ID is being updated to 0
         CustomAddressFormat.Validate("Field ID", 0);
@@ -226,7 +226,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] When Field ID field of Custom Address Format record updated with nonzero value then linked Custom Address Format Line records deleted and created new one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -252,7 +252,7 @@ codeunit 134448 "Custom Address Format"
         Assert.AreEqual(1, CustomAddressFormatLine.Count, 'There must be 1 CustomAddressFormatLine record');
 
         // [THEN] Related new CustomAddressFormatLine record with Field ID = 2 created
-        CustomAddressFormatLine.FindFirst;
+        CustomAddressFormatLine.FindFirst();
         CustomAddressFormatLine.TestField("Field ID", CompanyInformation.FieldNo(Name));
     end;
 
@@ -266,7 +266,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] When user creates first Custom Address Format Line it has Field Position = 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -295,7 +295,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] When user creates next Custom Address Format Line it has Field Position greater then previous one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -343,7 +343,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] Function FormatAddress.FormatAddr formats address accordingly custom address format setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country COUNTRY with Address Format = Custom
         // [Name]
@@ -358,7 +358,7 @@ codeunit 134448 "Custom Address Format"
 
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
         CustomAddressFormat.SetRange("Field ID", 0);
-        CustomAddressFormat.FindFirst;
+        CustomAddressFormat.FindFirst();
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo(County));
 
         // [WHEN] Function FormatAddress.FormatAddr is being run with parameters NAME, NAME2, ADDRESS, ADDRESS2, CONTACTPERSON, CITY, POSTCODE, COUNTY, COUNTRY
@@ -401,7 +401,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] Function FormatAddress.FormatAddr properly applies CustomAddressFormatLine.Separator
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country COUNTRY with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -410,7 +410,7 @@ codeunit 134448 "Custom Address Format"
 
         // [GIVEN] Setup first CustomAddressFormat record with different separators as [City]-[Post Code]+[County]
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
-        CustomAddressFormat.FindFirst;
+        CustomAddressFormat.FindFirst();
 
         CustomAddressFormat.Validate("Field ID", 0);
         CustomAddressFormat.Modify();
@@ -445,7 +445,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279417] User is not able to setup more than three fields per CustomAddressFormat records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new country COUNTRY with Address Format = Custom
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -455,7 +455,7 @@ codeunit 134448 "Custom Address Format"
         // [GIVEN] Setup three fields for last custom address format record as [City] [Post Code] [County]
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegion.Code);
         CustomAddressFormat.SetRange("Field ID", 0);
-        CustomAddressFormat.FindFirst;
+        CustomAddressFormat.FindFirst();
         CreateCustomFormatAddressLine(CustomAddressFormat, CustomAddressFormatLine, CompanyInformation.FieldNo(County));
 
         // [WHEN] Forth field is being added
@@ -473,7 +473,7 @@ codeunit 134448 "Custom Address Format"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 298365] Custom Address Format initialized without error when user change non-exising Address Format value to Custom
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create country with non-exiting Address Format value
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -489,7 +489,7 @@ codeunit 134448 "Custom Address Format"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;

@@ -437,7 +437,9 @@ page 9307 "Purchase Order List"
                     Image = ReceiptLines;
                     RunObject = Page "Whse. Receipt Lines";
                     RunPageLink = "Source Type" = CONST(39),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse receipts for the document, in advanced warehouse configurations.';
@@ -692,11 +694,9 @@ page 9307 "Purchase Order List"
                         PurchaseHeader: Record "Purchase Header";
                         PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+                        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         CurrPage.SetSelectionFilter(PurchaseHeader);
 
@@ -788,36 +788,6 @@ page 9307 "Purchase Order List"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
-    var
-        NextRecNotFound: Boolean;
-    begin
-        if not Find(Which) then
-            exit(false);
-
-        if ShowHeader then
-            exit(true);
-
-        repeat
-            NextRecNotFound := Next <= 0;
-            if ShowHeader then
-                exit(true);
-        until NextRecNotFound;
-
-        exit(false);
-    end;
-
-    trigger OnNextRecord(Steps: Integer): Integer
-    var
-        NewStepCount: Integer;
-    begin
-        repeat
-            NewStepCount := Next(Steps);
-        until (NewStepCount = 0) or ShowHeader;
-
-        exit(NewStepCount);
-    end;
-
     trigger OnOpenPage()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -832,6 +802,8 @@ page 9307 "Purchase Order List"
         JobQueueActive := PurchasesPayablesSetup.JobQueueActive();
 
         CopyBuyFromVendorFilter();
+        if OnlyShowHeadersWithVat then
+            SetFilterOnPositiveVatPostingGroups();
     end;
 
     var
@@ -840,7 +812,7 @@ page 9307 "Purchase Order List"
         JobQueueActive: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
-        SkipLinesWithoutVAT: Boolean;
+        OnlyShowHeadersWithVat: Boolean;
         ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -859,17 +831,26 @@ page 9307 "Purchase Order List"
 
     procedure SkipShowingLinesWithoutVAT()
     begin
-        SkipLinesWithoutVAT := true;
+        OnlyShowHeadersWithVat := true;
     end;
 
-    local procedure ShowHeader(): Boolean
+    local procedure SetFilterOnPositiveVatPostingGroups()
     var
-        CashFlowManagement: Codeunit "Cash Flow Management";
+        VatPostingSetup: Record "VAT Posting Setup";
+        VatBusPostingCodeFilter: Text;
     begin
-        if not SkipLinesWithoutVAT then
-            exit(true);
-
-        exit(CashFlowManagement.GetTaxAmountFromPurchaseOrder(Rec) <> 0);
+        VatPostingSetup.SetFilter("VAT %", '>0');
+        VatPostingSetup.SetLoadFields("VAT Bus. Posting Group");
+        if not VatPostingSetup.FindSet() then
+            exit;
+        repeat
+            if StrPos(VatBusPostingCodeFilter, VatPostingSetup."VAT Bus. Posting Group") < 1 then begin
+                if VatBusPostingCodeFilter <> '' then
+                    VatBusPostingCodeFilter += '|';
+                VatBusPostingCodeFilter += VatPostingSetup."VAT Bus. Posting Group";
+            end;
+        until VatPostingSetup.Next() = 0;
+        Rec.SetFilter("VAT Bus. Posting Group", VatBusPostingCodeFilter);
     end;
 
     [IntegrationEvent(false, false)]

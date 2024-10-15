@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -1115,7 +1115,7 @@
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
-        if AllObjWithCaption.FindFirst then;
+        if AllObjWithCaption.FindFirst() then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
     end;
 

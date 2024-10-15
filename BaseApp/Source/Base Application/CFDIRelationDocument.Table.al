@@ -83,7 +83,7 @@ table 27006 "CFDI Relation Document"
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", "Customer No.");
         SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", "Related Doc. No.");
-        if not SalesCrMemoHeader.FindSet then
+        if not SalesCrMemoHeader.FindSet() then
             exit;
 
         repeat
@@ -106,7 +106,7 @@ table 27006 "CFDI Relation Document"
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", "Customer No.");
         ServiceCrMemoHeader.SetRange("Applies-to Doc. Type", ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice);
         ServiceCrMemoHeader.SetRange("Applies-to Doc. No.", "Related Doc. No.");
-        if not ServiceCrMemoHeader.FindSet then
+        if not ServiceCrMemoHeader.FindSet() then
             exit;
 
         repeat
@@ -125,7 +125,7 @@ table 27006 "CFDI Relation Document"
         CustLedgerEntry.SetRange("Document Type", "Related Doc. Type");
         CustLedgerEntry.SetRange("Document No.", "Related Doc. No.");
         CustLedgerEntry.SetRange("Customer No.", "Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure UpdateFiscalInvoiceNumber()

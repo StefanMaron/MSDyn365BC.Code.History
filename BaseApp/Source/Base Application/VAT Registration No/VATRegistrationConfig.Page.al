@@ -126,7 +126,7 @@ page 248 "VAT Registration Config"
         EnvironmentInfo: Codeunit "Environment Information";
         VATLookupExtDataHndl: Codeunit "VAT Lookup Ext. Data Hndl";
     begin
-        if FindFirst then
+        if FindFirst() then
             exit;
 
         Init;

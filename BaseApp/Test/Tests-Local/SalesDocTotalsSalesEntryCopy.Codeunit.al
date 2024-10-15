@@ -45,7 +45,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy posted Inv to Invoice without recalculate will keep document totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -99,7 +99,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy posted Inv to Invoice with recalculate will update taxes and totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -153,7 +153,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987]  Copy unposted Inv to order without recalculate will keep document totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -204,7 +204,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Copy]
         // [SCENARIO 136987] Copy Invoice to Order with recalculate will update taxes and totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -258,7 +258,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Copy] [Invoice Discount Amount]
         // [SCENARIO 136987] Sales Invoice Doc Totals, Tax and Inv Discount are calculated on copy when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -325,7 +325,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Standard Sales Code]
         // [SCENARIO 136987] Applying Standard Sales Codes will update document totals
         // Setup
-        Initialize;
+        Initialize();
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
 
@@ -377,7 +377,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Standard Sales Code] [Invoice Discount Amount]
         // [SCENARIO 136987] Applying Standard Sales Codes will update totals and inv disc when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         RoundingPrecision := 0.01;
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -435,7 +435,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Make Order]
         // [SCENARIO 136987]  Make Order from Blanket Order will calculate document totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -499,7 +499,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Make Order] [Invoice Discount Amount]
         // [SCENARIO 136987] Doc Totals, Tax and Inv Discount are calculated on make order when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -563,7 +563,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Reopen]
         // [SCENARIO 136987]  Create Order, release it and then reopen will calc the doc totals
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         RoundingPrecision := 0.01;
         PrepareSalesReceivableSetupWarnings(StockWarningSetup, CreditWarningSetup);
@@ -625,7 +625,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [FEATURE] [Reopen] [Invoice Discount Amount]
         // [SCENARIO 136987] Create Order, Release and then reopen will calc totals and disc when setup option marked
         // Setup
-        Initialize;
+        Initialize();
         TaxPercentage := LibraryRandom.RandInt(9);
         CalcInvDisc := true;
         SetupCalcInvoiceDisc(CalcInvDisc);
@@ -704,16 +704,16 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateVATPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -848,7 +848,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[20]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += Format(LibraryRandom.RandInt(9));  // Generating any Random integer value.
         until StrLen(RandomCode) = FieldLength;
@@ -1016,7 +1016,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters(DocumentType, DocumentNo, false, ReCalculateLines);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
     end;
 
     local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option; TaxGroupCode: Code[20]) ItemNo: Code[20]
@@ -1191,7 +1191,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     begin
         SalesLine2.SetRange("Blanket Order No.", SalesLine."Document No.");
         SalesLine2.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine2.FindFirst;
+        SalesLine2.FindFirst();
         SalesHeader2.Get(SalesLine2."Document Type", SalesLine2."Document No.");
     end;
 

@@ -33,7 +33,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Purchase Invoice and a request for approval.
         // [WHEN] Approval Request invoked from the the purchase invoice page.
         // [THEN] The Purcahse Invoice is approved.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMultipleApprovalEntries(DocNo);
@@ -66,7 +66,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Purchase Invoice and a request for approval.
         // [WHEN] Reject Request invoked from the the purchase invoice page.
         // [THEN] The Purcahse Invoice is rejected.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateMultipleApprovalEntries(DocNo);
@@ -103,7 +103,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Purchase Invoice and a request for approval.
         // [WHEN] Delegate Request invoked from the the purchase invoice page.
         // [THEN] The Purcahse Invoice is delegated.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateUserSetup(UserSetup, UserId, LibraryUtility.GenerateRandomCode(UserSetup.FieldNo(Substitute), DATABASE::"User Setup"));
@@ -143,7 +143,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Approval Requests where the current user is the sender.
         // [WHEN] Approval Request are delegated.
         // [THEN] The Approval Requests gets delegated.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(MockUserSetup1);
@@ -155,7 +155,7 @@ codeunit 134204 "Document Approval - Requests"
         // Set the approver of two of the approval requests to be a non current user
         // and set the sender to be the current user
         ApprovalEntry.SetRange("Document No.", DocNo[2], DocNo[3]);
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry."Sender ID" := UserId;
@@ -194,7 +194,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Current user is the approval administrator.
         // [WHEN] Approval Requests are delegated.
         // [THEN] The Approval Requests gets delegated.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(MockUserSetup1);
@@ -206,7 +206,7 @@ codeunit 134204 "Document Approval - Requests"
 
         // Set the approver of two of the approval requests to be a non current user
         ApprovalEntry.SetRange("Document No.", DocNo[2], DocNo[3]);
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
@@ -242,7 +242,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Approval Requests where the current user is neither sender nor the approver or an admin.
         // [WHEN] Approval Requests are delegated.
         // [THEN] It throws an error that user is missing permission to delegate.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(MockUserSetup1);
@@ -253,7 +253,7 @@ codeunit 134204 "Document Approval - Requests"
 
         // Set the approver of two of the approval requests to be a non current user
         ApprovalEntry.SetRange("Document No.", DocNo[2], DocNo[3]);
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
@@ -280,7 +280,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Approval Requests where the current user is neither sender nor the approver or an admin.
         // [WHEN] Approval Entries page is opened.
         // [THEN] For the entries where the user does not have permission to delegate, the Delegate action is disabled.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(MockUserSetup1);
@@ -291,7 +291,7 @@ codeunit 134204 "Document Approval - Requests"
 
         // Set the approver of two of the approval requests to be a non current user
         ApprovalEntry.SetRange("Document No.", DocNo[1], DocNo[2]);
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry.Modify();
@@ -299,13 +299,13 @@ codeunit 134204 "Document Approval - Requests"
 
         // Verify
         ApprovalEntries.OpenEdit;
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 asserterror ApprovalEntries.GotoRecord(ApprovalEntry); // record is shown on the page.
             until ApprovalEntry.Next = 0;
 
         ApprovalEntry.SetRange("Document No.", DocNo[3], DocNo[4]);
-        if ApprovalEntry.FindSet then
+        if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntries.GotoRecord(ApprovalEntry);
                 Assert.AreEqual(true, ApprovalEntries."&Delegate".Enabled, 'Delegate action is expected to be enabled');
@@ -326,7 +326,7 @@ codeunit 134204 "Document Approval - Requests"
         // [GIVEN] Purchase Invoice and a request for approval.
         // [WHEN] User presented with a approval line.
         // [THEN] The lines contain info what document you are approving and some details about the document.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -357,7 +357,7 @@ codeunit 134204 "Document Approval - Requests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 223526] Record "Approval Entry" must be able to modify after event OnRejectApprovalRequest
-        Initialize;
+        Initialize();
         BindSubscription(DocumentApprovalRequests);
 
         // [GIVEN] Record "Approval Entry"
@@ -443,8 +443,8 @@ codeunit 134204 "Document Approval - Requests"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Document Approval - Requests");
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Document Approval - Requests");
@@ -499,7 +499,7 @@ codeunit 134204 "Document Approval - Requests"
         i: Integer;
     begin
         for i := 1 to ArrayLen(DocNo) do begin
-            DocNo[i] := LibraryUtility.GenerateGUID;
+            DocNo[i] := LibraryUtility.GenerateGUID();
             CreateApprovalEntry(ApprovalEntry, DocNo[i]);
         end;
     end;

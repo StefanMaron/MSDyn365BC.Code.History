@@ -12,6 +12,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryWorkflow: Codeunit "Library - Workflow";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -31,7 +32,7 @@ codeunit 138932 "O365 NA Tax E2E"
         StateRate: Integer;
     begin
         // [SCENARIO 210148] Sunshine scenario for creating tax rate with State code and State rate
-        Initialize;
+        Initialize();
 
         // [WHEN] New tax rate State Code = XX and State Rate = 10 in the Tax Rate page
         StateCode := 'XX';
@@ -54,7 +55,7 @@ codeunit 138932 "O365 NA Tax E2E"
         StateRate: Integer;
     begin
         // [SCENARIO 210148] Sunshine scenario for editing tax rate State code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax rate State Code = XX and State Rate = 10 in the Tax Rate page
         StateCode := 'XX';
@@ -86,10 +87,10 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
         // [SCENARIO 210148] Discard creating new tax rate with empty state rate doesn't lead to creating new tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] New tax rate with empty State and non empty State Rate in the Tax Rate page
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value('');
         O365TaxSettingsCard.StateRate.SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -110,10 +111,10 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
         // [SCENARIO 210148] Page Tax Rate is not closed after Keep Editing respond while creating new tax rate with empty state rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] New tax rate with empty State and non empty State Rate in the Tax Rate page
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value('');
         O365TaxSettingsCard.StateRate.SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -136,7 +137,7 @@ codeunit 138932 "O365 NA Tax E2E"
         StateRate: Integer;
     begin
         // [SCENARIO 210148] Discard of changing tax rate state ratedoesn't create new tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax rate with State = 'XX' and State Rate = 5
         StateCode := 'XX';
@@ -170,7 +171,7 @@ codeunit 138932 "O365 NA Tax E2E"
         StateRate: Integer;
     begin
         // [SCENARIO 210148] Page Tax Rate is not closed after Keep Editing respond while state rate became empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax rate with State = 'XX' and State Rate = 5
         StateCode := 'XX';
@@ -203,10 +204,10 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
         // [SCENARIO 210148] Discard creating new tax rate with empty city rate doesn't lead to creating new tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] New tax rate with empty City and non empty City Rate in the Tax Rate page
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.City.Value('');
         O365TaxSettingsCard.CityRate.SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -227,10 +228,10 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
         // [SCENARIO 210148] Page Tax Rate is not closed after Keep Editing respond while creating new tax rate with empty city rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] New tax rate with empty City and non empty City Rate in the Tax Rate page
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.City.Value('');
         O365TaxSettingsCard.CityRate.SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -253,7 +254,7 @@ codeunit 138932 "O365 NA Tax E2E"
         CityRate: Integer;
     begin
         // [SCENARIO 210148] Discard of changing tax rate city ratedoesn't create new tax area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax rate with City = 'XX' and City Rate = 5
         CityCode := 'XX';
@@ -287,7 +288,7 @@ codeunit 138932 "O365 NA Tax E2E"
         CityRate: Integer;
     begin
         // [SCENARIO 210148] Page Tax Rate is not closed after Keep Editing respond while city rate became empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Tax rate with City = 'XX' and City Rate = 5
         CityCode := 'XX';
@@ -319,7 +320,7 @@ codeunit 138932 "O365 NA Tax E2E"
         InitialStateRate: Decimal;
         InitialCityRate: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has two different tax areas
         InitialStateRate := LibraryRandom.RandIntInRange(10, 20);
@@ -348,7 +349,7 @@ codeunit 138932 "O365 NA Tax E2E"
         InitialStateRate: Decimal;
         InitialCityRate: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has two different tax areas
         InitialStateRate := LibraryRandom.RandIntInRange(10, 20);
@@ -381,9 +382,9 @@ codeunit 138932 "O365 NA Tax E2E"
         InitialCityRate: Decimal;
         PostedInvNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
-        LibraryInvoicingApp.SetupEmail;
+        LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] The user has set up a tax area as default
         InitialStateRate := LibraryRandom.RandIntInRange(10, 20);
@@ -407,7 +408,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set (called A) up with City name Lyngby, rate = 5% and State name = NY, rate 3%
         // [GIVEN] A customer using this tax setup
@@ -426,7 +427,7 @@ codeunit 138932 "O365 NA Tax E2E"
         // [THEN] The existing invoice line amounts have automatically been updated to the new tax percentage
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(
           Round(SalesLine.Amount * 1.13, 0.01), SalesLine."Amount Including VAT",
           'The sales tax has not been correctly updated on the related invoices');
@@ -440,7 +441,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set (called A) up with City name Lyngby, rate = 5% and State name = NY, rate 3%
         // [GIVEN] A customer using this tax setup
@@ -459,7 +460,7 @@ codeunit 138932 "O365 NA Tax E2E"
         // [THEN] The existing invoice line amounts have automatically been updated to the new tax percentage
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(
           Round(SalesLine.Amount * 1.25, 0.01), SalesLine."Amount Including VAT",
           'The sales tax has not been correctly updated on the related invoices');
@@ -473,7 +474,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set (called A) up with City name Lyngby, rate = 5% and State name = NY, rate 3%
         // [GIVEN] A customer using this tax setup
@@ -492,7 +493,7 @@ codeunit 138932 "O365 NA Tax E2E"
         // [THEN] The existing invoice line amounts have automatically been updated to the new tax percentage
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(
           Round(SalesLine.Amount * 1.13, 0.01), SalesLine."Amount Including VAT",
           'The sales tax has not been correctly updated on the related invoices');
@@ -506,7 +507,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set (called A) up with City name Lyngby, rate = 5% and State name = NY, rate 3%
         // [GIVEN] A customer using this tax setup
@@ -525,7 +526,7 @@ codeunit 138932 "O365 NA Tax E2E"
         // [THEN] The existing invoice line amounts have automatically been updated to the new tax percentage
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(
           Round(SalesLine.Amount * 1.25, 0.01), SalesLine."Amount Including VAT",
           'The sales tax has not been correctly updated on the related invoices');
@@ -539,7 +540,7 @@ codeunit 138932 "O365 NA Tax E2E"
         TaxArea: Record "Tax Area";
         LibrarySales: Codeunit "Library - Sales";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set up
         // [GIVEN] A customer using this tax setup
@@ -563,7 +564,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesHeader: Record "Sales Header";
         TaxArea: Record "Tax Area";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set up
         // [GIVEN] An unposted sales document is using this tax setup
@@ -587,7 +588,7 @@ codeunit 138932 "O365 NA Tax E2E"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TaxArea: Record "Tax Area";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set up
         // [GIVEN] A posted sales document is using this tax setup
@@ -610,7 +611,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         TaxArea: Record "Tax Area";
     begin
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         // [GIVEN] Tax set up
         // [GIVEN] No one is using the tax area code
@@ -625,7 +626,7 @@ codeunit 138932 "O365 NA Tax E2E"
     local procedure Initialize()
     begin
         EventSubscriberInvoicingApp.Clear;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ClearTaxRates;
 
         if IsInitialized then
@@ -640,7 +641,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value(StateCode);
         O365TaxSettingsCard.StateRate.SetValue(StateRate);
         O365TaxSettingsCard.City.Value(CityCode);
@@ -652,7 +653,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value(StateCode);
         O365TaxSettingsCard.StateRate.SetValue(StateRate);
         O365TaxSettingsCard.City.Value(CityCode);
@@ -665,7 +666,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value(StateCode);
         O365TaxSettingsCard.StateRate.SetValue(StateRate);
         O365TaxSettingsCard.Close;
@@ -675,7 +676,7 @@ codeunit 138932 "O365 NA Tax E2E"
     var
         O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
     begin
-        O365TaxSettingsCard.OpenNew;
+        O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.City.Value(CityCode);
         O365TaxSettingsCard.CityRate.SetValue(CityRate);
         O365TaxSettingsCard.Close;

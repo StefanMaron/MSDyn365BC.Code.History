@@ -659,17 +659,14 @@ table 124 "Purch. Cr. Memo Hdr."
     end;
 
     procedure PrintToDocumentAttachment(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
-    var
-        ShowNotificationAction: Boolean;
     begin
-        ShowNotificationAction := PurchCrMemoHdr.Count() = 1;
         if PurchCrMemoHdr.FindSet() then
             repeat
-                DoPrintToDocumentAttachment(PurchCrMemoHdr, ShowNotificationAction);
+                DoPrintToDocumentAttachment(PurchCrMemoHdr);
             until PurchCrMemoHdr.Next() = 0;
     end;
 
-    local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowNotificationAction: Boolean)
+    local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -684,7 +681,7 @@ table 124 "Purch. Cr. Memo Hdr."
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

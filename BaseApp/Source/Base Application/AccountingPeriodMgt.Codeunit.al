@@ -19,7 +19,7 @@ codeunit 360 "Accounting Period Mgt."
     begin
         AccountingPeriod.SetCurrentKey(Closed);
         AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             exit(AccountingPeriod."Starting Date");
         exit(CalcDate('<-CY>', WorkDate));
     end;
@@ -46,10 +46,10 @@ codeunit 360 "Accounting Period Mgt."
         end;
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetRange("Starting Date", 0D, BalanceDate);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             exit(AccountingPeriod."Starting Date");
         AccountingPeriod.Reset();
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         exit(AccountingPeriod."Starting Date");
     end;
 
@@ -64,7 +64,7 @@ codeunit 360 "Accounting Period Mgt."
         end;
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '>%1', FindFiscalYear(BalanceDate));
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             exit(CalcDate('<-1D>', AccountingPeriod."Starting Date"));
         exit(DMY2Date(31, 12, 9999));
     end;
@@ -76,7 +76,7 @@ codeunit 360 "Accounting Period Mgt."
         CurrentPeriodNo: Integer;
     begin
         AccountingPeriod.SetFilter("Starting Date", '<=%1', Date);
-        if not AccountingPeriod.FindLast then begin
+        if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Reset();
             if Steps < 0 then
                 AccountingPeriod.FindFirst

@@ -126,7 +126,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Where-Used List report.
 
         // Setup: Create Item with Item Component. Create and update  BOM Component.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(ParentItem);
         LibraryInventory.CreateItem(Item);
         CreateAndUpdateBOMComponent(BOMComponent, ParentItem."No.", Item."No.");
@@ -151,7 +151,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Assembly BOM - Subassemblies report with Stock Keeping Exist as True.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise;
         BOMSubAssembliesReportWithStockKeepingExist(Item, true);  // StockKeepingExist as True.
@@ -171,7 +171,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Assembly BOM - Subassemblies report with Stock Keeping Exist as False.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         BOMSubAssembliesReportWithStockKeepingExist(Item, false);  // StockKeepingExist as False.
@@ -191,7 +191,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Assembly BOM - Raw Materials with Stock Keeping Exist as True.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         BOMRawMaterialsReportWithStockKeepingExist(Item, true);  // StockKeepingExist as True.
@@ -212,7 +212,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Assembly BOM - Raw Materials with Stock Keeping Exist as True.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         BOMRawMaterialsReportWithStockKeepingExist(Item, false);  // StockKeepingExist as False.
@@ -233,7 +233,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Item Cost and Price List Report with Stockkeeping Unit False.
 
         // Setup:
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         SetupForItemCostAndPriceReport(Item."No.");
 
@@ -263,7 +263,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Item Cost and Price List Report with Stockkeeping Unit True.
 
         // Setup:
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         CreateItemWithStockkeepingUnit(StockkeepingUnit, Item."No.", CreateLocation);
         SetupForItemCostAndPriceReport(StockkeepingUnit."Item No.");
@@ -290,7 +290,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Back Order Fill by Item Report.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(
           SalesLine, CreateAndUpdateTaxGroupOnItem, '', CalcDate('<-4' + 'D>', Today));  // Removing 4 days from todays date
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for BackOrderFillByItemHandler.
@@ -318,7 +318,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Back Order Fill by Customer Report.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(
           SalesLine, CreateAndUpdateTaxGroupOnItem, '', CalcDate('<-4' + 'D>', Today));  // Removing 4 days from todays date
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for BackOrderFillbyCustomerHandler.
@@ -345,8 +345,8 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Item List Report with Stockkeeping Unit False.
 
         // Setup: Create Item, create and post Purchase Order.
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateAndPostPurchaseDocument(ItemNo, PurchaseHeader."Document Type"::Order, true);
         LibraryVariableStorage.Enqueue(ItemNo);
         LibraryVariableStorage.Enqueue(false);  // Enqueue for ItemListRequestPageHandler.
@@ -373,7 +373,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Item List Report with Stockkeeping Unit True.
 
         // Setup: Create Item with Stockkeeping Unit, create and post Purchase Order.
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         CreateItemWithStockkeepingUnit(StockkeepingUnit, Item."No.", CreateLocation);
         CreateAndPostPurchaseDocument(StockkeepingUnit."Item No.", PurchaseHeader."Document Type"::Order, true);
@@ -405,7 +405,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Sales Promotion Report.
 
         // Create Item, Sales Price.
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         CreateAndModifySalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -446,7 +446,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(SalesLine, CreateAndUpdateTaxGroupOnItem, CurrencyCode, WorkDate);
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for SalesOrderStatusRequestPageHandler
         Commit();  // COMMIT required to run the report.
@@ -475,7 +475,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Items by Sales Tax Group Report.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(SalesLine, CreateAndUpdateTaxGroupOnItem, '', WorkDate);
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for ItemsBySalesTaxGroupRequestPageHandler.
         Commit();  // COMMIT required to run the report.
@@ -525,7 +525,7 @@ codeunit 142060 "ERM Misc. Report"
     local procedure ListPriceSheetReportError(SalesType: Option; ExpectedError: Text[1024])
     begin
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForListPriceSheetReport(SalesType, '', '');
         Commit();  // COMMIT required to run the report.
 
@@ -548,7 +548,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify List Price Sheet Report for Sales Type Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         CreateAndModifySalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo, LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -577,7 +577,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Availability Status Report.
 
         // Setup: Create Item, create and post Purchase order.
-        Initialize;
+        Initialize();
         Item.Get(CreateAndUpdateTaxGroupOnItem);
         CreateAndPostPurchaseDocument(Item."No.", PurchaseHeader."Document Type"::Order, true);
 
@@ -610,7 +610,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemNo: Code[20];
     begin
         // Verify Picking List by Item Report with Item No. filter.
-        Initialize;
+        Initialize();
         ItemNo := CreateAndUpdateTaxGroupOnItem;
         PickingListByItemReport(
           ItemNo, '', LibrarySales.CreateCustomerNo, '', ItemNo, '', ItemFilterLbl, StrSubstNo(FilterTxt, Item.FieldCaption("No."), ItemNo));
@@ -625,7 +625,7 @@ codeunit 142060 "ERM Misc. Report"
         LocationCode: Code[10];
     begin
         // Verify Picking List by Item Report with Location filter.
-        Initialize;
+        Initialize();
         LocationCode := CreateLocation;
         PickingListByItemReport(
           CreateAndUpdateTaxGroupOnItem, LocationCode, LibrarySales.CreateCustomerNo, '', '', '', SalesLineFilterLbl, StrSubstNo(
@@ -641,8 +641,8 @@ codeunit 142060 "ERM Misc. Report"
         SellToCustNo: Code[20];
     begin
         // Verify Picking List by Item Report with Sell To Customer No. filter.
-        Initialize;
-        SellToCustNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        SellToCustNo := LibrarySales.CreateCustomerNo();
         PickingListByItemReport(
           CreateAndUpdateTaxGroupOnItem, '', SellToCustNo, '', '', SellToCustNo, SalesLineFilterLbl, StrSubstNo(
             FilterTxt, SalesLine.FieldCaption("Sell-to Customer No."), SellToCustNo));
@@ -659,7 +659,7 @@ codeunit 142060 "ERM Misc. Report"
         DocumentNo: Code[20];
     begin
         // Verify Picking List by Item Report with Sales Line Document No. filter.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         DocumentNo := NoSeriesManagement.GetNextNo(SalesReceivablesSetup."Order Nos.", WorkDate, false);
         PickingListByItemReport(
@@ -698,7 +698,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Picking List by Order Report after creating Sales Order with Item Tracking.
 
         // Setup: Create Sales Order with Tracked Item.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithItemTracking(SalesLine);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");
 
@@ -722,7 +722,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [Sales] [Order] [Picking List by Order]
         // [SCENARIO 274369] "Picking List by Order" report invoked from a sales order should refer to this order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order "X".
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -753,10 +753,10 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Serial No. Sold History Report after posting Sales Order with Item Tracking.
 
         // Setup: Create Sales Order with Tracked Item.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithItemTracking(SalesLine);
         ReservationEntry.SetRange("Item No.", SalesLine."No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         PostSalesDocument(SalesLine);
 
         // Enqueue for SerialNumberSoldHistoryRequestPageHandler.
@@ -782,8 +782,8 @@ codeunit 142060 "ERM Misc. Report"
         ItemNo: Code[20];
     begin
         // Verify Item Sales By Customer Report with Item No. filter.
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         ItemSalesByCustomerReport(
           ItemNo, LibrarySales.CreateCustomerNo, ItemNo, '', ItemFilterLbl, StrSubstNo(FilterTxt, Item.FieldCaption("No."), ItemNo));
     end;
@@ -797,8 +797,8 @@ codeunit 142060 "ERM Misc. Report"
         CustomerNo: Code[20];
     begin
         // Verify Item Sales By Customer Report with Customer No. filter.
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ItemSalesByCustomerReport(
           LibraryInventory.CreateItemNo, CustomerNo, '', CustomerNo, ItemLedgerEntryLbl,
           StrSubstNo(FilterTxt, ItemLedgerEntry.FieldCaption("Source No."), CustomerNo));
@@ -841,7 +841,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Item Sales By Customer Report with Include Returns True.
 
         // Setup: Create and post Sales Order, create and post Sales Return Order
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(SalesLine, LibraryInventory.CreateItemNo, '', WorkDate);
         Quantity := SalesLine."Quantity Shipped";
 
@@ -869,7 +869,7 @@ codeunit 142060 "ERM Misc. Report"
     procedure ItemSalesStatisticsReportWithVariantFalse()
     begin
         // Verify Item Sales Statistics Report with Variant and Description False.
-        Initialize;
+        Initialize();
         ItemSalesStatisticsReport(LibraryInventory.CreateItemNo, '', false, false, '');
     end;
 
@@ -882,7 +882,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemVariant: Record "Item Variant";
     begin
         // Verify Item Sales Statistics Report with Variant and Description True.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         ItemSalesStatisticsReport(Item."No.", ItemVariant.Code, true, true, Item.Description);
@@ -928,7 +928,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Sales History Report after posting Sales Order.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesOrder(SalesLine, LibraryInventory.CreateItemNo, '', WorkDate);
         LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue for SalesHistoryRequestPagehandler.
 
@@ -987,13 +987,13 @@ codeunit 142060 "ERM Misc. Report"
         DocumentNo: Code[20];
     begin
         // Setup: Create and post Purchse Cr. Memo, open and execute Purch. Cr. Memo report from posted Cr. Memo.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostPurchaseDocument(Item."No.", PurchaseHeader."Document Type"::"Credit Memo", true);
         PostedPurchaseCreditMemo.OpenView;
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", DocumentNo);
         Vendor.SetRange(Name, PostedPurchaseCreditMemo."Buy-from Vendor Name".Value);
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         EnqueueValuesforPurchaseDocument(Vendor."No.", PrintCompanyAddress, LogInteraction);  // Enqueue values for PurchCrMemoRequestPageHandler.
 
         // Exercise.
@@ -1053,7 +1053,7 @@ codeunit 142060 "ERM Misc. Report"
         DocumentNo: Code[20];
     begin
         // Setup: Create and post Purchse Invoice, open and execute Purch. Invoice report from posted invoice.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostPurchaseDocument(Item."No.", PurchaseHeader."Document Type"::Invoice, true);
         PostedPurchaseInvoice.OpenView;
@@ -1121,7 +1121,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // Setup: Create Purchse Order, open and execute Purch. Order report.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         PurchaseOrder.OpenView;
@@ -1156,12 +1156,12 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [Purchase Order]
         // [SCENARIO 258015] REP10122 "Purchase Order" now shows "Vendor Invoice No." and "Vendor Order No." fields.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO" with filled "Vendor Invoice No." = "AAA" and "Vendor Order No." = "BBB".
         // [GIVEN] "PO" card page is opened.
-        VendorInvoiceNo := LibraryUtility.GenerateGUID;
-        VendorOrderNo := LibraryUtility.GenerateGUID;
+        VendorInvoiceNo := LibraryUtility.GenerateGUID();
+        VendorOrderNo := LibraryUtility.GenerateGUID();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.SetRecFilter;
         PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
@@ -1219,7 +1219,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseQuote: TestPage "Purchase Quote";
     begin
         // Setup: Create Purchse Quote, open and execute Purch. Quote report.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Quote);
         PurchaseQuote.OpenView;
@@ -1283,7 +1283,7 @@ codeunit 142060 "ERM Misc. Report"
         DocumentNo: Code[20];
     begin
         // Setup: Create and receipt Purchse Order, open and execute Purch. Receipt report from posted receipt.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         DocumentNo := CreateAndPostPurchaseDocument(Item."No.", PurchaseHeader."Document Type"::Order, false);
         PostedPurchaseReceipt.OpenView;
@@ -1346,7 +1346,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // Setup: Create Purchse Return Order, open and execute Purch. Return Order Confirm report.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::"Return Order");
         PurchaseReturnOrder.OpenView;
@@ -1399,7 +1399,7 @@ codeunit 142060 "ERM Misc. Report"
         PurchaseLine: Record "Purchase Line";
     begin
         // Create Purchase Document with multiple Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", DocumentType);
@@ -1436,7 +1436,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Application from Inv. Customer Ledger Entry
         // by Selecting Applies to Id With Partial And Full Remaining Amount on Invoice Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateAndModifySalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateAndUpdateTaxGroupOnItem, '',
           WorkDate, '', '', LibrarySales.CreateCustomerNo);
         DocumentNo := PostSalesDocument(SalesLine);
@@ -1473,7 +1473,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Application from Inv. Customer Ledger Entry
         // by Selecting Applies to Id With Partially Remaining Amount on Invoice Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateAndModifySalesDocument(SalesLine, SalesLine."Document Type"::Order,
           CreateAndUpdateTaxGroupOnItem, '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
         DocumentNo := PostSalesDocument(SalesLine);
@@ -1512,7 +1512,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Application from Inv. Customer Ledger Entry
         // by Selecting Applies to Id With Full Remaining Amount on Invoice Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateAndModifySalesDocument(SalesLine, SalesLine."Document Type"::Order,
           CreateAndUpdateTaxGroupOnItem, '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
         DocumentNo := PostSalesDocument(SalesLine);
@@ -1545,7 +1545,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Application from Inv. Customer Ledger Entry
         // by Selecting Applies to Id With Remaining Amount on Payment Customer Ledger Entries.
-        Initialize;
+        Initialize();
         CreateAndModifySalesDocument(SalesLine, SalesLine."Document Type"::Order,
           CreateAndUpdateTaxGroupOnItem, '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
         DocumentNo := PostSalesDocument(SalesLine);
@@ -1580,7 +1580,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Partial Payment using Gen. Journal with Apply Entry
         // Also Post Application from Customer Ledger Entries by Selecting Applies to Id.
-        Initialize;
+        Initialize();
         CreateAndModifySalesDocument(SalesLine, SalesLine."Document Type"::Order,
           CreateAndUpdateTaxGroupOnItem, '', WorkDate, '', '', LibrarySales.CreateCustomerNo);
         DocumentNo := PostSalesDocument(SalesLine);
@@ -1621,7 +1621,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Sales Document and Post Application from Inv. Vendor Ledger Entry
         // by Selecting Applies to Id With Partial And Full Remaining Amount on Invoice Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1658,7 +1658,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Purchase Document and Post Application from Inv. Vendor Ledger Entry
         // by Selecting Applies to Id With Full Remaining Amount on Invoice Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1693,7 +1693,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Purchase Document and Post Application from Inv. Vendor Ledger Entry
         // by Selecting Applies to Id With Remaining Amount on Payment Vendor Ledger Entries.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1730,7 +1730,7 @@ codeunit 142060 "ERM Misc. Report"
 
         // Setup: Post Purchase Document and Post Partial Payment using Gen. Journal with Apply Entry
         // Also Post Application from Vendor Ledger Entries by Selecting Applies to Id.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, Item."No.", PurchaseHeader."Document Type"::Order);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1763,7 +1763,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify unit price on List Price Sheet report.
 
         // Setup: Create Item and Sales Price.
-        Initialize;
+        Initialize();
         CreateAndModifyItem(Item);
         CreateAndModifySalesPrice(SalesPrice, Item, SalesPrice."Sales Type"::"All Customers", '', '');
         EnqueueValuesForListPriceSheetReport(SalesPrice."Sales Type"::"All Customers", '', Item."No.");
@@ -1789,7 +1789,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Misc 07 Amount on Vendor 1099 Misc. Test Report with Payment Discount.
 
         // Setup: Create and Post Purchase order with Payment Discount and Run Suggest Vendor Payment with Pmt. Discount Date .
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine);
         PostGenJournalLineAfterSuggestVendorPayment(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Pmt. Discount Date");
 
@@ -1813,7 +1813,7 @@ codeunit 142060 "ERM Misc. Report"
         // Verify Misc 07 Amount on Vendor 1099 Misc. Test Report without Payment Discount.
 
         // Setup: Create and Post Purchase order with Payment Discount and Run Suggest Vendor Payment with greater than Due date .
-        Initialize;
+        Initialize();
         PostPurchOrderWithPmtGreaterThanDueDate(PurchaseLine);
 
         // Exercise: Run Vendor 1099 Misc Report.
@@ -1838,8 +1838,8 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Sales] [Non-G/L Application]
         // [SCENARIO 118319.1] Get applied customer entries for applications that were not posted to G/L.
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Two pairs of Invoice and Payment for one Customer: "Invoice X" - "Payment X", "Invoice Y" - "Payment Y".
         // [GIVEN] Documents applied so both application transactions are not posted to G/L.
@@ -1866,8 +1866,8 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Purchase] [Non-G/L Application]
         // [SCENARIO 118319.2] Get applied Get applied customer entries for applications that were not posted to G/L.
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Two pairs of Invoice and Payment for one Customer: "Invoice X" - "Payment X", "Invoice Y" - "Payment Y".
         // [GIVEN] Documents applied so both application transactions are not posted to G/L.
@@ -1893,7 +1893,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Application] [Sales]
         // [SCENARIO 376688] Get applied customer entries for the first of two customers after auto applilcation with the same document no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted invoices: "I1" for Customer "C1", "I2" for Customer "C2".
         CreatePostTwoInvForTwoAccounts(CustomerNo, InvoiceDocNo, GenJournalLine."Account Type"::Customer);
@@ -1922,7 +1922,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Application] [Sales]
         // [SCENARIO 376688] Get applied customer entries for the second of two customers after auto applilcation with the same document no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted invoices: "I1" for Customer "C1", "I2" for Customer "C2".
         CreatePostTwoInvForTwoAccounts(CustomerNo, InvoiceDocNo, GenJournalLine."Account Type"::Customer);
@@ -1951,7 +1951,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Application] [Purchase]
         // [SCENARIO 376688] Get applied vendor entries for the first of two vendors after auto applilcation with the same document no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted invoices: "I1" for Vendor "V1", "I2" for Vendor "V2".
         CreatePostTwoInvForTwoAccounts(VendorNo, InvoiceDocNo, GenJournalLine."Account Type"::Vendor);
@@ -1980,7 +1980,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Application] [Purchase]
         // [SCENARIO 376688] Get applied vendor entries for the second of two vendors after auto applilcation with the same document no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted invoices: "I1" for Vendor "V1", "I2" for Vendor "V2".
         CreatePostTwoInvForTwoAccounts(VendorNo, InvoiceDocNo, GenJournalLine."Account Type"::Vendor);
@@ -2009,7 +2009,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [ERM] [Application] [Sales]
         // [SCENARIO 376688] Cash applied report for one of two customers after auto applilcation with the same document no.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted invoices: "I1" for Customer "C1", "I2" for Customer "C2".
         CreatePostTwoInvForTwoAccounts(CustomerNo, InvoiceDocNo, GenJournalLine."Account Type"::Customer);
@@ -2039,7 +2039,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [G/L Register] [Post and Print]
         // [SCENARIO 312175] Report G/L Register shows Dimensions when codeunit "Gen. Jnl.-Post+Print" is run
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Line with Dimension
         GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
@@ -2072,7 +2072,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [Payment Discount]
         // [SCENARIO 345272] Report "Vendor 1099 Misc" is showing Amount without discount applied when payment was made after Payment Discount Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "IRS 1099 Code" = "MISC-07".
         VendorNo := CreateVendorWithPaymentTerms();
@@ -2110,7 +2110,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         // [FEATURE] [Item Statistics] [Return]
         // [SCENARIO 353708] "Quantity Returned" and "Profit" are shown on "Item Sales Statistics" report without breakdown by Item Variants
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Return Order for Item "I01" with Quantity = 10 and "Unit Price" = 300
         CreateAndModifySalesDocument(
@@ -2159,9 +2159,9 @@ codeunit 142060 "ERM Misc. Report"
         InventorySetup: Record "Inventory Setup";
     begin
         Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option)
@@ -2327,10 +2327,10 @@ codeunit 142060 "ERM Misc. Report"
         with GenJournalLine do
             for i := 1 to ArrayLen(AccountNo) do begin
                 if AccountType = "Account Type"::Customer then begin
-                    AccountNo[i] := LibrarySales.CreateCustomerNo;
+                    AccountNo[i] := LibrarySales.CreateCustomerNo();
                     Sign := 1;
                 end else begin
-                    AccountNo[i] := LibraryPurchase.CreateVendorNo;
+                    AccountNo[i] := LibraryPurchase.CreateVendorNo();
                     Sign := -1;
                 end;
                 LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -2539,7 +2539,7 @@ codeunit 142060 "ERM Misc. Report"
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)", "Cost Amount (Actual)");
     end;
 
@@ -2547,7 +2547,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2632,7 +2632,7 @@ codeunit 142060 "ERM Misc. Report"
         with CustLedgerEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             EntryApplicationManagement.GetAppliedCustEntries(TempCustLedgerEntryApplied, CustLedgerEntry, false);
         end;
     end;
@@ -2645,7 +2645,7 @@ codeunit 142060 "ERM Misc. Report"
         with VendorLedgerEntry do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             EntryApplicationManagement.GetAppliedVendEntries(TempVendorLedgerEntryApplied, VendorLedgerEntry, false);
         end;
     end;
@@ -2747,7 +2747,7 @@ codeunit 142060 "ERM Misc. Report"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         Commit();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure UpdateCustomerLedgerEntryWithAppliesToId(AppliesToId: Code[20]; InvDocumentNo: Code[20]; AmountToApply: Decimal)
@@ -2836,7 +2836,7 @@ codeunit 142060 "ERM Misc. Report"
         with TempCustLedgerEntryApplied do begin
             SetRange("Document Type", "Document Type"::Payment);
             Assert.AreEqual(1, Count, IncorrectPaymentCountErr);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
             Assert.AreEqual(ExpectedCustomerNo, "Customer No.", FieldCaption("Customer No."));
         end;
@@ -2847,7 +2847,7 @@ codeunit 142060 "ERM Misc. Report"
         with TempVendorLedgerEntryApplied do begin
             SetRange("Document Type", "Document Type"::Payment);
             Assert.AreEqual(1, Count, IncorrectPaymentCountErr);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
             Assert.AreEqual(ExpectedVendorNo, "Vendor No.", FieldCaption("Vendor No."));
         end;

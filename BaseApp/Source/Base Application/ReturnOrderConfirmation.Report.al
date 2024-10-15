@@ -835,7 +835,7 @@ report 6631 "Return Order Confirmation"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Sales Header".FindSet then
+            if "Sales Header".FindSet() then
                 repeat
                     if "Sales Header"."Bill-to Contact No." <> '' then
                         SegManagement.LogDocument(18, "Sales Header"."No.", 0, 0, DATABASE::Contact,

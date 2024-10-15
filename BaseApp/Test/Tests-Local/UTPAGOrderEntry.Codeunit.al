@@ -27,7 +27,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate No. trigger of Page 5907 - Service Item Worksheet Subform.
 
         // Setup: Create Service Item WorkSheet.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
         Commit();  // Table 5902 (Service Line) No. On Validate trigger calls commit.
 
@@ -50,7 +50,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Quantity trigger of Page 5907 - Service Item Worksheet Subform.
 
         // Setup: Create Service Item WorkSheet.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
 
         // Exercise.
@@ -72,7 +72,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Location Code trigger of Page 5907 - Service Item Worksheet Subform.
 
         // Setup: Create Service Item WorkSheet.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
 
         // Exercise.
@@ -94,7 +94,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Quantity trigger of Page 5934 - Service Invoice Subform.
 
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice);
 
         // Exercise.
@@ -117,7 +117,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Unit Of Measure Code trigger of Page 5934 - Service Invoice Subform.
 
         // Setup: Create Service Invoice.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice);
 
         // Exercise.
@@ -139,7 +139,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Quantity trigger of Page 5936 - Service Credit Memo Subform.
 
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo");
 
         // Exercise.
@@ -162,7 +162,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Unit Of Measure Code trigger of Page 5936 - Service Credit Memo Subform.
 
         // Setup: Create Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo");
 
         // Exercise.
@@ -186,7 +186,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Quantity trigger of Page 5966 - Service Quote Lines.
 
         // Setup: Create Service Quote.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Quote);
 
         // Exercise.
@@ -209,7 +209,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Quantity trigger of Page 5905 - Service Lines.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
         Commit();  // Table 5902 (Service Line) AutoReserve function calls commit.
 
@@ -233,7 +233,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate No. trigger of Page 5905 - Service Lines.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
         Commit();  // Table 5902 (Service Line) AutoReserve function calls commit.
 
@@ -257,7 +257,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Location Code trigger of Page 5905 - Service Lines.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
         Commit();  // Table 5902 (Service Line) AutoReserve function calls commit.
 
@@ -280,7 +280,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate On Validate Posting Date trigger of Page 5905 - Service Lines.
 
         // Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order);
         Commit();  // Table 5902 (Service Line) AutoReserve function calls commit.
 
@@ -304,7 +304,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Post trigger of Page 10026 - Sales Order Shipment.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         Commit();  // Codeunit 80 OnRun trigger calls Commit();
 
@@ -313,11 +313,11 @@ codeunit 142073 "UT PAG Order Entry"
 
         // Verify: Sell-to Customer No. in Shipment Header and Shipment Invoice.
         SalesShipmentHeader.SetRange("Order No.", SalesLine."Document No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentHeader.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
 
         SalesInvoiceHeader.SetRange("Order No.", SalesLine."Document No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
     end;
 
@@ -340,7 +340,7 @@ codeunit 142073 "UT PAG Order Entry"
 
         // Verify: Sell-to Customer No. in Shipment Header.
         SalesShipmentHeader.SetRange("Order No.", SalesLine."Document No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentHeader.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
     end;
 
@@ -363,7 +363,7 @@ codeunit 142073 "UT PAG Order Entry"
 
         // Verify: Sell-to Customer No. in Sales Invoice Header.
         SalesInvoiceHeader.SetRange("Order No.", SalesLine."Document No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
     end;
 
@@ -378,7 +378,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 46 - Sales Order Subform.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
 
         // Exercise.
@@ -399,7 +399,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 46 - Sales Order Subform.
 
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -422,7 +422,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 47 - Sales Invoice Subform.
 
         // Setup: Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice);
         Quantity := LibraryRandom.RandDec(10, 2);
 
@@ -445,7 +445,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 47 - Sales Invoice Subform.
 
         // Setup: Create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice);
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -468,7 +468,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 95 - Sales Quote Subform.
 
         // Setup: Create Sales Quote.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote);
         Quantity := LibraryRandom.RandDec(10, 2);
 
@@ -491,7 +491,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 95 - Sales Quote Subform.
 
         // Setup: Create Sales Quote.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote);
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -514,7 +514,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 96 - Sales Credit Memo Subform.
 
         // Setup: Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo");
         Quantity := LibraryRandom.RandDec(10, 2);
 
@@ -537,7 +537,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 96 - Sales Credit Memo Subform.
 
         // Setup: Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo");
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -560,7 +560,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 508 - Blanket Sales Order Subform.
 
         // Setup: Create Blanket Sales Order.                                                            .
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order");
         Quantity := LibraryRandom.RandDec(10, 2);
 
@@ -583,7 +583,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 508 - Blanket Sales Order Subform.
 
         // Setup: Create Blanket Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order");
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -606,7 +606,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Quantity in On Validate Trigger of Quantity Page 6631 - Sales Return Order Subform.
 
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order");
         Quantity := LibraryRandom.RandDec(10, 2);
 
@@ -629,7 +629,7 @@ codeunit 142073 "UT PAG Order Entry"
         // Purpose of the test is to validate Unit Of Measure Code in On Validate Trigger of Page 6631 - Sales Return Order Subform.
 
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order");
         UnitOfMeasureCode := CreateUnitOfMeasure(SalesLine."No.");
 
@@ -643,13 +643,13 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
         CreateBlankVATPostingSetup;
         UpdateStockOutWarningOnSalesReceivableSetup;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibrarySales.SetDiscountPostingSilent(0);
 
         IsInitialized := true;
@@ -1611,7 +1611,7 @@ codeunit 142073 "UT PAG Order Entry"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
         Customer."No." := LibraryUTUtility.GetNewCode;
         Customer."Customer Posting Group" := CustomerPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
         Customer.Insert();
@@ -1625,7 +1625,7 @@ codeunit 142073 "UT PAG Order Entry"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         FindGeneralPostingSetup(GeneralPostingSetup);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         Item."No." := LibraryUTUtility.GetNewCode;
         Item."Base Unit of Measure" := CreateUnitOfMeasure(Item."No.");
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
@@ -1743,7 +1743,7 @@ codeunit 142073 "UT PAG Order Entry"
         GLAccount.Insert();
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
         GeneralPostingSetup."COGS Account" := GLAccount."No.";
         GeneralPostingSetup.Modify();
     end;

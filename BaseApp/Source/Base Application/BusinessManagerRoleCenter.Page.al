@@ -39,14 +39,6 @@ page 9022 "Business Manager Role Center"
                 ApplicationArea = Basic, Suite;
                 Caption = '';
             }
-            part(Control56; "Product Video Topics")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Assisted Setup.';
-                Visible = false;
-                ApplicationArea = All;
-                ObsoleteTag = '17.0';
-            }
             part("Favorite Accounts"; "My Accounts")
             {
                 ApplicationArea = Basic, Suite;
@@ -75,15 +67,6 @@ page 9022 "Business Manager Role Center"
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
-            }
-            part(" "; "O365 Link to Financials")
-            {
-                ApplicationArea = Invoicing;
-                Caption = ' ';
-                Visible = false;
-                ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-                ObsoleteState = Pending;
-                ObsoleteTag = '17.0';
             }
         }
     }
@@ -155,6 +138,15 @@ page 9022 "Business Manager Role Center"
         }
         area(processing)
         {
+            action("Navigate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
             group(New)
             {
                 Caption = 'New';
@@ -645,15 +637,20 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Posted General Journal";
                     ToolTip = 'Open the list of posted general journal lines.';
                 }
+#if not CLEAN20
                 action(Deposits)
                 {
-                    ApplicationArea = Basic,Suite;
-                    Caption = 'Deposits';
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Deposits';
                     Promoted = true;
                     PromotedCategory = Process;
-                    RunObject = Page Deposits;
-                    ToolTip = 'Manage deposits to your bank accounts.';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'Manage bank deposits to your bank accounts.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The action is already available in the Cash Management group.';
+                    ObsoleteTag = '20.0';
                 }
+#endif
             }
             group("Cash Management")
             {
@@ -759,6 +756,15 @@ page 9022 "Business Manager Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Payment Terms";
                     ToolTip = 'Set up the payment terms that you select from on customer cards to define when the customer must pay, such as within 14 days.';
+                }
+                action(Deposits2)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Deposits';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'Manage bank deposits to your bank accounts.';
                 }
                 action(BankAccountReconciliations)
                 {

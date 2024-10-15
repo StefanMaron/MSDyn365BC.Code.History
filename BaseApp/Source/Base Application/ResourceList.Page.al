@@ -218,7 +218,7 @@ page 77 "Resource List"
                         begin
                             CurrPage.SetSelectionFilter(Res);
                             DefaultDimMultiple.SetMultiRecord(Res, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

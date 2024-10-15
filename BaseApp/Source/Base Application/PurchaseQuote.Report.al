@@ -595,7 +595,7 @@ report 404 "Purchase - Quote"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purchase Header".FindSet then
+            if "Purchase Header".FindSet() then
                 repeat
                     "Purchase Header".CalcFields("No. of Archived Versions");
                     SegManagement.LogDocument(

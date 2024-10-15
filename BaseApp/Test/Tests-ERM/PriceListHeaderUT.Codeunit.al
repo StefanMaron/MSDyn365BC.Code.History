@@ -177,6 +177,37 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    [HandlerFunctions('LookupCustomerModalHandler')]
+    procedure T009_LookupSourceNoCustomer()
+    var
+        PriceListHeader: Record "Price List Header";
+        MockPriceListHeader: TestPage "Mock Price List Header";
+        SourceNo: Code[20];
+    begin
+        // [FEATURE] [Customer] [UI]
+        Initialize();
+        // [GIVEN] Header, where "Source Type" is 'All Customers'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"All Customers", '');
+        Commit();
+        // [GIVEN] Open Price List Header page and set "Source Type" as 'Customer'
+        MockPriceListHeader.Trap();
+        PriceListHeader.SetRecFilter();
+        Page.Run(Page::"Mock Price List Header", PriceListHeader);
+        MockPriceListHeader."Source Type".SetValue(PriceListHeader."Source Type"::Customer);
+
+        // [WHEN] Lookup "Source No." to pick Customer 'X'
+        SourceNo := LibrarySales.CreateCustomerNo();
+        LibraryVariableStorage.Enqueue(SourceNo); // CustomerNo to LookupCustomerModalHandler
+        MockPriceListHeader."Source No.".Lookup();
+        MockPriceListHeader.Close();
+
+        // [THEN] Header, where "Source Type" is Customer, "Source No." is 'X'
+        PriceListHeader.Find();
+        PriceListHeader.TestField("Source No.", SourceNo);
+    end;
+
+    [Test]
     procedure T010_ChangedSourceTypeValidation()
     var
         PriceListHeader: Record "Price List Header";
@@ -263,34 +294,65 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    [HandlerFunctions('LookupCustomerModalHandler')]
-    procedure T019_LookupSourceNoCustomer()
+    procedure T018_ChangeStartingDateWithMultipleLines()
     var
         PriceListHeader: Record "Price List Header";
-        MockPriceListHeader: TestPage "Mock Price List Header";
-        SourceNo: Code[20];
+        PriceListLine: Record "Price List Line";
     begin
-        // [FEATURE] [Customer] [UI]
+        // [SCENARIO 426808] Update of "Starting Date" on the price list copies both dates to all lines.
         Initialize();
-        // [GIVEN] Header, where "Source Type" is 'All Customers'
-        LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"All Customers", '');
-        Commit();
-        // [GIVEN] Open Price List Header page and set "Source Type" as 'Customer'
-        MockPriceListHeader.Trap();
-        PriceListHeader.SetRecFilter();
-        Page.Run(Page::"Mock Price List Header", PriceListHeader);
-        MockPriceListHeader."Source Type".SetValue(PriceListHeader."Source Type"::Customer);
+        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
+        CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine."Ending Date" := PriceListLine."Ending Date" + 10;
+        PriceListLine.Modify();
+        PriceListLine."Line No." += 1;
+        PriceListLine.Status := "Price Status"::Inactive;
+        PriceListLine."Ending Date" := PriceListLine."Ending Date" - 5;
+        PriceListLine.Insert();
 
-        // [WHEN] Lookup "Source No." to pick Customer 'X'
-        SourceNo := LibrarySales.CreateCustomerNo();
-        LibraryVariableStorage.Enqueue(SourceNo); // CustomerNo to LookupCustomerModalHandler
-        MockPriceListHeader."Source No.".Lookup();
-        MockPriceListHeader.Close();
+        // [WHEN] Set "Starting Date" as '0D'
+        PriceListHeader.Validate("Starting Date", 0D);
 
-        // [THEN] Header, where "Source Type" is Customer, "Source No." is 'X'
-        PriceListHeader.Find();
-        PriceListHeader.TestField("Source No.", SourceNo);
+        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        Assert.RecordCount(PriceListLine, 2);
+    end;
+
+    [Test]
+    procedure T019_ChangeEndingDateWithMultipleLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO 426808] Update of "Ending Date" on the price list copies both dates to all lines.
+        Initialize();
+        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
+        CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine."Starting Date" := PriceListLine."Starting Date" - 10;
+        PriceListLine.Modify();
+        PriceListLine."Line No." += 1;
+        PriceListLine.Status := "Price Status"::Inactive;
+        PriceListLine."Starting Date" := PriceListLine."Starting Date" + 5;
+        PriceListLine.Insert();
+
+        // [WHEN] Set "Ending Date" as 030320
+        PriceListHeader.Validate("Ending Date", PriceListHeader."Ending Date" + 1);
+
+        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        Assert.RecordCount(PriceListLine, 2);
     end;
 
     [Test]
@@ -498,10 +560,12 @@ codeunit 134118 "Price List Header UT"
         PriceListLine.Modify(true);
 
         // [WHEN] Set "Ending Date" as '290120', answer 'Yes' to confirm
-        asserterror PriceListHeader.Validate("Ending Date", PriceListLine."Starting Date" - 1);
+        PriceListHeader.Validate("Ending Date", PriceListLine."Starting Date" - 1);
 
-        // [THEN] Error message: 'Starting Date cannot be after Ending Date.'
-        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Starting Date", PriceListLine."Starting Date" - 1));
+        // [THEN] Price line, where "Starting Date" "Ending Date" are equal to header's dates
+        PriceListLine.Find();
+        PriceListLine.TestField("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.TestField("Ending Date", PriceListHeader."Ending Date");
     end;
 
     [Test]
@@ -524,10 +588,12 @@ codeunit 134118 "Price List Header UT"
         PriceListLine.Modify(true);
 
         // [WHEN] Set "Starting Date" as '310120', answer 'Yes' to confirm
-        asserterror PriceListHeader.Validate("Starting Date", PriceListLine."Ending Date" + 1);
+        PriceListHeader.Validate("Starting Date", PriceListLine."Ending Date" + 1);
 
-        // [THEN] Error message: 'Starting Date cannot be after Ending Date.'
-        Assert.ExpectedError(StrSubstNo(StartingDateErr, PriceListLine."Ending Date" + 1, PriceListLine."Ending Date"));
+        // [THEN] Price line, where "Starting Date" "Ending Date" are equal to header's dates
+        PriceListLine.Find();
+        PriceListLine.TestField("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.TestField("Ending Date", PriceListHeader."Ending Date");
     end;
 
     [Test]
@@ -1708,7 +1774,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Copy Job 'J' as 'NewJ'
         NewJobNo := LibraryUtility.GenerateGUID();
         CopyJob.SetCopyOptions(true, false, false, 0, 0, 0);
-        CopyJob.CopyJob(Job, NewJobNo, '', '');
+        CopyJob.CopyJob(Job, NewJobNo, '', '', '');
 
         // [THEN] Job 'NewJ' with  Job Task 'JT'
         Job.Get(NewJobNo);
@@ -2011,7 +2077,7 @@ codeunit 134118 "Price List Header UT"
         JobsSetup: Record "Jobs Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price List Header UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;

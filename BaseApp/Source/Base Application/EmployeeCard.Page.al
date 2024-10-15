@@ -580,7 +580,6 @@
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this employee.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -654,12 +653,9 @@
     }
 
     trigger OnOpenPage()
-    var
-        EmailFeature: Codeunit "Email Feature";
     begin
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -695,7 +691,6 @@
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

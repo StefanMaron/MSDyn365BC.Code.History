@@ -20,21 +20,21 @@ codeunit 27031 "Update SAT Payment Catalogs"
         PaymentMethod.ModifyAll("SAT Method of Payment", '');
         PaymentTerms.ModifyAll("SAT Payment Term", '');
 
-        if SATPaymentTerm.FindSet then
+        if SATPaymentTerm.FindSet() then
             repeat
                 TempSATPaymentTerm := SATPaymentTerm;
                 TempSATPaymentTerm.Insert();
             until SATPaymentTerm.Next() = 0;
         SATPaymentTerm.DeleteAll();
 
-        if SATPaymentMethod.FindSet then
+        if SATPaymentMethod.FindSet() then
             repeat
                 SATPaymentTerm.TransferFields(SATPaymentMethod);
                 SATPaymentTerm.Insert();
             until SATPaymentMethod.Next() = 0;
         SATPaymentMethod.DeleteAll();
 
-        if TempSATPaymentTerm.FindSet then
+        if TempSATPaymentTerm.FindSet() then
             repeat
                 SATPaymentMethod.TransferFields(TempSATPaymentTerm);
                 SATPaymentMethod.Insert();

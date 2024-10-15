@@ -80,7 +80,7 @@ page 5320 "Exchange Folders"
     begin
         if not ExchangeWebServicesClient.ReadBuffer(Rec) then
             ExchangeWebServicesClient.GetPublicFolders(Rec);
-        if FindFirst then;
+        if FindFirst() then;
         CurrPage.Update(false);
     end;
 

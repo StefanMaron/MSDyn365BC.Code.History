@@ -85,6 +85,40 @@ page 15 "Location List"
                     ToolTip = 'View or edit information about zones that you use in your warehouse to hold items.';
                 }
             }
+            group(Dimensions)
+            {
+                Caption = 'Dimensions';
+                Image = Dimensions;
+                action(DimensionsSingle)
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Dimensions-Single';
+                    Image = Dimensions;
+                    RunObject = Page "Default Dimensions";
+                    RunPageLink = "Table ID" = const(14),
+                                  "No." = field(Code);
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit the single set of dimensions that are set up for the selected record.';
+                }
+                action(DimensionsMultiple)
+                {
+                    AccessByPermission = TableData Dimension = R;
+                    ApplicationArea = Dimensions;
+                    Caption = 'Dimensions-&Multiple';
+                    Image = DimensionSets;
+                    ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
+
+                    trigger OnAction()
+                    var
+                        Location: Record Location;
+                        DefaultDimMultiple: Page "Default Dimensions-Multiple";
+                    begin
+                        CurrPage.SetSelectionFilter(Location);
+                        DefaultDimMultiple.SetMultiRecord(Location, FieldNo(Code));
+                        DefaultDimMultiple.RunModal();
+                    end;
+                }
+            }
         }
         area(creation)
         {

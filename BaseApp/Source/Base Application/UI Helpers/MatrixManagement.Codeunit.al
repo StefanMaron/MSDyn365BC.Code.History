@@ -182,7 +182,7 @@ codeunit 9200 "Matrix Management"
         DimensionValue.FilterGroup(0);
 
         i := 0;
-        if DimensionValue.FindSet then
+        if DimensionValue.FindSet() then
             repeat
                 i := i + 1;
                 MatrixRecords[i].Code := DimensionValue.Code;
@@ -224,7 +224,7 @@ codeunit 9200 "Matrix Management"
 
         case "Matrix Page Step Type".FromInteger(SetWanted) of
             "Matrix Page Step Type"::Initial:
-                RecRef.FindFirst;
+                RecRef.FindFirst();
             "Matrix Page Step Type"::Previous:
                 begin
                     RecRef.SetPosition(RecordPosition);

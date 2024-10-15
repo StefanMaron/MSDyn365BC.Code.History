@@ -1,6 +1,14 @@
 table 10126 "Bank Rec. Sub-line"
 {
     Caption = 'Bank Rec. Sub-line';
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {

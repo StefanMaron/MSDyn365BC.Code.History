@@ -1211,7 +1211,7 @@ page 10038 "Sales Order Stats."
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         if TempSalesTaxLine1.GetAnyLineModified then begin
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -1268,7 +1268,7 @@ page 10038 "Sales Order Stats."
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
         SetEditableForVATLinesForm(ActiveTab);
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempTaxAmountLine(VATLinesToDrillDown);
     end;
 

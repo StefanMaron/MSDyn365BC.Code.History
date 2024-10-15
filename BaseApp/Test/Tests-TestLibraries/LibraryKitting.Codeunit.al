@@ -29,19 +29,19 @@ codeunit 132205 "Library - Kitting"
         Item.Insert(true);
         ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.Validate("Item No.", Item."No.");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
         ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", 1);
         ItemUnitOfMeasure.Insert(true);
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        if VATProdPostingGroup.FindLast then
+        if VATProdPostingGroup.FindLast() then
             Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
 
-        if TaxGroup.FindFirst then
+        if TaxGroup.FindFirst() then
             Item.Validate("Tax Group Code", TaxGroup.Code);
 
         Item.Modify(true);
@@ -224,7 +224,7 @@ codeunit 132205 "Library - Kitting"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         CreateUnitOfMeasure(UOM);
-        ResourceMake(Resource, LibraryUtility.GenerateGUID);
+        ResourceMake(Resource, LibraryUtility.GenerateGUID());
         Resource.Validate("Unit Cost", Cost);
         Resource.Validate("Unit Price", Price);
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource."No.", UOM, 1);
@@ -264,7 +264,7 @@ codeunit 132205 "Library - Kitting"
 
     procedure CreateInvPostGroup(var InventoryPostingGroup: Record "Inventory Posting Group")
     begin
-        if InventoryPostingGroup.FindFirst then
+        if InventoryPostingGroup.FindFirst() then
             exit;
         InventoryPostingGroup.Code := 'A';
         InventoryPostingGroup.Description := POSTING_GRP_DESC;
@@ -273,7 +273,7 @@ codeunit 132205 "Library - Kitting"
 
     procedure CreateResourceInvPostGroup(var GenProductPostingGroup: Record "Gen. Product Posting Group")
     begin
-        if GenProductPostingGroup.FindFirst then
+        if GenProductPostingGroup.FindFirst() then
             exit;
         GenProductPostingGroup.Code := 'A';
         GenProductPostingGroup.Description := POSTING_GRP_DESC;
@@ -345,12 +345,12 @@ codeunit 132205 "Library - Kitting"
         Clear(Resource);
         Resource.Validate("No.", ResourceNo);
         Resource.Insert(true);
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryResource.CreateResourceUnitOfMeasure(ResUnitOfMeasure, ResourceNo, UnitOfMeasure.Code, 1);
         Resource.Validate("Base Unit of Measure", ResUnitOfMeasure.Code);
-        GenProdPostingGroup.FindLast;
+        GenProdPostingGroup.FindLast();
         Resource.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
-        if VATProdPostingGroup.FindFirst then
+        if VATProdPostingGroup.FindFirst() then
             Resource.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
         Resource.Modify(true);
     end;
@@ -417,7 +417,7 @@ codeunit 132205 "Library - Kitting"
     begin
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
         TempCount := 0;
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 TempCount += AssemblyLine.Quantity;
             until AssemblyLine.Next = 0;

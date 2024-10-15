@@ -1,4 +1,4 @@
-page 233 "Apply Vendor Entries"
+﻿page 233 "Apply Vendor Entries"
 {
     Caption = 'Apply Vendor Entries';
     DataCaptionFields = "Vendor No.";
@@ -16,28 +16,28 @@ page 233 "Apply Vendor Entries"
             group(General)
             {
                 Caption = 'General';
-                field("ApplyingVendLedgEntry.""Posting Date"""; ApplyingVendLedgEntry."Posting Date")
+                field("ApplyingVendLedgEntry.""Posting Date"""; TempApplyingVendLedgEntry."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the entry to be applied. This date is used to find the correct exchange rate when applying entries in different currencies.';
                 }
-                field("ApplyingVendLedgEntry.""Document Type"""; ApplyingVendLedgEntry."Document Type")
+                field("ApplyingVendLedgEntry.""Document Type"""; TempApplyingVendLedgEntry."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
                     ToolTip = 'Specifies the document type of the entry to be applied.';
                 }
-                field("ApplyingVendLedgEntry.""Document No."""; ApplyingVendLedgEntry."Document No.")
+                field("ApplyingVendLedgEntry.""Document No."""; TempApplyingVendLedgEntry."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No.';
                     Editable = false;
                     ToolTip = 'Specifies the document number of the entry to be applied.';
                 }
-                field(ApplyingVendorNo; ApplyingVendLedgEntry."Vendor No.")
+                field(ApplyingVendorNo; TempApplyingVendLedgEntry."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor No.';
@@ -45,7 +45,7 @@ page 233 "Apply Vendor Entries"
                     ToolTip = 'Specifies the vendor number of the entry to be applied.';
                     Visible = false;
                 }
-                field(ApplyingVendorName; ApplyingVendLedgEntry."Vendor Name")
+                field(ApplyingVendorName; TempApplyingVendLedgEntry."Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor Name';
@@ -53,7 +53,7 @@ page 233 "Apply Vendor Entries"
                     ToolTip = 'Specifies the vendor name of the entry to be applied.';
                     Visible = VendNameVisible;
                 }
-                field(ApplyingDescription; ApplyingVendLedgEntry.Description)
+                field(ApplyingDescription; TempApplyingVendLedgEntry.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -61,21 +61,21 @@ page 233 "Apply Vendor Entries"
                     ToolTip = 'Specifies the description of the entry to be applied.';
                     Visible = false;
                 }
-                field("ApplyingVendLedgEntry.""Currency Code"""; ApplyingVendLedgEntry."Currency Code")
+                field("ApplyingVendLedgEntry.""Currency Code"""; TempApplyingVendLedgEntry."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                 }
-                field("ApplyingVendLedgEntry.Amount"; ApplyingVendLedgEntry.Amount)
+                field("ApplyingVendLedgEntry.Amount"; TempApplyingVendLedgEntry.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';
                     Editable = false;
                     ToolTip = 'Specifies the amount on the entry to be applied.';
                 }
-                field("ApplyingVendLedgEntry.""Remaining Amount"""; ApplyingVendLedgEntry."Remaining Amount")
+                field("ApplyingVendLedgEntry.""Remaining Amount"""; TempApplyingVendLedgEntry."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount';
@@ -86,7 +86,7 @@ page 233 "Apply Vendor Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(AppliesToID; "Applies-to ID")
+                field(AppliesToID; Rec."Applies-to ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
@@ -102,88 +102,88 @@ page 233 "Apply Vendor Entries"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the document type that the vendor entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the vendor entry''s document number.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the vendor account that the entry is linked to.';
                 }
-                field("Vendor Name"; "Vendor Name")
+                field("Vendor Name"; Rec."Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the vendor account that the entry is linked to.';
                     Visible = VendNameVisible;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the vendor entry.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the original entry.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry.';
                     Visible = false;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("CalcApplnRemainingAmount(""Remaining Amount"")"; CalcApplnRemainingAmount("Remaining Amount"))
+                field("CalcApplnRemainingAmount(""Remaining Amount"")"; CalcApplnRemainingAmount(Rec."Remaining Amount"))
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -191,7 +191,7 @@ page 233 "Apply Vendor Entries"
                     Caption = 'Appln. Remaining Amount';
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("Amount to Apply"; "Amount to Apply")
+                field("Amount to Apply"; Rec."Amount to Apply")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount to apply.';
@@ -200,15 +200,15 @@ page 233 "Apply Vendor Entries"
                     begin
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
 
-                        if (xRec."Amount to Apply" = 0) or ("Amount to Apply" = 0) and
+                        if (xRec."Amount to Apply" = 0) or (Rec."Amount to Apply" = 0) and
                            ((ApplnType = ApplnType::"Applies-to ID") or (CalcType = CalcType::Direct))
                         then
                             SetVendApplId(false);
-                        Get("Entry No.");
+                        Rec.Get(Rec."Entry No.");
                         AmountToApplyOnAfterValidate();
                     end;
                 }
-                field(ApplnAmountToApply; CalcApplnAmountToApply("Amount to Apply"))
+                field(ApplnAmountToApply; CalcApplnAmountToApply(Rec."Amount to Apply"))
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -266,18 +266,18 @@ page 233 "Apply Vendor Entries"
                     Caption = 'Appln. Pmt. Disc. Possible';
                     ToolTip = 'Specifies the discount that you can obtain if the entry is applied to before the payment discount date.';
                 }
-                field("Max. Payment Tolerance"; "Max. Payment Tolerance")
+                field("Max. Payment Tolerance"; Rec."Max. Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum tolerated amount the entry can differ from the amount on the invoice or credit memo.';
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field(Positive; Positive)
+                field(Positive; Rec.Positive)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -427,7 +427,7 @@ page 233 "Apply Vendor Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -450,13 +450,13 @@ page 233 "Apply Vendor Entries"
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
                     begin
-                        Navigate.SetDoc("Posting Date", "Document No.");
+                        Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
                         Navigate.Run();
                     end;
                 }
@@ -652,7 +652,7 @@ page 233 "Apply Vendor Entries"
         PostingDone := false;
         IsOfficeAddin := OfficeMgt.IsAvailable();
 
-        OnAfterOpenPage(Rec, ApplyingVendLedgEntry);
+        OnAfterOpenPage(Rec, TempApplyingVendLedgEntry);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -663,12 +663,12 @@ page 233 "Apply Vendor Entries"
             LookupOKOnPush();
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
             if OK then begin
-                RaiseError := ApplyingVendLedgEntry."Posting Date" < Rec."Posting Date";
-                OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
+                RaiseError := TempApplyingVendLedgEntry."Posting Date" < Rec."Posting Date";
+                OnBeforeEarlierPostingDateError(TempApplyingVendLedgEntry, Rec, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
                 if RaiseError then begin
                     OK := false;
                     Error(
-                      EarlierPostingDateErr, ApplyingVendLedgEntry."Document Type", ApplyingVendLedgEntry."Document No.",
+                      EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
                       Rec."Document Type", Rec."Document No.");
                 end;
             end;
@@ -680,7 +680,7 @@ page 233 "Apply Vendor Entries"
         end;
 
         if CheckActionPerformed then begin
-            Rec := ApplyingVendLedgEntry;
+            Rec := TempApplyingVendLedgEntry;
             Rec."Applying Entry" := false;
             if AppliesToID = '' then begin
                 Rec."Applies-to ID" := '';
@@ -693,9 +693,6 @@ page 233 "Apply Vendor Entries"
     end;
 
     var
-        ApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary;
-        Currency: Record Currency;
-        CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
         PurchHeader: Record "Purchase Header";
         Vend: Record Vendor;
@@ -713,23 +710,26 @@ page 233 "Apply Vendor Entries"
         VendEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
-        Text002: Label 'You must select an applying entry before you can post the application.';
-        Text003: Label 'You must post the application from the window where you entered the applying entry.';
+        MustSelectEntryErr: Label 'You must select an applying entry before you can post the application.';
+        PostingInWrongContextErr: Label 'You must post the application from the window where you entered the applying entry.';
         CannotSetAppliesToIDErr: Label 'You cannot set Applies-to ID while selecting Applies-to Doc. No.';
         ShowAppliedEntries: Boolean;
         OK: Boolean;
-        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.';
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 - document type, %2 - document number,%3 - document type,%4 - document number';
         PostingDone: Boolean;
         [InDataSet]
         AppliesToIDVisible: Boolean;
-        Text012: Label 'The application was successfully posted.';
-        Text013: Label 'The %1 entered must not be before the %1 on the %2.';
-        Text019: Label 'Post application process has been canceled.';
+        ApplicationPostedMsg: Label 'The application was successfully posted.';
+        ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
+        ApplicationProcessCanceledErr: Label 'Post application process has been canceled.';
         IsOfficeAddin: Boolean;
         HasDocumentAttachment: Boolean;
         VendNameVisible: Boolean;
 
     protected var
+        Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
+        TempApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
         GenJnlLine2: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -837,79 +837,79 @@ page 233 "Apply Vendor Entries"
     var
         Vendor: Record Vendor;
     begin
-        OnBeforeSetApplyingVendLedgEntry(ApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
+        OnBeforeSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
 
         case CalcType of
             CalcType::"Purchase Header":
                 begin
-                    ApplyingVendLedgEntry."Posting Date" := PurchHeader."Posting Date";
+                    TempApplyingVendLedgEntry."Posting Date" := PurchHeader."Posting Date";
                     if PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order" then
-                        ApplyingVendLedgEntry."Document Type" := ApplyingVendLedgEntry."Document Type"::"Credit Memo"
+                        TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingVendLedgEntry."Document Type" := ApplyingVendLedgEntry."Document Type"::Invoice;
-                    ApplyingVendLedgEntry."Document No." := PurchHeader."No.";
-                    ApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
-                    ApplyingVendLedgEntry.Description := PurchHeader."Posting Description";
-                    ApplyingVendLedgEntry."Currency Code" := PurchHeader."Currency Code";
-                    if ApplyingVendLedgEntry."Document Type" = ApplyingVendLedgEntry."Document Type"::"Credit Memo" then begin
-                        ApplyingVendLedgEntry.Amount := TotalPurchLine."Amount Including VAT";
-                        ApplyingVendLedgEntry."Remaining Amount" := TotalPurchLine."Amount Including VAT";
+                        TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::Invoice;
+                    TempApplyingVendLedgEntry."Document No." := PurchHeader."No.";
+                    TempApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
+                    TempApplyingVendLedgEntry.Description := PurchHeader."Posting Description";
+                    TempApplyingVendLedgEntry."Currency Code" := PurchHeader."Currency Code";
+                    if TempApplyingVendLedgEntry."Document Type" = TempApplyingVendLedgEntry."Document Type"::"Credit Memo" then begin
+                        TempApplyingVendLedgEntry.Amount := TotalPurchLine."Amount Including VAT";
+                        TempApplyingVendLedgEntry."Remaining Amount" := TotalPurchLine."Amount Including VAT";
                     end else begin
-                        ApplyingVendLedgEntry.Amount := -TotalPurchLine."Amount Including VAT";
-                        ApplyingVendLedgEntry."Remaining Amount" := -TotalPurchLine."Amount Including VAT";
+                        TempApplyingVendLedgEntry.Amount := -TotalPurchLine."Amount Including VAT";
+                        TempApplyingVendLedgEntry."Remaining Amount" := -TotalPurchLine."Amount Including VAT";
                     end;
                     CalcApplnAmount();
                 end;
             CalcType::Direct:
                 begin
                     if Rec."Applying Entry" then begin
-                        if ApplyingVendLedgEntry."Entry No." <> 0 then
-                            VendLedgEntry := ApplyingVendLedgEntry;
+                        if TempApplyingVendLedgEntry."Entry No." <> 0 then
+                            VendLedgEntry := TempApplyingVendLedgEntry;
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
                         if Rec."Applies-to ID" = '' then
                             SetVendApplId(false);
                         Rec.CalcFields(Amount);
-                        ApplyingVendLedgEntry := Rec;
+                        TempApplyingVendLedgEntry := Rec;
                         if VendLedgEntry."Entry No." <> 0 then begin
                             Rec := VendLedgEntry;
                             Rec."Applying Entry" := false;
                             SetVendApplId(false);
                         end;
-                        Rec.SetFilter("Entry No.", '<> %1', ApplyingVendLedgEntry."Entry No.");
-                        ApplyingAmount := ApplyingVendLedgEntry."Remaining Amount";
-                        ApplnDate := ApplyingVendLedgEntry."Posting Date";
-                        ApplnCurrencyCode := ApplyingVendLedgEntry."Currency Code";
+                        Rec.SetFilter("Entry No.", '<> %1', TempApplyingVendLedgEntry."Entry No.");
+                        ApplyingAmount := TempApplyingVendLedgEntry."Remaining Amount";
+                        ApplnDate := TempApplyingVendLedgEntry."Posting Date";
+                        ApplnCurrencyCode := TempApplyingVendLedgEntry."Currency Code";
                     end;
-                    OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, ApplyingVendLedgEntry);
+                    OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, TempApplyingVendLedgEntry);
                     CalcApplnAmount();
                 end;
             CalcType::"Gen. Jnl. Line":
                 begin
-                    ApplyingVendLedgEntry."Posting Date" := GenJnlLine."Posting Date";
-                    ApplyingVendLedgEntry."Document Type" := GenJnlLine."Document Type";
-                    ApplyingVendLedgEntry."Document No." := GenJnlLine."Document No.";
+                    TempApplyingVendLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+                    TempApplyingVendLedgEntry."Document Type" := GenJnlLine."Document Type";
+                    TempApplyingVendLedgEntry."Document No." := GenJnlLine."Document No.";
                     if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then begin
-                        ApplyingVendLedgEntry."Vendor No." := GenJnlLine."Bal. Account No.";
-                        Vendor.Get(ApplyingVendLedgEntry."Vendor No.");
-                        ApplyingVendLedgEntry.Description := Vendor.Name;
+                        TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Bal. Account No.";
+                        Vendor.Get(TempApplyingVendLedgEntry."Vendor No.");
+                        TempApplyingVendLedgEntry.Description := Vendor.Name;
                     end else begin
-                        ApplyingVendLedgEntry."Vendor No." := GenJnlLine."Account No.";
-                        ApplyingVendLedgEntry.Description := GenJnlLine.Description;
+                        TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Account No.";
+                        TempApplyingVendLedgEntry.Description := GenJnlLine.Description;
                     end;
-                    ApplyingVendLedgEntry."Currency Code" := GenJnlLine."Currency Code";
-                    ApplyingVendLedgEntry.Amount := GenJnlLine.Amount;
-                    ApplyingVendLedgEntry."Remaining Amount" := GenJnlLine.Amount;
+                    TempApplyingVendLedgEntry."Currency Code" := GenJnlLine."Currency Code";
+                    TempApplyingVendLedgEntry.Amount := GenJnlLine.Amount;
+                    TempApplyingVendLedgEntry."Remaining Amount" := GenJnlLine.Amount;
                     CalcApplnAmount();
                 end;
         end;
-        OnAfterSetApplyingVendLedgEntry(ApplyingVendLedgEntry, GenJnlLine, PurchHeader);
+        OnAfterSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader);
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
     begin
         CurrPage.SetSelectionFilter(VendLedgEntry);
         CheckVendLedgEntry(VendLedgEntry);
-        OnSetVendApplIdOnAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, PurchHeader, ApplyingVendLedgEntry);
+        OnSetVendApplIdOnAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, PurchHeader, TempApplyingVendLedgEntry);
 
         VendLedgEntry.Copy(Rec);
         if CurrentRec then
@@ -926,14 +926,14 @@ page 233 "Apply Vendor Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCallVendEntrySetApplIDSetApplId(VendEntrySetApplID, VendLedgEntry, ApplyingVendLedgEntry, IsHandled);
+        OnBeforeCallVendEntrySetApplIDSetApplId(VendEntrySetApplID, VendLedgEntry, TempApplyingVendLedgEntry, IsHandled);
         if IsHandled then
             exit;
 
         if GenJnlLineApply then
-            VendEntrySetApplID.SetApplId(VendLedgEntry, ApplyingVendLedgEntry, GenJnlLine."Applies-to ID")
+            VendEntrySetApplID.SetApplId(VendLedgEntry, TempApplyingVendLedgEntry, GenJnlLine."Applies-to ID")
         else
-            VendEntrySetApplID.SetApplId(VendLedgEntry, ApplyingVendLedgEntry, PurchHeader."Applies-to ID");
+            VendEntrySetApplID.SetApplId(VendLedgEntry, TempApplyingVendLedgEntry, PurchHeader."Applies-to ID");
     end;
 
     procedure CheckVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -943,16 +943,16 @@ page 233 "Apply Vendor Entries"
         if VendorLedgerEntry.FindSet() then
             repeat
                 if CalcType = CalcType::"Gen. Jnl. Line" then begin
-                    RaiseError := ApplyingVendLedgEntry."Posting Date" < VendorLedgerEntry."Posting Date";
+                    RaiseError := TempApplyingVendLedgEntry."Posting Date" < VendorLedgerEntry."Posting Date";
                     OnBeforeEarlierPostingDateError(
-                        ApplyingVendLedgEntry, VendorLedgerEntry, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
+                        TempApplyingVendLedgEntry, VendorLedgerEntry, RaiseError, CalcType.AsInteger(), PmtDiscAmount);
                     if RaiseError then
                         Error(
-                            EarlierPostingDateErr, ApplyingVendLedgEntry."Document Type", ApplyingVendLedgEntry."Document No.",
+                            EarlierPostingDateErr, TempApplyingVendLedgEntry."Document Type", TempApplyingVendLedgEntry."Document No.",
                             VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
                 end;
 
-                if ApplyingVendLedgEntry."Entry No." <> 0 then
+                if TempApplyingVendLedgEntry."Entry No." <> 0 then
                     GenJnlApply.CheckAgainstApplnCurrency(
                         ApplnCurrencyCode, VendorLedgerEntry."Currency Code", GenJnlLine."Account Type"::Vendor, true);
             until VendorLedgerEntry.Next() = 0;
@@ -969,12 +969,12 @@ page 233 "Apply Vendor Entries"
         case CalcType of
             CalcType::Direct:
                 begin
-                    FindAmountRounding;
+                    FindAmountRounding();
                     VendEntryApplID := UserId;
                     if VendEntryApplID = '' then
                         VendEntryApplID := '***';
 
-                    VendLedgEntry := ApplyingVendLedgEntry;
+                    VendLedgEntry := TempApplyingVendLedgEntry;
 
                     AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
                     AppliedVendLedgEntry.SetRange("Vendor No.", Rec."Vendor No.");
@@ -984,7 +984,7 @@ page 233 "Apply Vendor Entries"
                     else
                         AppliedVendLedgEntry.SetRange("Applies-to ID", AppliesToID);
 
-                    if ApplyingVendLedgEntry."Entry No." <> 0 then begin
+                    if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
                         VendLedgEntry.CalcFields("Remaining Amount");
                         AppliedVendLedgEntry.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
                     end;
@@ -1185,7 +1185,7 @@ page 233 "Apply Vendor Entries"
             OnFindApplyingEntryOnAfterSetFilters(Rec, VendLedgEntry);
             if VendLedgEntry.FindFirst() then begin
                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
-                ApplyingVendLedgEntry := VendLedgEntry;
+                TempApplyingVendLedgEntry := VendLedgEntry;
                 Rec.SetFilter("Entry No.", '<>%1', VendLedgEntry."Entry No.");
                 ApplyingAmount := VendLedgEntry."Remaining Amount";
                 ApplnDate := VendLedgEntry."Posting Date";
@@ -1199,8 +1199,8 @@ page 233 "Apply Vendor Entries"
     local procedure HandleChosenEntries(Type: Enum "Vendor Apply Calculation Type"; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
-        PossiblePmtdisc: Decimal;
-        OldPmtdisc: Decimal;
+        PossiblePmtDisc: Decimal;
+        OldPmtDisc: Decimal;
         CorrectionAmount: Decimal;
         RemainingAmountExclDiscounts: Decimal;
         CanUseDisc: Boolean;
@@ -1260,13 +1260,13 @@ page 233 "Apply Vendor Entries"
                                 CurrentAmount +=
                                   TempAppliedVendLedgEntry."Remaining Amount" - TempAppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
                             end else begin
-                                PossiblePmtdisc := TempAppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+                                PossiblePmtDisc := TempAppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
                                 RemainingAmountExclDiscounts :=
-                                  TempAppliedVendLedgEntry."Remaining Amount" - PossiblePmtdisc - TempAppliedVendLedgEntry."Max. Payment Tolerance";
+                                  TempAppliedVendLedgEntry."Remaining Amount" - PossiblePmtDisc - TempAppliedVendLedgEntry."Max. Payment Tolerance";
                                 if Abs(CurrentAmount) + Abs(CalcOppositeEntriesAmount(TempAppliedVendLedgEntry)) >=
                                    Abs(RemainingAmountExclDiscounts)
                                 then begin
-                                    PmtDiscAmount += PossiblePmtdisc;
+                                    PmtDiscAmount += PossiblePmtDisc;
                                     AppliedAmount += CorrectionAmount;
                                 end;
                                 CurrentAmount +=
@@ -1283,13 +1283,13 @@ page 233 "Apply Vendor Entries"
                 ExchangeLedgerEntryAmounts(Type, CurrencyCode, TempAppliedVendLedgEntry, PostingDate);
             end;
 
-            if OldPmtdisc <> PmtDiscAmount then
+            if OldPmtDisc <> PmtDiscAmount then
                 AppliedAmount += TempAppliedVendLedgEntry."Remaining Amount"
             else
                 AppliedAmount += TempAppliedVendLedgEntry."Amount to Apply";
-            OldPmtdisc := PmtDiscAmount;
+            OldPmtDisc := PmtDiscAmount;
 
-            if PossiblePmtdisc <> 0 then
+            if PossiblePmtDisc <> 0 then
                 CorrectionAmount := TempAppliedVendLedgEntry."Remaining Amount" - TempAppliedVendLedgEntry."Amount to Apply"
             else
                 CorrectionAmount := 0;
@@ -1325,12 +1325,12 @@ page 233 "Apply Vendor Entries"
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
         PostApplication: Page "Post Application";
         Applied: Boolean;
         ApplicationDate: Date;
-        NewApplicationDate: Date;
-        NewDocumentNo: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1339,34 +1339,44 @@ page 233 "Apply Vendor Entries"
             exit;
 
         if CalcType = CalcType::Direct then begin
-            if ApplyingVendLedgEntry."Entry No." <> 0 then begin
-                Rec := ApplyingVendLedgEntry;
+            if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
+                Rec := TempApplyingVendLedgEntry;
                 ApplicationDate := VendEntryApplyPostedEntries.GetApplicationDate(Rec);
 
                 OnPostDirectApplicationBeforeSetValues(ApplicationDate);
-                PostApplication.SetValues(Rec."Document No.", ApplicationDate);
+                Clear(ApplyUnapplyParameters);
+                ApplyUnapplyParameters.CopyFromVendLedgEntry(Rec);
+                GLSetup.GetRecordOnce();
+                ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+                if GLSetup."Journal Templ. Name Mandatory" then begin
+                    GLSetup.TestField("Apply Jnl. Template Name");
+                    GLSetup.TestField("Apply Jnl. Batch Name");
+                    ApplyUnapplyParameters."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                    ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+                end;
+                PostApplication.SetParameters(ApplyUnapplyParameters);
                 if ACTION::OK = PostApplication.RunModal() then begin
-                    PostApplication.GetValues(NewDocumentNo, NewApplicationDate);
-                    if NewApplicationDate < ApplicationDate then
-                        Error(Text013, Rec.FieldCaption("Posting Date"), Rec.TableCaption());
+                    PostApplication.GetParameters(NewApplyUnapplyParameters);
+                    if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
+                        Error(ApplicationDateErr, Rec.FieldCaption("Posting Date"), Rec.TableCaption());
                 end else
-                    Error(Text019);
+                    Error(ApplicationProcessCanceledErr);
 
-                OnPostDirectApplicationBeforeApply();
+                OnPostDirectApplicationBeforeApply(GLSetup, NewApplyUnapplyParameters);
                 if PreviewMode then
-                    VendEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate)
+                    VendEntryApplyPostedEntries.PreviewApply(Rec, NewApplyUnapplyParameters)
                 else
-                    Applied := VendEntryApplyPostedEntries.Apply(Rec, NewDocumentNo, NewApplicationDate);
+                    Applied := VendEntryApplyPostedEntries.Apply(Rec, NewApplyUnapplyParameters);
 
                 if (not PreviewMode) and Applied then begin
-                    Message(Text012);
+                    Message(ApplicationPostedMsg);
                     PostingDone := true;
                     CurrPage.Close();
                 end;
             end else
-                Error(Text002);
+                Error(MustSelectEntryErr);
         end else
-            Error(Text003);
+            Error(PostingInWrongContextErr);
     end;
 
     local procedure CheckActionPerformed() Result: Boolean
@@ -1378,7 +1388,7 @@ page 233 "Apply Vendor Entries"
 
         IsHandled := false;
         OnBeforeCheckActionPerformed(
-            ActionPerformed, OK, CalcType.AsInteger(), PostingDone, ApplyingVendLedgEntry, ApplnType.AsInteger(), Result, IsHandled);
+            ActionPerformed, OK, CalcType.AsInteger(), PostingDone, TempApplyingVendLedgEntry, ApplnType.AsInteger(), Result, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -1409,7 +1419,7 @@ page 233 "Apply Vendor Entries"
         CalcVendLedgEntry.CalcFields("Remaining Amount");
 
         if Type = Type::Direct then
-            CalculateCurrency := ApplyingVendLedgEntry."Entry No." <> 0
+            CalculateCurrency := TempApplyingVendLedgEntry."Entry No." <> 0
         else
             CalculateCurrency := true;
 
@@ -1525,7 +1535,7 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
-    [IntegrationEvent(true, false)]
+    [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
@@ -1571,7 +1581,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDirectApplicationBeforeApply()
+    local procedure OnPostDirectApplicationBeforeApply(GLSetup: Record "General Ledger Setup"; var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 

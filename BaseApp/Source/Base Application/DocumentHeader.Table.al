@@ -1,4 +1,4 @@
-table 10002 "Document Header"
+﻿table 10002 "Document Header"
 {
     Caption = 'Document Header';
 

@@ -109,7 +109,7 @@
     var
         CountryRegion: Record "Country/Region";
     begin
-        if CountryRegion.FindSet then
+        if CountryRegion.FindSet() then
             repeat
                 case CountryRegion.Code of
                     'AE':
@@ -256,7 +256,7 @@
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        if UnitOfMeasure.FindSet then
+        if UnitOfMeasure.FindSet() then
             repeat
                 case UnitOfMeasure.Code of
                     'DAY':
@@ -324,7 +324,7 @@
         SATWeightUnitOfMeasurePort: XMLport "SAT Weight Unit of Measure";
         IStr: InStream;
     begin
-        if not SATClassification.FindFirst then begin
+        if not SATClassification.FindFirst() then begin
             MediaResources.Get('SATClassifications.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -332,7 +332,7 @@
             SATClassificationPort.Import;
         end;
 
-        if not SATCountryCode.FindFirst then begin
+        if not SATCountryCode.FindFirst() then begin
             MediaResources.Get('SATCountry_Codes.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -340,7 +340,7 @@
             SATCountryCodePort.Import;
         end;
 
-        if not SATPaymentTerm.FindFirst then begin
+        if not SATPaymentTerm.FindFirst() then begin
             MediaResources.Get('SATPayment_Terms.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -348,7 +348,7 @@
             SATPaymentTermPort.Import;
         end;
 
-        if not SATRelationshipType.FindFirst then begin
+        if not SATRelationshipType.FindFirst() then begin
             MediaResources.Get('SATRelationship_Types.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -356,7 +356,7 @@
             SATRelationshipTypePort.Import;
         end;
 
-        if not SATTaxScheme.FindFirst then begin
+        if not SATTaxScheme.FindFirst() then begin
             MediaResources.Get('SATTax_Schemes.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -364,7 +364,7 @@
             SATTaxSchemePort.Import;
         end;
 
-        if not SATUnitOfMeasure.FindFirst then begin
+        if not SATUnitOfMeasure.FindFirst() then begin
             MediaResources.Get('SATU_of_M.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -372,7 +372,7 @@
             SATUnitOfMeasurePort.Import;
         end;
 
-        if not SATUseCode.FindFirst then begin
+        if not SATUseCode.FindFirst() then begin
             MediaResources.Get('SATUse_Codes.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
@@ -380,7 +380,7 @@
             SATUseCodePort.Import;
         end;
 
-        if not SATPaymentMethod.FindFirst then begin
+        if not SATPaymentMethod.FindFirst() then begin
             MediaResources.Get('SATPayment_Methods.xml');
             MediaResources.CalcFields(Blob);
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);

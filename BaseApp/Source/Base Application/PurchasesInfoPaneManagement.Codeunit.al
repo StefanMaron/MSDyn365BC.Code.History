@@ -14,7 +14,7 @@ codeunit 7181 "Purchases Info-Pane Management"
         GrossRequirement: Decimal;
         ScheduledReceipt: Decimal;
         AvailableQuantity: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         AvailabilityDate: Date;
         LookaheadDateformula: DateFormula;
         IsHandled: Boolean;
@@ -37,7 +37,7 @@ codeunit 7181 "Purchases Info-Pane Management"
                 exit(AvailableQuantity);
 
             exit(
-              AvailableToPromise.QtyAvailabletoPromise(
+              AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
                 GrossRequirement,
                 ScheduledReceipt,

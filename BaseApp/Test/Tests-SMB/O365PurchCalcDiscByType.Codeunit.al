@@ -28,7 +28,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -50,7 +50,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -69,7 +69,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -88,7 +88,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -108,7 +108,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -128,7 +128,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         ItemUnitPrice: Decimal;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         NumberOfLines := 1;
         ItemUnitPrice := LibraryRandom.RandDecInRange(10, 10000, 2);
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
@@ -150,7 +150,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -174,7 +174,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         ItemUnitPrice: Decimal;
         ItemQuantity: Integer;
     begin
-        Initialize;
+        Initialize();
         DiscPct1 := LibraryRandom.RandDecInDecimalRange(1, 50, 2);
         DiscPct2 := LibraryRandom.RandDecInDecimalRange(51, 99, 2);
         ItemUnitPrice := LibraryRandom.RandDecInRange(10, 10000, 2);
@@ -192,7 +192,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         PurchaseLine.Validate("Line Amount", MinAmount1);
         PurchaseLine.Modify(true);
@@ -215,7 +215,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -235,14 +235,14 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         InvoiceDiscountAmount := NumberOfLines * PurchaseLine."Line Amount" + 1;
         asserterror PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
@@ -258,7 +258,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         NumberOfLines: Integer;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
@@ -281,10 +281,10 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
     begin
         // [SCENARIO 169593] It should be possible to open "Vend. Invoice Discounts" page from vendor card
 
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Create a new vendor "V" and open "Vendor Card" page
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -321,10 +321,10 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         ExpectedDiscountPercent: Decimal;
     begin
         // [SCENARIO 280220] Calculate Invoice Discount Amount based on Amount when purchase line is deleted from document
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Purchase Invoice with with two lines. Amount = 200 in each line. Invoice Discount calculation is based on amount
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, 2, 0);
@@ -353,7 +353,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Purch. Calc Disc. By Type");
         // Lazy Setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
@@ -361,7 +361,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
 
         ClearTable(DATABASE::Resource);
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -372,7 +372,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();
@@ -425,7 +425,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
     end;
 
     local procedure VerifyInvoiceDiscountTypeAmount(PurchaseHeader: Record "Purchase Header"; InvoiceDiscountAmount: Decimal; NumberOfLines: Decimal)
@@ -435,7 +435,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         with PurchaseHeader do begin
             PurchaseLine.SetRange("Document No.", "No.");
             PurchaseLine.SetRange("Document Type", "Document Type");
-            PurchaseLine.FindFirst;
+            PurchaseLine.FindFirst();
 
             Assert.AreEqual(InvoiceDiscountAmount, "Invoice Discount Value", 'Invoice Discount Amount was not set to correct value');
             Assert.AreEqual(
@@ -455,7 +455,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         with PurchaseHeader do begin
             PurchaseLine.SetRange("Document No.", "No.");
             PurchaseLine.SetRange("Document Type", "Document Type");
-            PurchaseLine.FindFirst;
+            PurchaseLine.FindFirst();
 
             InvoiceDiscountAmount := NumberOfLines * PurchaseLine."Line Amount" * DiscPct / 100;
 
@@ -488,7 +488,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         with PurchaseLine do begin
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange("Document Type", PurchaseHeader."Document Type");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               VendDiscPct, PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine),
               'VendorDiscountPercentage was not set to expected value');

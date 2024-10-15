@@ -47,7 +47,7 @@ codeunit 135542 "Automation RSPackage Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create an RSPackage through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] a JSON text with only Packge Code property
         PackageCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(20, 0), 1, 20);
@@ -77,7 +77,7 @@ codeunit 135542 "Automation RSPackage Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can update RSPackage through the RSPackage API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Configuration package and Tenant Config Package File
         ReadRSPackageFileIntoBlob(TempBlobRSPackageFile, SamplePackageFile);
@@ -117,7 +117,7 @@ codeunit 135542 "Automation RSPackage Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a rapidStart Package, upload file, and impor the package
-        Initialize;
+        Initialize();
 
         // [GIVEN] a created package with file uploaded
         ReadRSPackageFileIntoBlob(TempBlobRSPackageFile, SamplePackageFile);
@@ -167,7 +167,7 @@ codeunit 135542 "Automation RSPackage Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a rapidStart Package, upload file, and impor the package
-        Initialize;
+        Initialize();
 
         // [GIVEN] a created package with file uploaded
         GenerateRSPackageWithRandomContent(TempBlobRSPackageFile);
@@ -215,7 +215,7 @@ codeunit 135542 "Automation RSPackage Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a rapidStart Package, upload file, and impor the package
-        Initialize;
+        Initialize();
 
         // [GIVEN] a created package with file uploaded and imported
         ReadRSPackageFileIntoBlob(TempBlobRSPackageFile, SamplePackageFile);

@@ -343,7 +343,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimText := StrSubstNo('%1 - %2', DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code");
     end;
 

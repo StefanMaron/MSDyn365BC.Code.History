@@ -527,7 +527,7 @@ report 10074 "Sales Invoice NA"
                                 CurrReport.Break();
 
                             if Number = 1 then begin
-                                if not TempLineFeeNoteOnReportHist.FindSet then
+                                if not TempLineFeeNoteOnReportHist.FindSet() then
                                     CurrReport.Break
                             end else
                                 if TempLineFeeNoteOnReportHist.Next() = 0 then
@@ -920,7 +920,7 @@ report 10074 "Sales Invoice NA"
             SetRange("Document Type", "Document Type"::"Sales Invoice");
             SetRange("Document Line No.", SalesInvoiceLine."Line No.");
             SetRange("Applies-to Entry", 0);
-            if not FindSet then
+            if not FindSet() then
                 exit;
         end;
         repeat
@@ -929,7 +929,7 @@ report 10074 "Sales Invoice NA"
                     SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
                     if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                        if PostedAsmLine.FindSet then
+                        if PostedAsmLine.FindSet() then
                             repeat
                                 TreatAsmLineBuffer(PostedAsmLine);
                             until PostedAsmLine.Next() = 0;
@@ -946,7 +946,7 @@ report 10074 "Sales Invoice NA"
         TempPostedAsmLine.SetRange("Variant Code", PostedAsmLine."Variant Code");
         TempPostedAsmLine.SetRange(Description, PostedAsmLine.Description);
         TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
-        if TempPostedAsmLine.FindFirst then begin
+        if TempPostedAsmLine.FindFirst() then begin
             TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
             TempPostedAsmLine.Modify();
         end else begin
@@ -979,7 +979,7 @@ report 10074 "Sales Invoice NA"
         TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        if not CustLedgerEntry.FindFirst then
+        if not CustLedgerEntry.FindFirst() then
             exit;
 
         if not Customer.Get(CustLedgerEntry."Customer No.") then
@@ -987,7 +987,7 @@ report 10074 "Sales Invoice NA"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet then begin
+        if LineFeeNoteOnReportHist.FindSet() then begin
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
@@ -995,7 +995,7 @@ report 10074 "Sales Invoice NA"
             until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
-            if LineFeeNoteOnReportHist.FindSet then
+            if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);

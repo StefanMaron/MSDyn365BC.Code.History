@@ -13,7 +13,7 @@ codeunit 1209 "Export Payment File (Yes/No)"
         if IsHandled then
             exit;
 
-        if not FindSet then
+        if not FindSet() then
             Error(NothingToExportErr);
         SetRange("Journal Template Name", "Journal Template Name");
         SetRange("Journal Batch Name", "Journal Batch Name");

@@ -25,7 +25,7 @@ page 10810 "Generate EFT Files"
                 trigger OnValidate()
                 begin
                     BankAccount.SetRange("No.", BankAccountNo);
-                    if BankAccount.FindFirst then begin
+                    if BankAccount.FindFirst() then begin
                         BankAccountDescription := BankAccount.Name;
                         if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then
                             Message(NotSetupMsg);
@@ -85,7 +85,7 @@ page 10810 "Generate EFT Files"
                                     EFTExport.SetRange("Journal Batch Name", "Journal Batch Name");
                                     EFTExport.SetRange("Line No.", "Line No.");
                                     EFTExport.SetRange("Sequence No.", "Sequence No.");
-                                    if EFTExport.FindFirst then
+                                    if EFTExport.FindFirst() then
                                         EFTExport.Delete(true);
                                 until Next() = 0;
                             UpdateSubForm;
@@ -112,7 +112,7 @@ page 10810 "Generate EFT Files"
                     GenerateEFT: Codeunit "Generate EFT";
                 begin
                     CurrPage.GenerateEFTFileLines.PAGE.GetColumns(EFTExportWorkset);
-                    if EFTExportWorkset.FindFirst then
+                    if EFTExportWorkset.FindFirst() then
                         GenerateEFT.ProcessAndGenerateEFTFile(BankAccountNo, SettlementDate, EFTExportWorkset, EFTValues);
                     UpdateSubForm;
                 end;
@@ -161,7 +161,7 @@ page 10810 "Generate EFT Files"
         if (BankAccountNoFilter <> '') and (BankAccountNoFilter <> BankAccountNo) then begin
             BankAccountNo := BankAccountNoFilter;
             BankAccount.SetRange("No.", BankAccountNo);
-            if BankAccount.FindFirst then
+            if BankAccount.FindFirst() then
                 BankAccountDescription := BankAccount.Name;
         end;
 

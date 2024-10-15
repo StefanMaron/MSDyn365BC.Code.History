@@ -85,9 +85,9 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo1 := Format(SalesLine."Line No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         LineNo2 := Format(SalesLine."Line No.");
 
         // [WHEN] we GET all the lines with the  order ID from the web service
@@ -167,7 +167,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         Assert.AreNotEqual('', OrderLineId, 'ID should not be empty');
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         SalesQuantity := 4;
@@ -211,7 +211,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         Commit();
@@ -627,7 +627,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual('', SalesLine."No.", 'No should be blank');
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::Item, 'Wrong type is set');
 
@@ -669,7 +669,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::" ", 'Wrong type is set');
         Assert.AreEqual('test', SalesLine.Description, 'Wrong description is set');
 
@@ -755,7 +755,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
 
         SalesOrder.SalesLines.Last;
@@ -863,7 +863,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SetupAmountDiscountTest(var SalesHeader: Record "Sales Header"; var DiscountAmount: Decimal)

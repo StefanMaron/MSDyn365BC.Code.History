@@ -22,7 +22,7 @@ codeunit 1214 "Map DataExch To Intermediate"
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", '');
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef);
             until DataExchLineDef.Next() = 0;
@@ -37,7 +37,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
 
-        if not DataExchField.FindSet then
+        if not DataExchField.FindSet() then
             exit;
 
         CurrentLineNo := -1;
@@ -51,7 +51,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         ChildDataExchLineDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         ChildDataExchLineDef.SetRange("Parent Code", DataExchLineDef.Code);
 
-        if not ChildDataExchLineDef.FindSet then
+        if not ChildDataExchLineDef.FindSet() then
             exit;
 
         repeat
@@ -110,7 +110,7 @@ codeunit 1214 "Map DataExch To Intermediate"
         IntermediateDataImport.Validate("Validate Only", DataExchFieldMapping.Optional);
         if DataExchField."Parent Node ID" <> '' then begin
             TempNameValueBuffer.SetRange(Name, DataExchField."Parent Node ID");
-            TempNameValueBuffer.FindFirst;
+            TempNameValueBuffer.FindFirst();
             Evaluate(ParentLineNo, TempNameValueBuffer.Value);
             IntermediateDataImport.Validate("Parent Record No.", ParentLineNo);
         end;
@@ -125,7 +125,7 @@ codeunit 1214 "Map DataExch To Intermediate"
     begin
         TempNameValueBuffer.Reset();
         ID := 1;
-        if TempNameValueBuffer.FindLast then
+        if TempNameValueBuffer.FindLast() then
             ID := TempNameValueBuffer.ID + 1;
 
         Clear(TempNameValueBuffer);

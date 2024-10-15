@@ -18,7 +18,7 @@ codeunit 10334 "Exp. Mapping Det EFT RB"
         if ACHRBDetail.Find('-') then
             repeat
                 DataExch.SetRange("Entry No.", "Entry No.");
-                if DataExch.FindFirst then begin
+                if DataExch.FindFirst() then begin
                     RecordRef.GetTable(ACHRBDetail);
                     EFTExportMgt.InsertDataExchLineForFlatFile(
                       DataExch,

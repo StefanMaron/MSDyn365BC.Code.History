@@ -42,20 +42,20 @@ codeunit 132551 "Library - Setup Storage UT"
 
         // [GIVEN] "Test 1" modifies "G/L Setup"."Amount Rounding Precision" = 0.01
         // [GIVEN] "Test 1" modifies "Purchases & Payables Setup"."Job Queue Category Code" = "X2"
-        Initialize;
+        Initialize();
         LibraryERM.SetAmountRoundingPrecision(0.01);
-        UpdatePurchasesSetup(LibraryUtility.GenerateGUID);
+        UpdatePurchasesSetup(LibraryUtility.GenerateGUID());
 
         // [GIVEN] "Test 2" modifies "Sales & Receivables Setup"."Invoice Rounding" = FALSE
         // [GIVEN] "Test 2" modifies "G/L Setup"."Amount Rounding Precision" = 0.001
         // [GIVEN] "Test 2" modifies "Purchases & Payables Setup"."Job Queue Category Code" = "X3"
-        Initialize;
+        Initialize();
         UpdateSalesSetup(false);
         LibraryERM.SetAmountRoundingPrecision(0.001);
-        UpdatePurchasesSetup(LibraryUtility.GenerateGUID);
+        UpdatePurchasesSetup(LibraryUtility.GenerateGUID());
 
         // [GIVEN] When run "Test 3"
-        Initialize;
+        Initialize();
         // [THEN] "G/L Setup" restored and "G/L Setup"."Amount Rounding Precision" = 1
         Assert.AreEqual(0.00001, LibraryERM.GetAmountRoundingPrecision, TableWasNotRestoredErr);
         // [THEN] "Purchases & Payables Setup" restored and "Purchases & Payables Setup"."Job Queue Category Code" = "X1"
@@ -72,7 +72,7 @@ codeunit 132551 "Library - Setup Storage UT"
     procedure BackupTwice()
     begin
         // [SCENARIO] Add setup table to backup twice
-        Initialize;
+        Initialize();
         // [GIVEN] Table "T" put in backup
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         // [WHEN] Add "T" again
@@ -133,7 +133,7 @@ codeunit 132551 "Library - Setup Storage UT"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -156,7 +156,7 @@ codeunit 132551 "Library - Setup Storage UT"
     begin
         User.Init();
         User."User Security ID" := CreateGuid;
-        User."User Name" := LibraryUtility.GenerateGUID;
+        User."User Name" := LibraryUtility.GenerateGUID();
         User.Insert();
 
         UserSetup.Init();

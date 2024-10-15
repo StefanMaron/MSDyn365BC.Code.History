@@ -120,7 +120,7 @@ page 543 "Default Dimension Priorities"
         SourceCode: Record "Source Code";
     begin
         if not SourceCode.Get(CurrentSourceCode) then
-            if SourceCode.FindFirst then
+            if SourceCode.FindFirst() then
                 CurrentSourceCode := SourceCode.Code
             else
                 Error(Text001);

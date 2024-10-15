@@ -818,7 +818,7 @@ report 27 "Dimensions - Total"
         TempSelectedDim.Reset();
         TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
         TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
-        if TempSelectedDim.FindSet then begin
+        if TempSelectedDim.FindSet() then begin
             repeat
                 TempDimVal.Init();
                 TempDimVal.Code := '';
@@ -830,7 +830,7 @@ report 27 "Dimensions - Total"
                     DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
                 else
                     DimVal.SetRange(Code);
-                if DimVal.FindSet then
+                if DimVal.FindSet() then
                     repeat
                         TempDimVal.Init();
                         TempDimVal := DimVal;
@@ -1073,7 +1073,7 @@ report 27 "Dimensions - Total"
         with ColLayoutTmp do begin
             SetRange("Column Layout Name", ColumnLayoutName);
             i := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Show <> Show::Never then begin
                         i := i + 1;
@@ -1104,7 +1104,7 @@ report 27 "Dimensions - Total"
         SelectedDim.SetRange("Object Type", 3);
         SelectedDim.SetRange("Object ID", REPORT::"Dimensions - Total");
         SelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
-        if SelectedDim.FindSet then begin
+        if SelectedDim.FindSet() then begin
             repeat
                 TempDimSelectionBuf.Init();
                 TempDimSelectionBuf.Code := SelectedDim."Dimension Code";
@@ -1118,7 +1118,7 @@ report 27 "Dimensions - Total"
         end;
     end;
 
-    local procedure Iteration(var FindFirst: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]; var IterationTotaling: Text[250]; var IterationIndentation: Integer; var IterationPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total"): Boolean
+    local procedure Iteration(var FindFirstRec: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]; var IterationTotaling: Text[250]; var IterationIndentation: Integer; var IterationPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total"): Boolean
     var
         SearchResult: Boolean;
     begin
@@ -1127,7 +1127,7 @@ report 27 "Dimensions - Total"
                 begin
                     TempGLAcc.Reset();
                     TempGLAcc.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempGLAcc.FindSet
                     else
                         if TempGLAcc.Get(IterationDimValCode) then
@@ -1144,7 +1144,7 @@ report 27 "Dimensions - Total"
                 begin
                     TempBusUnit.Reset();
                     TempBusUnit.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempBusUnit.FindSet
                     else
                         if TempBusUnit.Get(IterationDimValCode) then
@@ -1163,7 +1163,7 @@ report 27 "Dimensions - Total"
                 begin
                     TempCFAccount.Reset();
                     TempCFAccount.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempCFAccount.FindSet
                     else
                         if TempCFAccount.Get(IterationDimValCode) then
@@ -1180,7 +1180,7 @@ report 27 "Dimensions - Total"
                 begin
                     TempCashFlowForecast.Reset();
                     TempCashFlowForecast.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempCashFlowForecast.FindSet
                     else
                         if TempCashFlowForecast.Get(IterationDimValCode) then
@@ -1199,7 +1199,7 @@ report 27 "Dimensions - Total"
                     TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempDimVal.FindSet
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
@@ -1220,7 +1220,7 @@ report 27 "Dimensions - Total"
             IterationIndentation := 0;
             IterationPostingType := 0;
         end;
-        FindFirst := false;
+        FindFirstRec := false;
         exit(SearchResult);
     end;
 
@@ -1247,9 +1247,9 @@ report 27 "Dimensions - Total"
         TempSelectedDim.Reset();
         TempSelectedDim.SetRange("Dimension Code", TempGLAcc.TableCaption);
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
-        if TempSelectedDim.FindFirst then
+        if TempSelectedDim.FindFirst() then
             GLAcc.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
-        if GLAcc.FindSet then begin
+        if GLAcc.FindSet() then begin
             GLAccRange := GLAcc."No.";
             repeat
                 TempGLAcc.Init();
@@ -1263,9 +1263,9 @@ report 27 "Dimensions - Total"
         TempBusUnit.Insert();
         TempSelectedDim.Reset();
         TempSelectedDim.SetFilter("Dimension Code", TempBusUnit.TableCaption);
-        if TempSelectedDim.FindFirst then
+        if TempSelectedDim.FindFirst() then
             TempBusUnit.SetFilter(Code, TempSelectedDim."Dimension Value Filter");
-        if BusUnit.FindSet then begin
+        if BusUnit.FindSet() then begin
             repeat
                 TempBusUnit.Init();
                 TempBusUnit := BusUnit;
@@ -1279,9 +1279,9 @@ report 27 "Dimensions - Total"
         TempSelectedDim.Reset();
         TempSelectedDim.SetRange("Dimension Code", TempCFAccount.TableCaption);
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
-        if TempSelectedDim.FindFirst then
+        if TempSelectedDim.FindFirst() then
             CFAccount.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
-        if CFAccount.FindSet then begin
+        if CFAccount.FindSet() then begin
             CFAccRange := CFAccount."No.";
             repeat
                 TempCFAccount.Init();
@@ -1294,9 +1294,9 @@ report 27 "Dimensions - Total"
         TempCashFlowForecast.Init();
         TempCashFlowForecast.Insert();
         TempSelectedDim.SetFilter("Dimension Code", TempCashFlowForecast.TableCaption);
-        if TempSelectedDim.FindFirst then
+        if TempSelectedDim.FindFirst() then
             TempCashFlowForecast.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
-        if CashFlowForecast.FindSet then begin
+        if CashFlowForecast.FindSet() then begin
             repeat
                 TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
@@ -1392,9 +1392,10 @@ report 27 "Dimensions - Total"
                 AnalysisViewCode := '';
 
         if AnalysisViewCode = '' then
-            if AnalysisView.FindFirst then
+            if AnalysisView.FindFirst() then
                 AnalysisViewCode := AnalysisView.Code;
 
+        AnalysisView.SetSkipConfirmationDialogue;
         if AnalysisViewCode <> '' then begin
             if AnalysisView."Dimension 1 Code" = '' then
                 AnalysisView.Validate("Dimension 1 Code", GLSetup."Global Dimension 1 Code");
@@ -1412,7 +1413,7 @@ report 27 "Dimensions - Total"
                 ColumnLayoutName := '';
 
         if ColumnLayoutName = '' then
-            if ColumnLayoutNameRec.FindFirst then
+            if ColumnLayoutNameRec.FindFirst() then
                 ColumnLayoutName := ColumnLayoutNameRec.Name;
     end;
 }

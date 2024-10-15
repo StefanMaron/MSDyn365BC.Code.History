@@ -332,7 +332,7 @@ table 8613 "Config. Package Table"
     begin
         FieldsAdded := false;
         ConfigPackageMgt.SetFieldFilter(Field, "Table ID", 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 ShouldAddField := not ConfigPackageField.Get("Package Code", "Table ID", Field."No.") and
                    not ConfigPackageMgt.IsDimSetIDField("Table ID", Field."No.");
@@ -395,7 +395,7 @@ table 8613 "Config. Package Table"
 
     local procedure SetProcessingOrderFields(var ConfigPackageField: Record "Config. Package Field"; var ProcessingOrder: Integer)
     begin
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 ProcessingOrder += 1;
                 ConfigPackageField."Processing Order" := ProcessingOrder;
@@ -428,7 +428,7 @@ table 8613 "Config. Package Table"
         end;
 
         i := 0;
-        if Dimension.FindSet then
+        if Dimension.FindSet() then
             repeat
                 i := i + 1;
                 ConfigPackageMgt.InsertPackageField(
@@ -514,7 +514,7 @@ table 8613 "Config. Package Table"
             ConfigPackageField.SetRange(Dimension, false);
         i := 1;
         Clear(MatrixColumnCaptions);
-        if ConfigPackageField.FindSet then
+        if ConfigPackageField.FindSet() then
             repeat
                 MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
                 i := i + 1;
@@ -533,7 +533,7 @@ table 8613 "Config. Package Table"
         ConfigPackageRecords.SetTableView(ConfigPackageRecord);
         ConfigPackageRecords.LookupMode(true);
         ConfigPackageRecords.Load(MatrixColumnCaptions, "Table Caption", "Package Code", "Table ID", ShowDim);
-        ConfigPackageRecords.RunModal;
+        ConfigPackageRecords.RunModal();
     end;
 
     procedure ShowDatabaseRecords()
@@ -592,7 +592,7 @@ table 8613 "Config. Package Table"
             ConfigPackageField.SetFilter("Field ID", FilterValue);
         ConfigPackageField.FilterGroup(0);
         ConfigPackageFields.SetTableView(ConfigPackageField);
-        ConfigPackageFields.RunModal;
+        ConfigPackageFields.RunModal();
         Clear(ConfigPackageFields);
     end;
 
@@ -605,7 +605,7 @@ table 8613 "Config. Package Table"
         ConfigPackage.SetRange(Code, PackageCode);
         ConfigPackage.FilterGroup(0);
         ConfigPackageCard.SetTableView(ConfigPackage);
-        ConfigPackageCard.RunModal;
+        ConfigPackageCard.RunModal();
         Clear(ConfigPackageCard);
     end;
 
@@ -640,7 +640,7 @@ table 8613 "Config. Package Table"
         ConfigPackageFilter.SetRange("Processing Rule No.", 0);
         ConfigPackageFilter.FilterGroup(0);
         ConfigPackageFilters.SetTableView(ConfigPackageFilter);
-        ConfigPackageFilters.RunModal;
+        ConfigPackageFilters.RunModal();
         Clear(ConfigPackageFilters);
     end;
 
@@ -654,7 +654,7 @@ table 8613 "Config. Package Table"
         ConfigTableProcessingRule.SetRange("Table ID", "Table ID");
         ConfigTableProcessingRule.FilterGroup(0);
         ConfigTableProcessingRules.SetTableView(ConfigTableProcessingRule);
-        ConfigTableProcessingRules.RunModal;
+        ConfigTableProcessingRules.RunModal();
         Clear(ConfigTableProcessingRules);
     end;
 
@@ -666,12 +666,12 @@ table 8613 "Config. Package Table"
     begin
         ConfigPackageRecord.SetRange("Package Code", "Package Code");
         ConfigPackageRecord.SetRange("Table ID", "Table ID");
-        if ConfigPackageRecord.FindSet then
+        if ConfigPackageRecord.FindSet() then
             repeat
                 ConfigPackageField.SetRange("Package Code", "Package Code");
                 ConfigPackageField.SetRange("Table ID", "Table ID");
                 ConfigPackageField.SetRange(Dimension, true);
-                if ConfigPackageField.FindSet then
+                if ConfigPackageField.FindSet() then
                     repeat
                         ConfigPackageMgt.InsertPackageData(
                           ConfigPackageData, "Package Code", "Table ID", ConfigPackageRecord."No.",
@@ -745,7 +745,7 @@ table 8613 "Config. Package Table"
         ConfigPackageTable.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageTable.SetRange("Parent Table ID", ConfigPackageTable."Table ID");
         childrenFound := 0;
-        if ConfigPackageTable.FindSet then begin
+        if ConfigPackageTable.FindSet() then begin
             repeat
                 // Check there is no circular dependency
                 if ConfigPackageTable."Table ID" = "Parent Table ID" then

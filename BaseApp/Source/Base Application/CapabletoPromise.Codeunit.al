@@ -21,7 +21,7 @@ codeunit 99000886 "Capable to Promise"
         OrderPromisingLineToSave: Integer;
         SourceLineNo: Integer;
 
-    local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Option Day,Week,Month,Quarter,Year; var DueDateOfReqLine: Date): Boolean
+    local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date): Boolean
     var
         CumulativeATP: Decimal;
         ReqQty: Decimal;
@@ -51,7 +51,18 @@ codeunit 99000886 "Capable to Promise"
         exit(Ok);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CalcCapableToPromiseDate()', '20.0')]
     procedure CalcCapableToPromise(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Option Day,Week,Month,Quarter,Year; PeriodLengthFormula: DateFormula): Date
+    begin
+        exit(
+            CalcCapableToPromiseDate(
+                ItemNo, VariantCode, LocationCode, NeededDate, NeededQty, UnitOfMeasure, LocOrderPromisingID, LocSourceLineNo,
+                LastValidLine, "Analysis Period Type".FromInteger(PeriodType), PeriodLengthFormula));
+    end;
+#endif
+
+    procedure CalcCapableToPromiseDate(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Enum "Analysis Line Type"; PeriodLengthFormula: DateFormula): Date
     var
         RequisitionLine: Record "Requisition Line";
         CalculationDialog: Dialog;
@@ -174,7 +185,7 @@ codeunit 99000886 "Capable to Promise"
         ReqLine.Modify();
     end;
 
-    local procedure CheckDerivedDemandCTP(ReqLine: Record "Requisition Line"; PeriodType: Option Day,Week,Month,Quarter,Year): Boolean
+    local procedure CheckDerivedDemandCTP(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"): Boolean
     begin
         if ReqLine."Replenishment System" = ReqLine."Replenishment System"::Transfer then
             exit(CheckTransferShptCTP(ReqLine, PeriodType));
@@ -182,7 +193,7 @@ codeunit 99000886 "Capable to Promise"
         exit(CheckCompsCapableToPromise(ReqLine, PeriodType));
     end;
 
-    local procedure CheckCompsCapableToPromise(ReqLine: Record "Requisition Line"; PeriodType: Option Day,Week,Month,Quarter,Year): Boolean
+    local procedure CheckCompsCapableToPromise(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"): Boolean
     var
         PlanningComponent: Record "Planning Component";
         ReqLine2: Record "Requisition Line";
@@ -195,7 +206,7 @@ codeunit 99000886 "Capable to Promise"
             SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
             SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
             SetRange("Worksheet Line No.", ReqLine."Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Supplied-by Line No." = 0) and Critical then begin
                         if ValidateCapableToPromise(
@@ -220,7 +231,7 @@ codeunit 99000886 "Capable to Promise"
         exit(true);
     end;
 
-    local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Option Day,Week,Month,Quarter,Year): Boolean
+    local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"): Boolean
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -248,7 +259,7 @@ codeunit 99000886 "Capable to Promise"
     begin
         ReqLine2.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ReqLine2.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
-        if ReqLine2.FindLast then
+        if ReqLine2.FindLast() then
             ReqLine."Line No." := ReqLine2."Line No." + 10000
         else
             ReqLine."Line No." := 10000;
@@ -294,7 +305,7 @@ codeunit 99000886 "Capable to Promise"
         end;
     end;
 
-    local procedure GetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Option Day,Week,Month,Quarter,Year): Decimal
+    local procedure GetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Enum "Analysis Period Type"): Decimal
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -307,7 +318,7 @@ codeunit 99000886 "Capable to Promise"
         Item.SetRange("Date Filter", 0D, DueDate);
 
         CumulativeATP :=
-          AvailToPromise.QtyAvailabletoPromise(
+          AvailToPromise.CalcQtyAvailableToPromise(
             Item, GrossRequirement, ScheduledReceipt, DueDate,
             PeriodType, CompanyInfo."Check-Avail. Period Calc.");
 
@@ -324,7 +335,7 @@ codeunit 99000886 "Capable to Promise"
     begin
         ReqLine.SetCurrentKey("Order Promising ID");
         ReqLine.SetRange("Order Promising ID", OrderPromisingID);
-        if ReqLine.FindLast then
+        if ReqLine.FindLast() then
             exit(ReqLine."Order Promising Line No." + 1);
 
         exit(1);
@@ -344,7 +355,7 @@ codeunit 99000886 "Capable to Promise"
             SetRange("Ref. Order Type", "Ref. Order Type"::"Prod. Order");
             SetRange("Ref. Order Status", "Ref. Order Status"::Planned);
             SetFilter("Ref. Order No.", '<>%1', '');
-            if not FindLast then
+            if not FindLast() then
                 exit;
             LastRefOrderNo := "Ref. Order No.";
 
@@ -355,7 +366,7 @@ codeunit 99000886 "Capable to Promise"
             Find('-');
             repeat
                 SetRange("Ref. Order No.", "Ref. Order No.");
-                FindLast;
+                FindLast();
                 NewRefOrderNo := '';
                 NoSeriesMgt.InitSeries(
                   MfgSetup."Planned Order Nos.", "No. Series", "Due Date", NewRefOrderNo, "No. Series");

@@ -28,7 +28,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Customer table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestCustomer(Customer);
         MyCustomer.Init();
 
@@ -52,7 +52,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Customer table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestCustomer(Customer);
         CreateMyCustomer(Customer, GetCurrentUserID);
         CreateMyCustomer(Customer, 'Test');
@@ -82,7 +82,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Customer table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestCustomer(Customer);
         CreateMyCustomer(Customer, GetCurrentUserID);
         CreateMyCustomer(Customer, '');
@@ -114,7 +114,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Customer records leaving the old values as they were
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestCustomer(Customer);
         CreateTestCustomer(Customer2);
 
@@ -155,7 +155,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] My Customer record was not modified
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestCustomer(Customer);
         CreateTestCustomer(Customer2);
 
@@ -179,7 +179,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 231207] My Customer record isn't changed if Stan change corresponding Customer Temporary record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer, create My Customer linked to this Customer
         CreateTestCustomer(Customer);
@@ -211,7 +211,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Vendor table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestVendor(Vendor);
         MyVendor.Init();
 
@@ -235,7 +235,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Vendor table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestVendor(Vendor);
         CreateMyVendor(Vendor, GetCurrentUserID);
         CreateMyVendor(Vendor, 'Test');
@@ -265,7 +265,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Vendor table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestVendor(Vendor);
         CreateMyVendor(Vendor, GetCurrentUserID);
         CreateMyVendor(Vendor, '');
@@ -297,7 +297,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Vendor records leaving the old values as they were
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestVendor(Vendor);
         CreateTestVendor(Vendor2);
 
@@ -338,7 +338,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] My Vendor record was not modified
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestVendor(Vendor);
         CreateTestVendor(Vendor2);
 
@@ -362,7 +362,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 231207] My Vendor record isn't changed if Stan change corresponding Vendor Temporary record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor, create My Vendor linked to this Vendor
         CreateTestVendor(Vendor);
@@ -394,7 +394,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Item table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestItem(Item);
         MyItem.Init();
 
@@ -418,7 +418,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Item table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestItem(Item);
         CreateMyItem(Item, GetCurrentUserID);
         CreateMyItem(Item, 'Test');
@@ -448,7 +448,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Item table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestItem(Item);
         CreateMyItem(Item, GetCurrentUserID);
         CreateMyItem(Item, '');
@@ -480,7 +480,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Item records leaving the old values as they were
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestItem(Item);
         CreateTestItem(Item2);
 
@@ -522,7 +522,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] My Item record was not modified
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestItem(Item);
         CreateTestItem(Item2);
 
@@ -547,7 +547,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 231207] My Item record isn't changed if Stan change corresponding Item Temporary record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item, create My Item linked to this Item
         CreateTestItem(Item);
@@ -579,7 +579,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Account table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestAccount(GLAccount);
         MyAccount.Init();
 
@@ -603,7 +603,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Account table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestAccount(GLAccount);
         OldGLAccount := GLAccount;
         CreateMyAccount(GLAccount, 'Test');
@@ -631,7 +631,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Account table
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestAccount(GLAccount);
         CreateMyAccount(GLAccount, GetCurrentUserID);
         CreateMyAccount(GLAccount, '');
@@ -659,7 +659,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] Changes are propagated to My Account records leaving the old values as they were
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestAccount(GLAccount);
         CreateTestAccount(GLAccount2);
 
@@ -694,7 +694,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [THEN] My Account record was not modified
 
         // Setup
-        Initialize;
+        Initialize();
         CreateTestAccount(GLAccount);
         CreateTestAccount(GLAccount2);
 
@@ -718,7 +718,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [G/L Account]
         // [SCENARIO 231207] My Account record isn't changed if Stan change corresponding G/L Account Temporary record
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create G/L Account, create My Account linked to this G/L Account
         CreateTestAccount(GLAccount);
@@ -746,7 +746,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [My Customer] [UT]
         // [SCENARIO 211359] "Balance" in My Customer should be calculated in local currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CCC"
         CreateTestCustomer(Customer);
@@ -773,7 +773,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
     begin
         // [FEATURE] [My Vendor] [UT]
         // [SCENARIO 211359] "Balance" in My Vendor should be calculated in local currency and have the opposite sign to the sum of detailed vendor ledger entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "VVV"
         CreateTestVendor(Vendor);

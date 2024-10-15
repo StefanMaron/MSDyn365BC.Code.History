@@ -27,7 +27,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgent: Record "Shipping Agent";
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         PackageTrackingNo := GenerateRandomPackageTrackingNo;
@@ -62,7 +62,7 @@ codeunit 138007 "O365 Shipping Agent"
     begin
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 171020] Susan will not see the confirm message on Shipping Agent Code when using SAAS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set Software As A Service to TRUE and Create Shipping Agent and Package Tracking No
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -102,7 +102,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -138,7 +138,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -172,7 +172,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgent: Record "Shipping Agent";
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -206,7 +206,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -241,7 +241,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgentServiceCode: Code[10];
         PackageTrackingNo: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -274,7 +274,7 @@ codeunit 138007 "O365 Shipping Agent"
         ShippingAgent: Record "Shipping Agent";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -292,7 +292,7 @@ codeunit 138007 "O365 Shipping Agent"
         // Verify
         VerifyShippingDetailsOnPostedSalesInvoice(SalesHeaderCopy, ShippingAgent.Code);
         VerifySalesShipmentExists(SalesHeaderCopy, ShippingAgent.Code, '', '');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -306,7 +306,7 @@ codeunit 138007 "O365 Shipping Agent"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ShippingAgentServiceCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -326,7 +326,7 @@ codeunit 138007 "O365 Shipping Agent"
         // Verify
         VerifyShippingDetailsOnPostedSalesInvoice(SalesHeaderCopy, ShippingAgent.Code);
         VerifySalesShipmentExists(SalesHeaderCopy, ShippingAgent.Code, ShippingAgentServiceCode, '');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -340,7 +340,7 @@ codeunit 138007 "O365 Shipping Agent"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ShippingAgentServiceCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -357,7 +357,7 @@ codeunit 138007 "O365 Shipping Agent"
         // Verify
         VerifyShippingDetailsOnPostedSalesInvoice(SalesHeaderCopy, ShippingAgent.Code);
         VerifySalesShipmentExists(SalesHeaderCopy, ShippingAgent.Code, ShippingAgentServiceCode, '');
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -367,13 +367,13 @@ codeunit 138007 "O365 Shipping Agent"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Shipping Agent");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Shipping Agent");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
@@ -539,7 +539,7 @@ codeunit 138007 "O365 Shipping Agent"
         SalesInvoiceHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceHeader.SetRange("External Document No.", SalesHeader."External Document No.");
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
 
         PostedSalesInvoice.OpenView;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
@@ -554,7 +554,7 @@ codeunit 138007 "O365 Shipping Agent"
     begin
         SalesShipmentHeader.SetCurrentKey("Sell-to Customer No.");
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesShipmentHeader.FindLast;
+        SalesShipmentHeader.FindLast();
 
         PostedSalesShipment.OpenView;
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);

@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 10140 "Deposit-Post"
 {
     Permissions = TableData "Cust. Ledger Entry" = r,
@@ -6,6 +7,9 @@ codeunit 10140 "Deposit-Post"
                   TableData "Posted Deposit Header" = rim,
                   TableData "Posted Deposit Line" = rim;
     TableNo = "Deposit Header";
+    ObsoleteReason = 'Replaced by new Bank Deposits extension';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     var
@@ -114,24 +118,24 @@ codeunit 10140 "Deposit-Post"
                     GenJnlLine."Account Type"::"G/L Account",
                     GenJnlLine."Account Type"::"Bank Account":
                         begin
-                            GLEntry.FindLast;
+                            GLEntry.FindLast();
                             PostedDepositLine."Entry No." := GLEntry."Entry No.";
                             if GenJnlTemplate."Force Doc. Balance" and (GenJnlLine.Amount * GLEntry.Amount < 0) then
                                 PostedDepositLine."Entry No." := PostedDepositLine."Entry No." - 1;
                         end;
                     GenJnlLine."Account Type"::Customer:
                         begin
-                            CustLedgEntry.FindLast;
+                            CustLedgEntry.FindLast();
                             PostedDepositLine."Entry No." := CustLedgEntry."Entry No.";
                         end;
                     GenJnlLine."Account Type"::Vendor:
                         begin
-                            VendLedgEntry.FindLast;
+                            VendLedgEntry.FindLast();
                             PostedDepositLine."Entry No." := VendLedgEntry."Entry No.";
                         end;
                 end;
                 if GenJnlTemplate."Force Doc. Balance" then begin
-                    BankAccountLedgerEntry.FindLast;
+                    BankAccountLedgerEntry.FindLast();
                     PostedDepositLine."Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
                     if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account") and
                        (GenJnlLine.Amount * BankAccountLedgerEntry.Amount > 0)
@@ -147,7 +151,7 @@ codeunit 10140 "Deposit-Post"
             PostBalancingEntry(Rec, TotalAmountLCY);
             OnRunOnAfterPostBalancingEntry(GenJnlLine);
 
-            BankAccountLedgerEntry.FindLast;
+            BankAccountLedgerEntry.FindLast();
             PostedDepositLine.Reset();
             PostedDepositLine.SetRange("Deposit No.", "No.");
             if PostedDepositLine.FindSet(true) then
@@ -216,7 +220,7 @@ codeunit 10140 "Deposit-Post"
         BankCommentLine.SetRange("Table Name", BankCommentLine."Table Name"::Deposit);
         BankCommentLine.SetRange("Bank Account No.", DepositHeader."Bank Account No.");
         BankCommentLine.SetRange("No.", DepositHeader."No.");
-        if BankCommentLine.FindSet then
+        if BankCommentLine.FindSet() then
             repeat
                 BankCommentLine2 := BankCommentLine;
                 BankCommentLine2."Table Name" := BankCommentLine2."Table Name"::"Posted Deposit";
@@ -360,3 +364,4 @@ codeunit 10140 "Deposit-Post"
     end;
 }
 
+#endif

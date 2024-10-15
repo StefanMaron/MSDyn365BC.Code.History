@@ -1,6 +1,14 @@
 table 397 "XBRL G/L Map Line"
 {
     Caption = 'XBRL G/L Map Line';
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {

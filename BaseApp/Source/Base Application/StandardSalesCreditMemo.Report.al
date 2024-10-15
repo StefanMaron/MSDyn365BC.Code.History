@@ -54,34 +54,34 @@ report 1307 "Standard Sales - Credit Memo"
             column(CompanyGiroNo_Lbl; CompanyInfoGiroNoLbl)
             {
             }
-            column(CompanyBankName; CompanyInfo."Bank Name")
+            column(CompanyBankName; CompanyBankAccount.Name)
             {
             }
             column(CompanyBankName_Lbl; CompanyInfoBankNameLbl)
             {
             }
-            column(CompanyBankBranchNo; CompanyInfo."Bank Branch No.")
+            column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
             {
             }
-            column(CompanyBankBranchNo_Lbl; CompanyInfo.FieldCaption("Bank Branch No."))
+            column(CompanyBankBranchNo_Lbl; CompanyBankAccount.FieldCaption("Bank Branch No."))
             {
             }
-            column(CompanyBankAccountNo; CompanyInfo."Bank Account No.")
+            column(CompanyBankAccountNo; CompanyBankAccount."Bank Account No.")
             {
             }
             column(CompanyBankAccountNo_Lbl; CompanyInfoBankAccNoLbl)
             {
             }
-            column(CompanyIBAN; CompanyInfo.IBAN)
+            column(CompanyIBAN; CompanyBankAccount.IBAN)
             {
             }
-            column(CompanyIBAN_Lbl; CompanyInfo.FieldCaption(IBAN))
+            column(CompanyIBAN_Lbl; CompanyBankAccount.FieldCaption(IBAN))
             {
             }
-            column(CompanySWIFT; CompanyInfo."SWIFT Code")
+            column(CompanySWIFT; CompanyBankAccount."SWIFT Code")
             {
             }
-            column(CompanySWIFT_Lbl; CompanyInfo.FieldCaption("SWIFT Code"))
+            column(CompanySWIFT_Lbl; CompanyBankAccount.FieldCaption("SWIFT Code"))
             {
             }
             column(CompanyLogoPosition; CompanyLogoPosition)
@@ -451,20 +451,6 @@ report 1307 "Standard Sales - Credit Memo"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN17
-                column(CrossReferenceNo_Line; "Cross-Reference No.")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-                column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -952,6 +938,9 @@ report 1307 "Standard Sales - Credit Memo"
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
+                if not CompanyBankAccount.Get(Header."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 if "Currency Code" <> '' then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
                     CalculatedExchRate :=
@@ -1040,7 +1029,7 @@ report 1307 "Standard Sales - Credit Memo"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if Header.FindSet then
+            if Header.FindSet() then
                 repeat
                     if Header."Bill-to Contact No." <> '' then
                         SegManagement.LogDocument(
@@ -1109,6 +1098,7 @@ report 1307 "Standard Sales - Credit Memo"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         CompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
@@ -1277,7 +1267,7 @@ report 1307 "Standard Sales - Credit Memo"
             GetTaxSummarizedLines(TempSalesTaxAmountLine);
             TempSalesTaxAmountLine.SetCurrentKey("Print Order");
             TempSalesTaxAmountLine.Ascending(true);
-            if TempSalesTaxAmountLine.FindSet then
+            if TempSalesTaxAmountLine.FindSet() then
                 repeat
                     ReportTotalsLine.Add(TempSalesTaxAmountLine."Print Description", TempSalesTaxAmountLine."Tax Amount", false, true, false);
                 until TempSalesTaxAmountLine.Next() = 0;

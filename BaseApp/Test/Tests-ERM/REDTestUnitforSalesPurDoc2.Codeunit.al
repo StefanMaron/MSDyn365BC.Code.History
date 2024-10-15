@@ -48,7 +48,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Sales]
         // [SCENARIO 127736] When a Posted Credit Memo is deleted, the deferrals are also deleted
         // Setup
-        Initialize;
+        Initialize();
         PostingDate := SetDateDay(15, WorkDate);
         LibrarySales.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
@@ -65,7 +65,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [WHEN] Posted Credit Memo is deleted
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         DocNo := SalesCrMemoHeader."No.";
         SalesCrMemoHeader."No. Printed" := 1;
         SalesCrMemoHeader.Delete(true);
@@ -92,7 +92,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 127736] When a Posted Invoice is deleted, the deferrals are also deleted
-        Initialize;
+        Initialize();
         PostingDate := SetDateDay(1, WorkDate);
         LibrarySales.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
@@ -132,7 +132,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [SCENARIO 127732] Entering a Sales Invoice on the Sales Invoice with GL Account allows editing of the deferral code and accessing schedule
         // Setup
-        Initialize;
+        Initialize();
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
 
         // [GIVEN] User has created a Sales Document with one line item for GL Account
@@ -169,7 +169,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Purchase]
         // [SCENARIO 127772] When a Posted Credit Memo is deleted, the deferrals are also deleted
         // Setup
-        Initialize;
+        Initialize();
         PostingDate := SetDateDay(15, WorkDate);
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
@@ -211,7 +211,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 127772] When a Posted Invoice is deleted, the deferrals are also deleted
-        Initialize;
+        Initialize();
         PostingDate := SetDateDay(1, WorkDate);
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
@@ -251,7 +251,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Sales] [Posting Date]
         // [SCENARIO 145395] When Posting Date is changed on document header, and roll down confirmed, the deferrals are updated
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
@@ -285,7 +285,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Sales] [Posting Date]
         // [SCENARIO 145395] When Posting Date is changed on document header with no rolldown selected, the deferrals are not updated
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
@@ -315,7 +315,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase] [Posting Date]
         // [SCENARIO 145395] When Posting Date is changed on document header, and roll down confirmed, the deferrals are updated
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has assigned a default deferral code to an Item
         // [GIVEN] Creating Purchase Line for Item should default deferral code
@@ -341,7 +341,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase] [Posting Date]
         // [SCENARIO 145395] When Posting Date is changed on document header and rolldown not selected, the deferrals are not updated
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has assigned a default deferral code to an Item
         // [GIVEN] Creating Purchase Line for Item should default deferral code
@@ -367,7 +367,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [SCENARIO 376479] System does not allow calculate schedule for Sales Line on date before earliest Accounting Period
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(
@@ -375,7 +375,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
 
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         LibraryVariableStorage.Enqueue(
           CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'Y>', AccountingPeriod."Starting Date"));
 
@@ -396,13 +396,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [SCENARIO 376479] System does not allow calculate schedule for Purchase Line on date before earliest Accounting Period
         // [FEATURE] [Purchases]
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccountWithDeferralCode, LibraryRandom.RandInt(100));
 
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         LibraryVariableStorage.Enqueue(
           CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'Y>', AccountingPeriod."Starting Date"));
 
@@ -426,7 +426,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 376902] Posted Sales Order creates VAT Entry with non-zero Base and Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "DT"
         CreateItemWithDefaultDeferralCode(
@@ -460,7 +460,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [UI] [Purchase]
         // [SCENARIO 376902] Posted Purchase Order creates VAT Entry with non-zero Base and Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "DT"
         CreateItemWithDefaultDeferralCode(
@@ -494,7 +494,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 376902] Do not allow to change "No. of Periods" without deferral reschedule
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Deferral Code in Sales Line and calculated Deferral Schedule
         SalesChangeNoOfPeriodsInitScenario(
@@ -520,7 +520,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [UI] [Purchase]
         // [SCENARIO 376902] Do not allow to change "No. of Periods" without deferral reschedule
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with Deferral Code in Purchase Line and calculated Deferral Schedule
         PurchaseChangeNoOfPeriodsInitScenario(
@@ -563,7 +563,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [UT]
         // [SCENARIO] Calculate Number of Periods to be generated when "Calc. Method" = "Days Per Period" and "Start Date" = "Accounting Period"."Starting Date"
         NoOfPeriods := LibraryRandom.RandInt(12);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         Assert.AreEqual(
           NoOfPeriods,
@@ -584,7 +584,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [UT]
         // [SCENARIO] Calculate Number of Periods to be generated when "Calc. Method" = "Days Per Period" and "Start Date" <> "Accounting Period"."Starting Date"
         NoOfPeriods := LibraryRandom.RandInt(12);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         Assert.AreEqual(
           NoOfPeriods + 1,
@@ -605,7 +605,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [UT]
         // [SCENARIO] Calculate Number of Periods to be generated when "Calc. Method" = "Straight-Line" and "Start Date" = "Accounting Period"."Starting Date"
         NoOfPeriods := LibraryRandom.RandInt(12);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         Assert.AreEqual(
           NoOfPeriods,
@@ -626,7 +626,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [UT]
         // [SCENARIO] Calculate Number of Periods to be generated when "Calc. Method" = "Straight-Line" and "Start Date" <> "Accounting Period"."Starting Date"
         NoOfPeriods := LibraryRandom.RandInt(12);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         Assert.AreEqual(
           NoOfPeriods + 1,
@@ -678,7 +678,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase] [Reverse Charge VAT]
         // [SCENARIO 380850] VAT Entries of posted Purchase Invoice with partial deferral and reverse charge VAT match VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Deferral % = 50 and Reverse Charge VAT 25% has Amount = 1000
         CreatePurchDocWithLineRevCharge(
@@ -707,7 +707,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales] [Reverse Charge VAT]
         // [SCENARIO 380850] VAT Entries of posted Sales Invoice with partial deferral and reverse charge VAT match VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Deferral % = 50 and Reverse Charge VAT 25% has Amount = 1000
         CreateSalesDocWithLineRevCharge(
@@ -740,7 +740,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase] [Currency]
         // [SCENARIO 203345] Posting of Purchase Invoice with Currency when deferral lines generate rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] User-defined Deferral Template for 3 periods
         DeferralTemplateCode :=
@@ -763,7 +763,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           PurchaseLine, PurchaseHeader, GLAccount."No.", DeferralTemplateCode, 555.55, 333.33, 111.12, 1);
         // [GIVEN] Purchase Line 2 with Amount = 2000, VAT 19%, where Deferral Schedule amounts are 666.66, 555.55, 777.79
         // [GIVEN] Description of each def.period is matched to Line order/Def.Line order 21,22,23 filled with '0' to the end of the line like '210000000...'
-        GLAccount."No." := LibraryUtility.GenerateGUID;
+        GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
         CreatePurchLineWithUserDefinedDeferralSchedule(
           PurchaseLine, PurchaseHeader, GLAccount."No.", DeferralTemplateCode, 666.66, 555.55, 777.79, 2);
@@ -781,8 +781,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           DocNo, PurchaseHeader."Posting Date", GLAccount."No.", DeferralTemplate."Deferral Account",
           PurchaseHeader."Posting Description",
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-          Round(666.66 * ExchRate / 100),
-          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
+          Round(666.66 * ExchRate / 100), Round(2000 * ExchRate / 100),
+          Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
     end;
 
     [Test]
@@ -800,7 +800,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales] [Currency]
         // [SCENARIO 203345] Posting of Sales Invoice with Currency when deferral lines generate rounding
-        Initialize;
+        Initialize();
 
         // [GIVEN] User-defined Deferral Template for 3 periods
         DeferralTemplateCode :=
@@ -823,7 +823,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           SalesLine, SalesHeader, GLAccount."No.", DeferralTemplateCode, 555.55, 333.33, 111.12, 1);
         // [GIVEN] Sales Line 2 with Amount = 2000, VAT 19%, where Deferral Schedule amounts are 666.66, 555.55, 777.79
         // [GIVEN] Description of each def.period is matched to Line order/Def.Line order 21,22,23 filled with '0' to the end of the line like '210000000...'
-        GLAccount."No." := LibraryUtility.GenerateGUID;
+        GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
         CreateSalesLineWithUserDefinedDeferralSchedule(
           SalesLine, SalesHeader, GLAccount."No.", DeferralTemplateCode, 666.66, 555.55, 777.79, 2);
@@ -858,7 +858,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 273428] Post Purchase Invoice with two lines and the same deferral code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template of method "Straight-Line" with "Deferral %" = 30 and Deferral Account = "DefAcc"
         DeferralTemplateCode :=
@@ -905,7 +905,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 273428] Post Sales Invoice with two lines and the same deferral code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template of method "Straight-Line" with "Deferral %" = 50 and Deferral Account = "DefAcc"
         DeferralTemplateCode :=
@@ -958,7 +958,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Purchase] [Currency] [Dimensions]
         // [SCENARIO 281617] Deferral posting of FCY purchase invoice of four lines with two dimensions and no VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral template with Deferral = 100%, No of Periods = 1, Calc. Method = Beginning of Next Period
         DeferralTemplateCode :=
@@ -1019,7 +1019,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales] [Currency] [Dimensions]
         // [SCENARIO 281617] Deferral posting of FCY sales invoice of four lines with two dimensions and no VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral template with Deferral = 100%, No of Periods = 1, Calc. Method = Beginning of Next Period
         DeferralTemplateCode :=
@@ -1074,7 +1074,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 287104] When showing deferral schedule with SalesLine.ShowDeferralSchedule - header's Posting Date and Currency Code are used
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Document with Currency Code blank and Posting Date not equal to WORKDATE
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -1167,20 +1167,20 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RED Test Unit for SalesPurDoc2");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RED Test Unit for SalesPurDoc2");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
@@ -1390,7 +1390,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryDimension.CreateDefaultDimensionItem(
           DefaultDimension, ItemNo, DimensionValue."Dimension Code", DimensionValue.Code);
         exit(ItemNo);
@@ -1511,13 +1511,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     local procedure FindSalesInvoiceLine(var SalesInvLine: Record "Sales Invoice Line"; No: Code[20])
     begin
         SalesInvLine.SetRange("Document No.", No);
-        SalesInvLine.FindFirst;
+        SalesInvLine.FindFirst();
     end;
 
     local procedure FindPurchInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; No: Code[20])
     begin
         PurchInvLine.SetRange("Document No.", No);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure UpdateVATPostSetupWithRevCharge(VATBusPostGrCode: Code[20]; GLAccNo: Code[20])
@@ -1540,10 +1540,10 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryERM.FindDeferralLine(DeferralLine, DefDocType, '', '', DocType, DocNo, DocLineNo);
         UpdateDefScheduleLine(DeferralLine, DefAmount1, Format(LineNo) + '1');
         DeferralLine.SetRange("Posting Date", CalcDate('<-CM+1M>', StartDate));
-        DeferralLine.FindFirst;
+        DeferralLine.FindFirst();
         UpdateDefScheduleLine(DeferralLine, DefAmount2, Format(LineNo) + '2');
         DeferralLine.SetRange("Posting Date", CalcDate('<-CM+2M>', StartDate));
-        DeferralLine.FindFirst;
+        DeferralLine.FindFirst();
         UpdateDefScheduleLine(DeferralLine, DefAmount3, Format(LineNo) + '3');
     end;
 
@@ -1656,7 +1656,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         DeferralLineSetRange(DeferralLine, DeferralDocType, DocType, DocNo, LineNo);
         Period := 0;
-        if DeferralLine.FindSet then
+        if DeferralLine.FindSet() then
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -1680,7 +1680,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         VATEntry.SetRange("Document No.", DocNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Base, ExpectedAmount);
         VATEntry.TestField(Amount, ExpectedBase);
     end;
@@ -1732,7 +1732,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange(Description, GLDescription);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GLAmount);
     end;
 
@@ -1759,7 +1759,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Dimension Set ID", 0);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         TotalAmount := GLEntry.Amount;
         GLEntry.SetRange("Dimension Set ID");
 

@@ -453,7 +453,7 @@ table 8627 "Config. Setup"
         ConfigQuestionnaire: Record "Config. Questionnaire";
         ConfigQuestionnaireMgt: Codeunit "Questionnaire Management";
     begin
-        if ConfigQuestionnaire.FindSet then
+        if ConfigQuestionnaire.FindSet() then
             repeat
                 ConfigQuestionnaireMgt.ApplyAnswers(ConfigQuestionnaire);
             until ConfigQuestionnaire.Next() = 0;

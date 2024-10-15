@@ -61,34 +61,34 @@ report 1306 "Standard Sales - Invoice"
             column(CompanyGiroNo_Lbl; CompanyInfoGiroNoLbl)
             {
             }
-            column(CompanyBankName; CompanyInfo."Bank Name")
+            column(CompanyBankName; CompanyBankAccount.Name)
             {
             }
             column(CompanyBankName_Lbl; CompanyInfoBankNameLbl)
             {
             }
-            column(CompanyBankBranchNo; CompanyInfo."Bank Branch No.")
+            column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
             {
             }
-            column(CompanyBankBranchNo_Lbl; CompanyInfo.FieldCaption("Bank Branch No."))
+            column(CompanyBankBranchNo_Lbl; CompanyBankAccount.FieldCaption("Bank Branch No."))
             {
             }
-            column(CompanyBankAccountNo; CompanyInfo."Bank Account No.")
+            column(CompanyBankAccountNo; CompanyBankAccount."Bank Account No.")
             {
             }
             column(CompanyBankAccountNo_Lbl; CompanyInfoBankAccNoLbl)
             {
             }
-            column(CompanyIBAN; CompanyInfo.IBAN)
+            column(CompanyIBAN; CompanyBankAccount.IBAN)
             {
             }
-            column(CompanyIBAN_Lbl; CompanyInfo.FieldCaption(IBAN))
+            column(CompanyIBAN_Lbl; CompanyBankAccount.FieldCaption(IBAN))
             {
             }
-            column(CompanySWIFT; CompanyInfo."SWIFT Code")
+            column(CompanySWIFT; CompanyBankAccount."SWIFT Code")
             {
             }
-            column(CompanySWIFT_Lbl; CompanyInfo.FieldCaption("SWIFT Code"))
+            column(CompanySWIFT_Lbl; CompanyBankAccount.FieldCaption("SWIFT Code"))
             {
             }
             column(CompanyLogoPosition; CompanyLogoPosition)
@@ -515,20 +515,6 @@ report 1306 "Standard Sales - Invoice"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN17
-                column(CrossReferenceNo_Line; "Cross-Reference No.")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-                column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference No.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -998,7 +984,7 @@ report 1306 "Standard Sales - Invoice"
                         CurrReport.Break();
 
                     if Number = 1 then begin
-                        if not TempLineFeeNoteOnReportHist.FindSet then
+                        if not TempLineFeeNoteOnReportHist.FindSet() then
                             CurrReport.Break
                     end else
                         if TempLineFeeNoteOnReportHist.Next() = 0 then
@@ -1147,9 +1133,6 @@ report 1306 "Standard Sales - Invoice"
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-#if not CLEAN19
-                O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
-#endif                
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
@@ -1159,16 +1142,15 @@ report 1306 "Standard Sales - Invoice"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
-#if not CLEAN19
-                Clear(PaymentInstructionsTxt);
-                PaymentInstructionsTxt := O365SalesInvoiceMgmt.GetPaymentInstructionsFromPostedInvoice(Header);
-#endif
                 ChecksPayableText := StrSubstNo(ChecksPayableLbl, CompanyInfo.Name);
 
                 FormatAddressFields(Header);
                 FormatDocumentFields(Header);
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
+
+                if not CompanyBankAccount.Get(Header."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 FillLeftHeader;
                 FillRightHeader;
@@ -1288,7 +1270,7 @@ report 1306 "Standard Sales - Invoice"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if Header.FindSet then
+            if Header.FindSet() then
                 repeat
                     if Header."Bill-to Contact No." <> '' then
                         SegManagement.LogDocument(
@@ -1357,6 +1339,7 @@ report 1306 "Standard Sales - Invoice"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         DummyCompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
@@ -1471,7 +1454,7 @@ report 1306 "Standard Sales - Invoice"
 
         ShipmentLine.Reset();
         ShipmentLine.SetRange("Line No.", Line."Line No.");
-        if ShipmentLine.FindFirst then begin
+        if ShipmentLine.FindFirst() then begin
             SalesShipmentBuffer2 := ShipmentLine;
             if not DisplayShipmentInformation then
                 if ShipmentLine.Next() = 0 then begin
@@ -1547,7 +1530,7 @@ report 1306 "Standard Sales - Invoice"
             GetTaxSummarizedLines(TempSalesTaxAmountLine);
             TempSalesTaxAmountLine.SetCurrentKey("Print Order");
             TempSalesTaxAmountLine.Ascending(true);
-            if TempSalesTaxAmountLine.FindSet then
+            if TempSalesTaxAmountLine.FindSet() then
                 repeat
                     ReportTotalsLine.Add(TempSalesTaxAmountLine."Print Description", TempSalesTaxAmountLine."Tax Amount", false, true, false);
                 until TempSalesTaxAmountLine.Next() = 0;
@@ -1572,7 +1555,7 @@ report 1306 "Standard Sales - Invoice"
         TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        if not CustLedgerEntry.FindFirst then
+        if not CustLedgerEntry.FindFirst() then
             exit;
 
         if not Customer.Get(CustLedgerEntry."Customer No.") then
@@ -1580,7 +1563,7 @@ report 1306 "Standard Sales - Invoice"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet then begin
+        if LineFeeNoteOnReportHist.FindSet() then begin
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
@@ -1588,7 +1571,7 @@ report 1306 "Standard Sales - Invoice"
             until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
-            if LineFeeNoteOnReportHist.FindSet then
+            if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
@@ -1626,10 +1609,10 @@ report 1306 "Standard Sales - Invoice"
         FillNameValueTable(RightHeader, CompanyInfoPhoneNoLbl, CompanyInfo."Phone No.");
         FillNameValueTable(RightHeader, CompanyInfo.GetRegistrationNumberLbl, CompanyInfo.GetRegistrationNumber);
         FillNameValueTable(RightHeader, CompanyInfo.GetVATRegistrationNumberLbl, CompanyInfo.GetVATRegistrationNumber);
-        FillNameValueTable(RightHeader, CompanyInfoBankNameLbl, CompanyInfo."Bank Name");
+        FillNameValueTable(RightHeader, CompanyInfoBankNameLbl, CompanyBankAccount.Name);
         FillNameValueTable(RightHeader, CompanyInfoGiroNoLbl, CompanyInfo."Giro No.");
-        FillNameValueTable(RightHeader, CompanyInfo.FieldCaption(IBAN), CompanyInfo.IBAN);
-        FillNameValueTable(RightHeader, CompanyInfo.FieldCaption("SWIFT Code"), CompanyInfo."SWIFT Code");
+        FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption(IBAN), CompanyBankAccount.IBAN);
+        FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption("SWIFT Code"), CompanyBankAccount."SWIFT Code");
         FillNameValueTable(RightHeader, Header.GetPaymentReferenceLbl, Header.GetPaymentReference);
 
         OnAfterFillRightHeader(RightHeader, Header);
@@ -1641,7 +1624,7 @@ report 1306 "Standard Sales - Invoice"
     begin
         if Value <> '' then begin
             Clear(NameValueBuffer);
-            if NameValueBuffer.FindLast then
+            if NameValueBuffer.FindLast() then
                 KeyIndex := NameValueBuffer.ID + 1;
 
             NameValueBuffer.Init();
@@ -1676,7 +1659,7 @@ report 1306 "Standard Sales - Invoice"
     begin
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("Job Task No.", JobTaskNo);
-        if JobTask.FindFirst then
+        if JobTask.FindFirst() then
             exit(JobTask.Description);
 
         exit('');

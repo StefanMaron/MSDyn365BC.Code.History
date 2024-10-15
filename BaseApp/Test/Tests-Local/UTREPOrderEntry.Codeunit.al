@@ -27,7 +27,7 @@ codeunit 142071 "UT REP Order Entry"
         // Purpose of the test is to validate SalesShipment Line - OnAfterGetRecord trigger of Report ID - 10080.
 
         // Setup.
-        Initialize;
+        Initialize();
         DocumentNo := CreateSalesShipmentDocument;
         Commit();  // Codeunit 314 Sales Shpt.-Printed OnRun trigger calls Commit();
 
@@ -36,13 +36,13 @@ codeunit 142071 "UT REP Order Entry"
 
         // Verify: Package Tracking No. created on Sales Shipment Header.
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.TestField("Package Tracking No.", SalesShipmentHeader."Package Tracking No.");
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateSalesShipmentDocument(): Code[20]

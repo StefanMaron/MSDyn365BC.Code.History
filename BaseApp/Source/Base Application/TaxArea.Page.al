@@ -87,7 +87,7 @@ page 464 "Tax Area"
     begin
         if ShowTaxDetails and (CloseAction in [ACTION::OK, ACTION::LookupOK]) then begin
             TaxAreaLine.SetRange("Tax Area", Code);
-            if not TaxAreaLine.FindFirst then
+            if not TaxAreaLine.FindFirst() then
                 if not Confirm(TaxAreaNotSetupQst, false) then
                     Error('');
         end;

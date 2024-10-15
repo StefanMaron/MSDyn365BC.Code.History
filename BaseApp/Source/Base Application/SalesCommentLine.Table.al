@@ -88,7 +88,7 @@ table 44 "Sales Comment Line"
         SalesCommentLine.SetRange("No.", "No.");
         SalesCommentLine.SetRange("Document Line No.", "Document Line No.");
         SalesCommentLine.SetRange(Date, WorkDate);
-        if not SalesCommentLine.FindFirst then
+        if not SalesCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, SalesCommentLine);
@@ -219,7 +219,7 @@ table 44 "Sales Comment Line"
         SetRange("Document Line No.", DocLineNo);
         Clear(SalesCommentSheet);
         SalesCommentSheet.SetTableView(Rec);
-        SalesCommentSheet.RunModal;
+        SalesCommentSheet.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

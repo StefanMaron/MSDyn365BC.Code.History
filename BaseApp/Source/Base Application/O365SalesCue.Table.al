@@ -208,7 +208,7 @@ table 9069 "O365 Sales Cue"
     begin
         if O365SalesStatistics.GetRelativeMonthToFY <> 1 then begin
             O365SalesYearSummaryCard.ShowMonthlyDataPart;
-            O365SalesYearSummaryCard.Run;
+            O365SalesYearSummaryCard.Run();
         end else
             ShowMonthlySalesOverview; // the current month is the first month in the FY
     end;

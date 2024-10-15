@@ -20,6 +20,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         MIRHelperFunctions: Codeunit "MIR - Helper Functions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -41,7 +42,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // Check Reminder Line Error after Post Sales Invoice and Modify Reminder Header.
 
         // Setup: Create Sales Invoice, Reminder Header and Modify it with New Currency.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         CreateReminderHeader(ReminderHeader, SalesLine."Sell-to Customer No.");
         ModifyReminderHeader(ReminderHeader);
@@ -70,7 +71,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // Check Reminder Line Remaining Amount after Post Sales Invoice.
 
         // Setup: Create Sales Invoice, Reminder Header and Line.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
 
         // Exercise: Create Reminder Header and Line.
@@ -100,7 +101,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderPostingDate: array[2] of Date;
     begin
         // [FEATURE] [Payment Terms]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder Terms "RT" with 3 levels where summary of "Due Date Calculation" = 3W
         // [GIVEN] Level[1] with "Grace Period" = 1W,"Due Date Calculation" = 1W
@@ -148,7 +149,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderPostingDate: array[2] of Date;
     begin
         // [FEATURE] [Payment Terms]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder Terms "RT" with 3 levels where summary of "Due Date Calculation" = 3W
         // [GIVEN] Level[1] with "Grace Period" = 1W,"Due Date Calculation" = 1W
@@ -192,7 +193,7 @@ codeunit 134907 "ERM Invoice and Reminder"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 254526] "AmtDueText" of report "Reminder" (117) contains text
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued reminder with line
         MockIssuedReminder(IssuedReminderHeader);
@@ -301,7 +302,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 284335] When Invoice "Inv1" posted, Reminder "Rem1" for "Inv1" issued, Invoice "Inv2" posted, Reminder "Rem2" for "Inv1" and "Inv2" issued
         // [SCENARIO 284335] Reminder/Fin. Charge entry for invoice "Inv2" has Interest Posted set to 'FALSE'
-        Initialize;
+        Initialize();
         Evaluate(WeekDateFormula, '<1W>');
 
         // [GIVEN] Customer with Reminder Terms having 2 levels and "Post Interest" enabled for second level
@@ -326,7 +327,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [THEN] Reminder/Fin. Charge entry for invoice "Inv2" has Intereset Posted set to 'FALSE'
         ReminderFinChargeEntry.SetFilter("Document No.", InvoiceDocumentNo);
-        ReminderFinChargeEntry.FindFirst;
+        ReminderFinChargeEntry.FindFirst();
         ReminderFinChargeEntry.TestField("Interest Posted", false);
     end;
 
@@ -343,7 +344,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderPostingDate: array[3] of Date;
     begin
         // [FEATURE] [Payment Terms]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reminder Terms "RT" with 3 levels where summary of "Due Date Calculation" = 3W
         // [GIVEN] Level[1] with "Grace Period" = 1W,"Due Date Calculation" = 1W, Fee = "F"
@@ -379,9 +380,9 @@ codeunit 134907 "ERM Invoice and Reminder"
         RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[3]);
 
         ReminderLine.SetRange("Document No.", InvoiceDocNo[1]);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         ReminderHeader.SetRange("No.", ReminderLine."Reminder No.");
-        ReminderHeader.FindFirst;
+        ReminderHeader.FindFirst();
         ReminderHeader.CalcFields("Additional Fee");
 
         // [THEN] ReminderHeader."Reminder Level" is equal to 1.
@@ -636,13 +637,17 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Invoice and Reminder");
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Invoice and Reminder");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Invoice and Reminder");
@@ -704,9 +709,9 @@ codeunit 134907 "ERM Invoice and Reminder"
         CreateFinanceChargeMemos.SetTableView(Customer);
         CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
         CreateFinanceChargeMemos.UseRequestPage(false);
-        CreateFinanceChargeMemos.Run;
+        CreateFinanceChargeMemos.Run();
         FinanceChargeMemoHeader.SetRange("Customer No.", Customer."No.");
-        FinanceChargeMemoHeader.FindFirst;
+        FinanceChargeMemoHeader.FindFirst();
         FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate());
         LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
         IssuedFinChargeMemoHeader.SetRange("Customer No.", Customer."No.");
@@ -838,7 +843,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader.SetRange("No.", ReminderHeader."No.");
         SuggestReminderLines.SetTableView(ReminderHeader);
         SuggestReminderLines.UseRequestPage(false);
-        SuggestReminderLines.Run;
+        SuggestReminderLines.Run();
 
         ReminderHeader.SetRecFilter;
     end;
@@ -1016,7 +1021,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         CreateReminders.SetTableView(Customer);
         CreateReminders.InitializeRequest(ReminderPostingDate, ReminderPostingDate, OverdueEntriesOnly, false, false);
         CreateReminders.UseRequestPage(false);
-        CreateReminders.Run;
+        CreateReminders.Run();
     end;
 
     local procedure UpdateGLSetupInvRoundingPrecision()
@@ -1030,7 +1035,7 @@ codeunit 134907 "ERM Invoice and Reminder"
     local procedure VerifyReminderLineTypeForDocument(var ReminderLine: Record "Reminder Line"; DocumentNo: Code[20]; ExpectedReminderLineType: Enum "Reminder Line Type")
     begin
         ReminderLine.SetRange("Document No.", DocumentNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
         ReminderLine.TestField("Line Type", ExpectedReminderLineType);
     end;
 
@@ -1084,7 +1089,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LastEntryNo: Integer;
     begin
         with CustLedgerEntry do begin
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;

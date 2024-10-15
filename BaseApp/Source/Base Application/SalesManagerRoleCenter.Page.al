@@ -351,6 +351,20 @@ page 9005 "Sales Manager Role Center"
                 ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
             }
 #endif
+            separator(History)
+            {
+                Caption = 'History';
+                IsHeader = true;
+            }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
         }
     }
 }

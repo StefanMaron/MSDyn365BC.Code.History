@@ -1,10 +1,20 @@
 table 10120 "Bank Rec. Header"
 {
     Caption = 'Bank Rec. Header';
+#if not CLEAN20
     DrillDownPageID = "Bank Rec. List";
     LookupPageID = "Bank Rec. List";
+#endif
     Permissions = TableData "Bank Account" = rm;
     DataCaptionFields = "Bank Account No.", "Statement No.", "Statement Date";
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -334,7 +344,7 @@ table 10120 "Bank Rec. Header"
                 GLEntry.Reset();
                 GLEntry.SetFilter("G/L Account No.", "G/L Bank Account No.");
                 GLEntry.SetFilter("Posting Date", '%1..%2', 0D, "Statement Date");
-                if GLEntry.FindSet then begin
+                if GLEntry.FindSet() then begin
                     Currency.Get("Currency Code");
                     repeat
                         if BankAccLedgEntry.Get(GLEntry."Entry No.") then begin

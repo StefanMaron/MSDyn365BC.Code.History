@@ -1,8 +1,12 @@
+#if not CLEAN20
 report 10408 "Bank Reconciliation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './BankReconciliation.rdlc';
     Caption = 'Bank Reconciliation';
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -710,3 +714,4 @@ report 10408 "Bank Reconciliation"
     end;
 }
 
+#endif

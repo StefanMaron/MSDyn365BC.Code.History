@@ -35,7 +35,7 @@ codeunit 144054 "ERM RFC/CURP No."
     begin
         // Setup: Create Customer with Tax Identification Type as Legal Entity. Update RFC No. on Customer.
         // Create Customer with Tax Identification Type as Legal Entity.
-        Initialize;
+        Initialize();
         CreateCustomerWithTaxIdentificationType(Customer, Customer."Tax Identification Type"::"Legal Entity");
         UpdateRFCNoOnCustomer(Customer);
         CreateCustomerWithTaxIdentificationType(Customer2, Customer."Tax Identification Type"::"Legal Entity");
@@ -56,9 +56,9 @@ codeunit 144054 "ERM RFC/CURP No."
         CURPNo: Code[10];
     begin
         // Setup: Create Customer with Tax Identification Type as Legal Entity.
-        Initialize;
+        Initialize();
         CreateCustomerWithTaxIdentificationType(Customer, Customer."Tax Identification Type"::"Legal Entity");
-        CURPNo := LibraryUtility.GenerateGUID;
+        CURPNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror Customer.Validate("CURP No.", CURPNo);
@@ -75,7 +75,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingWrongRFCNoOnCustomer(Customer."Tax Identification Type"::"Legal Entity");
     end;
 
@@ -87,7 +87,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingWrongRFCNoOnCustomer(Customer."Tax Identification Type"::"Natural Person");
     end;
 
@@ -98,7 +98,7 @@ codeunit 144054 "ERM RFC/CURP No."
     begin
         // Create Customer with Tax Identification Type.
         CreateCustomerWithTaxIdentificationType(Customer, TaxIdentificationType);
-        RFCNo := LibraryUtility.GenerateGUID;
+        RFCNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror Customer.Validate("RFC No.", RFCNo);
@@ -116,9 +116,9 @@ codeunit 144054 "ERM RFC/CURP No."
         RFCNo: Code[10];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
-        RFCNo := LibraryUtility.GenerateGUID;
+        RFCNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror CompanyInformation.Validate("RFC No.", RFCNo);
@@ -136,9 +136,9 @@ codeunit 144054 "ERM RFC/CURP No."
         CURPNo: Code[10];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
-        CURPNo := LibraryUtility.GenerateGUID;
+        CURPNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror CompanyInformation.Validate("CURP No.", CURPNo);
@@ -155,7 +155,7 @@ codeunit 144054 "ERM RFC/CURP No."
         CompanyInformation: Record "Company Information";
     begin
         // Setup: Update RFC No. on Company Information.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(CompanyInformation);
 
         // Exercise.
@@ -173,7 +173,7 @@ codeunit 144054 "ERM RFC/CURP No."
         CompanyInformation: Record "Company Information";
     begin
         // Setup: Update CURP No. on Company Information.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(CompanyInformation);
 
         // Exercise.
@@ -191,7 +191,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Customer: Record Customer;
     begin
         // Setup: Create Customer with Tax Identification Type as Legal Entity. Update RFC No. on Customer.
-        Initialize;
+        Initialize();
         CreateCustomerWithTaxIdentificationType(Customer, Customer."Tax Identification Type"::"Legal Entity");
         UpdateRFCNoOnCustomer(Customer);
 
@@ -210,7 +210,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Customer: Record Customer;
     begin
         // Setup: Create Customer with Tax Identification Type as Legal Entity. Update CURP No. on Customer.
-        Initialize;
+        Initialize();
         CreateCustomerWithTaxIdentificationType(Customer, Customer."Tax Identification Type"::"Legal Entity");
         UpdateCURPNoOnCustomer(Customer);
 
@@ -232,7 +232,7 @@ codeunit 144054 "ERM RFC/CURP No."
     begin
         // Setup: Create Vendor with Tax Identification Type as Legal Entity. Update RFC No. on Vendor.
         // Create Vendor with Tax Identification Type as Legal Entity.
-        Initialize;
+        Initialize();
         CreateVendorWithTaxIdentificationType(Vendor, Vendor."Tax Identification Type"::"Legal Entity");
         UpdateRFCNoOnVendor(Vendor);
         CreateVendorWithTaxIdentificationType(Vendor2, Vendor2."Tax Identification Type"::"Legal Entity");
@@ -253,9 +253,9 @@ codeunit 144054 "ERM RFC/CURP No."
         CURPNo: Code[10];
     begin
         // Setup: Create Vendor with Tax Identification Type as Legal Entity.
-        Initialize;
+        Initialize();
         CreateVendorWithTaxIdentificationType(Vendor, Vendor."Tax Identification Type"::"Legal Entity");
-        CURPNo := LibraryUtility.GenerateGUID;
+        CURPNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror Vendor.Validate("CURP No.", CURPNo);
@@ -272,7 +272,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingWrongRFCNoOnVendor(Vendor."Tax Identification Type"::"Legal Entity");
     end;
 
@@ -284,7 +284,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingWrongRFCNoOnVendor(Vendor."Tax Identification Type"::"Natural Person");
     end;
 
@@ -295,7 +295,7 @@ codeunit 144054 "ERM RFC/CURP No."
     begin
         // Create Vendor with Tax Identification Type.
         CreateVendorWithTaxIdentificationType(Vendor, TaxIdentificationType);
-        RFCNo := LibraryUtility.GenerateGUID;
+        RFCNo := LibraryUtility.GenerateGUID();
 
         // Exercise.
         asserterror Vendor.Validate("RFC No.", RFCNo);
@@ -312,7 +312,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Vendor: Record Vendor;
     begin
         // Setup: Create Vendor with Tax Identification Type as Legal Entity. Update RFC No. on Vendor.
-        Initialize;
+        Initialize();
         CreateVendorWithTaxIdentificationType(Vendor, Vendor."Tax Identification Type"::"Legal Entity");
         UpdateRFCNoOnVendor(Vendor);
 
@@ -331,7 +331,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Vendor: Record Vendor;
     begin
         // Setup: Create Vendor with Tax Identification Type as Legal Entity. Update CURP No. on Vendor.
-        Initialize;
+        Initialize();
         CreateVendorWithTaxIdentificationType(Vendor, Vendor."Tax Identification Type"::"Legal Entity");
         UpdateCURPNoOnVendor(Vendor);
 
@@ -352,7 +352,7 @@ codeunit 144054 "ERM RFC/CURP No."
         BankAccountNo: Code[20];
     begin
         // Setup: Create Vendor with Spanish Bank Communication. Create Payment Journal line. Update Spanish Bank Communication on Bank Account.
-        Initialize;
+        Initialize();
         CreateVendorWithSpanishBankCommunication(Vendor);
         BankAccountNo := CreatePaymentJournalLine(Vendor."No.");
         UpdateSpanishBankCommunicationOnBankAccount(BankAccountNo);
@@ -383,7 +383,7 @@ codeunit 144054 "ERM RFC/CURP No."
         DocumentNo: Code[20];
     begin
         // Setup: Create Customer with RFC No. and CURP No. Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         UpdateSATCertificateOnGeneralLedgerSetup;
 
         CreateCustomerWithRFCNoAndCURPNo(Customer);
@@ -411,7 +411,7 @@ codeunit 144054 "ERM RFC/CURP No."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]): Code[20]
@@ -454,7 +454,7 @@ codeunit 144054 "ERM RFC/CURP No."
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, AccountNo, LibraryRandom.RandDec(10, 2));
@@ -480,7 +480,7 @@ codeunit 144054 "ERM RFC/CURP No."
 
     local procedure GetRandomCode(FieldLength: Integer) RandomCode: Code[18]
     begin
-        RandomCode := LibraryUtility.GenerateGUID;
+        RandomCode := LibraryUtility.GenerateGUID();
         repeat
             RandomCode += 'A';  // Value Required for test.
         until StrLen(RandomCode) = FieldLength;
@@ -494,7 +494,7 @@ codeunit 144054 "ERM RFC/CURP No."
         CompanyInformation.Validate("CURP No.",
           GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("CURP No."))));
         CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID);
+        CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID());
         CompanyInformation.Modify(true);
     end;
 

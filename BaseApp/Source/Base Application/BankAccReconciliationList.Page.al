@@ -170,12 +170,19 @@ page 388 "Bank Acc. Reconciliation List"
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
-
                     trigger OnAction()
                     var
                         BankReconciliationMgt: Codeunit "Bank Reconciliation Mgt.";
                     begin
-                        BankReconciliationMgt.Post(Rec, CODEUNIT::"Bank Acc. Recon. Post (Yes/No)", CODEUNIT::"Bank Rec.-Post (Yes/No)");
+                        BankReconciliationMgt.Post(
+                            Rec,
+                            CODEUNIT::"Bank Acc. Recon. Post (Yes/No)",
+#if not CLEAN20
+                            CODEUNIT::"Bank Rec.-Post (Yes/No)"
+#else
+                            CODEUNIT::"Bank Acc. Recon. Post (Yes/No)"
+#endif
+                        );
                         Refresh;
                     end;
                 }
@@ -194,7 +201,15 @@ page 388 "Bank Acc. Reconciliation List"
                     var
                         BankReconciliationMgt: Codeunit "Bank Reconciliation Mgt.";
                     begin
-                        BankReconciliationMgt.Post(Rec, CODEUNIT::"Bank Acc. Recon. Post+Print", CODEUNIT::"Bank Rec.-Post + Print");
+                        BankReconciliationMgt.Post(
+                            Rec,
+                            CODEUNIT::"Bank Acc. Recon. Post+Print",
+#if not CLEAN20
+                            CODEUNIT::"Bank Rec.-Post + Print"
+#else
+                            CODEUNIT::"Bank Acc. Recon. Post+Print"
+#endif
+                        );
                         Refresh;
                     end;
                 }

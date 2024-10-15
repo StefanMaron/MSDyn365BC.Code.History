@@ -1,4 +1,4 @@
-page 9034 "Acc. Receivable Activities"
+﻿page 9034 "Acc. Receivable Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -12,19 +12,19 @@ page 9034 "Acc. Receivable Activities"
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Overdue Sales Documents"; "Overdue Sales Documents")
+                field("Overdue Sales Documents"; Rec."Overdue Sales Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer Ledger Entries";
                     ToolTip = 'Specifies the number of sales invoices where the customer is late with payment.';
                 }
-                field("Sales Return Orders - All"; "Sales Return Orders - All")
+                field("Sales Return Orders - All"; Rec."Sales Return Orders - All")
                 {
                     ApplicationArea = SalesReturnOrder;
                     DrillDownPageID = "Sales Return Order List";
                     ToolTip = 'Specifies the number of sales return orders that are displayed in the Finance Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Customers - Blocked"; "Customers - Blocked")
+                field("Customers - Blocked"; Rec."Customers - Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer List";
@@ -53,13 +53,13 @@ page 9034 "Acc. Receivable Activities"
             cuegroup("Document Approvals")
             {
                 Caption = 'Document Approvals';
-                field("SOs Pending Approval"; "SOs Pending Approval")
+                field("SOs Pending Approval"; Rec."SOs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales orders that are pending approval.';
                 }
-                field("Approved Sales Orders"; "Approved Sales Orders")
+                field("Approved Sales Orders"; Rec."Approved Sales Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
@@ -69,6 +69,8 @@ page 9034 "Acc. Receivable Activities"
             cuegroup(Deposits)
             {
                 Caption = 'Deposits';
+                Visible = not BankDepositFeatureEnabled;
+#if not CLEAN20
                 field("Deposits to Post"; "Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
@@ -76,44 +78,17 @@ page 9034 "Acc. Receivable Activities"
                     DrillDownPageID = "Deposit List";
                     ToolTip = 'Specifies the deposits that will be posted.';
                 }
-
+#endif
                 actions
                 {
                     action("New Deposit")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'New Deposit';
-                        RunObject = Page Deposit;
+                        RunObject = codeunit "Open Deposit Page";
                         RunPageMode = Create;
                         ToolTip = 'Create a new deposit. ';
                     }
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
         }
@@ -124,18 +99,19 @@ page 9034 "Acc. Receivable Activities"
     }
 
     trigger OnOpenPage()
+    var
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
     end;
 
     var
-        UserTaskManagement: Codeunit "User Task Management";
+        BankDepositFeatureEnabled: Boolean;
 }
-

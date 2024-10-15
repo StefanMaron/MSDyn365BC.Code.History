@@ -86,7 +86,7 @@ codeunit 5770 "Whse.-Service Release"
             ServiceLine2.Copy(ServiceLine);
             ServiceLine2.SetRange("Location Code", ServiceLine."Location Code");
             ServiceLine2.SetRange("Unit of Measure Code", '');
-            if ServiceLine2.FindFirst then
+            if ServiceLine2.FindFirst() then
                 ServiceLine2.TestField("Unit of Measure Code");
 
             WhseRqst.Type := WhseType;

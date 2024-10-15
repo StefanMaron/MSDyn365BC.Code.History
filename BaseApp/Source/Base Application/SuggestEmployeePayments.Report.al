@@ -1,4 +1,4 @@
-report 394 "Suggest Employee Payments"
+﻿report 394 "Suggest Employee Payments"
 {
     Caption = 'Suggest Employee Payments';
     ProcessingOnly = true;
@@ -29,7 +29,7 @@ report 394 "Suggest Employee Payments"
 
             trigger OnPostDataItem()
             begin
-                if FindSet then
+                if FindSet() then
                     repeat
                         ClearNegative;
                     until Next() = 0;
@@ -40,7 +40,7 @@ report 394 "Suggest Employee Payments"
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                if GenJnlLine.FindLast then begin
+                if GenJnlLine.FindLast() then begin
                     LastLineNo := GenJnlLine."Line No.";
                     GenJnlLine.Init();
                 end;
@@ -400,7 +400,7 @@ report 394 "Suggest Employee Payments"
 
         OnGetEmplLedgEntriesOnAfterSetFilters(EmployeeLedgerEntry, Positive, SkipExportedPayments);
 
-        if EmployeeLedgerEntry.FindSet then
+        if EmployeeLedgerEntry.FindSet() then
             repeat
                 SaveAmount;
             until EmployeeLedgerEntry.Next() = 0;
@@ -563,7 +563,7 @@ report 394 "Suggest Employee Payments"
         TempEmplPaymentBuffer.SetFilter(
           "Employee Ledg. Entry Doc. Type", '<>%1&<>%2', TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Refund,
           TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Payment);
-        if TempEmplPaymentBuffer.FindSet then
+        if TempEmplPaymentBuffer.FindSet() then
             repeat
                 with GenJnlLine do begin
                     Init;
@@ -645,7 +645,7 @@ report 394 "Suggest Employee Payments"
                 DimBuf.Reset();
                 DimBuf.DeleteAll();
                 DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
-                if DimBuf.FindSet then
+                if DimBuf.FindSet() then
                     repeat
                         DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                         TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
@@ -656,12 +656,7 @@ report 394 "Suggest Employee Payments"
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
             end;
-            CreateDim(
-              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-              DATABASE::Job, "Job No.",
-              DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-              DATABASE::Campaign, "Campaign No.");
+            CreateDimFromDefaultDim(0);
             if NewDimensionID <> "Dimension Set ID" then begin
                 DimSetIDArr[2] := NewDimensionID;
                 DimSetIDArr[1] := "Dimension Set ID";
@@ -758,10 +753,10 @@ report 394 "Suggest Employee Payments"
 
     local procedure AdjustAgainstSelectedDim(var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TempDimSetEntry2: Record "Dimension Set Entry" temporary): Boolean
     begin
-        if SelectedDim.FindSet then begin
+        if SelectedDim.FindSet() then begin
             repeat
                 TempDimSetEntry.SetRange("Dimension Code", SelectedDim."Dimension Code");
-                if TempDimSetEntry.FindFirst then begin
+                if TempDimSetEntry.FindFirst() then begin
                     TempDimSetEntry2.TransferFields(TempDimSetEntry, true);
                     TempDimSetEntry2.Insert();
                 end;

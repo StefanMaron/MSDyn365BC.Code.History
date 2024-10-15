@@ -406,6 +406,17 @@ table 5875 "Phys. Invt. Order Header"
 
     procedure GetSamePhysInvtOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; var ErrorText: Text[250]; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"): Integer
     var
+        PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line";
+    begin
+        PhysInvtOrderLineArgs."Item No." := ItemNo;
+        PhysInvtOrderLineArgs."Variant Code" := VariantCode;
+        PhysInvtOrderLineArgs."Location Code" := LocationCode;
+        PhysInvtOrderLineArgs."Bin Code" := BinCode;
+        exit(GetSamePhysInvtOrderLine(PhysInvtOrderLineArgs, ErrorText, PhysInvtOrderLine2));
+    end;
+
+    procedure GetSamePhysInvtOrderLine(PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line"; var ErrorText: Text[250]; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"): Integer
+    var
         NoOfOrderLines: Integer;
     begin
         Clear(PhysInvtOrderLine2);
@@ -414,21 +425,28 @@ table 5875 "Phys. Invt. Order Header"
         PhysInvtOrderLine2.SetCurrentKey(
           "Document No.", "Item No.", "Variant Code", "Location Code", "Bin Code");
         PhysInvtOrderLine2.SetRange("Document No.", "No.");
-        PhysInvtOrderLine2.SetRange("Item No.", ItemNo);
-        PhysInvtOrderLine2.SetRange("Variant Code", VariantCode);
-        PhysInvtOrderLine2.SetRange("Location Code", LocationCode);
-        PhysInvtOrderLine2.SetRange("Bin Code", BinCode);
-        OnGetSamePhysInvtOrderLineOnAfterSetFilters(PhysInvtOrderLine2, Rec);
+        PhysInvtOrderLine2.SetRange("Item No.", PhysInvtOrderLineArgs."Item No.");
+        PhysInvtOrderLine2.SetRange("Variant Code", PhysInvtOrderLineArgs."Variant Code");
+        PhysInvtOrderLine2.SetRange("Location Code", PhysInvtOrderLineArgs."Location Code");
+        PhysInvtOrderLine2.SetRange("Bin Code", PhysInvtOrderLineArgs."Bin Code");
+        OnGetSamePhysInvtOrderLineOnAfterSetFilters(PhysInvtOrderLine2, Rec, PhysInvtOrderLineArgs);
         NoOfOrderLines := PhysInvtOrderLine2.Count();
 
         case NoOfOrderLines of
             0:
-                ErrorText := StrSubstNo(NoLineErr, "No.", ItemNo, VariantCode, LocationCode, BinCode);
+                ErrorText :=
+                    StrSubstNo(
+                        NoLineErr, "No.", PhysInvtOrderLineArgs."Item No.", PhysInvtOrderLineArgs."Variant Code",
+                        PhysInvtOrderLineArgs."Location Code", PhysInvtOrderLineArgs."Bin Code");
             1:
                 ErrorText := '';
             else
-                ErrorText := StrSubstNo(MoreThanOneLineErr, "No.", ItemNo, VariantCode, LocationCode, BinCode);
+                ErrorText :=
+                    StrSubstNo(
+                        MoreThanOneLineErr, "No.", PhysInvtOrderLineArgs."Item No.", PhysInvtOrderLineArgs."Variant Code",
+                            PhysInvtOrderLineArgs."Location Code", PhysInvtOrderLineArgs."Bin Code");
         end;
+        OnAfterSetErrorText(NoOfOrderLines, "No.", PhysInvtOrderLineArgs, ErrorText);
 
         if NoOfOrderLines > 0 then
             PhysInvtOrderLine2.Find('-');
@@ -471,7 +489,7 @@ table 5875 "Phys. Invt. Order Header"
         PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
         PhysInvtOrderLine.LockTable();
-        if PhysInvtOrderLine.FindSet then
+        if PhysInvtOrderLine.FindSet() then
             repeat
                 NewDimSetID := DimManagement.GetDeltaDimSetID(PhysInvtOrderLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if PhysInvtOrderLine."Dimension Set ID" <> NewDimSetID then begin
@@ -530,7 +548,7 @@ table 5875 "Phys. Invt. Order Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSamePhysInvtOrderLineOnAfterSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    local procedure OnGetSamePhysInvtOrderLineOnAfterSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line")
     begin
     end;
 
@@ -541,6 +559,11 @@ table 5875 "Phys. Invt. Order Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnInitInsertOnBeforeInitRecord(var xPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetErrorText(NoOfOrderLines: Integer; OrderNo: Code[20]; PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line"; var ErrorText: Text[250])
     begin
     end;
 }

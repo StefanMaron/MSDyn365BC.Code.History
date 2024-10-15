@@ -1,8 +1,18 @@
-table 10121 "Bank Rec. Line"
+﻿table 10121 "Bank Rec. Line"
 {
     Caption = 'Bank Rec. Line';
+#if not CLEAN20
     DrillDownPageID = "Bank Rec. Lines";
     LookupPageID = "Bank Rec. Lines";
+#endif
+    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -69,12 +79,7 @@ table 10121 "Bank Rec. Line"
             trigger OnValidate()
             begin
                 if "Account No." = '' then begin
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      0, '',
-                      0, '',
-                      0, '');
+                    CreateDimFromDefaultDim(FieldNo("Account No."));
                     exit;
                 end;
 
@@ -154,12 +159,7 @@ table 10121 "Bank Rec. Line"
                 end;
 
                 Validate("Currency Code");
-                CreateDim(
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  0, '',
-                  0, '',
-                  0, '');
+                CreateDimFromDefaultDim(FieldNo("Account No."));
             end;
         }
         field(10; Description; Text[100])
@@ -217,12 +217,7 @@ table 10121 "Bank Rec. Line"
             trigger OnValidate()
             begin
                 if "Bal. Account No." = '' then begin
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      0, '',
-                      0, '',
-                      0, '');
+                    CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                     exit;
                 end;
 
@@ -305,12 +300,7 @@ table 10121 "Bank Rec. Line"
                 end;
 
                 Validate("Currency Code");
-                CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  0, '',
-                  0, '',
-                  0, '');
+                CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
             end;
         }
         field(16; "Currency Code"; Code[10])
@@ -462,7 +452,7 @@ table 10121 "Bank Rec. Line"
     fieldgroups
     {
     }
-
+#if not CLEAN20
     trigger OnDelete()
     var
         BankRecSubLine: Record "Bank Rec. Sub-line";
@@ -481,6 +471,7 @@ table 10121 "Bank Rec. Line"
             BankRecSubLine.DeleteAll();
         end;
     end;
+#endif
 
     trigger OnInsert()
     begin
@@ -502,7 +493,9 @@ table 10121 "Bank Rec. Line"
     var
         Ok: Boolean;
         ReplaceInfo: Boolean;
+#if not CLEAN20
         SetStatus: Option Open,Cleared,Posted;
+#endif
         GLAcc: Record "G/L Account";
         Cust: Record Customer;
         Vend: Record Vendor;
@@ -511,7 +504,9 @@ table 10121 "Bank Rec. Line"
         GLSetup: Record "General Ledger Setup";
         BankRecHdr: Record "Bank Rec. Header";
         BankRecLine: Record "Bank Rec. Line";
+#if not CLEAN20
         BankRecCommentLine: Record "Bank Comment Line";
+#endif
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         DimMgt: Codeunit DimensionManagement;
@@ -522,7 +517,9 @@ table 10121 "Bank Rec. Line"
         Text1020100: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = Customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = customer';
         UnsupportedTypeNotificationMsg: Label '%1 is not supported account type. You can enter and post the adjustment entry in a General Journal instead.', Comment = '%1=account type';
+#if not CLEAN20
         BankRecPost: Codeunit "Bank Rec.-Post";
+#endif
 
     procedure SetUpNewLine(LastBankRecLine: Record "Bank Rec. Line"; Balance: Decimal; BottomLine: Boolean)
     var
@@ -537,7 +534,7 @@ table 10121 "Bank Rec. Line"
         BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecLine.SetRange("Statement No.", "Statement No.");
         BankRecLine.SetRange("Record Type", "Record Type");
-        if BankRecLine.FindLast then begin
+        if BankRecLine.FindLast() then begin
             "Posting Date" := LastBankRecLine."Posting Date";
             "Document No." := LastBankRecLine."Document No.";
             "Document No." := IncStr("Document No.");
@@ -652,6 +649,7 @@ table 10121 "Bank Rec. Line"
         exit("Currency Code" <> '');
     end;
 
+#if not CLEAN20
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -669,7 +667,26 @@ table 10121 "Bank Rec. Line"
         No[5] := No5;
         ClearAndAssignDefaultDimSetID(TableID, No);
     end;
+#endif
 
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN20
+        RunEventOnBeforeClearAndAssignDefaultDimSetID(DefaultDimSource, IsHandled);
+#endif
+        OnBeforeCreateDim(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" := DimMgt.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+
+#if not CLEAN20
     local procedure ClearAndAssignDefaultDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20])
     var
         IsHandled: Boolean;
@@ -683,6 +700,7 @@ table 10121 "Bank Rec. Line"
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" := DimMgt.GetDefaultDimID(TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
+#endif
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -727,7 +745,7 @@ table 10121 "Bank Rec. Line"
             BankRecLine.SetRange("Statement No.", "Statement No.");
             BankRecLine.SetRange("Record Type", "Record Type");
             BankRecLine.LockTable();
-            if BankRecLine.FindLast then
+            if BankRecLine.FindLast() then
                 NextBankRecLineNo := BankRecLine."Line No." + 10000
             else
                 NextBankRecLineNo := 10000;
@@ -796,7 +814,7 @@ table 10121 "Bank Rec. Line"
                 BankRecLine.FindSet();
                 repeat
                     BankRecSubLine.SetRange("Bank Rec. Line No.", BankRecLine."Line No.");
-                    if not BankRecSubLine.FindSet then begin
+                    if not BankRecSubLine.FindSet() then begin
                         BankRecSubLine.Init();
                         BankRecSubLine.TransferFields(BankRecLine, false);
                         BankRecSubLine."Bank Account No." := "Bank Account No.";
@@ -855,8 +873,10 @@ table 10121 "Bank Rec. Line"
 
     local procedure UpdateLedgers()
     begin
+#if not CLEAN20
         Positive := (Amount > 0);
         BankRecPost.UpdateLedgers(Rec, SetStatus::Cleared);
+#endif
     end;
 
     local procedure CopyBankRecSubLineToTemp(var TempBankRecSubLine: Record "Bank Rec. Sub-line" temporary; BankRecSubLine: Record "Bank Rec. Sub-line")
@@ -870,7 +890,7 @@ table 10121 "Bank Rec. Line"
         BankRecSubLine: Record "Bank Rec. Sub-line";
         NextSubLineNo: Integer;
     begin
-        if TempBankRecSubLine.FindSet then begin
+        if TempBankRecSubLine.FindSet() then begin
             repeat
                 NextSubLineNo += 1;
                 BankRecSubLine := TempBankRecSubLine;
@@ -880,6 +900,45 @@ table 10121 "Bank Rec. Line"
             until TempBankRecSubLine.Next() = 0;
             TempBankRecSubLine.DeleteAll();
         end;
+    end;
+
+    procedure CreateDimFromDefaultDim()
+    begin
+        CreateDimFromDefaultDim(0);
+    end;
+
+    procedure CreateDimFromDefaultDim(FromFieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FromFieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), Rec."Account No.", FromFieldNo = Rec.Fieldno("Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), Rec."Bal. Account No.", FromFieldNo = Rec.Fieldno("Bal. Account No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure RunEventOnBeforeClearAndAssignDefaultDimSetID(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Rec, DefaultDimSource, TableID, No);
+        OnBeforeClearAndAssignDefaultDimSetID(Rec, TableID, No, IsHandled);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Bank Rec. Line", DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var BankRecLine: Record "Bank Rec. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -907,8 +966,16 @@ table 10121 "Bank Rec. Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeCreateDim()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearAndAssignDefaultDimSetID(var BankAccRecLine: Record "Bank Rec. Line"; TableID: array[10] of Integer; No: array[10] of Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var BankAccRecLine: Record "Bank Rec. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
     begin
     end;
 

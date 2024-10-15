@@ -144,14 +144,14 @@ codeunit 1026 "Job Link Usage"
         end;
 
         // Match most specific Job Planning Line.
-        if JobPlanningLine.FindFirst then
+        if JobPlanningLine.FindFirst() then
             exit(true);
 
         JobPlanningLine.SetRange("Variant Code", '');
         JobPlanningLine.SetRange("Work Type Code", '');
 
         // Match Location Code, while Variant Code and Work Type Code are blank.
-        if JobPlanningLine.FindFirst then
+        if JobPlanningLine.FindFirst() then
             exit(true);
 
         JobPlanningLine.SetRange("Location Code", '');
@@ -164,14 +164,14 @@ codeunit 1026 "Job Link Usage"
         end;
 
         // Match Variant Code / Work Type Code, while Location Code is blank.
-        if JobPlanningLine.FindFirst then
+        if JobPlanningLine.FindFirst() then
             exit(true);
 
         JobPlanningLine.SetRange("Variant Code", '');
         JobPlanningLine.SetRange("Work Type Code", '');
 
         // Match unspecific Job Planning Line.
-        if JobPlanningLine.FindFirst then
+        if JobPlanningLine.FindFirst() then
             exit(true);
 
         JobPlanningLineFound := false;
@@ -201,7 +201,7 @@ codeunit 1026 "Job Link Usage"
         JobPlanningLine.SetRange("Job No.", JobLedgerEntry."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobLedgerEntry."Job Task No.");
         JobPlanningLine.SetRange("Schedule Line", true);
-        JobPlanningLine.FindLast;
+        JobPlanningLine.FindLast();
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Validate(Quantity, RemainingQtyToMatch);
         OnBeforeModifyJobPlanningLine(JobPlanningLine, JobLedgerEntry);

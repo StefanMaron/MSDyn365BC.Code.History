@@ -290,7 +290,7 @@ codeunit 141036 "UT PAG Bank Reconciliation"
         BankRecLine2.SetRange("Bank Account No.", BankRecLine."Bank Account No.");
         BankRecLine2.SetRange("Statement No.", BankRecLine."Statement No.");
         BankRecLine2.SetRange("Record Type", BankRecLine2."Record Type"::Adjustment);
-        BankRecLine2.FindFirst;
+        BankRecLine2.FindFirst();
         BankRecLine2.TestField(Amount, BankRecLine.Amount - BankRecLine."Cleared Amount");
     end;
 

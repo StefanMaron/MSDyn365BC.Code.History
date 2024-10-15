@@ -39,7 +39,7 @@ codeunit 134766 "Test Service Post Preview"
     begin
         // [SCENARIO] Preview action on Service Invoice should open G/L Posting Preview Page
         // Initialize service header
-        Initialize;
+        Initialize();
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
         // Execute the page
@@ -70,7 +70,7 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Preview action on Service Order should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize service header
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -102,7 +102,7 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Preview action on Service Credit Memo should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -136,7 +136,7 @@ codeunit 134766 "Test Service Post Preview"
         ServiceOrder: TestPage "Service Order";
     begin
         // [SCENARIO] Preview action on Service Lines should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize service header
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -160,7 +160,7 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Preview action on Service Invoices should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize service header
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
@@ -192,7 +192,7 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Preview action on Service Orders should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize service header
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -224,7 +224,7 @@ codeunit 134766 "Test Service Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Preview action on Service Credit Memo List should open G/L Posting Preview Page
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);

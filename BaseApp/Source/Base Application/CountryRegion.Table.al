@@ -125,6 +125,9 @@
         fieldgroup(Brick; "Code", Name, "VAT Scheme")
         {
         }
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
     }
 
     trigger OnDelete()

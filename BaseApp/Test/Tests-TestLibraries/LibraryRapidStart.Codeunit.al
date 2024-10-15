@@ -84,7 +84,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         ConfigQuestion2.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion2.SetRange("Question Area Code", ConfigQuestionArea.Code);
-        if ConfigQuestion2.FindLast then;  // IF condition is required because Question may not be found.
+        if ConfigQuestion2.FindLast() then;  // IF condition is required because Question may not be found.
 
         ConfigQuestion.Init();
         ConfigQuestion.Validate("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
@@ -201,7 +201,7 @@ codeunit 131903 "Library - Rapid Start"
     begin
         NextLineNo := 0;
         ConfigLine.Reset();
-        if ConfigLine.FindLast then
+        if ConfigLine.FindLast() then
             NextLineNo := ConfigLine."Line No." + 10000;
 
         ConfigLine.Init();

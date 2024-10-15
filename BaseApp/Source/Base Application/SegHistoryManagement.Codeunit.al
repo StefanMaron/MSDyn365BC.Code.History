@@ -46,7 +46,7 @@ codeunit 5061 SegHistoryManagement
 
         SegLine.Reset();
         SegLine.SetRange("Segment No.", SegmentNo);
-        if SegLine.FindLast then
+        if SegLine.FindLast() then
             NextLineNo := SegLine."Line No." + 10000
         else
             NextLineNo := 10000;

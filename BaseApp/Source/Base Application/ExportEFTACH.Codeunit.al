@@ -418,7 +418,7 @@ codeunit 10094 "Export EFT (ACH)"
         ToFile: Text;
     begin
         // Download the .zip file containing the reports if one was generated (usually from being on the web client)
-        if (ZipFileName <> '') and TempNameValueBuffer.FindSet then
+        if (ZipFileName <> '') and TempNameValueBuffer.FindSet() then
             // If there's a single file, download it directly instead of the zip file
             if TempNameValueBuffer.Count = 1 then
                 FileManagement.DownloadHandler(TempNameValueBuffer.Value, '', '', '', TempNameValueBuffer.Name)
@@ -463,7 +463,7 @@ codeunit 10094 "Export EFT (ACH)"
         DeleteError: Boolean;
     begin
         // Sometimes file handles are kept by .NET - we try to delete what we can.
-        if TempEraseFileNameValueBuffer.FindSet then
+        if TempEraseFileNameValueBuffer.FindSet() then
             repeat
                 if not TryDeleteFile(TempEraseFileNameValueBuffer.Name) then
                     DeleteError := true;
