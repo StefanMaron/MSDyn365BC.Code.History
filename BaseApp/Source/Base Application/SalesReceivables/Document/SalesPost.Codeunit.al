@@ -2818,6 +2818,8 @@
         if not IsHandled then
             if SalesHeader.HasLinks() then
                 SalesHeader.DeleteLinks();
+        WarehouseRequest.DeleteRequest(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+
         OnDeleteAfterPostingOnBeforeDeleteSalesHeader(SalesHeader);
         SalesHeader.Delete();
         SalesLineReserve.DeleteInvoiceSpecFromHeader(SalesHeader);
@@ -2845,7 +2847,6 @@
 
         DeleteItemChargeAssgnt(SalesHeader);
         SalesCommentLine.DeleteComments(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
-        WarehouseRequest.DeleteRequest(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
 
         OnAfterDeleteAfterPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, SuppressCommit);
     end;
@@ -10809,7 +10810,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckSalesDocumentOnAfterCalcShouldCheckItemCharge(var SalesHeader: Record "Sales Header"; WhseReceive: Boolean; WhseShip: Boolean; var ShouldCheckItemCharge: Boolean; var ModifyHeader: Boolean)
     begin
     end;

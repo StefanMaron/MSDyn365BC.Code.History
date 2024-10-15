@@ -1369,6 +1369,52 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Assert.IsTrue(FilteredPostingDate[1] <> FilteredPostingDate[2], '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyFilterWorkingOnApplyBankLedgerEntriesSubFormOnBankAccReconciliationPage()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        PostingDate: Date;
+        Description: Text[50];
+    begin
+        // [SCENARIO 480247] Filter is not working on the date field of the Bank account ledger Entries in the Bank account reconciliation page.
+        Initialize();
+
+        // [GIVEN] Setup: Create input data e.g. Posting Date, Bank account No., Statement No., Doc no., Description, and Amount
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+
+        // [GIVEN] Create 2 Bank Account Ledger Entries with different Posting Date
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate + 1, DocumentNo, '', Amount, Description);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate + 10, DocumentNo, '', Amount, Description);
+
+        // [GIVEN] Create a Bank Acc Reconciliation with Statement Date
+        CreateBankAccRecWithStatementDate(BankAccReconciliation, BankAccountNo, StatementNo, PostingDate + 10);
+
+        // [THEN] Open Bank Account Reconcialiation Page
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliation.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliation.FindSet();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+
+        // [VERIFY] Last Bank Account Ledger Entry Posting Date is Equals to the Second Bank Account Ledger Entry Posting Date
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.ApplyBankLedgerEntries."Posting Date".AssertEquals(PostingDate + 10);
+
+        // [WHEN] Set Different Posting Date Filter to Get the First Bank Account Ledger Entry
+        BankAccountLedgerEntry.SetRange("Posting Date", 0D, PostingDate + 1);
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Filter.SetFilter("Posting Date", Format(BankAccountLedgerEntry.GetFilter("Posting Date")));
+
+        // [VERIFY] Last Bank Account Ledger Entry Posting Date is Equals to the First Bank Account Ledger Entry Posting Date
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.ApplyBankLedgerEntries."Posting Date".AssertEquals(PostingDate + 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

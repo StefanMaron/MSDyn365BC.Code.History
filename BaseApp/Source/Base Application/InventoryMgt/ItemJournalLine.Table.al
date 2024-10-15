@@ -4417,6 +4417,8 @@
             FieldNo = Rec.FieldNo("New Location Code"):
                 TableValuePair.Add(Database::Location, Rec."New Location Code");
         end;
+
+        OnAfterInitTableValuePair(Rec, TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -5459,6 +5461,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookUpTrackingSummary(var ItemJournalLine: Record "Item Journal Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Enum "Item Tracking Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var ItemJournalLine: Record "Item Journal Line"; var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 }

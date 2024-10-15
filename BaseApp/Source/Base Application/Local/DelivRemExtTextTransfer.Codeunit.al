@@ -35,6 +35,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
                         AutoText := GLAcc."Automatic Ext. Texts";
             end;
 
+        OnReminderCheckIfAnyExtTextOnBeforeReadLinesAutoText(DeliveryReminderLine, AutoText, Unconditionally);
         if AutoText then begin
             DeliveryReminderLine.TestField("Document No.");
             DeliveryReminder.Get(DeliveryReminderLine."Document No.");
@@ -50,7 +51,13 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
     procedure DelivReminInsertExtendedText(var DeliveryReminderLine: Record "Delivery Reminder Line")
     var
         ForDeliveryReminderLine: Record "Delivery Reminder Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelivReminInsertExtendedText(DeliveryReminderLine, TmpExtTextLine, IsHandled, MakeUpdateRequired);
+        if IsHandled then
+            exit;
+
         ForDeliveryReminderLine.Reset();
         ForDeliveryReminderLine.SetRange("Document No.", DeliveryReminderLine."Document No.");
         ForDeliveryReminderLine := DeliveryReminderLine;
@@ -74,6 +81,8 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
                 NextLineNo := NextLineNo + LineSpacing;
                 ForDeliveryReminderLine.Description := TmpExtTextLine.Text;
                 ForDeliveryReminderLine."Attached to Line No." := DeliveryReminderLine."Line No.";
+
+                OnDelivReminInsertExtendedTextOnBeforeInsertForDeliveryReminderLine(ForDeliveryReminderLine, DeliveryReminderLine, TmpExtTextLine, NextLineNo, LineSpacing);
                 ForDeliveryReminderLine.Insert();
             until TmpExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
@@ -88,6 +97,8 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
     begin
         DeliveryReminderLine2.SetRange("Document No.", DeliveryReminderLine."Document No.");
         DeliveryReminderLine2.SetRange("Attached to Line No.", DeliveryReminderLine."Line No.");
+
+        OnDeleteDellivReminLineOnAfterSetFilters(DeliveryReminderLine2, DeliveryReminderLine);
         DeliveryReminderLine2 := DeliveryReminderLine;
         if DeliveryReminderLine2.Find('>') then begin
             repeat
@@ -106,7 +117,14 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
     local procedure ReadLines(var ExtTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]): Boolean
     var
         ExtTextLine: Record "Extended Text Line";
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeReadLines(ExtTextHeader, DocDate, LanguageCode, IsHandled, Result, TmpExtTextLine);
+        if IsHandled then
+            exit(Result);
+
         ExtTextHeader.SetCurrentKey(
           "Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
         ExtTextHeader.SetRange("Starting Date", 0D, DocDate);
@@ -147,6 +165,31 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReadLines(var TempExtendedTextLine: Record "Extended Text Line" temporary; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReadLines(var ExtendedTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]; var IsHandled: Boolean; var Result: Boolean; var TempExtendedTextLine: Record "Extended Text Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDelivReminInsertExtendedTextOnBeforeInsertForDeliveryReminderLine(var ToDeliveryReminderLine: Record "Delivery Reminder Line"; DeliveryReminderLine: Record "Delivery Reminder Line"; TempExtendedTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReminderCheckIfAnyExtTextOnBeforeReadLinesAutoText(var DeliveryReminderLine: Record "Delivery Reminder Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelivReminInsertExtendedText(var DeliveryReminderLine: Record "Delivery Reminder Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteDellivReminLineOnAfterSetFilters(var DeliveryReminderLineToDelete: Record "Delivery Reminder Line"; FromDeliveryReminderLine: Record "Delivery Reminder Line")
     begin
     end;
 }

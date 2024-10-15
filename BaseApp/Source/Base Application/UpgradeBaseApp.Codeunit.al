@@ -120,6 +120,9 @@
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
         UpgradeVATSetup();
+#if not CLEAN22
+        UpgradeTimesheetExperience();
+#endif
     end;
 
     local procedure ClearTemporaryTables()
@@ -3249,4 +3252,32 @@
             VATSetup.Insert();
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupUpgradeTag());
     end;
+
+#if not CLEAN22
+    local procedure UpgradeTimesheetExperience()
+    var
+        ResourcesSetup: Record "Resources Setup";
+        FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag()) then
+            exit;
+
+        if TimeSheetManagement.GetTimeSheetV2FeatureKey() <> '' then
+            if ResourcesSetup.Get() then
+                if not ResourcesSetup."Use New Time Sheet Experience" then begin
+                    // Set to True if the feature NewTimeSheetExperience is enabled for any company
+                    FeatureDataUpdateStatus.SetFilter("Feature Key", TimeSheetManagement.GetTimeSheetV2FeatureKey());
+                    FeatureDataUpdateStatus.SetRange("Feature Status", FeatureDataUpdateStatus."Feature Status"::"Enabled");
+                    if not FeatureDataUpdateStatus.IsEmpty() then begin
+                        ResourcesSetup."Use New Time Sheet Experience" := true;
+                        ResourcesSetup.Modify();
+                    end;
+                end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag());
+    end;
+#endif
 }
