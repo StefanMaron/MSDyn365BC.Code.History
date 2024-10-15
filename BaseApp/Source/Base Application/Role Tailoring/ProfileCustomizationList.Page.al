@@ -7,7 +7,7 @@ page 9190 "Profile Customization List"
     PageType = List;
     UsageCategory = Lists;
     SourceTable = "Tenant Profile Page Metadata";
-    AdditionalSearchTerms = 'Profile Customizations';
+    AdditionalSearchTerms = 'Page customizations,Profile configurations,Profile customizations,Role customizations';
 
     layout
     {

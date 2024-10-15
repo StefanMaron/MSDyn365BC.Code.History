@@ -346,6 +346,7 @@ codeunit 137078 "SCM Navigate"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Navigate");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryApplicationArea.EnableEssentialSetup;
         NoSeriesSetup;

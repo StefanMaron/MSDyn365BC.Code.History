@@ -40,6 +40,7 @@ codeunit 104000 "Upgrade - BaseApp"
         MoveLastUpdateInvoiceEntryNoValue();
         CopyIncomingDocumentURLsIntoOneFiled();
         UpgradePowerBiEmbedUrl();
+        UpgradeSearchEmail();
 
         UpgradeAPIs();
     end;
@@ -275,6 +276,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesCrMemoEntityBuffer;
         UpgradeSalesOrderShipmentMethod;
         UpgradeSalesCrMemoShipmentMethod;
+        UpdateItemVariants();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -791,6 +793,74 @@ codeunit 104000 "Upgrade - BaseApp"
             until PowerBIReportBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag());
+    end;
+
+    local procedure UpgradeSearchEmail()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Contact: Record Contact;
+        ContactAltAddress: Record "Contact Alt. Address";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSearchEmailUpgradeTag()) then
+            exit;
+
+        SalespersonPurchaser.SetCurrentKey("Search E-Mail");
+        SalespersonPurchaser.SetRange("Search E-Mail", '');
+        if SalespersonPurchaser.FindSet(true, false) then
+            repeat
+                if SalespersonPurchaser."E-Mail" <> '' then begin
+                    SalespersonPurchaser."Search E-Mail" := SalespersonPurchaser."E-Mail";
+                    SalespersonPurchaser.Modify();
+                end;
+            until SalespersonPurchaser.Next() = 0;
+
+        Contact.SetCurrentKey("Search E-Mail");
+        Contact.SetRange("Search E-Mail", '');
+        if Contact.FindSet(true, false) then
+            repeat
+                if Contact."E-Mail" <> '' then begin
+                    Contact."Search E-Mail" := Contact."E-Mail";
+                    Contact.Modify();
+                end;
+            until Contact.Next() = 0;
+
+        ContactAltAddress.SetCurrentKey("Search E-Mail");
+        ContactAltAddress.SetRange("Search E-Mail", '');
+        if ContactAltAddress.FindSet(true, false) then
+            repeat
+                if ContactAltAddress."E-Mail" <> '' then begin
+                    ContactAltAddress."Search E-Mail" := ContactAltAddress."E-Mail";
+                    ContactAltAddress.Modify();
+                end;
+            until ContactAltAddress.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSearchEmailUpgradeTag());
+    end;
+
+    local procedure UpdateItemVariants()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        BlankGuid: Guid;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag()) then
+            exit;
+
+        ItemVariant.SetRange("Item Id", BlankGuid);
+        if ItemVariant.FindSet() then
+            repeat
+                if Item.Get(ItemVariant."Item No.") then
+                    if ItemVariant."Item Id" <> Item.SystemId then begin
+                        ItemVariant."Item Id" := Item.SystemId;
+                        ItemVariant.Modify();
+                    end;
+            until ItemVariant.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag());
     end;
 
     local procedure AddDeviceISVEmbPlan()

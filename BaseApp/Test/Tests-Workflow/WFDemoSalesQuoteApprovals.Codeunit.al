@@ -14,6 +14,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibrarySales: Codeunit "Library - Sales";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -777,6 +778,7 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -785,7 +787,9 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         if IsInitialized then
             exit;
         IsInitialized := true;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Sales Quote Approvals");
     end;
 
     local procedure CreateSalesQuote(var SalesHeader: Record "Sales Header")

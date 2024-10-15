@@ -300,11 +300,13 @@ codeunit 131000 "Library - Utility"
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
+        NoSeriesCode: Code[20];
     begin
         // Init, get the global no series
-        if not NoSeries.Get('GLOBAL') then begin
+        NoSeriesCode := GlobalNoSeriesCode;
+        if not NoSeries.Get(NoSeriesCode) then begin
             NoSeries.Init();
-            NoSeries.Validate(Code, 'GLOBAL');
+            NoSeries.Validate(Code, NoSeriesCode);
             NoSeries.Validate("Default Nos.", true);
             NoSeries.Validate("Manual Nos.", true);
             NoSeries.Insert(true);
@@ -720,6 +722,12 @@ codeunit 131000 "Library - Utility"
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Value := GenerateRandomText(FieldRef.Length);
         RecRef.Modify();
+    end;
+
+    procedure GlobalNoSeriesCode(): Code[20]
+    begin
+        // FI Registration No functionality: Only numeric characters allowed in No from number series
+        exit('123');
     end;
 
     procedure GetInetRoot(): Text

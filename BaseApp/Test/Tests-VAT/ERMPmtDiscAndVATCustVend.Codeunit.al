@@ -19,6 +19,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         AmountError: Label '%1 should be %2 in %3.';
 
@@ -607,10 +608,12 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -621,6 +624,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Pmt Disc And VAT Cust/Vend");
     end;
 
     local procedure SetupPmtTolAndVATDifference(PmtTolPct: Decimal; MaxPmtTolAmount: Decimal; MaxVATDifferenceAllowed: Decimal)

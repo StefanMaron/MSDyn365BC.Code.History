@@ -375,6 +375,7 @@ codeunit 138022 "O365 Charts Tests"
             LibraryFiscalYear.CreateFiscalYear;
 
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
         Commit();
@@ -443,7 +444,6 @@ codeunit 138022 "O365 Charts Tests"
         I: Integer;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
-
         // create 'CustomerCount' customers with salesLCY ranging from high to low.
         for I := 1 to CustomerCount do begin
             LibrarySmallBusiness.CreateCustomer(TestCustomer);

@@ -45,7 +45,7 @@ codeunit 138041 "O365 Company Information"
             OpenEdit;
             "Bank Name".SetValue('Stans Bank');
             "Bank Branch No.".SetValue('0235');
-            "Bank Account No.".SetValue('3276392693');
+            "Bank Account No.".SetValue('2229018-7205');
             "SWIFT Code".SetValue('DABASTAN');
             IBAN.SetValue('GB 80 RBOS 161732 41116737');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);

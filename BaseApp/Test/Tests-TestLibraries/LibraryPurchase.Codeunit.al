@@ -135,6 +135,7 @@ codeunit 130512 "Library - Purchase"
             PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID)
         else
             PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        TransferPurchaseHdrMandatoryFields(PurchaseHeader);
         SetCorrDocNoPurchase(PurchaseHeader);
         PurchaseHeader.Modify(true);
     end;
@@ -636,6 +637,18 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ToShipReceive: Boolean; ToInvoice: Boolean) DocumentNo: Code[20]
+    begin
+        // Post the purchase document.
+        // Depending on the document type and posting type return the number of the:
+        // - purchase receipt,
+        // - posted purchase invoice,
+        // - purchase return shipment, or
+        // - posted credit memo
+        TransferPurchaseHdrMandatoryFields(PurchaseHeader);
+        DocumentNo := PostPurchaseDocument2(PurchaseHeader, ToShipReceive, ToInvoice);
+    end;
+
+    procedure PostPurchaseDocument2(var PurchaseHeader: Record "Purchase Header"; ToShipReceive: Boolean; ToInvoice: Boolean) DocumentNo: Code[20]
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
@@ -939,6 +952,12 @@ codeunit 130512 "Library - Purchase"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         exit(LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Payments, PAGE::"Payment Journal"));
+    end;
+
+    procedure TransferPurchaseHdrMandatoryFields(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::Message);
+        PurchaseHeader.Validate("Invoice Message", LibraryUtility.GenerateGUID);
     end;
 
     procedure UndoPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line")

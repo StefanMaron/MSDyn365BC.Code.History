@@ -21,6 +21,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         IsInitialized: Boolean;
         FCYCode: Code[10];
         AddFeeDueDate: Date;
+        RefNoNoSeriesCode: Code[20];
 
     [Test]
     [HandlerFunctions('RHSalesInvoice')]
@@ -219,6 +220,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice contains Add. Fee per Line note with the amount picked up from the Reminder Terms
         //  as the selected reminder terms has a Add. Fee per Line > 0
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine := LibraryRandom.RandDec(100, 2);
@@ -244,6 +246,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice does not contain Add. Fee per Line text
         // as the selected reminder terms has a Add. Fee per Line = 0
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A = 0
         CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, '', 0); // WithLump = TRUE, AddFeePerLine = 0
@@ -272,6 +275,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice contains multiple add. fee notes
         // as the selected reminder terms has two reminder levels with line fee defined
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine1 := LibraryRandom.RandDec(100, 2);
@@ -312,6 +316,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice report has Add. Fee per Line note with FCY amount as
         // the selected reminder terms has a Add. Fee per Line defined in FCY
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine := LibraryRandom.RandDec(100, 2);
@@ -340,6 +345,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice report contains Add. Fee per Line note with Marginal Percentage shown
         // as the selected reminder terms has a Add. Fee per Line > 0  and Calc. Type is not Fixed
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X, with level 1 with Add. Fee per Line = A, where A > 0, with Add. Fee Setup created
         AddFeePerLine := LibraryRandom.RandDec(1000, 2);
@@ -370,6 +376,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         // [SCENARIO 107048] A service invoice report contains translated Add. Fee Note
         // as selected Reminder Terms contain Translated text on Report and Customer Country is set to use specific lang.
         Initialize;
+        SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // [GIVEN] A Reminder Term X, with level 1 with Add. Fee per Line = A, where A > 0, with Text on Report
         // defined in other language and Customer Language set to that language
@@ -399,6 +406,8 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reminder - Line Fee on Reports");
 
         IsInitialized := true;
+
+        RefNoNoSeriesCode := CreateRefNumberSeries('1000');
 
         CustomerPostingGroup.FindFirst;
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
@@ -528,6 +537,17 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ReminderTermsTranslation.Modify(true);
     end;
 
+    local procedure CreateRefNumberSeries(StartingNo: Code[20]): Code[10]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+        // Spcifically specify the ending No as numerical or the number series will not be numerical
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, '9999');
+        exit(NoSeries.Code);
+    end;
+
     local procedure ExportSalesInvoice(CustomerNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -597,6 +617,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);
+
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
@@ -623,6 +644,20 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
         ServiceInvoiceHeader.FindFirst;
         exit(ServiceInvoiceHeader."No.");
+    end;
+
+    local procedure SetupRefNumOnSalesAndReceivablesSetup(RefNumNos: Code[20]; CheckPrintNo: Boolean)
+    var
+        SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesAndReceivablesSetup.Get();
+        SalesAndReceivablesSetup."Reference Nos." := RefNumNos;
+        SalesAndReceivablesSetup."Print Reference No." := CheckPrintNo;
+        SalesAndReceivablesSetup."Invoice No." := false;
+        SalesAndReceivablesSetup."Customer No." := true;
+        SalesAndReceivablesSetup.Date := false;
+        SalesAndReceivablesSetup."Default Number" := '';
+        SalesAndReceivablesSetup.Modify();
     end;
 
     local procedure UpdateCustomerLangCode(CustomerNo: Code[20]; LangCode: Code[10])

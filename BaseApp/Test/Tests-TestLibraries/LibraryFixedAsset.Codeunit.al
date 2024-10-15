@@ -117,7 +117,8 @@ codeunit 131330 "Library - Fixed Asset"
         FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Sales Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
-
+        FAPostingGroup.Validate("Depr. Difference Acc.", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Depr. Difference Bal. Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Insert(true);
     end;
 

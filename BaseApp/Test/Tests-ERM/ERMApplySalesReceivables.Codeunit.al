@@ -37,19 +37,18 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJournalLine: Record "Gen. Journal Line";
         DueDate: Date;
         PaymentDiscountPercent: Decimal;
-        DiscountAmount: Decimal;
     begin
         // Create General Journal Line for Customer, Post and Validate Customer Ledger Entry and Detailed Customer Ledger Entry for
         // Payment Discount(Amount and "Amount LCY") field.
+        // Local implementation of Payment Discount Possible in FI
 
         // Calculate Due Date and Payment Discount Percent then Post and Apply General Lines.
         Initialize;
         CalcDueDateAndPaymentDiscount(DueDate, PaymentDiscountPercent);
         PostAndApplyGenLines(GenJournalLine, DueDate);
-        DiscountAmount := Round(GenJournalLine.Amount * PaymentDiscountPercent / 100);
 
         // Verify: Verify Applied Entry.
-        VerifyPaymentWithDiscount(GenJournalLine."Document No.", DiscountAmount);
+        VerifyPaymentWithoutDiscount(GenJournalLine."Document No.");
     end;
 
     [Test]
@@ -425,7 +424,6 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
-
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
@@ -1033,21 +1031,6 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           StrSubstNo(WrongValErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption));
     end;
 
-    local procedure VerifyPaymentWithDiscount(DocumentNo: Code[20]; Amount: Decimal)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        // Select Customer Payment Entries.
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
-
-        // Verify Payment Discount.
-        FindDetailedLedgerEntry(
-          DetailedCustLedgEntry, CustLedgerEntry."Document No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
-        CustLedgerEntry.TestField(Open);
-        DetailedCustLedgEntry.TestField(Amount, Amount);
-    end;
-
     local procedure VerifyPaymentWithoutDiscount(DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1076,7 +1059,6 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CustLedgerEntry.CalcFields("Original Amount", "Original Amt. (LCY)", "Remaining Amount", "Remaining Amt. (LCY)");
         CustLedgerEntry.TestField("Original Amount", CustLedgerEntry."Remaining Amount");
         CustLedgerEntry.TestField("Original Amt. (LCY)", CustLedgerEntry."Remaining Amt. (LCY)");
-        CustLedgerEntry.TestField("Original Pmt. Disc. Possible", CustLedgerEntry."Remaining Pmt. Disc. Possible");
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal)

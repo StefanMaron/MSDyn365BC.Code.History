@@ -3102,6 +3102,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateVATData;
         NoSeriesSetup;
         ItemJournalSetup;

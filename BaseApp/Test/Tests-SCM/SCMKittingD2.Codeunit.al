@@ -24,6 +24,7 @@ codeunit 137091 "SCM Kitting - D2"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage;
         StdCostLevel: Integer;
         isInitialized: Boolean;
@@ -119,7 +120,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ItemSubstitutionPageHandler,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ItemSubstitutionPageHandler')]
     [Scope('OnPrem')]
     procedure UseSubstitute()
     var
@@ -127,10 +128,13 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine: Record "Assembly Line";
         ItemSubstitution: Record "Item Substitution";
         BOMComponent: Record "BOM Component";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
         // Setup.
         Initialize;
+
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
+
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', false);
@@ -153,7 +157,6 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
         Assert.AreEqual(AssemblyLine."No.", ItemSubstitution."Substitute No.", 'Wrong substitution selected.');
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [ModalPageHandler]
@@ -1901,18 +1904,6 @@ codeunit 137091 "SCM Kitting - D2"
     begin
         Assert.IsTrue(StrPos(Question, CnfmRefreshLines) > 0, Question);
         Reply := true;
-    end;
-
-    [RecallNotificationHandler]
-    [Scope('OnPrem')]
-    procedure RecallNotificationHandler(var Notification: Notification): Boolean
-    begin
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure SendNotificationHandler(var Notification: Notification): Boolean
-    begin
     end;
 }
 

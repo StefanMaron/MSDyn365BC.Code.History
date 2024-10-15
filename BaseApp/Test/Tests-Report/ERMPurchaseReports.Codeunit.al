@@ -1386,7 +1386,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(85, 31, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
+        LibraryReportValidation.VerifyCellValue(86, 31, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
     end;
 
     [Test]
@@ -2022,7 +2022,7 @@ codeunit 134983 "ERM Purchase Reports"
     local procedure VerifyYourReferencePurchaseCrMemo(YourReference: Text[35])
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(26, 5, YourReference);
+        LibraryReportValidation.VerifyCellValue(29, 5, YourReference);
     end;
 
     [ConfirmHandler]

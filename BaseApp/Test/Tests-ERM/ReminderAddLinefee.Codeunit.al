@@ -259,40 +259,6 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
-    [Scope('OnPrem')]
-    procedure CreateReminderNoLevels()
-    var
-        ReminderLevel: Record "Reminder Level";
-        ReminderHeader: Record "Reminder Header";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        CustNo: Code[20];
-        ReminderTermCode: Code[10];
-    begin
-        // [SCENARIO 107048] A reminder is not created and no errors are thrown when trying to create a reminder for a reminder term without any levels
-        Initialize(true);
-
-        // [GIVEN] A customer A with Reminder Terms Code R_a set up without any levels
-        CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        ReminderLevel.SetRange("Reminder Terms Code", ReminderTermCode);
-        ReminderLevel.DeleteAll(true);
-
-        // [GIVEN] A posted sales invoice (I_a) for Customer A
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-
-        // [GIVEN] I_a is overdue
-        // [WHEN] "Create Reminders" action is invoked for all customers
-        RunCreateReminderReport('', WorkDate, CustLedgEntry);
-
-        // [THEN] A confirm dialog is shown indicating a problem
-        // [THEN] No error is thrown
-        // [THEN] No reminder is created for customer A
-        ReminderHeader.SetRange("Customer No.", CustNo);
-        Assert.AreEqual(0, ReminderHeader.Count,
-          StrSubstNo(CountMismatchErr, ReminderHeader.TableCaption));
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesInvWithoutLineFee1stRmd()
     var

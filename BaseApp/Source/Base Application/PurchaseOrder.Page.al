@@ -1229,9 +1229,7 @@ page 50 "Purchase Order"
 
                     trigger OnAction()
                     begin
-                        CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
-                        Clear(CopyPurchDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1865,7 +1863,6 @@ page 50 "Purchase Order"
     end;
 
     var
-        CopyPurchDoc: Report "Copy Purchase Document";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";

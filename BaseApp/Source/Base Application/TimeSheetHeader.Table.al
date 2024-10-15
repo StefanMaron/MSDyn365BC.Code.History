@@ -240,11 +240,23 @@ table 950 "Time Sheet Header"
         TimeSheetLine.SetRange("Time Sheet No.", "No.");
         if TimeSheetLine.FindSet then begin
             repeat
-                TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
-                TimeSheetLine.TestField(Posted, true);
+                CheckTimeSheetLine(TimeSheetLine);
             until TimeSheetLine.Next = 0;
         end else
             Error(Text001, "No.");
+    end;
+
+    local procedure CheckTimeSheetLine(TimeSheetLine: Record "Time Sheet Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTimeSheetLine(TimeSheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TimeSheetLine.TestField(Status, TimeSheetLine.Status::Approved);
+        TimeSheetLine.TestField(Posted, true);
     end;
 
     procedure GetLastLineNo(): Integer
@@ -297,6 +309,11 @@ table 950 "Time Sheet Header"
     begin
         if Resource."Privacy Blocked" then
             Error(PrivacyBlockedErr, Resource."No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTimeSheetLine(TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

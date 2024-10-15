@@ -17,6 +17,7 @@ codeunit 4011 "Hybrid Message Management"
         ColumnMappingTypeErr: Label 'Incompatible type.';
         ColumnMappingLengthErr: Label 'Incompatible length.';
         UnsupportedVersionErr: Label 'Business Central on-premises must be at least version 15 to use the cloud migration functionality.';
+        CopyTableTimeoutErr: Label 'The table copy operation timed out after 24 hours.';
 
     procedure ResolveMessageCode(MessageCode: Code[10]; InnerMessage: Text) Message: Text
     var
@@ -66,6 +67,8 @@ codeunit 4011 "Hybrid Message Management"
                 Message := UnsupportedVersionErr;
             '52100':
                 Message := HandleWebhookError();
+            '52110':
+                Message := CopyTableTimeoutErr;
             else
                 Message := InnerMessage;
         end;

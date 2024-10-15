@@ -216,6 +216,15 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation.IBAN.SetValue('DK44 0123 3176 0000 00');
         Assert.IsFalse(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+
+        // if you set Bank Branch No. and Bank Account No., SWIFT and IBAN are no longer mandatory
+        CompanyInformation."SWIFT Code".SetValue('');
+        CompanyInformation.IBAN.SetValue('');
+        CompanyInformation."Bank Branch No.".SetValue('NB54366');
+        CompanyInformation."Bank Account No.".SetValue('2229018-7205');
+        Assert.IsFalse(CompanyInformation."SWIFT Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsFalse(CompanyInformation.IBAN.ShowMandatory, UnexpectedShowMandatoryValueTxt);
+
         CompanyInformation.Close;
     end;
 
@@ -364,6 +373,8 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(PurchaseInvoice."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
+        Assert.IsTrue(PurchaseInvoice."Message Type".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(PurchaseInvoice."Invoice Message".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.PurchLines.New;
         Assert.IsFalse(PurchaseInvoice.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(PurchaseInvoice.PurchLines."Direct Unit Cost".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -394,6 +405,8 @@ codeunit 134590 "Mandatory Fields Tests"
         PurchaseOrder.OpenNew;
         Assert.IsTrue(PurchaseOrder."Buy-from Vendor Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(PurchaseOrder."Message Type".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsTrue(PurchaseOrder."Invoice Message".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         PurchaseOrder.PurchLines.New;
         Assert.IsFalse(PurchaseOrder.PurchLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);

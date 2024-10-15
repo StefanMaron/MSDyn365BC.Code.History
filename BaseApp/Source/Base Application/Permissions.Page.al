@@ -56,10 +56,17 @@ page 9803 Permissions
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
-                    LookupPageID = "All Objects with Caption";
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the ID of the object to which the permissions apply.';
+                    Lookup = true;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        AllObjectswithCaption: Page "All Objects with Caption";
+                    begin
+                        exit(AllObjectswithCaption.OnLookupObjectId("Object Type", Text));
+                    end;
                 }
                 field(ObjectName; ObjectName)
                 {

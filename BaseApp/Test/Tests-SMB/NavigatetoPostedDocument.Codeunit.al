@@ -16,6 +16,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         EnabledValue: Boolean;
@@ -511,6 +512,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Navigate to Posted Document");
+        LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -523,6 +525,8 @@ codeunit 138047 "Navigate to Posted Document"
 
         LibraryERMCountryData.CreateVATData;
         CreateUserPersonalization;
+
+        LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -599,6 +603,7 @@ codeunit 138047 "Navigate to Posted Document"
     begin
         Initialize;
         LibraryLowerPermissions.SetOutsideO365Scope;
+        SetServSetupNoSeries;
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
@@ -626,6 +631,18 @@ codeunit 138047 "Navigate to Posted Document"
         EnabledValue := Value;
         MySettings.MyNotificationsLbl.DrillDown;
         MySettings.Close;
+    end;
+
+    local procedure SetServSetupNoSeries()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        SalesSetup.Get();
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup."Service Invoice Nos." := SalesSetup."Invoice Nos.";
+        ServiceMgtSetup."Posted Service Invoice Nos." := SalesSetup."Invoice Nos.";
+        ServiceMgtSetup.Modify();
     end;
 
     [ConfirmHandler]

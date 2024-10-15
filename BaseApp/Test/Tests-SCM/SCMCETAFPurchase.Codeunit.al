@@ -22,6 +22,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
     local procedure Initialize()
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM CETAF Purchase");
@@ -35,6 +36,11 @@ codeunit 137601 "SCM CETAF Purchase"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Modify();
+
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Purchase");

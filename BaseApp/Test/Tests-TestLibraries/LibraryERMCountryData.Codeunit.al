@@ -7,14 +7,28 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+
     procedure InitializeCountry()
     begin
         exit;
     end;
 
     procedure CreateVATData()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
-        exit;
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
+        if VATPostingSetup.FindSet then
+            repeat
+                if (VATPostingSetup."Sales VAT Account" = '') or (VATPostingSetup."Purchase VAT Account" = '') then begin
+                    VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount);
+                    VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount);
+                    VATPostingSetup.Modify(true);
+                end;
+            until VATPostingSetup.Next = 0;
     end;
 
     procedure GetVATCalculationType(): Integer
@@ -113,8 +127,39 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateSalesReceivablesSetup()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoSeriesCode: Code[20];
+        Modified: Boolean;
     begin
-        exit;
+        // Registration No in Sales Invoice
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesSetup.Get();
+
+        if SalesSetup."Reference Nos." <> NoSeriesCode then begin
+            SalesSetup.Validate("Reference Nos.", NoSeriesCode);
+            Modified := true;
+        end;
+
+        if SalesSetup."Invoice No." then begin
+            SalesSetup."Invoice No." := false;
+            Modified := true;
+        end;
+        if SalesSetup.Date then begin
+            SalesSetup.Date := false;
+            Modified := true;
+        end;
+        if SalesSetup."Customer No." then begin
+            SalesSetup."Customer No." := false;
+            Modified := true;
+        end;
+        if SalesSetup."Default Number" <> '' then begin
+            SalesSetup."Default Number" := '';
+            Modified := true;
+        end;
+
+        if Modified then
+            SalesSetup.Modify(true);
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -202,6 +247,14 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
     end;
 }
 

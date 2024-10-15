@@ -1090,6 +1090,7 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesLine: Record "Sales Line";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         ShipmentMethod: Record "Shipment Method";
+        TransportMethod: Record "Transport Method";
         TransactionType: Record "Transaction Type";
         IntrastatJournalPage: TestPage "Intrastat Journal";
         InvoiceDate: Date;
@@ -1116,6 +1117,15 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Fixing the error
         TransactionType.FindFirst;
         IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
+        // [WHEN] Running Checklist
+        IntrastatJournalPage.ChecklistReport.Invoke;
+
+        // [THEN] You got one more error
+        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transport Method"));
+
+        // [WHEN] Fixing the error
+        TransportMethod.FindFirst;
+        IntrastatJournalPage."Transport Method".Value(TransportMethod.Code);
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;
 
