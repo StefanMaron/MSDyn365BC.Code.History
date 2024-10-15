@@ -74,6 +74,9 @@ report 117 Reminder
                 column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                 {
                 }
+                column(CompanyInfoIBAN; CompanyBankAccount.IBAN)
+                {
+                }
                 column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                 {
                 }
@@ -150,6 +153,9 @@ report 117 Reminder
                 {
                 }
                 column(CompanyInfo__Bank_Account_No__Caption; CompanyInfo__Bank_Account_No__CaptionLbl)
+                {
+                }
+                column(IBANCaption; IBANCaptionLbl)
                 {
                 }
                 column(CompanyInfo__Bank_Name_Caption; CompanyInfo__Bank_Name_CaptionLbl)
@@ -973,6 +979,7 @@ report 117 Reminder
         Issued_Reminder_Header___Posting_Date_CaptionLbl: Label 'Posting Date';
         Issued_Reminder_Header___No__CaptionLbl: Label 'Reminder No.';
         CompanyInfo__Bank_Account_No__CaptionLbl: Label 'Account No.';
+        IBANCaptionLbl: Label 'IBAN';
         CompanyInfo__Bank_Name_CaptionLbl: Label 'Bank';
         CompanyInfo__Giro_No__CaptionLbl: Label 'Giro No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';

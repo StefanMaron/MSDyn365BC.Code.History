@@ -1798,6 +1798,7 @@ codeunit 5342 "CRM Synch. Helper"
         CRMAccount: Record "CRM Account";
         CRMSalesorder: Record "CRM Salesorder";
         PrimaryKey: Variant;
+        IsHandled: Boolean;
     begin
         TableIsMapped := false;
         if IsTableMappedToCRMOption(DestinationFieldRef, SourceFieldRef) then begin
@@ -1809,17 +1810,20 @@ codeunit 5342 "CRM Synch. Helper"
             CRMOptionMapping.SetRange("Option Value Caption", SourceFieldRef.Value());
             CRMOptionMapping.SetRange("Table ID", DestinationFieldRef.Relation());
 
-            if SourceFieldRef.Record().Number = Database::"CRM Salesorder" then
-                case SourceFieldRef.Number of
-                    CRMsalesorder.FieldNo(PaymentTermsCodeEnum):
-                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(PaymentTermsCodeEnum));
-                    CRMsalesorder.FieldNo(ShippingMethodCodeEnum):
-                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum));
-                    CRMsalesorder.FieldNo(FreightTermsCodeEnum):
-                        CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum));
-                end
-            else
-                CRMOptionMapping.SetRange("Integration Field ID", SourceFieldRef.Number());
+            IsHandled := false;
+            OnConvertOptionToTableOnBeforeSetRangeForIntegrationFieldID(CRMOptionMapping, SourceFieldRef, IsHandled);
+            if not IsHandled then
+                if SourceFieldRef.Record().Number = Database::"CRM Salesorder" then
+                    case SourceFieldRef.Number of
+                        CRMsalesorder.FieldNo(PaymentTermsCodeEnum):
+                            CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(PaymentTermsCodeEnum));
+                        CRMsalesorder.FieldNo(ShippingMethodCodeEnum):
+                            CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum));
+                        CRMsalesorder.FieldNo(FreightTermsCodeEnum):
+                            CRMOptionMapping.SetRange("Integration Field ID", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum));
+                    end
+                else
+                    CRMOptionMapping.SetRange("Integration Field ID", SourceFieldRef.Number());
 
             if CRMOptionMapping.FindFirst() then begin
                 FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
@@ -2002,6 +2006,11 @@ codeunit 5342 "CRM Synch. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateActualStatusCode(CustLedgerEntry: Record "Cust. Ledger Entry"; var CRMInvoice: Record "CRM Invoice"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvertOptionToTableOnBeforeSetRangeForIntegrationFieldID(var CRMOptionMapping: Record "CRM Option Mapping"; SourceFieldRef: FieldRef; var IsHandled: Boolean)
     begin
     end;
 }

@@ -68,6 +68,9 @@ report 118 "Finance Charge Memo"
                 column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
+                column(CompanyInfoIBAN; CompanyBankAccount.IBAN)
+                {
+                }
                 column(CompanyInfo1Picture; CompanyInfo1.Picture)
                 {
                 }
@@ -159,6 +162,9 @@ report 118 "Finance Charge Memo"
                 {
                 }
                 column(AccNoCaption; AccNoCaptionLbl)
+                {
+                }
+                column(IBANCaption; IBANCaptionLbl)
                 {
                 }
                 column(BankCaption; BankCaptionLbl)
@@ -763,6 +769,7 @@ report 118 "Finance Charge Memo"
         DueDateCaptionLbl: Label 'Due Date';
         FinChargeMemoNoCaptionLbl: Label 'Fin. Chrg. Memo No.';
         AccNoCaptionLbl: Label 'Account No.';
+        IBANCaptionLbl: Label 'IBAN';
         BankCaptionLbl: Label 'Bank';
         GiroNoCaptionLbl: Label 'Giro No.';
         PhoneNoCaptionLbl: Label 'Phone No.';

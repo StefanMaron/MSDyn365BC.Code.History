@@ -244,6 +244,7 @@ codeunit 7000006 "Document-Post"
         Currency: Record Currency;
         DocLock: Boolean;
     begin
+        OnBeforeUpdateReceivableDoc(CustLedgEntry);
         with CustLedgEntry do begin
             if not DocLock then begin
                 DocLock := true;
@@ -1253,6 +1254,11 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePayableDocBeforeCarteraDocModify(var CarteraDoc: Record "Cartera Doc."; VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReceivableDoc(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

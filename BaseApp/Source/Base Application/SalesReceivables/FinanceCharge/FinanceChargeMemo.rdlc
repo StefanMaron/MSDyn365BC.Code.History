@@ -4143,8 +4143,8 @@
                               </Filters>
                               <Top>6.06429cm</Top>
                               <Left>0.37802cm</Left>
-                              <Height>2.46941cm</Height>
-                              <Width>17.85005cm</Width>
+                              <Height>2.46942cm</Height>
+                              <Width>17.85008cm</Width>
                               <ZIndex>4</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF((Fields!VATPercentCaption.Value = "") or (Sum(Fields!VALVATAmt.Value, "DataSet_Result") = 0),True,False)</Hidden>
@@ -4833,8 +4833,8 @@
                               </Filters>
                               <Top>11.51199cm</Top>
                               <Left>0.378cm</Left>
-                              <Height>2.46941cm</Height>
-                              <Width>17.85003cm</Width>
+                              <Height>2.46942cm</Height>
+                              <Width>17.85002cm</Width>
                               <ZIndex>5</ZIndex>
                               <DataElementOutput>NoOutput</DataElementOutput>
                               <Style />
@@ -4882,7 +4882,7 @@ Cstr(Fields!VATRegNoCaption.Value) + Chr(177) +
 Cstr(Fields!GiroNoCaption.Value) + Chr(177) + 
 Cstr(Fields!BankCaption.Value) + Chr(177) + 
 Cstr(Fields!CustNo_IssuedFinChargeMemoHdrCaption.Value) + Chr(177) + 
-Cstr(Fields!AccNoCaption.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
 Cstr(Fields!FinChargeMemoNoCaption.Value) + Chr(177) + 
 Cstr(Fields!DueDateCaption.Value) + Chr(177) + 
 Cstr(Fields!PostingDateCaption.Value) + Chr(177) + 
@@ -4896,7 +4896,7 @@ Cstr(Fields!CompanyInfoPhoneNo.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVatRegNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!VATNoText.Value) + Chr(177) + 
 Cstr(Fields!ReferenceText.Value) + Chr(177) + 
 Cstr(Fields!PageCaption.Value) + Chr(177) + 
@@ -5506,7 +5506,7 @@ Cstr(Fields!CACCaption.Value)
                               <Top>9.25422cm</Top>
                               <Left>0.37802cm</Left>
                               <Height>2.11666cm</Height>
-                              <Width>17.85005cm</Width>
+                              <Width>17.85006cm</Width>
                               <ZIndex>7</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -5561,7 +5561,7 @@ Cstr(Fields!CACCaption.Value)
       <Width>18.55741cm</Width>
       <Page>
         <PageHeader>
-          <Height>9.15458cm</Height>
+          <Height>9.8cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -5609,10 +5609,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>150pt</Top>
+              <Top>159pt</Top>
               <Left>11.15851cm</Left>
               <Height>11pt</Height>
-              <Width>3.37899cm</Width>
+              <Width>2.8cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -5635,37 +5635,11 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>180pt</Top>
+              <Top>189pt</Top>
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
-              <Width>3.38436cm</Width>
+              <Width>2.8cm</Width>
               <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="GiroNoCaption">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(19,1)</Value>
-                      <Style>
-                        <FontStyle>Normal</FontStyle>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>190pt</Top>
-              <Left>11.15313cm</Left>
-              <Height>11pt</Height>
-              <Width>3.38436cm</Width>
-              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5690,8 +5664,8 @@ Cstr(Fields!CACCaption.Value)
               <Top>200pt</Top>
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
-              <Width>3.38436cm</Width>
-              <ZIndex>4</ZIndex>
+              <Width>2.8cm</Width>
+              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5713,15 +5687,15 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>158.3999pt</Top>
+              <Top>176.3999pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>5</ZIndex>
+              <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="AccNoCaption">
+            <Textbox Name="IBANCaption">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -5741,8 +5715,8 @@ Cstr(Fields!CACCaption.Value)
               <Top>210pt</Top>
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
-              <Width>3.38436cm</Width>
-              <ZIndex>6</ZIndex>
+              <Width>2.8cm</Width>
+              <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5764,10 +5738,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>190pt</Top>
+              <Top>208pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5789,10 +5763,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>220pt</Top>
+              <Top>238pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5814,10 +5788,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>210pt</Top>
+              <Top>228pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5845,7 +5819,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5867,10 +5841,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>70pt</Top>
+              <Top>88pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5898,7 +5872,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5920,10 +5894,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>80pt</Top>
+              <Top>98pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5951,7 +5925,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -5973,10 +5947,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>90pt</Top>
+              <Top>108pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6004,7 +5978,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6026,10 +6000,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>100pt</Top>
+              <Top>118pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6057,7 +6031,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6079,10 +6053,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>110pt</Top>
+              <Top>128pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6110,7 +6084,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.69685cm</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6132,10 +6106,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>120pt</Top>
+              <Top>138pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6157,10 +6131,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>130pt</Top>
+              <Top>148pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6184,11 +6158,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>150pt</Top>
-              <Left>14.60805cm</Left>
+              <Top>159pt</Top>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>23</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6210,10 +6184,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>140pt</Top>
+              <Top>158pt</Top>
               <Height>11pt</Height>
               <Width>11.15313cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6237,39 +6211,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>180pt</Top>
-              <Left>14.60805cm</Left>
+              <Top>189pt</Top>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>25</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(34,1)</Value>
-                      <Style>
-                        <FontStyle>Normal</FontStyle>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>190pt</Top>
-              <Left>14.60805cm</Left>
-              <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>26</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6294,10 +6240,10 @@ Cstr(Fields!CACCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>200pt</Top>
-              <Left>14.60805cm</Left>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>27</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6321,16 +6267,16 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>158.3999pt</Top>
+              <Top>176.3999pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNo1">
+            <Textbox Name="CompanyInfoIBAN1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6350,10 +6296,10 @@ Cstr(Fields!CACCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>210pt</Top>
-              <Left>14.60805cm</Left>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>29</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6375,10 +6321,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>180.69992pt</Top>
+              <Top>198.69992pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6400,11 +6346,11 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>180.69992pt</Top>
+              <Top>198.69992pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6426,10 +6372,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>170pt</Top>
+              <Top>188pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6451,11 +6397,11 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>170pt</Top>
+              <Top>188pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6479,11 +6425,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>190pt</Top>
+              <Top>208pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6508,11 +6454,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>220pt</Top>
+              <Top>238pt</Top>
               <Left>4.12372cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6537,11 +6483,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>210pt</Top>
+              <Top>228pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6565,11 +6511,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>200pt</Top>
+              <Top>218pt</Top>
               <Left>4.13431cm</Left>
               <Height>11pt</Height>
               <Width>7.01882cm</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6597,7 +6543,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
               <Width>6.6969cm</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6622,10 +6568,10 @@ Cstr(Fields!CACCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox3</rd:DefaultName>
-              <Top>200pt</Top>
+              <Top>218pt</Top>
               <Height>11pt</Height>
               <Width>4.02847cm</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6649,11 +6595,11 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>160pt</Top>
+              <Top>169pt</Top>
               <Left>11.15851cm</Left>
               <Height>11pt</Height>
-              <Width>3.37899cm</Width>
-              <ZIndex>40</ZIndex>
+              <Width>2.8cm</Width>
+              <ZIndex>38</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6678,11 +6624,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>160pt</Top>
-              <Left>14.60805cm</Left>
+              <Top>169pt</Top>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24198cm</Width>
-              <ZIndex>41</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6705,11 +6651,11 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>170pt</Top>
+              <Top>179pt</Top>
               <Left>11.15313cm</Left>
               <Height>11pt</Height>
-              <Width>3.38436cm</Width>
-              <ZIndex>42</ZIndex>
+              <Width>2.8cm</Width>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6734,11 +6680,11 @@ Cstr(Fields!CACCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>170pt</Top>
-              <Left>14.60805cm</Left>
+              <Top>179pt</Top>
+              <Left>13.95313cm</Left>
               <Height>11pt</Height>
-              <Width>3.24192cm</Width>
-              <ZIndex>43</ZIndex>
+              <Width>3.89684cm</Width>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6751,7 +6697,7 @@ Cstr(Fields!CACCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo3Picture.Value) = TRUE,true,false)</Hidden>
               </Visibility>
@@ -6769,7 +6715,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo2Picture.Value) = TRUE,true,false)</Hidden>
               </Visibility>
@@ -6787,7 +6733,7 @@ Cstr(Fields!CACCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>44</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNOTHING(Fields!CompanyInfo1Picture.Value) = TRUE,true,false)</Hidden>
               </Visibility>
@@ -6815,10 +6761,10 @@ Cstr(Fields!CACCaption.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>240.24997pt</Top>
+              <Top>258.24997pt</Top>
               <Height>10pt</Height>
               <Width>11.14254cm</Width>
-              <ZIndex>47</ZIndex>
+              <ZIndex>45</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -6984,6 +6930,9 @@ End Function
         <Field Name="CompanyInfoBankAccountNo">
           <DataField>CompanyInfoBankAccountNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CompanyInfo1Picture">
           <DataField>CompanyInfo1Picture</DataField>
         </Field>
@@ -7076,6 +7025,9 @@ End Function
         </Field>
         <Field Name="AccNoCaption">
           <DataField>AccNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="BankCaption">
           <DataField>BankCaption</DataField>

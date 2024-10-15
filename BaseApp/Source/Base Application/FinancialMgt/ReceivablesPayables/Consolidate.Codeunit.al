@@ -124,6 +124,7 @@
                                         TempDimBufIn."Entry No." := TempSubsidGLEntry."Entry No.";
                                         TempDimBufIn."Dimension Code" := TempSubsidDimBuf."Dimension Code";
                                         TempDimBufIn."Dimension Value Code" := TempSubsidDimBuf."Dimension Value Code";
+                                        OnRunOnBeforeInsertTempDimBuf(TempDimBufIn, TempSubsidDimBuf);
                                         TempDimBufIn.Insert();
                                     end;
                                 until TempSubsidDimBuf.Next() = 0;
@@ -1055,7 +1056,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateTempGLEntryProcedure(TempGLEntry, GLEntry, IsHandled);
+        OnBeforeUpdateTempGLEntryProcedure(TempGLEntry, GLEntry, IsHandled, TempDimBufIn);
         if IsHandled then
             exit;
 
@@ -1547,7 +1548,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateTempGLEntryProcedure(var TempGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateTempGLEntryProcedure(var TempGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean; TempDimensionBufferIn: Record "Dimension Buffer")
     begin
     end;
 
@@ -1563,6 +1564,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeWindowOpen(var WindowDialog: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInsertTempDimBuf(var TempDimensionBuffer: Record "Dimension Buffer"; var TempSubsidDimensionBuffer: Record "Dimension Buffer")
     begin
     end;
 }

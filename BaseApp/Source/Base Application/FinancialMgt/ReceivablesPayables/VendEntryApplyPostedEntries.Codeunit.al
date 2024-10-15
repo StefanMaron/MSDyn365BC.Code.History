@@ -101,6 +101,7 @@
         if ApplyUnapplyParameters."Document No." = '' then
             ApplyUnapplyParameters."Document No." := VendLedgEntry."Document No.";
 
+        OnApplyOnBeforeVendPostApplyVendLedgEntry(VendLedgEntry, ApplyUnapplyParameters);
         VendPostApplyVendLedgEntry(VendLedgEntry, ApplyUnapplyParameters);
         exit(true);
     end;
@@ -175,7 +176,7 @@
 
         GenJnlPostLine.SetIDBillSettlement(BeAppliedToBill(VendLedgEntry));
 
-        OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
+        OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine, ApplyUnapplyParameters);
         GenJnlPostLine.VendPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry);
         OnAfterPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
 
@@ -366,6 +367,8 @@
         CheckPostingDate(ApplyUnapplyParameters, MaxPostingDate);
         if ApplyUnapplyParameters."Posting Date" < DtldVendLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
+
+        OnPostUnApplyVendorCommitOnBeforeFilterDtldVendLedgEntry(DtldVendLedgEntry2, ApplyUnapplyParameters);
         if DtldVendLedgEntry2."Transaction No." = 0 then begin
             DtldVendLedgEntry.SetCurrentKey("Application No.", "Vendor No.", "Entry Type");
             DtldVendLedgEntry.SetRange("Application No.", DtldVendLedgEntry2."Application No.");
@@ -412,7 +415,7 @@
         if not HideProgressWindow then
             Window.Open(UnapplyingMsg);
 
-        OnBeforePostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine);
+        OnBeforePostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine, ApplyUnapplyParameters);
         CollectAffectedLedgerEntries(TempVendorLedgerEntry, DtldVendLedgEntry2);
         GenJnlPostLine.UnapplyVendLedgEntry(GenJnlLine, DtldVendLedgEntry2);
         RunVendExchRateAdjustment(GenJnlLine, TempVendorLedgerEntry);
@@ -811,12 +814,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostApplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostApplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 
@@ -887,6 +890,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckInitialDocumentType(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyVendorCommitOnBeforeFilterDtldVendLedgEntry(DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforeVendPostApplyVendLedgEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 }

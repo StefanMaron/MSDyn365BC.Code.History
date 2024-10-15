@@ -27,14 +27,9 @@ codeunit 30198 "Shpfy Sync Shop Locations"
     var
         ShopLocation: Record "Shpfy Shop Location";
         IsNew: Boolean;
-        IsFulfillmentService: Boolean;
         JValue: JsonValue;
     begin
         if JsonHelper.GetJsonValue(JLocation, JValue, 'legacyResourceId') then begin
-            IsFulfillmentService := JsonHelper.GetJsonToken(JLocation.AsToken(), 'fulfillmentService').IsObject;
-            if IsFulfillmentService then
-                exit;
-
             if not ShopLocation.Get(Shop.Code, JValue.AsBigInteger()) then begin
                 ShopLocation.Init();
                 ShopLocation."Shop Code" := Shop.Code;
@@ -46,6 +41,7 @@ codeunit 30198 "Shpfy Sync Shop Locations"
 #pragma warning restore AA0139
             ShopLocation.Active := JsonHelper.GetValueAsBoolean(JLocation, 'isActive');
             ShopLocation."Is Primary" := JsonHelper.GetValueAsBoolean(JLocation, 'isPrimary');
+            ShopLocation."Is Fulfillment Service" := JsonHelper.GetJsonToken(JLocation.AsToken(), 'fulfillmentService').IsObject;
             if IsNew then
                 ShopLocation.Insert()
             else begin

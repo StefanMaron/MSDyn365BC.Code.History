@@ -618,6 +618,7 @@ table 303 "Finance Charge Memo Line"
         FinChrgMemoHeader.TestField("Customer Posting Group");
         FinChrgMemoHeader.TestField("Fin. Charge Terms Code");
         FinChrgTerms.Get(FinChrgMemoHeader."Fin. Charge Terms Code");
+        OnProcessFinChrgMemoHeaderOnAfterFinChrgTermsGet(Rec, FinChrgTerms);
         if FinChrgMemoHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision()
         else begin
@@ -785,6 +786,8 @@ table 303 "Finance Charge Memo Line"
             CumAmount := Round(CumAmount / UseInterestPeriod * UseInterestRate / 100, Currency."Amount Rounding Precision")
         else
             CumAmount := 0;
+
+        OnAfterCumulateDetailedEntries(Rec, FinChrgMemoHeader, ClosedatDate, CumAmount);
     end;
 
     procedure LookupDocNo()
@@ -989,6 +992,16 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateMulitplyInterestRateEntriesOnBeforeBuildDescription(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; UseCalcDate: Date; UseDueDate: Date)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCumulateDetailedEntries(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; ClosedAtDate: Date; var CumAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessFinChrgMemoHeaderOnAfterFinChrgTermsGet(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeTerms: Record "Finance Charge Terms")
     begin
     end;
 }

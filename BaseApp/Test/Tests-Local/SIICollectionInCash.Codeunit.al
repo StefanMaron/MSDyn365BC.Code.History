@@ -397,6 +397,7 @@ codeunit 147554 "SII Collection In Cash"
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."VAT Reporting Date" := PostingDate;
         CustLedgerEntry."Customer No." := CustNo;
         CustLedgerEntry."Sales (LCY)" := TotalAmount;
         CustLedgerEntry.Insert();

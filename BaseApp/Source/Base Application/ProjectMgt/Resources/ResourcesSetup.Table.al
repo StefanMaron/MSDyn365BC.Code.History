@@ -54,6 +54,7 @@ table 314 "Resources Setup"
         {
             Caption = 'Use New Time Sheet Experience';
             DataClassification = SystemMetadata;
+            InitValue = true;
             ObsoleteReason = 'Replacement of NewTimeSheetExperience feature key until removal of old one.';
 #if not CLEAN22
             ObsoleteState = Pending;
@@ -70,7 +71,7 @@ table 314 "Resources Setup"
                 TimeSheetManagement: Codeunit "Time Sheet Management";
             begin
                 if "Use New Time Sheet Experience" then
-                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::"Set up");
+                    FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Discovered);
             end;
 #endif
         }

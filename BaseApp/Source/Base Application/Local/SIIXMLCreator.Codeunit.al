@@ -480,7 +480,7 @@ codeunit 10750 "SII XML Creator"
 
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         if IsSalesInvoice(InvoiceType, SIIDocUploadState) then begin
-            InitializeSalesXmlBody(XMLNode, CustLedgerEntry."Posting Date");
+            InitializeSalesXmlBody(XMLNode, CustLedgerEntry."VAT Reporting Date");
             if SIIDocUploadState."First Summary Doc. No." = '' then
                 XMLDOMManagement.AddElementWithPrefix(
                   XMLNode, 'NumSerieFacturaEmisor', FORMAT(CustLedgerEntry."Document No."), 'sii', SiiTxt, TempXMLNode)
@@ -685,7 +685,7 @@ codeunit 10750 "SII XML Creator"
     begin
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'RegistroLRCobrosMetalico', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, FillDocHeaderNode(), '', 'sii', SiiTxt, XMLNode);
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Ejercicio', GetYear(CustLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Ejercicio', GetYear(CustLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Periodo', '0A', 'sii', SiiTxt, TempXMLNode);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
 
@@ -811,9 +811,9 @@ codeunit 10750 "SII XML Creator"
         OnInitializePurchXmlBodyOnBeforeAssignExerciseAndPeriod(XMLNode, VendorLedgerEntry, IsHandled);
         if not IsHandled then begin
             XMLDOMManagement.AddElementWithPrefix(
-            XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+            XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."VAT Reporting Date"), 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.AddElementWithPrefix(
-            XMLNode, 'Periodo', Format(VendorLedgerEntry."Posting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+            XMLNode, 'Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
         end;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
@@ -1235,12 +1235,12 @@ codeunit 10750 "SII XML Creator"
             if FindCustLedgerEntryOfRefDocument(CustLedgerEntry, OldCustLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = SalesCrMemoHeader."Correction Type"::Removal then begin
                     InitializeCorrectiveRemovalXmlBody(
-                      XMLNode, CustLedgerEntry."Posting Date", true, SIIDocUploadState,
+                      XMLNode, CustLedgerEntry."VAT Reporting Date", true, SIIDocUploadState,
                       Customer.Name, Customer."VAT Registration No.", Customer."Country/Region Code", Customer."No.", Customer."Not in AEAT");
                     exit(true);
                 end;
         end;
-        InitializeSalesXmlBody(XMLNode, CustLedgerEntry."Posting Date");
+        InitializeSalesXmlBody(XMLNode, CustLedgerEntry."VAT Reporting Date");
 
         // calculate totals for current doc
         DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
@@ -1397,7 +1397,7 @@ codeunit 10750 "SII XML Creator"
             if FindVendorLedgerEntryOfRefDocument(VendorLedgerEntry, OldVendorLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = PurchCrMemoHdr."Correction Type"::Removal then begin
                     InitializeCorrectiveRemovalXmlBody(XMLNode,
-                      VendorLedgerEntry."Posting Date", false, SIIDocUploadState,
+                      VendorLedgerEntry."VAT Reporting Date", false, SIIDocUploadState,
                       Vendor.Name, Vendor."VAT Registration No.", Vendor."Country/Region Code", Vendor."No.", false);
                     exit(true);
                 end;
