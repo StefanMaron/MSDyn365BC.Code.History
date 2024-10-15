@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11788 "Create VAT Period"
 {
     Caption = 'Create VAT Period (Obsolete)';
@@ -106,4 +107,4 @@ report 11788 "Create VAT Period"
         Text003: Label 'Do you want to create the VAT year?';
         Text004: Label 'It is only possible to create new VAT years before or after the existing ones.';
 }
-
+#endif

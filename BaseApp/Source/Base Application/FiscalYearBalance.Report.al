@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 36 "Fiscal Year Balance"
 {
     DefaultLayout = RDLC;
@@ -435,7 +436,6 @@ report 36 "Fiscal Year Balance"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies a rounding factor that will be used in the balance.';
                     }
                     field(Indent; Indent)
@@ -495,7 +495,7 @@ report 36 "Fiscal Year Balance"
         GLIndent: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         MatrixMgt: Codeunit "Matrix Management";
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         GLFilter: Text;
         ColumnValuesAsText: array[13] of Text[30];
         ProfitValueAsText: array[10] of Text;
@@ -549,14 +549,14 @@ report 36 "Fiscal Year Balance"
 
     procedure RoundAmount(Value: Decimal): Text[30]
     begin
-        exit(MatrixMgt.FormatValue(Value, RoundingFactor, false));
+        exit(MatrixMgt.FormatAmount(Value, RoundingFactor, false));
     end;
 
     procedure InitializeRequest(NewPeriodStartingDate: Date; NewPeriodEndingDate: Date; NewRoundingFactor: Option; NewIndent: Option; NewShowResults: Boolean)
     begin
         PeriodStartingDate := NewPeriodStartingDate;
         PeriodEndingDate := NewPeriodEndingDate;
-        RoundingFactor := NewRoundingFactor;
+        RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         Indent := NewIndent;
         CheckIndentationLevel;
         ShowResults := NewShowResults;
@@ -602,6 +602,7 @@ report 36 "Fiscal Year Balance"
         exit(Value);
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure SetStartingDate(StartDate: Date)
     begin
@@ -610,3 +611,4 @@ report 36 "Fiscal Year Balance"
     end;
 }
 
+#endif

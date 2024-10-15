@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11708 "Issue Payment Order + Print"
 {
     TableNo = "Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -41,4 +45,4 @@ codeunit 11708 "Issue Payment Order + Print"
         IssuedPmtOrdHdr.PrintRecords(false);
     end;
 }
-
+#endif

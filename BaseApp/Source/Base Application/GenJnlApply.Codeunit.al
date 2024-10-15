@@ -1,13 +1,12 @@
-﻿codeunit 225 "Gen. Jnl.-Apply"
+﻿#if not CLEAN19
+codeunit 225 "Gen. Jnl.-Apply"
 {
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
     var
         IsHandled: Boolean;
-#if not CLEAN19
         AccBalance: Boolean;
-#endif
     begin
         GenJnlLine.Copy(Rec);
 
@@ -27,7 +26,6 @@
                 AccType := "Account Type";
                 AccNo := "Account No.";
             end;
-#if not CLEAN19
             // NAVCZ
             if (AccType <> "Account Type"::Customer) and (AccType <> "Account Type"::Vendor) and (AccType <> "Account Type"::Employee) then
                 if ("Account Type" = "Account Type"::"G/L Account") and ("Account No." <> '') then begin
@@ -40,7 +38,6 @@
                     AccBalance := true;
                 end;
             // NAVCZ
-#endif
             case AccType of
                 AccType::Customer:
                     ApplyCustomerLedgerEntry(GenJnlLine);
@@ -48,12 +45,10 @@
                     ApplyVendorLedgerEntry(GenJnlLine);
                 AccType::Employee:
                     ApplyEmployeeLedgerEntry(GenJnlLine);
-#if not CLEAN19
                 // NAVCZ
                 AccType::"G/L Account":
                     ApplyGLEntry(GenJnlLine, AccBalance);
                 // NAVCZ
-#endif
                 else
                     Error(
                       Text005,
@@ -654,7 +649,7 @@
                 until VendorLedgerEntry.Next() = 0;
         end;
     end;
-#if not CLEAN19
+
     [Obsolete('Moved to Advanced Localization Pack.', '19.0')]
     local procedure ApplyGLEntry(var GenJnlLine: Record "Gen. Journal Line"; AccBalance: Boolean)
     var
@@ -718,7 +713,6 @@
                 Modify;
         end;
     end;
-#endif
 
     local procedure ConfirmCurrencyUpdate(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
     var
@@ -839,3 +833,4 @@
     end;
 }
 
+#endif

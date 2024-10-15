@@ -10,12 +10,10 @@
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(2; "Account Type"; Option)
+        field(2; "Account Type"; Enum "Matching Ledger Account Type")
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Customer,Vendor,G/L Account,Bank Account,Employee';
-            OptionMembers = Customer,Vendor,"G/L Account","Bank Account",Employee;
         }
         field(3; "Account No."; Code[20])
         {
@@ -82,18 +80,39 @@
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -137,6 +156,7 @@
                 "Remaining Amt. Incl. Discount" -= CustLedgerEntry."Remaining Pmt. Disc. Possible";
             UsePaymentDiscounts := true;
         end;
+#if not CLEAN18
 
         // NAVCZ
         "Specific Symbol" := CustLedgerEntry."Specific Symbol";
@@ -144,6 +164,7 @@
         "Constant Symbol" := CustLedgerEntry."Constant Symbol";
         // NAVCZ
 
+#endif
         OnBeforeInsertFromCustomerLedgerEntry(Rec, CustLedgerEntry);
         Insert(true);
     end;
@@ -158,6 +179,7 @@
         "Posting Date" := VendorLedgerEntry."Posting Date";
         "Document No." := VendorLedgerEntry."Document No.";
         "External Document No." := VendorLedgerEntry."External Document No.";
+        "Payment Reference" := VendorLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := VendorLedgerEntry."Remaining Amt. (LCY)"
@@ -175,6 +197,7 @@
                 "Remaining Amt. Incl. Discount" -= VendorLedgerEntry."Remaining Pmt. Disc. Possible";
             UsePaymentDiscounts := true;
         end;
+#if not CLEAN18
 
         // NAVCZ
         "Specific Symbol" := VendorLedgerEntry."Specific Symbol";
@@ -182,6 +205,7 @@
         "Constant Symbol" := VendorLedgerEntry."Constant Symbol";
         // NAVCZ
 
+#endif
         OnBeforeInsertFromVendorLedgerEntry(Rec, VendorLedgerEntry);
         Insert(true);
     end;
@@ -202,6 +226,8 @@
         Insert(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure InsertFromGeneralLedgerEntry(GLEntry: Record "G/L Entry")
     begin
@@ -215,10 +241,13 @@
         "External Document No." := GLEntry."External Document No.";
         "Remaining Amount" := GLEntry.RemainingAmount;
         "Remaining Amt. Incl. Discount" := "Remaining Amount";
+#if not CLEAN18
         "Variable Symbol" := GLEntry."Variable Symbol";
+#endif
         Insert(true);
     end;
 
+#endif
     procedure InsertFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         Clear(Rec);

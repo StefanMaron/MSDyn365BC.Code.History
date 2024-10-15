@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11771 "VAT Statement Attachment Sheet"
 {
     AutoSplitKey = true;
@@ -68,3 +69,5 @@ page 11771 "VAT Statement Attachment Sheet"
     end;
 }
 
+
+#endif

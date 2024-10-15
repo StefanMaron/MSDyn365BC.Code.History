@@ -1,4 +1,4 @@
-﻿table 207 "Res. Journal Line"
+table 207 "Res. Journal Line"
 {
     Caption = 'Res. Journal Line';
 
@@ -436,6 +436,7 @@
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterFindResUnitCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -453,7 +454,7 @@
     begin
         OnBeforeFindResPrice(Rec, ResourcePrice);
     end;
-
+#endif
     procedure EmptyLine(): Boolean
     begin
         exit(("Resource No." = '') and (Quantity = 0));
@@ -743,12 +744,13 @@
         OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine, Rec);
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterInitResourceCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterInitResourceCost(Rec, ResourceCost);
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyResJnlLineFromSalesHeader(var SalesHeader: Record "Sales Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
@@ -799,16 +801,20 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use ResJnlManagement event OnBeforeOpenJnl.', '19.0')]
     procedure CheckResJournalLineUserResctriction()
     begin
         // NAVCZ
         OnCheckResJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use ResJnlManagement event OnBeforeOpenJnl.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckResJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var ResJnlLine: Record "Res. Journal Line")
@@ -820,11 +826,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFindResPrice(ResJournalLine: Record "Res. Journal Line"; var ResourcePrice: Record "Resource Price")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ResJournalLine: Record "Res. Journal Line"; xResJournalLine: Record "Res. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -845,6 +853,7 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitResourceCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")
@@ -862,5 +871,6 @@
     local procedure OnAfterFindResPrice(var ResJournalLine: Record "Res. Journal Line"; var ResPrice: Record "Resource Price")
     begin
     end;
+#endif
 }
 

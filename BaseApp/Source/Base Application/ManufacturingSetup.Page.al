@@ -65,6 +65,7 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies whether the setup times are to be included in the cost calculation of the Standard Cost field.';
                 }
+#if not CLEAN18
                 field("Default Gen.Bus. Posting Group"; "Default Gen.Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -74,6 +75,7 @@ page 99000768 "Manufacturing Setup"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
 #if not CLEAN19
                 field("Exact Cost Rev.Manda. (Cons.)"; "Exact Cost Rev.Manda. (Cons.)")
                 {
@@ -142,6 +144,11 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations.';
+                }
+                field("Use Forecast on Variants"; Rec."Use Forecast on Variants")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants.';
                 }
                 field("Default Safety Lead Time"; "Default Safety Lead Time")
                 {

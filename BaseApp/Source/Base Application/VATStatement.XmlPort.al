@@ -1,3 +1,4 @@
+#if not CLEAN17
 xmlport 11761 "VAT Statement"
 {
     Caption = 'VAT Statement';
@@ -1139,4 +1140,4 @@ xmlport 11761 "VAT Statement"
         exit(Format(Date, 0, '<Day,2>.<Month,2>.<Year4>'));
     end;
 }
-
+#endif

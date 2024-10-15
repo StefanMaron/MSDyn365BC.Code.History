@@ -121,6 +121,7 @@ table 5600 "Fixed Asset"
         {
             Caption = 'FA Location Code';
             TableRelation = "FA Location";
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -132,6 +133,7 @@ table 5600 "Fixed Asset"
                     ChangeEntry(FAHistory.Type::Location);
                 // NAVCZ
             end;
+#endif
         }
         field(11; "Vendor No."; Code[20])
         {
@@ -168,6 +170,7 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Responsible Employee';
             TableRelation = Employee;
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -179,6 +182,7 @@ table 5600 "Fixed Asset"
                     ChangeEntry(FAHistory.Type::"Responsible Employee");
                 // NAVCZ
             end;
+#endif
         }
         field(17; "Serial No."; Text[50])
         {
@@ -291,8 +295,12 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Tax Depreciation Group Code';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Depreciation Group".Code;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -356,12 +364,14 @@ table 5600 "Fixed Asset"
         key(Key12; "Responsible Employee", "FA Location Code")
         {
         }
+#if not CLEAN18
         key(Key14; "Tax Depreciation Group Code")
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Field "Tax Depreciation Group Code" is removed and cannot be used in an active key.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     fieldgroups
@@ -468,7 +478,9 @@ table 5600 "Fixed Asset"
         FAMoveEntries: Codeunit "FA MoveEntries";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
+#if not CLEAN18
         FAHistory: Record "FA History Entry";
+#endif
         OKConfirm: Boolean;
         Text1220000: Label 'Do you want to assign new %1 %2 to Fixed Asset %3?';
         Text1220001: Label 'Selected Fixed Asset %1 is disposed and FA Location/Responsible Employee cannot be assigned to it.';
@@ -522,7 +534,6 @@ table 5600 "Fixed Asset"
             end;
     end;
 
-#endif
     [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure ChangeEntry(ChangeType: Option Location,"Responsible Employee")
@@ -578,6 +589,7 @@ table 5600 "Fixed Asset"
         end;
     end;
 
+#endif
     procedure FieldsForAcquitionInGeneralGroupAreCompleted(): Boolean
     begin
         exit(("No." <> '') and (Description <> '') and ("FA Subclass Code" <> ''));
@@ -650,11 +662,13 @@ table 5600 "Fixed Asset"
     local procedure OnBeforeValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
+#if not CLEAN18
 
     [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeEntry(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; ChangeType: Option Location,"Responsible Employee"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

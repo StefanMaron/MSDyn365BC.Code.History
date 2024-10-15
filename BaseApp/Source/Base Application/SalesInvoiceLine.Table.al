@@ -464,9 +464,6 @@ table 113 "Sales Invoice Line"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
-#if not CLEAN16
-            AccessByPermission = TableData "Item Cross Reference" = R;
-#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
 #if not CLEAN17
@@ -482,8 +479,13 @@ table 113 "Sales Invoice Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5707; "Cross-Reference Type"; Option)
         {
@@ -491,15 +493,25 @@ table 113 "Sales Invoice Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -586,35 +598,68 @@ table 113 "Sales Invoice Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31010; "Prepayment Cancelled"; Boolean)
         {
             Caption = 'Prepayment Cancelled';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31011; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31012; "VAT Doc. Letter No."; Code[20])
         {
             Caption = 'VAT Doc. Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -622,7 +667,11 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -660,7 +709,7 @@ table 113 "Sales Invoice Line"
         key(Key9; "Document No.", "Location Code")
         {
             MaintainSQLIndex = false;
-            SumIndexFields = Amount, "Amount Including VAT";
+            SumIndexFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
         }
     }
 
@@ -732,6 +781,7 @@ table 113 "Sales Invoice Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesInvLine(Rec);
+#if not CLEAN18
                 // NAVCZ
                 TempVATAmountLine."Currency Code" := SalesInvHeader."Currency Code";
                 if SalesInvHeader."Currency Code" <> '' then
@@ -743,6 +793,7 @@ table 113 "Sales Invoice Line"
                 TempVATAmountLine.SetInsertLineWithoutVAT(
                   ("VAT Doc. Letter No." = '') and "Prepayment Line" and ("Amount Including VAT" <> 0));
                 // NAVCZ
+#endif
                 TempVATAmountLine.InsertLine;
             until Next() = 0;
     end;
@@ -1000,7 +1051,9 @@ table 113 "Sales Invoice Line"
         Increment(TotalSalesInvLine.Amount, Amount);
         Increment(TotalSalesInvLine."VAT Base Amount", "VAT Base Amount");
         Increment(TotalSalesInvLine."VAT Difference", "VAT Difference");
+#if not CLEAN18
         Increment(TotalSalesInvLine."VAT Difference (LCY)", "VAT Difference (LCY)");
+#endif
         Increment(TotalSalesInvLine."Amount Including VAT", "Amount Including VAT");
         Increment(TotalSalesInvLine."Line Discount Amount", "Line Discount Amount");
         Increment(TotalSalesInvLine."Inv. Discount Amount", "Inv. Discount Amount");

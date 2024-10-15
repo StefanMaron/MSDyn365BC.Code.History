@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31081 "Acc. Schedule File Mapping"
 {
     Caption = 'Acc. Schedule File Mapping (Obsolete)';
@@ -535,4 +536,4 @@ page 31081 "Acc. Schedule File Mapping"
         CurrPage.Update(false);
     end;
 }
-
+#endif

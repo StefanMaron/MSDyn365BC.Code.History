@@ -2,9 +2,13 @@ table 31096 "Commodity Setup"
 {
     Caption = 'Commodity Setup';
     DataCaptionFields = "Commodity Code";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Commodity Setup";
     LookupPageID = "Commodity Setup";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -14,7 +18,9 @@ table 31096 "Commodity Setup"
         {
             Caption = 'Commodity Code';
             NotBlank = true;
+#if not CLEAN17
             TableRelation = Commodity;
+#endif
         }
         field(2; "Valid From"; Date)
         {

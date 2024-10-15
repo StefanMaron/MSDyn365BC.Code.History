@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -230,12 +230,14 @@
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '19.0';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 TestField("No.", '');
                 if not ("Value Posting" in ["Value Posting"::"Code Mandatory", "Value Posting"::"Same Code"]) then
                     FieldError("Value Posting");
             end;
+#endif
         }
         field(11791; "Dimension Description Field ID"; Integer)
         {
@@ -249,6 +251,7 @@
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '19.0';
 
+#if not CLEAN19
             trigger OnLookup()
             var
                 lreField: Record "Field";
@@ -270,17 +273,18 @@
                     TestField("Automatic Create", true);
                 end;
             end;
+#endif
         }
         field(11792; "Dim. Description Field Name"; Text[100])
         {
-            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
-                                                              "No." = FIELD("Dimension Description Field ID")));
             Caption = 'Dim. Description Field Name';
             Editable = false;
-            FieldClass = FlowField;
 #if CLEAN19
             ObsoleteState = Removed;
 #else
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
+                                                              "No." = FIELD("Dimension Description Field ID")));
+            FieldClass = FlowField;
             ObsoleteState = Pending;
 #endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
@@ -299,6 +303,7 @@
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '19.0';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Dimension Description Update" <> "Dimension Description Update"::" " then begin
@@ -306,6 +311,7 @@
                     TestField("Automatic Create", true);
                 end;
             end;
+#endif
         }
         field(11794; "Dimension Description Format"; Text[50])
         {
@@ -331,11 +337,13 @@
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '19.0';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if not ("Value Posting" in ["Value Posting"::"Code Mandatory", "Value Posting"::"Same Code"]) then
                     TestField("Automatic Create", false);
             end;
+#endif
         }
     }
 
@@ -503,10 +511,12 @@
                 UpdateItemTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             Database::"Employee Templ.":
                 UpdateEmployeeTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+#if not CLEAN17
             // NAVCZ
             DATABASE::"Cash Desk Event":
                 UpdateCashDeskEventGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             // NAVCZ
+#endif
             else
                 OnAfterUpdateGlobalDimCode(GlobalDimCodeNo, TableID, AccNo, NewDimValue);
         end;
@@ -830,6 +840,7 @@
         end;
     end;
 
+#if not CLEAN17
     local procedure UpdateCashDeskEventGlobalDimCode(GlobalDimCodeNo: Integer; CashDeskEventNo: Code[20]; NewDimValue: Code[20])
     var
         CashDeskEvent: Record "Cash Desk Event";
@@ -846,6 +857,7 @@
         end;
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20])
     begin

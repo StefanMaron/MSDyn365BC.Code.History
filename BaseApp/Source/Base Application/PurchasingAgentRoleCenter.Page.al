@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9007 "Purchasing Agent Role Center"
 {
-    Caption = 'Purchasing Agent', Comment = '{Dependency=Match,"ProfileDescription_PURCHASINGAGENT"}';
+    Caption = 'Purchasing Agent';
     PageType = RoleCenter;
 
     layout
@@ -186,9 +187,12 @@ page 9007 "Purchasing Agent Role Center"
             action("Purchase Advance Letters")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Purchase Advance Letters';
+                Caption = 'Purchase Advance Letters (Obsolete)';
                 RunObject = Page "Purchase Advance Letters";
                 ToolTip = 'Specifies purchase advance letters';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             action("Assembly Orders")
             {
@@ -324,6 +328,9 @@ page 9007 "Purchasing Agent Role Center"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoces';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Shipments")
                 {
@@ -347,6 +354,9 @@ page 9007 "Purchasing Agent Role Center"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Assembly Orders")
                 {
@@ -505,3 +515,4 @@ page 9007 "Purchasing Agent Role Center"
     }
 }
 
+#endif

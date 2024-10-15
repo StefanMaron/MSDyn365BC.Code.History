@@ -1,4 +1,4 @@
-table 311 "Sales & Receivables Setup"
+﻿table 311 "Sales & Receivables Setup"
 {
     Caption = 'Sales & Receivables Setup';
     DrillDownPageID = "Sales & Receivables Setup";
@@ -290,6 +290,10 @@ table 311 "Sales & Receivables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Sales Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(50; "Default Item Quantity"; Boolean)
         {
             Caption = 'Default Item Quantity';
@@ -408,6 +412,22 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Canceled Issued Fin. Charge Memo Nos.';
             DataClassification = CustomerContent;
             TableRelation = "No. Series";
+        }
+        field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Sales Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Sales Header");
+                end;
+            end;
         }
         field(5329; "Write-in Product Type"; Option)
         {
@@ -543,57 +563,37 @@ table 311 "Sales & Receivables Setup"
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11763; "G/L Entry as Doc. Lines (Res.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Res.)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -607,20 +607,35 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Default VAT Date';
             OptionCaption = 'Posting Date,Document Date,Blank';
             OptionMembers = "Posting Date","Document Date",Blank;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '17.0';
         }
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
             Caption = 'Automatic Adv. Invoice Posting';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
         {
@@ -674,16 +689,37 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Advance Letter Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Advance Invoice Nos."; Code[20])
         {
             Caption = 'Advance Invoice Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Advance Credit Memo Nos."; Code[20])
         {
             Caption = 'Advance Credit Memo Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -734,4 +770,3 @@ table 311 "Sales & Receivables Setup"
         end;
     end;
 }
-

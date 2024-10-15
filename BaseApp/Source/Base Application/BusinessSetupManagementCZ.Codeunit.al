@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 31071 "Business Setup Management CZ"
 {
 
@@ -73,9 +74,12 @@ codeunit 31071 "Business Setup Management CZ"
         NavApp.GetCurrentModuleInfo(Info);
 
         // Finance
+#if not CLEAN18
         Sender.Insert(ConstantSymbolsNameTxt, ConstantSymbolsDescriptionTxt,
           ConstantSymbolsKeywordsTxt, PAGE::"Constant Symbols",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN17
         Sender.Insert(CashDeskEventsSetupNameTxt, CashDeskEventsSetupDescriptionTxt,
           CashDeskEventsSetupKeywordsTxt, PAGE::"Cash Desk Events Setup",
           Info.Id(), ManualSetupCategory::Finance);
@@ -88,12 +92,18 @@ codeunit 31071 "Business Setup Management CZ"
         Sender.Insert(VATPeriodsNameTxt, VATPeriodsDescriptionTxt,
           VATPeriodsKeywordsTxt, PAGE::"VAT Periods",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN18
         Sender.Insert(CreditsSetupNameTxt, CreditsSetupDescriptionTxt,
           CreditsSetupKeywordsTxt, PAGE::"Credits Setup",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN17
         Sender.Insert(StatisticIndicationsNameTxt, StatisticIndicationsDescriptionTxt,
           StatisticIndicationsKeywordsTxt, PAGE::"Statistic Indications",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN18
         Sender.Insert(SpecificMovementsNameTxt, SpecificMovementsDescriptionTxt,
           SpecificMovementsKeywordsTxt, PAGE::"Specific Movements",
           Info.Id(), ManualSetupCategory::Finance);
@@ -103,17 +113,20 @@ codeunit 31071 "Business Setup Management CZ"
         Sender.Insert(StatReportingSetupNameTxt, StatReportingSetupDescriptionTxt,
           StatReportingSetupKeywordsTxt, PAGE::"Stat. Reporting Setup",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN17
         Sender.Insert(ExcelTemplateNameTxt, ExcelTemplateDescriptionTxt,
           ExcelTemplateKeywordsTxt, PAGE::"Excel Template",
           Info.Id(), ManualSetupCategory::Finance);
         Sender.Insert(VATControlReportSectionsNameTxt, VATControlReportSectionsDescriptionTxt,
           VATControlReportSectionsKeywordsTxt, PAGE::"VAT Control Report Sections",
           Info.Id(), ManualSetupCategory::Finance);
+#endif
+#if not CLEAN18
         Sender.Insert(EETServiceSetupNameTxt, EETServiceSetupDescriptionTxt,
           EETServiceSetupKeywordsTxt, PAGE::"EET Service Setup",
           Info.Id(), ManualSetupCategory::Finance);
 
-#if not CLEAN18
         // Fixed Assests
         Sender.Insert(ClassificationCodesNameTxt, ClassificationCodesDescriptionTxt,
           ClassificationCodesKeywordsTxt, PAGE::"Classification Codes",
@@ -123,6 +136,7 @@ codeunit 31071 "Business Setup Management CZ"
           Info.Id(), ManualSetupCategory::"Fixed Assets");
 
 #endif
+#if not CLEAN17
         // Inventory
         Sender.Insert(StockkeepingUnitTemplatesNameTxt, StockkeepingUnitTemplatesDescriptionTxt,
           StockkeepingUnitTemplatesKeywordsTxt, PAGE::"Stockkeeping Unit Templates",
@@ -132,6 +146,7 @@ codeunit 31071 "Business Setup Management CZ"
         Sender.Insert(ElectronicallyGovernSetupNameTxt, ElectronicallyGovernSetupDescriptionTxt,
           ElectronicallyGovernSetupKeywordsTxt, PAGE::"Electronically Govern. Setup",
           Info.Id(), ManualSetupCategory::Service);
+#endif
 
         // Sales
         Sender.Insert(
@@ -145,4 +160,4 @@ codeunit 31071 "Business Setup Management CZ"
           Info.Id(), ManualSetupCategory::Purchasing);
     end;
 }
-
+#endif

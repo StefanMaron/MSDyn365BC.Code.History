@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 1282 "Payment Bank Account List"
 {
     Caption = 'Payment Bank Account List';
@@ -55,4 +56,4 @@ page 1282 "Payment Bank Account List"
     var
         Linked: Boolean;
 }
-
+#endif

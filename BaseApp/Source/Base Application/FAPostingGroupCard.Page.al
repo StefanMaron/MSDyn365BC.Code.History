@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5612 "FA Posting Group Card"
 {
     Caption = 'FA Posting Group Card';
@@ -156,7 +157,6 @@ page 5612 "FA Posting Group Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the general ledger balancing account number to post custom-2 transactions of fixed assets to when you dispose of fixed assets.';
                 }
-#if not CLEAN18
                 field("Acq. Cost Bal. Acc. on Disp."; "Acq. Cost Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
@@ -175,7 +175,6 @@ page 5612 "FA Posting Group Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
             }
             group("Gross Disposal")
             {
@@ -319,7 +318,6 @@ page 5612 "FA Posting Group Card"
             {
                 Caption = 'P&osting Gr.';
                 Image = Group;
-#if not CLEAN18
                 action("&Extended Posting Gr.")
                 {
                     ApplicationArea = FixedAssets;
@@ -333,7 +331,6 @@ page 5612 "FA Posting Group Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
                 group(Allocations)
                 {
                     Caption = 'Allocations';
@@ -428,3 +425,4 @@ page 5612 "FA Posting Group Card"
         Text19080001: Label 'Allocated %';
 }
 
+#endif

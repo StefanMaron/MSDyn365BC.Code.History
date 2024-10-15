@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1252 "Payment Application Rules"
 {
     AdditionalSearchTerms = 'payment matching rules,automatic payment application';
@@ -56,21 +57,37 @@ page 1252 "Payment Application Rules"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for variable symbol';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Specific Symbol Matched"; "Specific Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for specific symbol';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Constant Symbol Matched"; "Constant Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the match rule for constant symbol';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Bank Transaction Type"; "Bank Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies bank transaction type for payment application rules ';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Review Required"; "Review Required")
                 {
@@ -145,3 +162,5 @@ page 1252 "Payment Application Rules"
         ApplyAutomaticallyVisible: Boolean;
 }
 
+
+#endif

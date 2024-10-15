@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 11711 "Issued Bank Statement"
 {
-    Caption = 'Issued Bank Statement';
+    Caption = 'Issued Bank Statement (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Issued Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -267,4 +271,4 @@ page 11711 "Issued Bank Statement"
         IssuedBankStmtHdr.CreatePmtReconJnl(true);
     end;
 }
-
+#endif

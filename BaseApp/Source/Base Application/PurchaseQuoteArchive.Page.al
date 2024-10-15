@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5164 "Purchase Quote Archive"
 {
     Caption = 'Purchase Quote Archive';
@@ -428,6 +429,7 @@ page 5164 "Purchase Quote Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -446,6 +448,7 @@ page 5164 "Purchase Quote Archive"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Version)
             {
@@ -651,8 +654,8 @@ page 5164 "Purchase Quote Archive"
 
     trigger OnAfterGetRecord()
     begin
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     var
@@ -665,3 +668,4 @@ page 5164 "Purchase Quote Archive"
         IsShipToCountyVisible: Boolean;
 }
 
+#endif

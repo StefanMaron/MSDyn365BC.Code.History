@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 31030 "Prepmt Links Mgt. Adv."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -1352,4 +1356,4 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         end;
     end;
 }
-
+#endif

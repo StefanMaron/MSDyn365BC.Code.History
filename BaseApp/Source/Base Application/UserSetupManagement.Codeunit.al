@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 5700 "User Setup Management"
 {
     Permissions = TableData Location = r,
@@ -348,4 +349,4 @@ codeunit 5700 "User Setup Management"
     begin
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31049 "Report Selection - Credit"
 {
     ApplicationArea = Basic, Suite;
@@ -87,3 +88,5 @@ page 31049 "Report Selection - Credit"
     end;
 }
 
+
+#endif

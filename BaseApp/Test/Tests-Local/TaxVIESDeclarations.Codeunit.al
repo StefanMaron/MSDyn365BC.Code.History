@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 144202 "Tax VIES Declarations"
 {
     Subtype = Test;
@@ -401,3 +402,4 @@ codeunit 144202 "Tax VIES Declarations"
     end;
 }
 
+#endif

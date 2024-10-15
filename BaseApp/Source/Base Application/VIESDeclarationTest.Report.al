@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31068 "VIES Declaration - Test"
 {
     DefaultLayout = RDLC;
@@ -418,3 +419,5 @@ report 31068 "VIES Declaration - Test"
     end;
 }
 
+
+#endif

@@ -617,8 +617,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemJournalBatch: Record "Item Journal Batch";
         PurchaseLine: Record "Purchase Line";
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
-        SerialNo: Code[20];
-        LotNo: Code[20];
+        SerialNo: Code[50];
+        LotNo: Code[50];
     begin
         // [SCENARIO] Whse. Phys. Inventory List report when "Show Serial/Lot No" option is checked, if warehouse tracking is defined for a specific Item Tracking Code.
         Initialize;
@@ -1598,7 +1598,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PostPurchaseOrder(PurchaseLine, ToInvoice);
     end;
 
-    local procedure CreateAndPostItemJournalLineWithItemTracking(var LotNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournalLineWithItemTracking(var LotNo: Code[50]; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2252,7 +2252,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         until ItemLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyLotNoOnItemTrackingAppendixReport(No: Code[20]; LotNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyLotNoOnItemTrackingAppendixReport(No: Code[20]; LotNo: Code[50]; Quantity: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_ItemTrackingLine', No);
@@ -2261,7 +2261,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ItemTrackingLine', Quantity);
     end;
 
-    local procedure VerifyItemTrackingAppendixReport(No: Code[20]; LotNo: Code[20]; SerialNo: Code[20])
+    local procedure VerifyItemTrackingAppendixReport(No: Code[20]; LotNo: Code[50]; SerialNo: Code[50])
     begin
         VerifyLotNoOnItemTrackingAppendixReport(No, LotNo, 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('SerialNo_ItemTrackingLine', SerialNo);

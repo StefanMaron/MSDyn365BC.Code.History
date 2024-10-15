@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31034 "Purch. Letter Line - Adv.Link."
 {
-    Caption = 'Purch. Letter Line - Adv.Link.';
+    Caption = 'Purch. Letter Line - Adv.Link. (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Advance Letter Line";
     SourceTableView = SORTING("Letter No.", "Line No.");
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -266,4 +270,4 @@ page 31034 "Purch. Letter Line - Adv.Link."
         LinkingType := LinkingType1;
     end;
 }
-
+#endif

@@ -6,7 +6,7 @@ page 610 "IC General Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Prepare,Posting,Post/Print,Line,Account';
+    PromotedActionCategories = 'New,Process,Report,Prepare,Posting,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -320,18 +320,26 @@ page 610 "IC General Journal"
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if line of linked prepayments is prepayment';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Job Queue Status"; "Job Queue Status")
                 {
                     ApplicationArea = All;
@@ -663,24 +671,36 @@ page 610 "IC General Journal"
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Insert a rounding correction line in the journal. This rounding correction line will balance in LCY when amounts in the foreign currency also balance. You can then post the journal.';
                 }
+#if not CLEAN19
                 separator("-")
                 {
                     Caption = '-';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Image = LinkWithExisting;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -690,15 +710,20 @@ page 610 "IC General Journal"
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
                         UnLinkWholeLetter; // NAVCZ
                     end;
                 }
+#endif
             }
             group("P&osting")
             {
@@ -747,7 +772,7 @@ page 610 "IC General Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -760,6 +785,7 @@ page 610 "IC General Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -782,7 +808,7 @@ page 610 "IC General Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -844,6 +870,30 @@ page 610 "IC General Journal"
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        ODataUtility: Codeunit ODataUtility;
+                    begin
+                        ODataUtility.EditJournalWorksheetInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
+                    end;
+                }
+            }
         }
     }
 
@@ -879,9 +929,11 @@ page 610 "IC General Journal"
 
     trigger OnOpenPage()
     var
+        ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
         SetDimensionsVisibility;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -920,6 +972,7 @@ page 610 "IC General Journal"
         JobQueueVisible: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

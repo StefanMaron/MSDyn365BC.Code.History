@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 240 ItemJnlManagement
 {
     Permissions = TableData "Item Journal Template" = imd,
@@ -334,3 +335,4 @@ codeunit 240 ItemJnlManagement
     end;
 }
 
+#endif

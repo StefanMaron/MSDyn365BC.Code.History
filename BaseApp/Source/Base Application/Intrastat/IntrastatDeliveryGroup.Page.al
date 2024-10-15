@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31064 "Intrastat Delivery Group"
 {
     ApplicationArea = Basic, Suite;
@@ -47,4 +48,4 @@ page 31064 "Intrastat Delivery Group"
     {
     }
 }
-
+#endif

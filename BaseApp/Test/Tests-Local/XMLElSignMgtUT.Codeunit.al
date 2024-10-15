@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 145018 "XML El. Sign Mgt. UT"
 {
     // // [FEATURE] [Cryptography] [UT]
@@ -133,3 +134,4 @@ codeunit 145018 "XML El. Sign Mgt. UT"
     end;
 }
 
+#endif

@@ -1,7 +1,11 @@
 table 11736 "Posted Cash Document Line"
 {
     Caption = 'Posted Cash Document Line';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -10,12 +14,16 @@ table 11736 "Posted Cash Document Line"
         field(1; "Cash Desk No."; Code[20])
         {
             Caption = 'Cash Desk No.';
+#if not CLEAN17
             TableRelation = "Bank Account"."No." WHERE("Account Type" = CONST("Cash Desk"));
+#endif
         }
         field(2; "Cash Document No."; Code[20])
         {
             Caption = 'Cash Document No.';
+#if not CLEAN17
             TableRelation = "Posted Cash Document Header"."No." WHERE("Cash Desk No." = FIELD("Cash Desk No."));
+#endif
         }
         field(3; "Line No."; Integer)
         {
@@ -42,7 +50,11 @@ table 11736 "Posted Cash Document Line"
             ELSE
             IF ("Account Type" = CONST(Vendor)) Vendor."No."
             ELSE
+#if CLEAN17
+            IF ("Account Type" = CONST("Bank Account")) "Bank Account"."No."
+#else
             IF ("Account Type" = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"))
+#endif
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset"."No.";
 
@@ -175,7 +187,9 @@ table 11736 "Posted Cash Document Line"
         field(40; "Cash Desk Event"; Code[10])
         {
             Caption = 'Cash Desk Event';
+#if not CLEAN17
             TableRelation = "Cash Desk Event".Code WHERE("Cash Document Type" = FIELD("Cash Document Type"));
+#endif
         }
         field(42; "Salespers./Purch. Code"; Code[20])
         {
@@ -313,11 +327,13 @@ table 11736 "Posted Cash Document Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN17
 
             trigger OnLookup()
             begin
                 ShowDimensions();
             end;
+#endif
         }
         field(602; "VAT % (Non Deductible)"; Decimal)
         {
@@ -350,7 +366,11 @@ table 11736 "Posted Cash Document Line"
         {
             Caption = 'EET Transaction';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -375,6 +395,7 @@ table 11736 "Posted Cash Document Line"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     var
         DimMgt: Codeunit DimensionManagement;
@@ -401,5 +422,6 @@ table 11736 "Posted Cash Document Line"
         PostedCashDocLine.SetRange("Line No.", "Line No.");
         PAGE.RunModal(PAGE::"Posted Cash Doc. Statistics", PostedCashDocLine);
     end;
+#endif
 }
 

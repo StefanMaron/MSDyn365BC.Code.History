@@ -528,12 +528,12 @@ codeunit 132204 "Library - Warehouse"
     var
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
         WhseWorksheetName: Record "Whse. Worksheet Name";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
-        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
-        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, FromBin."Location Code");
-        LibraryWarehouse.CreateWhseWorksheetLine(
-          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, WhseWorksheetName."Location Code", 0);
+        SelectWhseWorksheetTemplate(WhseWorksheetTemplate, "Warehouse Worksheet Template Type"::Movement);
+        SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, FromBin."Location Code");
+        CreateWhseWorksheetLine(
+          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, WhseWorksheetName."Location Code",
+          "Warehouse Worksheet Document Type"::" ");
         WhseWorksheetLine.Validate("Item No.", ItemNo);
         WhseWorksheetLine.Validate("Variant Code", VariantCode);
         WhseWorksheetLine.Validate("From Zone Code", FromBin."Zone Code");
@@ -820,12 +820,22 @@ codeunit 132204 "Library - Warehouse"
         WhseInternalPutAwayLine.Insert(true);
     end;
 
-    procedure CreateWhseJournalTemplate(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Option)
+    procedure CreateWhseJournalTemplate(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type")
     begin
         WarehouseJournalTemplate.Init();
         WarehouseJournalTemplate.VALIDATE(Name, LibraryUtility.GenerateGUID);
         WarehouseJournalTemplate.VALIDATE(Type, WarehouseJournalTemplateType);
         WarehouseJournalTemplate.INSERT(TRUE);
+    end;
+
+    procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; LocationCode: Code[10])
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplateType);
+        WarehouseJournalTemplate."Increment Batch Name" := true; // for compatibility with batch name auto increment
+        WarehouseJournalTemplate.Modify();
+        CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
     end;
 
     procedure CreateWhseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateName: Code[10]; LocationCode: Code[10])
@@ -867,7 +877,9 @@ codeunit 132204 "Library - Warehouse"
         WarehouseJournalLine.Validate("Zone Code", ZoneCode);
         WarehouseJournalLine.Validate("Bin Code", BinCode);
 
-        WarehouseJournalLine.TemplateSelection(PAGE::"Whse. Item Journal", 0, WarehouseJournalLine, JnlSelected);
+        JnlSelected :=
+            WarehouseJournalLine.TemplateSelection(
+                PAGE::"Whse. Item Journal", "Warehouse Journal Template Type"::Item, WarehouseJournalLine);
         Assert.IsTrue(JnlSelected, 'Journal was not selected');
         WarehouseJournalLine.OpenJnl(JournalBatchName, LocationCode, WarehouseJournalLine);
         Commit();
@@ -907,7 +919,7 @@ codeunit 132204 "Library - Warehouse"
         WhseSrcCreateDocument.Initialize(UserId, SortActivity, false, DoNotFillQtyToHandle, BreakBulkFilter);
         WhseSrcCreateDocument.UseRequestPage(false);
         WhseSrcCreateDocument.RunModal;
-        WhseSrcCreateDocument.GetResultMessage(WarehouseActivityHeader.Type::Movement);
+        WhseSrcCreateDocument.GetResultMessage(WarehouseActivityHeader.Type::Movement.AsInteger());
     end;
 
     procedure CreateWhseNetChangeTemplate(var WhseNetChangeTemplate: Record "Whse. Net Change Template"; GenBusPostingGroupCode: Code[20])
@@ -1007,7 +1019,7 @@ codeunit 132204 "Library - Warehouse"
         WhseWorksheetName.Insert(true);
     end;
 
-    procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WorksheetTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; WhseDocumentType: Option)
+    procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WorksheetTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; WhseDocumentType: Enum "Warehouse Worksheet Document Type")
     var
         RecRef: RecordRef;
     begin
@@ -1486,14 +1498,14 @@ codeunit 132204 "Library - Warehouse"
         exit(BinType.Code);
     end;
 
-    procedure SelectWhseJournalTemplateName(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Option)
+    procedure SelectWhseJournalTemplateName(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type")
     begin
         // Find Item Journal Template for the given Template Type.
         WarehouseJournalTemplate.SetRange(Type, WarehouseJournalTemplateType);
         WarehouseJournalTemplate.FindFirst;
     end;
 
-    procedure SelectWhseJournalBatchName(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WhseJournalBatchTemplateType: Option; WarehouseJournalTemplateName: Code[10]; LocationCode: Code[10])
+    procedure SelectWhseJournalBatchName(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WhseJournalBatchTemplateType: Enum "Warehouse Journal Template Type"; WarehouseJournalTemplateName: Code[10]; LocationCode: Code[10])
     begin
         // Find Name for Batch Name.
         WarehouseJournalBatch.SetRange("Template Type", WhseJournalBatchTemplateType);
@@ -1505,10 +1517,10 @@ codeunit 132204 "Library - Warehouse"
             CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplateName, LocationCode);
     end;
 
-    procedure SelectWhseWorksheetTemplate(var WhseWorksheetTemplate: Record "Whse. Worksheet Template"; WarehouseJournalTemplateType: Option)
+    procedure SelectWhseWorksheetTemplate(var WhseWorksheetTemplate: Record "Whse. Worksheet Template"; TemplateType: Enum "Warehouse Worksheet Template Type")
     begin
         // Find Item Journal Template for the given Template Type.
-        WhseWorksheetTemplate.SetRange(Type, WarehouseJournalTemplateType);
+        WhseWorksheetTemplate.SetRange(Type, TemplateType);
         WhseWorksheetTemplate.FindFirst;
     end;
 
@@ -1630,7 +1642,9 @@ codeunit 132204 "Library - Warehouse"
         WhseCalculateInventory.Run;
     end;
 
-    procedure WhseSourceCreateDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean; DoNotFillQtytoHandle: Boolean; BreakbulkFilter: Boolean)
+    procedure WhseSourceCreateDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean;
+                                                                                                               DoNotFillQtytoHandle: Boolean;
+                                                                                                               BreakbulkFilter: Boolean)
     var
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
     begin

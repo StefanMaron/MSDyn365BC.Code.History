@@ -1,4 +1,5 @@
-﻿report 1200 "Create Direct Debit Collection"
+﻿#if not CLEAN17
+report 1200 "Create Direct Debit Collection"
 {
     Caption = 'Create Direct Debit Collection';
     ProcessingOnly = true;
@@ -99,7 +100,11 @@
                 {
                     ApplicationArea = Suite;
                     Caption = 'Bank Account No.';
+#if CLEAN17
+                    TableRelation = "Bank Account";
+#else
                     TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
                     ToolTip = 'Specifies which of your company''s bank accounts the collected payment will be transferred to from the customer''s bank account.';
 
                     trigger OnValidate()
@@ -175,4 +180,4 @@
         exit(DirectDebitCollectionEntry."Transfer Amount" >= "Cust. Ledger Entry"."Remaining Amount");
     end;
 }
-
+#endif

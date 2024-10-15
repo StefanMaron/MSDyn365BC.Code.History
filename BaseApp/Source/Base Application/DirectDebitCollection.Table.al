@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 1207 "Direct Debit Collection"
 {
     Caption = 'Direct Debit Collection';
@@ -165,4 +166,4 @@ table 1207 "Direct Debit Collection"
     begin
     end;
 }
-
+#endif

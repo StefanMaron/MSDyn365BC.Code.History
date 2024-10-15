@@ -1,4 +1,5 @@
-﻿codeunit 5807 "Item Charge Assgnt. (Sales)"
+#if not CLEAN18
+codeunit 5807 "Item Charge Assgnt. (Sales)"
 {
     Permissions = TableData "Sales Header" = r,
                   TableData "Sales Line" = r,
@@ -406,10 +407,10 @@
                             IsHandled := false;
                             OnAssignByAmountOnBeforeGetSalesLine(SalesLine, ItemChargeAssignmentSales, IsHandled);
                             if not IsHandled then
-                                SalesLine.Get(
-                                  ItemChargeAssignmentSales."Applies-to Doc. Type",
-                                  ItemChargeAssignmentSales."Applies-to Doc. No.",
-                                  ItemChargeAssignmentSales."Applies-to Doc. Line No.");
+                            SalesLine.Get(
+                              ItemChargeAssignmentSales."Applies-to Doc. Type",
+                              ItemChargeAssignmentSales."Applies-to Doc. No.",
+                              ItemChargeAssignmentSales."Applies-to Doc. Line No.");
                             TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                               Abs(SalesLine."Line Amount");
                         end;
@@ -784,3 +785,4 @@
     end;
 }
 
+#endif

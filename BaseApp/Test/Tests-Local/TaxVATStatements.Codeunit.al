@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 144201 "Tax VAT Statements"
 {
     Subtype = Test;
@@ -394,3 +395,4 @@ codeunit 144201 "Tax VAT Statements"
     end;
 }
 
+#endif

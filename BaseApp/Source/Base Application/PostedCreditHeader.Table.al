@@ -2,8 +2,12 @@ table 31057 "Posted Credit Header"
 {
     Caption = 'Posted Credit Header';
     DataCaptionFields = "No.", Description;
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Posted Credits List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 
@@ -92,6 +96,7 @@ table 31057 "Posted Credit Header"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+#if not CLEAN18
         field(90; "Balance (LCY)"; Decimal)
         {
             CalcFormula = Sum("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
@@ -99,6 +104,7 @@ table 31057 "Posted Credit Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(100; Type; Option)
         {
             Caption = 'Type';
@@ -118,6 +124,7 @@ table 31057 "Posted Credit Header"
     fieldgroups
     {
     }
+#if not CLEAN18
 
     trigger OnDelete()
     var
@@ -159,5 +166,6 @@ table 31057 "Posted Credit Header"
             until CreditReportSelections.Next() = 0;
         end;
     end;
+#endif
 }
 

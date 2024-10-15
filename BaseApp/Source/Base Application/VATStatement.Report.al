@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
@@ -120,6 +121,9 @@ report 12 "VAT Statement"
                 begin
                     CalcLineTotal("VAT Statement Line", TotalAmount, 0);
                     if PrintInIntegers then
+#if CLEAN17
+                        TotalAmount := Round(TotalAmount, 1, '<');
+#else
                         // NAVCZ
                         TotalAmount := RoundAmount(TotalAmount);
                     case Show of
@@ -131,6 +135,7 @@ report 12 "VAT Statement"
                                 TotalAmount := 0;
                     end;
                     // NAVCZ
+#endif
                     if "Print with" = "Print with"::"Opposite Sign" then
                         TotalAmount := -TotalAmount;
                     PageGroupNo := NextPageGroupNo;
@@ -166,19 +171,28 @@ report 12 "VAT Statement"
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
+#if CLEAN17
+                        field(StartingDate; StartDate)
+#else
                         field(StartingDate; StartDate2)
+#endif
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Starting Date';
                             ToolTip = 'Specifies the start date for the time interval for VAT statement lines in the report.';
                         }
+#if CLEAN17
+                        field(EndingDate; EndDateReq)
+#else
                         field(EndingDate; EndDateReq2)
+#endif                        
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ending Date';
                             ToolTip = 'Specifies the end date for the time interval for VAT statement lines in the report.';
                         }
                     }
+#if not CLEAN17
                     group("Date Row Filter Period")
                     {
                         Caption = 'Date Row Filter Period';
@@ -204,6 +218,7 @@ report 12 "VAT Statement"
                             ObsoleteTag = '17.5';
                         }
                     }
+#endif
                     field(Selection; Selection)
                     {
                         ApplicationArea = Basic, Suite;
@@ -224,13 +239,16 @@ report 12 "VAT Statement"
                         Caption = 'Round to Whole Numbers';
                         Importance = Additional;
                         ToolTip = 'Specifies if you want the amounts in the report to be rounded to whole numbers.';
+#if not CLEAN17
 
                         trigger OnValidate()
                         begin
                             // NAVCZ
                             RoundingDirectionCtrlVisible := PrintInIntegers;
                         end;
+#endif
                     }
+#if not CLEAN17
                     group(Control1220006)
                     {
                         ShowCaption = false;
@@ -249,6 +267,7 @@ report 12 "VAT Statement"
                             ObsoleteTag = '17.5';
                         }
                     }
+#endif
                     field(ShowAmtInAddCurrency; UseAmtsInAddCurr)
                     {
                         ApplicationArea = Basic, Suite;
@@ -257,12 +276,14 @@ report 12 "VAT Statement"
                         MultiLine = true;
                         ToolTip = 'Specifies if you want report amounts to be shown in the additional reporting currency.';
                     }
+#if not CLEAN17
                     field(SettlementNoFilter; SettlementNoFilter)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Filter VAT Settlement No.';
                         ToolTip = 'Specifies the filter setup of document number which the VAT entries were closed.';
                     }
+#endif
                 }
             }
         }
@@ -270,12 +291,14 @@ report 12 "VAT Statement"
         actions
         {
         }
+#if not CLEAN17
 
         trigger OnOpenPage()
         begin
             // NAVCZ
             RoundingDirectionCtrlVisible := PrintInIntegers;
         end;
+#endif
     }
 
     labels
@@ -284,6 +307,13 @@ report 12 "VAT Statement"
 
     trigger OnPreReport()
     begin
+#if CLEAN17
+        if EndDateReq = 0D then
+            EndDate := DMY2Date(31, 12, 9999)
+        else
+            EndDate := EndDateReq;
+        VATStmtLine.SetRange("Date Filter", StartDate, EndDateReq);
+#else
         // NAVCZ
         if EndDateReq2 = 0D then
             EndDate2 := DMY2Date(31, 12, 9999)
@@ -296,16 +326,23 @@ report 12 "VAT Statement"
             EndDate1 := EndDateReq1;
         VATStmtLine.SetRange("Date Row Filter", StartDate1, EndDateReq1);
         // NAVCZ
+#endif
         if PeriodSelection = PeriodSelection::"Before and Within Period" then
             Heading := Text000
         else
             Heading := Text004;
+#if CLEAN17
+        Heading2 := StrSubstNo(Text005, StartDate, EndDateReq);
+#else
         Heading2 := StrSubstNo(Text005, StartDate2, EndDateReq2); // NAVCZ
+#endif
         VATStmtLineFilter := VATStmtLine.GetFilters;
+#if not CLEAN17
         // NAVCZ
         if SettlementNoFilter <> '' then
             Heading2 := Heading2 + ',' + VATEntry.FieldCaption("VAT Settlement No.") + ':' + SettlementNoFilter;
         // NAVCZ
+#endif
     end;
 
     var
@@ -316,7 +353,9 @@ report 12 "VAT Statement"
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN17
         VATEntry2: Record "VAT Entry";
+#endif
         VATStmtLine: Record "VAT Statement Line";
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
@@ -345,6 +384,7 @@ report 12 "VAT Statement"
         ReportinclallVATentriesCaptionLbl: Label 'The report includes all VAT entries.';
         RepinclonlyclosedVATentCaptionLbl: Label 'The report includes only closed VAT entries.';
         TotalAmountCaptionLbl: Label 'Amount';
+#if not CLEAN17
         RoundingDirection: Option Nearest,Down,Up;
         EndDate1: Date;
         StartDate1: Date;
@@ -360,12 +400,16 @@ report 12 "VAT Statement"
         Text012: Label 'You have entered an invalid value or a nonexistent row number.';
         [InDataSet]
         RoundingDirectionCtrlVisible: Boolean;
+#endif
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
+#if not CLEAN17
     var
         SalesTax: Boolean;
         StartingDate: Date;
+#endif    
     begin
+#if not CLEAN17
         // NAVCZ
         if VATStmtLine2."Use Row Date Filter" and (StartDate1 <> 0D) and (EndDateReq1 <> 0D) then begin
             EndDateReq := EndDateReq1;
@@ -377,6 +421,7 @@ report 12 "VAT Statement"
             EndDate := EndDate2;
         end;
         // NAVCZ
+#endif
         if Level = 0 then
             TotalAmount := 0;
         case VATStmtLine2.Type of
@@ -391,6 +436,10 @@ report 12 "VAT Statement"
                     Amount := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
+#if CLEAN17
+                            GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
+                            Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
+#else
                             // NAVCZ
                             case VATStmtLine2."G/L Amount Type" of
                                 VATStmtLine2."G/L Amount Type"::"Net Change":
@@ -410,6 +459,7 @@ report 12 "VAT Statement"
                                     end;
                             end;
                         // NAVCZ
+#endif
                         until GLAcc.Next() = 0;
                     OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
@@ -418,12 +468,17 @@ report 12 "VAT Statement"
                 begin
                     VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
+#if CLEAN17
+                         Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
+#else
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
                          "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role",
                          "VAT Date") // NAVCZ
+#endif
                     then begin
                         VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");
                         VATEntry.SetRange("VAT Prod. Posting Group", VATStmtLine2."VAT Prod. Posting Group");
+#if not CLEAN17
                         // NAVCZ
                         if VATStmtLine2."Gen. Bus. Posting Group" <> '' then
                             VATEntry.SetRange("Gen. Bus. Posting Group", VATStmtLine2."Gen. Bus. Posting Group");
@@ -442,16 +497,24 @@ report 12 "VAT Statement"
                                 VATEntry.SetRange("EU 3-Party Intermediate Role", false);
                         end;
                         // NAVCZ
+#endif
                     end else begin
                         VATEntry.SetCurrentKey(
                           Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
                         VATEntry.SetRange("Tax Jurisdiction Code", VATStmtLine2."Tax Jurisdiction Code");
                         VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
+#if not CLEAN17
                         SalesTax := true; // NAVCZ
+#endif
                     end;
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
                     if (EndDateReq <> 0D) or (StartDate <> 0D) then
                         if PeriodSelection = PeriodSelection::"Before and Within Period" then
+#if CLEAN17
+                            VATEntry.SetRange("Posting Date", 0D, EndDate)
+                        else
+                            VATEntry.SetRange("Posting Date", StartDate, EndDate);
+#else
                             // NAVCZ
                             StartingDate := 0D
                         else
@@ -465,6 +528,7 @@ report 12 "VAT Statement"
                         VATEntry.SetFilter("VAT Settlement No.", SettlementNoFilter);
                     // NAVCZ
 
+#endif
                     case Selection of
                         Selection::Open:
                             VATEntry.SetRange(Closed, false);
@@ -473,6 +537,7 @@ report 12 "VAT Statement"
                         else
                             VATEntry.SetRange(Closed);
                     end;
+#if not CLEAN17
                     // NAVCZ
                     case VATStmtLine2."Prepayment Type" of
                         VATStmtLine2."Prepayment Type"::"Not Prepayment":
@@ -489,6 +554,7 @@ report 12 "VAT Statement"
                     VATEntry2.CopyFilters(VATEntry);
                     Amount := 0;
                     // NAVCZ
+#endif
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
                             begin
@@ -500,6 +566,7 @@ report 12 "VAT Statement"
                                 VATEntry.CalcSums(Base, "Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                             end;
+#if not CLEAN17
                         // NAVCZ
                         VATStmtLine2."Amount Type"::"Adv. Base":
                             begin
@@ -507,6 +574,7 @@ report 12 "VAT Statement"
                                 Amount := ConditionalAdd(0, VATEntry."Advance Base", VATEntry."Additional-Currency Base");
                             end;
                         // NAVCZ
+#endif
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
                                 VATEntry.CalcSums("Remaining Unrealized Amount", "Add.-Curr. Rem. Unreal. Amount");
@@ -547,6 +615,7 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::Description:
                 ;
+#if not CLEAN17
             // NAVCZ
             VATStmtLine2.Type::Formula:
                 begin
@@ -554,6 +623,7 @@ report 12 "VAT Statement"
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
         // NAVCZ
+#endif
         end;
 
         exit(true);
@@ -564,18 +634,25 @@ report 12 "VAT Statement"
         if VATStmtLine2."Calculate with" = 1 then
             Amount := -Amount;
         if PrintInIntegers and VATStmtLine2.Print then
+#if CLEAN17
+            Amount := Round(Amount, 1, '<');
+#else
             Amount := RoundAmount(Amount); // NAVCZ
+#endif
         TotalAmount := TotalAmount + Amount;
     end;
 
-#if not CLEAN17
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
+    begin
+        InitializeRequest(NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, '');
+    end;
+
     [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this procedure should not be used.', '17.4')]
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
     begin
         InitializeRequest(NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, SettlementNoFilter2);
     end;
 
-#endif
     [Obsolete('Function overload to facilitate the transition to W1', '18.1')]
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50])
     begin
@@ -585,6 +662,17 @@ report 12 "VAT Statement"
         PeriodSelection := NewPeriodSelection;
         PrintInIntegers := NewPrintInIntegers;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+#if CLEAN17
+        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
+            StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
+            EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
+            EndDate := EndDateReq;
+        end else begin
+            StartDate := 0D;
+            EndDateReq := 0D;
+            EndDate := DMY2Date(31, 12, 9999);
+        end;
+#else
         // NAVCZ
         if NewVATStatementLine.GetFilter("Date Row Filter") <> '' then begin
             StartDate1 := NewVATStatementLine.GetRangeMin("Date Row Filter");
@@ -611,6 +699,7 @@ report 12 "VAT Statement"
         end;
         SettlementNoFilter := SettlementNoFilter2;
         // NAVCZ
+#endif        
     end;
 
     local procedure ConditionalAdd(Amount: Decimal; AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
@@ -621,7 +710,7 @@ report 12 "VAT Statement"
         exit(Amount + AmountToAdd);
     end;
 
-    local procedure GetCurrency(): Code[10]
+    protected procedure GetCurrency(): Code[10]
     begin
         if UseAmtsInAddCurr then
             exit(GLSetup."Additional Reporting Currency");
@@ -629,6 +718,7 @@ report 12 "VAT Statement"
         exit('');
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetRoundingDirection(NewRoundingDirection: Option)
@@ -775,6 +865,7 @@ report 12 "VAT Statement"
         exit(Result);
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
@@ -785,4 +876,4 @@ report 12 "VAT Statement"
     begin
     end;
 }
-
+#endif

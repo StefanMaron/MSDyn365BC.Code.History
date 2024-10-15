@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31072 "Sales Price Import/Export"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales Price Import/Export';
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
 
     dataset
     {
@@ -528,4 +532,4 @@ report 31072 "Sales Price Import/Export"
         end;
     end;
 }
-
+#endif

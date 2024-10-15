@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31120 "EET Confirmation"
 {
     DefaultLayout = RDLC;
@@ -121,4 +122,4 @@ report 31120 "EET Confirmation"
         FormatAddress: Codeunit "Format Address";
         CompanyAddr: array[8] of Text[100];
 }
-
+#endif

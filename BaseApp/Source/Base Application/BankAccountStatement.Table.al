@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 275 "Bank Account Statement"
 {
     Caption = 'Bank Account Statement';
@@ -80,4 +81,4 @@ table 275 "Bank Account Statement"
         exit('');
     end;
 }
-
+#endif

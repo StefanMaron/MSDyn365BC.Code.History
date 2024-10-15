@@ -19,9 +19,7 @@ codeunit 21 "Item Jnl.-Check Line"
         Text011: Label '%1 must not be equal to %2';
         Location: Record Location;
         InvtSetup: Record "Inventory Setup";
-#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
-#endif
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
@@ -40,23 +38,20 @@ codeunit 21 "Item Jnl.-Check Line"
 #if not CLEAN19
         Item2: Record Item;
         ManufSetup: Record "Manufacturing Setup";
-        T337: Record "Reservation Entry";
-        TmpItemTrackingCode: Record "Item Tracking Code";
+        ReservEntry: Record "Reservation Entry";
+        ItemTrackingCode2: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
 #endif
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
 #if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
 #endif
+#if not CLEAN19
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
+#endif
         IsHandled: Boolean;
     begin
-#if not CLEAN18
         GLSetup.Get();
-#endif
         InvtSetup.Get();
 
         with ItemJnlLine do begin
@@ -113,7 +108,10 @@ codeunit 21 "Item Jnl.-Check Line"
                 CheckInTransitLocation("New Location Code");
             end;
 
-            CheckBins(ItemJnlLine);
+            if Item.IsInventoriableType() then
+                CheckBins(ItemJnlLine)
+            else
+                ItemJnlLine.TestField("Bin Code", '');
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."] then
                 TestField("Discount Amount", 0);
@@ -194,25 +192,19 @@ codeunit 21 "Item Jnl.-Check Line"
                             ManufSetup.Get();
                             if ManufSetup."Exact Cost Rev.Manda. (Cons.)" then begin
                                 Item2.Get("Item No.");
-                                TmpItemTrackingCode.Code := Item2."Item Tracking Code";
-                                ItemTrackingMgt.GetItemTrackingSettings(
-                                  TmpItemTrackingCode, ItemJnlLine."Entry Type", ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0,
-                                  SNRequired, LotRequired, SNInfoRequired, LotInfoRequired);
+                                ItemTrackingCode2.Code := Item2."Item Tracking Code";
+                                ItemTrackingMgt.GetItemTrackingSetup(
+                                  ItemTrackingCode2, ItemJnlLine."Entry Type",
+                                  ItemJnlLine.Signed(ItemJnlLine."Quantity (Base)") > 0, ItemTrackingSetup);
 
-                                if SNRequired or LotRequired then begin
-                                    T337.SetCurrentKey(
-                                      "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-                                      "Source Batch Name", "Source Prod. Order Line");
-                                    T337.SetRange("Source ID", "Journal Template Name");
-                                    T337.SetRange("Source Ref. No.", "Line No.");
-                                    T337.SetRange("Source Type", DATABASE::"Item Journal Line");
-                                    T337.SetRange("Source Subtype", "Entry Type");
-                                    T337.SetRange("Source Batch Name", "Journal Batch Name");
-                                    T337.SetRange("Reservation Status", T337."Reservation Status"::Prospect);
-                                    if T337.FindSet(false, false) then begin
+                                if ItemTrackingSetup.TrackingRequired() then begin
+                                    ReservEntry.SetSourceFilter(DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", true);
+                                    ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+                                    ReservEntry.SetRange("Reservation Status", "Reservation Status"::Prospect);
+                                    if ReservEntry.FindSet(false, false) then begin
                                         repeat
-                                            T337.TestField("Appl.-from Item Entry");
-                                        until T337.Next() = 0;
+                                            ReservEntry.TestField("Appl.-from Item Entry");
+                                        until ReservEntry.Next() = 0;
                                     end;
                                 end else
                                     TestField("Applies-from Entry");
@@ -222,25 +214,18 @@ codeunit 21 "Item Jnl.-Check Line"
                         if InvtSetup."Exact Cost Reversing Mandatory" then
                             if Quantity < 0 then begin
                                 Item2.Get("Item No.");
-                                TmpItemTrackingCode.Code := Item2."Item Tracking Code";
-                                ItemTrackingMgt.GetItemTrackingSettings(
-                                  TmpItemTrackingCode, "Entry Type", Signed("Quantity (Base)") > 0,
-                                  SNRequired, LotRequired, SNInfoRequired, LotInfoRequired);
+                                ItemTrackingCode2.Code := Item2."Item Tracking Code";
+                                ItemTrackingMgt.GetItemTrackingSetup(
+                                  ItemTrackingCode2, "Entry Type", Signed("Quantity (Base)") > 0, ItemTrackingSetup);
 
-                                if SNRequired or LotRequired then begin
-                                    T337.SetCurrentKey(
-                                      "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-                                      "Source Batch Name", "Source Prod. Order Line");
-                                    T337.SetRange("Source ID", "Journal Template Name");
-                                    T337.SetRange("Source Ref. No.", "Line No.");
-                                    T337.SetRange("Source Type", DATABASE::"Item Journal Line");
-                                    T337.SetRange("Source Subtype", "Entry Type");
-                                    T337.SetRange("Source Batch Name", "Journal Batch Name");
-                                    T337.SetRange("Reservation Status", T337."Reservation Status"::Prospect);
-                                    if T337.FindSet(false, false) then begin
+                                if ItemTrackingSetup.TrackingRequired() then begin
+                                    ReservEntry.SetSourceFilter(DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", true);
+                                    ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+                                    ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
+                                    if ReservEntry.FindSet(false, false) then begin
                                         repeat
-                                            T337.TestField("Appl.-from Item Entry");
-                                        until T337.Next() = 0;
+                                            ReservEntry.TestField("Appl.-from Item Entry");
+                                        until ReservEntry.Next() = 0;
                                     end;
                                 end else
                                     TestField("Applies-from Entry");

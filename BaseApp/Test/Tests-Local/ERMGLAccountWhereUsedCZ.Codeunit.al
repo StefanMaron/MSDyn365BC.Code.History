@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 144544 "ERM G/L Account Where-Used CZ"
 {
     Subtype = Test;
@@ -20,6 +21,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         InvalidTableCaptionErr: Label 'Invalid table caption.';
         InvalidFieldCaptionErr: Label 'Invalid field caption.';
         InvalidLineValueErr: Label 'Invalid Line value.';
+        MultipleTableIDFilter: Text;
 
 #if not CLEAN18
     [Test]
@@ -31,6 +33,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     begin
         // [SCENARIO 263861] FA Extended Posting Group should be shown on Where-Used page
         Initialize;
+        MultipleTableIDFilter := Format(Database::"FA Extended Posting Group");
 
         // [GIVEN] FA Extended Posting Group with "Maintenance Expense Account" = "G"
         CreateFAExtendedPostingGroup(FAExtendedPostingGroup);
@@ -62,6 +65,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     begin
         // [SCENARIO 263861] FA Extended Posting Groups page should be open on Show Details action from Where-Used page
         Initialize;
+        MultipleTableIDFilter := Format(Database::"FA Extended Posting Group");
 
         // [GIVEN] FA Extended Posting Group "FA Posting Group Code" = "FPGC", "FA Posting Type" = "Disposal", Code = "C" with "Maintenance Expense Account" = "G"
         CreateFAExtendedPostingGroup(FAExtendedPostingGroup);
@@ -125,6 +129,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         BankAccountList."No.".AssertEquals(BankAccount."No.");
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('WhereUsedHandler')]
     [Scope('OnPrem')]
@@ -134,6 +139,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     begin
         // [SCENARIO 263861] Credits Setup should be shown on Where-Used page
         Initialize;
+        MultipleTableIDFilter := Format(Database::"Credits Setup");
 
         // [GIVEN] Credits Setup with "Non Associated Payment Account" = "G"
         CreditsSetup.Get();
@@ -160,6 +166,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     begin
         // [SCENARIO 263861] Credits Setups page should be open on Show Details action from Where-Used page
         Initialize;
+        MultipleTableIDFilter := Format(Database::"Credits Setup");
 
         // [GIVEN] Credits Setup with "Non Associated Payment Account" = "G"
         CreditsSetup.Get();
@@ -173,15 +180,18 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         // [THEN] Credits Setups page opened
         CreditsSetupPage.OK.Invoke;
     end;
+#endif
 
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
+        MultipleTableIDFilter := '';
         if isInitialized then
             exit;
-
+#if not CLEAN18
         LibrarySetupStorage.Save(DATABASE::"Credits Setup");
+#endif
         isInitialized := true;
     end;
 
@@ -211,6 +221,8 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
+        if MultipleTableIDFilter <> '' then
+            GLAccountWhereUsedList.Filter.SetFilter("Table ID", MultipleTableIDFilter);
         GLAccountWhereUsedList.First;
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
@@ -222,8 +234,11 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
+        if MultipleTableIDFilter <> '' then
+            GLAccountWhereUsedList.Filter.SetFilter("Table ID", MultipleTableIDFilter);
         GLAccountWhereUsedList.First;
         GLAccountWhereUsedList.ShowDetails.Invoke;
     end;
 }
 
+#endif

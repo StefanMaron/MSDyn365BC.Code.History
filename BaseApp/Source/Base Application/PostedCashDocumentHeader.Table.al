@@ -2,10 +2,14 @@ table 11735 "Posted Cash Document Header"
 {
     Caption = 'Posted Cash Document Header';
     DataCaptionFields = "Cash Desk No.", "Cash Document Type", "No.", "Pay-to/Receive-from Name";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Posted Cash Document List";
     LookupPageID = "Posted Cash Document List";
     Permissions = TableData "Posted Cash Document Line" = rd;
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -14,6 +18,7 @@ table 11735 "Posted Cash Document Header"
         field(1; "Cash Desk No."; Code[20])
         {
             Caption = 'Cash Desk No.';
+#if not CLEAN17
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
 
             trigger OnLookup()
@@ -24,6 +29,7 @@ table 11735 "Posted Cash Document Header"
                     CashDesk."Account Type" := CashDesk."Account Type"::"Cash Desk";
                 CashDesk.Lookup;
             end;
+#endif
         }
         field(2; "No."; Code[20])
         {
@@ -41,6 +47,7 @@ table 11735 "Posted Cash Document Header"
         {
             Caption = 'Posting Date';
         }
+#if not CLEAN17
         field(7; Amount; Decimal)
         {
             CalcFormula = Sum("Posted Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
@@ -55,6 +62,7 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
         }
+#endif
         field(13; "Cash Desk Report No."; Code[20])
         {
             Caption = 'Cash Desk Report No.';
@@ -146,6 +154,7 @@ table 11735 "Posted Cash Document Header"
         {
             Caption = 'Amounts Including VAT';
         }
+#if not CLEAN17
         field(51; "VAT Base Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -182,6 +191,7 @@ table 11735 "Posted Cash Document Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(60; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -259,20 +269,27 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN17
 
             trigger OnLookup()
             begin
                 ShowDimensions();
             end;
+#endif
         }
         field(31123; "EET Entry No."; Integer)
         {
             Caption = 'EET Entry No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "EET Entry";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
         }
+#if not CLEAN18
         field(31124; "Receipt Serial No."; Code[50])
         {
             CalcFormula = Lookup("EET Entry"."Receipt Serial No." WHERE("Entry No." = FIELD("EET Entry No.")));
@@ -283,6 +300,7 @@ table 11735 "Posted Cash Document Header"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
@@ -308,6 +326,7 @@ table 11735 "Posted Cash Document Header"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     trigger OnDelete()
     var
@@ -373,5 +392,6 @@ table 11735 "Posted Cash Document Header"
         EETEntry.Get("EET Entry No.");
         PAGE.Run(PAGE::"EET Entry Card", EETEntry);
     end;
+#endif
 }
 

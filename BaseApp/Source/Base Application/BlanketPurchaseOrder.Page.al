@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 509 "Blanket Purchase Order"
 {
     Caption = 'Blanket Purchase Order';
@@ -165,6 +166,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the order address code linked to the relevant vendor''s order address.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Vendor Order No."; "Vendor Order No.")
                 {
@@ -515,6 +517,7 @@ page 509 "Blanket Purchase Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -524,6 +527,7 @@ page 509 "Blanket Purchase Order"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
             }
             group(Payments)
             {
@@ -750,9 +754,9 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -1051,8 +1055,8 @@ page 509 "Blanket Purchase Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1071,11 +1075,7 @@ page 509 "Blanket Purchase Order"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetDocNoVisible;
     end;
@@ -1150,3 +1150,4 @@ page 509 "Blanket Purchase Order"
     end;
 }
 
+#endif

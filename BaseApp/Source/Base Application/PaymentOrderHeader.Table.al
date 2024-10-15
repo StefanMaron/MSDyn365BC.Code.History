@@ -1,14 +1,22 @@
 table 11708 "Payment Order Header"
 {
     Caption = 'Payment Order Header';
+#if not CLEAN19
     DataCaptionFields = "No.", "Bank Account No.", "Bank Account Name";
     LookupPageID = "Payment Order List";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -18,6 +26,7 @@ table 11708 "Payment Order Header"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(2; "No. Series"; Code[20])
         {
@@ -29,7 +38,12 @@ table 11708 "Payment Order Header"
         {
             Caption = 'Bank Account No.';
             NotBlank = true;
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -50,7 +64,9 @@ table 11708 "Payment Order Header"
                     BankAccount.Get("Bank Account No.");
                 "Foreign Payment Order" := BankAccount."Foreign Payment Orders";
             end;
+#endif
         }
+#if not CLEAN19
         field(4; "Bank Account Name"; Text[100])
         {
             CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
@@ -58,18 +74,22 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(5; "Account No."; Text[30])
         {
             Caption = 'Account No.';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(6; "Document Date"; Date)
         {
             Caption = 'Document Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -80,11 +100,13 @@ table 11708 "Payment Order Header"
                         ConfirmUpdateCurrencyFactor;
                 end;
             end;
+#endif
         }
         field(7; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -104,12 +126,14 @@ table 11708 "Payment Order Header"
 
                 Validate("Payment Order Currency Code", "Currency Code");
             end;
+#endif
         }
         field(8; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -118,7 +142,9 @@ table 11708 "Payment Order Header"
                 if "Currency Factor" <> xRec."Currency Factor" then
                     UpdatePayOrderLine(FieldCaption("Currency Factor"));
             end;
+#endif
         }
+#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
@@ -178,6 +204,7 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -197,6 +224,7 @@ table 11708 "Payment Order Header"
         {
             Caption = 'Payment Order Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -214,12 +242,14 @@ table 11708 "Payment Order Header"
                                 ConfUpdateOrderCurrencyFactor;
                         end;
             end;
+#endif
         }
         field(21; "Payment Order Currency Factor"; Decimal)
         {
             Caption = 'Payment Order Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -228,7 +258,9 @@ table 11708 "Payment Order Header"
                 if "Payment Order Currency Factor" <> xRec."Payment Order Currency Factor" then
                     UpdatePayOrderLine(FieldCaption("Payment Order Currency Factor"));
             end;
+#endif
         }
+#if not CLEAN19
         field(25; "Amount (Pay.Order Curr.)"; Decimal)
         {
             CalcFormula = Sum("Payment Order Line"."Amount(Pay.Order Curr.) to Pay" WHERE("Payment Order No." = FIELD("No."),
@@ -237,6 +269,7 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(30; "Last Issuing No."; Code[20])
         {
             Caption = 'Last Issuing No.';
@@ -246,11 +279,13 @@ table 11708 "Payment Order Header"
         field(35; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(55; "File Name"; Text[250])
         {
@@ -259,29 +294,35 @@ table 11708 "Payment Order Header"
         field(60; "Foreign Payment Order"; Boolean)
         {
             Caption = 'Foreign Payment Order';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(90; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(95; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(100; "Uncertainty Pay.Check DateTime"; DateTime)
         {
@@ -308,6 +349,7 @@ table 11708 "Payment Order Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     begin
@@ -350,6 +392,7 @@ table 11708 "Payment Order Header"
         StatusCheckSuspended: Boolean;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure AssistEdit(OldPaymentOrderHeader: Record "Payment Order Header"): Boolean
     var
         PaymentOrderHeader: Record "Payment Order Header";
@@ -385,6 +428,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure UpdatePayOrderLine(ChangedFieldName: Text[30])
     var
         PaymentOrderLine: Record "Payment Order Line";
@@ -443,6 +487,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PaymentOrderLinesExist(): Boolean
     var
         PaymentOrderLine: Record "Payment Order Line";
@@ -472,6 +517,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ImportPaymentOrder()
     var
         BankAcc: Record "Bank Account";
@@ -484,6 +530,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure TestPrintRecords(ShowRequestForm: Boolean)
     var
         PmtOrdHdr: Record "Payment Order Header";
@@ -500,6 +547,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
@@ -512,6 +560,7 @@ table 11708 "Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SendToIssuing(IssuingCodeunitID: Integer)
     begin
         if not IsApprovedForIssuing then
@@ -531,6 +580,8 @@ table 11708 "Payment Order Header"
             until PaymentOrderLine.Next() = 0;
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     procedure ImportUncPayerStatus()
     var
@@ -560,6 +611,9 @@ table 11708 "Payment Order Header"
             until PaymentOrderLine.Next() = 0;
     end;
 
+#endif
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure UncertaintyPayerCheckExpired(): Boolean
     begin
         if "Uncertainty Pay.Check DateTime" = 0DT then
@@ -570,8 +624,10 @@ table 11708 "Payment Order Header"
 
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure OnCheckPaymentOrderIssueRestrictions()
     begin
     end;
+#endif
 }
 

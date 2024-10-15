@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11792 "Company Officials"
 {
     ApplicationArea = Basic, Suite;
@@ -124,4 +125,4 @@ page 11792 "Company Officials"
     {
     }
 }
-
+#endif

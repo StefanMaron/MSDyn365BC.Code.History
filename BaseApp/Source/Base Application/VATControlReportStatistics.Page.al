@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31104 "VAT Control Report Statistics"
 {
     Caption = 'VAT Control Report Statistics (Obsolete)';
@@ -77,4 +78,4 @@ page 31104 "VAT Control Report Statistics"
         CurrPage.SubForm.PAGE.SetTempVATCtrlRepBuffer(TempVATCtrlRptBuf);
     end;
 }
-
+#endif

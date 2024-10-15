@@ -1,13 +1,22 @@
 table 31001 "Sales Advance Letter Line"
 {
     Caption = 'Sales Advance Letter Line';
+#if not CLEAN19
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(3; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = "Sales Advance Letter Header";
+#endif
         }
         field(4; "Line No."; Integer)
         {
@@ -18,21 +27,25 @@ table 31001 "Sales Advance Letter Line"
             Caption = 'No.';
             Editable = false;
             TableRelation = "G/L Account";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestField("Amount Invoiced", 0);
             end;
+#endif
         }
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if Description <> xRec.Description then
                     TestStatusOpen;
             end;
+#endif
         }
         field(12; "Advance Due Date"; Date)
         {
@@ -43,6 +56,7 @@ table 31001 "Sales Advance Letter Line"
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -70,12 +84,14 @@ table 31001 "Sales Advance Letter Line"
                 Amount := "Amount Including VAT" - "VAT Amount";
                 "VAT Difference" := 0;
             end;
+#endif
         }
         field(29; Amount; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -104,12 +120,14 @@ table 31001 "Sales Advance Letter Line"
 
                 "VAT Amount" := "Amount Including VAT" - Amount;
             end;
+#endif
         }
         field(30; "Amount Including VAT"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -121,6 +139,7 @@ table 31001 "Sales Advance Letter Line"
 
                 Validate("VAT %");
             end;
+#endif
         }
         field(31; "VAT Amount"; Decimal)
         {
@@ -169,6 +188,7 @@ table 31001 "Sales Advance Letter Line"
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -176,12 +196,14 @@ table 31001 "Sales Advance Letter Line"
 
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(41; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -189,18 +211,21 @@ table 31001 "Sales Advance Letter Line"
 
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(45; "Job No."; Code[20])
         {
             Caption = 'Job No.';
             Editable = false;
             TableRelation = Job;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(DATABASE::Job, "Job No.",
                   DATABASE::"G/L Account", "Advance G/L Account No.");
             end;
+#endif
         }
         field(47; "Applies-to ID"; Code[50])
         {
@@ -216,6 +241,7 @@ table 31001 "Sales Advance Letter Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -224,11 +250,13 @@ table 31001 "Sales Advance Letter Line"
                     if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
+#endif
         }
         field(75; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -238,6 +266,7 @@ table 31001 "Sales Advance Letter Line"
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
                 end;
             end;
+#endif
         }
         field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
@@ -262,6 +291,7 @@ table 31001 "Sales Advance Letter Line"
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -279,11 +309,13 @@ table 31001 "Sales Advance Letter Line"
                 CustPostGr.TestField("Advance Account");
                 Validate("Advance G/L Account No.", CustPostGr."Advance Account");
             end;
+#endif
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -319,6 +351,7 @@ table 31001 "Sales Advance Letter Line"
                 CustPostGr.TestField("Advance Account");
                 Validate("Advance G/L Account No.", CustPostGr."Advance Account");
             end;
+#endif
         }
         field(91; "Currency Code"; Code[10])
         {
@@ -350,6 +383,7 @@ table 31001 "Sales Advance Letter Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -360,19 +394,23 @@ table 31001 "Sales Advance Letter Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(31015; "Amount To Refund"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             BlankZero = true;
             Caption = 'Amount To Refund';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if "Amount To Invoice" + "Amount To Deduct" < "Amount To Refund" then
                     Error(Text003Err, "Letter No.", "Line No.");
             end;
+#endif
         }
+#if not CLEAN19
         field(31016; "Customer Posting Group"; Code[20])
         {
             CalcFormula = Lookup("Sales Advance Letter Header"."Customer Posting Group" WHERE("No." = FIELD("Letter No.")));
@@ -381,10 +419,12 @@ table 31001 "Sales Advance Letter Line"
             FieldClass = FlowField;
             TableRelation = "Customer Posting Group";
         }
+#endif
         field(31017; "Link Code"; Code[30])
         {
             Caption = 'Link Code';
         }
+#if not CLEAN19
         field(31018; "Document Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -404,6 +444,7 @@ table 31001 "Sales Advance Letter Line"
             FieldClass = FlowFilter;
             TableRelation = "Sales Header"."No.";
         }
+#endif
         field(31020; "Semifinished Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -411,6 +452,7 @@ table 31001 "Sales Advance Letter Line"
             BlankZero = true;
             Caption = 'Semifinished Linked Amount';
         }
+#if not CLEAN19
         field(31021; "Document Linked Inv. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -424,18 +466,22 @@ table 31001 "Sales Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31022; "Advance G/L Account No."; Code[20])
         {
             Caption = 'Advance G/L Account No.';
             Editable = false;
             TableRelation = "G/L Account";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(DATABASE::"G/L Account", "Advance G/L Account No.",
                   DATABASE::Job, "Job No.");
             end;
+#endif
         }
+#if not CLEAN19
         field(31023; "Document Linked Ded. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -462,6 +508,7 @@ table 31001 "Sales Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
     }
 
     keys
@@ -482,6 +529,7 @@ table 31001 "Sales Advance Letter Line"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -921,5 +969,6 @@ table 31001 "Sales Advance Letter Line"
               "Amount To Link",
               SalesAdvanceLetterHdr."Currency Factor")));
     end;
+#endif
 }
 

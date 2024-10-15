@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
 {
     EventSubscriberInstance = Manual;
@@ -31,7 +32,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
                 PurchPostAdvances.Invoice(PurchHeader)
             else
                 // NAVCZ
-                PostPrepmtDocument(PurchHeader, "Document Type"::Invoice);
+            PostPrepmtDocument(PurchHeader, "Document Type"::Invoice);
 
             if Print then begin
                 Commit();
@@ -79,10 +80,12 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
     begin
         OnBeforePostPrepmtDocument(PurchHeader, PrepmtDocumentType.AsInteger());
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchHeader.RecordId, 0, '');
         PurchPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not PurchPostPrepayments.Run(PurchHeader) then
@@ -131,6 +134,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         PrepmtDocumentType := NewPrepmtDocumentType;
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetSelectedInvoices(PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
     var
@@ -153,6 +157,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         end;
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetAdvLetterNo(LetterNo: Code[20])
     begin
@@ -208,3 +213,4 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
     end;
 }
 
+#endif

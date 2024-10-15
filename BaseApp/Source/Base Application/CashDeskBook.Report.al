@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11742 "Cash Desk Book"
 {
     DefaultLayout = RDLC;
@@ -286,4 +287,4 @@ report 11742 "Cash Desk Book"
         CashDeskManagement.CheckCashDesk(CashDeskNo);
     end;
 }
-
+#endif

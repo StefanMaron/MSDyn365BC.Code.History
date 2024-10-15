@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 11715 "Issued Bank Statement Stat."
 {
-    Caption = 'Issued Bank Statement Stat.';
+    Caption = 'Issued Bank Statement Stat. (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Card;
     SourceTable = "Issued Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -57,4 +61,4 @@ page 11715 "Issued Bank Statement Stat."
         EndBalance: Decimal;
         BegBalance: Decimal;
 }
-
+#endif

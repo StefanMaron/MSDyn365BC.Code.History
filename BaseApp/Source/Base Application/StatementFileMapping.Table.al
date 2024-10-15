@@ -1,7 +1,11 @@
 table 11766 "Statement File Mapping"
 {
     Caption = 'Statement File Mapping';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -31,6 +35,7 @@ table 11766 "Statement File Mapping"
         {
             Caption = 'Excel Cell';
             CharAllowed = '09,R,C';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -57,6 +62,7 @@ table 11766 "Statement File Mapping"
                     "Excel Column No." := 0;
                 end;
             end;
+#endif
         }
         field(10; "Excel Row No."; Integer)
         {
@@ -89,6 +95,7 @@ table 11766 "Statement File Mapping"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     var
         StmtFileMapping: Record "Statement File Mapping";
@@ -109,5 +116,6 @@ table 11766 "Statement File Mapping"
         if Cpos < 3 then
             Error(CellFormatErr);
     end;
+#endif
 }
 

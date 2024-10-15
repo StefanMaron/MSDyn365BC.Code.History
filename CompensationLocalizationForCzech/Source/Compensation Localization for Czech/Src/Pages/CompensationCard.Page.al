@@ -373,7 +373,7 @@ page 31272 "Compensation Card CZC"
                     }
                     action(SelectIncomingDoc)
                     {
-                        AccessByPermission = TableData "Incoming Document" = R;
+                        AccessByPermission = tabledata "Incoming Document" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Select Incoming Document';
                         Image = SelectLineToApply;
@@ -470,6 +470,7 @@ page 31272 "Compensation Card CZC"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the result of the posting lines before the actual posting.';
 
                     trigger OnAction()

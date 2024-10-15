@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 1003 "Post Invt. Cost to G/L - Test"
 {
     DefaultLayout = RDLC;
@@ -584,7 +585,6 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     exit(GenPostSetup.FieldCaption("COGS Account (Interim)"));
                 "Inventory Account Type"::"Invt. Accrual (Interim)":
                     exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
-#if not CLEAN18
                 // NAVCZ
                 "Inventory Account Type"::AccConsumption:
                     exit(InvtPostSetup.FieldCaption("Consumption Account"));
@@ -595,7 +595,6 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 "Inventory Account Type"::InvRoundingAdj:
                     exit(GenPostSetup.FieldCaption("Invt. Rounding Adj. Account"));
                 // NAVCZ
-#endif
                 else begin
                         IsHandled := false;
                         OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
@@ -647,3 +646,4 @@ report 1003 "Post Invt. Cost to G/L - Test"
     end;
 }
 
+#endif

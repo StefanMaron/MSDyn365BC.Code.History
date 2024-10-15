@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31072 "Stockkeeping Unit Templates"
 {
     ApplicationArea = Basic, Suite;
@@ -64,3 +65,5 @@ page 31072 "Stockkeeping Unit Templates"
     }
 }
 
+
+#endif

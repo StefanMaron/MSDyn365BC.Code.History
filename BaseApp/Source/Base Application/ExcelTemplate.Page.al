@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31080 "Excel Template"
 {
     ApplicationArea = Basic, Suite;
@@ -122,4 +123,4 @@ page 31080 "Excel Template"
         CalcFields(Template);
     end;
 }
-
+#endif

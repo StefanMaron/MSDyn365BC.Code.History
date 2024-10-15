@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31075 "Stat. Rep. No. Series Setup"
 {
     Caption = 'Stat. Rep. No. Series Setup (Obsolete)';
@@ -65,4 +66,4 @@ page 31075 "Stat. Rep. No. Series Setup"
         VATControlReportNosVisible := DocType = DocType::"VAT Control Report";
     end;
 }
-
+#endif

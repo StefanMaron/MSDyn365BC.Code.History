@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 144400 "Purchase Advances"
 {
     // // [FEATURE] [Purchase]
@@ -27,6 +28,9 @@ codeunit 144400 "Purchase Advances"
     // 21. Test the creation Purchase Advance Invoice after change VAT amount of VAT Amount Line.
 
     Subtype = Test;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The advance payment feature will be replaced by the new feature in Advacne Payment app.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -2539,3 +2543,4 @@ codeunit 144400 "Purchase Advances"
     end;
 }
 
+#endif

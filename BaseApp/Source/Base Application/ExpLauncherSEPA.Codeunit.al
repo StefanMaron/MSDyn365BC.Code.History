@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11720 "Exp. Launcher SEPA"
 {
     TableNo = "Issued Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     var
@@ -34,4 +38,4 @@ codeunit 11720 "Exp. Launcher SEPA"
         GenJnlLn.DeleteAll(true);
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31120 "EET Service Mgt."
 {
     ObsoleteState = Pending;
@@ -642,4 +643,4 @@ codeunit 31120 "EET Service Mgt."
     begin
     end;
 }
-
+#endif

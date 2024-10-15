@@ -1,4 +1,4 @@
-﻿table 5902 "Service Line"
+table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -211,10 +211,12 @@
                     GetUnitCost;
                 end;
                 GetDefaultBin;
+#if not CLEAN18
                 // NAVCZ
                 if Type = Type::Item then
                     SetGPPGformSKU;
                 // NAVCZ
+#endif
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -261,9 +263,9 @@
                             Error(Text026, FieldCaption(Quantity));
                 end;
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 if "Document Type" <> "Document Type"::"Credit Memo" then begin
                     if (Quantity * "Quantity Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Quantity Shipped")) and ("Shipment No." = ''))
@@ -342,12 +344,13 @@
 
                 if "Qty. to Invoice" = MaxQtyToInvoice then
                     InitQtyToInvoice
-                else
-                    "Qty. to Invoice (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure");
+                else begin
+                    "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+                end;
                 if ("Qty. to Invoice" * Quantity < 0) or
-                   (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
-                then
+               (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
+            then
                     Error(
                       Text000,
                       MaxQtyToInvoice);
@@ -388,16 +391,18 @@
                 if "Qty. to Ship" = "Outstanding Quantity" then begin
                     if not LineRequiresShipmentOrReceipt then
                         InitQtyToShip
-                    else
-                        "Qty. to Ship (Base)" :=
-                            UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                    else begin
+                        "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
+                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                    end;
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
                         Validate("Qty. to Consume", 0);
                 end else begin
-                    "Qty. to Ship (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                    "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
@@ -600,7 +605,7 @@
             var
                 RoundingPrecision: Decimal;
                 RoundingDirection: Text[1];
-#endif                
+#endif            
             begin
                 GetServHeader;
                 "Amount Including VAT" := Round("Amount Including VAT", Currency."Amount Rounding Precision");
@@ -635,7 +640,7 @@
                               Round(Amount * (1 - ServHeader."VAT Base Discount %" / 100),
                                 RoundingPrecision);
                             // NAVCZ
-#endif                            
+#endif                        
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -1364,9 +1369,7 @@
                             "Job Remaining Qty." := 0;
                     end;
                 end;
-                "Job Remaining Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Job Remaining Qty.", "Qty. per Unit of Measure");
-
+                "Job Remaining Qty. (Base)" := CalcBaseQty("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"));
                 UpdateRemainingCostsAndAmounts;
             end;
         }
@@ -1407,7 +1410,9 @@
                 Item: Record Item;
                 ItemVariant: Record "Item Variant";
             begin
+#if not CLEAN18
                 SetGPPGformSKU; // NAVCZ
+#endif
                 if "Variant Code" <> '' then
                     TestField(Type, Type::Item);
                 TestStatusOpen;
@@ -1574,6 +1579,9 @@
                             "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                             "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
                             "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                            "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
                             if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
                                 InitItemAppl(false);
                         end;
@@ -1601,6 +1609,24 @@
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
                 UpdateReservation(FieldNo("Unit of Measure Code"));
             end;
+        }
+        field(5408; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5409; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(5415; "Quantity (Base)"; Decimal)
         {
@@ -2052,14 +2078,16 @@
                 if "Qty. to Consume" = MaxQtyToConsume then
                     InitQtyToConsume
                 else begin
-                    "Qty. to Consume (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Consume", "Qty. per Unit of Measure");
+                    "Qty. to Consume (Base)" := CalcBaseQty("Qty. to Consume", FieldCaption("Qty. to Consume"), FieldCaption("Qty. to Consume (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Consume", "Qty. to Consume (Base)", "Quantity Consumed", "Qty. Consumed (Base)");
+
                     InitQtyToInvoice;
                 end;
 
                 if "Qty. to Consume" > 0 then begin
                     "Qty. to Ship" := "Qty. to Consume";
                     "Qty. to Ship (Base)" := "Qty. to Consume (Base)";
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
                     "Qty. to Invoice" := 0;
                     "Qty. to Invoice (Base)" := 0;
                 end;
@@ -2530,8 +2558,7 @@
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" := CalcBaseQty("Qty. Picked", FieldCaption("Qty. Picked"), FieldCaption("Qty. Picked (Base)"));
                 "Completely Picked" := "Qty. Picked" >= 0;
             end;
         }
@@ -2564,9 +2591,14 @@
         {
             Caption = 'VAT Correction';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -2575,6 +2607,7 @@
                     "VAT Difference (LCY)" := 0;
                 end;
             end;
+#endif
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
@@ -2582,23 +2615,36 @@
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11768; Negative; Boolean)
         {
             Caption = 'Negative';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -2608,14 +2654,20 @@
                         FieldError("Document Type");
                 end;
             end;
+#endif
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -2630,12 +2682,17 @@
                 if "Tariff No." <> xRec."Tariff No." then
                     "Statistic Indication" := '';
             end;
+#endif
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -2643,7 +2700,11 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3328,21 +3389,28 @@
 
         GetServHeader;
 
+#if CLEAN18
+        if "Line Amount" <> xRec."Line Amount" then
+            "VAT Difference" := 0;
+#else
         if "Line Amount" <> xRec."Line Amount" then begin // NAVCZ
             "VAT Difference" := 0;
             "VAT Difference (LCY)" := 0;
             "VAT Correction" := false;
         end; // NAVCZ
+#endif
         ExpectedLineAmount := Round(
                      CalcChargeableQty * "Unit Price",
                      Currency."Amount Rounding Precision") - "Line Discount Amount";
         if "Line Amount" <> ExpectedLineAmount then begin
             "Line Amount" := ExpectedLineAmount;
             "VAT Difference" := 0;
+#if not CLEAN18
             // NAVCZ
             "VAT Difference (LCY)" := 0;
             "VAT Correction" := false;
             // NAVCZ
+#endif
         end;
         if ServHeader."Tax Area Code" = '' then
             UpdateVATAmounts;
@@ -3604,7 +3672,7 @@
         end;
     end;
 
-    local procedure ClearFields()
+    protected procedure ClearFields()
     var
         TempServLine: Record "Service Line" temporary;
     begin
@@ -3658,17 +3726,6 @@
         end;
 
         OnAfterShowNonstock(Rec);
-    end;
-
-    local procedure TestConfigTemplateLineField(ItemTemplateCode: Code[10]; FieldNo: Integer)
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", ItemTemplateCode);
-        ConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateLine.SetRange("Field ID", FieldNo);
-        ConfigTemplateLine.FindFirst;
-        ConfigTemplateLine.TestField("Default Value");
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -3769,7 +3826,9 @@
 
         "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
+#if not CLEAN18
         SetGPPGformSKU;  // NAVCZ
+#endif
         "Tax Group Code" := Item."Tax Group Code";
         "Posting Group" := Item."Inventory Posting Group";
         "Item Category Code" := Item."Item Category Code";
@@ -3801,13 +3860,17 @@
             "Warranty Disc. %" := 0;
         end;
 
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := Item."Tariff No.";
         "Statistic Indication" := Item."Statistic Indication";
+#endif
         "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
         "Physical Transfer" := ServHeader."Physical Transfer";
         // NAVCZ
 
+#endif
         OnAfterAssignItemValues(Rec, Item, xRec, CurrFieldNo, ServHeader);
     end;
 
@@ -3895,7 +3958,9 @@
         "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := Res."VAT Prod. Posting Group";
         "Tax Group Code" := Res."Tax Group Code";
+#if not CLEAN17
         "Tariff No." := Res."Tariff No."; // NAVCZ
+#endif
         ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Unit of Measure Code"));
         Validate("Unit Cost (LCY)");
 
@@ -4127,27 +4192,14 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    procedure FindResUnitCost()
-    var
-        ResCost: Record "Resource Cost";
-    begin
-        ResCost.Init();
-        ResCost.Code := "No.";
-        ResCost."Work Type Code" := "Work Type Code";
-        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-        OnAfterResourseFindCost(Rec, ResCost);
-        Validate("Unit Cost (LCY)", ResCost."Unit Cost" * "Qty. per Unit of Measure");
-    end;
-#endif
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourseFindCost(var ResourceCost: Record "Resource Cost");
     begin
         OnAfterResourseFindCost(Rec, ResourceCost);
     end;
-
+#endif
     procedure InitOutstanding()
     begin
         if "Document Type" = "Document Type"::"Credit Memo" then begin
@@ -4163,11 +4215,13 @@
         Planned := "Reserved Quantity" = "Outstanding Quantity";
         "Completely Shipped" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
         InitOutstandingAmount;
+#if not CLEAN18
         // NAVCZ
         GetGLSetup;
         if GLSetup."Mark Neg. Qty as Correction" then
             Negative := (Quantity < 0);
         // NAVCZ
+#endif
 
         OnAfterInitOutstanding(Rec);
     end;
@@ -4241,10 +4295,12 @@
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := 0;
         "VAT Correction" := false;
         // NAVCZ
+#endif
         CalcInvDiscToInvoice;
 
         OnAfterInitQtyToInvoice(Rec, CurrFieldNo);
@@ -4287,9 +4343,13 @@
         if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
             "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
             "VAT Difference" := 0;
+#if not CLEAN18
             "VAT Difference (LCY)" := 0; // NAVCZ
+#endif
         end;
+#if not CLEAN18
         "VAT Correction" := false; // NAVCZ
+#endif
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
     end;
 
@@ -4506,20 +4566,28 @@
     var
         Cust: Record Customer;
         CustPostingGroup: Record "Customer Posting Group";
+#if not CLEAN18
         PrevVatAmountLine: Record "VAT Amount Line";
+#endif
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
+#if not CLEAN18
         TempServiceLine: Record "Service Line" temporary;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+#endif
         QtyFactor: Decimal;
         TotalVATAmount: Decimal;
         RoundingLineInserted: Boolean;
+#if not CLEAN18
         VATCorrection: Boolean;
         VATAmtLineExist: Boolean;
+#endif
     begin
         Currency.Initialize(ServHeader."Currency Code");
 
+#if not CLEAN18
         VATCorrection := true; // NAVCZ
+#endif
         VATAmountLine.DeleteAll();
 
         with ServiceLine do begin
@@ -4542,6 +4610,12 @@
                         "VAT %" := 0;
                     if not
                        VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0)
+#if CLEAN18
+                    then
+                        VATAmountLine.InsertNewLine(
+                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "VAT %", "Line Amount" >= 0, false);
+
+#else
                     then begin
                         VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := "VAT Identifier";
@@ -4553,6 +4627,7 @@
                         VATAmountLine."Currency Code" := Currency.Code; // NAVCZ
                         VATAmountLine.Insert();
                     end;
+#endif                       
                     QtyFactor := 0;
                     case QtyType of
                         QtyType::Invoicing:
@@ -4600,7 +4675,9 @@
                                 VATAmountLine."Invoice Discount Amount" +=
                                   Round("Inv. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
                                 VATAmountLine."VAT Difference" += "VAT Difference";
+#if not CLEAN18
                                 VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)"; // NAVCZ
+#endif
                                 VATAmountLine.Modify();
                             end;
                         QtyType::Consuming:
@@ -4624,22 +4701,32 @@
                                     VATAmountLine."Inv. Disc. Base Amount" += "Line Amount";
                                 VATAmountLine."Invoice Discount Amount" += "Inv. Discount Amount";
                                 VATAmountLine."VAT Difference" += "VAT Difference";
+#if not CLEAN18
                                 VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)"; // NAVCZ
+#endif
                                 VATAmountLine.Modify();
                             end;
                     end;
                     TotalVATAmount += "Amount Including VAT" - Amount + "VAT Difference";
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, ServHeader, ServiceLine, Currency, QtyType, TotalVATAmount);
+#if not CLEAN18
                     VATCorrection := VATCorrection and "VAT Correction";
                     TempServiceLine.Init();
                     TempServiceLine := ServiceLine;
                     TempServiceLine.Insert();
                 // NAVCZ
+#endif
                 until Next() = 0;
             SetRange(Type);
             SetRange(Quantity);
         end;
 
+#if CLEAN18
+        VATAmountLine.UpdateLines(
+          TotalVATAmount, Currency, ServHeader."Currency Factor", ServHeader."Prices Including VAT", ServHeader."VAT Base Discount %",
+          ServHeader."Tax Area Code", ServHeader."Tax Liable", ServHeader."Posting Date");
+
+#else
         with VATAmountLine do
             if Find('-') then
                 repeat
@@ -4831,6 +4918,7 @@
             VATAmountLine.Modify();
         end;
         // NAVCZ
+#endif
         if RoundingLineInserted and (TotalVATAmount <> 0) then
             if VATAmountLine.Get(ServiceLine."VAT Identifier", ServiceLine."VAT Calculation Type",
                  ServiceLine."Tax Group Code", false, ServiceLine."Line Amount" >= 0)
@@ -4865,7 +4953,9 @@
         VATDifference: Decimal;
         InvDiscAmount: Decimal;
         LineAmountToInvoice: Decimal;
+#if not CLEAN18
         VATDifferenceLCY: Decimal;
+#endif
     begin
         if QtyType = QtyType::Shipping then
             exit;
@@ -4965,14 +5055,27 @@
                                 NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
                             end
                         else begin
+#if CLEAN18
+                            if VATAmountLine.CalcLineAmount = 0 then
+                                VATDifference := 0
+                            else
+#else
                             // NAVCZ
                             if VATAmountLine.CalcLineAmount = 0 then begin // NAVCZ
                                 VATDifference := 0;
                                 VATDifferenceLCY := 0;
                             end else begin
+#endif
                                 VATDifference :=
                                   TempVATAmountLineRemainder."VAT Difference" +
                                   VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount;
+#if CLEAN18
+                            if LineAmountToInvoice = 0 then
+                                "VAT Difference" := 0
+                            else
+                                "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+
+#else
                                 VATDifferenceLCY :=
                                   TempVATAmountLineRemainder."VAT Difference (LCY)" +
                                   VATAmountLine."VAT Difference (LCY)" * (LineAmountToInvoice - InvDiscAmount) /
@@ -4985,6 +5088,7 @@
                                 "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
                                 "VAT Difference (LCY)" := Round(VATDifferenceLCY, Currency."Amount Rounding Precision"); // NAVCZ
                             end; // NAVCZ
+#endif
                         end;
 
                         if QtyType = QtyType::General then begin
@@ -4993,17 +5097,21 @@
                             "VAT Base Amount" := NewVATBaseAmount;
                         end;
                         InitOutstanding;
+#if not CLEAN18
                         // NAVCZ
                         if QtyType = QtyType::Invoicing then
                             "VAT Correction" := VATAmountLine."Modified (LCY)";
                         // NAVCZ
+#endif
                         Modify;
 
                         TempVATAmountLineRemainder."Amount Including VAT" :=
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                         TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
+#if not CLEAN18
                         TempVATAmountLineRemainder."VAT Difference (LCY)" := VATDifferenceLCY - "VAT Difference (LCY)"; // NAVCZ
+#endif
                         TempVATAmountLineRemainder.Modify();
                     end;
                 until Next() = 0;
@@ -5332,12 +5440,12 @@
 
         if ("Contract No." <> '') and (Type <> Type::" ") and not DeleteRecord then begin
             if "Document Type" = "Document Type"::Invoice then
-                ServDocReg.InsertServSalesDocument(
+                ServDocReg.InsertServiceSalesDocument(
                   ServDocReg."Source Document Type"::Contract, "Contract No.",
                   ServDocReg."Destination Document Type"::Invoice, "Document No.")
             else
                 if "Document Type" = "Document Type"::"Credit Memo" then
-                    ServDocReg.InsertServSalesDocument(
+                    ServDocReg.InsertServiceSalesDocument(
                       ServDocReg."Source Document Type"::Contract, "Contract No.",
                       ServDocReg."Destination Document Type"::"Credit Memo", "Document No.")
         end;
@@ -5750,10 +5858,14 @@
         ModServLine.SetRange("Document No.", "Document No.");
         ModServLine.SetFilter("Line No.", '<>%1', "Line No.");
         ModServLine.SetFilter(Type, '>%1', ModServLine.Type::" ");
+#if not CLEAN18
         ModServLine.SetRange("VAT Correction", true);
+#endif
         ModServLine.ModifyAll("VAT Difference", 0);
+#if not CLEAN18
         ModServLine.ModifyAll("VAT Difference (LCY)", 0);
         ModServLine.ModifyAll("VAT Correction", false);
+#endif
     end;
 
     local procedure DivideAmount(var ServiceLine: Record "Service Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; ServHeader: Record "Service Header")
@@ -5897,7 +6009,9 @@
         Increment(TotalServLine.Amount, ServiceLine2.Amount);
         Increment(TotalServLine."VAT Base Amount", ServiceLine2."VAT Base Amount");
         Increment(TotalServLine."VAT Difference", ServiceLine2."VAT Difference");
+#if not CLEAN18
         Increment(TotalServLine."VAT Difference (LCY)", ServiceLine2."VAT Difference (LCY)");
+#endif
         Increment(TotalServLine."Amount Including VAT", ServiceLine2."Amount Including VAT");
         Increment(TotalServLine."Line Discount Amount", ServiceLine2."Line Discount Amount");
         Increment(TotalServLine."Inv. Discount Amount", ServiceLine2."Inv. Discount Amount");
@@ -5910,6 +6024,7 @@
         Number += Number2;
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure SetGPPGformSKU()
@@ -5927,13 +6042,16 @@
         GetItem(Item);
         if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
             Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
+#if not CLEAN17
         if GetSKU then
             if (SKU."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group") and (SKU."Gen. Prod. Posting Group" <> '') then
                 Validate("Gen. Prod. Posting Group", SKU."Gen. Prod. Posting Group");
+#endif
         if "Gen. Bus. Posting Group" <> '' then
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
 
+#endif
     procedure GetNextLineNo(ServiceLineSource: Record "Service Line"; BelowxRec: Boolean): Integer
     var
         ServiceLine: Record "Service Line";
@@ -6101,37 +6219,18 @@
     local procedure CheckNonstockItemTemplate(NonstockItem: Record "Nonstock Item")
     var
         ItemTempl: Record "Item Templ.";
-#if not CLEAN18
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not ItemTemplMgt.IsEnabled() then begin
-            CheckNonstockOldItemTemplate(NonstockItem);
-            exit;
-        end;
-#endif
         ItemTempl.Get(NonstockItem."Item Templ. Code");
         ItemTempl.TestField("Gen. Prod. Posting Group");
         ItemTempl.TestField("Inventory Posting Group");
     end;
 
-#if not CLEAN18
-    local procedure CheckNonstockOldItemTemplate(NonstockItem: Record "Nonstock Item")
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplate: Record "Item Template";
-    begin
-        NonstockItem.TestField("Item Template Code");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-        ConfigTemplateHeader.SetRange(Enabled, true);
-        ConfigTemplateHeader.FindFirst;
 
-        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
-        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Inventory Posting Group"));
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignHeaderValues(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -6228,12 +6327,13 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin

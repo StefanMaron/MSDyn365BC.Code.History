@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31019 "Adv. Payment Selection - Sales"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Advance Payment Selection - Sales';
+    Caption = 'Advance Payment Selection - Sales (Obsolete)';
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Report Selections";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -115,4 +119,4 @@ page 31019 "Adv. Payment Selection - Sales"
         CurrPage.Update();
     end;
 }
-
+#endif

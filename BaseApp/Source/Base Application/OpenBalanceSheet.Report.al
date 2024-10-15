@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11785 "Open Balance Sheet"
 {
     ApplicationArea = Basic, Suite;
@@ -8,7 +9,7 @@ report 11785 "Open Balance Sheet"
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
-    
+
     dataset
     {
         dataitem("G/L Account"; "G/L Account")
@@ -647,3 +648,5 @@ report 11785 "Open Balance Sheet"
     end;
 }
 
+
+#endif

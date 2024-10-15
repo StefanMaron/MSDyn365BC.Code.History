@@ -53,7 +53,7 @@ table 64 "Merge Duplicates Buffer"
         field(6; "Duplicate Record ID"; RecordID)
         {
             Caption = 'Duplicate Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -63,7 +63,7 @@ table 64 "Merge Duplicates Buffer"
         field(7; "Current Record ID"; RecordID)
         {
             Caption = 'Current Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var

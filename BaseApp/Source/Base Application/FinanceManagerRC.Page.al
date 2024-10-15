@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 8901 "Finance Manager Role Center"
 {
     Caption = 'Finance Manager Role Center';
@@ -33,6 +34,7 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Analysis by Dimensions';
                     RunObject = page "Analysis View List";
                 }
+#if not CLEAN17
                 action("Open Balance Sheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -53,7 +55,7 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
-#if not CLEAN19
+#endif
                 action("G/L Entry Applying")
                 {
                     ApplicationArea = Basic, Suite;
@@ -64,7 +66,6 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#endif
                 group("Group1")
                 {
                     Caption = 'VAT';
@@ -86,6 +87,7 @@ page 8901 "Finance Manager Role Center"
                     //     Caption = 'EC Sales List Reports';
                     //     RunObject = page "EC Sales List Reports"
                     // }
+#if not CLEAN17
                     action("VIES Declarations")
                     {
                         ApplicationArea = Basic, Suite;
@@ -96,6 +98,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
 #if not CLEAN18
                     action("Reverse Charges")
                     {
@@ -107,7 +110,8 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Reverse Charge Subform";
                         Visible = false;
                     }
-#endif                    
+#endif
+#if not CLEAN17
                     action("Mass Uncertainty Payer Get")
                     {
                         ApplicationArea = Basic, Suite;
@@ -118,6 +122,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
 #if not CLEAN18
                     action("Non-Deductible VAT Correction")
                     {
@@ -130,6 +135,7 @@ page 8901 "Finance Manager Role Center"
                         Visible = false;
                     }
 #endif
+#if not CLEAN17
                     action("VAT Control Reports")
                     {
                         ApplicationArea = Basic, Suite;
@@ -150,6 +156,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                     group("Group2")
                     {
                         Caption = 'Reports';
@@ -189,6 +196,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Disk...';
                             RunObject = report "VAT- VIES Declaration Disk";
                         }
+#if not CLEAN17
                         action("G/L VAT Reconciliation")
                         {
                             ApplicationArea = Basic, Suite;
@@ -219,17 +227,24 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.4';
                             Visible = false;
                         }
+#endif
                         action("VAT List on Sales Adv. Letter")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'VAT List on Sales Adv. Letter';
+                            Caption = 'VAT List on Sales Adv. Letter (Obsolete)';
                             RunObject = report "VAT List on Sales Adv. Letter";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                            ObsoleteTag = '19.0';
                         }
                         action("VAT List on Purch. Adv. Letter")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'VAT List on Purch. Adv. Letter';
+                            Caption = 'VAT List on Purch. Adv. Letter (Obsolete)';
                             RunObject = report "VAT List on Purch. Adv. Letter";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                            ObsoleteTag = '19.0';
                         }
                         action("Day Book VAT Entry")
                         {
@@ -532,6 +547,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Balance Comp. - Prev. Year';
                             RunObject = report "Balance Comp. - Prev. Year";
                         }
+#if not CLEAN17
                         action("Balance Sheet")
                         {
                             ApplicationArea = Basic, Suite;
@@ -552,6 +568,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.4';
                             Visible = false;
                         }
+#endif
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
@@ -566,6 +583,7 @@ page 8901 "Finance Manager Role Center"
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
                             AccessByPermission = TableData "G/L Account" = R;
                         }
+#if not CLEAN17
                         action("General Ledger")
                         {
                             ApplicationArea = Basic, Suite;
@@ -586,6 +604,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.0';
                             Visible = false;
                         }
+#endif
                     }
                     group("Group10")
                     {
@@ -626,6 +645,7 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Reconcile Cust. and Vend. Accs';
                             RunObject = report "Reconcile Cust. and Vend. Accs";
                         }
+#if not CLEAN17
                         action("Reconcile Bank Account Entry")
                         {
                             ApplicationArea = Basic, Suite;
@@ -636,7 +656,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.0';
                             Visible = false;
                         }
-#if not CLEAN19
+#endif
                         action("Open G/L Entries To Date")
                         {
                             ApplicationArea = Basic, Suite;
@@ -657,7 +677,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '19.0';
                             Visible = false;
                         }
-#endif
+#if not CLEAN17
                         action("Joining Bank. Acc. Adjustment")
                         {
                             ApplicationArea = Basic, Suite;
@@ -678,6 +698,7 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.0';
                             Visible = false;
                         }
+#endif
                         action("G/L Deferral Summary")
                         {
                             ApplicationArea = Basic, Suite;
@@ -780,6 +801,10 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Banks';
                     RunObject = page "Bank List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Discontinued, use standard page Bank Account List instead.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Receivables-Payables")
                 {
@@ -798,24 +823,40 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Orders';
                     RunObject = page "Payment Order List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Issued Payment Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issued Payment Orders';
                     RunObject = page "Issued Payment Order List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Statements';
                     RunObject = page "Bank Statement List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Issued Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Issued Bank Statements';
                     RunObject = page "Issued Bank Statement List";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 group("Group14")
                 {
@@ -1018,6 +1059,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Currencies';
                         RunObject = page "Currencies";
                     }
+#if not CLEAN18
                     action("Constant Symbols")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1028,29 +1070,46 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                     action("Bank Pmt. Appl. Rule Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Pmt. Appl. Rule Codes';
                         RunObject = page "Bank Pmt. Appl. Rule Codes";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Merge to W1.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     action("Text-to-Account Mapping Codes")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Text-to-Account Mapping Codes';
                         RunObject = page "Text-to-Account Mapping Codes";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Merge to W1.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     action("Bank Export/Import Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Export/Import Setup';
                         RunObject = page "Bank Export/Import Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Merge to W1.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
             group("Cash Desk")
             {
                 Caption = 'Cash Desk';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+#if not CLEAN17
                 action("Cash Desks")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1081,6 +1140,8 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 action("EET Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1092,6 +1153,8 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 group("Group63")
                 {
                     Caption = 'Reports';
@@ -1168,6 +1231,7 @@ page 8901 "Finance Manager Role Center"
                         Visible = false;
                     }
                 }
+#endif
             }
             group("Group20")
             {
@@ -1351,9 +1415,13 @@ page 8901 "Finance Manager Role Center"
                 action("Sales Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Sales Advance Letters';
+                    Caption = 'Sales Advance Letters (Obsolete)';
                     RunObject = page "Sales Advance Letters";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#if not CLEAN18
                 action("Credits")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1364,6 +1432,7 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 group("Group29")
                 {
                     Caption = 'Combine';
@@ -1451,6 +1520,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Posted Return Receipts';
                         RunObject = page "Posted Return Receipts";
                     }
+#if not CLEAN18
                     action("Posted Credits")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1461,6 +1531,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                 }
                 group("Group33")
                 {
@@ -1613,6 +1684,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'EC Sales List';
                         RunObject = report "EC Sales List";
                     }
+#if not CLEAN17
                     action("Customer - Bal. Reconciliation")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1633,11 +1705,15 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                     action("Sales Advance Letter List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Sales Advance Letter List';
+                        Caption = 'Sales Advance Letter List (Obsolete)';
                         RunObject = report "Sales Advance Letter List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
                     }
                 }
                 group("Group35")
@@ -1673,6 +1749,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Finance Charge Terms';
                         RunObject = page "Finance Charge Terms";
                     }
+#if not CLEAN18
                     action("Credits Setup")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1683,11 +1760,15 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                     action("Sales Advanced Paym. Templates")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Sales Advanced Paym. Templates';
+                        Caption = 'Sales Advanced Paym. Templates (Obsolete)';
                         RunObject = page "Sales Advanced Paym. Templates";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
@@ -1721,9 +1802,13 @@ page 8901 "Finance Manager Role Center"
                 action("Purchase Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Purchase Advance Letters';
-                    RunObject = page "Purchase Advance Letters";
+                    Caption = 'Purchase Advance Letters (Obsolete)';
+                        RunObject = page "Purchase Advance Letters";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#if not CLEAN18
                 action("Credits1")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1734,6 +1819,7 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 group("Group37")
                 {
                     Caption = 'Journals';
@@ -1777,6 +1863,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Posted Purchase Return Shipments';
                         RunObject = page "Posted Return Shipments";
                     }
+#if not CLEAN18
                     action("Posted Credits1")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1787,6 +1874,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                 }
                 group("Group39")
                 {
@@ -1827,6 +1915,7 @@ page 8901 "Finance Manager Role Center"
                     //     Caption = 'Detailed Employee Ledger Entries';
                     //     RunObject = page "Detailed Empl. Ledger Entries";
                     // }
+#if not CLEAN17
                     action("Uncertainty Payer Entries")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1837,6 +1926,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                 }
                 group("Group40")
                 {
@@ -1937,6 +2027,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor/Item Purchases';
                         RunObject = report "Vendor/Item Purchases";
                     }
+#if not CLEAN17
                     action("Vendor - Bal. Reconciliation")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1967,12 +2058,17 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                     action("Purch. Advance Letter List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Purch. Advance Letter List';
+                        Caption = 'Purch. Advance Letter List (Obsolete)';
                         RunObject = report "Purch. Advance Letter List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
                     }
+#if not CLEAN17
                     action("Uncertainty VAT Payer List")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1983,6 +2079,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                 }
                 group("Group41")
                 {
@@ -1996,8 +2093,11 @@ page 8901 "Finance Manager Role Center"
                     action("Purchase Adv. Paym. Templates")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Purchase Adv. Paym. Templates';
+                        Caption = 'Purchase Adv. Paym. Templates (Obsolete)';
                         RunObject = page "Purchase Adv. Paym. Templates";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
@@ -2579,6 +2679,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Status';
                         RunObject = report "Status";
                     }
+#if not CLEAN17
                     action("Posted Inventory Document")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2599,6 +2700,7 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                     action("Cost Shares Breakdown")
                     {
                         ApplicationArea = Manufacturing;
@@ -2729,6 +2831,7 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'No. Series';
                     RunObject = page "No. Series";
                 }
+#if not CLEAN18
                 action("Stat. Reporting Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -2739,9 +2842,14 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 group("VAT")
                 {
                     Caption = 'VAT';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("Posting Setup")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2772,6 +2880,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Reports Configuration';
                         RunObject = page "VAT Reports Configuration";
                     }
+#if not CLEAN17
                     action("VAT Periods")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2792,10 +2901,15 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
                 }
                 group("Intrastat")
                 {
                     Caption = 'Intrastat';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("Intrastat Setup")
                     {
                         ApplicationArea = BasicEU;
@@ -2844,6 +2958,7 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
                     }
+#if not CLEAN18
                     action("Intrastat Currency Exch. Rate")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2854,6 +2969,8 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
+#if not CLEAN17
                     action("Statistic Indications")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2864,6 +2981,8 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '17.4';
                         Visible = false;
                     }
+#endif
+#if not CLEAN18
                     action("Specific Movements")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2884,10 +3003,15 @@ page 8901 "Finance Manager Role Center"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                 }
                 group("Intercompany")
                 {
                     Caption = 'Intercompany';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("Intercompany Setup")
                     {
                         ApplicationArea = Intercompany;
@@ -2916,6 +3040,10 @@ page 8901 "Finance Manager Role Center"
                 group("Dimensions Group")
                 {
                     Caption = 'Dimensions';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("Dimensions1")
                     {
                         ApplicationArea = Dimensions;
@@ -2944,6 +3072,10 @@ page 8901 "Finance Manager Role Center"
                 group("Trail Codes")
                 {
                     Caption = 'Trail Codes';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("Source Codes")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2966,6 +3098,10 @@ page 8901 "Finance Manager Role Center"
                 group("Posting Groups")
                 {
                     Caption = 'Posting Groups';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
+
                     action("General Business")
                     {
                         ApplicationArea = Basic, Suite;
@@ -3025,3 +3161,4 @@ page 8901 "Finance Manager Role Center"
         }
     }
 }
+#endif

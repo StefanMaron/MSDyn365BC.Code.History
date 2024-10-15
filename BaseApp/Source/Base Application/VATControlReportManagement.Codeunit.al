@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 31100 VATControlReportManagement
 {
     Permissions = TableData "VAT Entry" = rm,
@@ -1304,3 +1305,5 @@ codeunit 31100 VATControlReportManagement
     end;
 }
 
+
+#endif

@@ -1,7 +1,11 @@
 table 11757 "Reg. No. Srv Config"
 {
     Caption = 'Reg. No. Srv Config';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -32,6 +36,7 @@ table 11757 "Reg. No. Srv Config"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     trigger OnInsert()
     begin
@@ -42,7 +47,7 @@ table 11757 "Reg. No. Srv Config"
     var
         RegNoSettingIsNotEnabledErr: Label 'Registration Service Setting is not enabled.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
-
+        
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure RegNoSrvIsEnabled(): Boolean
     var
@@ -65,5 +70,6 @@ table 11757 "Reg. No. Srv Config"
 
         exit(RegNoSrvConfig."Service Endpoint");
     end;
+#endif
 }
 

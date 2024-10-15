@@ -1,4 +1,4 @@
-﻿codeunit 230 GenJnlManagement
+codeunit 230 GenJnlManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -103,6 +103,7 @@
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line")
     begin
         OnBeforeOpenJnl(CurrentJnlBatchName, GenJnlLine);
+#if not CLEAN19
         // NAVCZ
         GenJnlLine.CheckGenJournalLineUserRestriction;
 
@@ -111,6 +112,7 @@
             GenJnlLine.SetRange("Journal Batch Name");
         end;
         // NAVCZ
+#endif
 
         if (GenJnlLine."Journal Template Name" <> '') and (GenJnlLine.GetFilter("Journal Template Name") = '') then
             CheckTemplateName(GenJnlLine."Journal Template Name", CurrentJnlBatchName)

@@ -77,22 +77,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method PaymentToleranceInCashDocument - NamedType AmountNotMatchErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1982159495 - Method 901830553 - NamedType 3344689049" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1982159495 - Method 3823001461 - NamedType 3344689049" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount of rounding doesn't match.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method TestVATRounding - NamedType AmountNotMatchErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2098600264 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no dataset row corresponding to Element Name %1 with value %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Field Value;]D;]A;(LookupHint=Codeunit Cash Desk Reports CZP - NamedType RowNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - Method TestDocumentRounding - NamedType AmountNotMatchErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

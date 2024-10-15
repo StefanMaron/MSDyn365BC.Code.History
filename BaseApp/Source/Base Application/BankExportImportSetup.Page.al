@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1200 "Bank Export/Import Setup"
 {
     AdditionalSearchTerms = 'data exchange definition setup,bank file import setup,bank file export setup,bank transfer setup,amc yodlee feed stream setup';
@@ -54,16 +55,28 @@ page 1200 "Bank Export/Import Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the codeunit that has been set up to process data before you apply it to a Microsoft Dynamics NAV database.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Processing Report Name"; "Processing Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of codeunit that has been set up to process data before you apply it to a Microsoft Dynamics NAV database.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Default File Type"; "Default File Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a type of default file';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Data Exch. Def. Code"; "Data Exch. Def. Code")
                 {
@@ -105,3 +118,4 @@ page 1200 "Bank Export/Import Setup"
     }
 }
 
+#endif

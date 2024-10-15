@@ -1,3 +1,4 @@
+#if not CLEAN19
 Page 1 "Company Information"
 {
     AdditionalSearchTerms = 'change experience,suite,user interface,company badge';
@@ -8,7 +9,7 @@ Page 1 "Company Information"
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Application Settings,System Settings,Currencies,Codes,Regional Settings';
     SourceTable = "Company Information";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {
@@ -102,6 +103,7 @@ Page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
+#if not CLEAN17
                 field("Primary Business Activity"; "Primary Business Activity")
                 {
                     ApplicationArea = Basic, Suite;
@@ -111,6 +113,7 @@ Page 1 "Company Information"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field(Picture; Picture)
                 {
                     ApplicationArea = Basic, Suite;
@@ -180,6 +183,7 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are allowed to create a sales invoice without filling the setup fields on this FastTab.';
                 }
+#if not CLEAN17
                 field("Default Bank Account Code"; "Default Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -189,6 +193,7 @@ Page 1 "Company Information"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -206,6 +211,7 @@ Page 1 "Company Information"
                         SetShowMandatoryConditions
                     end;
                 }
+#if not CLEAN17
                 field("Branch Name"; "Branch Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -215,6 +221,7 @@ Page 1 "Company Information"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -257,6 +264,7 @@ Page 1 "Company Information"
                         SetShowMandatoryConditions
                     end;
                 }
+#if not CLEAN17
                 field("Bank Account Format Check"; "Bank Account Format Check")
                 {
                     ApplicationArea = Basic, Suite;
@@ -266,6 +274,7 @@ Page 1 "Company Information"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field(BankAccountPostingGroup; BankAcctPostingGroup)
                 {
                     ApplicationArea = Basic, Suite;
@@ -417,11 +426,20 @@ Page 1 "Company Information"
             group(Registration)
             {
                 Caption = 'Registration';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the registration number received from goverment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#if not CLEAN17
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -512,6 +530,7 @@ Page 1 "Company Information"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group("User Experience")
             {
@@ -522,7 +541,7 @@ Page 1 "Company Information"
                     AssistEdit = true;
                     Caption = 'Experience';
                     Editable = false;
-                    ToolTip = 'Specifies which UI elements are displayed and  which features are available. The setting applies to all users. Essential: Shows all actions and fields for all common business functionality. Premium: Shows all actions and fields for all business functionality, including Manufacturing and Service Management.';
+                    ToolTip = 'Specifies which UI elements are displayed and which features are available. The setting applies to all users. Essential: Shows all actions and fields for all common business functionality. Premium: Shows all actions and fields for all business functionality, including Manufacturing and Service Management.';
 
                     trigger OnAssistEdit()
                     var
@@ -694,6 +713,7 @@ Page 1 "Company Information"
                     Visible = IsEmailFeatureEnabled;
                 }
             }
+#if not CLEAN17
             group("O&ther")
             {
                 Caption = 'O&ther';
@@ -726,6 +746,7 @@ Page 1 "Company Information"
                     Visible = false;
                 }
             }
+#endif
             group(Currencies)
             {
                 Caption = 'Currencies';
@@ -900,3 +921,4 @@ Page 1 "Company Information"
     end;
 }
 
+#endif

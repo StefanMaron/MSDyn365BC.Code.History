@@ -1,8 +1,12 @@
+#if not CLEAN19
 codeunit 11702 "Issue Bank Statement"
 {
     Permissions = TableData "Issued Bank Statement Header" = im,
                   TableData "Issued Bank Statement Line" = im;
     TableNo = "Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     var
@@ -12,6 +16,7 @@ codeunit 11702 "Issue Bank Statement"
         BankAccount: Record "Bank Account";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
+        OnBeforeIssueBankStatement(Rec);
         TestField("Bank Account No.");
         TestField("Document Date");
         BankAccount.Get("Bank Account No.");
@@ -134,5 +139,10 @@ codeunit 11702 "Issue Bank Statement"
     begin
         ErrorText2 := ErrorText[NumberNo];
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIssueBankStatement(var BankStatementHeader: Record "Bank Statement Header")
+    begin
+    end;
+}
+#endif

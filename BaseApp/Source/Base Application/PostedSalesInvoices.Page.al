@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 143 "Posted Sales Invoices"
 {
     AdditionalSearchTerms = 'posted bill';
@@ -192,6 +193,10 @@ page 143 "Posted Sales Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reversed credit memo number for the sales invoice header.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -702,6 +707,9 @@ page 143 "Posted Sales Invoices"
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         HasPostedSalesInvoices := true;
+        if not GuiAllowed() then
+            exit;
+
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CRMIsCoupledToRecord := CRMIntegrationEnabled;
         if CRMIsCoupledToRecord then
@@ -749,6 +757,7 @@ page 143 "Posted Sales Invoices"
         IsOfficeAddin: Boolean;
         HasPostedSalesInvoices: Boolean;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.','19.0')]
     [Scope('OnPrem')]
     procedure GetSelection(var SalesInvHeader: Record "Sales Invoice Header")
     begin
@@ -756,3 +765,4 @@ page 143 "Posted Sales Invoices"
     end;
 }
 
+#endif

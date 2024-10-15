@@ -1,3 +1,4 @@
+#if not CLEAN17
 enum 256 "VAT Statement Line Type"
 {
     Extensible = true;
@@ -28,3 +29,4 @@ enum 256 "VAT Statement Line Type"
 
     }
 }
+#endif

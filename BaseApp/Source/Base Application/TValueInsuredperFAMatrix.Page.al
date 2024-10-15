@@ -563,7 +563,7 @@ page 9275 "T. Value Insured per FA Matrix"
         MatrixRecords: array[32] of Record Insurance;
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         MatrixMgt: Codeunit "Matrix Management";
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -634,14 +634,23 @@ page 9275 "T. Value Insured per FA Matrix"
         [InDataSet]
         Field32Visible: Boolean;
 
+#if not CLEAN19
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Insurance; CurrentNoOfMatrixColumns: Integer; DateFilterLocal: Text[250]; RoundingFactorLocal: Option "None","1","1000","1000000")
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, DateFilterLocal,
+            "Analysis Rounding Factor".FromInteger(RoundingFactorLocal));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Insurance; CurrentNoOfMatrixColumns: Integer; NewDateFilter: Text[250]; NewRoundingFactor: Enum "Analysis Rounding Factor")
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        DateFilter := DateFilterLocal;
-        RoundingFactor := RoundingFactorLocal;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        DateFilter := NewDateFilter;
+        RoundingFactor := NewRoundingFactor;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
     end;
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
@@ -664,7 +673,7 @@ page 9275 "T. Value Insured per FA Matrix"
         InsCoverageLedgEntry.SetFilter("Posting Date", DateFilter);
         InsCoverageLedgEntry.CalcSums(Amount);
 
-        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundValue(InsCoverageLedgEntry.Amount, RoundingFactor);
+        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount(InsCoverageLedgEntry.Amount, RoundingFactor);
         SetVisible;
     end;
 

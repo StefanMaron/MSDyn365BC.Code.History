@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 320 "VAT Statement Names"
 {
     Caption = 'VAT Statement Names';
@@ -161,4 +162,4 @@ page 320 "VAT Statement Names"
                         exit(VATStmtTmpl.Name + ' ' + VATStmtTmpl.Description);
     end;
 }
-
+#endif

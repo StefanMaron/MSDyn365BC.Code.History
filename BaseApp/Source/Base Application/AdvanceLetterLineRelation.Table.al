@@ -1,9 +1,16 @@
 table 31026 "Advance Letter Line Relation"
 {
     Caption = 'Advance Letter Line Relation';
+#if not CLEAN19
     DrillDownPageID = "Advance Letter Line Relations";
     LookupPageID = "Advance Letter Line Relations";
     Permissions =;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -36,16 +43,20 @@ table 31026 "Advance Letter Line Relation"
         field(4; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = IF (Type = CONST(Sale)) "Sales Advance Letter Header"."No."
             ELSE
             IF (Type = CONST(Purchase)) "Purch. Advance Letter Header"."No.";
+#endif
         }
         field(5; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
+#if not CLEAN19
             TableRelation = IF (Type = CONST(Sale)) "Sales Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."))
             ELSE
             IF (Type = CONST(Purchase)) "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
+#endif            
         }
         field(6; Amount; Decimal)
         {
@@ -117,6 +128,7 @@ table 31026 "Advance Letter Line Relation"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -242,6 +254,15 @@ table 31026 "Advance Letter Line Relation"
             AdvanceLetterLineRelation.Type::Purchase:
                 PurchPostAdvances.UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
         end;
+
+        OnAfterCancelRelation(AdvanceLetterLineRelation);
     end;
+
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelRelation(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation")
+    begin
+    end;
+#endif
 }
 

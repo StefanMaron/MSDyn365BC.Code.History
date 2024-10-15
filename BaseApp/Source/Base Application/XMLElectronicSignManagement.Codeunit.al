@@ -1,5 +1,10 @@
+#if not CLEAN19
 codeunit 31132 "XML Electronic Sign Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by SignedXml codeunit in the System Module.';
+    ObsoleteTag = '19.0';
+
     var
         SignedXml: DotNet SignedXml;
         References: DotNet GenericList1;
@@ -276,3 +281,4 @@ codeunit 31132 "XML Electronic Sign Management"
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 143010 "Library - Cash Desk"
 {
 
@@ -178,3 +179,4 @@ codeunit 143010 "Library - Cash Desk"
     end;
 }
 
+#endif

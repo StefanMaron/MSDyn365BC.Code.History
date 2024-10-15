@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31076 "Quantity Received Check"
 {
     DefaultLayout = RDLC;
@@ -326,3 +327,5 @@ report 31076 "Quantity Received Check"
         Quantity_Received_CheckCaptionLbl: Label 'Quantity Received Check';
 }
 
+
+#endif

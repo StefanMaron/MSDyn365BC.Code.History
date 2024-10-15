@@ -348,6 +348,7 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Service;
@@ -358,6 +359,7 @@ page 5975 "Posted Service Shipment"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group(Shipping)
             {
@@ -459,6 +461,7 @@ page 5975 "Posted Service Shipment"
                     Importance = Promoted;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, from where the items on the order were shipped.';
                 }
+#if not CLEAN18
                 field("Physical Transfer"; "Physical Transfer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -468,6 +471,7 @@ page 5975 "Posted Service Shipment"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group(Details)
             {
@@ -568,6 +572,7 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -577,6 +582,8 @@ page 5975 "Posted Service Shipment"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -586,6 +593,7 @@ page 5975 "Posted Service Shipment"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -808,8 +816,8 @@ page 5975 "Posted Service Shipment"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnOpenPage()

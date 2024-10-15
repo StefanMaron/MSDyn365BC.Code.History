@@ -2,9 +2,13 @@ table 31066 "VIES Declaration Header"
 {
     Caption = 'VIES Declaration Header';
     DataCaptionFields = "No.";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "VIES Declarations";
     LookupPageID = "VIES Declarations";
     ObsoleteState = Pending;
+#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -13,6 +17,7 @@ table 31066 "VIES Declaration Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -23,16 +28,18 @@ table 31066 "VIES Declaration Header"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(2; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
             NotBlank = true;
-
+#if not CLEAN17
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
             end;
+#endif
         }
         field(3; "Trade Type"; Option)
         {
@@ -40,6 +47,7 @@ table 31066 "VIES Declaration Header"
             InitValue = Sales;
             OptionCaption = 'Purchases,Sales,Both';
             OptionMembers = Purchases,Sales,Both;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -48,10 +56,12 @@ table 31066 "VIES Declaration Header"
                     Error(Text004Err, FieldCaption("Trade Type"));
                 CheckPeriod;
             end;
+#endif
         }
         field(4; "Period No."; Integer)
         {
             Caption = 'Period No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -62,12 +72,14 @@ table 31066 "VIES Declaration Header"
                     SetPeriod;
                 end;
             end;
+#endif
         }
         field(5; Year; Integer)
         {
             Caption = 'Year';
             MaxValue = 9999;
             MinValue = 2000;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -78,6 +90,7 @@ table 31066 "VIES Declaration Header"
                     SetPeriod;
                 end;
             end;
+#endif
         }
         field(6; "Start Date"; Date)
         {
@@ -168,6 +181,7 @@ table 31066 "VIES Declaration Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -176,6 +190,7 @@ table 31066 "VIES Declaration Header"
                 TestField(Status, Status::Open);
                 PostCode.ValidateCity(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(17; "Post Code"; Code[20])
         {
@@ -184,6 +199,7 @@ table 31066 "VIES Declaration Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -192,6 +208,7 @@ table 31066 "VIES Declaration Header"
                 TestField(Status, Status::Open);
                 PostCode.ValidatePostCode(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(18; "Tax Office Number"; Code[20])
         {
@@ -208,6 +225,7 @@ table 31066 "VIES Declaration Header"
             OptionCaption = 'Quarter,Month';
             OptionMembers = Quarter,Month;
             InitValue = Month;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -218,13 +236,14 @@ table 31066 "VIES Declaration Header"
                     SetPeriod;
                 end;
             end;
+#endif
         }
         field(20; "Declaration Type"; Option)
         {
             Caption = 'Declaration Type';
             OptionCaption = 'Normal,Corrective,Corrective-Supplementary';
             OptionMembers = Normal,Corrective,"Corrective-Supplementary";
-
+#if not CLEAN17
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
@@ -235,10 +254,12 @@ table 31066 "VIES Declaration Header"
                         "Corrected Declaration No." := '';
                 end;
             end;
+#endif
         }
         field(21; "Corrected Declaration No."; Code[20])
         {
             Caption = 'Corrected Declaration No.';
+#if not CLEAN17
             TableRelation = "VIES Declaration Header" WHERE("Corrected Declaration No." = FILTER(''),
                                                              Status = CONST(Released));
 
@@ -256,6 +277,7 @@ table 31066 "VIES Declaration Header"
                     CopyCorrDeclaration;
                 end;
             end;
+#endif
         }
         field(24; "Document Date"; Date)
         {
@@ -266,6 +288,7 @@ table 31066 "VIES Declaration Header"
                 TestField(Status, Status::Open);
             end;
         }
+#if not CLEAN17
         field(25; "Number of Pages"; Integer)
         {
             CalcFormula = Max("VIES Declaration Line"."Report Page Number" WHERE("VIES Declaration No." = FIELD("No.")));
@@ -280,6 +303,7 @@ table 31066 "VIES Declaration Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(27; "Sign-off Place"; Text[30])
         {
             Caption = 'Sign-off Place';
@@ -303,13 +327,16 @@ table 31066 "VIES Declaration Header"
             Caption = 'EU Goods/Services';
             OptionCaption = 'Both,Goods,Services';
             OptionMembers = Both,Goods,Services;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if LineExists then
                     Error(Text004Err, FieldCaption("EU Goods/Services"));
             end;
+#endif
         }
+#if not CLEAN17
         field(30; "Purchase Amount (LCY)"; Decimal)
         {
             CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
@@ -340,6 +367,7 @@ table 31066 "VIES Declaration Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(50; Status; Option)
         {
             Caption = 'Status';
@@ -354,17 +382,22 @@ table 31066 "VIES Declaration Header"
         field(70; "Authorized Employee No."; Code[20])
         {
             Caption = 'Authorized Employee No.';
+#if not CLEAN17
+
             TableRelation = "Company Officials";
 
             trigger OnValidate()
             begin
                 TestField(Status, Status::Open);
             end;
+#endif
         }
         field(71; "Filled by Employee No."; Code[20])
         {
             Caption = 'Filled by Employee No.';
+#if not CLEAN17
             TableRelation = "Company Officials";
+#endif
 
             trigger OnValidate()
             begin
@@ -410,6 +443,7 @@ table 31066 "VIES Declaration Header"
             Caption = 'Taxpayer Type';
             OptionCaption = 'Corporation,Individual';
             OptionMembers = Corporation,Individual;
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -443,6 +477,7 @@ table 31066 "VIES Declaration Header"
                     end;
                 end;
             end;
+#endif
         }
         field(11705; "Natural Employee No."; Code[20])
         {
@@ -487,6 +522,7 @@ table 31066 "VIES Declaration Header"
         }
     }
 
+#if not CLEAN17
     trigger OnDelete()
     var
         VIESDeclarationLine: Record "VIES Declaration Line";
@@ -718,5 +754,6 @@ table 31066 "VIES Declaration Header"
         "Declaration Type" := VIESDeclarationHeaderSaved."Declaration Type";
         "Corrected Declaration No." := VIESDeclarationHeaderSaved."Corrected Declaration No.";
     end;
+#endif
 }
 

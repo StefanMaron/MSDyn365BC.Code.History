@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11779 "Open Vendor Entries at Date"
 {
     DefaultLayout = RDLC;
@@ -730,3 +731,5 @@ report 11779 "Open Vendor Entries at Date"
     end;
 }
 
+
+#endif

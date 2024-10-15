@@ -6,6 +6,9 @@ page 21 "Customer Card"
     RefreshOnActivate = true;
     SourceTable = Customer;
 
+    AboutTitle = 'About customer details';
+    AboutText = 'With the Customer Card you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
+
     layout
     {
         area(content)
@@ -89,6 +92,7 @@ page 21 "Customer Card"
                         SetCreditLimitStyle();
                     end;
                 }
+#if not CLEAN18
                 field(BalanceOfVendor; BalanceAsVend)
                 {
                     ApplicationArea = Basic, Suite;
@@ -115,11 +119,18 @@ page 21 "Customer Card"
                         // NAVCZ
                     end;
                 }
+#endif
+#if not CLEAN19
                 field("Advances (LCY)"; "Advances (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance amount for the customer record. This amount is in local currency.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
@@ -189,6 +200,7 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies how much profit you have made from the customer in the current fiscal year, expressed as a percentage of the customer''s total sales.';
                 }
+#if not CLEAN18
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -216,6 +228,8 @@ page 21 "Customer Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -245,6 +259,7 @@ page 21 "Customer Card"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Last Date Modified"; "Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
@@ -385,6 +400,9 @@ page 21 "Customer Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
+                AboutTitle = 'Manage the customer’s invoicing';
+                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer’s transactions are grouped and posted, based on type of trade or market.';
+
                 field("Bill-to Customer No."; "Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -434,16 +452,6 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
-                field("Invoice Copies"; "Invoice Copies")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Importance = Additional;
-                    Visible = false;
-                    ToolTip = 'Specifies how many copies of an invoice for the customer will be printed at a time.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Functionality was used by reports 204-207 that are now obsolete';
-                    ObsoleteTag = '16.0';
                 }
                 group(PostingDetails)
                 {
@@ -521,6 +529,9 @@ page 21 "Customer Card"
             group(Payments)
             {
                 Caption = 'Payments';
+                AboutTitle = 'Manage the customer’s payment';
+                AboutText = 'Specify the customer’s default payment terms and settings for how payments from the customer is processed.';
+
                 field("Prepayment %"; "Prepayment %")
                 {
                     ApplicationArea = Prepayments;
@@ -852,17 +863,6 @@ page 21 "Customer Card"
                     SubPageLink = "No." = FIELD("No.");
                 }
             }
-            part(PriceAndLineDisc; "Sales Pr. & Line Disc. Part")
-            {
-                ApplicationArea = All;
-                Caption = 'Special Prices & Discounts';
-                Visible = FoundationOnly and (not LoadOnDemand) and (not ExtendedPriceEnabled);
-                SubPageLink = "Sales Code" = FIELD("No."),
-                              "Sales Type" = CONST(Customer);
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This part impairs performance.';
-                ObsoleteTag = '16.0';
-            }
         }
         area(factboxes)
         {
@@ -1063,12 +1063,15 @@ page 21 "Customer Card"
                         ShowContact;
                     end;
                 }
-#if not CLEAN16
+#if not CLEAN19
                 action("Cross Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '19.0';
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Cross References";
@@ -1076,11 +1079,13 @@ page 21 "Customer Card"
                                   "Cross-Reference Type No." = FIELD("No.");
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
-#endif                
+
+#endif
                 action("Item References")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
                     Visible = ItemReferenceVisible;
                     Image = Change;
@@ -1156,15 +1161,19 @@ page 21 "Customer Card"
                         PAGE.RunModal(PAGE::"Customer Report Selections", CustomReportSelection);
                     end;
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     Promoted = true;
                     PromotedCategory = Category8;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1173,6 +1182,7 @@ page 21 "Customer Card"
                         Email.OpenSentEmails(Database::Customer, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -1371,22 +1381,41 @@ page 21 "Customer Card"
                         ItemTrackingDocMgt.ShowItemTrackingForEntity(1, "No.", '', '', '');
                     end;
                 }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this customer.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Customer, Rec.SystemId);
+                    end;
+                }
                 separator(Action140)
                 {
                 }
+#if not CLEAN19
                 action("Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Advance Letters';
+                    Caption = 'Advance Letters (Obsolete)';
                     Image = Documents;
                     RunObject = Page "Sales Advance Letters History";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'Open the page with sales advance letters history.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Ad&vance Invoices")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Ad&vance Invoices';
+                    Caption = 'Ad&vance Invoices (Obsolete)';
                     Image = Invoice;
                     RunObject = Page "Posted Sales Invoices";
                     RunPageLink = "Sell-to Customer No." = FIELD("No."),
@@ -1394,6 +1423,9 @@ page 21 "Customer Card"
                                   "Prepayment Type" = CONST(Advance);
                     RunPageView = SORTING("Prepayment Order No.", "Prepayment Invoice");
                     ToolTip = 'Open the page with posted advance invoices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Advance Credit &Memos")
                 {
@@ -1406,7 +1438,11 @@ page 21 "Customer Card"
                                   "Prepayment Type" = CONST(Advance);
                     RunPageView = SORTING("Prepayment Order No.");
                     ToolTip = 'Show advance credit memos if they were posted.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
             }
             group("Prices and Discounts")
             {
@@ -2190,14 +2226,8 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Template';
-                    Ellipsis = true;
                     Image = ApplyTemplate;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2210,16 +2240,8 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Save as Template';
-                    Ellipsis = true;
                     Image = Save;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Save the customer card as a template that can be reused to create new customer cards. Customer templates contain preset information to help you fill fields on customer cards.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -2280,7 +2302,7 @@ page 21 "Customer Card"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
 
@@ -2303,10 +2325,12 @@ page 21 "Customer Card"
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Customer, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Customer, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
         }
@@ -2400,6 +2424,7 @@ page 21 "Customer Card"
                     CustomerLayoutStatement.EnqueueReport;
                 end;
             }
+#if not CLEAN17
             action("Balance Reconciliation")
             {
                 ApplicationArea = Basic, Suite;
@@ -2418,6 +2443,7 @@ page 21 "Customer Card"
                     RunReport(REPORT::"Customer - Bal. Reconciliation", "No.");
                 end;
             }
+#endif
         }
     }
 
@@ -2454,6 +2480,7 @@ page 21 "Customer Card"
             else
                 OpenApprovalEntriesExistCurrUser := false;
         end;
+#if not CLEAN18
 
         // NAVCZ
         if Vend.Get(GetLinkedVendor) then begin
@@ -2465,6 +2492,7 @@ page 21 "Customer Card"
             BalanceOfVendEnable := false;
         end;
         // NAVCZ
+#endif
     end;
 
     trigger OnInit()
@@ -2477,7 +2505,9 @@ page 21 "Customer Card"
         ContactEditable := true;
 
         OpenApprovalEntriesExistCurrUser := true;
+#if not CLEAN18
         BalanceOfVendEnable := true; // NAVCZ
+#endif
 
         CaptionTxt := CurrPage.Caption;
         SetCaption(CaptionTxt);
@@ -2644,7 +2674,9 @@ page 21 "Customer Card"
     end;
 
     var
+#if not CLEAN18
         Vend: Record Vendor;
+#endif
         CalendarMgmt: Codeunit "Calendar Management";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -2653,10 +2685,11 @@ page 21 "Customer Card"
         StyleTxt: Text;
         [InDataSet]
         ContactEditable: Boolean;
+#if not CLEAN18
         BalanceAsVend: Decimal;
         [InDataSet]
         BalanceOfVendEnable: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
+#endif
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;
@@ -2668,11 +2701,6 @@ page 21 "Customer Card"
         NoFieldVisible: Boolean;
         BalanceExhausted: Boolean;
         AttentionToPaidDay: Boolean;
-        IsOfficeAddin: Boolean;
-        NoPostedInvoices: Integer;
-        NoPostedCrMemos: Integer;
-        NoOutstandingInvoices: Integer;
-        NoOutstandingCrMemos: Integer;
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
         AmountOnPostedCrMemos: Decimal;
@@ -2716,6 +2744,14 @@ page 21 "Customer Card"
         LoadOnDemand: Boolean;
         PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
+        EmailImprovementFeatureEnabled: Boolean;
+
+    protected var
+        IsOfficeAddin: Boolean;
+        NoPostedInvoices: Integer;
+        NoPostedCrMemos: Integer;
+        NoOutstandingInvoices: Integer;
+        NoOutstandingCrMemos: Integer;
 
     [TryFunction]
     local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)

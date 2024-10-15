@@ -142,6 +142,7 @@ page 138 "Posted Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the purchase document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -162,6 +163,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -291,6 +293,7 @@ page 138 "Posted Purchase Invoice"
                         end;
                     end;
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
@@ -301,6 +304,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -331,6 +335,7 @@ page 138 "Posted Purchase Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the invoice';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -341,12 +346,14 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -367,6 +374,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -379,6 +387,7 @@ page 138 "Posted Purchase Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of vendor';
                 }
+#if not CLEAN17
                 field(VATCurrencyCode; "Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -405,6 +414,8 @@ page 138 "Posted Purchase Invoice"
                         // NAVCZ
                     end;
                 }
+#endif
+#if not CLEAN18
             }
             group(Payments)
             {
@@ -493,6 +504,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -585,6 +597,7 @@ page 138 "Posted Purchase Invoice"
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -595,6 +608,7 @@ page 138 "Posted Purchase Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group("Shipping and Payment")
             {
@@ -880,15 +894,22 @@ page 138 "Posted Purchase Invoice"
         }
         area(processing)
         {
+#if not CLEAN19
             group("F&unctions")
             {
                 Caption = 'F&unctions';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Merge to W1.';
+                ObsoleteTag = '19.0';
                 action("Unpost Link Advance")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Unpost Link Advance';
+                    Caption = 'Unpost Link Advance (Obsolete)';
                     Image = PostedVendorBill;
                     ToolTip = 'Unposts link advance';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -898,6 +919,7 @@ page 138 "Posted Purchase Invoice"
                     end;
                 }
             }
+#endif
             action(Print)
             {
                 ApplicationArea = Basic, Suite;
@@ -1166,8 +1188,8 @@ page 138 "Posted Purchase Invoice"
 
     trigger OnAfterGetRecord()
     begin
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnOpenPage()

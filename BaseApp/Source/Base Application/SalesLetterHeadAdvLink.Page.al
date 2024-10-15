@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31013 "Sales Letter Head. - Adv.Link."
 {
-    Caption = 'Sales Letter Head. - Adv.Link.';
+    Caption = 'Sales Letter Head. - Adv.Link. (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Sales Advance Letter Header";
     SourceTableView = SORTING("No.");
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -273,4 +277,4 @@ page 31013 "Sales Letter Head. - Adv.Link."
         LinkingType := LinkingType1;
     end;
 }
-
+#endif

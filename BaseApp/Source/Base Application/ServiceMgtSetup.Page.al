@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5919 "Service Mgt. Setup"
 {
     ApplicationArea = Service;
@@ -143,6 +144,13 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
+                }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
+                    Visible = false;
                 }
             }
             group("Mandatory Fields")
@@ -341,6 +349,7 @@ page 5919 "Service Mgt. Setup"
                     ToolTip = 'Specifies the number series code that will be used to assign a document number to the journal lines.';
                 }
             }
+#if not CLEAN17
             group(VAT)
             {
                 Caption = 'VAT';
@@ -359,6 +368,7 @@ page 5919 "Service Mgt. Setup"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -392,3 +402,4 @@ page 5919 "Service Mgt. Setup"
         CalendarMgmt: Codeunit "Calendar Management";
 }
 
+#endif

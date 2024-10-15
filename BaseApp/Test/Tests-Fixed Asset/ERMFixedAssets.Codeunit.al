@@ -21,6 +21,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         isInitialized: Boolean;
         GLIntegrationDisposalError: Label '%1 must be equal to ''Yes''  in %2: %3=%4. Current value is ''No''.';
         AllowCorrectionError: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.';
@@ -106,7 +107,7 @@ codeunit 134451 "ERM Fixed Assets"
         // 2.Exercise: Calculate Depreciation and Change "Document No." in FA Journal line and Post FA Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
         LibraryLowerPermissions.AddO365FAEdit;
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
 
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
@@ -129,7 +130,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // 2.Exercise: Calculate Depreciation with a non-existent fixed asset number to ensure no journal output
         LibraryLowerPermissions.SetO365FAView;
-        RunCalculateDepreciation('DUMMY', DepreciationBook.Code);
+        RunCalculateDepreciation('DUMMY', DepreciationBook.Code, false);
 
         // 3.Verify: In DepreciationCalcMessageHandler, verify that no journal output is generated and that correct message is shown.
     end;
@@ -430,7 +431,7 @@ codeunit 134451 "ERM Fixed Assets"
         FADepreciationBook.Get(FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.CalcFields("Acquisition Cost");
 
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
         SellFixedAsset(SalesHeader, SalesHeader."Document Type"::Invoice, FixedAsset."No.", DepreciationBook.Code);
@@ -471,7 +472,7 @@ codeunit 134451 "ERM Fixed Assets"
         CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
         ModifyIntegrationInBook(DepreciationBook);
 
@@ -522,7 +523,7 @@ codeunit 134451 "ERM Fixed Assets"
         CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
         ModifyIntegrationInBook(DepreciationBook);
 
@@ -1184,7 +1185,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // [WHEN] Calculate depreciation with "FA Posting Date" = WORKDATE + 1. Post FA Journal.
         LibraryLowerPermissions.SetO365FAEdit;
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
         // [THEN] Number of depreciation days in FA Ledger Entry equals 1
@@ -1210,7 +1211,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         // [WHEN] Calculate depreciation with "FA Posting Date" = WORKDATE + 1. Post FA Journal.
         LibraryLowerPermissions.SetO365FAEdit;
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
         // [THEN] Number of depreciation days in FA Ledger Entry equals 2
@@ -1321,7 +1322,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [GIVEN] Post Fixed Asset Depreciation.
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
 
         // [WHEN] Sell Fixed Asset. System creates: GLEntry "A" with VAT Amount <> 0; VATEntry "B".
@@ -1588,9 +1589,9 @@ codeunit 134451 "ERM Fixed Assets"
 
         // [THEN] GetWriteDownAccount throws TestField error
         asserterror FAPostingGroup.GetWriteDownAccount;
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(
-            'Write-Down Account must have a value in FA Posting Group: Code=%1. It cannot be zero or empty.', FAPostingGroup.Code));
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+            LibraryErrorMessage.GetMissingAccountErrorMessage(FAPostingGroup.FieldCaption("Write-Down Account"), FAPostingGroup.TableCaption()));
     end;
 
     [Test]
@@ -2288,6 +2289,49 @@ codeunit 134451 "ERM Fixed Assets"
         Assert.AreEqual(FinalRoundingAmount, FADepreciationBook."Final Rounding Amount", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateDepreciationWithErrorMessages()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        FAJournalLine: Record "FA Journal Line";
+        FAPostingGroup: Record "FA Posting Group";
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 391482] Error messages page opened while calculating depreciation if posting setup has empty accounts
+        Initialize();
+
+        // [GIVEN] Fixed Asset with posted Acquisition Cost.
+        CreateFixedAssetSetup(DepreciationBook);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        UpdateIntegrationInBook(DepreciationBook, true, false, false);
+        CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+        // [GIVEN] FA Posting Setup has empty Depreciation Expense Acc.
+        FAPostingGroup.Get(FixedAsset."FA Posting Group");
+        FAPostingGroup."Depreciation Expense Acc." := '';
+        FAPostingGroup.Modify();
+
+        // [WHEN] Run Calculate Depreciation
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryErrorMessage.TrapErrorMessages();
+        asserterror RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, true);
+
+        // [THEN] Error messages page opened with error "Depreciation Expense Acc. is missing in FA Posting Setup." 
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField(
+            Description,
+            LibraryErrorMessage.GetMissingAccountErrorMessage(
+                FAPostingGroup.FieldCaption("Depreciation Expense Acc."),
+                FAPostingGroup.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -2833,12 +2877,12 @@ codeunit 134451 "ERM Fixed Assets"
         CreateMultipleFAJournalLine(FAJournalLine, FixedAsset."No.", DepreciationBook.Code);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
-        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code);
+        RunCalculateDepreciation(FixedAsset."No.", DepreciationBook.Code, false);
         PostDepreciationWithDocumentNo(DepreciationBook.Code);
         ModifyIntegrationInBook(DepreciationBook);
     end;
 
-    local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10])
+    local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; BalAccount: Boolean)
     var
         FixedAsset: Record "Fixed Asset";
         CalculateDepreciation: Report "Calculate Depreciation";
@@ -2848,7 +2892,7 @@ codeunit 134451 "ERM Fixed Assets"
 
         CalculateDepreciation.SetTableView(FixedAsset);
         CalculateDepreciation.InitializeRequest(
-          DepreciationBookCode, CalcDate('<1D>', WorkDate), false, 0, CalcDate('<1D>', WorkDate), FixedAssetNo, FixedAsset.Description, false);
+          DepreciationBookCode, CalcDate('<1D>', WorkDate), false, 0, CalcDate('<1D>', WorkDate), FixedAssetNo, FixedAsset.Description, BalAccount);
         CalculateDepreciation.UseRequestPage(false);
         CalculateDepreciation.Run;
     end;

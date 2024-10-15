@@ -1,6 +1,7 @@
+#if not CLEAN19
 codeunit 378 "Transfer Extended Text"
 {
-    
+
     trigger OnRun()
     begin
     end;
@@ -706,6 +707,7 @@ codeunit 378 "Transfer Extended Text"
         TempExtTextLine.DeleteAll();
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure VATCheckIfAnyExtText(SalesInvHeader: Record "Sales Invoice Header"; StdTextCode: Code[10]): Boolean
     var
@@ -870,3 +872,4 @@ codeunit 378 "Transfer Extended Text"
     end;
 }
 
+#endif

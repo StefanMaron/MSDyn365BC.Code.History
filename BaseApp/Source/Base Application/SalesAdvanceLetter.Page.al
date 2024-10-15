@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31000 "Sales Advance Letter"
 {
-    Caption = 'Sales Advance Letter';
+    Caption = 'Sales Advance Letter (Obsolete)';
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Sales Advance Letter Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -998,4 +1002,4 @@ page 31000 "Sales Advance Letter"
         AdvLetterPostPrint.PreviewSalesRefundAndCloseLetter(Rec, WorkDate, WorkDate);
     end;
 }
-
+#endif

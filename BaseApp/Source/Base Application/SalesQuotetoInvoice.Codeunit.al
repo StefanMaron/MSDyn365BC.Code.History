@@ -32,7 +32,6 @@ codeunit 1305 "Sales-Quote to Invoice"
         CheckForAssembleToOrderLines(Rec);
 
         SalesInvoiceHeader := Rec;
-        SalesInvoiceHeader."No. Series" := ''; // NAVCZ
 
         SalesInvoiceLine.LockTable();
 

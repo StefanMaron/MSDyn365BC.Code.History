@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1270 "Exp. Launcher Gen. Jnl."
 {
     Permissions = TableData "Data Exch." = rimd;
@@ -55,3 +56,4 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 25 "Customer Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -45,12 +46,20 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Prepayments;
                     Editable = false;
                     ToolTip = 'Specifies if line of cash receip journal is prepayment';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     Editable = false;
                     ToolTip = 'Specifies the prepayment type for the customer ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Customer No."; "Customer No.")
                 {
@@ -65,6 +74,7 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the customer name that the entry is linked to.';
                     Visible = CustNameVisible;
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -75,6 +85,7 @@ page 25 "Customer Ledger Entries"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -183,12 +194,19 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Remaining Amount to Link"; "Remaining Amount to Link")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount that you want to link to the customer ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Remaining Amount to Link (LCY)"; "Remaining Amount to Link (LCY)")
                 {
@@ -196,6 +214,9 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount that you want to link to the customer ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Sales (LCY)"; "Sales (LCY)")
                 {
@@ -263,6 +284,10 @@ page 25 "Customer Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to open the advance letter for the customer ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("On Hold"; "On Hold")
                 {
@@ -297,6 +322,7 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -385,6 +411,7 @@ page 25 "Customer Ledger Entries"
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field(Reversed; Reversed)
                 {
                     ApplicationArea = Basic, Suite;
@@ -437,6 +464,7 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field(Compensation; Compensation)
                 {
                     ApplicationArea = Basic, Suite;
@@ -447,6 +475,7 @@ page 25 "Customer Ledger Entries"
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
@@ -772,9 +801,12 @@ page 25 "Customer Ledger Entries"
                 action("Link Advances")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advances';
+                    Caption = 'Link Advances (Obsolete)';
                     Image = LinkWithExisting;
                     ToolTip = 'Allow to link advance payment with advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -786,9 +818,12 @@ page 25 "Customer Ledger Entries"
                 action("U&nlink Advances")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'U&nlink Advances';
+                    Caption = 'U&nlink Advances (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Specifies links to advance letter page';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -978,3 +1013,4 @@ page 25 "Customer Ledger Entries"
     end;
 }
 
+#endif

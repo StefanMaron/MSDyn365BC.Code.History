@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 11706 "Bank Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './BankStatement.rdlc';
-    Caption = 'Bank Statement';
+    Caption = 'Bank Statement (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -136,3 +140,4 @@ report 11706 "Bank Statement"
         "Filter": Text[250];
 }
 
+#endif

@@ -1,7 +1,14 @@
 table 11702 "Bank Pmt. Appl. Rule Code"
 {
     Caption = 'Bank Pmt. Appl. Rule Code';
+#if not CLEAN19
     LookupPageID = "Bank Pmt. Appl. Rule Codes";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -31,6 +38,7 @@ table 11702 "Bank Pmt. Appl. Rule Code"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -44,6 +52,7 @@ table 11702 "Bank Pmt. Appl. Rule Code"
         DefaultCodeTxt: Label 'DEFAULT';
         DefaultCodeDescriptionTxt: Label 'Default Rules';
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure InsertDefaultMatchingRuleCode()
     var
         BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
@@ -57,9 +66,11 @@ table 11702 "Bank Pmt. Appl. Rule Code"
         BankPmtApplRuleCode.Insert(true);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetDefaultCode(): Code[10]
     begin
         exit(DefaultCodeTxt);
     end;
+#endif
 }
 

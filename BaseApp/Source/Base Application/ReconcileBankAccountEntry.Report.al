@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11711 "Reconcile Bank Account Entry"
 {
     DefaultLayout = RDLC;
@@ -232,3 +233,5 @@ report 11711 "Reconcile Bank Account Entry"
         TotalCaptionLbl: Label 'Total';
 }
 
+
+#endif

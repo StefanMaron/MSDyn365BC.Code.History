@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11743 "Currency Nominal Values"
 {
     ApplicationArea = Basic, Suite;
@@ -46,4 +47,4 @@ page 11743 "Currency Nominal Values"
     {
     }
 }
-
+#endif

@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9001 "Accounting Manager Role Center"
 {
-    Caption = 'Accounting Manager', Comment = '{Dependency=Match,"ProfileDescription_ACCOUNTINGMANAGER"}';
+    Caption = 'Accounting Manager';
     PageType = RoleCenter;
 
     layout
@@ -137,6 +138,7 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Report "Closing Trial Balance";
                 ToolTip = 'View, print, or send a report that shows this year''s and last year''s figures as an ordinary trial balance. The closing of the income statement accounts is posted at the end of a fiscal year. The report can be used in connection with closing a fiscal year.';
             }
+#if not CLEAN17
             action("Balance Sheet")
             {
                 ApplicationArea = Basic, Suite;
@@ -161,6 +163,7 @@ page 9001 "Accounting Manager Role Center"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
             separator(Action49)
             {
             }
@@ -359,7 +362,9 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Bank Accounts';
                 Image = BankAccount;
                 RunObject = Page "Bank Account List";
+#if not CLEAN17
                 RunPageView = WHERE("Account Type" = CONST("Bank Account"));
+#endif
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
             action("VAT Statements")
@@ -369,6 +374,7 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Page "VAT Statement Names";
                 ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
             }
+#if not CLEAN17
             action("VIES Declarations")
             {
                 ApplicationArea = Basic, Suite;
@@ -380,6 +386,7 @@ page 9001 "Accounting Manager Role Center"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
             action(Items)
             {
                 ApplicationArea = Basic, Suite;
@@ -748,6 +755,7 @@ page 9001 "Accounting Manager Role Center"
                     RunObject = Page "Accounting Periods";
                     ToolTip = 'Set up the number of accounting periods, such as 12 monthly periods, within the fiscal year and specify which period is the start of the new fiscal year.';
                 }
+#if not CLEAN17
                 action("VAT Periods")
                 {
                     ApplicationArea = Basic, Suite;
@@ -759,6 +767,7 @@ page 9001 "Accounting Manager Role Center"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 action("Number Series")
                 {
                     ApplicationArea = Basic, Suite;
@@ -825,7 +834,11 @@ page 9001 "Accounting Manager Role Center"
             }
             separator(Action1220009)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Orphaned page element removed.';
+                ObsoleteTag = '19.0';
             }
+#if not CLEAN17
             action("&VIES Declaration")
             {
                 ApplicationArea = Basic, Suite;
@@ -838,6 +851,7 @@ page 9001 "Accounting Manager Role Center"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
         }
         area(processing)
         {
@@ -929,7 +943,7 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("P&ost Inventory Cost to G/L")
@@ -1051,3 +1065,4 @@ page 9001 "Accounting Manager Role Center"
     }
 }
 
+#endif

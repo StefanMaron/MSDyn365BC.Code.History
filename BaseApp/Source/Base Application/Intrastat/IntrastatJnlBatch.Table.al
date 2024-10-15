@@ -39,11 +39,13 @@ table 262 "Intrastat Jnl. Batch"
                 Evaluate(Month, CopyStr("Statistics Period", 3, 2));
                 if (Month < 1) or (Month > 12) then
                     Error(Text001);
+#if not CLEAN18
                 // NAVCZ
                 CheckUniqueDeclarationNo;
                 if xRec."Statistics Period" <> '' then
                     CheckJnlLinesExist(FieldNo("Statistics Period"));
                 // NAVCZ
+#endif
             end;
         }
         field(15; "Amounts in Add. Currency"; Boolean)
@@ -76,9 +78,14 @@ table 262 "Intrastat Jnl. Batch"
         field(31061; "Declaration No."; Code[20])
         {
             Caption = 'Declaration No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -87,20 +94,27 @@ table 262 "Intrastat Jnl. Batch"
                 if xRec."Declaration No." <> '' then
                     CheckJnlLinesExist(FieldNo("Declaration No."));
             end;
+#endif
         }
         field(31062; "Statement Type"; Option)
         {
             Caption = 'Statement Type';
             OptionCaption = 'Primary,Null,Replacing,Deleting';
             OptionMembers = Primary,Null,Replacing,Deleting;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 CheckJnlLinesExist(FieldNo("Statement Type"));
             end;
+#endif
         }
     }
 
@@ -146,6 +160,7 @@ table 262 "Intrastat Jnl. Batch"
         Text1220000: Label 'Declaration No. %1 already exists for Statistics Period %2.';
         Text1220001: Label 'You cannot change %1 value after Intrastat Journal Batch %2 was exported.';
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckUniqueDeclarationNo()
@@ -211,6 +226,7 @@ table 262 "Intrastat Jnl. Batch"
         exit(false);
     end;
 
+#endif
     procedure GetStatisticsStartDate(): Date
     var
         Century: Integer;

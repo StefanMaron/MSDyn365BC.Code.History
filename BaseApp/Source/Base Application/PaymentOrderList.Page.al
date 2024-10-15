@@ -1,7 +1,8 @@
+#if not CLEAN19
 page 11719 "Payment Order List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Payment Orders';
+    Caption = 'Payment Orders (Obsolete)';
     CardPageID = "Payment Order";
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -10,6 +11,9 @@ page 11719 "Payment Order List"
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Payment Order Header";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -271,4 +275,4 @@ page 11719 "Payment Order List"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
     end;
 }
-
+#endif

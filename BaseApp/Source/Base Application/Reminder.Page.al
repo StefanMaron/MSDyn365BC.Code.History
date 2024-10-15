@@ -183,6 +183,7 @@ page 434 Reminder
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -284,6 +285,7 @@ page 434 Reminder
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {

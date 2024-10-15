@@ -1801,6 +1801,8 @@ report 35 "Document Entries"
                     SetFilter("Registering Date", PostingDateFilter);
                 end;
             }
+#if not CLEAN19
+
             dataitem("Issued Bank Statement Header"; "Issued Bank Statement Header")
             {
                 DataItemTableView = SORTING("No.");
@@ -1907,6 +1909,8 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
+#endif
+#if not CLEAN17
             dataitem("Posted Cash Document Header"; "Posted Cash Document Header")
             {
                 DataItemTableView = SORTING("No.", "Posting Date");
@@ -1962,6 +1966,8 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
+#endif
+#if not CLEAN19
             dataitem("Sales Advance Letter Entry"; "Sales Advance Letter Entry")
             {
                 DataItemTableView = SORTING("Document No.", "Posting Date");
@@ -2092,6 +2098,8 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
+#endif
+#if not CLEAN18
             dataitem("Posted Credit Header"; "Posted Credit Header")
             {
                 DataItemTableView = SORTING("No.");
@@ -2134,6 +2142,7 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
+#endif
             dataitem("Posted Invt. Put-away Header"; "Posted Invt. Put-away Header")
             {
                 DataItemTableView = SORTING("No.");
@@ -2180,6 +2189,7 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
+#if not CLEAN18
             dataitem("EET Entry"; "EET Entry")
             {
                 DataItemTableView = SORTING("Document No.");
@@ -2223,7 +2233,7 @@ report 35 "Document Entries"
                     // NAVCZ
                 end;
             }
-
+#endif
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
@@ -2328,14 +2338,24 @@ report 35 "Document Entries"
         InsCoverageLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         CapLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         WhseEntryRegisteringDateCaptionLbl: Label 'Registering Date';
+#if not CLEAN19
         IssuedBankStmtHdrDocDateCaptionLbl: Label 'Document Date';
         IssuedPmtOrdHdrDocDateCaptionLbl: Label 'Document Date';
+#endif
+#if not CLEAN17
         PostedCashDocHdrPostDateCaptionLbl: Label 'Posting Date';
+#endif
+#if not CLEAN19
         SalesAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
         PurchAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
+#endif
+#if not CLEAN18
         PostedCreditHdrPostDateCaptionLbl: Label 'Posting Date';
+#endif
         PostedInvtPutAwayHdrPostDateCaptionLbl: Label 'Posting Date';
+#if not CLEAN18
         CashDeskNo: Code[20];
+#endif
 
     procedure TransferDocEntries(var NewDocEntry: Record "Document Entry")
     var
@@ -2356,6 +2376,7 @@ report 35 "Document Entries"
         DocNoFilter := NewDocNoFilter;
         PostingDateFilter := NewPostingDateFilter;
     end;
+#if not CLEAN18
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
     [Scope('OnPrem')]
@@ -2363,5 +2384,6 @@ report 35 "Document Entries"
     begin
         CashDeskNo := NewCashDeskNo; // NAVCZ
     end;
+#endif
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 474 "VAT Statement Preview"
 {
     Caption = 'VAT Statement Preview';
@@ -321,4 +322,4 @@ page 474 "VAT Statement Preview"
         BeforeandWithinPeriodSelOnPush;
     end;
 }
-
+#endif

@@ -7,7 +7,11 @@ table 1293 "Payment Application Proposal"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -222,22 +226,52 @@ table 1293 "Payment Application Proposal"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11705; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -385,8 +419,12 @@ table 1293 "Payment Application Proposal"
 
         GetLedgEntryInfo;
         Quality := TempBankStmtMatchingBuffer.Quality;
+#if CLEAN19
+        "Match Confidence" := BankPmtApplRule.GetMatchConfidence(TempBankStmtMatchingBuffer.Quality);
+#else
         "Match Confidence" := BankPmtApplRule.GetMatchConfidence(
             TempBankStmtMatchingBuffer.Quality, TempBankStmtMatchingBuffer."Entry No." < 0); // NAVCZ
+#endif
 
         UpdatePaymentDiscInfo;
         UpdateRemainingAmount(BankAccount);
@@ -636,10 +674,12 @@ table 1293 "Payment Application Proposal"
         VendLedgEntry: Record "Vendor Ledger Entry";
         EmployeeLedgEntry: Record "Employee Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+#if not CLEAN19
         GLEntry: Record "G/L Entry";
         BankAccReconLn: Record "Bank Acc. Reconciliation Line";
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
+#endif
         RemainingAmount: Decimal;
         RemainingAmountLCY: Decimal;
     begin
@@ -648,11 +688,13 @@ table 1293 "Payment Application Proposal"
         if "Applies-to Entry No." = 0 then
             exit;
 
+#if not CLEAN19
         // NAVCZ
         BankAccount.Init(); // PreCAL
         BankAccReconLn.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
         // NAVCZ
 
+#endif
         case "Account Type" of
             "Account Type"::"Bank Account":
                 begin
@@ -663,6 +705,7 @@ table 1293 "Payment Application Proposal"
                     exit;
                 end;
             "Account Type"::Customer:
+#if not CLEAN19
                 // NAVCZ
                 if "Applies-to Entry No." = -1 then begin
                     SalesAdvanceLetterLine.SetCurrentKey("Link Code");
@@ -674,6 +717,9 @@ table 1293 "Payment Application Proposal"
                     until SalesAdvanceLetterLine.Next() = 0;
                 end else begin
                     // NAVCZ
+#else
+                begin
+#endif
                     CustLedgEntry.SetRange(Open, true);
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
                     CustLedgEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
@@ -683,6 +729,7 @@ table 1293 "Payment Application Proposal"
                     RemainingAmountLCY := CustLedgEntry."Remaining Amt. (LCY)";
                 end;
             "Account Type"::Vendor:
+#if not CLEAN19
                 // NAVCZ
                 if "Applies-to Entry No." = -1 then begin
                     PurchAdvanceLetterLine.SetCurrentKey("Link Code");
@@ -694,6 +741,9 @@ table 1293 "Payment Application Proposal"
                     until PurchAdvanceLetterLine.Next() = 0;
                 end else begin
                     // NAVCZ
+#else
+                begin
+#endif
                     VendLedgEntry.SetRange(Open, true);
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     VendLedgEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
@@ -712,6 +762,7 @@ table 1293 "Payment Application Proposal"
                     RemainingAmount := EmployeeLedgEntry."Remaining Amount";
                     RemainingAmountLCY := EmployeeLedgEntry."Remaining Amt. (LCY)";
                 end;
+#if not CLEAN19
             // NAVCZ
             "Account Type"::"G/L Account":
                 begin
@@ -720,10 +771,15 @@ table 1293 "Payment Application Proposal"
                     "Remaining Amount" := GLEntry.RemainingAmount;
                     exit;
                 end;
-                // NAVCZ
+        // NAVCZ
+#endif
         end;
 
+#if CLEAN19
+        if BankAccount.IsInLocalCurrency then
+#else
         if BankAccReconLn.IsInLocalCurrency then // NAVCZ
+#endif
             "Remaining Amount" := RemainingAmountLCY
         else
             "Remaining Amount" := RemainingAmount;

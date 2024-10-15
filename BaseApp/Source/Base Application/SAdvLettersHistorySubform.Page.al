@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 31009 "S.Adv. Letters History Subform"
 {
     Caption = 'Lines';
     Editable = false;
     PageType = ListPart;
     SourceTable = "Sales Advance Letter Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -147,4 +151,4 @@ page 31009 "S.Adv. Letters History Subform"
         CurrPage.Update(false);
     end;
 }
-
+#endif

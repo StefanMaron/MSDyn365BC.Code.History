@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11731 "Cash Document-Release"
 {
     TableNo = "Cash Document Header";
@@ -369,4 +370,4 @@ codeunit 11731 "Cash Document-Release"
     begin
     end;
 }
-
+#endif

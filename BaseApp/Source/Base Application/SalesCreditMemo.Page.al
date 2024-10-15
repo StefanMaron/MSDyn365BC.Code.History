@@ -198,6 +198,7 @@ page 44 "Sales Credit Memo"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -217,6 +218,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -236,6 +238,7 @@ page 44 "Sales Credit Memo"
                     ToolTip = 'Specifies the number of the incoming document that this sales document is created for.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -246,6 +249,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field(Correction; Correction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -337,6 +341,7 @@ page 44 "Sales Credit Memo"
                     }
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -438,6 +443,7 @@ page 44 "Sales Credit Memo"
                     Visible = false;
                 }
             }
+#endif
             part(SalesLines; "Sales Cr. Memo Subform")
             {
                 ApplicationArea = Basic, Suite;
@@ -476,6 +482,7 @@ page 44 "Sales Credit Memo"
                         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -487,6 +494,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -521,6 +529,7 @@ page 44 "Sales Credit Memo"
                             SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -530,6 +539,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -584,6 +594,7 @@ page 44 "Sales Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -593,6 +604,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Billing)
             {
@@ -747,6 +759,7 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -756,6 +769,8 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -765,11 +780,13 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -788,6 +805,7 @@ page 44 "Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -962,9 +980,9 @@ page 44 "Sales Credit Memo"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -1202,7 +1220,7 @@ page 44 "Sales Credit Memo"
                 action(GetStdCustSalesCodes)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Get St&d. Cust. Sales Codes';
+                    Caption = 'Get Recurring Sales Lines';
                     Ellipsis = true;
                     Enabled = IsCustomerOrContactNotEmpty;
                     Image = CustomerCode;
@@ -1468,6 +1486,7 @@ page 44 "Sales Credit Memo"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1492,8 +1511,8 @@ page 44 "Sales Credit Memo"
     begin
         SetControlAppearance;
         WorkDescription := GetWorkDescription;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.") ;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1528,7 +1547,7 @@ page 44 "Sales Credit Memo"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SetFilterByResponsibilityCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1541,6 +1560,8 @@ page 44 "Sales Credit Memo"
             DocumentIsPosted := (not Get("Document Type", "No."));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure SetSecurityFilterOnRespCenter() from Sales Header table.', '19.0')]
     local procedure SetFilterByResponsibilityCenter()
     var
         IsHandled: Boolean;
@@ -1550,12 +1571,9 @@ page 44 "Sales Credit Memo"
         if IsHandled then
             exit;
 
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter());
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
     end;
+#endif
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
@@ -1753,10 +1771,13 @@ page 44 "Sales Credit Memo"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by same event in Sales Header table.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFilterByResponsibilityCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterSetDocumentIsPosted(SalesHeader: Record "Sales Header"; var IsScheduledPosting: Boolean; var DocumentIsPosted: Boolean)

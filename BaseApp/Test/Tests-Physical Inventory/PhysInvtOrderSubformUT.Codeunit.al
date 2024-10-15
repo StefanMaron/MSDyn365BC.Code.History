@@ -597,7 +597,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         PhysInvtRecordLine.Insert();
     end;
 
-    local procedure CreatePhysInventoryRecordingLineWithLotNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; LotNo: Code[20])
+    local procedure CreatePhysInventoryRecordingLineWithLotNo(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; LotNo: Code[50])
     begin
         LibraryInventory.CreatePhysInvtRecordLine(PhysInvtRecordLine, PhysInvtOrderLine, RecordingNo, 1);
         with PhysInvtRecordLine do begin
@@ -765,7 +765,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         exit(1);
     end;
 
-    local procedure UpdateLotExpirationDate(ItemNo: Code[20]; LotNo: Code[20]; NewExpirationDate: Date)
+    local procedure UpdateLotExpirationDate(ItemNo: Code[20]; LotNo: Code[50]; NewExpirationDate: Date)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -800,7 +800,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         ExpPhysInvtTracking.Insert();
     end;
 
-    local procedure VerifyItemPhysicalInventory(ItemNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date)
+    local procedure VerifyItemPhysicalInventory(ItemNo: Code[20]; LotNo: Code[50]; ExpirationDate: Date)
     var
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
         ItemLedgerEntry: Record "Item Ledger Entry";

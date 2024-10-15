@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31063 "Specific Movements"
 {
     ApplicationArea = Basic, Suite;
@@ -48,3 +49,5 @@ page 31063 "Specific Movements"
     }
 }
 
+
+#endif

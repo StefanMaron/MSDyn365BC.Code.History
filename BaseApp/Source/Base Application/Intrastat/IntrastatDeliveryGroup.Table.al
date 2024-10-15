@@ -1,9 +1,13 @@
 table 31064 "Intrastat Delivery Group"
 {
     Caption = 'Intrastat Delivery Group';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Intrastat Delivery Group";
     LookupPageID = "Intrastat Delivery Group";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 

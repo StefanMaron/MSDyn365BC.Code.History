@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11732 "Cash Document List"
 {
     ApplicationArea = Basic, Suite;
@@ -216,6 +217,7 @@ page 11732 "Cash Document List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the result of the posting lines before the actual posting.';
 
                     trigger OnAction()
@@ -337,4 +339,4 @@ page 11732 "Cash Document List"
         CashDocumentPostYesNo.Preview(Rec);
     end;
 }
-
+#endif

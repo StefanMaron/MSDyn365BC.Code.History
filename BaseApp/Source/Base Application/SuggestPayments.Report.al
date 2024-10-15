@@ -1,15 +1,23 @@
+#if not CLEAN19
 report 11700 "Suggest Payments"
 {
-    Caption = 'Suggest Payments';
+    Caption = 'Suggest Payments (Obsolete)';
     Permissions = TableData "Bank Statement Line" = im;
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
         dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
         {
+#if CLEAN18
+            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
+#else
             CalcFields = "Amount on Credit (LCY)";
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
+#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -59,8 +67,12 @@ report 11700 "Suggest Payments"
         }
         dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
         {
+#if CLEAN18
+            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
+#else
             CalcFields = "Amount on Credit (LCY)";
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
+#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -112,8 +124,12 @@ report 11700 "Suggest Payments"
         }
         dataitem("Vendor Ledger Entry Disc"; "Vendor Ledger Entry")
         {
+#if CLEAN18
+            DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''));
+#else
             CalcFields = "Amount on Credit (LCY)";
             DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "On Hold" = CONST(''), "Amount on Credit (LCY)" = CONST(0));
+#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -791,4 +807,4 @@ report 11700 "Suggest Payments"
             Vendor.Get(VendorNo);
     end;
 }
-
+#endif

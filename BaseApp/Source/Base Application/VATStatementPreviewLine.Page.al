@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
@@ -335,4 +336,4 @@ page 475 "VAT Statement Preview Line"
     begin
     end;
 }
-
+#endif

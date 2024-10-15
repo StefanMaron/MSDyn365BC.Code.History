@@ -1,4 +1,4 @@
-﻿codeunit 5802 "Inventory Posting To G/L"
+codeunit 5802 "Inventory Posting To G/L"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "Invt. Posting Buffer" = rimd,
@@ -184,17 +184,21 @@
                 "Entry Type"::"Direct Cost":
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
                               GlobalInvtPostBuf."Account Type"::"Invt. Accrual (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
@@ -221,17 +225,21 @@
                 "Entry Type"::Revaluation:
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
                               GlobalInvtPostBuf."Account Type"::"Invt. Accrual (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
@@ -249,7 +257,7 @@
                       GlobalInvtPostBuf."Account Type"::InvRoundingAdj,
                       // NAVCZ
 #else
-                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",                    
+                      GlobalInvtPostBuf."Account Type"::"Inventory Adjmt.",
 #endif
                       CostToPost, CostToPostACY, false);
                 else
@@ -270,17 +278,21 @@
                 "Entry Type"::"Direct Cost":
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
                               GlobalInvtPostBuf."Account Type"::"COGS (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
@@ -292,17 +304,21 @@
                 "Entry Type"::Revaluation:
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
                               GlobalInvtPostBuf."Account Type"::"COGS (Interim)",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
@@ -343,9 +359,11 @@
                 "Entry Type"::"Direct Cost":
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
@@ -360,9 +378,11 @@
 #endif
                               GlobalInvtPostBuf."Account Type"::"WIP Inventory",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then begin
                             InitInvtPostBuf(
@@ -425,17 +445,21 @@
                 "Entry Type"::Revaluation:
                     begin
                         if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then begin
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(true, "Expected Cost");
                             // NAVCZ
+#endif
                             InitInvtPostBuf(
                               ValueEntry,
                               GlobalInvtPostBuf."Account Type"::"Inventory (Interim)",
                               GlobalInvtPostBuf."Account Type"::"WIP Inventory",
                               ExpCostToPost, ExpCostToPostACY, true);
+#if not CLEAN18
                             // NAVCZ
                             SetCorrectionForExpCost(false, "Expected Cost");
                             // NAVCZ
+#endif
                         end;
                         if (CostToPost <> 0) or (CostToPostACY <> 0) then
                             InitInvtPostBuf(
@@ -797,9 +821,11 @@
             "Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
             "Posting Date" := ValueEntry."Posting Date";
+#if not CLEAN18
             // NAVCZ
             "G/L Correction" := GetCorrectionForExpCost xor ValueEntry."G/L Correction";
             // NAVCZ
+#endif
 
             IsHandled := false;
             OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled);
@@ -1131,10 +1157,12 @@
         with GlobalInvtPostBuf do
             repeat
                 GenJnlLine.Validate("Posting Date", "Posting Date");
+#if not CLEAN17
                 // NAVCZ
                 GenJnlLine."VAT Date" := 0D;
                 GenJnlLine."Original Document VAT Date" := 0D;
                 // NAVCZ
+#endif
                 OnPostInvtPostBufOnBeforeSetAmt(GenJnlLine, ValueEntry, GlobalInvtPostBuf);
                 if SetAmt(GenJnlLine, Amount, "Amount (ACY)") then begin
                     // NAVCZ
@@ -1367,6 +1395,7 @@
         exit(InvPostingGroupCode);
     end;
 
+#if not CLEAN18
     [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
     procedure SetCorrectionForExpCost(Value: Boolean; ExpectedCost: Boolean)
     begin
@@ -1390,13 +1419,13 @@
     begin
         // NAVCZ
         // Maintenance adjustment;
-#if not CLEAN18
+
         GenJnlPostLine.xSetCallFromAdjust(true);
-#endif
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         // NAVCZ
     end;
 
+#endif
     procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
         GenJnlCheckLine.RunCheck(GenJnlLine);

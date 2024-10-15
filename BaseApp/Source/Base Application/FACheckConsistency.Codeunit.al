@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5606 "FA Check Consistency"
 {
     Permissions = TableData "FA Ledger Entry" = r,
@@ -64,7 +65,9 @@ codeunit 5606 "FA Check Consistency"
         FALedgEntry: Record "FA Ledger Entry";
         FALedgEntry2: Record "FA Ledger Entry";
         FAJnlLine: Record "FA Journal Line";
+#if not CLEAN18
         FASetup: Record "FA Setup";
+#endif
         FANo: Code[20];
         DeprBookCode: Code[10];
         FAPostingDate: Date;
@@ -83,17 +86,13 @@ codeunit 5606 "FA Check Consistency"
             OnCheckNormalPostingOnAfterSetFALedgerEntryFilters(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then begin
                 // NAVCZ
-                // IF "FA Posting Type" <> "FA Posting Type"::"Acquisition Cost" THEN
                 FASetup.Get();
                 if ("FA Posting Type" <> "FA Posting Type"::"Acquisition Cost") and
                    (not FASetup."FA Acquisition As Custom 2" or ("FA Posting Type" <> "FA Posting Type"::"Custom 2"))
                 then
+                // NAVCZ
                     CreateAcquisitionCostError;
                 // NAVCZ
-                // IF NOT FADeprBook."Use FA Ledger Check" THEN
-                // NAVCZ
-                // DeprBook.TESTFIELD("Use FA Ledger Check",FALSE)
-                // ELSE BEGIN
                 if FADeprBook."Use FA Ledger Check" then begin
                     // NAVCZ
                     SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
@@ -421,3 +420,4 @@ codeunit 5606 "FA Check Consistency"
     end;
 }
 
+#endif

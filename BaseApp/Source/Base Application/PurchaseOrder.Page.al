@@ -179,6 +179,7 @@ page 50 "Purchase Order"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Suite;
@@ -197,6 +198,7 @@ page 50 "Purchase Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Suite;
@@ -260,6 +262,7 @@ page 50 "Purchase Order"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the order address of the related vendor.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -326,6 +329,7 @@ page 50 "Purchase Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Suite;
@@ -337,6 +341,8 @@ page 50 "Purchase Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = Suite;
@@ -346,6 +352,7 @@ page 50 "Purchase Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -367,6 +374,7 @@ page 50 "Purchase Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN17
                 field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -385,6 +393,7 @@ page 50 "Purchase Order"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Suite;
@@ -460,6 +469,7 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Suite;
@@ -469,6 +479,7 @@ page 50 "Purchase Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("On Hold"; "On Hold")
                 {
                     ApplicationArea = Suite;
@@ -816,6 +827,7 @@ page 50 "Purchase Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -825,6 +837,8 @@ page 50 "Purchase Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = BasicEU;
@@ -834,11 +848,13 @@ page 50 "Purchase Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -857,6 +873,7 @@ page 50 "Purchase Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
@@ -867,6 +884,7 @@ page 50 "Purchase Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
+#if not CLEAN17
                 field(VATCurrencyCode; "Currency Code")
                 {
                     ApplicationArea = BasicEU;
@@ -900,6 +918,7 @@ page 50 "Purchase Order"
                         CurrencyCodeOnAfterValidate; // NAVCZ
                     end;
                 }
+#endif
             }
             group(Control1900201301)
             {
@@ -946,14 +965,20 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number that the vendor uses for the purchase order.';
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Promoted;
                     ToolTip = 'Specifies the prepayment type for the purchase header.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
             }
+#if not CLEAN18
             group(Payment)
             {
                 Caption = 'Payment';
@@ -970,11 +995,13 @@ page 50 "Purchase Order"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
+#if not CLEAN17
 
                     trigger OnValidate()
                     begin
                         CalcFields("Third Party Bank Account"); // NAVCZ
                     end;
+#endif
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -1039,6 +1066,7 @@ page 50 "Purchase Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
                 {
                     ApplicationArea = Suite;
@@ -1059,7 +1087,9 @@ page 50 "Purchase Order"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
+#endif
         }
         area(factboxes)
         {
@@ -1221,10 +1251,9 @@ page 50 "Purchase Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1314,16 +1343,26 @@ page 50 "Purchase Order"
                     Visible = false;
                 }
             }
+#if not CLEAN19
             group(Prepayment)
             {
-                Caption = 'Prepayment';
+                Caption = 'Prepayment (Obsolete)';
                 Image = Prepayment;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 action("Assignment Ad&vance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Assignment Ad&vance Letters';
+                    Caption = 'Assignment Ad&vance Letters (Obsolete)';
                     Image = Documents;
                     ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1333,7 +1372,7 @@ page 50 "Purchase Order"
                 action("Assigned Adv. Letters - detail")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Assigned Adv. Letters - detail';
+                    Caption = 'Assigned Adv. Letters - detail (Obsolete)';
                     Image = ViewDetails;
                     RunObject = Page "Advance Letter Line Relations";
                     RunPageLink = Type = CONST(Purchase),
@@ -1341,8 +1380,13 @@ page 50 "Purchase Order"
                                   "Document No." = FIELD("No.");
                     RunPageView = SORTING(Type, "Document Type", "Document No.", "Document Line No.", "Letter No.", "Letter Line No.");
                     ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
+#endif
             group(Warehouse)
             {
                 Caption = 'Warehouse';
@@ -1867,16 +1911,26 @@ page 50 "Purchase Order"
                     end;
                 }
             }
+#if not CLEAN19
             group(Action1220036)
             {
-                Caption = 'Prepayment';
+                Caption = 'Prepayment (Obsolete)';
                 Image = Prepayment;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 action("Create Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create Advance Letter';
+                    Caption = 'Create Advance Letter (Obsolete)';
                     Image = NewDocument;
                     ToolTip = 'The funkction creates advance letter.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1886,10 +1940,14 @@ page 50 "Purchase Order"
                 action("Link Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letter';
+                    Caption = 'Link Advance Letter (Obsolete)';
                     Ellipsis = true;
                     Image = LinkWithExisting;
                     ToolTip = 'The funkction allows to link advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1908,9 +1966,13 @@ page 50 "Purchase Order"
                 action("Cancel All Adv. Payment Relations")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Cancel All Adv. Payment Relations';
+                    Caption = 'Cancel All Adv. Payment Relations (Obsolete)';
                     Image = Cancel;
                     ToolTip = 'The funkction cancels all advance payment relations.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1923,9 +1985,13 @@ page 50 "Purchase Order"
                 action("Adjust VAT by Adv. Payment Deduction")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Adjust VAT by Adv. Payment Deduction';
+                    Caption = 'Adjust VAT by Adv. Payment Deduction (Obsolete)';
                     Image = AdjustEntries;
                     ToolTip = 'The function Adjust VAT by Advance Payment Deduction.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1935,6 +2001,7 @@ page 50 "Purchase Order"
                     end;
                 }
             }
+#endif
             group("P&osting")
             {
                 Caption = 'P&osting';
@@ -1963,6 +2030,7 @@ page 50 "Purchase Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -2236,8 +2304,8 @@ page 50 "Purchase Order"
     begin
         CalculateCurrentShippingAndPayToOption;
         ShowOverReceiptNotification();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2267,23 +2335,10 @@ page 50 "Purchase Order"
     end;
 
     trigger OnOpenPage()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SetDocNoVisible;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        SetOpenPage();
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
-        if ("No." <> '') and ("Buy-from Vendor No." = '') then
-            DocumentIsPosted := (not Get("Document Type", "No."));
-
-        SetRange("Date Filter", 0D, WorkDate());
-
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2312,8 +2367,12 @@ page 50 "Purchase Order"
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         JobQueueVisible: Boolean;
+#if not CLEAN17
         UncertPayerMgt: Codeunit "Unc. Payer Mgt.";
+#endif
+#if not CLEAN19
         CancelAllRelationsQst: Label 'Are you sure to cancel all advance payment relations?';
+#endif
         [InDataSet]
         JobQueueUsed: Boolean;
         [InDataSet]
@@ -2338,6 +2397,23 @@ page 50 "Purchase Order"
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+
+    local procedure SetOpenPage()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        SetDocNoVisible();
+        IsSaaS := EnvironmentInfo.IsSaaS();
+
+        Rec.SetSecurityFilterOnRespCenter();
+
+        if ("No." <> '') and ("Buy-from Vendor No." = '') then
+            DocumentIsPosted := (not Get("Document Type", "No."));
+
+        SetRange("Date Filter", 0D, WorkDate());
+
+        OnAfterSetOpenPage();
+    end;
 
     local procedure ActivateFields()
     begin
@@ -2382,8 +2458,13 @@ page 50 "Purchase Order"
 
         case Navigate of
             "Navigate After Posting"::"Posted Document":
-                if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                    ShowPostedConfirmationMessage;
+                begin
+                    if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
+                        ShowPostedConfirmationMessage;
+
+                    if IsScheduledPosting or DocumentIsPosted then
+                        CurrPage.Close();
+                end;
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -2462,6 +2543,8 @@ page 50 "Purchase Order"
         CurrPage.PurchLines.PAGE.UpdateForm(true); // NAVCZ
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CreateAdvanceLetter(): Boolean
     var
@@ -2486,13 +2569,13 @@ page 50 "Purchase Order"
         exit(false);
         // NAVCZ
     end;
+#endif
 
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo;
     begin
-        DocNoVisible := DocumentNoVisibility.PurchaseDocumentNoIsVisible(DocType::Order, "No.");
+        DocNoVisible := DocumentNoVisibility.PurchaseDocumentNoIsVisible("Purchase Document Type"::Order, "No.");
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
@@ -2517,6 +2600,8 @@ page 50 "Purchase Order"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance();
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -2626,6 +2711,16 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance()
     begin
     end;
 }

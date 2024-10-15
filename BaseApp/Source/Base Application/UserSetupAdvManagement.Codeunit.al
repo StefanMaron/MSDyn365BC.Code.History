@@ -117,8 +117,10 @@ codeunit 11795 "User Setup Adv. Management"
                         end;
                 end;
             end;
+#if not CLEAN17
             if not CheckWhseNetChangeTemplate(ItemJournalLine) then
                 FieldError("Whse. Net Change Template");
+#endif
         end;
     end;
 
@@ -325,6 +327,8 @@ codeunit 11795 "User Setup Adv. Management"
         TempUserID := UserId;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CheckBankAccountNo(Type: Option; BankAccNo: Code[20])
     var
@@ -343,6 +347,8 @@ codeunit 11795 "User Setup Adv. Management"
             end;
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CheckWhseNetChangeTemplate(var ItemJnlLine: Record "Item Journal Line"): Boolean
@@ -374,6 +380,7 @@ codeunit 11795 "User Setup Adv. Management"
             ItemJnlLine."Whse. Net Change Template"));
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure UserCheckAllowed()
     begin

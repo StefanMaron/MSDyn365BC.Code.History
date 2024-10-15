@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9020 "Small Business Owner RC"
 {
-    Caption = 'President - Small Business', Comment = '{Dependency=Match,"ProfileDescription_PRESIDENT-SMALLBUSINESS"}';
+    Caption = 'President - Small Business';
     PageType = RoleCenter;
 
     layout
@@ -160,6 +161,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Inventory - Sales Back Orders";
                 ToolTip = 'View a list with the order lines whose shipment date has been exceeded. The following information is shown for the individual orders for each item: number, customer name, customer''s telephone number, shipment date, order quantity and quantity on back order. The report also shows whether there are other items for the customer on back order.';
             }
+#if not CLEAN17
             action("Phys. Invt. Counting Document")
             {
                 ApplicationArea = Basic, Suite;
@@ -202,9 +204,15 @@ page 9020 "Small Business Owner RC"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
+#if not CLEAN19
             separator(Action1220003)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Orphaned page element removed.';
+                ObsoleteTag = '19.0';
             }
+#endif
 #if not CLEAN18
             action("FA Phys. Inventory List")
             {
@@ -563,6 +571,9 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Posted Sales Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies posted prepayment invoices';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Sales Credit Memos")
                 {
@@ -580,6 +591,9 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Posted Sales Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies posted prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Receipts")
                 {
@@ -603,6 +617,9 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies posted prepayment invoices';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
@@ -619,6 +636,9 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies posted prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Issued Reminders")
                 {
@@ -661,9 +681,12 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Bank Account List";
+#if not CLEAN17
                     RunPageView = WHERE("Account Type" = CONST("Bank Account"));
+#endif
                     ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
                 }
+#if not CLEAN17
                 action("Cash Desk Accounts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -676,6 +699,7 @@ page 9020 "Small Business Owner RC"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#endif
                 action(Currencies)
                 {
                     ApplicationArea = Basic, Suite;
@@ -814,6 +838,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
+#if not CLEAN19
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -825,6 +850,7 @@ page 9020 "Small Business Owner RC"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action("Resource Registers")
                 {
                     ApplicationArea = Basic, Suite;
@@ -986,6 +1012,7 @@ page 9020 "Small Business Owner RC"
                 RunPageMode = Create;
                 ToolTip = 'Purchase goods or services from a vendor.';
             }
+#if not CLEAN17
             action("VIES Declaration")
             {
                 ApplicationArea = Basic, Suite;
@@ -998,6 +1025,7 @@ page 9020 "Small Business Owner RC"
                 ObsoleteTag = '17.5';
                 Visible = false;
             }
+#endif
         }
         area(processing)
         {
@@ -1102,7 +1130,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("Adjust &Item Costs/Prices")
@@ -1178,3 +1206,4 @@ page 9020 "Small Business Owner RC"
     }
 }
 
+#endif

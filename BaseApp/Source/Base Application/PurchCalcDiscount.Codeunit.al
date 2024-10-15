@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 70 "Purch.-Calc.Discount"
 {
     TableNo = "Purchase Line";
@@ -264,3 +265,4 @@ codeunit 70 "Purch.-Calc.Discount"
     end;
 }
 
+#endif

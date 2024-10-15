@@ -69,6 +69,7 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
         end;
     end;
 
+#if not CLEAN19
     [Obsolete('The function is replaced by the SetCompensationDocumentStatusToApproved subscriber.', '19.0')]
     procedure SetStatusToApproved(var Variant: Variant)
     var
@@ -109,7 +110,7 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
         ApprovalsMgmt.DeleteApprovalEntries(RecordRef.RecordId);
         ApprovalsMgmt.DeleteApprovalCommentLines(RecordRef.RecordId);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
     local procedure ApprovalsMgmtOnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry")
     var

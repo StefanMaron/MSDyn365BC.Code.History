@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 60 "Sales-Calc. Discount"
 {
     TableNo = "Sales Line";
@@ -333,3 +334,4 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 }
 
+#endif

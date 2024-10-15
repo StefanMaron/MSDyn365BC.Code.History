@@ -2,6 +2,7 @@ codeunit 136504 "RES Time Sheet"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -20,6 +21,7 @@ codeunit 136504 "RES Time Sheet"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJob: Codeunit "Library - Job";
+        RESTimeSheet: Codeunit "RES Time Sheet";
         IsInitialized: Boolean;
         PageVerify: Label 'The TestPage is already open.';
         TimeSheetNo: Code[20];
@@ -372,11 +374,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Create User Setup, Resource and Time Sheet.
         Initialize;
-
-        // NAVCZ
-        TimeSheetHeader.Reset();
         TimeSheetHeader.DeleteAll();
-        // NAVCZ
 
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         ResourceNo := TimeSheetHeader."Resource No.";
@@ -556,6 +554,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
         Initialize;
+        BindSubscription(RESTimeSheet);
 
         CreateUserSetupAndTimeSheet(TimeSheetHeader);
         UpdateTimeSheetLine(TimeSheetHeader."No.");
@@ -593,6 +592,7 @@ codeunit 136504 "RES Time Sheet"
         // Tear Down: Delete Resource.
         Resource.Get(ResourceNo);
         Resource.Delete(true);
+        UnbindSubscription(RESTimeSheet);
     end;
 
     [Test]
@@ -653,6 +653,7 @@ codeunit 136504 "RES Time Sheet"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 378723] Time Sheet page has matrix Day's property DecimalPlaces = 0:2 from monday to friday
         Initialize;
+        BindSubscription(RESTimeSheet);
         TestValue[1] := 1;
         TestValue[2] := 1.1;
         TestValue[3] := 1.12;
@@ -690,6 +691,8 @@ codeunit 136504 "RES Time Sheet"
             TimeSheet.Field5.SetValue(TestValue[i]);
             TimeSheet.Field5.AssertEquals(Format(TestValue[i]));
         end;
+
+        UnbindSubscription(RESTimeSheet);
     end;
 
     [Test]
@@ -1631,6 +1634,12 @@ codeunit 136504 "RES Time Sheet"
             SetRange(Posted, true);
             Assert.RecordCount(TimeSheetLine, ExpectedCount);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
+    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
+    begin
+        Result := false;
     end;
 
     [RequestPageHandler]

@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31017 "Linked Prepayments"
 {
-    Caption = 'Linked Prepayments';
+    Caption = 'Linked Prepayments (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "CV Ledger Entry Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -174,4 +178,4 @@ page 31017 "Linked Prepayments"
         NavigatePage.Run;
     end;
 }
-
+#endif

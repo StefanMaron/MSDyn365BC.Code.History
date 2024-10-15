@@ -1,4 +1,5 @@
-﻿report 594 "Get Item Ledger Entries"
+﻿#if not CLEAN18
+report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries (Obsolete)';
     Permissions = TableData "General Posting Setup" = imd;
@@ -981,8 +982,8 @@
         end;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalcDataForItemJnlLine()
     begin
         // NAVCZ
@@ -998,10 +999,16 @@
                 Validate("Net Weight", "Item Ledger Entry"."Net Weight");
             if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
                (Item."Tariff No." <> '')
+#if CLEAN17
+            then
+                Validate("Tariff No.", Item."Tariff No.")
+            else begin
+#else
             then begin
                 Validate("Tariff No.", Item."Tariff No.");
                 "Statistic Indication" := Item."Statistic Indication";
             end else begin
+#endif
                 Validate("Tariff No.", "Item Ledger Entry"."Tariff No.");
                 "Statistic Indication" := "Item Ledger Entry"."Statistic Indication";
             end;
@@ -1023,8 +1030,8 @@
         end;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalcDataForJobJnlLine()
     begin
         // NAVCZ
@@ -1040,10 +1047,16 @@
                 Validate("Net Weight", "Job Ledger Entry"."Net Weight");
             if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
                (Item."Tariff No." <> '')
+#if CLEAN17
+            then
+                Validate("Tariff No.", Item."Tariff No.")
+            else begin
+#else
             then begin
                 Validate("Tariff No.", Item."Tariff No.");
                 "Statistic Indication" := Item."Statistic Indication";
-            end else begin
+            end else begin                
+#endif
                 Validate("Tariff No.", "Job Ledger Entry"."Tariff No.");
                 "Statistic Indication" := "Job Ledger Entry"."Statistic Indication";
             end;
@@ -1065,8 +1078,8 @@
         end;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalcStatValue()
     var
         ShipmentMethod: Record "Shipment Method";
@@ -1124,77 +1137,99 @@
                     TempSalesHeader."Posting Date" := SalesShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesShptHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := SalesShptHeader."Currency Factor";
+#endif
                 end;
             DocumentType::"Sales Invoice":
                 if SalesInvoiceHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := SalesInvoiceHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesInvoiceHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesInvoiceHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := SalesInvoiceHeader."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Sales Credit Memo":
                 if SalesCrMemoHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := SalesCrMemoHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesCrMemoHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := SalesCrMemoHeader."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Sales Return Receipt":
                 if ReturnRcptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ReturnRcptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ReturnRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnRcptHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := ReturnRcptHeader."Currency Factor";
+#endif
                 end;
             DocumentType::"Service Shipment":
                 if ServiceShptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceShptHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := ServiceShptHeader."Currency Factor";
+#endif
                 end;
             DocumentType::"Service Invoice":
                 if ServiceInvHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceInvHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceInvHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := ServiceInvHeader."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Service Credit Memo":
                 if ServiceCrMemoHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceCrMemoHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceCrMemoHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := ServiceCrMemoHeader."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Purchase Receipt":
                 if PurchRcptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchRcptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := PurchRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchRcptHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := PurchRcptHeader."Currency Factor";
+#endif
                 end;
             DocumentType::"Purchase Invoice":
                 if PurchInvHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchInvHeader."Posting Date";
                     TempSalesHeader."Currency Code" := PurchInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchInvHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := PurchInvHeader."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Purchase Credit Memo":
                 if PurchCrMemoHdr.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchCrMemoHdr."Posting Date";
                     TempSalesHeader."Currency Code" := PurchCrMemoHdr."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchCrMemoHdr."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := PurchCrMemoHdr."VAT Currency Factor";
+#endif
                 end;
             DocumentType::"Purchase Return Shipment":
                 if ReturnShptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ReturnShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ReturnShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnShptHeader."Currency Factor";
+#if not CLEAN17
                     TempSalesHeader."VAT Currency Factor" := ReturnShptHeader."Currency Factor";
+#endif
                 end;
             else
                 exit(false);
@@ -1203,8 +1238,12 @@
         exit(
           (TempSalesHeader."Posting Date" <> 0D) or
           (TempSalesHeader."Currency Code" <> '') or
+#if CLEAN17
+          (TempSalesHeader."Currency Factor" <> 0));
+#else
           (TempSalesHeader."Currency Factor" <> 0) or
           (TempSalesHeader."VAT Currency Factor" <> 0));
+#endif
     end;
 
     local procedure GetDocumentFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var TempSalesHeader: Record "Sales Header" temporary): Boolean
@@ -1247,7 +1286,11 @@
     begin
         // NAVCZ
         with TempSalesHeader do
+#if CLEAN17
+            exit(CalculateExchangeRate("Posting Date", "Currency Code", "Currency Factor"));
+#else
             exit(CalculateExchangeRate("Posting Date", "Currency Code", "VAT Currency Factor"));
+#endif
     end;
 
     local procedure CalculateExchangeAmount(Amount: Decimal; DocumentCurrencyFactor: Decimal; IntrastatCurrencyFactor: Decimal): Decimal
@@ -1258,8 +1301,8 @@
         exit(Amount);
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalculateTotals2(ValueEntry2: Record "Value Entry")
     begin
         // NAVCZ
@@ -1349,4 +1392,4 @@
     begin
     end;
 }
-
+#endif

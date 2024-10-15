@@ -165,6 +165,7 @@ codeunit 134826 "UT Contact Table"
         VerifyContactRelatedRecordsDeleted(Contact."No.");
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
@@ -189,6 +190,7 @@ codeunit 134826 "UT Contact Table"
         SalesHeader.TestField("Sell-to Customer Name", Customer.Name);
         SalesHeader.TestField("Bill-to Name", Customer.Name);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -737,7 +739,7 @@ codeunit 134826 "UT Contact Table"
 
         // [WHEN] Call "ShowCustVendBank" for this contact
         CustomerCard.Trap();
-        Contact.ShowCustVendBank();
+        Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
 
         // [THEN] Customer Card has Date Filter which is equal to "before today"
         DateFilter := StrSubstNo('''''..%1', WorkDate);
@@ -765,7 +767,8 @@ codeunit 134826 "UT Contact Table"
 
         // [WHEN] Call "ShowCustVendBank" for this contact
         VendorCard.Trap();
-        Contact.ShowCustVendBank();
+        Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
+        ;
 
         // [THEN] Vendor Card has Date Filter which is equal to "before today"
         DateFilter := StrSubstNo('''''..%1', WorkDate);
@@ -793,7 +796,7 @@ codeunit 134826 "UT Contact Table"
 
         // [WHEN] Call "ShowCustVendBank" for this contact
         BankAccountCard.Trap();
-        Contact.ShowCustVendBank();
+        Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
 
         // [THEN] Bank Account Card has Date Filter which is equal to "before today"
         DateFilter := StrSubstNo('''''..%1', WorkDate);

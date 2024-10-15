@@ -1,9 +1,13 @@
 table 31123 "EET Entry"
 {
     Caption = 'EET Entry';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "EET Entries";
     LookupPageID = "EET Entries";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '18.0';
 
@@ -22,19 +26,25 @@ table 31123 "EET Entry"
         field(12; "Source No."; Code[20])
         {
             Caption = 'Source No.';
+#if not CLEAN17
             TableRelation = IF ("Source Type" = CONST("Cash Desk")) "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+#endif
         }
         field(20; "Business Premises Code"; Code[10])
         {
             Caption = 'Business Premises Code';
             NotBlank = true;
+#if not CLEAN18
             TableRelation = "EET Business Premises";
+#endif            
         }
         field(25; "Cash Register Code"; Code[10])
         {
             Caption = 'Cash Register Code';
             NotBlank = true;
+#if not CLEAN18
             TableRelation = "EET Cash Register".Code WHERE("Business Premises Code" = FIELD("Business Premises Code"));
+#endif
         }
         field(30; "Document No."; Code[20])
         {
@@ -173,7 +183,9 @@ table 31123 "EET Entry"
         field(200; "Canceled By Entry No."; Integer)
         {
             Caption = 'Canceled By Entry No.';
+#if not CLEAN18
             TableRelation = "EET Entry";
+#endif
         }
         field(210; "Simple Registration"; Boolean)
         {
@@ -203,7 +215,9 @@ table 31123 "EET Entry"
     }
 
     var
+#if not CLEAN18
         EETEntryMgt: Codeunit "EET Entry Management";
+#endif
         RegSalesRegimeTxt: Label 'Regular Record Of Sale';
         SimpleSalesRegimeTxt: Label 'Simplified Record Of Sale';
         SendToServiceQst: Label 'Do you want to send %1 %2 to EET service?', Comment = '%1 = Table Caption;%2 = Entry No.';
@@ -215,6 +229,7 @@ table 31123 "EET Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure ShowStatusLog()
@@ -226,8 +241,10 @@ table 31123 "EET Entry"
         PAGE.Run(0, EETEntryStatus);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
+#endif
+#if not CLEAN17
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ShowDocument()
     var
         PstdCashDocHeader: Record "Posted Cash Document Header";
@@ -241,6 +258,8 @@ table 31123 "EET Entry"
         end;
     end;
 
+#endif
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     procedure GetCertificateCode(): Code[10]
@@ -465,5 +484,5 @@ table 31123 "EET Entry"
     begin
         exit(FormatDateTime("EET Status Last Changed"));
     end;
+#endif
 }
-

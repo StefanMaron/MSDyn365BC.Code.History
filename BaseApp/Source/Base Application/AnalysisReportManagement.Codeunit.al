@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 7110 "Analysis Report Management"
 {
     TableNo = "Analysis Line";
@@ -1721,6 +1722,7 @@ codeunit 7110 "Analysis Report Management"
         end;
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure LineFilter(var Line: Record "Analysis Line"; Column: Record "Analysis Column"; Show: Option " ","Non Zero",Zero)
     var
@@ -1842,3 +1844,4 @@ codeunit 7110 "Analysis Report Management"
     end;
 }
 
+#endif

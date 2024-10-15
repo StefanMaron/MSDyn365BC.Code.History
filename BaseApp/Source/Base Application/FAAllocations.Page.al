@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5623 "FA Allocations"
 {
     AutoSplitKey = true;
@@ -29,7 +30,6 @@ page 5623 "FA Allocations"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the percentage to use when allocating the amount for the allocation type.';
                 }
-#if not CLEAN18
                 field("Reason/Maintenance Code"; "Reason/Maintenance Code")
                 {
                     ApplicationArea = FixedAssets;
@@ -39,7 +39,6 @@ page 5623 "FA Allocations"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
             }
             group(Control18)
             {
@@ -166,3 +165,4 @@ page 5623 "FA Allocations"
     end;
 }
 
+#endif

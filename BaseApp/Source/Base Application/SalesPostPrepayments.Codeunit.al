@@ -1,4 +1,5 @@
-﻿codeunit 442 "Sales-Post Prepayments"
+﻿#if not CLEAN19
+codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Invoice Post. Buffer" = imd,
@@ -523,6 +524,7 @@
                     end;
                 until SalesLine.Next() = 0;
         end;
+        ErrorMessageMgt.FinishTopContext();
 
         OnAfterBuildInvLineBuffer(TempPrepmtInvLineBuf);
     end;
@@ -1007,10 +1009,12 @@
                             VATAmountLine.InsertNewLine(
                               "Prepayment VAT Identifier", "Prepmt. VAT Calc. Type", "Prepayment Tax Group Code", false,
                               "Prepayment VAT %", NewAmount >= 0, true);
+#if not CLEAN18
                             // NAVCZ
                             VATAmountLine."Currency Code" := Currency.Code;
                             VATAmountLine.Modify();
                             // NAVCZ
+#endif
                         end;
 
                         VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + NewAmount;
@@ -1104,6 +1108,7 @@
         end;
     end;
 
+    [Obsolete('Merge to W1.', '19.0')]
     local procedure ApplyFilter(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo",Statistic,Advance; var SalesLine: Record "Sales Line")
     begin
         with SalesLine do begin
@@ -1122,6 +1127,7 @@
         OnAfterApplyFilter(SalesLine, SalesHeader, DocumentType);
     end;
 
+    [Obsolete('Merge to W1.', '19.0')]
     procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic,Advance): Decimal
     begin
         with SalesLine do
@@ -1152,10 +1158,12 @@
               PrepmtInvLineBuffer."Global Dimension 1 Code", PrepmtInvLineBuffer."Global Dimension 2 Code",
               PrepmtInvLineBuffer."Dimension Set ID", SalesHeader."Reason Code");
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := SalesHeader."VAT Date";
             // NAVCZ
 
+#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
             CopyFromSalesHeaderPrepmt(SalesHeader);
             CopyFromPrepmtInvoiceBuffer(PrepmtInvLineBuffer);
@@ -1181,10 +1189,12 @@
               SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
               SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := SalesHeader."VAT Date";
             // NAVCZ
 
+#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
             CopyFromSalesHeaderPrepmtPost(SalesHeader, (DocumentType = DocumentType::Invoice) or CalcPmtDisc);
@@ -1217,10 +1227,12 @@
               SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
               SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := SalesHeader."VAT Date";
             // NAVCZ
 
+#endif
             if DocType = "Document Type"::"Credit Memo" then
                 CopyDocumentFields("Document Type"::Refund, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode)
             else
@@ -1342,6 +1354,7 @@
             end;
     end;
 
+    [Obsolete('Merge to W1.', '19.0')]
     local procedure UpdateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocType: Option; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SourceCode: Code[10])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -1621,6 +1634,7 @@
         exit(PaymentTerms."Calc. Pmt. Disc. on Cr. Memos");
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetPrepmtType(Type: Option " ",Prepayment,Advance)
     begin
@@ -1628,6 +1642,7 @@
         PrepaymentType := Type;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetPrepmtAmounts(SalesHeader: Record "Sales Header"; var PrepmtAmtReceived: Decimal)
     var
@@ -1665,6 +1680,7 @@
             until SalesCrMemoHeader.Next() = 0;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SaveLineRelation(Value: Boolean)
     begin
@@ -1672,6 +1688,7 @@
         SaveLineRelations := Value;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure InsertLineRelation(var PrepmtInvBuf: Record "Prepayment Inv. Line Buffer"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
@@ -1711,6 +1728,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetLineRelations(var LineRelation: Record "Advance Letter Line Relation")
     begin
@@ -1725,6 +1743,7 @@
         // NAVCZ
     end;
 
+    [Obsolete('Merge to W1.', '19.0')]
     [Scope('OnPrem')]
     procedure RealizeGainLoss(var GenJnlLine: Record "Gen. Journal Line"; SalesLine: Record "Sales Line")
     var
@@ -1753,6 +1772,7 @@
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure ReverseAmounts(var PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
     begin
@@ -1770,6 +1790,7 @@
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure xIncrAmounts(PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; UpdateSalesLine: Boolean; DocumentType: Option Invoice,"Credit Memo")
     var
         PrePmtAmount: Decimal;
@@ -1826,6 +1847,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure InsertInvLineBuffer(var PrepmtInvBuf: Record "Prepayment Inv. Line Buffer"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; UpdateLine: Boolean; PrepmtInvBuf2: Record "Prepayment Inv. Line Buffer")
     var
@@ -2090,3 +2112,4 @@
     end;
 }
 
+#endif

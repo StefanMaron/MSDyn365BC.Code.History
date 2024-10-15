@@ -33,7 +33,9 @@ permissionset 291 "Capacity Journals - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Business Posting Group" = R,
+#if not CLEAN17
                   tabledata "VAT Period" = R,
+#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,

@@ -140,6 +140,7 @@ table 753 "Standard Item Journal Line"
 
                 Validate("Item No.");
                 SetDefaultPriceCalculationMethod();
+#if not CLEAN17
                 // NAVCZ
                 if ("Whse. Net Change Template" <> '') and
                    (CurrFieldNo = FieldNo("Entry Type"))
@@ -147,6 +148,7 @@ table 753 "Standard Item Journal Line"
                     TestField("Whse. Net Change Template", '');
                 "New Location Code" := '';
                 // NAVCZ
+#endif
             end;
         }
         field(8; Description; Text[100])
@@ -188,8 +190,13 @@ table 753 "Standard Item Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure",
+                    "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity),
+                    FieldCaption("Quantity (Base)")
+                );
 
                 GetUnitAmount(FieldNo(Quantity));
                 UpdateAmount;
@@ -461,6 +468,7 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -471,6 +479,7 @@ table 753 "Standard Item Journal Line"
                     TestField("Whse. Net Change Template", '');
                 // NAVCZ
             end;
+#endif
         }
         field(58; "Gen. Prod. Posting Group"; Code[20])
         {
@@ -601,11 +610,31 @@ table 753 "Standard Item Journal Line"
                 GetUnitAmount(FieldNo("Unit of Measure Code"));
                 ReadGLSetup;
                 "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 Validate("Unit Amount");
                 if "Entry Type" <> "Entry Type"::Output then
                     Validate(Quantity);
             end;
+        }
+        field(5410; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5411; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(5413; "Quantity (Base)"; Decimal)
         {
@@ -680,10 +709,15 @@ table 753 "Standard Item Journal Line"
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Whse. Net Change Template";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -694,6 +728,7 @@ table 753 "Standard Item Journal Line"
                     Validate("Gen. Bus. Posting Group", WhseNetChangeTemplate."Gen. Bus. Posting Group");
                 end;
             end;
+#endif            
         }
         field(99000755; "Overhead Rate"; Decimal)
         {

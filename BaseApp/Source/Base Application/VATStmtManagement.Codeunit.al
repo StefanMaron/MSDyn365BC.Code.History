@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 340 VATStmtManagement
 {
     Permissions = TableData "VAT Statement Template" = imd,
@@ -70,7 +71,9 @@ codeunit 340 VATStmtManagement
 
     procedure OpenStmt(var CurrentStmtName: Code[10]; var VATStmtLine: Record "VAT Statement Line")
     begin
+        OnBeforeOpenStmt(CurrentStmtName, VATStmtLine);
         VATStmtLine.CheckVATStmtLineUserRestriction; // NAVCZ
+
         CheckTemplateName(VATStmtLine.GetRangeMax("Statement Template Name"), CurrentStmtName);
         VATStmtLine.FilterGroup(2);
         VATStmtLine.SetRange("Statement Name", CurrentStmtName);
@@ -166,5 +169,11 @@ codeunit 340 VATStmtManagement
         EntrdStmtName := VATStmtName.Name;
         exit(true);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenStmt(var CurrentStmtName: Code[10]; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
 }
 
+#endif

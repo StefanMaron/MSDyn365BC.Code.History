@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31053 "Credit Lines"
 {
     Caption = 'Credit Lines (Obsolete)';
@@ -83,4 +84,4 @@ page 31053 "Credit Lines"
     {
     }
 }
-
+#endif

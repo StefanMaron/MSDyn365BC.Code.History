@@ -1,6 +1,7 @@
 codeunit 5330 "CRM Integration Management"
 {
     SingleInstance = true;
+    Permissions = TableData "Sales Invoice Header" = m;
 
     trigger OnRun()
     begin
@@ -8,6 +9,7 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     var
+        CachedCoupledToCRMFieldNo: Dictionary of [Integer, Integer];
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
         NewestUIAppIdParameterTxt: Label '&appid=%1', Locked = true;
         UnableToResolveCRMEntityNameFrmTableIDErr: Label 'The application is not designed to integrate table %1 with %2.', Comment = '%1 = table ID (numeric), %2 = Dataverse service name';
@@ -30,6 +32,10 @@ codeunit 5330 "CRM Integration Management"
         UncoupleScheduledMsg: Label 'The uncoupling has been scheduled.';
         UncoupleSkippedMsg: Label 'The uncoupling has been skipped.';
         UncoupleMultipleMsg: Label 'The uncoupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.', Comment = '%1,%2,%3,%4 are numbers of records';
+        CouplingFailedMsg: Label 'The coupling failed.';
+        CouplingScheduledMsg: Label 'The coupling has been scheduled.';
+        CouplingSkippedMsg: Label 'The coupling has been skipped.';
+        CouplingMultipleMsg: Label 'The coupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.', Comment = '%1,%2,%3,%4 are numbers of records';
         DetailsTxt: Label 'Details.';
         UpdateOneNowToCRMQst: Label 'Send data update to %2 for %1?', Comment = '%1 = Table caption and value for the entity we want to synchronize now., %2 = Dataverse service name';
         UpdateOneNowToModifiedCRMQst: Label 'The %3 record coupled to %1 contains newer data than the %2 record. Do you want to overwrite the data in %3?', Comment = '%1 = Table caption and value for the entity we want to synchronize now. %2 - product name, %3 = Dataverse service name';
@@ -60,7 +66,7 @@ codeunit 5330 "CRM Integration Management"
         ReplaceServerAddressQst: Label 'The URL is not valid. Do you want to replace it with the URL suggested below?\\Entered URL: "%1".\Suggested URL: "%2".', Comment = '%1 and %2 are URLs';
         CRMConnectionURLWrongErr: Label 'The URL is incorrect. Enter the URL for the %1 connection.', Comment = '%1 = CRM product name';
         NoOf: Option ,Scheduled,Failed,Skipped,Total;
-        NotEnabledMsg: Label 'To perform this action you must be connected to %1. You can set up the connection to %1 from the %2 page.', Comment = '%1 = Dataverse service name, %2 = Assisted Setup page caption.';
+        NotEnabledMsg: Label 'To perform this action you must be connected to %1. You can set up the connection to %1 from the %2 page. Do you want to open it now?', Comment = '%1 = Dataverse service name, %2 = Assisted Setup page caption.';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         OAuthConnectionStringFormatTok: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
         CRMDisabledErrorReasonNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2072';
@@ -68,9 +74,7 @@ codeunit 5330 "CRM Integration Management"
         ConnectionDisabledNotificationMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from D365 for Sales';
         DoYouWantEnableWebServiceQst: Label 'Do you want to enable the Item Availability web service?';
         DoYouWantDisableWebServiceQst: Label 'Do you want to disable the Item Availability web service?';
-        CRMConnectionSetupTitleTxt: Label 'Set up a connection to %1', Comment = '%1 = CRM product name';
-        CRMConnectionSetupShortTitleTxt: Label 'Connect to %1', Comment = '%1 = CRM product name';
-        CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights. Data is exchanged between the apps for better productivity.';
+        CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
         VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         ConnectionDisabledReasonTxt: Label 'The connection to %1 was disabled because integration user %2 has insufficient privileges to run the synchronization.', Comment = '%1 = a URL, %2 - an email address';
         CannotAssignRoleToTeamErr: Label 'Cannot assign role %3 to team %1 for business unit %2.', Comment = '%1 = team name, %2 = business unit name, %3 = security role name';
@@ -97,12 +101,22 @@ codeunit 5330 "CRM Integration Management"
         OptionMappingDocumentantionUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2139110';
         LearnMoreTxt: Label 'Learn more';
         DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
-        RecordMarkedAsSkippedTxt: Label 'The %1 record was marked as skipped before.', Comment = '%1 = table caption';
-        RecordAlreadyCoupledTxt: Label 'The %1 record is already coupled.', Comment = '%1 = table caption';
+        AllRecordsMarkedAsSkippedTxt: Label 'All of selected %1 records are marked as skipped.', Comment = '%1 = table caption';
+        RecordMarkedAsSkippedTxt: Label 'The %1 record is marked as skipped.', Comment = '%1 = table caption';
+        AllRecordsAlreadyCoupledTxt: Label 'All of the selected records are already coupled.', Comment = '%1 = table caption';
+        RecordAlreadyCoupledTxt: Label 'The record is already coupled.', Comment = '%1 = table caption';
         DetailedNotificationMessageTxt: Label '%1 %2', Comment = '%1 - notification message, %2 - details', Locked = true;
+        CommonNotificationNameTxt: Label 'Notify the user about scheduled Dataverse synchronization jobs.', Comment = 'Dataverse is a name of a Microsoft service and must not be translated.';
+        SkippedRecordsNotificationNameTxt: Label 'Notify the user about records that are skipped during Dataverse synchronization jobs.', Comment = 'Dataverse is a name of a Microsoft service and must not be translated.';
+        CommonNotificationDescriptionTxt: Label 'Turns the user''s attention to the Integration Synchronization Jobs page.';
+        SkippedRecordsNotificationDescriptionTxt: Label 'Turns the user''s attention to the Coupled Data Synchronization Errors page.';
+        UserDisabledNotificationTxt: Label 'The user disabled notification ''%1''.', Locked = true;
+        DisableNotificationTxt: Label 'Disable this notification.';
+        UserOpenedIntegrationSynchJobListViaNotificationTxt: Label 'User opened Integration Synchronization Jobs via the notification.', Locked = true;
         BrokenCouplingsFoundAndMarkedAsSkippedForMappingTxt: Label 'Broken couplings were found and marked as skipped. Mapping: %1 - %2. Direction: %3. Count: %4.', Locked = true;
         BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt: Label 'Broken couplings were found and marked as skipped. Total count: %1.', Locked = true;
         NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
+        UnitGroupMappingFeatureIdTok: Label 'UnitGroupMapping', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -274,34 +288,45 @@ codeunit 5330 "CRM Integration Management"
     var
         RecRef: RecordRef;
         RecordCounter: array[4] of Integer;
-        ShouldSendNotification: Boolean;
-        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
             exit;
 
         if RecRef.Number = DATABASE::"CRM Integration Record" then
-            ShouldSendNotification := UpdateCRMIntRecords(RecRef, RecordCounter)
+            UpdateCRMIntRecords(RecRef, RecordCounter)
         else
-            ShouldSendNotification := UpdateRecords(RecRef, RecordCounter, SkipReason);
-        if ShouldSendNotification then
-            SendSyncNotification(RecordCounter, SkipReason);
+            UpdateRecords(RecRef, RecordCounter);
     end;
 
-    local procedure UpdateCRMIntRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer): Boolean
+    local procedure UpdateCRMIntRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         SourceRecRef: RecordRef;
         RecId: RecordId;
         SelectedDirection: Integer;
         Direction: Integer;
         Unused: Boolean;
+        LocalTableId: Integer;
+        MappingName: Code[20];
+        RecordCount: Integer;
+        TotalCount: Integer;
+        IdFilter: Text;
+        IdFilterList: List of [Text];
+        LocalTableList: List of [Integer];
+        LocalIdList: List of [Guid];
+        CRMIdList: List of [Guid];
+        MappingDictionary: Dictionary of [Integer, Code[20]];
+        LocalIdDictionary: Dictionary of [Code[20], List of [Guid]];
+        CRMIdDictionary: Dictionary of [Code[20], List of [Guid]];
+        TableCaption: Text;
     begin
         if RecordCounter[NoOf::Total] = 1 then begin
             RecRef.SetTable(CRMIntegrationRecord);
-            GetIntegrationTableMapping(IntegrationTableMapping, CRMIntegrationRecord."Table ID");
+            LocalTableId := CRMIntegrationRecord."Table ID";
+            GetIntegrationTableMapping(IntegrationTableMapping, LocalTableId);
             CRMIntegrationRecord.FindRecordId(RecId);
             SourceRecRef.Get(RecId);
             SelectedDirection :=
@@ -311,71 +336,130 @@ codeunit 5330 "CRM Integration Management"
             SelectedDirection := GetSelectedMultipleSyncDirection(IntegrationTableMapping);
         end;
         if SelectedDirection < 0 then
-            exit(false); // The user cancelled
+            exit; // The user cancelled
 
         repeat
             RecRef.SetTable(CRMIntegrationRecord);
-            GetIntegrationTableMapping(IntegrationTableMapping, CRMIntegrationRecord."Table ID");
-            if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
-                Direction := SelectedDirection
-            else
-                Direction := IntegrationTableMapping.Direction;
             CRMIntegrationRecord.FindRecordId(RecId);
-            if EnqueueSyncJob(IntegrationTableMapping, RecId, CRMIntegrationRecord."CRM ID", Direction) then begin
-                CRMIntegrationRecord.GetBySystemId(CRMIntegrationRecord.SystemId);
-                CRMIntegrationRecord.Skipped := false;
-                CRMIntegrationRecord.Modify();
-                RecordCounter[NoOf::Scheduled] += 1;
-            end else
-                RecordCounter[NoOf::Failed] += 1;
+            LocalTableId := CRMIntegrationRecord."Table ID";
+            if not MappingDictionary.ContainsKey(LocalTableId) then begin
+                GetIntegrationTableMapping(IntegrationTableMapping, LocalTableId);
+                MappingDictionary.Add(LocalTableId, IntegrationTableMapping.Name);
+            end;
+            MappingName := MappingDictionary.Get(LocalTableId);
+            if not LocalIdDictionary.ContainsKey(MappingName) then begin
+                Clear(LocalIdList);
+                LocalIdDictionary.Add(MappingName, LocalIdList);
+            end;
+            if not CRMIdDictionary.ContainsKey(MappingName) then begin
+                Clear(CRMIdList);
+                CRMIdDictionary.Add(MappingName, CRMIdList);
+            end;
+            LocalIdList := LocalIdDictionary.Get(MappingName);
+            CRMIdList := CRMIdDictionary.Get(MappingName);
+            LocalIdList.Add(CRMIntegrationRecord."Integration ID");
+            CRMIdList.Add(CRMIntegrationRecord."CRM ID");
+            TotalCount += 1;
         until RecRef.Next() = 0;
-        exit(true);
+
+        if TotalCount = 0 then begin
+            if MappingDictionary.Keys().Count() = 1 then
+                TableCaption := GetTableCaption(MappingDictionary.Keys().Get(1));
+            if RecordCounter[NoOf::Total] > 1 then
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, StrSubstNo(AllRecordsMarkedAsSkippedTxt, TableCaption)))
+            else
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, StrSubstNo(RecordMarkedAsSkippedTxt, TableCaption)));
+            exit;
+        end;
+
+        LocalTableList := MappingDictionary.Keys();
+        foreach LocalTableId in LocalTableList do begin
+            MappingName := MappingDictionary.Get(LocalTableId);
+            LocalIdList := LocalIdDictionary.Get(MappingName);
+            RecordCount := LocalIdList.Count();
+            if RecordCount > 0 then begin
+                CRMIdList := CRMIdDictionary.Get(MappingName);
+                IntegrationTableMapping.Get(MappingName);
+                if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
+                    Direction := SelectedDirection
+                else
+                    Direction := IntegrationTableMapping.Direction;
+                if EnqueueSyncJob(IntegrationTableMapping, LocalIdList, CRMIdList, Direction, false) then begin
+                    CRMIntegrationTableSynch.GetIdFilterList(LocalIdList, IdFilterList);
+                    foreach IdFilter in IdFilterList do
+                        if IdFilter <> '' then begin
+                            CRMIntegrationRecord.SetFilter("Integration ID", IdFilter);
+                            CRMIntegrationRecord.ModifyAll(Skipped, false);
+                        end;
+                    RecordCounter[NoOf::Scheduled] += RecordCount;
+                end else
+                    RecordCounter[NoOf::Failed] += RecordCount;
+            end;
+        end;
+
+        SendSyncNotification(RecordCounter);
     end;
 
-    local procedure UpdateRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer; var SkipReason: Text): Boolean
+    local procedure UpdateRecords(var LocalRecordRef: RecordRef; var RecordCounter: array[4] of Integer)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         SelectedDirection: Integer;
         CRMID: Guid;
         Unused: Boolean;
         Skipped: Boolean;
+        RecordCount: Integer;
+        LocalId: Guid;
+        LocalIdList: List of [Guid];
+        CRMIdList: List of [Guid];
     begin
-        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
+        GetIntegrationTableMapping(IntegrationTableMapping, LocalRecordRef.Number());
 
         if RecordCounter[NoOf::Total] = 1 then
-            if GetCoupledCRMID(RecRef.RecordId, CRMID) then
+            if GetCoupledCRMID(LocalRecordRef.RecordId(), CRMID) then
                 SelectedDirection :=
-                  GetSelectedSingleSyncDirection(IntegrationTableMapping, RecRef, CRMID, Unused)
+                  GetSelectedSingleSyncDirection(IntegrationTableMapping, LocalRecordRef, CRMID, Unused)
             else begin
-                DefineCouplingIfNotCoupled(RecRef.RecordId, CRMID);
-                exit(false);
+                DefineCouplingIfNotCoupled(LocalRecordRef.RecordId(), CRMID);
+                exit;
             end
         else
             SelectedDirection := GetSelectedMultipleSyncDirection(IntegrationTableMapping);
         if SelectedDirection < 0 then
-            exit(false); // The user cancelled
+            exit; // The user cancelled
 
         repeat
             Skipped := false;
             if RecordCounter[NoOf::Total] > 1 then begin
-                Skipped := not GetCoupledCRMID(RecRef.RecordId, CRMID);
+                Skipped := not GetCoupledCRMID(LocalRecordRef.RecordId(), CRMID);
                 if not Skipped then
-                    Skipped := WasRecordModifiedAfterLastSynch(IntegrationTableMapping, RecRef, CRMID, SelectedDirection);
+                    Skipped := WasRecordModifiedAfterLastSynch(IntegrationTableMapping, LocalRecordRef, CRMID, SelectedDirection);
             end;
             if not Skipped then
-                Skipped := IsRecordSkipped(RecRef.RecordId);
-            if Skipped then begin
-                RecordCounter[NoOf::Skipped] += 1;
-                SkipReason := StrSubstNo(RecordMarkedAsSkippedTxt, GetTableCaption(RecRef.Number()));
-            end else
-                if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, SelectedDirection) then
-                    RecordCounter[NoOf::Scheduled] += 1
-                else
-                    RecordCounter[NoOf::Failed] += 1;
-        until RecRef.Next() = 0;
-        if (SkipReason <> '') and (RecordCounter[NoOf::Total] > 1) then
-            SkipReason := '';
-        exit(true);
+                Skipped := IsRecordSkipped(LocalRecordRef.RecordId());
+            if Skipped then
+                RecordCounter[NoOf::Skipped] += 1
+            else begin
+                LocalId := LocalRecordRef.Field((LocalRecordRef.SystemIdNo())).Value();
+                LocalIdList.Add(LocalId);
+                CRMIdList.Add(CRMID);
+            end;
+        until LocalRecordRef.Next() = 0;
+
+        RecordCount := LocalIdList.Count();
+        if RecordCount = 0 then begin
+            if RecordCounter[NoOf::Total] > 1 then
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, StrSubstNo(AllRecordsMarkedAsSkippedTxt, GetTableCaption(LocalRecordRef.Number()))))
+            else
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, StrSubstNo(RecordMarkedAsSkippedTxt, GetTableCaption(LocalRecordRef.Number()))));
+            exit;
+        end;
+
+        if EnqueueSyncJob(IntegrationTableMapping, LocalIdList, CRMIdList, SelectedDirection, IntegrationTableMapping."Synch. Only Coupled Records") then
+            RecordCounter[NoOf::Scheduled] += RecordCount
+        else
+            RecordCounter[NoOf::Failed] += RecordCount;
+
+        SendSyncNotification(RecordCounter);
     end;
 
     procedure UpdateOneNow(RecordID: RecordID)
@@ -399,7 +483,7 @@ codeunit 5330 "CRM Integration Management"
             repeat
                 if CRMIntegrationRecord.Skipped then
                     if CRMIntegrationRecord.FindRecordId(RecId) then begin
-                        CRMIntegrationRecord.Skipped := false;
+                        CRMIntegrationRecord.Validate(Skipped, false);
                         CRMIntegrationRecord.Modify();
                         RestoredRecCounter += 1;
                     end;
@@ -438,7 +522,10 @@ codeunit 5330 "CRM Integration Management"
 
     procedure CheckOrEnableCRMConnection()
     var
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        GuidedExperience: Codeunit "Guided Experience";
         AssistedSetup: Page "Assisted Setup";
+        GuidedExperienceType: Enum "Guided Experience Type";
     begin
         if IsCDSIntegrationEnabled() then
             exit;
@@ -453,7 +540,12 @@ codeunit 5330 "CRM Integration Management"
             if CRMIntegrationEnabledState = CRMIntegrationEnabledState::"Enabled But Not For Current User" then
                 Message(NotEnabledForCurrentUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT(), CRMProductName.CDSServiceName())
             else
-                Message(NotEnabledMsg, CRMProductName.CDSServiceName(), AssistedSetup.Caption());
+                if Confirm(StrSubstNo(NotEnabledMsg, CRMProductName.CDSServiceName(), AssistedSetup.Caption())) then begin
+                    CDSIntegrationImpl.RegisterAssistedSetup();
+                    GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"CDS Connection Setup Wizard");
+                    if IsCDSIntegrationEnabled() then
+                        exit;
+                end;
 
         Error('');
     end;
@@ -488,109 +580,183 @@ codeunit 5330 "CRM Integration Management"
 
     procedure CreateNewRecordsInCRM(RecVariant: Variant)
     var
-        CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        RecRef: RecordRef;
-        CRMID: Guid;
-        RecordCounter: array[4] of Integer;
-        SkipReason: Text;
+        RecordRef: RecordRef;
+        LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+        LocalIdList: List of [Guid];
+        LocalId: Guid;
     begin
-        RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
-        if RecordCounter[NoOf::Total] = 0 then
+        if GetRecordRef(RecVariant, RecordRef) = 0 then
             exit;
-        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
-        repeat
-            if CRMIntegrationRecord.FindValidByRecordID(RecRef.RecordId, IntegrationTableMapping."Integration Table ID") then
-                RecordCounter[NoOf::Skipped] += 1
-            else begin
-                if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
-                    CRMIntegrationRecord.Delete();
-                if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, IntegrationTableMapping.Direction::ToIntegrationTable) then
-                    RecordCounter[NoOf::Scheduled] += 1
-                else
-                    RecordCounter[NoOf::Failed] += 1;
-            end;
-        until RecRef.Next() = 0;
 
-        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
-            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Table ID"));
-        SendSyncNotification(RecordCounter, SkipReason);
+        GetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecordRef);
+        LocalIdListDictionary.Add(IntegrationTableMapping.Name, LocalIdList);
+
+        repeat
+            LocalId := RecordRef.Field(RecordRef.SystemIdNo()).Value();
+            LocalIdList.Add(LocalId);
+        until RecordRef.Next() = 0;
+
+        CreateNewRecordsInCRM(LocalIdListDictionary);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsInCRM(var LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+    begin
+        CreateNewRecords(LocalIdListDictionary, CRMIdListDictionary);
     end;
 
     procedure CreateNewRecordsFromCRM(RecVariant: Variant)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        RecRef: RecordRef;
+        RecordRef: RecordRef;
+        CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+        CRMIdList: List of [Guid];
         CRMID: Guid;
-        RecordCounter: array[4] of Integer;
-        SkipReason: Text;
     begin
-        RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
-        if RecordCounter[NoOf::Total] = 0 then
+        if GetRecordRef(RecVariant, RecordRef) = 0 then
             exit;
 
-        repeat
-            GetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecRef);
-            CRMID := RecRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value;
-            if CRMIntegrationRecord.FindValidByCRMID(CRMID) then
-                RecordCounter[NoOf::Skipped] += 1
-            else begin
-                if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
-                    CRMIntegrationRecord.Delete();
-                if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, IntegrationTableMapping.Direction::FromIntegrationTable) then
-                    RecordCounter[NoOf::Scheduled] += 1
-                else
-                    RecordCounter[NoOf::Failed] += 1;
-            end;
-        until RecRef.Next() = 0;
+        GetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecordRef);
+        CRMIdListDictionary.Add(IntegrationTableMapping.Name, CRMIdList);
 
-        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
-            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
-        SendSyncNotification(RecordCounter, SkipReason);
+        repeat
+            CRMID := RecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
+            CRMIdList.Add(CRMID);
+        until RecordRef.Next() = 0;
+
+        CreateNewRecordsFromCRM(CRMIdListDictionary);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsFromCRM(var CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+    begin
+        CreateNewRecords(LocalIdListDictionary, CRMIdListDictionary);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateNewRecords(var LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]]; var CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMRecordRef: RecordRef;
+        RecordCounter: array[4] of Integer;
+        LocalId: Guid;
+        CRMId: Guid;
+        LocalIdCount: Integer;
+        CRMIdCount: Integer;
+        MappingDictionary: Dictionary of [Code[20], Boolean];
+        ToCRMMappingList: List of [Code[20]];
+        FromCRMMappingList: List of [Code[20]];
+        MappingList: List of [Code[20]];
+        LocalIdList: List of [Guid];
+        CRMIdList: List of [Guid];
+        MappingName: Code[20];
+        I: Integer;
+        J: Integer;
+    begin
+        ToCRMMappingList := LocalIdListDictionary.Keys();
+        FromCRMMappingList := CRMIdListDictionary.Keys();
+        MappingList.AddRange(ToCRMMappingList);
+        MappingList.AddRange(fromCRMMappingList);
+        foreach MappingName in MappingList do
+            if not MappingDictionary.ContainsKey(MappingName) then
+                MappingDictionary.Add(MappingName, true);
+        MappingList := MappingDictionary.Keys();
+        foreach MappingName in MappingList do begin
+            Clear(LocalIdList);
+            Clear(CRMIdList);
+            IntegrationTableMapping.Get(MappingName);
+            if ToCRMMappingList.Contains(MappingName) then begin
+                LocalIdList := LocalIdListDictionary.Get(MappingName);
+                LocalIdCount := LocalIdList.Count();
+                if LocalIdCount > 0 then begin
+                    J := LocalIdCount + 1;
+                    for I := 1 to LocalIdCount do begin
+                        J -= 1;
+                        LocalId := LocalIdList.Get(J);
+                        RecordCounter[NoOf::Total] += 1;
+                        CRMIntegrationRecord.SetCurrentKey("Integration ID");
+                        CRMIntegrationRecord.SetFilter("Integration ID", LocalId);
+                        if CRMIntegrationRecord.FindFirst() then begin
+                            if CRMIntegrationRecord.GetCRMRecordRef(IntegrationTableMapping."Integration Table ID", CRMRecordRef) then begin
+                                RecordCounter[NoOf::Skipped] += 1;
+                                LocalIdList.RemoveAt(J);
+                            end else
+                                if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
+                                    CRMIntegrationRecord.Delete();
+                            CRMRecordRef.Close();
+                        end;
+                    end;
+                end;
+            end;
+            if FromCRMMappingList.Contains(MappingName) then begin
+                CRMIdList := CRMIdListDictionary.Get(MappingName);
+                CRMIdCount := CRMIdList.Count();
+                if CRMIdCount > 0 then begin
+                    J := CRMIdCount + 1;
+                    for I := 1 to CRMIdCount do begin
+                        J -= 1;
+                        CRMID := CRMIdList.Get(J);
+                        RecordCounter[NoOf::Total] += 1;
+                        if CRMIntegrationRecord.FindValidByCRMID(CRMID) then begin
+                            RecordCounter[NoOf::Skipped] += 1;
+                            CRMIdList.RemoveAt(J);
+                        end else
+                            if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
+                                CRMIntegrationRecord.Delete();
+                    end;
+                end;
+            end;
+            EnqueueCreateNewJob(LocalIdList, CRMIdList, RecordCounter, IntegrationTableMapping);
+        end;
+        SendCreateNewNotification(RecordCounter);
+    end;
+
+    local procedure EnqueueCreateNewJob(var LocalIdList: List of [Guid]; CRMIdList: List of [Guid]; var RecordCounter: array[4] of Integer; var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        LocalIdCount: Integer;
+        CRMIdCount: Integer;
+        Direction: Option;
+    begin
+        LocalIdCount := LocalIdList.Count();
+        CRMIdCount := CRMIdList.Count();
+        if (LocalIdCount > 0) or (CRMIdCount > 0) then begin
+            if CRMIdCount = 0 then
+                Direction := IntegrationTableMapping.Direction::ToIntegrationTable
+            else
+                if LocalIdCount = 0 then
+                    Direction := IntegrationTableMapping.Direction::FromIntegrationTable
+                else
+                    Direction := IntegrationTableMapping.Direction;
+            if EnqueueSyncJob(IntegrationTableMapping, LocalIdList, CRMIdList, Direction, false) then
+                RecordCounter[NoOf::Scheduled] += LocalIdCount + CRMIdCount
+            else
+                RecordCounter[NoOf::Failed] += LocalIdCount + CRMIdCount;
+        end;
+    end;
+
+    local procedure SendCreateNewNotification(var RecordCounter: array[4] of Integer)
+    begin
+        if RecordCounter[NoOf::Total] = RecordCounter[NoOf::Skipped] then begin
+            if RecordCounter[NoOf::Total] > 1 then
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, AllRecordsAlreadyCoupledTxt))
+            else
+                SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, RecordAlreadyCoupledTxt));
+            exit;
+        end;
+
+        SendSyncNotification(RecordCounter);
     end;
 
     [Scope('OnPrem')]
     procedure CreateNewRecordsFromSelectedCRMRecords(RecVariant: Variant)
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
-        RecRef: RecordRef;
-        CRMID: Guid;
-        RecordCounter: array[4] of Integer;
-        CRMIdFilter: Text;
-        SkipReason: Text;
     begin
-        RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
-        if RecordCounter[NoOf::Total] = 0 then
-            exit;
-
-        CRMIdFilter := '';
-        repeat
-            GetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecRef);
-            CRMID := RecRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value;
-            if CRMIntegrationRecord.FindValidByCRMID(CRMID) then
-                RecordCounter[NoOf::Skipped] += 1
-            else begin
-                if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
-                    CRMIntegrationRecord.Delete();
-                CRMIdFilter += CRMID + '|';
-                RecordCounter[NoOf::Scheduled] += 1;
-            end;
-        until RecRef.Next() = 0;
-        CRMIdFilter := CRMIdFilter.TrimEnd('|');
-        if CRMIdFilter = '' then begin
-            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
-            SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, SkipReason));
-            exit;
-        end;
-        IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForFilter(IntegrationTableMapping."Integration Table ID", CRMIdFilter));
-        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
-        AddIntegrationTableMapping(IntegrationTableMapping);
-        Commit();
-        CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping);
-        SendSyncNotification(RecordCounter, SkipReason);
+        CreateNewRecordsFromCRM(RecVariant);
     end;
 
     [Obsolete('This method is identical to CreateNewRecordsFromSelectedCRMRecords', '17.0')]
@@ -701,13 +867,68 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [Scope('OnPrem')]
+    procedure MatchBasedCoupling(TableID: Integer): Boolean
+    begin
+        exit(MatchBasedCoupling(TableID, false, false, false));
+    end;
+
+    [Scope('OnPrem')]
+    procedure MatchBasedCoupling(TableID: Integer; SkipSettingCriteria: Boolean; IsFullSync: Boolean; InForeground: Boolean): Boolean
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        ScheduleJob: Boolean;
+    begin
+        if IsCRMTable(TableID) then begin
+            Session.LogMessage('0000EZO', StrSubstNo(NotLocalTableTxt, GetTableCaption(TableID)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit(false);
+        end;
+
+        if GetIntegrationTableMappingForCoupling(IntegrationTableMapping, TableID) then begin
+            if SkipSettingCriteria then
+                ScheduleJob := true;
+
+            if not ScheduleJob then begin
+                IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+                IntegrationFieldMapping.SetRange("Constant Value", '');
+                IntegrationFieldMapping.FindSet();
+                ScheduleJob := (Page.RunModal(Page::"Match Based Coupling Criteria", IntegrationFieldMapping) = Action::LookupOK);
+            end;
+
+            if not ScheduleJob then
+                exit(false);
+
+            if InForeground then
+                exit(PerformCoupling(IntegrationTableMapping, '', IsFullSync))
+            else
+                exit(ScheduleCoupling(IntegrationTableMapping, '', IsFullSync));
+        end;
+
+        exit(false);
+    end;
+
+    [Scope('OnPrem')]
     procedure RemoveCoupling(var LocalRecordRef: RecordRef)
     begin
         RemoveCoupling(LocalRecordRef, true);
     end;
 
     [Scope('OnPrem')]
+    procedure MatchBasedCoupling(var LocalRecordRef: RecordRef)
+    var
+        CouplingOption: Option None,Background,Foreground;
+    begin
+        MatchBasedCoupling(LocalRecordRef, CouplingOption::Background);
+    end;
+
+    [Scope('OnPrem')]
     procedure RemoveCoupling(LocalTableID: Integer; var LocalIdList: List of [Guid])
+    begin
+        RemoveCoupling(LocalTableID, LocalIdList, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RemoveCoupling(LocalTableID: Integer; var LocalIdList: List of [Guid]; Schedule: Boolean)
     var
         LocalRecordRef: RecordRef;
         LocalIdFilter: Text;
@@ -717,7 +938,7 @@ codeunit 5330 "CRM Integration Management"
         LocalIdFilter := Join(LocalIdList, '|');
         LocalRecordRef.Open(LocalTableId);
         LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).SetFilter(LocalIdFilter);
-        RemoveCoupling(LocalRecordRef);
+        RemoveCoupling(LocalRecordRef, Schedule);
     end;
 
     [Scope('OnPrem')]
@@ -744,19 +965,44 @@ codeunit 5330 "CRM Integration Management"
             RemoveCouplingToRecord(LocalRecordRef);
     end;
 
+    local procedure MatchBasedCoupling(var LocalRecordRef: RecordRef; CouplingOption: Option None,Background,Foreground)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        CoupledToCRMFieldRef: FieldRef;
+    begin
+        if IsCRMTable(LocalRecordRef.Number()) then begin
+            Session.LogMessage('0000EZP', StrSubstNo(NotLocalTableTxt, GetTableCaption(LocalRecordRef.Number())), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        if GetIntegrationTableMappingForCoupling(IntegrationTableMapping, LocalRecordRef.Number()) then begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.SetRange("Constant Value", '');
+            IntegrationFieldMapping.FindSet();
+            if Page.RunModal(Page::"Match Based Coupling Criteria", IntegrationFieldMapping) = Action::LookupOK then
+                if CouplingOption in [CouplingOption::Background, CouplingOption::Foreground] then begin
+                    if FindCoupledToCRMField(LocalRecordRef, CoupledToCRMFieldRef) then
+                        CoupledToCRMFieldRef.SetRange(false);
+                    if CouplingOption = CouplingOption::Background then
+                        ScheduleCoupling(IntegrationTableMapping, GetTableViewForLocalRecords(LocalRecordRef), false)
+                    else
+                        PerformCoupling(IntegrationTableMapping, GetTableViewForLocalRecords(LocalRecordRef), false);
+                end;
+        end;
+    end;
+
     internal procedure RemoveCoupling(LocalTableID: Integer; IntegrationTableID: Integer; var IntegrationIdList: List of [Guid]; Schedule: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationIdFilter: Text;
     begin
         if IntegrationIdList.Count() = 0 then
             exit;
         if GetIntegrationTableMappingForUncoupling(IntegrationTableMapping, LocalTableID) then begin
-            IntegrationIdFilter := Join(IntegrationIdList, '|');
             if Schedule then
-                ScheduleUncoupling(IntegrationTableMapping, '', GetTableViewForIntegrationRecords(IntegrationTableID, IntegrationIdFilter))
+                ScheduleUncoupling(IntegrationTableMapping, '', GetTableViewForCRMIDs(IntegrationTableID, IntegrationTableMapping."Integration Table UID Fld. No.", IntegrationIdList))
             else
-                PerformUncoupling(IntegrationTableMapping, '', GetTableViewForIntegrationRecords(IntegrationTableID, IntegrationIdFilter))
+                PerformUncoupling(IntegrationTableMapping, '', GetTableViewForCRMIDs(IntegrationTableID, IntegrationTableMapping."Integration Table UID Fld. No.", IntegrationIdList))
         end else
             RemoveCouplingToRecord(LocalTableID, IntegrationIdList);
     end;
@@ -820,9 +1066,9 @@ codeunit 5330 "CRM Integration Management"
             exit(CRMIntegrationRecord.RemoveCouplingToCRMID(CRMID, TableID));
 
         if Schedule then
-            exit(ScheduleUncoupling(IntegrationTableMapping, '', GetTableViewForGuid(CRMTableID, CRMID)));
+            exit(ScheduleUncoupling(IntegrationTableMapping, '', GetTableViewForGuid(CRMTableID, IntegrationTableMapping."Integration Table UID Fld. No.", CRMID)));
 
-        exit(PerformUncoupling(IntegrationTableMapping, '', GetTableViewForGuid(CRMTableID, CRMID)));
+        exit(PerformUncoupling(IntegrationTableMapping, '', GetTableViewForGuid(CRMTableID, IntegrationTableMapping."Integration Table UID Fld. No.", CRMID)));
     end;
 
     local procedure ScheduleUncoupling(var IntegrationTableMapping: Record "Integration Table Mapping"; LocalTableFilter: Text; IntegrationTableFilter: Text): Boolean
@@ -840,15 +1086,43 @@ codeunit 5330 "CRM Integration Management"
         exit(Scheduled);
     end;
 
+    local procedure ScheduleCoupling(var IntegrationTableMapping: Record "Integration Table Mapping"; LocalTableFilter: Text; IsFullSync: Boolean): Boolean
+    var
+        RecordCounter: array[4] of Integer;
+        Scheduled: Boolean;
+    begin
+        IntegrationTableMapping.Find();
+        RecordCounter[NoOf::Total] := 1;
+        Scheduled := EnqueueCouplingJob(IntegrationTableMapping, LocalTableFilter, IsFullSync);
+        if Scheduled then
+            RecordCounter[NoOf::Scheduled] += 1
+        else
+            RecordCounter[NoOf::Failed] += 1;
+        SendCouplingNotification(RecordCounter);
+        exit(Scheduled);
+    end;
+
+    local procedure PerformCoupling(IntegrationTableMapping: Record "Integration Table Mapping"; LocalTableFilter: Text; IsFullSync: Boolean): Boolean
+    var
+        CDSIntTableCouple: Codeunit "CDS Int. Table Couple";
+    begin
+        IntegrationTableMapping.Find();
+        if LocalTableFilter <> '' then
+            IntegrationTableMapping.SetTableFilter(LocalTableFilter)
+        else
+            IntegrationTableMapping.CalcFields("Table Filter");
+        IntegrationTableMapping.CalcFields("Integration Table Filter");
+        IntegrationTableMapping."Full Sync is Running" := IsFullSync;
+        AddIntegrationTableMapping(IntegrationTableMapping, true);
+        CDSIntTableCouple.PerformScheduledCoupling(IntegrationTableMapping);
+        IntegrationTableMapping.Delete(true);
+    end;
+
     local procedure PerformUncoupling(IntegrationTableMapping: Record "Integration Table Mapping"; LocalTableFilter: Text; IntegrationTableFilter: Text): Boolean
     var
-        IntRecUncoupleInvoke: Codeunit "Int. Rec. Uncouple Invoke";
         LocalRecordRef: RecordRef;
         IntegrationRecordRef: RecordRef;
-        SynchAction: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple;
-        LocalRecordModified: Boolean;
-        IntegrationRecordModified: Boolean;
-        JobId: Guid;
+        CountFailed: Integer;
     begin
         AddIntegrationTableMapping(IntegrationTableMapping);
         IntegrationTableMapping.SetTableFilter(LocalTableFilter);
@@ -856,19 +1130,36 @@ codeunit 5330 "CRM Integration Management"
         if LocalTableFilter <> '' then begin
             LocalRecordRef.Open(IntegrationTableMapping."Table ID");
             LocalRecordRef.SetView(LocalTableFilter);
-            if not LocalRecordRef.FindFirst() then
-                exit(false);
+            if LocalRecordRef.FindSet() then
+                repeat
+                    if not PerformUncoupling(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef) then
+                        CountFailed += 1;
+                until LocalRecordRef.Next() = 0
         end else begin
             IntegrationRecordRef.Open(IntegrationTableMapping."Integration Table ID");
             IntegrationRecordRef.SetView(IntegrationTableFilter);
-            if not IntegrationRecordRef.FindFirst() then
-                exit(false);
+            if IntegrationRecordRef.FindSet() then
+                repeat
+                    if not PerformUncoupling(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef) then
+                        CountFailed += 1;
+                until IntegrationRecordRef.Next() = 0;
         end;
+        IntegrationTableMapping.Delete(true);
+        exit(CountFailed = 0);
+    end;
+
+    local procedure PerformUncoupling(IntegrationTableMapping: Record "Integration Table Mapping"; LocalRecordRef: RecordRef; IntegrationRecordRef: RecordRef): Boolean
+    var
+        IntRecUncoupleInvoke: Codeunit "Int. Rec. Uncouple Invoke";
+        SynchAction: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple,Couple;
+        LocalRecordModified: Boolean;
+        IntegrationRecordModified: Boolean;
+        JobId: Guid;
+    begin
         SynchAction := SynchAction::Uncouple;
         IntRecUncoupleInvoke.SetContext(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified, JobId, TableConnectionType::CRM);
         IntRecUncoupleInvoke.Run();
         IntRecUncoupleInvoke.GetContext(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified);
-        IntegrationTableMapping.Delete(true);
         exit(SynchAction <> SynchAction::Fail);
     end;
 
@@ -884,6 +1175,14 @@ codeunit 5330 "CRM Integration Management"
     local procedure GetIntegrationTableMappingForUncoupling(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer): Boolean
     begin
         IntegrationTableMapping.SetRange("Uncouple Codeunit ID", Codeunit::"CDS Int. Table Uncouple");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetRange("Table ID", TableID);
+        exit(IntegrationTableMapping.FindFirst());
+    end;
+
+    local procedure GetIntegrationTableMappingForCoupling(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer): Boolean
+    begin
+        IntegrationTableMapping.SetRange("Coupling Codeunit ID", Codeunit::"CDS Int. Table Couple");
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.SetRange("Table ID", TableID);
         exit(IntegrationTableMapping.FindFirst());
@@ -986,10 +1285,25 @@ codeunit 5330 "CRM Integration Management"
     begin
         IntegrationTableMapping.Direction := Direction;
         if Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then
-            IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", CRMID));
+            IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", CRMID));
         if Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::ToIntegrationTable] then
             IntegrationTableMapping.SetTableFilter(GetTableViewForRecordIDAndFlowFilters(IntegrationTableMapping, RecordID));
         AddIntegrationTableMapping(IntegrationTableMapping);
+        Commit();
+        exit(CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping));
+    end;
+
+    [Scope('OnPrem')]
+    procedure EnqueueSyncJob(IntegrationTableMapping: Record "Integration Table Mapping"; SystemIds: List of [Guid]; CRMIDs: List of [Guid]; Direction: Integer; SynchronizeOnlyCoupledRecords: Boolean): Boolean
+    var
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+    begin
+        IntegrationTableMapping.Direction := Direction;
+        if Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then
+            IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForCRMIds(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", CRMIDs));
+        if Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::ToIntegrationTable] then
+            IntegrationTableMapping.SetTableFilter(GetTableViewForSystemIds(IntegrationTableMapping."Table ID", SystemIds));
+        AddIntegrationTableMapping(IntegrationTableMapping, SynchronizeOnlyCoupledRecords);
         Commit();
         exit(CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping));
     end;
@@ -1005,16 +1319,42 @@ codeunit 5330 "CRM Integration Management"
         exit(CDSSetupDefaults.CreateUncoupleJobQueueEntry(IntegrationTableMapping));
     end;
 
+    local procedure EnqueueCouplingJob(IntegrationTableMapping: Record "Integration Table Mapping"; LocalTableFilter: Text; IsFullSync: Boolean): Boolean
+    var
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        if LocalTableFilter <> '' then
+            IntegrationTableMapping.SetTableFilter(LocalTableFilter)
+        else
+            IntegrationTableMapping.CalcFields("Table Filter");
+        IntegrationTableMapping.CalcFields("Integration Table Filter");
+        IntegrationTableMapping."Full Sync is Running" := IsFullSync;
+        AddIntegrationTableMapping(IntegrationTableMapping, true);
+
+        Commit();
+        exit(CDSSetupDefaults.CreateCoupleJobQueueEntry(IntegrationTableMapping));
+    end;
+
     [Scope('OnPrem')]
     procedure AddIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping")
+    begin
+        AddIntegrationTableMapping(IntegrationTableMapping, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure AddIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; SynchOnlyCoupledRecords: Boolean)
     var
+        SourceIntegrationTableMapping: Record "Integration Table Mapping";
         SourceMappingName: Code[20];
     begin
-        SourceMappingName := IntegrationTableMapping.Name;
+        SourceMappingName := IntegrationTableMapping.GetName();
         IntegrationTableMapping.Name := CopyStr(DelChr(Format(CreateGuid), '=', '{}-'), 1, MaxStrLen(IntegrationTableMapping.Name));
-        IntegrationTableMapping."Synch. Only Coupled Records" := false;
+        IntegrationTableMapping."Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
         IntegrationTableMapping."Delete After Synchronization" := true;
         IntegrationTableMapping."Parent Name" := SourceMappingName;
+        SourceIntegrationTableMapping.Get(IntegrationTableMapping."Parent Name");
+        IntegrationTableMapping."Update-Conflict Resolution" := SourceIntegrationTableMapping."Update-Conflict Resolution";
+        IntegrationTableMapping."Deletion-Conflict Resolution" := SourceIntegrationTableMapping."Deletion-Conflict Resolution";
         Clear(IntegrationTableMapping."Synch. Modified On Filter");
         Clear(IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.");
         Clear(IntegrationTableMapping."Last Full Sync Start DateTime");
@@ -1038,30 +1378,42 @@ codeunit 5330 "CRM Integration Management"
             until IntegrationFieldMapping.Next() = 0;
     end;
 
-    local procedure GetTableViewForGuid(TableNo: Integer; CRMId: Guid) View: Text
+    local procedure GetTableViewForGuid(TableNo: Integer; IdFiledNo: Integer; CRMId: Guid) View: Text
     var
-        FieldRef: FieldRef;
-        KeyRef: KeyRef;
         RecordRef: RecordRef;
+        FieldRef: FieldRef;
     begin
         RecordRef.Open(TableNo);
-        KeyRef := RecordRef.KeyIndex(1); // Primary Key
-        FieldRef := KeyRef.FieldIndex(1);
+        FieldRef := RecordRef.Field(IdFiledNo);
         FieldRef.SetRange(CRMId);
-        View := RecordRef.GetView;
-        RecordRef.Close;
+        View := RecordRef.GetView();
+        RecordRef.Close();
     end;
 
-    local procedure GetTableViewForFilter(TableNo: Integer; FilterText: Text) View: Text
+    local procedure GetTableViewForCRMIDs(TableNo: Integer; IdFiledNo: Integer; CRMIds: List of [Guid]) View: Text
     var
-        FieldRef: FieldRef;
-        KeyRef: KeyRef;
         RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        CRMIdFilter: Text;
     begin
+        CRMIdFilter := Join(CRMIds, '|');
         RecordRef.Open(TableNo);
-        KeyRef := RecordRef.KeyIndex(1); // Primary Key
-        FieldRef := KeyRef.FieldIndex(1);
-        FieldRef.SetFilter(FilterText);
+        FieldRef := RecordRef.Field(IdFiledNo);
+        FieldRef.SetFilter(CRMIdFilter);
+        View := RecordRef.GetView();
+        RecordRef.Close();
+    end;
+
+    local procedure GetTableViewForSystemIds(TableNo: Integer; SystemIds: List of [Guid]) View: Text
+    var
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        SystemIdFilter: Text;
+    begin
+        SystemIdFilter := Join(SystemIds, '|');
+        RecordRef.Open(TableNo);
+        FieldRef := RecordRef.Field(RecordRef.SystemIdNo());
+        FieldRef.SetFilter(SystemIdFilter);
         View := RecordRef.GetView();
         RecordRef.Close();
     end;
@@ -1070,24 +1422,18 @@ codeunit 5330 "CRM Integration Management"
     var
         RecordRef: RecordRef;
         FieldRef: FieldRef;
-        KeyRef: KeyRef;
-        I: Integer;
     begin
-        RecordRef := RecordID.GetRecord;
-        KeyRef := RecordRef.KeyIndex(1); // Primary Key
-        for I := 1 to KeyRef.FieldCount do begin
-            FieldRef := KeyRef.FieldIndex(I);
-            FieldRef.SetRange(FieldRef.Value);
-        end;
-        View := RecordRef.GetView;
-        RecordRef.Close;
+        RecordRef.Get(RecordID);
+        FieldRef := RecordRef.Field(RecordRef.SystemIdNo());
+        FieldRef.SetRange(FieldRef.Value());
+        View := RecordRef.GetView();
+        RecordRef.Close();
     end;
 
     local procedure GetTableViewForRecordIDAndFlowFilters(IntegrationTableMapping: Record "Integration Table Mapping"; RecordID: RecordID) View: Text
     var
         RecordRef: RecordRef;
         FieldRef: FieldRef;
-        KeyRef: KeyRef;
         I: Integer;
         Pos: Integer;
         StartPos: Integer;
@@ -1095,12 +1441,10 @@ codeunit 5330 "CRM Integration Management"
         MappingTableFilter: Text;
         CurrentFieldFilter: Text;
     begin
-        RecordRef := RecordID.GetRecord();
-        KeyRef := RecordRef.KeyIndex(1); // Primary Key
-        for I := 1 to KeyRef.FieldCount() do begin
-            FieldRef := KeyRef.FieldIndex(I);
-            FieldRef.SetRange(FieldRef.Value);
-        end;
+        RecordRef.Get(RecordID);
+        FieldRef := RecordRef.Field(RecordRef.SystemIdNo());
+        FieldRef.SetRange(FieldRef.Value());
+
         MappingTableFilter := IntegrationTableMapping.GetTableFilter();
         for I := 1 to RecordRef.FieldCount() do begin
             FieldRef := RecordRef.FieldIndex(I);
@@ -1145,23 +1489,6 @@ codeunit 5330 "CRM Integration Management"
         RecordRef.Open(TableNo);
         FieldRef := RecordRef.Field(IdFieldNo);
         FieldRef.SetFilter(FilterText);
-        View := RecordRef.GetView();
-        RecordRef.Close();
-    end;
-
-    local procedure GetTableViewForIntegrationRecords(TableNo: Integer; IdFieldFilter: Text) View: Text
-    var
-        RecordRef: RecordRef;
-        FieldRef: FieldRef;
-        IdFieldNo: Integer;
-    begin
-        if IdFieldFilter = '' then
-            exit;
-
-        RecordRef.Open(TableNo);
-        IdFieldNo := RecordRef.KeyIndex(1).FieldIndex(1).Number();
-        FieldRef := RecordRef.Field(IdFieldNo);
-        FieldRef.SetFilter(IdFieldFilter);
         View := RecordRef.GetView();
         RecordRef.Close();
     end;
@@ -1274,7 +1601,7 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure SynchFromIntegrationTable(IntegrationTableMapping: Record "Integration Table Mapping"; CRMID: Guid)
     begin
-        IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", CRMID));
+        IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", CRMID));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         AddIntegrationTableMapping(IntegrationTableMapping);
         Commit();
@@ -1547,12 +1874,20 @@ codeunit 5330 "CRM Integration Management"
                         CDSSetupDefaults.ResetShippingAgentMapping(IntegrationTableMapping.Name);
                     Database::"Unit of Measure":
                         CRMSetupDefaults.ResetUnitOfMeasureUoMScheduleMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
+                    Database::"Unit Group":
+                        ;//CRMSetupDefaults.ResetUnitGroupUoMScheduleMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
+                    Database::"Item Unit of Measure":
+                        ;//CRMSetupDefaults.ResetItemUnitOfMeasureUoMMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
+                    Database::"Resource Unit of Measure":
+                        ;//CRMSetupDefaults.ResetResourceUnitOfMeasureUoMMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
                     Database::Item:
                         CRMSetupDefaults.ResetItemProductMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
                     Database::Resource:
                         CRMSetupDefaults.ResetResourceProductMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
+#if not CLEAN19
                     Database::"Customer Price Group":
                         CRMSetupDefaults.ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMapping.Name, EnqueueJobQueEntries);
+#endif
                     Database::"Sales Invoice Header":
                         CRMSetupDefaults.ResetSalesInvoiceHeaderInvoiceMapping(IntegrationTableMapping.Name, IsTeamOwnershipModel, EnqueueJobQueEntries);
                     Database::"Sales Invoice Line":
@@ -2245,6 +2580,49 @@ codeunit 5330 "CRM Integration Management"
           TenantWebService."Object Type"::Page, PAGE::"Product Item Availability", GetProductItemAvailabilityServiceName, true);
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure OnInitializingNotificationWithDefaultState();
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(GetCommonNotificationID(), CommonNotificationNameTxt, CommonNotificationDescriptionTxt, true);
+        MyNotifications.InsertDefault(GetSkippedNotificationID(), SkippedRecordsNotificationNameTxt, SkippedRecordsNotificationDescriptionTxt, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure DisableNotification(HostNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+        NotificationId: Text;
+    begin
+        NotificationId := HostNotification.GetData('NotificationId');
+        if not MyNotifications.Disable(NotificationId) then
+            MyNotifications.InsertDefault(NotificationId, GetNotificationName(NotificationId), GetNotificationDescription(NotificationId), false);
+        Session.LogMessage('0000F0J', StrSubstNo(UserDisabledNotificationTxt, GetNotificationName(NotificationId)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    local procedure GetNotificationName(NotificationId: Guid): Text[128];
+    begin
+        case NotificationId of
+            GetCommonNotificationID():
+                exit(CommonNotificationNameTxt);
+            GetSkippedNotificationID():
+                exit(SkippedRecordsNotificationNameTxt);
+        end;
+        exit('');
+    end;
+
+    local procedure GetNotificationDescription(NotificationId: Guid): Text;
+    begin
+        case NotificationId of
+            GetCommonNotificationID():
+                exit(CommonNotificationDescriptionTxt);
+            GetSkippedNotificationID():
+                exit(SkippedRecordsNotificationDescriptionTxt);
+        end;
+        exit('');
+    end;
+
     local procedure GetIntegrationAdminRoleID(): Text
     begin
         exit('8c8d4f51-a72b-e511-80d9-3863bb349780');
@@ -2338,15 +2716,21 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure SendSkippedSyncNotification(IntegrationID: Guid): Boolean
     var
+        MyNotifications: Record "My Notifications";
         SyncNotification: Notification;
     begin
-        SyncNotification.Id := GetSkippedNotificationID;
-        SyncNotification.Recall;
+        if not MyNotifications.IsEnabled(GetSkippedNotificationID()) then
+            exit;
+
+        SyncNotification.Id := GetSkippedNotificationID();
+        SyncNotification.Recall();
         SyncNotification.Message(SyncSkippedMsg);
         SyncNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         SyncNotification.SetData('IntegrationID', IntegrationID);
+        SyncNotification.SetData('NotificationId', GetSkippedNotificationID());
         SyncNotification.AddAction(DetailsTxt, CODEUNIT::"CRM Integration Management", 'ShowSkippedRecords');
-        SyncNotification.Send;
+        SyncNotification.AddAction(DisableNotificationTxt, Codeunit::"CRM Integration Management", 'DisableNotification');
+        SyncNotification.Send();
         exit(true);
     end;
 
@@ -2370,19 +2754,11 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure SendSyncNotification(RecordCounter: array[4] of Integer): Boolean
     begin
-        exit(SendSyncNotification(RecordCounter, ''));
-    end;
-
-    local procedure SendSyncNotification(RecordCounter: array[4] of Integer; SkipReason: Text): Boolean
-    begin
         if RecordCounter[NoOf::Total] = 1 then begin
             if RecordCounter[NoOf::Scheduled] = 1 then
                 exit(SendNotification(SyncNowScheduledMsg));
             if RecordCounter[NoOf::Skipped] = 1 then
-                if SkipReason = '' then
-                    exit(SendNotification(SyncNowSkippedMsg))
-                else
-                    exit(SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, SkipReason)));
+                exit(SendNotification(SyncNowSkippedMsg));
             exit(SendNotification(SyncNowFailedMsg));
         end;
         exit(SendMultipleSyncNotification(RecordCounter));
@@ -2410,6 +2786,18 @@ codeunit 5330 "CRM Integration Management"
         exit(SendMultipleUncoupleNotification(RecordCounter));
     end;
 
+    local procedure SendCouplingNotification(RecordCounter: array[4] of Integer): Boolean
+    begin
+        if RecordCounter[NoOf::Total] = 1 then begin
+            if RecordCounter[NoOf::Scheduled] = 1 then
+                exit(SendNotification(CouplingScheduledMsg));
+            if RecordCounter[NoOf::Skipped] = 1 then
+                exit(SendNotification(CouplingSkippedMsg));
+            exit(SendNotification(CouplingFailedMsg));
+        end;
+        exit(SendMultipleCouplingNotification(RecordCounter));
+    end;
+
     local procedure SendMultipleUncoupleNotification(RecordCounter: array[4] of Integer): Boolean
     begin
         exit(
@@ -2420,16 +2808,42 @@ codeunit 5330 "CRM Integration Management"
               RecordCounter[NoOf::Skipped], RecordCounter[NoOf::Total])));
     end;
 
+    local procedure SendMultipleCouplingNotification(RecordCounter: array[4] of Integer): Boolean
+    begin
+        exit(
+          SendNotification(
+            StrSubstNo(
+              CouplingMultipleMsg,
+              RecordCounter[NoOf::Scheduled], RecordCounter[NoOf::Failed],
+              RecordCounter[NoOf::Skipped], RecordCounter[NoOf::Total])));
+    end;
+
     local procedure SendNotification(Msg: Text): Boolean
     var
+        MyNotifications: Record "My Notifications";
         SyncNotification: Notification;
     begin
-        SyncNotification.Id := GetCommonNotificationID;
-        SyncNotification.Recall;
+        if not MyNotifications.IsEnabled(GetCommonNotificationID()) then
+            exit;
+
+        SyncNotification.Id := GetCommonNotificationID();
+        SyncNotification.Recall();
         SyncNotification.Message(Msg);
         SyncNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
-        SyncNotification.Send;
+        SyncNotification.AddAction(DetailsTxt, Codeunit::"CRM Integration Management", 'OpenIntegrationSynchronizationJobsFromNotification');
+        SyncNotification.SetData('NotificationId', GetCommonNotificationID());
+        SyncNotification.AddAction(DisableNotificationTxt, Codeunit::"CRM Integration Management", 'DisableNotification');
+        SyncNotification.Send();
         exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure OpenIntegrationSynchronizationJobsFromNotification(HostNotification: Notification)
+    var
+        IntegrationSynchJobList: Page "Integration Synch. Job List";
+    begin
+        IntegrationSynchJobList.Run();
+        Session.LogMessage('0000F0K', UserOpenedIntegrationSynchJobListViaNotificationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     procedure ShowLog(RecId: RecordID)
@@ -2698,16 +3112,40 @@ codeunit 5330 "CRM Integration Management"
 
     [EventSubscriber(ObjectType::Table, Database::"Integration Synch. Job Errors", 'OnForceSynchronizeDataIntegration', '', false, false)]
     local procedure ForceSynchronizeDataIntegration(LocalRecordID: RecordID; var SynchronizeHandled: Boolean)
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        if not CRMConnectionSetup.IsEnabled then
-            exit;
-
         if SynchronizeHandled then
             exit;
 
+        if not (IsCDSIntegrationEnabled() or IsCRMIntegrationEnabled()) then
+            exit;
+
         UpdateOneNow(LocalRecordID);
+        SynchronizeHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Integration Synch. Job Errors", 'OnForceSynchronizeRecords', '', false, false)]
+    local procedure ForceSynchronizeRecords(var LocalRecordIdList: List of [RecordId]; var SynchronizeHandled: Boolean)
+    var
+        SelectedCRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        LocalRecordId: RecordId;
+    begin
+        if SynchronizeHandled then
+            exit;
+
+        if not (IsCDSIntegrationEnabled() or IsCRMIntegrationEnabled()) then
+            exit;
+
+        foreach LocalRecordId in LocalRecordIdList do
+            if CRMIntegrationRecord.FindByRecordID(LocalRecordId) then begin
+                SelectedCRMIntegrationRecord."CRM ID" := CRMIntegrationRecord."CRM ID";
+                SelectedCRMIntegrationRecord."Integration ID" := CRMIntegrationRecord."Integration ID";
+                if SelectedCRMIntegrationRecord.Find() then
+                    SelectedCRMIntegrationRecord.Mark(true);
+            end;
+
+        SelectedCRMIntegrationRecord.MarkedOnly(true);
+        UpdateMultipleNow(SelectedCRMIntegrationRecord);
         SynchronizeHandled := true;
     end;
 
@@ -2722,9 +3160,8 @@ codeunit 5330 "CRM Integration Management"
     begin
         NavApp.GetCurrentModuleInfo(Info);
         if not GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, PAGE::"CRM Connection Setup Wizard") then begin
-            GuidedExperience.InsertAssistedSetup(StrSubstNo(CRMConnectionSetupTitleTxt, CRMProductName.SHORT),
-                StrSubstNo(CRMConnectionSetupShortTitleTxt, CRMProductName.SHORT), CRMConnectionSetupDescriptionTxt,
-                10, ObjectType::Page, PAGE::"CRM Connection Setup Wizard", AssistedSetupGroup::Customize, VideoUrlSetupCRMConnectionTxt, VideoCategory::Customize, '');
+            GuidedExperience.InsertAssistedSetup(StrSubstNo(CRMConnectionSetupTxt, CRMProductName.SHORT), CopyStr(StrSubstNo(CRMConnectionSetupTxt, CRMProductName.SHORT), 1, 50), '',
+                0, ObjectType::Page, PAGE::"CRM Connection Setup Wizard", AssistedSetupGroup::Customize, VideoUrlSetupCRMConnectionTxt, VideoCategory::Customize, '');
         end;
     end;
 
@@ -2853,6 +3290,92 @@ codeunit 5330 "CRM Integration Management"
         if not TaskScheduler.CanCreateTask() then
             exit(false);
         exit(true);
+    end;
+
+    procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean): Boolean
+    var
+        RecRef: RecordRef;
+        CoupledToCRMFieldRef: FieldRef;
+        ExistingValue: Boolean;
+    begin
+        if CRMIntegrationRecord."Table ID" = 0 then
+            exit(false);
+
+        RecRef.Open(CRMIntegrationRecord."Table ID");
+        if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+            exit(false);
+
+        if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then
+            exit(false);
+
+        ExistingValue := CoupledToCRMFieldRef.Value;
+        if ExistingValue = NewValue then
+            exit(false);
+
+        CoupledToCRMFieldRef.Value := NewValue;
+        exit(RecRef.Modify());
+    end;
+
+    internal procedure FindCoupledToCRMField(var RecRef: RecordRef; var CoupledToCRMFldRef: FieldRef): Boolean
+    var
+        Field: Record "Field";
+        Customer: Record Customer;
+        TableNo: Integer;
+        FieldNo: Integer;
+    begin
+        TableNo := RecRef.Number();
+        if CachedCoupledToCRMFieldNo.ContainsKey(TableNo) then
+            FieldNo := CachedCoupledToCRMFieldNo.Get(TableNo)
+        else begin
+            Field.SetRange(TableNo, TableNo);
+            Field.SetRange(Type, Field.Type::Boolean);
+            Field.SetRange(FieldName, Customer.FieldName("Coupled to CRM"));
+            if Field.FindFirst() then
+                FieldNo := Field."No."
+            else
+                FieldNo := 0;
+            CachedCoupledToCRMFieldNo.Add(TableNo, FieldNo);
+        end;
+        if FieldNo = 0 then
+            exit(false);
+        CoupledToCRMFldRef := RecRef.Field(FieldNo);
+        exit(true);
+    end;
+
+    procedure IsUnitGroupMappingEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
+    begin
+        FeatureEnabled := FeatureManagementFacade.IsEnabled(UnitGroupMappingFeatureIdTok);
+        OnIsUnitGroupMappingEnabled(FeatureEnabled);
+    end;
+
+    procedure GetFeatureKey(): Text[50]
+    begin
+        exit(UnitGroupMappingFeatureIdTok);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsUnitGroupMappingEnabled(var FeatureEnabled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Integration Record", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure SetCoupledFlagOnBeforeInsert(var Rec: Record "CRM Integration Record"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        SetCoupledFlag(Rec, true);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"CRM Integration Record", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure SetCoupledFlagOnAfterDelete(var Rec: Record "CRM Integration Record"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        SetCoupledFlag(Rec, false);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -320,7 +320,7 @@
                 TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled);
+                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcReceiptDate();
 
@@ -338,7 +338,7 @@
                 TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled);
+                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcShipmentDate();
 
@@ -666,7 +666,11 @@
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -864,7 +868,7 @@
         TransLine: Record "Transfer Line";
         IsHandled: Boolean;
     begin
-        OnBeforeDeleteTransferLines(IsHandled);
+        OnBeforeDeleteTransferLines(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1188,6 +1192,7 @@
             until TransLine.Next() = 0;
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure IsIntrastatTransaction() IsIntrastat: Boolean
@@ -1210,6 +1215,7 @@
         exit(false);
     end;
 
+#endif
     local procedure VerifyShippedLineDimChange(var ShippedLineDimChangeConfirmed: Boolean)
     begin
         if TransLine.IsShippedDimChanged then
@@ -1366,6 +1372,7 @@
         OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry, Rec);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure ShipOrReceiveInventoriableTypeItems(): Boolean
     var
@@ -1383,6 +1390,7 @@
             until TransferLine.Next() = 0;
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnUpdateTransLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; FieldID: Integer)
     begin
@@ -1490,7 +1498,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean)
+    local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1550,12 +1558,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
+    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
+    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 

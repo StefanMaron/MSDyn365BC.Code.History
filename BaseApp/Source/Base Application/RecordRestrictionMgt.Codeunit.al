@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1550 "Record Restriction Mgt."
 {
     Permissions = TableData "Restricted Record" = rimd;
@@ -337,6 +338,7 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Payment Order Header", 'OnCheckPaymentOrderIssueRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure PaymentOrderHeaderCheckPaymentOrderIssueRestrictions(var Sender: Record "Payment Order Header")
@@ -345,6 +347,7 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnCheckCashDocPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
@@ -363,6 +366,8 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnCheckCreditPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
@@ -390,6 +395,8 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnCheckSalesAdvanceLetterPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure SalesAdvanceLetterHeaderCheckSalesAdvanceLetterPostRestrictions(var Sender: Record "Sales Advance Letter Header")
@@ -398,6 +405,7 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnCheckSalesAdvanceLetterReleaseRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure SalesAdvanceLetterHeaderCheckSalesAdvanceLetterReleaseRestrictions(var Sender: Record "Sales Advance Letter Header")
@@ -406,6 +414,7 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnCheckPurchaseAdvanceLetterPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure PurchAdvanceLetterHeaderCheckPurchaseAdvanceLetterPostRestrictions(var Sender: Record "Purch. Advance Letter Header")
@@ -414,6 +423,7 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnCheckPurchaseAdvanceLetterReleaseRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure PurchAdvanceLetterHeaderCheckPurchaseAdvanceLetterReleaseRestrictions(var Sender: Record "Purch. Advance Letter Header")
@@ -464,6 +474,7 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Payment Order Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemovePaymentOrderHeaderRestrictionsBeforeDelete(var Rec: Record "Payment Order Header"; RunTrigger: Boolean)
     begin
@@ -471,6 +482,7 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemoveCashDocHeaderRestrictionsBeforeDelete(var Rec: Record "Cash Document Header"; RunTrigger: Boolean)
@@ -479,6 +491,8 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemoveCreditHeaderRestrictionsBeforeDelete(var Rec: Record "Credit Header"; RunTrigger: Boolean)
@@ -487,6 +501,8 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemoveSalesAdvanceLetterHeaderRestrictionsBeforeDelete(var Rec: Record "Sales Advance Letter Header"; RunTrigger: Boolean)
     begin
@@ -494,6 +510,7 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure RemovePurchAdvanceLetterHeaderRestrictionsBeforeDelete(var Rec: Record "Purch. Advance Letter Header"; RunTrigger: Boolean)
     begin
@@ -548,6 +565,7 @@ codeunit 1550 "Record Restriction Mgt."
     begin
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Payment Order Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdatePaymentOrderHeaderRestrictionsAfterRename(var Rec: Record "Payment Order Header"; var xRec: Record "Payment Order Header"; RunTrigger: Boolean)
     begin
@@ -555,6 +573,7 @@ codeunit 1550 "Record Restriction Mgt."
         UpdateRestriction(Rec, xRec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateCashDocHeaderRestrictionsAfterRename(var Rec: Record "Cash Document Header"; var xRec: Record "Cash Document Header"; RunTrigger: Boolean)
@@ -563,6 +582,8 @@ codeunit 1550 "Record Restriction Mgt."
         UpdateRestriction(Rec, xRec);
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     [EventSubscriber(ObjectType::Table, Database::"Credit Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateCreditHeaderRestrictionsAfterRename(var Rec: Record "Credit Header"; var xRec: Record "Credit Header"; RunTrigger: Boolean)
@@ -570,7 +591,9 @@ codeunit 1550 "Record Restriction Mgt."
         // NAVCZ
         UpdateRestriction(Rec, xRec);
     end;
+#endif
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Sales Advance Letter Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateSalesAdvanceLetterHeaderRestrictionsAfterRename(var Rec: Record "Sales Advance Letter Header"; var xRec: Record "Sales Advance Letter Header"; RunTrigger: Boolean)
     begin
@@ -578,6 +601,7 @@ codeunit 1550 "Record Restriction Mgt."
         UpdateRestriction(Rec, xRec);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [EventSubscriber(ObjectType::Table, Database::"Purch. Advance Letter Header", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdatePurchAdvanceLetterHeaderRestrictionsAfterRename(var Rec: Record "Purch. Advance Letter Header"; var xRec: Record "Purch. Advance Letter Header"; RunTrigger: Boolean)
     begin
@@ -586,3 +610,4 @@ codeunit 1550 "Record Restriction Mgt."
     end;
 }
 
+#endif

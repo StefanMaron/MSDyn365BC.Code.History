@@ -60,7 +60,11 @@ table 980 "Payment Registration Setup"
             Caption = 'Bal. Account No.';
             TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
             ELSE
+#if CLEAN17
+            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account";
+#else
             IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(6; "Use this Account as Def."; Boolean)
         {

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11741 "Cash Desk Events"
 {
     Caption = 'Cash Desk Events (Obsolete)';
@@ -74,4 +75,4 @@ page 11741 "Cash Desk Events"
     {
     }
 }
-
+#endif

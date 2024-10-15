@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31054 "Credit Proposal"
 {
     Caption = 'Credit Proposal (Obsolete)';
@@ -192,12 +193,16 @@ page 31054 "Credit Proposal"
         RecFilter: Text;
     begin
         GetSetup;
+#if CLEAN17
+        CreditsSetup.TestField("Credit Proposal By", CreditsSetup."Credit Proposal By"::"Bussiness Relation");
+#endif
         case SourceType of
             SourceType::Customer:
                 begin
                     Cust.Get(SourceNo);
                     Clear(RecFilter);
                     case CreditsSetup."Credit Proposal By" of
+#if not CLEAN17
                         CreditsSetup."Credit Proposal By"::"Registration No.":
                             if Cust."Registration No." <> '' then begin
                                 Vend.SetRange("Registration No.", Cust."Registration No.");
@@ -210,6 +215,7 @@ page 31054 "Credit Proposal"
                                     until Vend.Next() = 0;
                                 end;
                             end;
+#endif
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
                             begin
                                 ContactBusRelation.SetCurrentKey("Link to Table", "No.");
@@ -235,6 +241,7 @@ page 31054 "Credit Proposal"
                     Vend.Get(SourceNo);
                     Clear(RecFilter);
                     case CreditsSetup."Credit Proposal By" of
+#if not CLEAN17
                         CreditsSetup."Credit Proposal By"::"Registration No.":
                             if Vend."Registration No." <> '' then begin
                                 Cust.SetRange("Registration No.", Vend."Registration No.");
@@ -247,6 +254,7 @@ page 31054 "Credit Proposal"
                                     until Cust.Next() = 0;
                                 end;
                             end;
+#endif
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
                             begin
                                 ContactBusRelation.SetCurrentKey("Link to Table", "No.");
@@ -360,4 +368,4 @@ page 31054 "Credit Proposal"
         CurrPage.VendLedgEntries.PAGE.GetEntries(VendLedgEntry);
     end;
 }
-
+#endif

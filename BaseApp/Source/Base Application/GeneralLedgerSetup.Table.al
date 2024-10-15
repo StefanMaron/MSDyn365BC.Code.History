@@ -1,6 +1,7 @@
 ﻿table 98 "General Ledger Setup"
 {
     Caption = 'General Ledger Setup';
+#if not CLEAN19
     Permissions = TableData "G/L Entry" = m,
                   TableData "Cust. Ledger Entry" = m,
                   TableData "Vendor Ledger Entry" = m,
@@ -8,8 +9,13 @@
                   TableData "Sales Cr.Memo Header" = m,
                   TableData "Purch. Inv. Header" = m,
                   TableData "Purch. Cr. Memo Hdr." = m,
+#if CLEAN17
+                  TableData "VAT Entry" = m;
+#else
                   TableData "VAT Entry" = m,
                   TableData "Posted Cash Document Header" = m;
+#endif
+#endif
 
     fields
     {
@@ -587,6 +593,11 @@
             Caption = 'Tax Invoice Renaming Threshold';
             DataClassification = SystemMetadata;
         }
+        field(130; "Req.Country/Reg. Code in Addr."; Boolean)
+        {
+            Caption = 'Require Country/Region Code in Address';
+            DataClassification = SystemMetadata;
+        }
         field(150; "Print VAT specification in LCY"; Boolean)
         {
             Caption = 'Print VAT specification in LCY';
@@ -660,6 +671,10 @@
             OptionCaption = 'Amount Only,Debit/Credit Only,All Amounts';
             OptionMembers = "Amount Only","Debit/Credit Only","All Amounts";
         }
+        field(169; "Posting Preview Type"; Enum "Posting Preview Type")
+        {
+            Caption = 'Posting Preview Type';
+        }
         field(170; "SEPA Non-Euro Export"; Boolean)
         {
             Caption = 'SEPA Non-Euro Export';
@@ -672,7 +687,11 @@
         {
             Caption = 'Cash Desk Nos.';
             TableRelation = "No. Series";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -681,7 +700,11 @@
             Caption = 'Cash Payment Limit (LCY)';
             DecimalPlaces = 0 : 2;
             MinValue = 0;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -748,33 +771,50 @@
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestField("Use VAT Date");
             end;
+#endif
         }
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestField("Use VAT Date");
             end;
+#endif
         }
         field(11770; "Use VAT Date"; Boolean)
         {
             Caption = 'Use VAT Date';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -814,6 +854,7 @@
                         end;
                 end;
             end;
+#endif
         }
         field(11771; "Check VAT Identifier"; Boolean)
         {
@@ -825,14 +866,22 @@
         field(11772; "Check Posting Debit/Credit"; Boolean)
         {
             Caption = 'Check Posting Debit/Credit';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11773; "Mark Neg. Qty as Correction"; Boolean)
         {
             Caption = 'Mark Neg. Qty as Correction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -840,18 +889,33 @@
         {
             Caption = 'Company Officials Nos.';
             TableRelation = "No. Series";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11775; "Correction As Storno"; Boolean)
         {
             Caption = 'Correction As Storno';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11776; "Dont Check Dimension"; Boolean)
         {
             Caption = 'Dont Check Dimension';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -913,10 +977,24 @@
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Prepayments,Advances';
             OptionMembers = " ",Prepayments,Advances;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Use Adv. CM Nos for Adv. Corr."; Boolean)
         {
             Caption = 'Use Adv. CM Nos for Adv. Corr.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31080; "Shared Account Schedule"; Code[10])
         {
@@ -988,8 +1066,10 @@
 #endif
         ErrorMessage: Boolean;
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
+#if not CLEAN17
         DisableVATDateQst: Label 'Are you sure you want to disable VAT Date functionality?';
         InitVATDateQst: Label 'If you check field %1 you will let system post using %2 different from %3. Field %2 will be initialized from field %3 in all tables. It may take some time and you will not be able to undo this change after posting entries. Do you really want to continue?', Comment = '%1 = fieldcaption of Use VAT Date; %2 = fieldcaption of VAT Date; %3 = fieldcaption of Posting Date';
+#endif        
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         RecordHasBeenRead: Boolean;
 
@@ -1191,7 +1271,9 @@
         exit((CurrFieldNo = 0) or not GuiAllowed);
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     procedure InitVATDate()
     begin
         // NAVCZ
@@ -1211,13 +1293,19 @@
         InitVATDateFromRecord(DATABASE::"Service Cr.Memo Header");
         InitVATDateFromRecord(DATABASE::"Cust. Ledger Entry");
         InitVATDateFromRecord(DATABASE::"Vendor Ledger Entry");
+#if not CLEAN17
         InitVATDateFromRecord(DATABASE::"Cash Document Header");
         InitVATDateFromRecord(DATABASE::"Posted Cash Document Header");
+#endif
+#if not CLEAN19
         InitVATDateFromRecord(DATABASE::"Sales Advance Letter Header");
         InitVATDateFromRecord(DATABASE::"Sales Advance Letter Entry");
         InitVATDateFromRecord(DATABASE::"Purch. Advance Letter Header");
         InitVATDateFromRecord(DATABASE::"Purch. Advance Letter Entry");
+#endif
+#if not CLEAN17
         InitVATDateFromRecord(DATABASE::"VAT Control Report Line");
+#endif
     end;
 
     local procedure InitVATDateFromRecord(TableNo: Integer)
@@ -1240,6 +1328,7 @@
             until RecRef.Next() = 0;
     end;
 
+#endif
 #if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Unnecessary encapsulation. Use the Currency."Amount Rounding Precision" and Currency.VATRoundingDirection instead. For local currency use first Currency.InitRoundingPrecision().', '18.0')]
@@ -1261,7 +1350,7 @@
         RoundingPrecision := Currency."Amount Rounding Precision";
         RoundingDirection := Currency.VATRoundingDirection;
     end;
-#endif    
+#endif
 
     procedure UseVat(): Boolean
     var

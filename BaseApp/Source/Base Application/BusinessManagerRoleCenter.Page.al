@@ -2,7 +2,7 @@ page 9022 "Business Manager Role Center"
 {
     // CurrPage."Help And Setup List".ShowFeatured;
 
-    Caption = 'Business Manager', Comment = '{Dependency=Match,"ProfileDescription_SMALLBUSINESS"}';
+    Caption = 'Business Manager';
     PageType = RoleCenter;
 
     layout
@@ -238,10 +238,6 @@ page 9022 "Business Manager Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Balance Sheet";
                         ToolTip = 'View your company''s assets, liabilities, and equity.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
                     }
                     action("Income Statement")
                     {
@@ -253,10 +249,6 @@ page 9022 "Business Manager Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Income Statement";
                         ToolTip = 'View your company''s income and expenses.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
                     }
                     action("Statement of Cash Flows")
                     {
@@ -293,10 +285,16 @@ page 9022 "Business Manager Role Center"
                     }
                 }
             }
+#if not CLEAN19
             group(Setup)
             {
                 Caption = 'Setup';
                 Image = Setup;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Setup is no longer shown in this page.';
+                ObsoleteTag = '19.0';
+
                 action("Company Settings")
                 {
                     ApplicationArea = Basic, Suite;
@@ -304,6 +302,9 @@ page 9022 "Business Manager Role Center"
                     Image = CompanyInformation;
                     RunObject = Page "Company Information";
                     ToolTip = 'Enter the company name, address, and bank information that will be inserted on your business documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Assisted Setup")
                 {
@@ -312,11 +313,18 @@ page 9022 "Business Manager Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 group("Services & Extensions")
                 {
                     Caption = 'Services & Extensions';
                     Image = ServiceSetup;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
+
                     action(Extensions)
                     {
                         ApplicationArea = Basic, Suite;
@@ -324,6 +332,9 @@ page 9022 "Business Manager Role Center"
                         Image = NonStockItemSetup;
                         RunObject = Page "Extension Management";
                         ToolTip = 'Install Extensions for greater functionality of the system.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is no longer shown in this page.';
+                        ObsoleteTag = '19.0';
                     }
                     action("Service Connections")
                     {
@@ -332,9 +343,13 @@ page 9022 "Business Manager Role Center"
                         Image = ServiceTasks;
                         RunObject = Page "Service Connections";
                         ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is no longer shown in this page.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
+#endif
         }
         area(reporting)
         {
@@ -702,6 +717,7 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Posted Purchase Credit Memos";
                     ToolTip = 'Specifies posted purchace credit memos';
                 }
+#if not CLEAN17
                 action("VIES Declarations")
                 {
                     ApplicationArea = Basic, Suite;
@@ -713,6 +729,7 @@ page 9022 "Business Manager Role Center"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 action(CashReceiptJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1115,12 +1132,17 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Direct Debit Collections";
                     ToolTip = 'Specifies direct debit collections';
                 }
+#if not CLEAN19
                 action("Payment Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Orders';
                     RunObject = Page "Payment Order List";
                     ToolTip = 'Specifies payment oreders';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Bank Statements")
                 {
@@ -1128,6 +1150,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Bank Statements';
                     RunObject = Page "Bank Statement List";
                     ToolTip = 'Specifies bank statements';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Issued Payment Orders")
                 {
@@ -1135,6 +1161,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Issued Payment Orders';
                     RunObject = Page "Issued Payment Order List";
                     ToolTip = 'Specifies issued payment orders';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Issued Bank Statements")
                 {
@@ -1142,7 +1172,13 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Issued Bank Statements';
                     RunObject = Page "Issued Bank Statement List";
                     ToolTip = 'Specifies issued payment statements';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
+#if not CLEAN17
                 action("Cash Desks")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1176,6 +1212,7 @@ page 9022 "Business Manager Role Center"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 action("<Page Posted Purchase Receipts>")
                 {
                     ApplicationArea = Suite;
@@ -1197,6 +1234,7 @@ page 9022 "Business Manager Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';

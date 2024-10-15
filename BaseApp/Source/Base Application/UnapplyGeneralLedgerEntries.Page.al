@@ -128,6 +128,7 @@ page 11776 "Unapply General Ledger Entries"
         PostingDate: Date;
         NothingToUnapplyErr: Label 'There is nothing to unapply.';
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetDtldGLEntry(EntryNo: Integer)
     begin
@@ -136,6 +137,7 @@ page 11776 "Unapply General Ledger Entries"
         DocNo := DtldGLEntry."Document No.";
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure InsertEntries()
     var
@@ -153,6 +155,7 @@ page 11776 "Unapply General Ledger Entries"
         GLAccount.Get(DtldGLEntry."G/L Account No.");
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure Caption(): Text
     begin

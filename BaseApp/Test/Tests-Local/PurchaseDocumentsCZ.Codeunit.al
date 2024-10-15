@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145009 "Purchase Documents CZ"
 {
     Subtype = Test;
@@ -21,10 +22,6 @@ codeunit 145009 "Purchase Documents CZ"
         if isInitialized then
             exit;
 
-#if not CLEAN16
-        UpdatePurchaseSetup;
-
-#endif
         isInitialized := true;
         Commit();
     end;
@@ -74,51 +71,6 @@ codeunit 145009 "Purchase Documents CZ"
           GLEntry1.Amount + GLEntry2.Amount = 0, OppositeSignErr);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
-    procedure TransferingDescriptionToGLEntriesForPurchaseOrder()
-    var
-        PurchHdr: Record "Purchase Header";
-    begin
-        TransferingDescriptionToGLEntries(PurchHdr."Document Type"::Order);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
-    procedure TransferingDescriptionToGLEntriesForPurchaseInvoice()
-    var
-        PurchHdr: Record "Purchase Header";
-    begin
-        TransferingDescriptionToGLEntries(PurchHdr."Document Type"::Invoice);
-    end;
-
-    local procedure TransferingDescriptionToGLEntries(DocumentType: Option)
-    var
-        GLEntry: Record "G/L Entry";
-        PurchHdr: Record "Purchase Header";
-        PurchLn: Record "Purchase Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // 1. Setup
-        Initialize;
-
-        CreatePurchaseDocument(PurchHdr, PurchLn, DocumentType);
-
-        // 2. Exercise
-        PostedDocumentNo := PostPurchaseDocument(PurchHdr);
-
-        // 3. Verify
-        GLEntry.Init();
-        GLEntry.SetRange("Document No.", PostedDocumentNo);
-        GLEntry.SetRange("Posting Date", PurchHdr."Posting Date");
-        GLEntry.FindFirst;
-        GLEntry.TestField(Description, PurchLn.Description);
-    end;
-
-#endif
     local procedure CreatePurchaseDocument(var PurchHdr: Record "Purchase Header"; var PurchLn: Record "Purchase Line"; DocumentType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchHdr, DocumentType, LibraryPurchase.CreateVendorNo);
@@ -140,19 +92,5 @@ codeunit 145009 "Purchase Documents CZ"
     begin
         exit(LibraryPurchase.PostPurchaseDocument(PurchHdr, true, true));
     end;
-#if not CLEAN16
-
-    local procedure UpdatePurchaseSetup()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("G/L Entry as Doc. Lines (Acc.)", true);
-        PurchasesPayablesSetup.Validate("G/L Entry as Doc. Lines (Item)", true);
-        PurchasesPayablesSetup.Validate("G/L Entry as Doc. Lines (FA)", true);
-        PurchasesPayablesSetup.Validate("G/L Entry as Doc. Lines (Acc.)", true);
-        PurchasesPayablesSetup.Modify();
-    end;
-#endif
 }
-
+#endif

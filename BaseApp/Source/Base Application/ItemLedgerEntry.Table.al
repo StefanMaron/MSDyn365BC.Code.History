@@ -287,7 +287,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
             ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
@@ -493,7 +497,12 @@ table 32 "Item Ledger Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) Customer
             ELSE
             IF ("Source Type" = CONST(Vendor)) Vendor;
+
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -503,7 +512,11 @@ table 32 "Item Ledger Entry"
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -511,7 +524,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Source Code';
             TableRelation = "Source Code";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -519,7 +536,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -531,7 +552,11 @@ table 32 "Item Ledger Entry"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -562,22 +587,36 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if not CLEAN17
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+#endif            
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -593,7 +632,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -601,7 +644,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -609,7 +656,11 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -619,14 +670,22 @@ table 32 "Item Ledger Entry"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1006,6 +1065,7 @@ table 32 "Item Ledger Entry"
         exit(AdjustedCost);
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsGLCorrection(): Boolean
@@ -1019,6 +1079,7 @@ table 32 "Item Ledger Entry"
             exit(ValueEntry."G/L Correction");
     end;
 
+#endif
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');

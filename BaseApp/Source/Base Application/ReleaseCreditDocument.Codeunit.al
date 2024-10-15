@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31053 "Release Credit Document"
 {
     TableNo = "Credit Header";
@@ -166,3 +167,5 @@ codeunit 31053 "Release Credit Document"
     end;
 }
 
+
+#endif

@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 889 "SmartList Designer Impl"
 {
     Access = Internal;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     [TryFunction]
     procedure DoesUserHaveAPIAccess(UserSID: Guid)
@@ -57,89 +61,8 @@ codeunit 889 "SmartList Designer Impl"
         exit(false); // Disabled until the full experience is shipped (see #372652)
     end;
 
-    local procedure CanHandleSmartListEvents(): Boolean
-    var
-        SmartListDesignerHandlerRec: Record "SmartList Designer Handler";
-        OurAppInfo: ModuleInfo;
-    begin
-        // No handler record exists, we can handle it
-        if not SmartListDesignerHandlerRec.Get() then
-            exit(true);
-
-        // Handler record exists - only allow if it is ours.
-        NAVApp.GetCurrentModuleInfo(OurAppInfo);
-        exit(SmartListDesignerHandlerRec.HandlerExtensionId = OurAppInfo.Id());
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SmartList Designer Subscribers", 'OnBeforeDefaultGetEnabled', '', false, false)]
-    local procedure OnBeforeDefaultGetEnabled(var Handled: Boolean; var Enabled: Boolean)
-    begin
-        if Handled then
-            exit;
-
-        if not CanHandleSmartListEvents() then
-            exit;
-
-        Handled := true;
-        Enabled := IsDesignerEnabled();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SmartList Designer Subscribers", 'OnBeforeDefaultCreateNewForTableAndView', '', false, false)]
-    local procedure OnBeforeDefaultCreateNewForTableAndView(var Handled: Boolean; TableId: Integer; ViewId: Text)
-    begin
-        if Handled then
-            exit;
-
-        if not CanHandleSmartListEvents() then
-            exit;
-
-        if IsDesignerEnabled() then begin
-            Handled := true;
-            RunForTable(TableId, ViewId);
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SmartList Designer Subscribers", 'OnBeforeDefaultOnEditQuery', '', false, false)]
-    local procedure OnBeforeDefaultOnEditQuery(var Handled: Boolean; QueryId: Text)
-    var
-        parsedId: Guid;
-    begin
-        if Handled then
-            exit;
-
-        if not CanHandleSmartListEvents() then
-            exit;
-
-        if IsDesignerEnabled() and EVALUATE(parsedId, QueryId) then begin
-            Handled := true;
-            RunForQuery(parsedId);
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SmartList Designer Subscribers", 'OnBeforeDefaultOnInvalidQueryNavigation', '', false, false)]
-    local procedure OnBeforeDefaultOnInvalidQueryNavigation(var Handled: Boolean; Id: BigInteger);
-    var
-        NavigationRec: Record "Query Navigation";
-        Builder: Page "Query Navigation Builder";
-    begin
-        if Handled then
-            exit;
-
-        if not CanHandleSmartListEvents() then
-            exit;
-
-        Handled := true;
-
-        if Confirm(InvalidActionConfirmationTxt) then begin
-            NavigationRec.SetRange(Id, Id);
-            NavigationRec.FindFirst();
-
-            Builder.OpenForEditingExistingNavigation(NavigationRec);
-        end;
-    end;
-
     var
         SmartListIsDisabledErr: Label 'The SmartList Designer is not enabled.';
         UserDoesNotHaveAccessErr: Label 'The user does not have permission to access the SmartList Designer.';
-        InvalidActionConfirmationTxt: Label 'The Navigation action is no longer valid. Would you like to edit the Navigation to fix the issue?';
 }
+#endif

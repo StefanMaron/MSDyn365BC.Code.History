@@ -131,12 +131,14 @@ report 5600 "Fixed Asset - Analysis"
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
                         Error(Text009, FieldCaption("FA Posting Group"), "No.");
+#if not CLEAN18
                 // NAVCZ
                 if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
                     if "Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then
                         Error(Text009, FieldCaption("Tax Depreciation Group Code"), "No.");
                 // NAVCZ
 
+#endif
                 Date[1] :=
                   FAGenReport.GetLastDate(
                     "No.", DateTypeNo1, EndingDate, DeprBookCode, false);
@@ -196,10 +198,12 @@ report 5600 "Fixed Asset - Analysis"
                         SetCurrentKey("Global Dimension 2 Code");
                     GroupTotals::"FA Posting Group":
                         SetCurrentKey("FA Posting Group");
+#if not CLEAN18
                     // NAVCZ
                     GroupTotals::"Tax Depreciation Group Code":
                         SetCurrentKey("Tax Depreciation Group Code");
                 // NAVCZ
+#endif
                 end;
                 FAPostingType.CreateTypes;
                 FADateType.CreateTypes;
@@ -353,10 +357,12 @@ report 5600 "Fixed Asset - Analysis"
         DeprBook.Get(DeprBookCode);
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
+#if not CLEAN18
         // NAVCZ
         if GroupTotals = GroupTotals::"Tax Depreciation Group Code" then
             FAGenReport.SetFATaxDeprGroup("Fixed Asset", DeprBook.Code);
         // NAVCZ
+#endif
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
         FAFilter := "Fixed Asset".GetFilters;
         MainHeadLineText := Text000;
@@ -481,9 +487,11 @@ report 5600 "Fixed Asset - Analysis"
                 GroupCodeName := "Fixed Asset".FieldCaption("Global Dimension 2 Code");
             GroupTotals::"FA Posting Group":
                 GroupCodeName := "Fixed Asset".FieldCaption("FA Posting Group");
+#if not CLEAN18
             // NAVCZ
             GroupTotals::"Tax Depreciation Group Code":
                 GroupCodeName := "Fixed Asset".FieldCaption("Tax Depreciation Group Code");
+#endif
         // NAVCZ
         end;
         if GroupCodeName <> '' then

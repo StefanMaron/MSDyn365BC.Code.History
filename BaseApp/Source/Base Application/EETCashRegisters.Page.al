@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31122 "EET Cash Registers"
 {
     Caption = 'EET Cash Registers (Obsolete)';
@@ -80,4 +81,4 @@ page 31122 "EET Cash Registers"
         }
     }
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 425 "Vendor Bank Account Card"
 {
     Caption = 'Vendor Bank Account Card';
@@ -94,6 +95,7 @@ page 425 "Vendor Bank Account Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("UncPayerMgt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; UncPayerMgt.IsPublicBankAccount("Vendor No.", "Vendor VAT Registration No.", "Bank Account No.", IBAN))
                 {
                     ApplicationArea = Basic, Suite;
@@ -114,6 +116,7 @@ page 425 "Vendor Bank Account Card"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
             group(Communication)
             {
@@ -179,8 +182,11 @@ page 425 "Vendor Bank Account Card"
     actions
     {
     }
+#if not CLEAN17
 
     var
         UncPayerMgt: Codeunit "Unc. Payer Mgt.";
+#endif
 }
 
+#endif

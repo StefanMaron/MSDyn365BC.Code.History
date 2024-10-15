@@ -1,4 +1,5 @@
-﻿codeunit 407 "Adjust Gen. Journal Balance"
+#if not CLEAN19
+codeunit 407 "Adjust Gen. Journal Balance"
 {
     TableNo = "Gen. Journal Line";
 
@@ -148,6 +149,7 @@
             until TempCurrTotalBuffer.Next() = 0;
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure SetUseDocNoFilter()
     begin
@@ -171,3 +173,4 @@
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 11705 "Text-to-Account Mapping Codes"
 {
     ApplicationArea = Basic, Suite;
@@ -46,3 +47,4 @@ page 11705 "Text-to-Account Mapping Codes"
     }
 }
 
+#endif

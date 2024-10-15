@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31051 "Credit Subform"
 {
     AutoSplitKey = true;
@@ -206,4 +207,4 @@ page 31051 "Credit Subform"
         ShowDimensions();
     end;
 }
-
+#endif

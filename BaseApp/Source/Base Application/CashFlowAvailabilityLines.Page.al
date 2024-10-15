@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 866 "Cash Flow Availability Lines"
 {
     Caption = 'Lines';
@@ -160,6 +161,10 @@ page 866 "Cash Flow Availability Lines"
                     AutoFormatType = 11;
                     Caption = 'Sales Advances';
                     ToolTip = 'Specifies an amount of sales advances';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -173,6 +178,10 @@ page 866 "Cash Flow Availability Lines"
                     AutoFormatType = 11;
                     Caption = 'Purchase Advances';
                     ToolTip = 'Specifies an amount of purchase advances';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -244,7 +253,7 @@ page 866 "Cash Flow Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -253,7 +262,7 @@ page 866 "Cash Flow Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -264,7 +273,7 @@ page 866 "Cash Flow Availability Lines"
 
     protected var
         CashFlowForecast: Record "Cash Flow Forecast";
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
 
     var
         CashFlowForecast2: Record "Cash Flow Forecast";
@@ -273,20 +282,30 @@ page 866 "Cash Flow Availability Lines"
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         MatrixMgt: Codeunit "Matrix Management";
         RoundingFactorFormatString: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         Amounts: array[15] of Decimal;
 
-    procedure Set(var NewCashFlowForecast: Record "Cash Flow Forecast"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date"; RoundingFactor2: Option "None","1","1000","1000000")
+#if not CLEAN19
+    procedure Set(var NewCashFlowForecast: Record "Cash Flow Forecast"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date"; NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        SetLines(
+            NewCashFlowForecast,
+            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType),
+            "Analysis Rounding Factor".FromInteger(NewRoundingFactor));
+    end;
+#endif
+
+    procedure SetLines(var NewCashFlowForecast: Record "Cash Flow Forecast"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         CashFlowForecast.Copy(NewCashFlowForecast);
         CashFlowForecast2.Copy(NewCashFlowForecast);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
-        RoundingFactor := RoundingFactor2;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        RoundingFactor := NewRoundingFactor;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
     end;
 
     procedure FormatStr(): Text
@@ -296,7 +315,7 @@ page 866 "Cash Flow Availability Lines"
 
     local procedure GetAmount(SourceType: Enum "Cash Flow Source Type"): Decimal
     begin
-        exit(MatrixMgt.RoundValue(CashFlowForecast.CalcSourceTypeAmount(SourceType), RoundingFactor));
+        exit(MatrixMgt.RoundAmount(CashFlowForecast.CalcSourceTypeAmount(SourceType), RoundingFactor));
     end;
 
     local procedure CalcLine()
@@ -305,31 +324,31 @@ page 866 "Cash Flow Availability Lines"
     begin
         case AmountType of
             AmountType::"Net Change":
-                CashFlowForecast.SetCashFlowDateFilter("Period Start", "Period End");
+                CashFlowForecast.SetCashFlowDateFilter(Rec."Period Start", Rec."Period End");
             AmountType::"Balance at Date":
-                CashFlowForecast.SetCashFlowDateFilter(0D, "Period End");
+                CashFlowForecast.SetCashFlowDateFilter(0D, Rec."Period End");
         end;
 
         for SourceType := 1 to ArrayLen(Amounts) do
-            Amounts[SourceType] := MatrixMgt.RoundValue(Amounts[SourceType], RoundingFactor);
+            Amounts[SourceType] := MatrixMgt.RoundAmount(Amounts[SourceType], RoundingFactor);
 
-        Receivables := GetAmount(CashFlowForecastEntry."Source Type"::Receivables);
-        "Sales Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Sales Orders");
-        "Service Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Service Orders");
-        "Fixed Assets Disposal" := GetAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Disposal");
-        "Cash Flow Manual Revenues" := GetAmount(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Revenue");
-        Payables := GetAmount(CashFlowForecastEntry."Source Type"::Payables);
-        "Purchase Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Purchase Orders");
-        "Fixed Assets Budget" := GetAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Budget");
-        "Cash Flow Manual Expenses" := GetAmount(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Expense");
-        "G/L Budget" := GetAmount(CashFlowForecastEntry."Source Type"::"G/L Budget");
-        "Sales Advances" := GetAmount(CashFlowForecastEntry."Source Type"::"Sales Advance Letters");
-        "Purchase Advances" := GetAmount(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters");
-        Job := GetAmount(CashFlowForecastEntry."Source Type"::Job);
-        Tax := GetAmount(CashFlowForecastEntry."Source Type"::Tax);
-        Total := GetAmount(CashFlowForecastEntry."Source Type"::" ");
+        Rec.Receivables := GetAmount(CashFlowForecastEntry."Source Type"::Receivables);
+        Rec."Sales Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Sales Orders");
+        Rec."Service Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Service Orders");
+        Rec."Fixed Assets Disposal" := GetAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Disposal");
+        Rec."Cash Flow Manual Revenues" := GetAmount(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Revenue");
+        Rec.Payables := GetAmount(CashFlowForecastEntry."Source Type"::Payables);
+        Rec."Purchase Orders" := GetAmount(CashFlowForecastEntry."Source Type"::"Purchase Orders");
+        Rec."Fixed Assets Budget" := GetAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Budget");
+        Rec."Cash Flow Manual Expenses" := GetAmount(CashFlowForecastEntry."Source Type"::"Cash Flow Manual Expense");
+        Rec."G/L Budget" := GetAmount(CashFlowForecastEntry."Source Type"::"G/L Budget");
+        Rec."Sales Advances" := GetAmount(CashFlowForecastEntry."Source Type"::"Sales Advance Letters");
+        Rec."Purchase Advances" := GetAmount(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters");
+        Rec.Job := GetAmount(CashFlowForecastEntry."Source Type"::Job);
+        Rec.Tax := GetAmount(CashFlowForecastEntry."Source Type"::Tax);
+        Rec.Total := GetAmount(CashFlowForecastEntry."Source Type"::" ");
 
-        OnAfterCalcLine(CashFlowForecast, Rec, RoundingFactor);
+        OnAfterCalcLine(CashFlowForecast, Rec, RoundingFactor.AsInteger());
     end;
 
     [IntegrationEvent(false, false)]
@@ -338,3 +357,4 @@ page 866 "Cash Flow Availability Lines"
     end;
 }
 
+#endif

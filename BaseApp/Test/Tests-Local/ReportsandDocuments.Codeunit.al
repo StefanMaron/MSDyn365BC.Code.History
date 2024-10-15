@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 145006 "Reports and Documents"
 {
     Subtype = Test;
@@ -539,3 +540,4 @@ codeunit 145006 "Reports and Documents"
     end;
 }
 
+#endif

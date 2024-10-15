@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31026 "Purch. Advance Letters History"
 {
-    Caption = 'Purch. Advance Letters History';
+    Caption = 'Purch. Advance Letters History (Obsolete)';
     Editable = true;
     PageType = ListPlus;
     SaveValues = true;
     SourceTable = Vendor;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -171,4 +175,4 @@ page 31026 "Purch. Advance Letters History"
         x5CurrentMenuTypeOptOnPush;
     end;
 }
-
+#endif

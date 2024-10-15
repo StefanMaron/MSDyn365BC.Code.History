@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31010 "Sales Advance Letter List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesAdvanceLetterList.rdlc';
-    Caption = 'Sales Advance Letters';
+    Caption = 'Sales Advance Letters (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -147,4 +151,4 @@ report 31010 "Sales Advance Letter List"
         Sales_Advance_Letter_ListCaptionLbl: Label 'Sales Advance Letter List';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }
-
+#endif

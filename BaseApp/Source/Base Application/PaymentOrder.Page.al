@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 11716 "Payment Order"
 {
-    Caption = 'Payment Order';
+    Caption = 'Payment Order (Obsolete)';
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -324,6 +328,7 @@ page 11716 "Payment Order"
                         ImportPaymentOrder;
                     end;
                 }
+#if not CLEAN17
                 action("Uncertainty VAT Payment Check")
                 {
                     ApplicationArea = Basic, Suite;
@@ -340,6 +345,7 @@ page 11716 "Payment Order"
                         ImportUncPayerStatus();
                     end;
                 }
+#endif
             }
             group("&Release")
             {
@@ -539,4 +545,4 @@ page 11716 "Payment Order"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
     end;
 }
-
+#endif

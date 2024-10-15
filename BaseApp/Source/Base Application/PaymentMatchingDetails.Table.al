@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 1299 "Payment Matching Details"
 {
     Caption = 'Payment Matching Details';
@@ -100,4 +101,4 @@ table 1299 "Payment Matching Details"
         exit(NextLineNo);
     end;
 }
-
+#endif

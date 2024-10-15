@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
@@ -100,6 +101,18 @@ page 5700 "Stockkeeping Unit Card"
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many item units are allocated as assembly components, which is how many units are on outstanding assembly order lines.';
+                }
+                field("Trans. Ord. Receipt (Qty.)"; "Trans. Ord. Receipt (Qty.)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity of the item units that remains to be received but are not yet shipped as the difference between the Quantity and the Quantity Shipped fields.';
+                    Visible = false;
+                }
+                field("Trans. Ord. Shipment (Qty.)"; "Trans. Ord. Shipment (Qty.)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity of the item units that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
+                    Visible = false;
                 }
                 field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
                 {
@@ -217,13 +230,11 @@ page 5700 "Stockkeeping Unit Card"
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
-                        Visible = false;
                     }
                     field("Production BOM No."; Rec."Production BOM No.")
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
-                        Visible = false;
                     }
                 }
                 group(Assembly)
@@ -923,46 +934,28 @@ page 5700 "Stockkeeping Unit Card"
 
     local procedure EnablePlanningControls()
     var
-        PlanningGetParam: Codeunit "Planning-Get Parameters";
-        TimeBucketEnabled: Boolean;
-        SafetyLeadTimeEnabled: Boolean;
-        SafetyStockQtyEnabled: Boolean;
-        ReorderPointEnabled: Boolean;
-        ReorderQtyEnabled: Boolean;
-        MaximumInventoryEnabled: Boolean;
-        MinimumOrderQtyEnabled: Boolean;
-        MaximumOrderQtyEnabled: Boolean;
-        OrderMultipleEnabled: Boolean;
-        IncludeInventoryEnabled: Boolean;
-        ReschedulingPeriodEnabled: Boolean;
-        LotAccumulationPeriodEnabled: Boolean;
-        DampenerPeriodEnabled: Boolean;
-        DampenerQtyEnabled: Boolean;
-        OverflowLevelEnabled: Boolean;
+        PlanningParameters: Record "Planning Parameters";
+        PlanningGetParameters: Codeunit "Planning-Get Parameters";
     begin
-        PlanningGetParam.SetUpPlanningControls(
-            "Reordering Policy".AsInteger(), "Include Inventory",
-            TimeBucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
-            ReorderPointEnabled, ReorderQtyEnabled, MaximumInventoryEnabled,
-            MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
-            ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
-            DampenerPeriodEnabled, DampenerQtyEnabled, OverflowLevelEnabled);
+        PlanningParameters."Reordering Policy" := Rec."Reordering Policy";
+        PlanningParameters."Include Inventory" := Rec."Include Inventory";
+        PlanningGetParameters.SetPlanningParameters(PlanningParameters);
 
-        TimeBucketEnable := TimeBucketEnabled;
-        SafetyLeadTimeEnable := SafetyLeadTimeEnabled;
-        SafetyStockQtyEnable := SafetyStockQtyEnabled;
-        ReorderPointEnable := ReorderPointEnabled;
-        ReorderQtyEnable := ReorderQtyEnabled;
-        MaximumInventoryEnable := MaximumInventoryEnabled;
-        MinimumOrderQtyEnable := MinimumOrderQtyEnabled;
-        MaximumOrderQtyEnable := MaximumOrderQtyEnabled;
-        OrderMultipleEnable := OrderMultipleEnabled;
-        IncludeInventoryEnable := IncludeInventoryEnabled;
-        ReschedulingPeriodEnable := ReschedulingPeriodEnabled;
-        LotAccumulationPeriodEnable := LotAccumulationPeriodEnabled;
-        DampenerPeriodEnable := DampenerPeriodEnabled;
-        DampenerQtyEnable := DampenerQtyEnabled;
-        OverflowLevelEnable := OverflowLevelEnabled;
+        TimeBucketEnable := PlanningParameters."Time Bucket Enabled";
+        SafetyLeadTimeEnable := PlanningParameters."Safety Lead Time Enabled";
+        SafetyStockQtyEnable := PlanningParameters."Safety Stock Qty Enabled";
+        ReorderPointEnable := PlanningParameters."Reorder Point Enabled";
+        ReorderQtyEnable := PlanningParameters."Reorder Quantity Enabled";
+        MaximumInventoryEnable := PlanningParameters."Maximum Inventory Enabled";
+        MinimumOrderQtyEnable := PlanningParameters."Minimum Order Qty Enabled";
+        MaximumOrderQtyEnable := PlanningParameters."Maximum Order Qty Enabled";
+        OrderMultipleEnable := PlanningParameters."Order Multiple Enabled";
+        IncludeInventoryEnable := PlanningParameters."Include Inventory Enabled";
+        ReschedulingPeriodEnable := PlanningParameters."Rescheduling Period Enabled";
+        LotAccumulationPeriodEnable := PlanningParameters."Lot Accum. Period Enabled";
+        DampenerPeriodEnable := PlanningParameters."Dampener Period Enabled";
+        DampenerQtyEnable := PlanningParameters."Dampener Quantity Enabled";
+        OverflowLevelEnable := PlanningParameters."Overflow Level Enabled";
     end;
 
     local procedure EnableCostingControls()
@@ -997,3 +990,4 @@ page 5700 "Stockkeeping Unit Card"
     end;
 }
 
+#endif

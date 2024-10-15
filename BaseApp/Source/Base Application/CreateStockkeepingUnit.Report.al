@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 5706 "Create Stockkeeping Unit"
 {
     AdditionalSearchTerms = 'create sku';
@@ -290,4 +291,4 @@ report 5706 "Create Stockkeeping Unit"
     begin
     end;
 }
-
+#endif

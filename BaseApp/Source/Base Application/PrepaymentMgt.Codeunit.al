@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 441 "Prepayment Mgt."
 {
 
@@ -369,3 +370,5 @@ codeunit 441 "Prepayment Mgt."
     end;
 }
 
+
+#endif

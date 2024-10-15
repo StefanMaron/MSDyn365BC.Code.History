@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 11706 "Bank Statement"
 {
-    Caption = 'Bank Statement';
+    Caption = 'Bank Statement (Obsolete)';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -333,4 +337,4 @@ page 11706 "Bank Statement"
         BankStmtHdr.TestPrintRecords(true);
     end;
 }
-
+#endif

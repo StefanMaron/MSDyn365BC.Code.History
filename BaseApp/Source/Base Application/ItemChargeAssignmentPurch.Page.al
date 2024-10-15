@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5805 "Item Charge Assignment (Purch)"
 {
     AutoSplitKey = true;
@@ -125,6 +126,7 @@ page 5805 "Item Charge Assignment (Purch)"
                     Editable = false;
                     ToolTip = 'Specifies how many units of the item on the documents line for this item charge assignment have been posted as shipped.';
                 }
+#if not CLEAN18
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
                     ApplicationArea = ItemCharges;
@@ -143,6 +145,7 @@ page 5805 "Item Charge Assignment (Purch)"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group(Control22)
             {
@@ -674,3 +677,4 @@ page 5805 "Item Charge Assignment (Purch)"
     end;
 }
 
+#endif

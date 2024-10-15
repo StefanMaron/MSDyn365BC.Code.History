@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11744 "Copy Cash Document"
 {
     Caption = 'Copy Cash Document (Obsolete)';
@@ -212,4 +213,4 @@ report 11744 "Copy Cash Document"
         DocNo := NewDocNo;
     end;
 }
-
+#endif

@@ -191,6 +191,7 @@ page 52 "Purchase Credit Memo"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -210,6 +211,7 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -339,6 +341,7 @@ page 52 "Purchase Credit Memo"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -350,6 +353,8 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
@@ -359,6 +364,7 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -382,6 +388,7 @@ page 52 "Purchase Credit Memo"
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -391,6 +398,7 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -574,6 +582,7 @@ page 52 "Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the name of a contact person for the address where the items in the purchase order should be shipped.';
                     }
+#if not CLEAN18
                     field("Physical Transfer"; "Physical Transfer")
                     {
                         ApplicationArea = Basic, Suite;
@@ -583,6 +592,7 @@ page 52 "Purchase Credit Memo"
                         ObsoleteTag = '18.0';
                         Visible = false;
                     }
+#endif
                 }
                 group("Pay-to")
                 {
@@ -737,6 +747,7 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -746,6 +757,8 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -755,11 +768,13 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -778,6 +793,7 @@ page 52 "Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -788,6 +804,7 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
+#if not CLEAN17
                 field(VATCurrencyCode; "Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -821,6 +838,7 @@ page 52 "Purchase Credit Memo"
                         CurrencyCodeOnAfterValidate; // NAVCZ
                     end;
                 }
+#endif
             }
             group(Application)
             {
@@ -841,6 +859,7 @@ page 52 "Purchase Credit Memo"
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -922,6 +941,7 @@ page 52 "Purchase Credit Memo"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -1077,10 +1097,9 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1528,6 +1547,7 @@ page 52 "Purchase Credit Memo"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category8;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1559,7 +1579,7 @@ page 52 "Purchase Credit Memo"
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -1607,13 +1627,13 @@ page 52 "Purchase Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1647,11 +1667,8 @@ page 52 "Purchase Credit Memo"
         IsOfficeAddin := OfficeMgt.IsAvailable;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 

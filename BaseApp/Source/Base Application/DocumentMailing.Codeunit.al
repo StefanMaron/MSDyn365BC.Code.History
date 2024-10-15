@@ -1,4 +1,5 @@
-﻿codeunit 260 "Document-Mailing"
+﻿#if not CLEAN19
+codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -61,6 +62,7 @@
             Enum::"Email Scenario"::Default));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure EmailFileFromSalesAdvLetterHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; AttachmentFilePath: Text[250])
     begin
         // NAVCZ
@@ -771,3 +773,4 @@
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 423 "Customer Bank Account Card"
 {
     Caption = 'Customer Bank Account Card';
@@ -176,3 +177,4 @@ page 423 "Customer Bank Account Card"
     }
 }
 
+#endif

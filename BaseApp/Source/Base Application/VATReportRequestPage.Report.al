@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 742 "VAT Report Request Page"
 {
     Caption = 'VAT Report Request Page';
@@ -195,4 +196,4 @@ report 742 "VAT Report Request Page"
     begin
     end;
 }
-
+#endif

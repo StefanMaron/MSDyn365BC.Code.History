@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31008 "Set Advance Link"
 {
-    Caption = 'Set Advance Link';
+    Caption = 'Set Advance Link (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
     SourceTable = "Advance Link Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -407,4 +411,4 @@ page 31008 "Set Advance Link"
         OK := true;
     end;
 }
-
+#endif

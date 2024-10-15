@@ -1,7 +1,8 @@
+#if not CLEAN19
 page 11724 "Issued Payment Order List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Issued Payment Orders';
+    Caption = 'Issued Payment Orders (Obsolete)';
     CardPageID = "Issued Payment Order";
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -9,6 +10,9 @@ page 11724 "Issued Payment Order List"
     PageType = List;
     SourceTable = "Issued Payment Order Header";
     UsageCategory = History;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -209,4 +213,4 @@ page 11724 "Issued Payment Order List"
         IssuedPmtOrdHdr.PrintForeignPmtOrd(true);
     end;
 }
-
+#endif

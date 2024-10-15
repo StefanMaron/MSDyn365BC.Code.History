@@ -1,7 +1,11 @@
 table 31049 "Credit Report Selections"
 {
     Caption = 'Credit Report Selections';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 
@@ -50,6 +54,7 @@ table 31049 "Credit Report Selections"
     {
     }
 
+#if not CLEAN18
     var
         CreditReportSelections2: Record "Credit Report Selections";
 
@@ -63,5 +68,6 @@ table 31049 "Credit Report Selections"
         else
             Sequence := '1';
     end;
+#endif
 }
 

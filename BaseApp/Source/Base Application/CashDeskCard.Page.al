@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11745 "Cash Desk Card"
 {
     Caption = 'Cash Desk Card (Obsolete)';
@@ -476,4 +477,4 @@ page 11745 "Cash Desk Card"
         }
     }
 }
-
+#endif

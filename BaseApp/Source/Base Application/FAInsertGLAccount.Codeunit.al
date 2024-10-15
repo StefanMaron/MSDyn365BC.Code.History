@@ -1,4 +1,5 @@
-﻿codeunit 5601 "FA Insert G/L Account"
+﻿#if not CLEAN19
+codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
 
@@ -177,7 +178,9 @@
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
         IsHandled: Boolean;
+#if not CLEAN18
         ExtSetupExist: Boolean;
+#endif
     begin
         NumberOfEntries := 0;
         TotalAllocAmount := 0;
@@ -185,7 +188,11 @@
         TotalPercent := 0;
         FAPostingGr.Reset();
         FAPostingGr.GetPostingGroup(PostingGrCode, DeprBookCode);
+#if CLEAN18
+        GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType);
+#else
         GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, ExtSetupExist); // NAVCZ
+#endif
 
         DimensionSetIDArr[1] := DimSetID;
 
@@ -382,7 +389,11 @@
         GenJnlLine.Modify(true);
     end;
 
+#if CLEAN18
+    local procedure GetGLAccNoFromFAPostingGroup(FAPostingGr: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type") GLAccNo: Code[20]
+#else
     local procedure GetGLAccNoFromFAPostingGroup(FAPostingGr: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type"; var ExtSetupExist: Boolean) GLAccNo: Code[20]
+#endif
     var
 #if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
@@ -674,8 +685,8 @@
         FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::" ";
         FAGLPostBuf."Automatic Entry" := true;
         OrgGenJnlLine := false;
-
 #if not CLEAN18
+
         // NAVCZ
         if FAExtPostingGr.Get(FAPostingGr2.Code, 1, ReasonMaintenanceCode) then begin
             if FADeprBook."Gain/Loss" <= 0 then begin
@@ -804,12 +815,14 @@
         exit(not FALedgEntry.FindFirst());
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetFAPostingType(FAPostingType2: Option " ",AcqCost,BookVal,Appreciation,WrDown)
     begin
         FAPostingType := FAPostingType2;
     end;
 
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetReasonMaintenanceCode(ReasonMaintenanceCode2: Code[10])
     begin
@@ -910,3 +923,4 @@
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5607 "Fixed Asset Setup"
 {
     AdditionalSearchTerms = 'fa setup';
@@ -227,3 +228,4 @@ page 5607 "Fixed Asset Setup"
     end;
 }
 
+#endif

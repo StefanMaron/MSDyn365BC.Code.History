@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31095 Commodities
 {
     ApplicationArea = Basic, Suite;
@@ -63,4 +64,4 @@ page 31095 Commodities
         }
     }
 }
-
+#endif

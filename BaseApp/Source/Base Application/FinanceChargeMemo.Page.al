@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 446 "Finance Charge Memo"
 {
     Caption = 'Finance Charge Memo';
@@ -102,6 +103,10 @@ page 446 "Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -169,6 +174,7 @@ page 446 "Finance Charge Memo"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -178,7 +184,9 @@ page 446 "Finance Charge Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -280,6 +288,7 @@ page 446 "Finance Charge Memo"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -552,3 +561,4 @@ page 446 "Finance Charge Memo"
     end;
 }
 
+#endif

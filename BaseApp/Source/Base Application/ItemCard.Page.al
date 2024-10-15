@@ -1,10 +1,14 @@
-﻿page 30 "Item Card"
+#if not CLEAN18
+page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Item,History,Prices & Discounts,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = Item;
+
+    AboutTitle = 'About item details';
+    AboutText = 'With the Item Card you manage the information that appears in sales and purchase documents when you buy or sell an item, such as line description and price. You can also find settings for how an item is priced, replenished, stocked, and for how costing and posting is done.';
 
     layout
     {
@@ -31,6 +35,8 @@
                     ApplicationArea = All;
                     ShowMandatory = true;
                     ToolTip = 'Specifies a description of the item.';
+                    AboutTitle = 'Describe the product or service';
+                    AboutText = 'This appears on the documents you create when buying or selling this item. You can create Extended Texts with additional item description available to insert in the document lines.';
                     Visible = DescriptionFieldVisible;
                 }
                 field(Blocked; Blocked)
@@ -114,6 +120,9 @@
             {
                 Caption = 'Inventory';
                 Visible = IsInventoriable;
+                AboutTitle = 'For items on inventory';
+                AboutText = 'Here are settings and information for an item that is kept on inventory. See or update the available inventory, current orders, physical volume and weight, and settings for low inventory handling.';
+
                 field("Shelf No."; "Shelf No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -259,6 +268,7 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the gross weight of the item.';
                 }
+#if not CLEAN17
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
@@ -268,6 +278,7 @@
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field("Specific Movement"; "Specific Movement")
                 {
                     ApplicationArea = Basic, Suite;
@@ -288,10 +299,25 @@
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies the policy that will be used for the item if more items than ordered are received.';
                 }
+                field("Trans. Ord. Receipt (Qty.)"; "Trans. Ord. Receipt (Qty.)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity of the items that remains to be received but are not yet shipped as the difference between the Quantity and the Quantity Shipped fields.';
+                    Visible = false;
+                }
+                field("Trans. Ord. Shipment (Qty.)"; "Trans. Ord. Shipment (Qty.)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity of the items that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
+                    Visible = false;
+                }
             }
             group("Costs & Posting")
             {
                 Caption = 'Costs & Posting';
+                AboutTitle = 'Manage costs and posting';
+                AboutText = 'Choose how the item costs are calculated, and assign posting groups to control how transactions with this item are grouped and posted.';
+
                 group("Cost Details")
                 {
                     Caption = 'Cost Details';
@@ -382,6 +408,7 @@
                             UpdateSpecialPriceListsTxt(PriceType::Purchase);
                         end;
                     }
+#if not CLEAN19
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
@@ -421,6 +448,7 @@
                             UpdateSpecialPricesAndDiscountsTxt;
                         end;
                     }
+#endif
                 }
                 group("Posting Details")
                 {
@@ -479,6 +507,9 @@
             group("Prices & Sales")
             {
                 Caption = 'Prices & Sales';
+                AboutTitle = 'Track prices and profits';
+                AboutText = 'Specify a basic price and the related profit for this item, and define special prices and discounts to certain customers. In either case, the prices defined here can be overridden at the time a document is posted.';
+
                 field("Unit Price"; "Unit Price")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
@@ -543,6 +574,7 @@
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
                     end;
                 }
+#if not CLEAN19
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
@@ -584,6 +616,7 @@
                         UpdateSpecialPricesAndDiscountsTxt;
                     end;
                 }
+#endif
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -738,6 +771,7 @@
             group(Planning)
             {
                 Caption = 'Planning';
+                Visible = IsInventoriable;
                 field("Reordering Policy"; "Reordering Policy")
                 {
                     ApplicationArea = Planning;
@@ -894,6 +928,7 @@
             group(ItemTracking)
             {
                 Caption = 'Item Tracking';
+                Visible = IsInventoriable;
                 field("Item Tracking Code"; "Item Tracking Code")
                 {
                     ApplicationArea = ItemTracking;
@@ -930,6 +965,7 @@
             group(Warehouse)
             {
                 Caption = 'Warehouse';
+                Visible = IsInventoriable;
                 field("Warehouse Class Code"; "Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
@@ -1162,6 +1198,7 @@
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
+#if not CLEAN19
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1228,6 +1265,7 @@
                         SalesPriceAndLineDiscounts.RunModal;
                     end;
                 }
+#endif
                 action(SalesPriceLists)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -1272,6 +1310,7 @@
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
+#if not CLEAN19
                 action(Action86)
                 {
                     ApplicationArea = Suite;
@@ -1324,6 +1363,7 @@
                         PurchasesPriceAndLineDisc.RunModal;
                     end;
                 }
+#endif
                 action(PurchPriceLists)
                 {
                     AccessByPermission = TableData "Purchase Price Access" = R;
@@ -1623,12 +1663,8 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Template';
-                    Ellipsis = true;
                     Image = ApplyTemplate;
                     ToolTip = 'Apply a template to update the entity with your standard settings for a certain type of entity.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1641,12 +1677,8 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Save as Template';
-                    Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Save the item card as a template that can be reused to create new item cards. Item templates contain preset information to help you fill in fields on item cards.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be replaced by other templates.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -1822,26 +1854,22 @@
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
 #if not CLEAN18
+#pragma warning disable
                 action("Cross Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by Item Reference feature.';
                     ObsoleteTag = '18.0';
-                    RunObject = Page "Item Cross Reference Entries";
-                    RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
+#pragma warning restore
 #endif
                 action("Item Re&ferences")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Re&ferences';
                     Visible = ItemReferenceVisible;
                     Image = Change;
@@ -1861,6 +1889,15 @@
                     RunObject = Page "Item Units of Measure";
                     RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Set up the different units that the item can be traded in, such as piece, box, or hour.';
+                }
+                action("Unit Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Unit Group';
+                    Image = UnitOfMeasure;
+                    RunObject = Page "Item Unit Group List";
+                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Item);
+                    ToolTip = 'View unit group associated with the item.';
                 }
                 action("E&xtended Texts")
                 {
@@ -2587,12 +2624,14 @@
         PriceEditable: Boolean;
         SalesPriceListsText: Text;
         PurchPriceListsText: Text;
-        SpecialPricesAndDiscountsTxt: Text;
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
+#if not CLEAN19
+        SpecialPricesAndDiscountsTxt: Text;
         CreateNewSpecialPriceTxt: Label 'Create New Special Price...';
         CreateNewSpecialDiscountTxt: Label 'Create New Special Discount...';
         SpecialPurchPricesAndDiscountsTxt: Text;
+#endif
 
     protected var
         ItemReplenishmentSystem: Enum "Item Replenishment System";
@@ -2673,11 +2712,14 @@
         EnablePlanningControls();
         EnableCostingControls();
 
-        if ExtendedPriceEnabled then
-            UpdateSpecialPriceListsTxt(PriceType::Any)
+#if not CLEAN19
+        if not ExtendedPriceEnabled then
+            UpdateSpecialPricesAndDiscountsTxt()
         else
-            UpdateSpecialPricesAndDiscountsTxt;
-
+            UpdateSpecialPriceListsTxt(PriceType::Any);
+#else
+        UpdateSpecialPriceListsTxt(PriceType::Any);
+#endif
         SetExpirationCalculationEditable;
     end;
 
@@ -2726,47 +2768,32 @@
 
     protected procedure EnablePlanningControls()
     var
-        PlanningGetParam: Codeunit "Planning-Get Parameters";
-        TimeBucketEnabled: Boolean;
-        SafetyLeadTimeEnabled: Boolean;
-        SafetyStockQtyEnabled: Boolean;
-        ReorderPointEnabled: Boolean;
-        ReorderQtyEnabled: Boolean;
-        MaximumInventoryEnabled: Boolean;
-        MinimumOrderQtyEnabled: Boolean;
-        MaximumOrderQtyEnabled: Boolean;
-        OrderMultipleEnabled: Boolean;
-        IncludeInventoryEnabled: Boolean;
-        ReschedulingPeriodEnabled: Boolean;
-        LotAccumulationPeriodEnabled: Boolean;
-        DampenerPeriodEnabled: Boolean;
-        DampenerQtyEnabled: Boolean;
-        OverflowLevelEnabled: Boolean;
+        PlanningParameters: Record "Planning Parameters";
+        PlanningGetParameters: Codeunit "Planning-Get Parameters";
     begin
-        PlanningGetParam.SetUpPlanningControls("Reordering Policy".AsInteger(), "Include Inventory",
-          TimeBucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
-          ReorderPointEnabled, ReorderQtyEnabled, MaximumInventoryEnabled,
-          MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
-          ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
-          DampenerPeriodEnabled, DampenerQtyEnabled, OverflowLevelEnabled);
+        PlanningParameters."Reordering Policy" := Rec."Reordering Policy";
+        PlanningParameters."Include Inventory" := Rec."Include Inventory";
+        PlanningGetParameters.SetPlanningParameters(PlanningParameters);
 
-        TimeBucketEnable := TimeBucketEnabled;
-        SafetyLeadTimeEnable := SafetyLeadTimeEnabled;
-        SafetyStockQtyEnable := SafetyStockQtyEnabled;
-        ReorderPointEnable := ReorderPointEnabled;
-        ReorderQtyEnable := ReorderQtyEnabled;
-        MaximumInventoryEnable := MaximumInventoryEnabled;
-        MinimumOrderQtyEnable := MinimumOrderQtyEnabled;
-        MaximumOrderQtyEnable := MaximumOrderQtyEnabled;
-        OrderMultipleEnable := OrderMultipleEnabled;
-        IncludeInventoryEnable := IncludeInventoryEnabled;
-        ReschedulingPeriodEnable := ReschedulingPeriodEnabled;
-        LotAccumulationPeriodEnable := LotAccumulationPeriodEnabled;
-        DampenerPeriodEnable := DampenerPeriodEnabled;
-        DampenerQtyEnable := DampenerQtyEnabled;
-        OverflowLevelEnable := OverflowLevelEnabled;
+        OnEnablePlanningControlsOnAfterGetParameters(PlanningParameters);
 
-        OnAfterEnablePlanningControls();
+        TimeBucketEnable := PlanningParameters."Time Bucket Enabled";
+        SafetyLeadTimeEnable := PlanningParameters."Safety Lead Time Enabled";
+        SafetyStockQtyEnable := PlanningParameters."Safety Stock Qty Enabled";
+        ReorderPointEnable := PlanningParameters."Reorder Point Enabled";
+        ReorderQtyEnable := PlanningParameters."Reorder Quantity Enabled";
+        MaximumInventoryEnable := PlanningParameters."Maximum Inventory Enabled";
+        MinimumOrderQtyEnable := PlanningParameters."Minimum Order Qty Enabled";
+        MaximumOrderQtyEnable := PlanningParameters."Maximum Order Qty Enabled";
+        OrderMultipleEnable := PlanningParameters."Order Multiple Enabled";
+        IncludeInventoryEnable := PlanningParameters."Include Inventory Enabled";
+        ReschedulingPeriodEnable := PlanningParameters."Rescheduling Period Enabled";
+        LotAccumulationPeriodEnable := PlanningParameters."Lot Accum. Period Enabled";
+        DampenerPeriodEnable := PlanningParameters."Dampener Period Enabled";
+        DampenerQtyEnable := PlanningParameters."Dampener Quantity Enabled";
+        OverflowLevelEnable := PlanningParameters."Overflow Level Enabled";
+
+        OnAfterEnablePlanningControls(PlanningParameters);
     end;
 
     protected procedure EnableCostingControls()
@@ -2800,6 +2827,7 @@
         OnAfterInitControls();
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
@@ -2814,7 +2842,7 @@
         if TempPurchPriceLineDiscBuff.ItemHasLines(Rec) then
             SpecialPurchPricesAndDiscountsTxt := ViewExistingTxt;
     end;
-
+#endif
     local procedure UpdateSpecialPriceListsTxt(PriceType: Enum "Price Type")
     begin
         if PriceType in [PriceType::Any, PriceType::Sale] then
@@ -2825,17 +2853,15 @@
 
     local procedure GetPriceActionText(PriceType: Enum "Price Type"): Text
     var
-        PriceListLine: Record "Price List Line";
         PriceAssetList: Codeunit "Price Asset List";
         PriceUXManagement: Codeunit "Price UX Management";
         AssetType: Enum "Price Asset Type";
         AmountType: Enum "Price Amount Type";
     begin
         PriceAssetList.Add(AssetType::Item, Rec."No.");
-        PriceUXManagement.SetPriceListLineFilters(PriceListLine, PriceAssetList, PriceType, AmountType::Any);
-        if PriceListLine.IsEmpty() then
-            exit(CreateNewTxt);
-        exit(ViewExistingTxt);
+        if PriceUXManagement.SetPriceListLineFilters(PriceAssetList, PriceType, AmountType::Any) then
+            exit(ViewExistingTxt);
+        exit(CreateNewTxt);
     end;
 
     local procedure CreateItemFromTemplate()
@@ -2844,7 +2870,7 @@
         InventorySetup: Record "Inventory Setup";
         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
-        OnBeforeCreateItemFromTemplate(NewMode);
+        OnBeforeCreateItemFromTemplate(NewMode, Rec, Item);
 
         if not NewMode then
             exit;
@@ -2903,12 +2929,12 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterEnablePlanningControls()
+    local procedure OnAfterEnablePlanningControls(var PlanningParameters: Record "Planning Parameters")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateItemFromTemplate(var NewMode: Boolean)
+    local procedure OnBeforeCreateItemFromTemplate(var NewMode: Boolean; var ItemRec: Record Item; var Item: Record Item)
     begin
     end;
 
@@ -2916,5 +2942,11 @@
     local procedure OnCreateItemFromTemplateOnAfterCurrPageUpdate(var Item: Record Item)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnablePlanningControlsOnAfterGetParameters(var PlanningParameters: Record "Planning Parameters")
+    begin
+    end;
 }
 
+#endif

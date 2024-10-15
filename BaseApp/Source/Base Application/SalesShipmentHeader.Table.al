@@ -542,57 +542,93 @@ table 110 "Sales Shipment Header"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -623,14 +659,22 @@ table 110 "Sales Shipment Header"
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -644,7 +688,11 @@ table 110 "Sales Shipment Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -798,10 +846,17 @@ table 110 "Sales Shipment Header"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;
@@ -892,6 +947,11 @@ table 110 "Sales Shipment Header"
     [Obsolete('Moved to table 291 Shipping Agent OnBeforeGetTrackingInternetAddr', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 

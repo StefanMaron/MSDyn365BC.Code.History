@@ -1,7 +1,8 @@
+#if not CLEAN19
 page 11709 "Bank Statement List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Bank Statements';
+    Caption = 'Bank Statements (Obsolete)';
     CardPageID = "Bank Statement";
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -9,6 +10,9 @@ page 11709 "Bank Statement List"
     PageType = List;
     SourceTable = "Bank Statement Header";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -186,4 +190,4 @@ page 11709 "Bank Statement List"
         BankStmtHdr.TestPrintRecords(true);
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 enum 85 "Acc. Schedule Line Totaling Type"
 {
     Extensible = true;
@@ -35,7 +36,6 @@ enum 85 "Acc. Schedule Line Totaling Type"
     {
         Caption = 'Cash Flow Total Accounts';
     }
-#if not CLEAN19
     value(14; Custom)
     {
         Caption = 'Custom (Obsolete)';
@@ -50,5 +50,5 @@ enum 85 "Acc. Schedule Line Totaling Type"
         ObsoleteReason = 'This value is discontinued and should no longer be used.';
         ObsoleteTag = '19.0';
     }
-#endif
 }
+#endif

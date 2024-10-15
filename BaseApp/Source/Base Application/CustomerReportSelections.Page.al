@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9657 "Customer Report Selections"
 {
     Caption = 'Document Layouts';
@@ -273,3 +274,4 @@ page 9657 "Customer Report Selections"
     end;
 }
 
+#endif

@@ -30,7 +30,11 @@ table 289 "Payment Method"
             Caption = 'Bal. Account No.';
             TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
             ELSE
+#if CLEAN17
+            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account";
+#else
             IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
 
             trigger OnValidate()
             begin
@@ -102,15 +106,6 @@ table 289 "Payment Method"
             ObsoleteState = Pending;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
             ObsoleteTag = '15.0';
-
-            trigger OnValidate()
-            var
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
-            begin
-                if EnvInfoProxy.IsInvoicing then
-                    if not "Use for Invoicing" then
-                        Error(UseForInvoicingErr);
-            end;
         }
         field(11; "Last Modified Date Time"; DateTime)
         {
@@ -127,10 +122,15 @@ table 289 "Payment Method"
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnLookup()
             var
@@ -156,6 +156,7 @@ table 289 "Payment Method"
                 end;
                 // NAVCZ
             end;
+#endif
         }
         field(11731; "Cash Document Status"; Option)
         {
@@ -163,9 +164,14 @@ table 289 "Payment Method"
             NotBlank = true;
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -174,6 +180,7 @@ table 289 "Payment Method"
                 CheckCashDocumentStatus;
                 // NAVCZ
             end;
+#endif
         }
     }
 
@@ -204,13 +211,7 @@ table 289 "Payment Method"
     end;
 
     trigger OnInsert()
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if EnvInfoProxy.IsInvoicing then
-            if not "Use for Invoicing" then
-                Validate("Use for Invoicing", true);
-
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
@@ -223,9 +224,6 @@ table 289 "Payment Method"
     begin
         "Last Modified Date Time" := CurrentDateTime;
     end;
-
-    var
-        UseForInvoicingErr: Label 'The Use for Invoicing property must be set to true in the Invoicing App.';
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -244,6 +242,7 @@ table 289 "Payment Method"
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckCashDocumentStatus()
     var
@@ -253,6 +252,7 @@ table 289 "Payment Method"
         CashDeskManagement.CheckCashDocumentStatus("Cash Desk Code", "Cash Document Status");
     end;
 
+#endif
     procedure TranslateDescription(Language: Code[10])
     var
         PaymentMethodTranslation: Record "Payment Method Translation";

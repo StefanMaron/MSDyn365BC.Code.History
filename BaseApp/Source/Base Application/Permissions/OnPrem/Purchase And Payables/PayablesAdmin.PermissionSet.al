@@ -9,7 +9,9 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
+#if not CLEAN17
                   tabledata "Document Footer" = RIMD,
+#endif
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,
@@ -36,7 +38,9 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Standard Purchase Code" = RIMD,
                   tabledata "Standard Purchase Line" = RIMD,
                   tabledata "Standard Vendor Purchase Code" = RIMD,
+#if not CLEAN18
                   tabledata "Subst. Vendor Posting Group" = RIMD,
+#endif
                   tabledata "Tax Area" = R,
                   tabledata "VAT Business Posting Group" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,

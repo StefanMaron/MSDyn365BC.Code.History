@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 144401 "Sales Advances"
 {
     // // [FEATURE] [Sales]
@@ -22,6 +23,9 @@ codeunit 144401 "Sales Advances"
     // 17. Test the posting Sales Advance Letter over two Payments.
 
     Subtype = Test;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The advance payment feature will be replaced by the new feature in Advacne Payment app.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -2014,3 +2018,4 @@ codeunit 144401 "Sales Advances"
     end;
 }
 
+#endif

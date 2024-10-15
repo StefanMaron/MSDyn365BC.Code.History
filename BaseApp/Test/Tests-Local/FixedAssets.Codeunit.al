@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 144300 "Fixed Assets"
 {
     // Test Cases for Fixed Assets
@@ -241,7 +242,6 @@ codeunit 144300 "Fixed Assets"
         UpdateFASetupWithFAHistory(false);
     end;
 
-#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure PostingFixedAssetDisposal()
@@ -305,7 +305,6 @@ codeunit 144300 "Fixed Assets"
         GLEntry.TestField("G/L Account No.", FAExtendedPostingGroup."Sales Acc. On Disp. (Gain)");
     end;
 
-#endif
     local procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
@@ -383,10 +382,8 @@ codeunit 144300 "Fixed Assets"
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross);
-#if not CLEAN18        
         DepreciationBook.Validate("Corresp. G/L Entries on Disp.", true);
         DepreciationBook.Validate("Corresp. FA Entries on Disp.", true);
-#endif
         DepreciationBook.Validate("Deprication from 1st Year Day", true);
         DepreciationBook.Validate("Check Deprication on Disposal", true);
         DepreciationBook.Validate("Use FA Ledger Check", true);
@@ -441,7 +438,6 @@ codeunit 144300 "Fixed Assets"
         FAPostingGroup.Modify(true);
     end;
 
-#if not CLEAN18
     local procedure CreateFAExtendedPostingGroupDisposal(var FAExtendedPostingGroup: Record "FA Extended Posting Group"; FAPostingGroupCode: Code[20])
     var
         ReasonCode: Record "Reason Code";
@@ -467,7 +463,6 @@ codeunit 144300 "Fixed Assets"
         FAExtendedPostingGroup.Modify(true);
     end;
 
-#endif
     local procedure CreateReasonCode(var ReasonCode: Record "Reason Code")
     begin
         LibraryERM.CreateReasonCode(ReasonCode);
@@ -681,3 +676,4 @@ codeunit 144300 "Fixed Assets"
     end;
 }
 
+#endif

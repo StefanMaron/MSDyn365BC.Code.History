@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
@@ -115,9 +116,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
             GenJnlLine."Account No." := "Customer No.";
             CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
@@ -328,9 +331,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             CustLedgEntry.Get("Cust. Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := PostingDate;
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
             GenJnlLine."Account No." := "Customer No.";
             GenJnlLine.Correction := true;
@@ -499,6 +504,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure GetPrepmtApplTransNo(CustLedgEntryNo: Integer; var TransactionNo: Integer)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -719,3 +725,4 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 }
 
+#endif

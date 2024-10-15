@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31078 "Posted Inventory Document"
 {
     DefaultLayout = RDLC;
@@ -234,3 +235,5 @@ report 31078 "Posted Inventory Document"
         UnitOfMeasureCode: Code[10];
 }
 
+
+#endif

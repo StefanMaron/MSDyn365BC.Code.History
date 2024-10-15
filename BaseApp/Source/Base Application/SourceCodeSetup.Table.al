@@ -43,6 +43,7 @@ table 242 "Source Code Setup"
         {
             Caption = 'Close Income Statement';
             TableRelation = "Source Code";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -65,6 +66,7 @@ table 242 "Source Code Setup"
                         "Open Balance Sheet"));
                 // NAVCZ
             end;
+#endif
         }
         field(9; Consolidation; Code[10])
         {
@@ -420,7 +422,11 @@ table 242 "Source Code Setup"
         {
             Caption = 'Purchase VAT Delay';
             TableRelation = "Source Code";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -428,7 +434,11 @@ table 242 "Source Code Setup"
         {
             Caption = 'Sales VAT Delay';
             TableRelation = "Source Code";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -444,6 +454,14 @@ table 242 "Source Code Setup"
         {
             Caption = 'Close Balance Sheet';
             TableRelation = "Source Code";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -464,11 +482,20 @@ table 242 "Source Code Setup"
                         FieldCaption("Open Balance Sheet"),
                         "Open Balance Sheet"));
             end;
+#endif
         }
         field(11765; "Open Balance Sheet"; Code[10])
         {
             Caption = 'Open Balance Sheet';
             TableRelation = "Source Code";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -489,12 +516,17 @@ table 242 "Source Code Setup"
                         FieldCaption("Close Balance Sheet"),
                         "Close Balance Sheet"));
             end;
+#endif
         }
         field(11766; "Cash Desk"; Code[10])
         {
             Caption = 'Cash Desk';
             TableRelation = "Source Code";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -510,7 +542,11 @@ table 242 "Source Code Setup"
         {
             Caption = 'Credit';
             TableRelation = "Source Code";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

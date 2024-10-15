@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 103 "Cust. Entry-Edit"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
@@ -67,3 +68,4 @@ codeunit 103 "Cust. Entry-Edit"
     end;
 }
 
+#endif

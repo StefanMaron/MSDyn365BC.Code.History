@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 103 "Account Schedule Names"
 {
     ApplicationArea = Basic, Suite;
@@ -168,3 +169,4 @@ page 103 "Account Schedule Names"
     }
 }
 
+#endif

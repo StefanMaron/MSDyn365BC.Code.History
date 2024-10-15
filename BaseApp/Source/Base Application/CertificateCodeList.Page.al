@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31130 "Certificate Code List"
 {
     ApplicationArea = Basic, Suite;
@@ -49,3 +50,4 @@ page 31130 "Certificate Code List"
         }
     }
 }
+#endif

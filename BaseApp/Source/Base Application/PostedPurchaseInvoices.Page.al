@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 146 "Posted Purchase Invoices"
 {
     ApplicationArea = Basic, Suite;
@@ -185,6 +186,10 @@ page 146 "Posted Purchase Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reversed credit memo number for the purchase invoice header.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -567,6 +572,7 @@ page 146 "Posted Purchase Invoices"
     var
         IsOfficeAddin: Boolean;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetSelection(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
@@ -574,3 +580,4 @@ page 146 "Posted Purchase Invoices"
     end;
 }
 
+#endif

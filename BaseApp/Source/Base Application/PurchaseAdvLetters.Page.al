@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31023 "Purchase Adv. Letters"
 {
-    Caption = 'Purchase Adv. Letters';
+    Caption = 'Purchase Adv. Letters (Obsolete)';
     CardPageID = "Purchase Advance Letter";
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Advance Letter Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -158,4 +162,4 @@ page 31023 "Purchase Adv. Letters"
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
 }
-
+#endif

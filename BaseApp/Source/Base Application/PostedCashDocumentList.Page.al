@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11737 "Posted Cash Document List"
 {
     ApplicationArea = Basic, Suite;
@@ -163,3 +164,5 @@ page 11737 "Posted Cash Document List"
         CashDeskMgt: Codeunit CashDeskManagement;
 }
 
+
+#endif

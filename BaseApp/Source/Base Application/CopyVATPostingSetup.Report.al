@@ -22,23 +22,29 @@ report 85 "Copy - VAT Posting Setup"
 
                     // NAVCZ
                     "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
+#if not CLEAN17
                     "Reverse Charge Check" := VATPostingSetup."Reverse Charge Check";
+#endif
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
+#if not CLEAN17
                     "Allow Blank VAT Date" := VATPostingSetup."Allow Blank VAT Date";
                     "VAT Rate" := VATPostingSetup."VAT Rate";
                     "Supplies Mode Code" := VATPostingSetup."Supplies Mode Code";
                     "Corrections for Bad Receivable" := VATPostingSetup."Corrections for Bad Receivable";
                     "Ratio Coefficient" := VATPostingSetup."Ratio Coefficient";
+#endif
                     // NAVCZ
                 end;
 
                 if Sales then begin
                     "Sales VAT Account" := VATPostingSetup."Sales VAT Account";
                     "Sales VAT Unreal. Account" := VATPostingSetup."Sales VAT Unreal. Account";
+#if not CLEAN17
 
                     // NAVCZ
                     "Sales VAT Delay Account" := VATPostingSetup."Sales VAT Delay Account";
                     // NAVCZ
+#endif                    
                 end;
 
                 if Purch then begin
@@ -46,15 +52,23 @@ report 85 "Copy - VAT Posting Setup"
                     "Purch. VAT Unreal. Account" := VATPostingSetup."Purch. VAT Unreal. Account";
                     "Reverse Chrg. VAT Acc." := VATPostingSetup."Reverse Chrg. VAT Acc.";
                     "Reverse Chrg. VAT Unreal. Acc." := VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.";
+#if not CLEAN17
                     "Purchase VAT Delay Account" := VATPostingSetup."Purchase VAT Delay Account"; // NAVCZ
+#endif
                 end;
 
                 // NAVCZ
+#if CLEAN17
+                if VIES then
+                    "EU Service" := VATPostingSetup."EU Service";
+#else
                 if VIES then begin
                     "EU Service" := VATPostingSetup."EU Service";
                     "VIES Purchases" := VATPostingSetup."VIES Purchases";
                     "VIES Sales" := VATPostingSetup."VIES Sales";
                 end;
+#endif                
+#if not CLEAN19
                 if Adv then begin
                     "Sales Advance Offset VAT Acc." := VATPostingSetup."Sales Advance Offset VAT Acc.";
                     "Purch. Advance Offset VAT Acc." := VATPostingSetup."Purch. Advance Offset VAT Acc.";
@@ -63,6 +77,7 @@ report 85 "Copy - VAT Posting Setup"
                     "Sales Ded. VAT Base Adj. Acc." := VATPostingSetup."Sales Ded. VAT Base Adj. Acc.";
                     "Purch. Ded. VAT Base Adj. Acc." := VATPostingSetup."Purch. Ded. VAT Base Adj. Acc.";
                 end;
+#endif
                 // NAVCZ
 
                 OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch);
@@ -161,17 +176,23 @@ report 85 "Copy - VAT Posting Setup"
                             Selection := Selection::"Selected fields"; // NAVCZ
                         end;
                     }
+#if not CLEAN19
                     field(Adv; Adv)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Advance';
                         ToolTip = 'Specifies if the advance G/L accounts have to be copied.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
 
                         trigger OnValidate()
                         begin
                             Selection := Selection::"Selected fields"; // NAVCZ
                         end;
                     }
+#endif
                 }
             }
         }
@@ -188,7 +209,9 @@ report 85 "Copy - VAT Posting Setup"
                 Purch := true;
                 // NAVCZ
                 VIES := true;
+#if not CLEAN19
                 Adv := true;
+#endif
                 // NAVCZ
             end;
         end;
@@ -207,7 +230,9 @@ report 85 "Copy - VAT Posting Setup"
         Purch: Boolean;
         Selection: Option "All fields","Selected fields";
         VIES: Boolean;
+#if not CLEAN19
         Adv: Boolean;
+#endif
 
     procedure SetVATSetup(VATPostingSetup2: Record "VAT Posting Setup")
     begin
@@ -221,7 +246,9 @@ report 85 "Copy - VAT Posting Setup"
         Purch := true;
         // NAVCZ
         VIES := true;
+#if not CLEAN19
         Adv := true;
+#endif
         // NAVCZ
     end;
 

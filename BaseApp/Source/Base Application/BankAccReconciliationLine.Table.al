@@ -8,7 +8,11 @@
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -26,6 +30,7 @@
         field(5; "Transaction Date"; Date)
         {
             Caption = 'Transaction Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -34,6 +39,7 @@
                     Validate("Currency Code");
                 // NAVCZ
             end;
+#endif
         }
         field(6; Description; Text[100])
         {
@@ -41,13 +47,18 @@
         }
         field(7; "Statement Amount"; Decimal)
         {
+#if CLEAN19
+            AutoFormatExpression = GetCurrencyCode();
+#else
             AutoFormatExpression = "Currency Code";
+#endif
             AutoFormatType = 1;
             Caption = 'Statement Amount';
 
             trigger OnValidate()
             begin
                 Difference := "Statement Amount" - "Applied Amount";
+#if not CLEAN19
 
                 // NAVCZ
                 GetCurrency;
@@ -63,23 +74,36 @@
                 UpdateAmounts;
                 UpdateDocumentType;
                 // NAVCZ
+#endif
             end;
         }
         field(8; Difference; Decimal)
         {
+#if CLEAN19
+            AutoFormatExpression = GetCurrencyCode();
+#else
             AutoFormatExpression = "Currency Code";
+#endif
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Difference';
 
             trigger OnValidate()
             begin
+#if CLEAN19
+                "Statement Amount" := "Applied Amount" + Difference;
+#else
                 Validate("Statement Amount", "Applied Amount" + Difference); // NAVCZ
+#endif
             end;
         }
         field(9; "Applied Amount"; Decimal)
         {
+#if CLEAN19
+            AutoFormatExpression = GetCurrencyCode();
+#else
             AutoFormatExpression = "Currency Code";
+#endif
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Applied Amount';
@@ -88,7 +112,9 @@
             trigger OnValidate()
             begin
                 Difference := "Statement Amount" - "Applied Amount";
+#if not CLEAN19
                 UpdateAmounts; // NAVCZ
+#endif
             end;
         }
         field(10; Type; Option)
@@ -172,7 +198,9 @@
                     end;
                 if "Account Type" <> xRec."Account Type" then
                     Validate("Account No.", '');
+#if not CLEAN19
                 UpdateDocumentType; // NAVCZ
+#endif
             end;
         }
         field(22; "Account No."; Code[20])
@@ -194,15 +222,18 @@
             IF ("Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
+#if not CLEAN19
             var
                 Customer: Record Customer;
                 Vendor: Record Vendor;
+#endif
             begin
                 TestField("Applied Amount", 0);
                 CreateDim(
                   DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                   DATABASE::"Salesperson/Purchaser", GetSalepersonPurchaserCode);
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+#if not CLEAN19
 
                 // NAVCZ
                 "Posting Group" := '';
@@ -220,6 +251,7 @@
                             end;
                     end;
                 // NAVCZ
+#endif
             end;
         }
         field(23; "Transaction Text"; Text[140])
@@ -328,26 +360,64 @@
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11705; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11710; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -371,6 +441,7 @@
                 Validate("Currency Factor");
                 // NAVCZ
             end;
+#endif
         }
         field(11711; "Currency Factor"; Decimal)
         {
@@ -378,6 +449,14 @@
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -387,11 +466,20 @@
                 Validate("Statement Amount");
                 // NAVCZ
             end;
+#endif
         }
         field(11715; "Statement Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Statement Amount (LCY)';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -417,6 +505,7 @@
                 end;
                 // NAVCZ
             end;
+#endif
         }
         field(11716; "Debit Amount"; Decimal)
         {
@@ -424,6 +513,14 @@
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -434,6 +531,7 @@
                 Validate("Statement Amount");
                 // NAVCZ
             end;
+#endif
         }
         field(11717; "Credit Amount"; Decimal)
         {
@@ -441,6 +539,14 @@
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -451,12 +557,21 @@
                 Validate("Statement Amount");
                 // NAVCZ
             end;
+#endif
         }
         field(11720; "Document Type"; Option)
         {
             Caption = 'Document Type';
             OptionCaption = ' ,Payment,,,,,Refund';
             OptionMembers = " ",Payment,,,,,Refund;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -475,6 +590,7 @@
                 end;
                 // NAVCZ
             end;
+#endif
         }
         field(11725; "Difference (LCY)"; Decimal)
         {
@@ -482,11 +598,20 @@
             BlankZero = true;
             Caption = 'Difference (LCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 Validate("Statement Amount (LCY)", "Applied Amount (LCY)" + "Difference (LCY)"); // NAVCZ
             end;
+#endif
         }
         field(11726; "Applied Amount (LCY)"; Decimal)
         {
@@ -494,6 +619,14 @@
             BlankZero = true;
             Caption = 'Applied Amount (LCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -504,6 +637,7 @@
             begin
                 UpdateAmounts; // NAVCZ
             end;
+#endif
         }
         field(11727; "Applied Amount (BCY)"; Decimal)
         {
@@ -512,11 +646,20 @@
             BlankZero = true;
             Caption = 'Applied Amount (BCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnLookup()
             begin
                 DisplayApplication; // NAVCZ
             end;
+#endif
         }
         field(11728; "Statement Amount (BCY)"; Decimal)
         {
@@ -524,6 +667,13 @@
             AutoFormatType = 1;
             Caption = 'Statement Amount (BCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11729; "Difference (BCY)"; Decimal)
         {
@@ -532,14 +682,35 @@
             BlankZero = true;
             Caption = 'Difference (BCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11730; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11731; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11740; "Posting Group"; Code[20])
         {
@@ -547,6 +718,14 @@
             TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -557,14 +736,30 @@
                     PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
                 // NAVCZ
             end;
+#endif
         }
         field(31000; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31010; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -572,6 +767,7 @@
                 if not Prepayment then
                     TestField("Advance Letter Link Code", '');
             end;
+#endif
         }
     }
 
@@ -600,7 +796,9 @@
         RemoveAppliedPaymentEntries;
         DeletePaymentMatchingDetails;
         UpdateParentLineStatementAmount;
+#if not CLEAN19
         RemoveLinkedAdvanceLines; // NAVCZ
+#endif
         if Find then;
     end;
 
@@ -609,10 +807,12 @@
         BankAccRecon.Get("Statement Type", "Bank Account No.", "Statement No.");
         "Applied Entries" := 0;
         Validate("Applied Amount", 0);
+#if not CLEAN19
         // NAVCZ
         if "Currency Code" = '' then
             Validate("Currency Code", GetCurrencyCode);
         // NAVCZ
+#endif
     end;
 
     trigger OnModify()
@@ -645,8 +845,10 @@
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
         BankAccRecon: Record "Bank Acc. Reconciliation";
+#if not CLEAN19
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
+#endif
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
         CheckSetStmtNo: Codeunit "Check Entry Set Recon.-No.";
         DimMgt: Codeunit DimensionManagement;
@@ -654,13 +856,17 @@
         AmountWithinToleranceRangeTok: Label '>=%1&<=%2', Locked = true;
         AmountOustideToleranceRangeTok: Label '<%1|>%2', Locked = true;
         TransactionAmountMustNotBeZeroErr: Label 'The Transaction Amount field must have a value that is not 0.';
+#if not CLEAN19
         CurrencyFactorErr: Label 'cannot be specified without %1', Comment = '%1=FIELDCAPTION';
         BankPmtApplRuleCode: Code[10];
         TextToAccMappingCode: Code[10];
+#endif
         CreditTheAccountQst: Label 'The remaining amount to apply is %2.\\Do you want to create a new payment application line that will debit or credit %1 with the remaining amount when you post the payment?', Comment = '%1 is the account name, %2 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ImportPostedTransactionsQst: Label 'The bank statement contains payments that are already applied, but the related bank account ledger entries are not closed.\\Do you want to include these payments in the import?';
+#if not CLEAN19
         AdvanceTxt: Label 'Advance';
+#endif
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
         AppliedEntriesFilterLbl: Label '|%1', Locked = true;
         MatchedAutomaticallyFilterLbl: Label '=%1|%2|%3|%4', Locked = true;
@@ -828,10 +1034,12 @@
     begin
         RemoveAppliedPaymentEntries;
         DeletePaymentMatchingDetails;
+#if not CLEAN19
         // NAVCZ
         if "Advance Letter Link Code" <> '' then
             UnlinkWholeLetters;
         // NAVCZ
+#endif
     end;
 
     procedure AcceptApplication()
@@ -857,12 +1065,57 @@
         AppliedPaymentEntry.ModifyAll("Match Confidence", "Match Confidence"::Accepted);
     end;
 
+    procedure FilterManyToOneMatches(var BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer")
+    begin
+        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+        BankAccRecMatchBuffer.SetRange("Statement Line No.", Rec."Statement Line No.");
+    end;
+
     local procedure RemoveApplication(AppliedType: Option)
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        ManyToOneBLEFound: Boolean;
     begin
         if "Statement Type" = "Statement Type"::"Bank Reconciliation" then
             case AppliedType of
                 Type::"Bank Account Ledger Entry":
                     begin
+                        FilterManyToOneMatches(BankAccRecMatchBuffer);
+                        if BankAccRecMatchBuffer.FindFirst() then begin
+                            BankAccLedgEntry.Reset();
+                            BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
+                            BankAccLedgEntry.SetRange(Open, true);
+                            BankAccLedgEntry.SetRange(
+                                "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+                            if BankAccLedgEntry.FindFirst() then begin
+                                ManyToOneBLEFound := true;
+                                BankAccSetStmtNo.RemoveReconNo(BankAccLedgEntry, Rec, false);
+                                BankAccRecMatchBuffer.Delete();
+                            end;
+                        end;
+
+
+                        BankAccRecMatchBuffer.Reset();
+                        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
+                        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+                        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+                        if (BankAccRecMatchBuffer.FindSet()) and (ManyToOneBLEFound) then begin
+                            repeat
+                                BankAccReconciliationLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
+                                BankAccReconciliationLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
+                                BankAccReconciliationLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
+                                if BankAccReconciliationLine.FindFirst() then begin
+                                    BankAccReconciliationLine."Applied Entries" := 0;
+                                    BankAccReconciliationLine.Validate("Applied Amount", 0);
+                                    BankAccReconciliationLine.Modify();
+                                end;
+                            until BankAccRecMatchBuffer.Next() = 0;
+
+                            BankAccRecMatchBuffer.DeleteAll();
+                        end;
+
                         BankAccLedgEntry.Reset();
                         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
                         BankAccLedgEntry.SetRange("Bank Account No.", "Bank Account No.");
@@ -1114,7 +1367,9 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+#if not CLEAN19
         GLEntry: Record "G/L Entry";
+#endif
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         MinAmount: Decimal;
         MaxAmount: Decimal;
@@ -1152,11 +1407,22 @@
     end;
 
     local procedure GetCustomerLedgerEntriesInAmountRange(var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
+#if CLEAN19
+    var
+        BankAccount: Record "Bank Account";
+#endif
     begin
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+#if CLEAN19
+        BankAccount.Get("Bank Account No.");
+        GetApplicableCustomerLedgerEntries(CustLedgerEntry, BankAccount."Currency Code", AccountNo);
+
+        if BankAccount.IsInLocalCurrency then
+#else
         GetApplicableCustomerLedgerEntries(CustLedgerEntry, "Currency Code", AccountNo); // NAVCZ
 
         if IsInLocalCurrency then // NAVCZ
+#endif
             CustLedgerEntry.SetFilter("Remaining Amt. (LCY)", AmountFilter, MinAmount, MaxAmount)
         else
             CustLedgerEntry.SetFilter("Remaining Amount", AmountFilter, MinAmount, MaxAmount);
@@ -1165,17 +1431,30 @@
     end;
 
     local procedure GetVendorLedgerEntriesInAmountRange(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
+#if CLEAN19
+    var
+        BankAccount: Record "Bank Account";
+#endif
     begin
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+#if CLEAN19
+
+        BankAccount.Get("Bank Account No.");
+        GetApplicableVendorLedgerEntries(VendorLedgerEntry, BankAccount."Currency Code", AccountNo);
+
+        if BankAccount.IsInLocalCurrency then
+#else
         GetApplicableVendorLedgerEntries(VendorLedgerEntry, "Currency Code", AccountNo); // NAVCZ
 
         if IsInLocalCurrency then // NAVCZ
+#endif
             VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", AmountFilter, MinAmount, MaxAmount)
         else
             VendorLedgerEntry.SetFilter("Remaining Amount", AmountFilter, MinAmount, MaxAmount);
 
         exit(VendorLedgerEntry.Count);
     end;
+
 #if not CLEAN19
     [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure GetGeneralLedgerEntriesInAmountRange(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
@@ -1203,8 +1482,8 @@
         GLEntry.MarkedOnly(true);
         exit(GLEntry.Count);
     end;
-#endif
 
+#endif    
     local procedure GetBankAccountLedgerEntriesInAmountRange(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
         BankAccount: Record "Bank Account";
@@ -1221,6 +1500,11 @@
     begin
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetRange("Applies-to ID", '');
+#if CLEAN19
+        CustLedgerEntry.SetFilter("Document Type", '<>%1&<>%2',
+          CustLedgerEntry."Document Type"::Payment,
+          CustLedgerEntry."Document Type"::Refund);
+#endif
 
         if CurrencyCode <> '' then
             CustLedgerEntry.SetRange("Currency Code", CurrencyCode);
@@ -1233,6 +1517,11 @@
     begin
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetRange("Applies-to ID", '');
+#if CLEAN19
+        VendorLedgerEntry.SetFilter("Document Type", '<>%1&<>%2',
+          VendorLedgerEntry."Document Type"::Payment,
+          VendorLedgerEntry."Document Type"::Refund);
+#endif
 
         if CurrencyCode <> '' then
             VendorLedgerEntry.SetRange("Currency Code", CurrencyCode);
@@ -1240,6 +1529,7 @@
         if AccountNo <> '' then
             VendorLedgerEntry.SetFilter("Vendor No.", AccountNo);
     end;
+
 #if not CLEAN19
     [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure GetApplicableGeneralLedgerEntries(var GLEntry: Record "G/L Entry"; AccountNo: Code[20])
@@ -1251,8 +1541,8 @@
         if AccountNo <> '' then
             GLEntry.SetFilter("G/L Account No.", AccountNo);
     end;
-#endif
 
+#endif
     local procedure GetApplicableBankAccountLedgerEntries(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; CurrencyCode: Code[10]; AccountNo: Code[20])
     begin
         BankAccountLedgerEntry.SetRange(Open, true);
@@ -1314,8 +1604,10 @@
     local procedure GetAppliedNo(ApplyType: Option "Document No.","Entry No."; SeparatorText: Text): Text
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
+#if not CLEAN19
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
+#endif
         AppliedNumbers: Text;
     begin
         AppliedPaymentEntry.SetRange("Statement Type", "Statement Type");
@@ -1333,7 +1625,11 @@
                         else
                             AppliedNumbers := AppliedNumbers + SeparatorText + AppliedPaymentEntry."Document No.";
                 end else begin
+#if CLEAN19
+                    if AppliedPaymentEntry."Applies-to Entry No." <> 0 then
+#else
                     if AppliedPaymentEntry."Applies-to Entry No." > 0 then // NAVCZ
+#endif
                         if AppliedNumbers = '' then
                             AppliedNumbers := Format(AppliedPaymentEntry."Applies-to Entry No.")
                         else
@@ -1342,6 +1638,7 @@
             until AppliedPaymentEntry.Next() = 0;
         end;
 
+#if not CLEAN19
         // NAVCZ
         if ("Advance Letter Link Code" <> '') and (ApplyType = ApplyType::"Document No.") then
             case "Account Type" of
@@ -1374,6 +1671,7 @@
             end;
         // NAVCZ
 
+#endif
         exit(AppliedNumbers);
     end;
 
@@ -1432,10 +1730,12 @@
         TestField("Account No.");
 
         SetAppliedPaymentEntryFromRec(AppliedPaymentEntry);
+#if not CLEAN19
         // NAVCZ
         AppliedPaymentEntry.Validate("Currency Code", "Currency Code");
         AppliedPaymentEntry.Validate("Currency Factor", "Currency Factor");
         // NAVCZ
+#endif
         AppliedPaymentEntry.Validate("Applied Amount", Difference);
         AppliedPaymentEntry.Validate("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
         AppliedPaymentEntry.Insert(true);
@@ -1499,6 +1799,7 @@
         MaxAmount := Round(MaxAmount);
     end;
 
+#if not CLEAN19
     local procedure GetCurrency()
     var
         CurrencyCode: Code[10];
@@ -1516,6 +1817,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure CheckFixedCurrency(): Boolean
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -1586,6 +1888,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure LinkLetters()
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
@@ -1619,6 +1922,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure LinkWholeLetters()
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
@@ -1659,6 +1963,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure UnlinkWholeLetters()
     begin
         // NAVCZ
@@ -1725,6 +2030,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetAmountInBankAccCurrCode(): Decimal
     var
         BankAcc: Record "Bank Account";
@@ -1738,6 +2044,7 @@
         exit(CurrExchRate.ExchangeAmount("Statement Amount", "Currency Code", BankAcc."Currency Code", "Transaction Date"));
     end;
 
+#endif
 #if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
@@ -1751,7 +2058,9 @@
     end;
 
 #endif
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure IsInLocalCurrency(): Boolean
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1765,6 +2074,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetBankPmtApplRuleCode(): Code[10]
     var
         BankAcc: Record "Bank Account";
@@ -1779,6 +2089,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetTextToAccountMappingCode(): Code[10]
     var
         BankAcc: Record "Bank Account";
@@ -1792,6 +2103,7 @@
         exit(TextToAccMappingCode);
     end;
 
+#endif
     procedure GetAppliedPmtData(var AppliedPmtEntry: Record "Applied Payment Entry"; var RemainingAmountAfterPosting: Decimal; var DifferenceStatementAmtToApplEntryAmount: Decimal; PmtAppliedToTxt: Text)
     var
         CurrRemAmtAfterPosting: Decimal;
@@ -1910,6 +2222,7 @@
         exit(BankAccReconciliationLine.IsEmpty);
     end;
 
+#if not CLEAN19
     local procedure RemoveLinkedAdvanceLines()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -1923,6 +2236,7 @@
     end;
 
 
+#endif
     local procedure GetSalepersonPurchaserCode(): Code[20]
     var
         Customer: Record Customer;
@@ -1956,6 +2270,7 @@
         exit(CopyStr(Format("Statement No.") + '-' + Format("Statement Line No."), 1, MaxStrLen(CustLedgerEntry."Applies-to ID")));
     end;
 
+#if not CLEAN19
     local procedure GetAppliedAmtFromAdvLetters(InLCY: Boolean): Decimal
     begin
         // NAVCZ
@@ -2018,6 +2333,7 @@
         exit(TotalAppliedAmount);
     end;
 
+#endif
     procedure GetDescription(): Text[100]
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";

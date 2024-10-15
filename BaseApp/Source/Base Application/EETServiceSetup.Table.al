@@ -1,7 +1,11 @@
 table 31120 "EET Service Setup"
 {
     Caption = 'EET Service Setup (Obsolete)';
+#if CLEAN18    
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '18.0';
 
@@ -15,6 +19,7 @@ table 31120 "EET Service Setup"
         {
             Caption = 'Service URL';
             ExtendedDatatype = URL;
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -34,6 +39,7 @@ table 31120 "EET Service Setup"
                 if not Confirmed then
                     "Service URL" := xRec."Service URL";
             end;
+#endif
         }
         field(10; "Sales Regime"; Option)
         {
@@ -54,6 +60,7 @@ table 31120 "EET Service Setup"
         field(15; Enabled; Boolean)
         {
             Caption = 'Enabled';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -70,11 +77,14 @@ table 31120 "EET Service Setup"
                 end else
                     CancelJobQueueEntry;
             end;
+#endif
         }
         field(17; "Certificate Code"; Code[10])
         {
             Caption = 'Certificate Code';
+#if not CLEAN18
             TableRelation = "Certificate CZ Code";
+#endif
         }
     }
 
@@ -89,6 +99,7 @@ table 31120 "EET Service Setup"
     fieldgroups
     {
     }
+#if not CLEAN18
 
     trigger OnInsert()
     begin
@@ -168,5 +179,6 @@ table 31120 "EET Service Setup"
           EETEntry."EET Status"::"Send Pending");
         exit(not EETEntry.IsEmpty);
     end;
+#endif
 }
 

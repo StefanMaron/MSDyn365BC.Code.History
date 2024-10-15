@@ -50,6 +50,7 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
                     ApplicationArea = Basic, Suite;
@@ -59,6 +60,7 @@ page 40 "Item Journal"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -128,9 +130,9 @@ page 40 "Item Journal"
                         Item: Record Item;
                         WMSManagement: Codeunit "WMS Management";
                     begin
-                        if "Location Code" <> '' then
-                            if Item.Get("Item No.") then
-                                Item.TestField(Type, Item.Type::Inventory);
+                        if Item.Get("Item No.") then
+                            if Item.IsNonInventoriableType() then
+                                exit;
                         WMSManagement.CheckItemJnlLineLocation(Rec, xRec);
                     end;
                 }
@@ -158,6 +160,7 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("G/L Correction"; "G/L Correction")
                 {
                     ApplicationArea = Basic, Suite;
@@ -167,6 +170,7 @@ page 40 "Item Journal"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field(Quantity; Quantity)
                 {
                     ApplicationArea = Basic, Suite;
@@ -203,6 +207,7 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
+#if not CLEAN18
                 field("Net Weight"; "Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
@@ -212,6 +217,7 @@ page 40 "Item Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Applies-to Entry"; "Applies-to Entry")
                 {
                     ApplicationArea = Basic, Suite;
@@ -223,6 +229,7 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the number of the outbound item ledger entry, whose cost is forwarded to the inbound item ledger entry.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Intrastat Transaction"; "Intrastat Transaction")
                 {
                     ApplicationArea = Basic, Suite;
@@ -232,6 +239,7 @@ page 40 "Item Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Shpt. Method Code"; "Shpt. Method Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -255,6 +263,7 @@ page 40 "Item Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the transaction specification, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN18
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -264,12 +273,14 @@ page 40 "Item Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -279,6 +290,7 @@ page 40 "Item Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;

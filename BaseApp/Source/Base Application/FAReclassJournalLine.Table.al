@@ -191,15 +191,19 @@ table 5624 "FA Reclass. Journal Line"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use FAReclassJnlManagement event OnBeforeOpenJournal.', '19.0')]
     procedure CheckFAReclassJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckFAReclassJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use FAReclassJnlManagement event OnBeforeOpenJournal.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckFAReclassJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 }
 

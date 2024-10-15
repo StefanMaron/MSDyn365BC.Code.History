@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31060 "VIES Declaration"
 {
     DefaultLayout = RDLC;
@@ -269,3 +270,5 @@ report 31060 "VIES Declaration"
         TotalValueEU3rdPartyItemSale: Decimal;
 }
 
+
+#endif

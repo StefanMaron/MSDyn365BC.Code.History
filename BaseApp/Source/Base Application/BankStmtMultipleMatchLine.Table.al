@@ -34,26 +34,61 @@ table 1249 "Bank Stmt Multiple Match Line"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(30000; "Letter Type"; Option)
         {
             Caption = 'Letter Type';
             OptionCaption = 'Sales,Purchase';
             OptionMembers = Sales,Purchase;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -77,15 +112,19 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Entry No." := TempLedgerEntryMatchingBuffer."Entry No.";
         "Due Date" := TempLedgerEntryMatchingBuffer."Due Date";
         "Document No." := TempLedgerEntryMatchingBuffer."Document No.";
+#if not CLEAN19
         // NAVCZ
         "Variable Symbol" := TempLedgerEntryMatchingBuffer."Variable Symbol";
         "Specific Symbol" := TempLedgerEntryMatchingBuffer."Specific Symbol";
         "Constant Symbol" := TempLedgerEntryMatchingBuffer."Constant Symbol";
         // NAVCZ
+#endif
         Insert;
     end;
+#if not CLEAN19
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure InsertLineForAdvanceLetter(AdvanceLetterMatchingBuffer: Record "Advance Letter Matching Buffer" temporary; LineNo: Integer; AccountType: Option)
     begin
         // NAVCZ
@@ -122,5 +161,6 @@ table 1249 "Bank Stmt Multiple Match Line"
         Copy(BankStmtMultipleMatchLine);
         exit(EntryNo);
     end;
+#endif
 }
 

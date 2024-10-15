@@ -1,4 +1,5 @@
-﻿codeunit 5895 "Inventory Adjustment"
+﻿﻿#if not CLEAN18
+codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -124,13 +125,11 @@
         GLSetup.Get();
         PostingDateForClosedPeriod := GLSetup.FirstAllowedPostingDate;
 
-#if not CLEAN18
         // NAVCZ
         GLSetup.TestField("Closed Period Entry Pos.Date");
         PostingDateForClosedPeriod := GLSetup."Closed Period Entry Pos.Date";
         RoundingDate := GLSetup."Rounding Date";
         // NAVCZ
-#endif
 
         GetAddReportingCurrency;
 
@@ -1043,7 +1042,7 @@
         TempExcludedValueEntry: Record "Value Entry" temporary;
         TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary;
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         RemainingOutbnd: Integer;
         Restart: Boolean;
         EndOfValuationDateReached: Boolean;
@@ -1094,7 +1093,7 @@
                         SetAvgCostAjmtFilter(AvgCostAdjmtEntryPoint);
                         Restart := FindFirst and not "Cost Is Adjusted";
                         OnAdjustItemAvgCostOnAfterCalcRestart(TempExcludedValueEntry, Restart);
-                        if "Valuation Date" >= PeriodFormMgt.EndOfPeriod() then
+                        if "Valuation Date" >= PeriodPageMgt.EndOfPeriod() then
                             EndOfValuationDateReached := true
                         else
                             "Valuation Date" := GetNextDate("Valuation Date");
@@ -1127,7 +1126,7 @@
         CalendarPeriod: Record Date;
         FiscalYearAccPeriod: Record "Accounting Period";
         ItemApplicationEntry: Record "Item Application Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         FindNextRange: Boolean;
     begin
         with ValueEntry do begin
@@ -1216,7 +1215,7 @@
             end;
 
             if FindNextRange then
-                if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodFormMgt.EndOfPeriod() then begin
+                if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodPageMgt.EndOfPeriod() then begin
                     AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
                     AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
                 end;
@@ -1856,7 +1855,6 @@
             ItemJnlLine."Location Code" := "Location Code";
             ItemJnlLine."Variant Code" := "Variant Code";
 
-#if not CLEAN18
             // NAVCZ
             case true of
                 (RoundingDate <> 0D) and (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::Rounding):
@@ -1873,19 +1871,15 @@
                         ItemJnlLine."Posting Date" := PostingDateForClosedPeriod;
             // NAVCZ
             end;
-#endif
-#if not CLEAN18
             /*
-#endif
             IF GLSetup.IsPostingAllowed("Posting Date") AND InvtPeriod.IsValidDate("Posting Date") THEN
               ItemJnlLine."Posting Date" := "Posting Date"
             ELSE
               ItemJnlLine."Posting Date" := PostingDateForClosedPeriod;
-#if not CLEAN18
             */
 
             // NAVCZ
-#endif
+
             OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
@@ -2546,16 +2540,13 @@
             until OpenValueEntry.Next() = 0;
     end;
 
-#if not CLEAN18
     [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
     local procedure IsPostingAllowed(ItemLEPostDate: Date; ClosingDate: Date): Boolean
     begin
         // NAVCZ
         exit(ItemLEPostDate >= ClosingDate);
     end;
-#endif
 
-#if not CLEAN18
     [Obsolete('The functionality is moved to Core Localization Pack for Czech and this function should not be used.', '18.0')]
     [Scope('OnPrem')]
     procedure SetRoundingDate(RoundingDateNew: Date)
@@ -2563,7 +2554,6 @@
         // NAVCZ
         RoundingDate := RoundingDateNew;
     end;
-#endif
 
     local procedure CopyJobToAdjustmentBuf(JobNo: Code[20])
     begin
@@ -3019,3 +3009,4 @@
     end;
 }
 
+#endif

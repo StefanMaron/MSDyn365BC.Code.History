@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 11704 "Bank Pmt. Appl. Rule Codes"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Bank Payment Application Rules';
+    Caption = 'Bank Payment Application Rules (Obsolete)';
     PageType = List;
     SourceTable = "Bank Pmt. Appl. Rule Code";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -51,3 +55,4 @@ page 11704 "Bank Pmt. Appl. Rule Codes"
     }
 }
 
+#endif

@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 codeunit 5987 "Serv-Posting Journals Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd;
@@ -26,8 +27,10 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Invoice: Boolean;
         ItemJnlRollRndg: Boolean;
         ServiceLinePostingDate: Date;
+#if not CLEAN18
         TotalVATDifferenceLCY: Decimal;
         VariableSymbol: Code[10];
+#endif
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -322,19 +325,23 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             CopyFromInvoicePostBuffer(InvoicePostBuffer);
             "Gen. Posting Type" := "Gen. Posting Type"::Sale;
 
+#if not CLEAN18
             // NAVCZ
             if "Currency Code" <> '' then
                 "VAT Amount" += InvoicePostBuffer."VAT Difference (LCY)";
             TotalVATDifferenceLCY += InvoicePostBuffer."VAT Difference (LCY)";
+#if not CLEAN17
             "VAT Date" := InvoicePostBuffer."VAT Date";
+#endif
             // NAVCZ
-
+#endif
             OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
             GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
         end;
     end;
 
+    [Obsolete('Merged to W1.', '19.0')]
     procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35]; PostingGroup: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -358,12 +365,17 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
             Amount := -TotalServiceLine."Amount Including VAT";
             "Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
+#if CLEAN18
+            "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
+#else
             "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT" - TotalVATDifferenceLCY; // NAVCZ
+#endif
             "Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
             "Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
             "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
             "System-Created Entry" := true;
 
+#if not CLEAN18
             // NAVCZ
             Correction := ServiceHeader.Correction;
             "Bank Account Code" := ServiceHeader."Bank Account Code";
@@ -378,18 +390,20 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             IBAN := ServiceHeader.IBAN;
             "SWIFT Code" := ServiceHeader."SWIFT Code";
             // NAVCZ
+#endif
             OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
     end;
 
+    [Obsolete('Merged to W1.', '19.0')]
     procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35]; PostingGroup: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         with GenJnlLine do begin
             InitNewLine(
               ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."Posting Description",
@@ -413,10 +427,18 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Source Currency Amount" := Amount;
             CustLedgEntry.CalcFields(Amount);
             if CustLedgEntry.Amount = 0 then
+#if CLEAN18
+                "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
+#else
                 "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT" + TotalVATDifferenceLCY // NAVCZ
+#endif            
             else
                 "Amount (LCY)" :=
+#if CLEAN18
+                  TotalServiceLineLCY."Amount Including VAT" +
+#else
                   TotalServiceLineLCY."Amount Including VAT" + TotalVATDifferenceLCY + // NAVCZ
+#endif                
                   Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
 
             OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
@@ -704,6 +726,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ServiceLinePostingDate := PostingDate;
     end;
 
+#if not CLEAN18
     [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
     [Scope('OnPrem')]
     procedure SetVariableSymbol(VariableSymbolNew: Code[10])
@@ -712,6 +735,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         VariableSymbol := VariableSymbolNew;
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
@@ -778,3 +802,4 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 }
 
+#endif

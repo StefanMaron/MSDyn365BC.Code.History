@@ -1,7 +1,11 @@
 table 31067 "VIES Declaration Line"
 {
     Caption = 'VIES Declaration Line';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -10,7 +14,9 @@ table 31067 "VIES Declaration Line"
         field(1; "VIES Declaration No."; Code[20])
         {
             Caption = 'VIES Declaration No.';
+#if not CLEAN17
             TableRelation = "VIES Declaration Header";
+#endif
         }
         field(2; "Trade Type"; Option)
         {
@@ -18,6 +24,7 @@ table 31067 "VIES Declaration Line"
             OptionCaption = 'Purchase,Sale, ';
             OptionMembers = Purchase,Sale," ";
             InitValue = " ";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -33,6 +40,7 @@ table 31067 "VIES Declaration Line"
                 "Record Code" := "Record Code"::" ";
                 "VAT Reg. No. of Original Cust." := '';
             end;
+#endif
         }
         field(6; "Line No."; Integer)
         {
@@ -43,11 +51,13 @@ table 31067 "VIES Declaration Line"
             Caption = 'Line Type';
             OptionCaption = 'New,Cancellation,Correction';
             OptionMembers = New,Cancellation,Correction;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestStatusOpen();
             end;
+#endif
         }
         field(8; "Related Line No."; Integer)
         {
@@ -61,16 +71,19 @@ table 31067 "VIES Declaration Line"
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestStatusOpen();
                 CheckLineType();
             end;
+#endif
         }
         field(11; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -79,11 +92,13 @@ table 31067 "VIES Declaration Line"
                 if "VAT Registration No." <> xRec."VAT Registration No." then
                     "Corrected Reg. No." := true;
             end;
+#endif
         }
         field(12; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
             DecimalPlaces = 0 : 0;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -93,42 +108,50 @@ table 31067 "VIES Declaration Line"
                 if "Amount (LCY)" <> xRec."Amount (LCY)" then
                     "Corrected Amount" := true;
             end;
+#endif
         }
         field(13; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestStatusOpen();
                 CheckLineType();
             end;
+#endif
         }
         field(14; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestStatusOpen();
                 CheckLineType();
             end;
+#endif
         }
         field(15; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestStatusOpen();
                 CheckLineType();
             end;
+#endif
         }
         field(17; "Number of Supplies"; Decimal)
         {
             BlankNumbers = DontBlank;
             Caption = 'Number of Supplies';
             DecimalPlaces = 0 : 0;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -136,6 +159,7 @@ table 31067 "VIES Declaration Line"
                 CheckLineType();
                 CheckTradeType();
             end;
+#endif
         }
         field(20; "Corrected Reg. No."; Boolean)
         {
@@ -153,6 +177,7 @@ table 31067 "VIES Declaration Line"
             OptionCaption = 'Direct Trade,Intermediate Trade,Property Movement, ';
             OptionMembers = "Direct Trade","Intermediate Trade","Property Movement"," ";
             InitValue = " ";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -160,6 +185,7 @@ table 31067 "VIES Declaration Line"
                 CheckLineType();
                 CheckTradeType();
             end;
+#endif
         }
         field(29; "System-Created"; Boolean)
         {
@@ -224,6 +250,7 @@ table 31067 "VIES Declaration Line"
     {
     }
 
+#if not CLEAN17
     trigger OnDelete()
     begin
         TestStatusOpen();
@@ -365,5 +392,6 @@ table 31067 "VIES Declaration Line"
         if "Trade Type" = "Trade Type"::" " then
             FieldError("Trade Type");
     end;
+#endif
 }
 

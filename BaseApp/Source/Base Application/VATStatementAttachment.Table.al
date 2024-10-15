@@ -1,9 +1,13 @@
 table 11773 "VAT Statement Attachment"
 {
     Caption = 'VAT Statement Attachment';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "VAT Statement Attachment List";
     LookupPageID = "VAT Statement Attachment List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -55,6 +59,7 @@ table 11773 "VAT Statement Attachment"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     trigger OnInsert()
     begin
@@ -151,5 +156,5 @@ table 11773 "VAT Statement Attachment"
         if not VATStatementAttachment.IsEmpty() then
             FieldError("File Name");
     end;
+#endif
 }
-

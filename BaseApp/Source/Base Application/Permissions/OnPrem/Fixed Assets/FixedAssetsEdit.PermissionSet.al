@@ -15,7 +15,9 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata "Currency Exchange Rate" = R,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
+#if not CLEAN18
                   tabledata "Depreciation Group" = R,
+#endif
                   tabledata "Depreciation Table Header" = RIMD,
                   tabledata "Depreciation Table Line" = RIMD,
 #if not CLEAN19
@@ -27,8 +29,8 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata "FA Depreciation Book" = RIMD,
 #if not CLEAN18
                   tabledata "FA Extended Posting Group" = R,
-#endif
                   tabledata "FA History Entry" = Rim,
+#endif
                   tabledata "FA Ledger Entry" = Rm,
                   tabledata "FA Location" = RIMD,
                   tabledata "FA Posting Group" = R,

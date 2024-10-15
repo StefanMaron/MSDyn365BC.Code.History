@@ -1,4 +1,4 @@
-table 1294 "Applied Payment Entry"
+﻿table 1294 "Applied Payment Entry"
 {
     Caption = 'Applied Payment Entry';
     LookupPageID = "Payment Application";
@@ -8,7 +8,11 @@ table 1294 "Applied Payment Entry"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -191,22 +195,52 @@ table 1294 "Applied Payment Entry"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11705; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -302,19 +336,23 @@ table 1294 "Applied Payment Entry"
     local procedure UpdateParentBankAccReconLine(IsDelete: Boolean)
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+#if not CLEAN19
+        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         BankAcc: Record "Bank Account";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         GLEntry: Record "G/L Entry";
-        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
-        NewAppliedAmt: Decimal;
         NewAppliedAmtLCY: Decimal;
+#endif
+        NewAppliedAmt: Decimal;
     begin
         BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
 
         NewAppliedAmt := GetTotalAppliedAmountInclPmtDisc(IsDelete);
+#if not CLEAN19
         NewAppliedAmtLCY := GetTotalAppliedAmountInclPmtDiscLCY(IsDelete); // NAVCZ
+#endif
 
         BankAccReconLine."Applied Entries" := GetNoOfAppliedEntries(IsDelete);
 
@@ -330,6 +368,7 @@ table 1294 "Applied Payment Entry"
             end else
                 CheckApplnIsSameAcc;
 
+#if not CLEAN19
         // NAVCZ
         BankAcc.Get(BankAccReconLine."Bank Account No.");
 
@@ -377,11 +416,16 @@ table 1294 "Applied Payment Entry"
                 end;
         // NAVCZ
 
+#endif
         BankAccReconLine.Validate("Applied Amount", NewAppliedAmt);
+#if not CLEAN19
         BankAccReconLine.Validate("Applied Amount (LCY)", NewAppliedAmtLCY); // NAVCZ
+#endif
         BankAccReconLine.Modify();
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetSalesAdvanceLetterLine(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line"): Boolean
     begin
         // NAVCZ
@@ -392,6 +436,7 @@ table 1294 "Applied Payment Entry"
         exit(SalesAdvanceLetterLine.FindSet);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetPurchAdvanceLetterLine(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"): Boolean
     begin
         // NAVCZ
@@ -402,17 +447,28 @@ table 1294 "Applied Payment Entry"
         exit(PurchAdvanceLetterLine.FindSet);
     end;
 
+#endif
     local procedure CheckCurrencyCombination()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendorLedgEntry: Record "Vendor Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+#if not CLEAN19
         GLEntry: Record "G/L Entry";
+#endif        
     begin
+#if CLEAN19
+        if IsBankLCY then
+#else
         if IsBankAccReconciliationLineLCY then // NAVCZ
+#endif
             exit;
 
+#if CLEAN19
+        if "Applies-to Entry No." = 0 then
+#else
         if "Applies-to Entry No." <= 0 then // NAVCZ
+#endif
             exit;
 
         case "Account Type" of
@@ -434,20 +490,35 @@ table 1294 "Applied Payment Entry"
                     if not CurrencyMatches("Bank Account No.", BankAccLedgEntry."Currency Code", GetLCYCode) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
-                // NAVCZ
+#if not CLEAN19
+            // NAVCZ
             "Account Type"::"G/L Account":
                 begin
                     GLEntry.Get("Applies-to Entry No.");
                     if not CurrencyMatches("Bank Account No.", GetLCYCode, GetLCYCode) then
                         Error(CurrencyMismatchErr, "Bank Account No.", "Applies-to Entry No.");
                 end;
-                // NAVCZ
+        // NAVCZ
+#endif
         end;
 
         OnAfterCheckCurrencyCombination(Rec);
     end;
 
     local procedure CurrencyMatches(BankAccNo: Code[20]; LedgEntryCurrCode: Code[10]; LCYCode: Code[10]): Boolean
+#if CLEAN19
+    var
+        BankAcc: Record "Bank Account";
+        BankAccCurrCode: Code[10];
+    begin
+        BankAcc.Get(BankAccNo);
+        BankAccCurrCode := BankAcc."Currency Code";
+        if BankAccCurrCode = '' then
+            BankAccCurrCode := LCYCode;
+        if LedgEntryCurrCode = '' then
+            LedgEntryCurrCode := LCYCode;
+        exit(LedgEntryCurrCode = BankAccCurrCode);
+#else
     var
         BankAccReconLn: Record "Bank Acc. Reconciliation Line";
         BankAccReconLnCurrCode: Code[10];
@@ -462,6 +533,7 @@ table 1294 "Applied Payment Entry"
         if LedgEntryCurrCode = '' then
             LedgEntryCurrCode := LCYCode;
         exit(LedgEntryCurrCode = BankAccReconLnCurrCode); // NAVCZ
+#endif
     end;
 
     local procedure IsBankLCY(): Boolean
@@ -521,7 +593,11 @@ table 1294 "Applied Payment Entry"
 
         if "Account No." = '' then
             exit;
+#if CLEAN19
+        if "Applies-to Entry No." = 0 then
+#else
         if "Applies-to Entry No." <= 0 then // NAVCZ
+#endif
             exit;
 
         case "Account Type" of
@@ -539,7 +615,11 @@ table 1294 "Applied Payment Entry"
         CustLedgEntry.Get("Applies-to Entry No.");
         PmtDiscDueDate := CustLedgEntry."Pmt. Discount Date";
         PmtDiscToleranceDate := CustLedgEntry."Pmt. Disc. Tolerance Date";
+#if CLEAN19
+        if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then
+#else
         if IsBankAccReconciliationLineLCY and (CustLedgEntry."Currency Code" <> '') then // NAVCZ
+#endif
             RemPmtDiscPossible :=
               Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor")
         else
@@ -554,7 +634,11 @@ table 1294 "Applied Payment Entry"
         PmtDiscDueDate := VendLedgEntry."Pmt. Discount Date";
         PmtDiscToleranceDate := VendLedgEntry."Pmt. Disc. Tolerance Date";
         VendLedgEntry.CalcFields("Amount (LCY)", Amount);
+#if CLEAN19
+        if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then
+#else
         if IsBankAccReconciliationLineLCY and (VendLedgEntry."Currency Code" <> '') then // NAVCZ
+#endif
             RemPmtDiscPossible :=
               Round(VendLedgEntry."Remaining Pmt. Disc. Possible" / VendLedgEntry."Adjusted Currency Factor")
         else
@@ -567,11 +651,12 @@ table 1294 "Applied Payment Entry"
             exit(0);
         if "Applies-to Entry No." = 0 then
             exit(GetStmtLineRemAmtToApply);
+#if not CLEAN19
         // NAVCZ
         if "Applies-to Entry No." = -1 then
             exit(GetAdvanceLetterRemAmt);
         // NAVCZ
-
+#endif
         case "Account Type" of
             "Account Type"::Customer:
                 exit(GetCustLedgEntryRemAmt);
@@ -594,7 +679,11 @@ table 1294 "Applied Payment Entry"
 
     local procedure GetAcceptedPmtTolerance(): Decimal
     begin
+#if CLEAN19
+        if ("Account No." = '') or ("Applies-to Entry No." = 0) then
+#else
         if ("Account No." = '') or ("Applies-to Entry No." <= 0) then // NAVCZ
+#endif
             exit(0);
         case "Account Type" of
             "Account Type"::Customer:
@@ -610,7 +699,11 @@ table 1294 "Applied Payment Entry"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         CustLedgEntry.Get("Applies-to Entry No.");
+#if CLEAN19
+        if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then begin
+#else
         if IsBankAccReconciliationLineLCY and (CustLedgEntry."Currency Code" <> '') then begin // NAVCZ
+#endif
             BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
             CustLedgEntry.CalcFields("Remaining Amount");
             exit(
@@ -627,7 +720,11 @@ table 1294 "Applied Payment Entry"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         VendLedgEntry.Get("Applies-to Entry No.");
+#if CLEAN19
+        if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then begin
+#else
         if IsBankAccReconciliationLineLCY and (VendLedgEntry."Currency Code" <> '') then begin // NAVCZ
+#endif
             BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
             VendLedgEntry.CalcFields("Remaining Amount");
             exit(
@@ -656,7 +753,11 @@ table 1294 "Applied Payment Entry"
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
     begin
         BankAccLedgEntry.Get("Applies-to Entry No.");
+#if CLEAN19
+        if IsBankLCY then
+#else
         if IsBankAccReconciliationLineLCY then // NAVCZ
+#endif
             exit(
               Round(
                 BankAccLedgEntry."Remaining Amount" *
@@ -674,8 +775,8 @@ table 1294 "Applied Payment Entry"
         GLEntry.Get("Applies-to Entry No.");
         exit(GLEntry.RemainingAmount);
     end;
-#endif
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetAdvanceLetterRemAmt(): Decimal
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
@@ -690,6 +791,7 @@ table 1294 "Applied Payment Entry"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetSalesAdvanceLetterRemAmt(LinkCode: Code[30]): Decimal
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -704,6 +806,7 @@ table 1294 "Applied Payment Entry"
         exit(SalesAdvanceLetterLine."Amount To Link");
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetPurchAdvanceLetterRemAmt(LinkCode: Code[30]): Decimal
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
@@ -718,6 +821,7 @@ table 1294 "Applied Payment Entry"
         exit(-PurchAdvanceLetterLine."Amount To Link");
     end;
 
+#endif
     local procedure GetCustLedgEntryPmtTolAmt(): Decimal
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -758,7 +862,11 @@ table 1294 "Applied Payment Entry"
 
     local procedure IsAcceptedPmtDiscTolerance(): Boolean
     begin
+#if CLEAN19
+        if ("Account No." = '') or ("Applies-to Entry No." = 0) then
+#else
         if ("Account No." = '') or ("Applies-to Entry No." <= 0) then // NAVCZ
+#endif
             exit(false);
         case "Account Type" of
             "Account Type"::Customer:
@@ -853,7 +961,11 @@ table 1294 "Applied Payment Entry"
 
     procedure GetLedgEntryInfo()
     begin
+#if CLEAN19
+        if "Applies-to Entry No." = 0 then
+#else
         if "Applies-to Entry No." <= 0 then // NAVCZ
+#endif
             exit;
 
         case "Account Type" of
@@ -864,11 +976,13 @@ table 1294 "Applied Payment Entry"
             "Account Type"::Employee:
                 GetEmployeeLedgEntryInfo();
             "Account Type"::"Bank Account":
-                GetBankAccLedgEntryInfo;
+                GetBankAccLedgEntryInfo();
+#if not CLEAN19
             // NAVCZ
             "Account Type"::"G/L Account":
                 GetGenLedgEntryInfo;
-                // NAVCZ
+        // NAVCZ
+#endif
         end;
 
         OnAfterGetLedgEntryInfo(Rec);
@@ -886,12 +1000,16 @@ table 1294 "Applied Payment Entry"
         "Document No." := CustLedgEntry."Document No.";
         "External Document No." := CustLedgEntry."External Document No.";
         "Currency Code" := CustLedgEntry."Currency Code";
+#if not CLEAN19
         // NAVCZ
         "Currency Factor" := CustLedgEntry."Adjusted Currency Factor";
+#if not CLEAN18
         "Specific Symbol" := CustLedgEntry."Specific Symbol";
         "Variable Symbol" := CustLedgEntry."Variable Symbol";
         "Constant Symbol" := CustLedgEntry."Constant Symbol";
+#endif
         // NAVCZ
+#endif
     end;
 
     local procedure GetVendLedgEntryInfo()
@@ -906,12 +1024,16 @@ table 1294 "Applied Payment Entry"
         "Document No." := VendLedgEntry."Document No.";
         "External Document No." := VendLedgEntry."External Document No.";
         "Currency Code" := VendLedgEntry."Currency Code";
+#if not CLEAN19
         // NAVCZ
         "Currency Factor" := VendLedgEntry."Adjusted Currency Factor";
+#if not CLEAN18
         "Specific Symbol" := VendLedgEntry."Specific Symbol";
         "Variable Symbol" := VendLedgEntry."Variable Symbol";
         "Constant Symbol" := VendLedgEntry."Constant Symbol";
+#endif
         // NAVCZ
+#endif
     end;
 
     local procedure GetEmployeeLedgEntryInfo()
@@ -940,6 +1062,7 @@ table 1294 "Applied Payment Entry"
         "Currency Code" := BankAccLedgEntry."Currency Code";
     end;
 
+#if not CLEAN19
     local procedure GetGenLedgEntryInfo()
     var
         GLEntry: Record "G/L Entry";
@@ -951,14 +1074,21 @@ table 1294 "Applied Payment Entry"
         "Document Type" := GLEntry."Document Type";
         "Document No." := GLEntry."Document No.";
         "External Document No." := GLEntry."External Document No.";
+#if not CLEAN18
         "Variable Symbol" := GLEntry."Variable Symbol";
+#endif
     end;
 
+#endif
     procedure GetAmtAppliedToOtherStmtLines(): Decimal
     var
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
+#if CLEAN19
+        if "Applies-to Entry No." = 0 then
+#else
         if "Applies-to Entry No." <= 0 then // NAVCZ
+#endif
             exit(0);
 
         AppliedPmtEntry := Rec;
@@ -1000,10 +1130,12 @@ table 1294 "Applied Payment Entry"
         "Bank Account No." := BankAccReconLine."Bank Account No.";
         "Statement No." := BankAccReconLine."Statement No.";
         "Statement Line No." := BankAccReconLine."Statement Line No.";
+#if not CLEAN19
         // NAVCZ
         "Currency Code" := BankAccReconLine."Currency Code";
         "Currency Factor" := BankAccReconLine."Currency Factor";
         // NAVCZ
+#endif
     end;
 
     procedure ApplyFromBankStmtMatchingBuf(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankStmtMatchingBuffer: Record "Bank Statement Matching Buffer"; TextMapperAmount: Decimal; EntryNo: Integer)
@@ -1020,7 +1152,11 @@ table 1294 "Applied Payment Entry"
         end else
             Validate("Applies-to Entry No.", EntryNo);
         Validate(Quality, BankStmtMatchingBuffer.Quality);
+#if CLEAN19
+        Validate("Match Confidence", BankPmtApplRule.GetMatchConfidence(BankStmtMatchingBuffer.Quality));
+#else
         Validate("Match Confidence", BankPmtApplRule.GetMatchConfidence(BankStmtMatchingBuffer.Quality, EntryNo < 0)); // NAVCZ
+#endif
         Insert(true);
     end;
 
@@ -1083,6 +1219,8 @@ table 1294 "Applied Payment Entry"
         exit(TotalAmountIncludingPmtDisc);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetTotalAppliedAmountInclPmtDiscLCY(IsDelete: Boolean): Decimal
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
@@ -1110,6 +1248,7 @@ table 1294 "Applied Payment Entry"
         exit(TotalAmountIncludingPmtDiscLCY);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetAppliedAmountInclPmtDiscLCY(): Decimal
     begin
@@ -1119,6 +1258,7 @@ table 1294 "Applied Payment Entry"
         exit(("Applied Amount" - "Applied Pmt. Discount") / "Currency Factor");
     end;
 
+#endif
     local procedure GetNoOfAppliedEntries(IsDelete: Boolean): Decimal
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
@@ -1183,6 +1323,8 @@ table 1294 "Applied Payment Entry"
         Modify(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IsBankAccReconciliationLineLCY(): Boolean
     var
@@ -1194,9 +1336,14 @@ table 1294 "Applied Payment Entry"
         exit(BankAccReconLn.IsInLocalCurrency);
     end;
 
+#endif
     local procedure ClearCustVendEntryApplicationData()
     begin
+#if CLEAN19
+        if "Applies-to Entry No." = 0 then
+#else
         if "Applies-to Entry No." <= 0 then // NAVCZ
+#endif
             exit;
 
         case "Account Type" of
@@ -1245,6 +1392,9 @@ table 1294 "Applied Payment Entry"
 
     procedure CalcAmountToApply(PostingDate: Date) AmountToApply: Decimal
     var
+#if CLEAN19
+        BankAccount: Record "Bank Account";
+#endif
         CurrExchRate: Record "Currency Exchange Rate";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1257,7 +1407,12 @@ table 1294 "Applied Payment Entry"
         if IsHandled then
             exit(AmountToApply);
 
+#if CLEAN19
+        BankAccount.Get("Bank Account No.");
+        if BankAccount.IsInLocalCurrency then begin
+#else
         if IsBankAccReconciliationLineLCY then begin
+#endif
             AmountToApply :=
               CurrExchRate.ExchangeAmount("Applied Amount", '', "Currency Code", PostingDate);
             case "Account Type" of

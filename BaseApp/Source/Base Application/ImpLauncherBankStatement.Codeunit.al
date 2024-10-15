@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11717 "Imp. Launcher Bank Statement"
 {
     TableNo = "Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     var
@@ -92,4 +96,4 @@ codeunit 11717 "Imp. Launcher Bank Statement"
         exit(CreateBankAccStmtLine.Run(BankAccRecon));
     end;
 }
-
+#endif

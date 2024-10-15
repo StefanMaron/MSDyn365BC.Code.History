@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 143000 "Library - Bank"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Localization Pack for Czech Test';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -231,4 +235,4 @@ codeunit 143000 "Library - Bank"
         BankPmtApplRule.InsertDefaultMatchingRules;
     end;
 }
-
+#endif

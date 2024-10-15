@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 31060 "Release VIES Declaration"
 {
     TableNo = "VIES Declaration Header";
@@ -69,3 +70,5 @@ codeunit 31060 "Release VIES Declaration"
     end;
 }
 
+
+#endif

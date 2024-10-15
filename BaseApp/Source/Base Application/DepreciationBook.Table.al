@@ -265,42 +265,66 @@ table 5611 "Depreciation Book"
         field(31040; "Deprication from 1st Month Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Month Day';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31041; "Acqui.,Appr.before Depr. Check"; Boolean)
         {
             Caption = 'Acqui.,Appr.before Depr. Check';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31042; "All Acquil. in same Year"; Boolean)
         {
             Caption = 'All Acquil. in same Year';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31043; "Check Deprication on Disposal"; Boolean)
         {
             Caption = 'Check Depreciation on Disposal';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31044; "Deprication from 1st Year Day"; Boolean)
         {
             Caption = 'Depreciation from 1st Year Day';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31045; "Mark Reclass. as Corrections"; Boolean)
         {
             Caption = 'Mark Reclass. as Corrections';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

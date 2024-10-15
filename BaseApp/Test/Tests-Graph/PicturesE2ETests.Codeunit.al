@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135543 "Pictures E2E Tests"
 {
     Subtype = Test;
@@ -912,4 +913,4 @@ codeunit 135543 "Pictures E2E Tests"
           'Recieved image is not the same as uploaded image');
     end;
 }
-
+#endif

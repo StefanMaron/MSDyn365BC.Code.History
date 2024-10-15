@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1400 DocumentNoVisibility
 {
     SingleInstance = true;
@@ -87,6 +88,7 @@ codeunit 1400 DocumentNoVisibility
         exit(SalesDocNoVisible);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Advance Letter"; DocNo: Code[20]): Boolean
     var
         NoSeries: Record "No. Series";
@@ -593,6 +595,7 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesMgt.DoGetNextNo(NoSeriesCode, SeriesDate, false, true) = '');
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SalesAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: Code[20]): Boolean
     var
@@ -631,6 +634,7 @@ codeunit 1400 DocumentNoVisibility
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PurchaseAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: Code[20]): Boolean
     var
@@ -669,6 +673,7 @@ codeunit 1400 DocumentNoVisibility
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure DetermineSalesAdvanceSeriesNo(TemplateCode: Code[10]): Code[20]
     var
         SalesAdvPaymentTemplate: Record "Sales Adv. Payment Template";
@@ -689,6 +694,7 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesCode);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure DeterminePurchaseAdvanceSeriesNo(TemplateCode: Code[10]): Code[20]
     var
         PurchaseAdvPaymentTemplate: Record "Purchase Adv. Payment Template";
@@ -709,6 +715,7 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesCode);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure BankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option "Bank Statement","Payment Order"; DocNo: Code[20]): Boolean
     var
@@ -743,6 +750,7 @@ codeunit 1400 DocumentNoVisibility
         exit(ForceShowNoSeriesForDocNo(DocNoSeries));
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     local procedure DetermineBankSeriesNo(BankAccNo: Code[20]; DocType: Option "Bank Statement","Payment Order"): Code[20]
     var
         BankAccount: Record "Bank Account";
@@ -765,6 +773,7 @@ codeunit 1400 DocumentNoVisibility
         end;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CreditCardNoIsVisible(DocNo: Code[20]): Boolean
@@ -805,6 +814,8 @@ codeunit 1400 DocumentNoVisibility
         exit(CreditsSetup."Credit Nos.");
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure StatReportingDocumentNoIsVisible(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"; DocNo: Code[20]): Boolean
@@ -859,6 +870,7 @@ codeunit 1400 DocumentNoVisibility
         end;
     end;
 
+#endif
     procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
     var
         NoSeries: Record "No. Series";
@@ -945,20 +957,24 @@ codeunit 1400 DocumentNoVisibility
     begin
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
+#if not CLEAN18
 
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.2')]
     [IntegrationEvent(false, false)]
@@ -971,5 +987,7 @@ codeunit 1400 DocumentNoVisibility
     local procedure OnBeforeStatReportingDocumentNoIsVisible(DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 144000 Banks
 {
     // Test Cases for Banks
@@ -13,6 +14,9 @@ codeunit 144000 Banks
 
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     var
         Assert: Codeunit Assert;
@@ -544,4 +548,4 @@ codeunit 144000 Banks
         exit;
     end;
 }
-
+#endif

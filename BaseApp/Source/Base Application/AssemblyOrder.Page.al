@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 900 "Assembly Order"
 {
     Caption = 'Assembly Order';
@@ -33,6 +34,7 @@ page 900 "Assembly Order"
                     ApplicationArea = Basic, Suite;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
+                    ShowMandatory = true;
                     TableRelation = Item."No." WHERE("Assembly BOM" = CONST(true));
                     ToolTip = 'Specifies the number of the item that is being assembled with the assembly order.';
 
@@ -54,6 +56,8 @@ page 900 "Assembly Order"
                         ApplicationArea = Assembly;
                         Editable = IsAsmToOrderEditable;
                         Importance = Promoted;
+                        BlankZero = true;
+                        ShowMandatory = true;
                         ToolTip = 'Specifies how many units of the assembly item that you expect to assemble with the assembly order.';
 
                         trigger OnValidate()
@@ -227,6 +231,16 @@ page 900 "Assembly Order"
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
+                }
+                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
             }
         }
@@ -874,3 +888,4 @@ page 900 "Assembly Order"
         IsAsmToOrderEditable: Boolean;
 }
 
+#endif

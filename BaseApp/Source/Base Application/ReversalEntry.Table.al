@@ -232,7 +232,9 @@ table 179 "Reversal Entry"
 #endif
         CheckFaErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
         UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
+#if not CLEAN19
         ReverseAdvPaymErr: Label 'You cannot reverse %1 No. %2 because the entry is linked to advanced.', Comment = '%1=Table Caption;%2=Entry No.';
+#endif
         HideWarningDialogs: Boolean;
 
     procedure ReverseTransaction(TransactionNo: Integer)
@@ -341,7 +343,9 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckCust(CustLedgEntry);
+#if not CLEAN19
                     CheckCustAdvPayment(CustLedgEntry); // NAVCZ
+#endif
                 until CustLedgEntry.Next() = 0;
         end;
 
@@ -351,7 +355,9 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckVend(VendLedgEntry);
+#if not CLEAN19
                     CheckVendAdvPayment(VendLedgEntry); // NAVCZ
+#endif
                 until VendLedgEntry.Next() = 0;
         end;
 
@@ -889,6 +895,8 @@ table 179 "Reversal Entry"
         exit(StrSubstNo(UnrealizedVATReverseErr, TableName, EntryNo));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure CheckCustAdvPayment(CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         AdvLink: Record "Advance Link";
@@ -909,6 +917,7 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
         end;
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure CheckVendAdvPayment(VendLedgEntry: Record "Vendor Ledger Entry")
     var
         PurchAdvLetterEntry: Record "Purch. Advance Letter Entry";
@@ -929,6 +938,7 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
         end;
     end;
 
+#endif
     local procedure InsertFromCustLedgEntry(var TempRevertTransactionNo: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
     var
         Cust: Record Customer;

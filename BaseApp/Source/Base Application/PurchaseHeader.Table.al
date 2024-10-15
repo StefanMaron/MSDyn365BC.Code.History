@@ -62,10 +62,12 @@
                 "Tax Liable" := Vend."Tax Liable";
                 "VAT Country/Region Code" := Vend."Country/Region Code";
                 "VAT Registration No." := Vend."VAT Registration No.";
+#if not CLEAN17
                 // NAVCZ
                 "Registration No." := Vend."Registration No.";
                 "Tax Registration No." := Vend."Tax Registration No.";
                 // NAVCZ
+#endif
                 Validate("Lead Time Calculation", Vend."Lead Time Calculation");
                 "Shipment Method Code" := Vend."Shipment Method Code";
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
@@ -83,9 +85,11 @@
 
                 // NAVCZ
                 "Order Address Code" := Vend."Default Order Address Code";
+#if not CLEAN18
                 Validate("Transaction Type", Vend."Transaction Type");
                 Validate("Transaction Specification", Vend."Transaction Specification");
                 Validate("Transport Method", Vend."Transport Method");
+#endif
                 // NAVCZ
 
                 OnValidateBuyFromVendorNoOnValidateBuyFromVendorNoOnBeforeValidatePayToVendor(Rec);
@@ -220,14 +224,20 @@
                 Validate("Currency Code");
                 Validate("Creditor No.", Vend."Creditor No.");
 
+#if not CLEAN18
                 // NAVCZ
                 if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"] then
                     Validate("Bank Account Code", GetBankAccountCode);
+#if not CLEAN17
                 "Registration No." := Vend."Registration No.";
                 "Tax Registration No." := Vend."Tax Registration No.";
+#endif
                 // NAVCZ
 
+#endif
+#if not CLEAN19
                 OnValidatePurchaseHeaderPayToVendorNo(Vend, Rec);
+#endif
                 OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vend, Rec, xRec);
 
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then // NAVCZ
@@ -467,6 +477,7 @@
 
                 if "Incoming Document Entry No." = 0 then
                     ValidateDocumentDateWithPostingDate();
+#if not CLEAN17
                 // NAVCZ
                 PurchSetup.Get();
                 if PurchSetup."Default VAT Date" = PurchSetup."Default VAT Date"::"Posting Date" then
@@ -474,6 +485,7 @@
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Posting Date" then
                     Validate("Original Document VAT Date", "Posting Date");
                 // NAVCZ
+#endif
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
                 then
@@ -638,6 +650,7 @@
         {
             Caption = 'Vendor Posting Group';
             TableRelation = "Vendor Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
 
@@ -646,6 +659,7 @@
                 CheckPostingGroupChange();
                 // NAVCZ
             end;
+#endif
         }
         field(32; "Currency Code"; Code[10])
         {
@@ -658,6 +672,14 @@
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen();
+#if CLEAN17
+                if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then
+                    UpdateCurrencyFactor
+                else
+                    if "Currency Code" <> xRec."Currency Code" then
+                        UpdateCurrencyFactor
+                    else
+#else
                 if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then begin
                     UpdateCurrencyFactor();
                     // NAVCZ
@@ -670,11 +692,14 @@
                         UpdateVATCurrencyFactor();
                         // NAVCZ
                     end else
+#endif
                         if "Currency Code" <> '' then begin
                             UpdateCurrencyFactor();
+#if not CLEAN17
                             // NAVCZ
                             UpdateVATCurrencyFactor();
                             // NAVCZ
+#endif
                             if "Currency Factor" <> xRec."Currency Factor" then
                                 ConfirmCurrencyFactorUpdate();
                         end;
@@ -692,6 +717,10 @@
 
             trigger OnValidate()
             begin
+#if CLEAN17
+                if "Currency Factor" <> xRec."Currency Factor" then
+                    UpdatePurchLinesByFieldNo(FieldNo("Currency Factor"), CurrFieldNo <> 0);
+#else
                 if "Currency Factor" <> xRec."Currency Factor" then begin // NAVCZ
                     UpdatePurchLinesByFieldNo(FieldNo("Currency Factor"), CurrFieldNo <> 0);
                     if (xRec."Currency Factor" = "VAT Currency Factor") or HideValidationDialog then
@@ -700,6 +729,7 @@
                         if Confirm(UpdateChangedFieldQst, true, FieldCaption("Currency Factor"), FieldCaption("VAT Currency Factor")) then
                             Validate("VAT Currency Factor", "Currency Factor");
                 end; // NAVCZ
+#endif
             end;
         }
         field(35; "Prices Including VAT"; Boolean)
@@ -1331,12 +1361,8 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
-            var
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBuyFromPostCodeOnBeforeOnLookup(Rec, IsHandled);
-                if IsHandled then
+                if BuyFromPostCodeOnBeforeLookupHandled() then
                     exit;
 
                 LookupPostCode("Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code", CurrFieldNo);
@@ -1478,6 +1504,7 @@
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
+#if not CLEAN17
                 // NAVCZ
                 PurchSetup.Get();
                 if PurchSetup."Default VAT Date" = PurchSetup."Default VAT Date"::"Document Date" then
@@ -1485,6 +1512,7 @@
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Document Date" then
                     Validate("Original Document VAT Date", "Document Date");
                 // NAVCZ
+#endif
             end;
         }
         field(101; "Area"; Code[10])
@@ -1519,10 +1547,12 @@
                     PaymentMethod.Get("Payment Method Code");
                 "Bal. Account Type" := PaymentMethod."Bal. Account Type";
                 "Bal. Account No." := PaymentMethod."Bal. Account No.";
+#if not CLEAN17
                 // NAVCZ
                 Validate("Cash Desk Code", PaymentMethod."Cash Desk Code");
                 Validate("Cash Document Status", PaymentMethod."Cash Document Status");
                 // NAVCZ
+#endif
                 if "Bal. Account No." <> '' then begin
                     TestField("Applies-to Doc. No.", '');
                     TestField("Applies-to ID", '');
@@ -1781,7 +1811,9 @@
 
             trigger OnValidate()
             begin
+#if not CLEAN19
                 UpdatePrepmtType; // NAVCZ
+#endif
                 if xRec."Prepayment %" <> "Prepayment %" then
                     UpdatePurchLinesByFieldNo(FieldNo("Prepayment %"), CurrFieldNo <> 0);
             end;
@@ -1796,6 +1828,7 @@
                 with PurchHeader do begin
                     PurchHeader := Rec;
                     GetPurchSetup();
+#if not CLEAN19
                     // NAVCZ
                     if "Prepayment Type" = "Prepayment Type"::Advance then begin
                         PurchSetup.TestField("Advance Invoice Nos.");
@@ -1803,10 +1836,13 @@
                             Validate("Prepayment No. Series");
                     end else begin
                         // NAVCZ
+#endif
                         PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
                         if NoSeriesMgt.LookupSeries(PurchSetup."Posted Prepmt. Inv. Nos.", "Prepayment No. Series") then
                             Validate("Prepayment No. Series");
+#if not CLEAN19
                     end; // NAVCZ
+#endif
                     Rec := PurchHeader;
                 end;
             end;
@@ -1815,16 +1851,20 @@
             begin
                 if "Prepayment No. Series" <> '' then begin
                     GetPurchSetup();
+#if not CLEAN19
                     // NAVCZ
                     if "Prepayment Type" = "Prepayment Type"::Advance then begin
                         PurchSetup.TestField("Advance Invoice Nos.");
                         NoSeriesMgt.TestSeries(PurchSetup."Advance Invoice Nos.", "Prepayment No. Series");
                     end else begin
                         // NAVCZ
+#endif
                         PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
                         NoSeriesMgt.TestSeries(PurchSetup."Posted Prepmt. Inv. Nos.", "Prepayment No. Series");
                     end;
+#if not CLEAN19
                 end; // NAVCZ
+#endif
                 TestField("Prepayment No.", '');
             end;
         }
@@ -1847,6 +1887,7 @@
                 with PurchHeader do begin
                     PurchHeader := Rec;
                     GetPurchSetup();
+#if not CLEAN19
                     // NAVCZ
                     if "Prepayment Type" = "Prepayment Type"::Advance then begin
                         PurchSetup.TestField("Advance Credit Memo Nos.");
@@ -1854,10 +1895,13 @@
                             Validate("Prepmt. Cr. Memo No.");
                     end else begin
                         // NAVCZ
+#endif
                         PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
                         if NoSeriesMgt.LookupSeries(PurchSetup."Posted Prepmt. Cr. Memo Nos.", "Prepmt. Cr. Memo No. Series") then
                             Validate("Prepmt. Cr. Memo No. Series");
+#if not CLEAN19
                     end; // NAVCZ
+#endif
                     Rec := PurchHeader;
                 end;
             end;
@@ -1866,15 +1910,19 @@
             begin
                 if "Prepmt. Cr. Memo No. Series" <> '' then begin
                     GetPurchSetup();
+#if not CLEAN19
                     // NAVCZ
                     if "Prepayment Type" = "Prepayment Type"::Advance then begin
                         PurchSetup.TestField("Advance Credit Memo Nos.");
                         NoSeriesMgt.TestSeries(PurchSetup."Advance Credit Memo Nos.", "Prepmt. Cr. Memo No.");
                     end else begin
                         // NAVCZ
+#endif
                         PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
                         NoSeriesMgt.TestSeries(PurchSetup."Posted Prepmt. Cr. Memo Nos.", "Prepmt. Cr. Memo No. Series");
+#if not CLEAN19
                     end; // NAVCZ
+#endif
                 end;
                 TestField("Prepmt. Cr. Memo No.", '');
             end;
@@ -2418,10 +2466,20 @@
             Caption = 'Bank Account Code';
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice | "Blanket Order")) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."))
             ELSE
+#if CLEAN17
+            IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Bank Account"."No.";
+#else
             IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
+#endif            
+
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -2463,19 +2521,28 @@
                         end;
                 end;
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2483,7 +2550,11 @@
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2491,7 +2562,11 @@
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
 
@@ -2504,8 +2579,12 @@
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Constant Symbol";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
 
@@ -2518,7 +2597,11 @@
         {
             Caption = 'Transit No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2526,9 +2609,14 @@
         {
             Caption = 'IBAN';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -2536,29 +2624,43 @@
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnLookup()
             var
@@ -2583,28 +2685,40 @@
                 end else
                     "Cash Document Status" := "Cash Document Status"::" ";
             end;
+#endif
         }
         field(11731; "Cash Document Status"; Option)
         {
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif        
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if "Cash Document Status" <> "Cash Document Status"::" " then
                     TestField("Cash Desk Code");
             end;
+#endif
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -2618,13 +2732,18 @@
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"VAT Date" then
                     Validate("Original Document VAT Date", "VAT Date");
             end;
+#endif
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
             Caption = 'VAT Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
 
@@ -2640,6 +2759,7 @@
             ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '18.0';
         }
+#if not CLEAN17
         field(11771; "Last Uncertainty Check Date"; Date)
         {
             CalcFormula = Max("Uncertainty Payer Entry"."Check Date" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
@@ -2676,17 +2796,26 @@
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
+#endif
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -2712,17 +2841,34 @@
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if "Prepayment Type" <> xRec."Prepayment Type" then
                     PrepmtValidation;
             end;
+#endif
         }
         field(31001; "Advance Letter No. Series"; Code[20])
         {
             Caption = 'Advance Letter No. Series';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -2745,11 +2891,20 @@
                 end;
                 TestField("Advance Letter No.", '');
             end;
+#endif
         }
         field(31002; "Advance Letter No."; Code[20])
         {
             Caption = 'Advance Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(31004; "Adv.Letter Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -2760,6 +2915,9 @@
             Caption = 'Adv.Letter Linked Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31005; "Adv.Letter Link.Amt. to Deduct"; Decimal)
         {
@@ -2772,6 +2930,9 @@
             Caption = 'Adv.Letter Link.Amt. to Deduct';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31006; "Has Letter Line Relation"; Boolean)
         {
@@ -2780,6 +2941,9 @@
                                                                       "Document No." = FIELD("No.")));
             Caption = 'Has Letter Line Relation';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31007; "Adv.Letter Linked Inv. Amount"; Decimal)
         {
@@ -2791,6 +2955,9 @@
             Caption = 'Adv.Letter Linked Inv. Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31008; "Adv.Letter Linked Ded. Amount"; Decimal)
         {
@@ -2802,7 +2969,11 @@
             Caption = 'Adv.Letter Linked Ded. Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
             Caption = 'Perform. Country/Region Code';
@@ -2823,9 +2994,14 @@
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -2834,11 +3010,16 @@
                         FieldError("Document Type");
                 UpdatePurchLinesByFieldNo(FieldNo("Physical Transfer"), CurrFieldNo <> 0);
             end;
+#endif
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2852,33 +3033,49 @@
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if "EU 3-Party Intermediate Role" then
                     "EU 3-Party Trade" := true;
             end;
+#endif
         }
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if not "EU 3-Party Trade" then
                     "EU 3-Party Intermediate Role" := false;
             end;
+#endif
         }
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -3102,13 +3299,13 @@
         ShowDocAlreadyExistNotificationDescriptionTxt: Label 'Warn if purchase document with same external document number already exists.';
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdatePurchLinesByFieldNo instead.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
-        StatusCheckSuspended: Boolean;
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         CalledFromWhseDoc: Boolean;
 
     protected var
         HideValidationDialog: Boolean;
+        StatusCheckSuspended: Boolean;
 
     procedure InitInsert()
     var
@@ -3132,9 +3329,11 @@
         IsHandled: Boolean;
     begin
         GetPurchSetup();
+#if not CLEAN19
         // NAVCZ
         GLSetup.Get();
         // NAVCZ
+#endif
         IsHandled := false;
         OnBeforeInitRecord(Rec, IsHandled, xRec, PurchSetup, GLSetup);
         if not IsHandled then
@@ -3146,10 +3345,12 @@
                         if "Document Type" = "Document Type"::Order then begin
                             NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
                             NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", PurchSetup."Posted Prepmt. Cr. Memo Nos.");
+#if not CLEAN19
                             // NAVCZ
                             "Prepayment Type" := GLSetup."Prepayment Type";
                             PrepmtValidation;
                             // NAVCZ
+#endif
                         end;
                     end;
                 "Document Type"::Invoice:
@@ -3162,6 +3363,7 @@
                             NoSeriesMgt.SetDefaultSeries("Posting No. Series", PurchSetup."Posted Invoice Nos.");
                         if PurchSetup."Receipt on Invoice" then
                             NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
+#if not CLEAN19
 
                         // NAVCZ
                         NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
@@ -3169,6 +3371,7 @@
                         "Prepayment Type" := GLSetup."Prepayment Type";
                         PrepmtValidation;
                         // NAVCZ
+#endif
                     end;
                 "Document Type"::"Return Order":
                     begin
@@ -3201,10 +3404,12 @@
 
         "Order Date" := WorkDate;
         "Document Date" := WorkDate;
+#if not CLEAN17
         // NAVCZ
         InitVATDate(PurchSetup."Default VAT Date");
         InitOriginalDocumentVATDate(PurchSetup."Default Orig. Doc. VAT Date");
         // NAVCZ
+#endif
 
         OnInitRecordOnAfterAssignDates(Rec);
 
@@ -3252,6 +3457,7 @@
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure InitVATDate(DefaultVATDate: Option)
     begin
@@ -3282,6 +3488,7 @@
         end;
     end;
 
+#endif
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean
     var
         IsHandled: Boolean;
@@ -3705,7 +3912,7 @@
         end;
     end;
 
-    local procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
+    procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
     var
         SalesLine: Record "Sales Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
@@ -3971,22 +4178,28 @@
                         PurchLine.FieldNo("Deferral Code"):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Deferral Code");
-                    	// NAVCZ
-                    	FieldNo("Prepayment Type"):
+#if not CLEAN19
+                        // NAVCZ
+                        FieldNo("Prepayment Type"):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Prepayment %", PurchLine."Prepayment %");
-                    	FieldNo("Physical Transfer"):
+#if not CLEAN18
+                        FieldNo("Physical Transfer"):
                             if (PurchLine.Type = PurchLine.Type::Item) and
                                 (PurchLine."No." <> '')
                             then
                                 PurchLine."Physical Transfer" := "Physical Transfer";
+#endif
+#if not CLEAN17
                     	FieldNo("VAT Date"):
                             if PurchLine."VAT Prod. Posting Group" <> '' then begin
                                 PurchLine.SuspendStatusCheck(true);
                                 PurchLine.Validate("VAT Prod. Posting Group");
                                 PurchLine.SuspendStatusCheck(false);
                             end;
+#endif
                         // NAVCZ
+#endif
                         else
                             OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo);
                     end;
@@ -4656,6 +4869,14 @@
         OnAfterAddShipToAddress(Rec, SalesHeader, ShowError);
     end;
 
+    local procedure BuyFromPostCodeOnBeforeLookupHandled() IsHandled: Boolean
+    begin
+        OnBeforeBuyFromPostCodeOnBeforeLookupHandled(Rec, PostCode, IsHandled);
+#if not CLEAN19
+        OnBuyFromPostCodeOnBeforeOnLookup(Rec, IsHandled);
+#endif
+    end;
+
     local procedure CopyAddressInfoFromOrderAddress()
     var
         OrderAddr: Record "Order Address";
@@ -4857,6 +5078,8 @@
                 SetShipToForSpecOrder();
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure ShowLinkedAdvances()
     var
@@ -4883,6 +5106,7 @@
         LinkedAdvances.RunModal;
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure UpdatePrepmtType()
     begin
@@ -4898,6 +5122,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PrepmtValidation()
     begin
@@ -4906,6 +5131,8 @@
         UpdatePurchLinesByFieldNo(FieldNo("Prepayment Type"), CurrFieldNo <> 0);
     end;
 
+#endif
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure IsIntrastatTransaction(): Boolean
@@ -4913,8 +5140,10 @@
         CountryRegion: Record "Country/Region";
     begin
         // NAVCZ
+#if not CLEAN17
         if "EU 3-Party Intermediate Role" then
             exit(false);
+#endif
         if "Intrastat Exclude" then
             exit(false);
         if IsCreditDocType() then
@@ -4926,7 +5155,10 @@
         exit(CountryRegion.IsIntrastat("Ship-to Country/Region Code", true));
     end;
 
+#endif
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure IsAdvanceRelated(): Boolean
     begin
         // NAVCZ
@@ -4939,6 +5171,8 @@
         exit(false);
     end;
 
+#endif
+#if not CLEAN17
     local procedure UpdateVATCurrencyFactor()
     begin
         // NAVCZ
@@ -4957,6 +5191,9 @@
         end
     end;
 
+#endif
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure xShowAdvLetters()
     var
@@ -4980,6 +5217,7 @@
         PAGE.Run(0, PurchAdvLetterHeader);
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure GetPostingLineImage(var TempPurchLine: Record "Purchase Line" temporary; QtyType: Option General,Invoicing,Shipping,Remaining; IncludeRounding: Boolean)
     var
@@ -5017,6 +5255,8 @@
         PurchPost.xGetPurchLinesTemp(TempPurchHeader, TempPurchLine, TempPurchLineOld, QtyType);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CancelAllRelations()
     var
@@ -5038,6 +5278,7 @@
         end;
     end;
 
+#endif
     procedure InvoicedLineExists(): Boolean
     var
         PurchLine: Record "Purchase Line";
@@ -5054,8 +5295,10 @@
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
     begin
+#if not CLEAN19
         if "Prepayment Type" = "Prepayment Type"::Advance then
             exit;
+#endif
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("Prepmt. Amt. Inv.", '<>%1', 0);
@@ -5156,15 +5399,19 @@
     procedure PrepareOpeningDocumentStatistics()
     var
         PurchaseLine: Record "Purchase Line";
+#if not CLEAN19
         PurchPostAdvances: Codeunit "Purchase-Post Advances";
+#endif
     begin
         if not WritePermission() or not PurchaseLine.WritePermission() then
             Error(StatisticsInsuffucientPermissionsErr);
 
         CalcInvDiscForHeader();
 
+#if not CLEAN19
         if "Document Type" = "Document Type"::Order then
             PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
+#endif
 
         if IsOrderDocument() then
             CreateDimSetForPrepmtAccDefaultDim();
@@ -5221,23 +5468,15 @@
         exit(PAGE::"Purchase Statistics");
     end;
 
+#if not CLEAN19
+    [Obsolete('Use PageManagement.GetPageID() instead.', '19.0')]
     procedure GetCardpageID(): Integer
+    var
+        PageManagement: Codeunit "Page Management";
     begin
-        case "Document Type" of
-            "Document Type"::Quote:
-                exit(PAGE::"Purchase Quote");
-            "Document Type"::Order:
-                exit(PAGE::"Purchase Order");
-            "Document Type"::Invoice:
-                exit(PAGE::"Purchase Invoice");
-            "Document Type"::"Credit Memo":
-                exit(PAGE::"Purchase Credit Memo");
-            "Document Type"::"Blanket Order":
-                exit(PAGE::"Blanket Purchase Order");
-            "Document Type"::"Return Order":
-                exit(PAGE::"Purchase Return Order");
-        end;
+        exit(PageManagement.GetPageID(Rec));
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     procedure OnCheckPurchasePostRestrictions()
@@ -5591,6 +5830,7 @@
         exit(true)
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckCurrencyExchangeRate(CurrencyDate: Date)
     var
@@ -5604,6 +5844,8 @@
         CurrExchRate.FindLast;
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('This procedure will be removed after removing feature from Base Application.', '18.0')]
     local procedure GetBankAccountCode(): Code[20]
     var
@@ -5621,6 +5863,7 @@
         exit(VendBankAcc.Code);
     end;
 
+#endif
     procedure InitFromPurchHeader(SourcePurchHeader: Record "Purchase Header")
     begin
         "Document Date" := SourcePurchHeader."Document Date";
@@ -5809,9 +6052,11 @@
             exit;
 
         "Posting Date" := PostingDateReq;
+#if not CLEAN17
         GLSetup.Get();
         if not GLSetup."Use VAT Date" then
             "VAT Date" := PostingDateReq;
+#endif
 
         case BatchConfirm of
             BatchConfirm::" ":
@@ -6225,7 +6470,7 @@
         ReportSelectionsUsage := "Report Selection Usage".FromInteger(ReportUsage);
     end;
 
-    local procedure ValidateEmptySellToCustomerAndLocation()
+    procedure ValidateEmptySellToCustomerAndLocation()
     var
         IsHandled: Boolean;
     begin
@@ -6308,6 +6553,7 @@
         StatusCheckSuspended := Suspend;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure IsUncertaintyPayerCheckPossible(): Boolean
     var
@@ -6339,7 +6585,8 @@
         exit(UncertaintyPayerEntry."Uncertainty Payer");
     end;
 
-    local procedure UpdateInboundWhseHandlingTime()
+#endif
+    procedure UpdateInboundWhseHandlingTime()
     begin
         if "Location Code" = '' then begin
             if InvtSetup.Get then
@@ -6378,12 +6625,14 @@
             until PurchLine.Next() = 0;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsUncertaintyPayerCheckPossible(var PurchaseHeader: Record "Purchase Header"; var CheckPossible: Boolean)
     begin
     end;
 
+#endif
     local procedure LookupPostCode(var City: Text[30]; var PCode: Code[20]; var County: Text[30]; var CountryRegionCode: Code[10]; CalledFromFieldNo: Integer)
     var
         xRecPurchaseHeader: Record "Purchase Header";
@@ -6462,6 +6711,7 @@
         end;
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckPostingGroupChange()
     var
@@ -6473,6 +6723,7 @@
         // NAVCZ
     end;
 
+#endif
     local procedure RecreateTempPurchLines(var TempPurchLine: Record "Purchase Line")
     begin
         repeat
@@ -6564,6 +6815,21 @@
             if Abs(PurchaseLine."Inv. Discount Amount" + PurchaseLine."Prepmt. Line Amount") > Abs(PurchaseLine."Line Amount") then
                 PurchaseLine."Prepmt. Line Amount" := PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount";
         end;
+    end;
+
+#if CLEAN17
+    internal procedure GetVATCurrencyFactor() VATCurrencyFactor: Decimal
+    begin
+        OnGetVATCurrencyFactor(Rec, VATCurrencyFactor);
+    end;
+
+#endif
+    procedure GetUseDate(): Date
+    begin
+        if "Posting Date" = 0D then
+            exit(WorkDate());
+
+        exit("Posting Date");
     end;
 
     [IntegrationEvent(false, false)]
@@ -6771,10 +7037,13 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(TRUE, false)]
+    [Obsolete('Replaced by OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '19.0')]
     procedure OnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
@@ -6788,6 +7057,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuyFromPostCodeOnBeforeLookupHandled(var PurchaseHeader: Record "Purchase Header"; PostCode: Record "Post Code"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7051,10 +7325,13 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnBeforeBuyFromPostCodeOnBeforeLookupHandled', '19.0')]
     procedure OnBuyFromPostCodeOnBeforeOnLookup(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
@@ -7391,6 +7668,13 @@
     begin
     end;
 
+#if CLEAN17
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATCurrencyFactor(Rec: Record "Purchase Header"; var VATCurrencyFactor: Decimal)
+    begin
+    end;
+
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnValidatePrepmtPaymentTermsCodeOnCaseElseOnBeforeValidatePrepaymentDueDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11759 "Report Selection - Cash Desk"
 {
     ApplicationArea = Basic, Suite;
@@ -98,4 +99,4 @@ page 11759 "Report Selection - Cash Desk"
         FilterGroup(0);
     end;
 }
-
+#endif

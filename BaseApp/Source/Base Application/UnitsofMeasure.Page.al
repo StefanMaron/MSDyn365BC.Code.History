@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 209 "Units of Measure"
 {
     AdditionalSearchTerms = 'uom';
@@ -46,6 +47,12 @@ page 209 "Units of Measure"
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     ToolTip = 'Specifies the unit of measure code expressed according to the UNECERec20 standard in connection with electronic sending of sales documents. For example, when sending sales documents through the PEPPOL service, the value in this field is used to populate the UnitCode element in the Product group.';
+                }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the unit of measure is coupled to a unit group in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled;
                 }
             }
         }
@@ -146,6 +153,25 @@ page 209 "Units of Measure"
                             CRMIntegrationManagement.DefineCoupling(RecordId);
                         end;
                     }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledUnitOfMeasure;
+                        ToolTip = 'Couple units of measure to unit groups in Dynamics 365 Sales based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            UnitOfMeasure: Record "Unit of Measure";
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(UnitOfMeasure);
+                            RecRef.GetTable(UnitOfMeasure);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
                     action(DeleteCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = D;
@@ -198,7 +224,7 @@ page 209 "Units of Measure"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled() and not CRMIntegrationManagement.IsUnitGroupMappingEnabled();
     end;
 
     var
@@ -206,3 +232,4 @@ page 209 "Units of Measure"
         CRMIsCoupledToRecord: Boolean;
 }
 
+#endif

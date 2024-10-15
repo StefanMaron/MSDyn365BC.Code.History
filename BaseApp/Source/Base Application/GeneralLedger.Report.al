@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11771 "General Ledger"
 {
     DefaultLayout = RDLC;
@@ -472,3 +473,4 @@ report 11771 "General Ledger"
         DateFormatTxt: Label '<Closing><Day,2>.<Month,2>.<Year4>', Locked = true;
 }
 
+#endif

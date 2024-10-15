@@ -1,7 +1,11 @@
 table 31101 "VAT Control Report Line"
 {
     Caption = 'VAT Control Report Line';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -10,7 +14,9 @@ table 31101 "VAT Control Report Line"
         field(1; "Control Report No."; Code[20])
         {
             Caption = 'Control Report No.';
+#if not CLEAN17
             TableRelation = "VAT Control Report Header";
+#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -19,7 +25,9 @@ table 31101 "VAT Control Report Line"
         field(5; "VAT Control Rep. Section Code"; Code[20])
         {
             Caption = 'VAT Control Rep. Section Code';
+#if not CLEAN17
             TableRelation = "VAT Control Report Section";
+#endif
         }
         field(11; "Posting Date"; Date)
         {
@@ -103,7 +111,9 @@ table 31101 "VAT Control Report Line"
         field(41; "Commodity Code"; Code[10])
         {
             Caption = 'Commodity Code';
+#if not CLEAN17
             TableRelation = Commodity;
+#endif
         }
         field(42; "Supplies Mode Code"; Option)
         {
@@ -177,6 +187,7 @@ table 31101 "VAT Control Report Line"
     {
     }
 
+#if not CLEAN17
     trigger OnDelete()
     var
         VATCtrlRepVATEntryLink: Record "VAT Ctrl.Rep. - VAT Entry Link";
@@ -241,5 +252,6 @@ table 31101 "VAT Control Report Line"
         VATCtrlRptLn.Copy(Rec);
         VATCtrlRptLn.ModifyAll("VAT Control Rep. Section Code", VATCtrlRptSectionCode);
     end;
+#endif
 }
 

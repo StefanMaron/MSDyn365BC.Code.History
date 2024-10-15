@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11798 "Ares Update"
 {
     Caption = 'Ares Update (Obsolete)';
@@ -209,4 +210,4 @@ report 11798 "Ares Update"
             FieldUpdateMask[FieldType::All] := false;
     end;
 }
-
+#endif

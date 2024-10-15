@@ -94,11 +94,25 @@ table 930 "Cash Flow Availability Buffer"
         {
             Caption = 'Sales Advances';
             DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Purchase Advances"; Decimal)
         {
             Caption = 'Purchase Advances';
             DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 

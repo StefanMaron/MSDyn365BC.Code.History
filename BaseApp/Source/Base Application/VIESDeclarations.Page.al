@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31068 "VIES Declarations"
 {
     ApplicationArea = Basic, Suite;
@@ -72,3 +73,5 @@ page 31068 "VIES Declarations"
     }
 }
 
+
+#endif

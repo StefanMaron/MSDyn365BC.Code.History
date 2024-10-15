@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 11770 "Copying Records Handler"
 {
     ObsoleteState = Pending;
@@ -18,4 +19,4 @@ codeunit 11770 "Copying Records Handler"
         end;
     end;
 }
-
+#endif

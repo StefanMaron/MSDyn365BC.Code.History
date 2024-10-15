@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31063 "Test Tariff Numbers"
 {
     DefaultLayout = RDLC;
@@ -142,3 +143,5 @@ report 31063 "Test Tariff Numbers"
         TempTariffNoBuffer__Total_Amount_CaptionLbl: Label 'No. of Items';
 }
 
+
+#endif

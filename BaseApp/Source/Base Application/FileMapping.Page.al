@@ -1,6 +1,7 @@
+#if not CLEAN17
 page 31082 "File Mapping"
 {
-    Caption = 'File Mapping';
+    Caption = 'File Mapping (Obsolete)';
     PageType = List;
     PopulateAllFields = true;
     SourceTable = "Statement File Mapping";
@@ -53,4 +54,4 @@ page 31082 "File Mapping"
     {
     }
 }
-
+#endif

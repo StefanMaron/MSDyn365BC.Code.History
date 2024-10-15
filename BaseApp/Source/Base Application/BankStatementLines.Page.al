@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 11708 "Bank Statement Lines"
 {
-    Caption = 'Bank Statement Lines';
+    Caption = 'Bank Statement Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Bank Statement Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -100,4 +104,4 @@ page 11708 "Bank Statement Lines"
     {
     }
 }
-
+#endif

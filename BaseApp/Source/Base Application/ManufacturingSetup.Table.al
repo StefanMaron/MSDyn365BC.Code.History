@@ -92,6 +92,10 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Current Demand Forecast';
             TableRelation = "Production Forecast Name".Name;
         }
+        field(36; "Use Forecast on Variants"; Boolean)
+        {
+            Caption = 'Use forecast on variants';
+        }
         field(37; "Use Forecast on Locations"; Boolean)
         {
             Caption = 'Use forecast on locations';
@@ -156,7 +160,11 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Default Gen.Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

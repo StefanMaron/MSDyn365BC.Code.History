@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145019 "EET UT"
 {
     // // [FEATURE] [EET] [UT]
@@ -230,3 +231,4 @@ codeunit 145019 "EET UT"
     end;
 }
 
+#endif

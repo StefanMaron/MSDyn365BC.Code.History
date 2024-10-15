@@ -135,26 +135,38 @@ table 5805 "Item Charge Assignment (Purch)"
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 CheckIncludeIntrastat;
             end;
+#endif
         }
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 CheckIncludeIntrastat;
             end;
+#endif
         }
     }
 
@@ -193,8 +205,10 @@ table 5805 "Item Charge Assignment (Purch)"
         PurchLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
         exit(PurchLine.Quantity = PurchLine."Quantity Invoiced");
     end;
+#if not CLEAN19
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     procedure SetIncludeAmount(): Boolean
     var
         PurchHeader: Record "Purchase Header";
@@ -210,6 +224,7 @@ table 5805 "Item Charge Assignment (Purch)"
         exit(false);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     local procedure GetVendor(): Code[20]
     var
         PurchHeader: Record "Purchase Header";
@@ -244,6 +259,8 @@ table 5805 "Item Charge Assignment (Purch)"
 
         exit(VendorNo);
     end;
+#endif
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
@@ -255,5 +272,6 @@ table 5805 "Item Charge Assignment (Purch)"
         StatReportingSetup.Get();
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
+#endif
 }
 

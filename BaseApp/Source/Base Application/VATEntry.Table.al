@@ -78,7 +78,9 @@ table 254 "VAT Entry"
                 if "Bill-to/Pay-to No." = '' then begin
                     "Country/Region Code" := '';
                     "VAT Registration No." := '';
+#if not CLEAN17
                     "Registration No." := ''; // NAVCZ
+#endif
                 end else
                     case Type of
                         Type::Purchase:
@@ -86,14 +88,18 @@ table 254 "VAT Entry"
                                 Vend.Get("Bill-to/Pay-to No.");
                                 "Country/Region Code" := Vend."Country/Region Code";
                                 "VAT Registration No." := Vend."VAT Registration No.";
+#if not CLEAN17
                                 "Registration No." := Vend."Registration No."; // NAVCZ
+#endif
                             end;
                         Type::Sale:
                             begin
                                 Cust.Get("Bill-to/Pay-to No.");
                                 "Country/Region Code" := Cust."Country/Region Code";
                                 "VAT Registration No." := Cust."VAT Registration No.";
+#if not CLEAN17
                                 "Registration No." := Cust."Registration No."; // NAVCZ
+#endif
                             end;
                     end;
             end;
@@ -105,11 +111,12 @@ table 254 "VAT Entry"
             trigger OnValidate()
             begin
                 Validate(Type);
-
+#if not CLEAN17
                 // NAVCZ
                 if not "EU 3-Party Trade" then
                     "EU 3-Party Intermediate Role" := false;
                 // NAVCZ
+#endif                
             end;
         }
         field(14; "User ID"; Code[50])
@@ -413,7 +420,11 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -429,7 +440,11 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Delay';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -463,7 +478,11 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Settlement No.';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -529,7 +548,11 @@ table 254 "VAT Entry"
         {
             Caption = 'Registration No.';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -539,26 +562,61 @@ table 254 "VAT Entry"
             Editable = false;
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Advance Base"; Decimal)
         {
             Caption = 'Advance Base';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Advance Letter No."; Code[20])
         {
             Caption = 'Advance Letter No.';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31003; "Advance Letter Line No."; Integer)
         {
             Caption = 'Advance Letter Line No.';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31004; "Advance Exch. Rate Difference"; Decimal)
         {
             Caption = 'Advance Exch. Rate Difference';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -595,16 +653,23 @@ table 254 "VAT Entry"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if "EU 3-Party Intermediate Role" then
                     "EU 3-Party Trade" := true;
             end;
+#endif
         }
+#if not CLEAN17
         field(31099; "VAT Control Report No."; Code[20])
         {
             CalcFormula = Lookup("VAT Ctrl.Rep. - VAT Entry Link"."Control Report No." WHERE("VAT Entry No." = FIELD("Entry No.")));
@@ -625,11 +690,16 @@ table 254 "VAT Entry"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
+#endif
         field(31101; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -675,10 +745,15 @@ table 254 "VAT Entry"
             ObsoleteTag = '17.5';
         }
 #endif
+#if not CLEAN19
         key(Key10; Type, "Advance Letter No.", "Advance Letter Line No.")
         {
             SumIndexFields = Amount, "Advance Base";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Fields "Advance Letter No." and "Advance Letter Line No." are removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
+#endif
 #if not CLEAN17
         key(Key11; Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Date")
         {
@@ -837,6 +912,7 @@ table 254 "VAT Entry"
         "Bill-to/Pay-to No." := GenJnlLine."Bill-to/Pay-to No.";
         "Country/Region Code" := GenJnlLine."Country/Region Code";
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
+#if not CLEAN17
         // NAVCZ
         "VAT Date" := GenJnlLine."VAT Date";
         "VAT Delay" := GenJnlLine."VAT Delay";
@@ -846,6 +922,7 @@ table 254 "VAT Entry"
         if "Bill-to/Pay-to No." = '' then
             "Bill-to/Pay-to No." := GenJnlLine."Original Document Partner No.";
         // NAVCZ
+#endif
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
@@ -888,8 +965,10 @@ table 254 "VAT Entry"
         "Realized Base" := Sign * "Realized Base";
         "Add.-Curr. Realized Amount" := Sign * "Add.-Curr. Realized Amount";
         "Add.-Curr. Realized Base" := Sign * "Add.-Curr. Realized Base";
+#if not CLEAN19
         "Advance Base" := Sign * VATEntry."Advance Base"; // NAVCZ
         "Advance Exch. Rate Difference" := Sign * VATEntry."Advance Exch. Rate Difference"; // NAVCZ
+#endif
 
         OnAfterCopyAmountsFromVATEntry(VATEntry, WithOppositeSign);
     end;

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 11707 "Bank Statement Subform"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 11707 "Bank Statement Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Bank Statement Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -190,4 +194,4 @@ page 11707 "Bank Statement Subform"
             end;
     end;
 }
-
+#endif

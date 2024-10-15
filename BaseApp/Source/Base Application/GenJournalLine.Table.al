@@ -34,7 +34,8 @@
                     Error(OnlyLocalCurrencyForEmployeeErr);
 
                 Validate("Account No.", '');
-                Validate(Description, '');
+                if not "Keep Description" then
+                    Validate(Description, '');
                 Validate("IC Partner G/L Acc. No.", '');
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account", "Account Type"::Employee] then begin
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
@@ -70,8 +71,10 @@
                     end;
 
                 Validate("Deferral Code", '');
+#if not CLEAN17
 
                 Validate("Original Document Partner Type", "Original Document Partner Type"::" "); // NAVCZ
+#endif
             end;
         }
         field(4; "Account No."; Code[20])
@@ -99,7 +102,9 @@
                 if "Account No." <> xRec."Account No." then begin
                     ClearAppliedAutomatically;
                     BlankJobNo(FieldNo("Account No."));
+#if not CLEAN19
                     TestField("Advance Letter Link Code", ''); // NAVCZ
+#endif
                 end;
 
                 if xRec."Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"IC Partner"] then
@@ -173,7 +178,9 @@
             begin
                 TestField("Posting Date");
                 Validate("Document Date", "Posting Date");
+#if not CLEAN17
                 Validate("VAT Date", "Posting Date"); // NAVCZ
+#endif
                 ValidateCurrencyCode();
 
                 OnValidatePostingDateOnAfterValidateCurrencyCode(Rec, xRec);
@@ -201,12 +208,14 @@
                 Cust: Record Customer;
                 Vend: Record Vendor;
             begin
+#if not CLEAN19
                 // NAVCZ
                 if Prepayment and
                    (not ("Document Type" in ["Document Type"::Refund, "Document Type"::Payment]))
                 then
                     FieldError(Prepayment);
                 // NAVCZ
+#endif
                 Validate("Payment Terms Code");
                 if "Account No." <> '' then
                     case "Account Type" of
@@ -236,7 +245,9 @@
                     end;
                 UpdateSalesPurchLCY;
                 ValidateApplyRequirements(Rec);
+#if not CLEAN18
                 Validate("Bank Account Code", ''); // NAVCZ
+#endif
             end;
         }
         field(7; "Document No."; Code[20])
@@ -256,8 +267,10 @@
             MinValue = 0;
 
             trigger OnValidate()
+#if not CLEAN19
             var
                 VATPostingSetup: Record "VAT Posting Setup";
+#endif
             begin
                 GetCurrency;
                 case "VAT Calculation Type" of
@@ -270,6 +283,9 @@
                               Round(Amount - "VAT Amount", Currency."Amount Rounding Precision");
                         end;
                     "VAT Calculation Type"::"Full VAT":
+#if CLEAN19
+                        "VAT Amount" := Amount;
+#else
                         // NAVCZ
                         begin
                             if ("Prepayment Type" = "Prepayment Type"::Advance) and not "System-Created Entry" and
@@ -282,6 +298,7 @@
                             // NAVCZ
                             "VAT Amount" := Amount;
                         end; // NAVCZ
+#endif
                     "VAT Calculation Type"::"Sales Tax":
                         if ("Gen. Posting Type" = "Gen. Posting Type"::Purchase) and
                            "Use Tax"
@@ -305,7 +322,9 @@
                 end;
                 "VAT Base Amount" := Amount - "VAT Amount";
                 "VAT Difference" := 0;
+#if not CLEAN18
                 "VAT Difference (LCY)" := 0; // NAVCZ
+#endif
 
                 "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
@@ -580,7 +599,9 @@
                 ReadGLSetup;
                 if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
                     UpdateCountryCodeAndVATRegNo("Bill-to/Pay-to No.");
+#if not CLEAN18
                 Validate("Bank Account Code", ''); // NAVCZ
+#endif
             end;
         }
         field(23; "Posting Group"; Code[20])
@@ -591,6 +612,7 @@
             IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group"
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "FA Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -598,6 +620,7 @@
                 CheckPostingGroupChange();
                 // NAVCZ
             end;
+#endif
         }
         field(24; "Shortcut Dimension 1 Code"; Code[20])
         {
@@ -921,28 +944,27 @@
                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
+#if CLEAN18
+
+                "VAT Amount (LCY)" := CalcVATAmountLCY();
+#else
                 // NAVCZ
                 if "Currency Code" = '' then begin
                     "VAT Amount (LCY)" := "VAT Amount";
                     "VAT Difference (LCY)" := "VAT Difference";
                 end else begin
                     ReadGLSetup;
-#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
 
                     "VAT Amount (LCY)" := CalcVATAmountLCY();
                     "VAT Difference (LCY)" :=
                       "VAT Amount (LCY)" -
                       Round(
                         "Amount (LCY)" * "VAT %" / (100 + "VAT %"),
-#if CLEAN18
-                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-#else
                         RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
                 end;
                 // NAVCZ
+#endif
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 UpdateSalesPurchLCY;
@@ -1214,8 +1236,10 @@
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
+#if not CLEAN17
 
                 Validate("Original Document Partner Type", "Original Document Partner Type"::" "); // NAVCZ
+#endif
             end;
         }
         field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
@@ -1334,7 +1358,9 @@
                 end;
                 "Bal. VAT Base Amount" := -(Amount + "Bal. VAT Amount");
                 "Bal. VAT Difference" := 0;
+#if not CLEAN18
                 "Bal. VAT Difference (LCY)" := 0; // NAVCZ
+#endif
 
                 if "Currency Code" = '' then
                     "Bal. VAT Amount (LCY)" := "Bal. VAT Amount"
@@ -1360,7 +1386,7 @@
 #if not CLEAN18
                 RoundingPrecisionLCY: Decimal;
                 RoundingDirectionLCY: Text[1];
-#endif            
+#endif        
             begin
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                 GenJnlBatch.TestField("Allow VAT Difference", true);
@@ -1395,15 +1421,23 @@
                 if Abs("Bal. VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(
                       Text013, FieldCaption("Bal. VAT Difference"), Currency."Max. VAT Difference Allowed");
+#if CLEAN18
+                if "Currency Code" = '' then
+                    "Bal. VAT Amount (LCY)" := "Bal. VAT Amount"
+                else
+                    "Bal. VAT Amount (LCY)" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                          "Posting Date", "Currency Code",
+                          "Bal. VAT Amount", "Currency Factor"));
+#else
                 // NAVCZ
                 if "Currency Code" = '' then begin
                     "Bal. VAT Amount (LCY)" := "Bal. VAT Amount";
                     "Bal. VAT Difference (LCY)" := "Bal. VAT Difference";
                 end else begin
                     ReadGLSetup;
-#if not CLEAN18
                     GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
 
                     "Bal. VAT Amount (LCY)" :=
                       Round(
@@ -1414,13 +1448,10 @@
                       "Bal. VAT Amount (LCY)" -
                       Round(
                         -"Amount (LCY)" * "Bal. VAT %" / (100 + "Bal. VAT %"),
-#if CLEAN18
-                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
-#else
                         RoundingPrecisionLCY, RoundingDirectionLCY);
-#endif
                 end;
                 // NAVCZ
+#endif
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
                 UpdateSalesPurchLCY;
             end;
@@ -1910,7 +1941,9 @@
                         RoundingDirectionLCY);
 #endif
 
+#if not CLEAN18
                     "VAT Difference (LCY)" := "VAT Amount (LCY)" - CalculatedVATAmtLCY;
+#endif
                     "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
                 end else
                     Validate("VAT Amount", "VAT Amount (LCY)");
@@ -1969,7 +2002,9 @@
                         RoundingDirectionLCY);
 #endif
 
+#if not CLEAN18
                     "Bal. VAT Difference (LCY)" := "Bal. VAT Amount (LCY)" - CalculatedBalVATAmtLCY;
+#endif
                     "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
                 end else
                     Validate("Bal. VAT Amount", "Bal. VAT Amount (LCY)");
@@ -2094,11 +2129,13 @@
         field(121; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 UpdatePrepmtType; // NAVCZ
             end;
+#endif
         }
         field(122; "Financial Void"; Boolean)
         {
@@ -2172,6 +2209,11 @@
         field(173; "Applies-to Ext. Doc. No."; Code[35])
         {
             Caption = 'Applies-to Ext. Doc. No.';
+        }
+        field(180; "Keep Description"; Boolean)
+        {
+            Caption = 'Keep Description';
+            Editable = false;
         }
         field(288; "Recipient Bank Account"; Code[20])
         {
@@ -2565,6 +2607,16 @@
         {
             Caption = 'Applied Automatically';
         }
+        field(1300; "Linked Table ID"; Integer)
+        {
+            Caption = 'Linked Table ID';
+            Editable = false;
+        }
+        field(1301; "Linked System ID"; Guid)
+        {
+            Caption = 'Linked System ID';
+            Editable = false;
+        }
         field(1700; "Deferral Code"; Code[10])
         {
             Caption = 'Deferral Code';
@@ -2915,9 +2967,14 @@
             ELSE
             IF ("Bal. Account Type" = CONST(Vendor),
                                                                                                "Document Type" = FILTER(Refund | Invoice)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Bill-to/Pay-to No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -2976,12 +3033,17 @@
                           FieldCaption("Bank Account Code"));
                 end;
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2989,7 +3051,11 @@
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2997,7 +3063,11 @@
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3005,8 +3075,12 @@
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Constant Symbol";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3014,7 +3088,11 @@
         {
             Caption = 'Transit No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3022,9 +3100,14 @@
         {
             Caption = 'IBAN';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -3032,21 +3115,31 @@
             begin
                 CompanyInfo.CheckIBAN(IBAN); // NAVCZ
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -3055,11 +3148,16 @@
                     TestField("VAT Date", "Posting Date");
                 "Original Document VAT Date" := "VAT Date";
             end;
+#endif
         }
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3074,7 +3172,11 @@
         {
             Caption = 'VAT Delay';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -3111,14 +3213,22 @@
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11769; "Currency Code VAT"; Code[10])
         {
             Caption = 'Currency Code VAT';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
 
@@ -3150,28 +3260,44 @@
         field(11774; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11775; "Bal. VAT Difference (LCY)"; Decimal)
         {
             Caption = 'Bal. VAT Difference (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -3180,6 +3306,14 @@
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -3190,30 +3324,73 @@
                     TestField("Advance Letter Link Code", '');
                 // NAVCZ
             end;
+#endif
         }
         field(31001; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31003; "Advance Letter No."; Code[20])
         {
             Caption = 'Advance Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31004; "Advance Letter Line No."; Integer)
         {
             Caption = 'Advance Letter Line No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31005; "Prepmt. Appl. Transaction No."; Integer)
         {
             Caption = 'Prepmt. Appl. Transaction No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31006; "Advance Exch. Rate Difference"; Decimal)
         {
             Caption = 'Advance Exch. Rate Difference';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31007; "Advance VAT Base Amount"; Decimal)
         {
             Caption = 'Advance VAT Base Amount';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -3225,15 +3402,21 @@
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if "EU 3-Party Intermediate Role" then
                     "EU 3-Party Trade" := true;
             end;
+#endif
         }
         field(31070; "Item Ledger Entry No."; Integer)
         {
@@ -3246,7 +3429,11 @@
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -3255,9 +3442,14 @@
             Caption = 'Original Document Partner Type';
             OptionCaption = ' ,Customer,Vendor';
             OptionMembers = " ",Customer,Vendor;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -3276,16 +3468,22 @@
 
                 "Original Document Partner No." := '';
             end;
+#endif
         }
         field(31102; "Original Document Partner No."; Code[20])
         {
             Caption = 'Original Document Partner No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = IF ("Original Document Partner Type" = CONST(Customer)) Customer
             ELSE
             IF ("Original Document Partner Type" = CONST(Vendor)) Vendor;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -3314,6 +3512,7 @@
                     Validate("VAT Registration No.", '');
                 end;
             end;
+#endif
         }
     }
 
@@ -3365,7 +3564,9 @@
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
+#if not CLEAN19
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
+#endif
     begin
         CheckJobQueueStatus(Rec);
         ApprovalsMgmt.OnCancelGeneralJournalLineApprovalRequest(Rec);
@@ -3390,6 +3591,7 @@
         if not GenJnlAlloc.IsEmpty() then
             GenJnlAlloc.DeleteAll();
 
+#if not CLEAN19
         // NAVCZ
         if "Advance Letter Link Code" <> '' then
             if "Account Type" = "Account Type"::Customer then
@@ -3397,6 +3599,7 @@
             else
                 PrepmtLinksMgt.UnLinkWholePurchLetter("Advance Letter Link Code");
         // NAVCZ
+#endif
         DeferralUtilities.DeferralCodeOnDelete(
             DeferralDocType::"G/L".AsInteger(),
             "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
@@ -3518,9 +3721,15 @@
         NoEntriesToVoidErr: Label 'There are no entries to void.';
         SuppressCommit: Boolean;
         Text11700: Label '%1 must not be negative.';
+#if not CLEAN18
         DisableVATCoefRnd: Boolean;
+#endif
+#if not CLEAN17
         UseForCalculation: Boolean;
+#endif
+#if not CLEAN18
         BankAccountCodeErr: Label 'Is not possible enter %4 for combination %1, %2 and %3.', Comment = '%1 = Account Type; %2 =  fieldcaption of Bal. Account Type; %3 = fieldcaption of Document Type; %4 = fieldcaption of Bank Account Code';
+#endif
         OnlyLocalCurrencyForEmployeeErr: Label 'The value of the Currency Code field must be empty. General journal lines in foreign currency are not supported for employee account type.';
         AccTypeNotSupportedErr: Label 'You cannot specify a deferral code for this type of account.';
         SalespersonPurchPrivacyBlockErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
@@ -3615,7 +3824,9 @@
         if GenJnlLine.FindFirst then begin
             "Posting Date" := LastGenJnlLine."Posting Date";
             "Document Date" := LastGenJnlLine."Posting Date";
+#if not CLEAN17
             "VAT Date" := LastGenJnlLine."VAT Date"; // NAVCZ
+#endif
             "Document No." := LastGenJnlLine."Document No.";
             OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine);
             if BottomLine and
@@ -3626,7 +3837,9 @@
         end else begin
             "Posting Date" := WorkDate;
             "Document Date" := WorkDate;
+#if not CLEAN17
             "VAT Date" := WorkDate; // NAVCZ
+#endif
             if GenJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Document No." := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
@@ -3657,7 +3870,9 @@
         Description := '';
         if GenJnlBatch."Suggest Balancing Amount" then
             SuggestBalancingAmount(LastGenJnlLine, BottomLine);
+#if not CLEAN17
         "Original Document VAT Date" := "VAT Date"; // NAVCZ
+#endif
 
         UpdateJournalBatchID;
 
@@ -3682,7 +3897,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckAccountTypeOnJobValidation(IsHandled);
+        OnBeforeCheckAccountTypeOnJobValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -3872,6 +4087,7 @@
                 begin
                     VendLedgEntry.SetRange("Vendor No.", AccNo);
                     VendLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
+                    OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(GenJnlLine2, AccNo, VendLedgEntry);
                     if VendLedgEntry.FindSet then
                         repeat
                             VendLedgEntry2.Get(VendLedgEntry."Entry No.");
@@ -4154,10 +4370,12 @@
                     if xRec."Applies-to Doc. No." <> '' then
                         if FindFirstCustLedgEntryWithAppliesToDocNo(AccNo, xRec."Applies-to Doc. No.") then begin
                             ClearCustApplnEntryFields;
+#if not CLEAN18
                             // NAVCZ
                             if Compensation then
                                 CustLedgEntry."On Hold" := '';
                             // NAVCZ
+#endif
                             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
                         end;
             AccType::Vendor:
@@ -4171,10 +4389,12 @@
                     if xRec."Applies-to Doc. No." <> '' then
                         if FindFirstVendLedgEntryWithAppliesToDocNo(AccNo, xRec."Applies-to Doc. No.") then begin
                             ClearVendApplnEntryFields;
+#if not CLEAN18
                             // NAVCZ
                             if Compensation then
                                 VendLedgEntry."On Hold" := '';
                             // NAVCZ
+#endif
                             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                         end;
             AccType::Employee:
@@ -4385,10 +4605,12 @@
             exit;
 
         if Amount <> xRec.Amount then begin
+#if not CLEAN19
             // NAVCZ
             if Amount <> 0 then
                 TestField("Advance Letter Link Code", '');
             // NAVCZ
+#endif
             if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then
                 SetApplyToAmount;
             if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
@@ -4902,7 +5124,9 @@
         if No = '' then begin
             "Country/Region Code" := '';
             "VAT Registration No." := '';
+#if not CLEAN17
             "Registration No." := ''; // NAVCZ
+#endif
             exit;
         end;
 
@@ -4913,14 +5137,18 @@
                     Cust.Get(No);
                     "Country/Region Code" := Cust."Country/Region Code";
                     "VAT Registration No." := Cust."VAT Registration No.";
+#if not CLEAN17
                     "Registration No." := Cust."Registration No."; // NAVCZ
+#endif
                 end;
             ("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor):
                 begin
                     Vend.Get(No);
                     "Country/Region Code" := Vend."Country/Region Code";
                     "VAT Registration No." := Vend."VAT Registration No.";
+#if not CLEAN17
                     "Registration No." := Vend."Registration No."; // NAVCZ
+#endif
                 end;
         end;
 
@@ -5116,10 +5344,12 @@
             SetAppliesToFields(
               CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
 
+#if not CLEAN17
             // NAVCZ
             if not UseForCalculation then
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
             // NAVCZ
+#endif
             if GenJnlBatch."Bal. Account No." <> '' then begin
                 "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
                 Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
@@ -5157,10 +5387,12 @@
             SetAppliesToFields(
               VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
 
+#if not CLEAN17
             // NAVCZ
             if not UseForCalculation then
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
             // NAVCZ
+#endif
             if GenJnlBatch."Bal. Account No." <> '' then begin
                 "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
                 Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
@@ -5189,10 +5421,12 @@
 
             SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
 
+#if not CLEAN17
             // NAVCZ
             if not UseForCalculation then
                 GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
             // NAVCZ
+#endif
             if GenJnlBatch."Bal. Account No." <> '' then begin
                 "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
                 Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
@@ -5221,6 +5455,7 @@
         AppliedEmplLedgEntry.Copy(EmplLedgEntry);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     procedure SetUseForCalculation(NewUseForCalculation: Boolean)
     begin
@@ -5228,6 +5463,7 @@
         UseForCalculation := NewUseForCalculation;
     end;
 
+#endif
     local procedure UpdateCurrencyCode(NewCurrencyCode: Code[10])
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -5441,6 +5677,30 @@
         exit(PaymentJnlExportErrorText.JnlBatchHasErrors(Rec));
     end;
 
+    local procedure UpdateDescriptionFromBalAccount(Name: Text[100])
+    begin
+        if not IsAdHocBalAccDescription() then
+            Description := Name;
+    end;
+
+    local procedure IsAdHocBalAccDescription() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsAdHocBalAccDescription(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if "Keep Description" then
+            exit(true);
+
+        if "Account No." <> '' then
+            exit(true);
+
+        exit(false);
+    end;
+
     local procedure UpdateDescription(Name: Text[100])
     begin
         if not IsAdHocDescription then
@@ -5466,6 +5726,9 @@
         if Description = '' then
             exit(false);
         if xRec."Account No." = '' then
+            exit(true);
+
+        if "Keep Description" then
             exit(true);
 
         case xRec."Account Type" of
@@ -5828,6 +6091,7 @@
         then
             exit(AddCustVendIC(GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No."));
 
+#if not CLEAN17
         // NAVCZ
         if (GenJournalLine."Original Document Partner No." <> '') and
            (GenJournalLine."Original Document Partner Type" in ["Original Document Partner Type"::Customer,
@@ -5837,6 +6101,7 @@
                 GenJournalLine."Original Document Partner Type", GenJournalLine."Original Document Partner No."));
         // NAVCZ
 
+#endif
         exit(false);
     end;
 
@@ -5950,6 +6215,7 @@
         OnAfterImportBankStatement(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure AdjustDebitCredit(Invert: Boolean)
@@ -5975,7 +6241,10 @@
         end;
     end;
 
+#endif
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure LinkWholeLetter()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -5985,6 +6254,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure UnLinkWholeLetter()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -5994,6 +6264,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure UpdatePrepmtType()
     begin
         // NAVCZ
@@ -6010,10 +6281,13 @@
         "Allow Application" := "Prepayment Type" <> "Prepayment Type"::Advance;
     end;
 
+#endif
     procedure ExportPaymentFile()
     var
         BankAcc: Record "Bank Account";
+#if not CLEAN19
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
+#endif
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         if not FindSet then
@@ -6034,11 +6308,12 @@
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", Rec);
         OnExportPaymentFileOnAfterRunExport(Rec);
-
+#if not CLEAN19
         // NAVCZ
         if IssuedPmtOrdHdr.Get("Document No.") then
             IssuedPmtOrdHdr.IncreaseNoExported;
         // NAVCZ
+#endif
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -6135,53 +6410,25 @@
         OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAlloc, Rec);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLine(Rec)', '19.0')]
     procedure CopyFromInvoicePostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account No." := InvoicePostBuffer."G/L Account";
-        "System-Created Entry" := InvoicePostBuffer."System-Created Entry";
-        "Gen. Bus. Posting Group" := InvoicePostBuffer."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := InvoicePostBuffer."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := InvoicePostBuffer."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := InvoicePostBuffer."VAT Prod. Posting Group";
-        "Tax Area Code" := InvoicePostBuffer."Tax Area Code";
-        "Tax Liable" := InvoicePostBuffer."Tax Liable";
-        "Tax Group Code" := InvoicePostBuffer."Tax Group Code";
-        "Use Tax" := InvoicePostBuffer."Use Tax";
-        Quantity := InvoicePostBuffer.Quantity;
-        "VAT %" := InvoicePostBuffer."VAT %";
-        "VAT Calculation Type" := InvoicePostBuffer."VAT Calculation Type";
-        "VAT Posting" := "VAT Posting"::"Manual VAT Entry";
-        "Job No." := InvoicePostBuffer."Job No.";
-        "Deferral Code" := InvoicePostBuffer."Deferral Code";
-        "Deferral Line No." := InvoicePostBuffer."Deferral Line No.";
-        Amount := InvoicePostBuffer.Amount;
-        "Source Currency Amount" := InvoicePostBuffer."Amount (ACY)";
-        "VAT Base Amount" := InvoicePostBuffer."VAT Base Amount";
-        "Source Curr. VAT Base Amount" := InvoicePostBuffer."VAT Base Amount (ACY)";
-        "VAT Amount" := InvoicePostBuffer."VAT Amount";
-        "Source Curr. VAT Amount" := InvoicePostBuffer."VAT Amount (ACY)";
-        "VAT Difference" := InvoicePostBuffer."VAT Difference";
-        "VAT Base Before Pmt. Disc." := InvoicePostBuffer."VAT Base Before Pmt. Disc.";
+        InvoicePostBuffer.CopyToGenJnlLine(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer, Rec);
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by InvoicePostBuffer.CopyToGenJnlLineFA(Rec)', '19.0')]
     procedure CopyFromInvoicePostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
-        "Account Type" := "Account Type"::"Fixed Asset";
-        "FA Posting Date" := InvoicePostBuffer."FA Posting Date";
-        "Depreciation Book Code" := InvoicePostBuffer."Depreciation Book Code";
-        "Salvage Value" := InvoicePostBuffer."Salvage Value";
-        "Depr. until FA Posting Date" := InvoicePostBuffer."Depr. until FA Posting Date";
-        "Depr. Acquisition Cost" := InvoicePostBuffer."Depr. Acquisition Cost";
-        "Maintenance Code" := InvoicePostBuffer."Maintenance Code";
-        "Insurance No." := InvoicePostBuffer."Insurance No.";
-        "Budgeted FA No." := InvoicePostBuffer."Budgeted FA No.";
-        "Duplicate in Depreciation Book" := InvoicePostBuffer."Duplicate in Depreciation Book";
-        "Use Duplication List" := InvoicePostBuffer."Use Duplication List";
+        InvoicePostBuffer.CopyToGenJnlLineFA(Rec);
 
         OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer, Rec);
     end;
+#endif
 
     procedure CopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
@@ -6305,6 +6552,7 @@
         "On Hold" := PurchHeader."On Hold";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
+#if not CLEAN17
         // NAVCZ
         "VAT Date" := PurchHeader."VAT Date";
         "Original Document VAT Date" := PurchHeader."Original Document VAT Date";
@@ -6313,6 +6561,7 @@
         "Registration No." := PurchHeader."Registration No.";
         "Tax Registration No." := PurchHeader."Tax Registration No.";
         // NAVCZ
+#endif
 
         OnAfterCopyGenJnlLineFromPurchHeader(PurchHeader, Rec);
     end;
@@ -6409,6 +6658,7 @@
         "On Hold" := SalesHeader."On Hold";
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
+#if not CLEAN17
         // NAVCZ
         "VAT Date" := SalesHeader."VAT Date";
         "Original Document VAT Date" := SalesHeader."Original Document VAT Date";
@@ -6416,6 +6666,7 @@
         "Registration No." := SalesHeader."Registration No.";
         "Tax Registration No." := SalesHeader."Tax Registration No.";
         // NAVCZ
+#endif
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6499,12 +6750,14 @@
         "Ship-to/Order Address Code" := ServiceHeader."Ship-to Code";
         "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
         "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
+#if not CLEAN17
         // NAVCZ
         "VAT Date" := ServiceHeader."VAT Date";
         "EU 3-Party Intermediate Role" := ServiceHeader."EU 3-Party Intermediate Role";
         "Registration No." := ServiceHeader."Registration No.";
         "Tax Registration No." := ServiceHeader."Tax Registration No.";
         // NAVCZ
+#endif
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
     end;
@@ -6755,6 +7008,7 @@
     begin
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('The funcionality of rounding VAT coefficient is removed', '18.0')]
     procedure DisableVATCoef(DisableVATCoefRnd2: Boolean)
@@ -6763,34 +7017,51 @@
         DisableVATCoefRnd := DisableVATCoefRnd2;
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure CopyFromBankAccReconLine(BankAccReconLn: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
         "Account Type" := BankAccReconLn."Account Type";
         "Account No." := BankAccReconLn."Account No.";
+#if not CLEAN19
         "Document Type" := BankAccReconLn."Document Type";
+#endif
         "Document No." := BankAccReconLn."Statement No.";
         "Line No." := BankAccReconLn."Statement Line No.";
         "Posting Date" := BankAccReconLn."Transaction Date";
+#if not CLEAN17
         "VAT Date" := BankAccReconLn."Transaction Date";
+#endif
         Description := BankAccReconLn.Description;
         "Shortcut Dimension 1 Code" := BankAccReconLn."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := BankAccReconLn."Shortcut Dimension 2 Code";
         "Dimension Set ID" := BankAccReconLn."Dimension Set ID";
+#if not CLEAN19
         "Currency Code" := BankAccReconLn."Currency Code";
         "Currency Factor" := BankAccReconLn."Currency Factor";
+#endif
         Amount := BankAccReconLn."Statement Amount";
+#if not CLEAN19
         "Amount (LCY)" := BankAccReconLn."Statement Amount (LCY)";
         "Debit Amount" := BankAccReconLn."Debit Amount";
         "Credit Amount" := BankAccReconLn."Credit Amount";
+#endif
+#if not CLEAN18
         "Variable Symbol" := BankAccReconLn."Variable Symbol";
         "Specific Symbol" := BankAccReconLn."Specific Symbol";
         "Constant Symbol" := BankAccReconLn."Constant Symbol";
+#endif
+#if not CLEAN19
         "External Document No." := BankAccReconLn."External Document No.";
         "Advance Letter Link Code" := BankAccReconLn."Advance Letter Link Code";
+#endif
+#if not CLEAN19
         "Posting Group" := BankAccReconLn."Posting Group";
+#endif
+#if not CLEAN19
         Prepayment := BankAccReconLn.Prepayment;
+#endif
     end;
 
     procedure IncrementDocumentNo(GenJnlBatch: Record "Gen. Journal Batch"; var LastDocNumber: Code[20])
@@ -6908,10 +7179,9 @@
     begin
         GLAcc.Get("Bal. Account No.");
         CheckGLAcc(GLAcc);
-        if "Account No." = '' then begin
-            Description := GLAcc.Name;
+        UpdateDescriptionFromBalAccount(GLAcc.Name);
+        if "Account No." = '' then
             "Currency Code" := '';
-        end;
         OnGetGLBalAccountOnAfterSetDescription(Rec, GLAcc);
         if ("Account No." = '') or
            ("Account Type" in
@@ -6944,7 +7214,11 @@
     begin
         Cust.Get("Account No.");
         OnGetCustomerAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
+#if CLEAN18
+        if Cust.Blocked <> Cust.Blocked::Invoice then // NAVCZ
+#else
         if not Compensation or (Cust.Blocked <> Cust.Blocked::Invoice) then // NAVCZ
+#endif
             Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Account Type", "Account No.");
         UpdateDescription(Cust.Name);
@@ -6992,8 +7266,7 @@
         OnGetCustomerBalAccountOnAfterCustGet(Rec, Cust, CurrFieldNo);
         Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
         CheckICPartner(Cust."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Cust.Name;
+        UpdateDescriptionFromBalAccount(Cust.Name);
         "Payment Method Code" := Cust."Payment Method Code";
         Validate("Recipient Bank Account", Cust."Preferred Bank Account Code");
         "Posting Group" := Cust."Customer Posting Group";
@@ -7086,8 +7359,7 @@
         Vend.Get("Bal. Account No.");
         Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
         CheckICPartner(Vend."IC Partner Code", "Bal. Account Type", "Bal. Account No.");
-        if "Account No." = '' then
-            Description := Vend.Name;
+        UpdateDescriptionFromBalAccount(Vend.Name);
         "Payment Method Code" := Vend."Payment Method Code";
         Validate("Recipient Bank Account", Vend."Preferred Bank Account Code");
         "Posting Group" := Vend."Vendor Posting Group";
@@ -7178,8 +7450,7 @@
     begin
         BankAcc.Get("Bal. Account No.");
         BankAcc.TestField(Blocked, false);
-        if "Account No." = '' then
-            Description := BankAcc.Name;
+        UpdateDescriptionFromBalAccount(BankAcc.Name);
 
         if ("Account No." = '') or
            ("Account Type" in
@@ -7228,8 +7499,7 @@
         FA.TestField(Blocked, false);
         FA.TestField(Inactive, false);
         FA.TestField("Budgeted Asset", false);
-        if "Account No." = '' then
-            Description := FA.Description;
+        UpdateDescriptionFromBalAccount(FA.Description);
         GetFADeprBook("Bal. Account No.");
         GetFAVATSetup;
         GetFAAddCurrExchRate;
@@ -7259,8 +7529,7 @@
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get("Bal. Account No.");
-        if "Account No." = '' then
-            Description := ICPartner.Name;
+        UpdateDescriptionFromBalAccount(ICPartner.Name);
 
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := ICPartner."Currency Code";
@@ -7524,7 +7793,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled);
+        OnBeforeCheckBalAccountNoOnJobNoValidation(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -7633,15 +7902,21 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Event moved to Invoice Post. Buffer table together with procedure CopyGenJnlLineFromInvPostBufferFA().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromInvPostBufferFA(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
@@ -7880,7 +8155,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7921,6 +8196,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsAdHocDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsAdHocBalAccDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8116,6 +8396,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -8496,12 +8781,16 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use GenJnlManagement event OnBeforeOpenJnl.', '19.0')]
     procedure CheckGenJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckGenJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
+#endif
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckPostingGroupChange()
     var
@@ -8512,11 +8801,15 @@
             PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
         // NAVCZ
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('This Integration Event is discontinued. Use GenJnlManagement event OnBeforeOpenJnl.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckGenJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     procedure UpdateGraphContactId()
     var
@@ -8829,7 +9122,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean)
+    local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

@@ -113,6 +113,7 @@ table 31093 "Reverse Charge Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -121,6 +122,7 @@ table 31093 "Reverse Charge Header"
                 TestField(Status, Status::Open);
                 PostCode.ValidateCity(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(27; "Post Code"; Code[20])
         {
@@ -129,6 +131,7 @@ table 31093 "Reverse Charge Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -137,6 +140,7 @@ table 31093 "Reverse Charge Header"
                 TestField(Status, Status::Open);
                 PostCode.ValidatePostCode(City, "Post Code", County, CountryCode, (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(30; "Tax Office No."; Code[20])
         {
@@ -207,7 +211,9 @@ table 31093 "Reverse Charge Header"
         field(61; "Authorized Employee No."; Code[20])
         {
             Caption = 'Authorized Employee No.';
+#if not CLEAN17
             TableRelation = "Company Officials";
+#endif
 
             trigger OnValidate()
             begin
@@ -217,7 +223,9 @@ table 31093 "Reverse Charge Header"
         field(65; "Filled by Employee No."; Code[20])
         {
             Caption = 'Filled by Employee No.';
+#if not CLEAN17
             TableRelation = "Company Officials";
+#endif
 
             trigger OnValidate()
             begin
@@ -286,6 +294,7 @@ table 31093 "Reverse Charge Header"
         {
         }
     }
+#if not CLEAN18
 
     trigger OnRename()
     begin
@@ -316,6 +325,7 @@ table 31093 "Reverse Charge Header"
         City := CompanyInfo.City;
         "Post Code" := CompanyInfo."Post Code";
 
+#if not CLEAN17
         Name := StatReportingSetup."Company Trade Name";
         Street := StatReportingSetup.Street;
         "House No." := StatReportingSetup."House No.";
@@ -323,6 +333,8 @@ table 31093 "Reverse Charge Header"
         "Tax Office No." := StatReportingSetup."Tax Office Number";
         "Tax Office Region No." := StatReportingSetup."Tax Office Region Number";
         "Natural Employee No." := StatReportingSetup."Natural Employee No.";
+#endif
     end;
-}
 
+#endif
+}

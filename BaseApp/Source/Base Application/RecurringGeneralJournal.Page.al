@@ -1,4 +1,4 @@
-﻿page 283 "Recurring General Journal"
+page 283 "Recurring General Journal"
 {
     AdditionalSearchTerms = 'accruals';
     ApplicationArea = Suite, FixedAssets;
@@ -7,7 +7,7 @@
     DataCaptionExpression = DataCaption;
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Account';
+    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -59,6 +59,7 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Suite;
@@ -68,6 +69,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Suite;
@@ -113,6 +115,7 @@
                         CurrPage.SaveRecord();
                     end;
                 }
+#if not CLEAN18
                 field("Posting Group"; "Posting Group")
                 {
                     ApplicationArea = Suite;
@@ -122,6 +125,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Depreciation Book Code"; "Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
@@ -331,6 +335,7 @@
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -367,6 +372,7 @@
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Expiration Date"; "Expiration Date")
                 {
                     ApplicationArea = Suite;
@@ -480,6 +486,7 @@
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Original Document VAT Date"; "Original Document VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -507,6 +514,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Job Queue Status"; "Job Queue Status")
                 {
                     ApplicationArea = All;
@@ -892,6 +900,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -932,6 +941,30 @@
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        ODataUtility: Codeunit ODataUtility;
+                    begin
+                        ODataUtility.EditJournalWorksheetInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
+                    end;
+                }
+            }
         }
     }
 
@@ -965,11 +998,14 @@
     end;
 
     trigger OnOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
     begin
         OnBeforeOnOpenPage();
 
         SetControlVisibility;
         SetDimensionsVisibility;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -1006,6 +1042,7 @@
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
         DimensionBalanceLine: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

@@ -1,13 +1,17 @@
+#if not CLEAN19
 page 31002 "Sales Advance Letters"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Sales Advance Letters';
+    Caption = 'Sales Advance Letters (Obsolete)';
     CardPageID = "Sales Advance Letter";
     Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Sales Advance Letter Header";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -386,4 +390,4 @@ page 31002 "Sales Advance Letters"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
     end;
 }
-
+#endif

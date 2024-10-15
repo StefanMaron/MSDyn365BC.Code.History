@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 101 "General Journal Templates"
 {
     ApplicationArea = Basic, Suite;
@@ -195,7 +196,6 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
-#if not CLEAN18
                 field("Not Check Doc. Type"; "Not Check Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -205,7 +205,6 @@ page 101 "General Journal Templates"
                     ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
                     ObsoleteTag = '18.0';
                 }
-#endif
             }
         }
         area(factboxes)
@@ -250,3 +249,4 @@ page 101 "General Journal Templates"
         EnableCopyToPostedQst: Label 'Do you want to enable copying of journal lines to posted general journal on journal batches that belong to selected general journal template?';
 }
 
+#endif

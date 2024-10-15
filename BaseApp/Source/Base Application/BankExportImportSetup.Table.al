@@ -38,7 +38,7 @@ table 1200 "Bank Export/Import Setup"
         }
         field(5; "Processing Codeunit Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Processing Codeunit ID")));
             Caption = 'Processing Codeunit Name';
             Editable = false;
@@ -51,7 +51,7 @@ table 1200 "Bank Export/Import Setup"
         }
         field(7; "Processing XMLport Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(XMLport),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(XMLport),
                                                                            "Object ID" = FIELD("Processing XMLport ID")));
             Caption = 'Processing XMLport Name';
             Editable = false;
@@ -68,7 +68,7 @@ table 1200 "Bank Export/Import Setup"
         }
         field(9; "Data Exch. Def. Name"; Text[100])
         {
-            CalcFormula = Lookup ("Data Exch. Def".Name WHERE(Code = FIELD("Data Exch. Def. Code")));
+            CalcFormula = Lookup("Data Exch. Def".Name WHERE(Code = FIELD("Data Exch. Def. Code")));
             Caption = 'Data Exch. Def. Name';
             Editable = false;
             FieldClass = FlowField;
@@ -85,7 +85,7 @@ table 1200 "Bank Export/Import Setup"
         }
         field(12; "Check Export Codeunit Name"; Text[30])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Check Export Codeunit")));
             Caption = 'Check Export Codeunit Name';
             Editable = false;
@@ -95,15 +95,27 @@ table 1200 "Bank Export/Import Setup"
         {
             Caption = 'Processing Report ID';
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(11701; "Processing Report Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Processing Report ID")));
             Caption = 'Processing Report Name';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(11705; "Default Folder Path"; Text[250])
         {
             Caption = 'Default Folder Path';
@@ -114,6 +126,13 @@ table 1200 "Bank Export/Import Setup"
         field(11706; "Default File Type"; Text[10])
         {
             Caption = 'Default File Type';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -128,13 +147,16 @@ table 1200 "Bank Export/Import Setup"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetFilterText(): Text
     var
         FileManagement: Codeunit "File Management";
     begin
         exit(FileManagement.GetToFilterText('', StrSubstNo('*.%1', "Default File Type")));
     end;
+#endif
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1286 "Payment Rec Match Details"
 {
     Caption = 'Match Details';
@@ -192,23 +193,40 @@ page 1286 "Payment Rec Match Details"
                 group(SymbolMatching)
                 {
                     Caption = 'Symbol Matching Details';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+
                     field(VariableSymbolMatched; BankPmtApplRule."Variable Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Variable Symbol Matched';
                         ToolTip = 'Specifies if the exact transaction variable symbol is found on one or more open entries';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field(SpecificSymbolMatched; BankPmtApplRule."Specific Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Specific Symbol Matched';
                         ToolTip = 'Specifies the symbol matched';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field(ConstantSymbolMatched; BankPmtApplRule."Constant Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Constant Symbol Matched';
                         ToolTip = 'Specifies the match rule for constant symbol';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                 }
             }
@@ -249,22 +267,24 @@ page 1286 "Payment Rec Match Details"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         TempTextToAccMapping: Record "Text-to-Account Mapping" temporary;
-        NoOfLedgerEntriesWithinAmountTolerance: Integer;
-        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
         AppliedToName: Text;
+        IsMatchedAutomatically: Boolean;
+        IsMapToTextAccount: Boolean;
+        IsAppliedTextToAccountVisible: Boolean;
+        StatusText: Text;
+
+    protected var
         RelatedPartyMatchedText: Text;
         AmountMatchText: Text;
         DocumentMatchedText: Text;
         DirectDebitMatchedText: Text;
         DirectDebitMatched: Boolean;
-        IsMatchedAutomatically: Boolean;
-        IsMapToTextAccount: Boolean;
-        IsAppliedTextToAccountVisible: Boolean;
-        StatusText: Text;
         RelatedPartyMatchInfoText: Text;
         DocumentMatchInfoText: Text;
         RelatedPartyMatchInfoEnabled: Boolean;
         DocumentMatchInfoEnabled: Boolean;
+        NoOfLedgerEntriesWithinAmountTolerance: Integer;
+        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
 
     local procedure ClearGlobals()
     begin
@@ -272,7 +292,6 @@ page 1286 "Payment Rec Match Details"
         Clear(NoOfLedgerEntriesWithinAmountTolerance);
         Clear(NoOfLedgerEntriesOutsideAmountTolerance);
         Clear(AppliedToName);
-        Clear(RelatedPartyMatchedText);
         Clear(StatusText);
         Clear(RelatedPartyMatchedText);
         Clear(AmountMatchText);
@@ -334,3 +353,4 @@ page 1286 "Payment Rec Match Details"
     end;
 }
 
+#endif

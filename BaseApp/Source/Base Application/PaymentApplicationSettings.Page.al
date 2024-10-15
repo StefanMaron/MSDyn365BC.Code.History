@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1253 "Payment Application Settings"
 {
     AdditionalSearchTerms = 'payment matching rules,automatic payment application';
@@ -89,8 +90,10 @@ page 1253 "Payment Application Settings"
         Rec.GetOrInsert(BankPmtApplRuleCode);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetBankPmtApplRuleCode(NewBankPmtApplRuleCode: Code[10])
     begin
         BankPmtApplRuleCode := NewBankPmtApplRuleCode;
     end;
 }
+#endif

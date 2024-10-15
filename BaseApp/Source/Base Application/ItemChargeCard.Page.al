@@ -26,6 +26,7 @@ page 31074 "Item Charge Card"
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies the search description.';
                 }
+#if not CLEAN18
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
                     ApplicationArea = ItemCharges;
@@ -44,6 +45,7 @@ page 31074 "Item Charge Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group(Posting)
             {

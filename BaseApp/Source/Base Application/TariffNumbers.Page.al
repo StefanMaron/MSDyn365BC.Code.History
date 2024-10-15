@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 310 "Tariff Numbers"
 {
     ApplicationArea = Basic, Suite;
@@ -37,6 +38,7 @@ page 310 "Tariff Numbers"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Statement Code"; "Statement Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -73,6 +75,7 @@ page 310 "Tariff Numbers"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -95,3 +98,4 @@ page 310 "Tariff Numbers"
     }
 }
 
+#endif

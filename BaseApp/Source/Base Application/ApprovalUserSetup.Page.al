@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 663 "Approval User Setup"
 {
     AdditionalSearchTerms = 'delegate approver,substitute approver';
@@ -65,12 +66,21 @@ page 663 "Approval User Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Unlimited Bank Approval"; "Unlimited Bank Approval")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies that the user on this line is allowed to approve bank documents with no maximum amount.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#if not CLEAN17
                 field("Cash Desk Amt. Approval Limit"; "Cash Desk Amt. Approval Limit")
                 {
                     ApplicationArea = Suite;
@@ -89,6 +99,7 @@ page 663 "Approval User Setup"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field(Substitute; Substitute)
                 {
                     ApplicationArea = Suite;
@@ -168,3 +179,4 @@ page 663 "Approval User Setup"
     end;
 }
 
+#endif

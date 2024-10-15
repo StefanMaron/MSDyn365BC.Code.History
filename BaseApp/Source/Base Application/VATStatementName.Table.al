@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 257 "VAT Statement Name"
 {
     Caption = 'VAT Statement Name';
@@ -88,3 +89,4 @@ table 257 "VAT Statement Name"
         VATStmtLine: Record "VAT Statement Line";
 }
 
+#endif

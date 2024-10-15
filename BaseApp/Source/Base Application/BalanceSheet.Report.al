@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11782 "Balance Sheet"
 {
     DefaultLayout = RDLC;
@@ -986,4 +987,4 @@ report 11782 "Balance Sheet"
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
     end;
 }
-
+#endif

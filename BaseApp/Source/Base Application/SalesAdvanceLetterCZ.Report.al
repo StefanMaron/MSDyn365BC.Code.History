@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31000 "Sales - Advance Letter CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesAdvanceLetterCZ.rdlc';
-    Caption = 'Sales - Advance Letter CZ';
+    Caption = 'Sales - Advance Letter CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -358,7 +362,6 @@ report 31000 "Sales - Advance Letter CZ"
         with SalesAdvanceLetterHeader do begin
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
-
             FormatDocument.SetPaymentSymbols(
               PaymentSymbol, PaymentSymbolLabel,
               "Variable Symbol", FieldCaption("Variable Symbol"),
@@ -368,4 +371,4 @@ report 31000 "Sales - Advance Letter CZ"
         end;
     end;
 }
-
+#endif

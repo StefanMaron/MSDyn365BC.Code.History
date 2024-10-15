@@ -141,6 +141,7 @@ page 5877 "Physical Inventory Order Subf."
                     ToolTip = 'Specifies the unit costs of the item, which will be used when posting the physical inventory.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
                     ApplicationArea = Warehouse;
@@ -149,6 +150,7 @@ page 5877 "Physical Inventory Order Subf."
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Warehouse;

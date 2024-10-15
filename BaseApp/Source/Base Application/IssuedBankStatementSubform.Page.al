@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 11712 "Issued Bank Statement Subform"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 11712 "Issued Bank Statement Subform"
     Editable = false;
     PageType = ListPart;
     SourceTable = "Issued Bank Statement Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -116,4 +120,4 @@ page 11712 "Issued Bank Statement Subform"
     {
     }
 }
-
+#endif

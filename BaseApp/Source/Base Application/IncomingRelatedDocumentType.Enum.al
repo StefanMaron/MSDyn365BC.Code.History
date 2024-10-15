@@ -1,4 +1,5 @@
-﻿enum 141 "Incoming Related Document Type"
+﻿#if not CLEAN19
+enum 141 "Incoming Related Document Type"
 {
     Extensible = true;
     AssignmentCompatibility = true;
@@ -9,8 +10,21 @@
     value(3; "Purchase Invoice") { Caption = 'Purchase Invoice'; }
     value(4; "Purchase Credit Memo") { Caption = 'Purchase Credit Memo'; }
     value(5; " ") { Caption = ' '; }
-    value(6; "Sales Advance") { Caption = 'Sales Advance'; }
-    value(7; "Purchase Advance") { Caption = 'Purchase Advance'; }
+    value(6; "Sales Advance")
+    {
+        Caption = 'Sales Advance';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+        ObsoleteTag = '19.0';
+    }
+    value(7; "Purchase Advance")
+    {
+        Caption = 'Purchase Advance';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+        ObsoleteTag = '19.0';
+    }
+#if not CLEAN18
     value(8; "Credit")
     {
         Caption = 'Credit';
@@ -18,4 +32,6 @@
         ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
         ObsoleteTag = '18.0';
     }
+#endif
 }
+#endif

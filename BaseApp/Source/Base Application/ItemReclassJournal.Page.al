@@ -50,6 +50,7 @@ page 393 "Item Reclass. Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
                     ApplicationArea = Basic, Suite;
@@ -59,6 +60,7 @@ page 393 "Item Reclass. Journal"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;

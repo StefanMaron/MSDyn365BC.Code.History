@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11793 "Company Officials Card"
 {
     Caption = 'Company Officials Card (Obsolete)';
@@ -170,4 +171,4 @@ page 11793 "Company Officials Card"
         }
     }
 }
-
+#endif

@@ -230,6 +230,7 @@ page 49 "Purchase Quote"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the code for an alternate address, which you can send the FRQ to is the primary address is not active. ';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -286,6 +287,7 @@ page 49 "Purchase Quote"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Suite;
@@ -297,6 +299,7 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -318,6 +321,7 @@ page 49 "Purchase Quote"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN17
                 field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -336,6 +340,7 @@ page 49 "Purchase Quote"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Suite;
@@ -717,6 +722,7 @@ page 49 "Purchase Quote"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -735,11 +741,13 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -758,6 +766,7 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
@@ -769,6 +778,7 @@ page 49 "Purchase Quote"
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -785,11 +795,13 @@ page 49 "Purchase Quote"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
+#if not CLEAN17
 
                     trigger OnValidate()
                     begin
                         CalcFields("Third Party Bank Account"); // NAVCZ
                     end;
+#endif
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -854,6 +866,7 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
                 {
                     ApplicationArea = Basic, Suite;
@@ -874,7 +887,9 @@ page 49 "Purchase Quote"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
+#endif
         }
         area(factboxes)
         {
@@ -1042,10 +1057,9 @@ page 49 "Purchase Quote"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -1476,8 +1490,8 @@ page 49 "Purchase Quote"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1503,11 +1517,7 @@ page 49 "Purchase Quote"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1523,7 +1533,9 @@ page 49 "Purchase Quote"
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
+#if not CLEAN17
         UncertPayerMgt: Codeunit "Unc. Payer Mgt.";
+#endif
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";

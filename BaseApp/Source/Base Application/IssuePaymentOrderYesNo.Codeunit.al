@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11707 "Issue Payment Order (Yes/No)"
 {
     TableNo = "Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -31,4 +35,4 @@ codeunit 11707 "Issue Payment Order (Yes/No)"
         end;
     end;
 }
-
+#endif

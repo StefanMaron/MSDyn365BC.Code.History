@@ -156,6 +156,7 @@ table 21 "Cust. Ledger Entry"
         field(33; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -170,6 +171,7 @@ table 21 "Cust. Ledger Entry"
                 if GenJnlLine.FindFirst then
                     Error(OnHoldErr, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
             end;
+#endif
         }
         field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
@@ -261,7 +263,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
         }
@@ -472,7 +474,9 @@ table 21 "Cust. Ledger Entry"
 
                 if Abs("Amount to Apply") > Abs("Remaining Amount") then
                     FieldError("Amount to Apply", StrSubstNo(Text001, FieldCaption("Remaining Amount")));
+#if not CLEAN19
                 TestAdvLink; // NAVCZ
+#endif
             end;
         }
         field(85; "IC Partner Code"; Code[20])
@@ -615,13 +619,21 @@ table 21 "Cust. Ledger Entry"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
+#if CLEAN17
+            TableRelation = IF ("Document Type" = FILTER(Payment | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account"."No."
+#else
             TableRelation = IF ("Document Type" = FILTER(Payment | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"))
+#endif            
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Customer No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
-
+#if not CLEAN18
             trigger OnValidate()
             var
                 BankAcc: Record "Bank Account";
@@ -660,12 +672,17 @@ table 21 "Cust. Ledger Entry"
                         end;
                 end;
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -674,7 +691,11 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -682,7 +703,11 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -690,8 +715,12 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Constant Symbol";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -699,16 +728,25 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Transit No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -716,14 +754,20 @@ table 21 "Cust. Ledger Entry"
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
+#if not CLEAN19
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE(Type = CONST(Customer),
@@ -732,19 +776,31 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Amount on Payment Order (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11761; Compensation; Boolean)
         {
             Caption = 'Compensation';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -753,13 +809,24 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(31001; "Remaining Amount to Link"; Decimal)
         {
             CalcFormula = Sum("Advance Link".Amount WHERE("CV Ledger Entry No." = FIELD("Entry No."),
                                                            "Entry Type" = FILTER(<> Application)));
             Caption = 'Remaining Amount to Link';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Remaining Amount to Link (LCY)"; Decimal)
         {
@@ -767,11 +834,23 @@ table 21 "Cust. Ledger Entry"
                                                                    "Entry Type" = FILTER(<> Application)));
             Caption = 'Remaining Amount to Link (LCY)';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31003; "Open For Advance Letter"; Boolean)
         {
             Caption = 'Open For Advance Letter';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN18
         field(31050; "Amount on Credit (LCY)"; Decimal)
         {
             CalcFormula = Sum("Credit Line"."Amount (LCY)" WHERE("Source Type" = CONST(Customer),
@@ -783,6 +862,7 @@ table 21 "Cust. Ledger Entry"
             ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
@@ -848,41 +928,96 @@ table 21 "Cust. Ledger Entry"
         key(Key17; "Customer No.", "Applies-to ID", Open, Positive, "Due Date")
         {
         }
+#if CLEAN19
+        key(Key18; "Document Type", "Posting Date")
+        {
+            SumIndexFields = "Sales (LCY)";
+        }
+        key(Key19; "Document Type", "Customer No.", Open, "Due Date")
+        {
+        }
+        key(Key20; "Customer Posting Group")
+        {
+        }
+        key(Key21; "Document Type", Open, "Posting Date", "Closed at Date")
+        {
+        }
+        key(Key22; "Salesperson Code")
+        {
+        }
+        key(Key23; SystemModifiedAt)
+        {
+        }
+#else
         key(Key18; "Customer No.", "Currency Code", "Customer Posting Group", "Document Type")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key19; "Document No.", "Posting Date", "Currency Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key20; "Customer No.", "Prepayment Type", Prepayment)
         {
             SumIndexFields = "Sales (LCY)";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Prepayment Type" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
         key(Key21; "Customer No.", "Customer Posting Group", Prepayment, "Posting Date")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key22; "Document Type", "Document No.")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key23; "Document Type", "Posting Date")
         {
             SumIndexFields = "Sales (LCY)";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key24; "Document Type", "Customer No.", Open, "Due Date")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key25; "Customer Posting Group")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key26; "Document Type", Open, "Posting Date", "Closed at Date")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key27; "Salesperson Code")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key28; SystemModifiedAt)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
+#endif
     }
 
     fieldgroups
@@ -898,7 +1033,9 @@ table 21 "Cust. Ledger Entry"
     var
         Text000: Label 'must have the same sign as %1';
         Text001: Label 'must not be larger than %1';
+#if not CLEAN18
         OnHoldErr: Label 'The operation is prohibited, until journal line of Journal Template Name = ''%1'', Journal Batch Name = ''%2'', Line No. = ''%3'' is deleted or posted.';
+#endif
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -1117,7 +1254,9 @@ table 21 "Cust. Ledger Entry"
         SetRange(Open, true);
         if FindFirst then begin
             if "Amount to Apply" = 0 then begin
+#if not CLEAN19
                 TestField(Prepayment, false); // NAVCZ
+#endif
                 CalcFields("Remaining Amount");
                 "Amount to Apply" := "Remaining Amount";
             end else
@@ -1168,10 +1307,16 @@ table 21 "Cust. Ledger Entry"
         "Applies-to Ext. Doc. No." := GenJnlLine."Applies-to Ext. Doc. No.";
         "Payment Method Code" := GenJnlLine."Payment Method Code";
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
+#if not CLEAN19
         // NAVCZ
+#if not CLEAN17
         "VAT Date" := GenJnlLine."VAT Date";
+#endif
+#if not CLEAN18
         Compensation := GenJnlLine.Compensation;
+#endif
         "Prepayment Type" := GenJnlLine."Prepayment Type";
+#if not CLEAN18
         "Bank Account Code" := GenJnlLine."Bank Account Code";
         "Bank Account No." := GenJnlLine."Bank Account No.";
         "Specific Symbol" := GenJnlLine."Specific Symbol";
@@ -1180,7 +1325,9 @@ table 21 "Cust. Ledger Entry"
         "Transit No." := GenJnlLine."Transit No.";
         IBAN := GenJnlLine.IBAN;
         "SWIFT Code" := GenJnlLine."SWIFT Code";
+#endif
         // NAVCZ
+#endif
 
         OnAfterCopyCustLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;
@@ -1217,6 +1364,8 @@ table 21 "Cust. Ledger Entry"
         OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure TestAdvLink()
     var
@@ -1233,6 +1382,7 @@ table 21 "Cust. Ledger Entry"
             end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcLinkAdvAmount(): Decimal
     var
@@ -1241,8 +1391,13 @@ table 21 "Cust. Ledger Entry"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
         Amount2: Decimal;
+        IsHandled: Boolean;
     begin
         // NAVCZ
+        OnBeforeCalcLinkAdvAmount(Amount2, IsHandled);
+        if IsHandled then
+            exit(Amount2);
+
         AdvLink.SetCurrentKey("CV Ledger Entry No.");
         AdvLink.SetRange("CV Ledger Entry No.", "Entry No.");
         AdvLink.SetRange("Entry Type", AdvLink."Entry Type"::"Link To Letter");
@@ -1268,6 +1423,7 @@ table 21 "Cust. Ledger Entry"
         exit(Amount2);
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCustLedgerEntryFromGenJnlLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -1322,5 +1478,12 @@ table 21 "Cust. Ledger Entry"
     local procedure OnBeforeShowDoc(CustLedgerEntry: Record "Cust. Ledger Entry"; var IsPageOpened: Boolean; var IsHandled: Boolean)
     begin
     end;
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcLinkAdvAmount(var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 }
 

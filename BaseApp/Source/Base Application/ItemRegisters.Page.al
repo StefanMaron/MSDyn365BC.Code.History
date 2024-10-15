@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 117 "Item Registers"
 {
     AdditionalSearchTerms = 'inventory transactions';
@@ -176,6 +177,10 @@ page 117 "Item Registers"
         }
         area(reporting)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
+#if not CLEAN17
             action("Item Register - Quantity")
             {
                 ApplicationArea = Basic, Suite;
@@ -200,7 +205,9 @@ page 117 "Item Registers"
                     // NAVCZ
                 end;
             }
+#endif
         }
     }
 }
 
+#endif

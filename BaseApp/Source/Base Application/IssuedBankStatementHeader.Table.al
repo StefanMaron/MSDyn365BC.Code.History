@@ -2,10 +2,17 @@ table 11706 "Issued Bank Statement Header"
 {
     Caption = 'Issued Bank Statement Header';
     DataCaptionFields = "No.", "Bank Account No.", "Bank Account Name";
+#if not CLEAN19
     DrillDownPageID = "Issued Bank Statement List";
     LookupPageID = "Issued Bank Statement List";
     Permissions = TableData "Issued Bank Statement Header" = m,
                   TableData "Issued Bank Statement Line" = md;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -22,7 +29,11 @@ table 11706 "Issued Bank Statement Header"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(4; "Bank Account Name"; Text[100])
         {
@@ -50,6 +61,7 @@ table 11706 "Issued Bank Statement Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
         }
+#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
@@ -103,6 +115,7 @@ table 11706 "Issued Bank Statement Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -212,6 +225,7 @@ table 11706 "Issued Bank Statement Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -232,6 +246,7 @@ table 11706 "Issued Bank Statement Header"
         NotExistErr: Label 'Payment Reconciliation Journal %1 is not exist.', Comment = '%1=No.';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
@@ -241,6 +256,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure TestPrintRecords(ShowRequestForm: Boolean)
     var
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
@@ -250,6 +266,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure Navigate()
     var
         NavigateForm: Page Navigate;
@@ -259,6 +276,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CheckPmtReconExist()
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
@@ -271,6 +289,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PmtReconExist(): Boolean
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
@@ -280,6 +299,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PostedPmtReconExist(): Boolean
     var
         PostedPmtReconHdr: Record "Posted Payment Recon. Hdr";
@@ -289,6 +309,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure LinesExist(): Boolean
     var
         IssuedBankStmtLine: Record "Issued Bank Statement Line";
@@ -322,6 +343,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure OpenPmtRecon()
     var
         BankAccReconLn: Record "Bank Acc. Reconciliation Line";
@@ -331,6 +353,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure OpenPostedPmtRecon()
     var
         PostedPmtReconHdr: Record "Posted Payment Recon. Hdr";
@@ -340,6 +363,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure OpenPmtReconOrPostedPmtRecon()
     begin
         case true of
@@ -353,11 +377,13 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CreatePmtReconJnl(ShowRequestForm: Boolean)
     begin
         CreatePmtReconJnl(ShowRequestForm, false);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CreatePmtReconJnl(ShowRequestForm: Boolean; HideMessages: Boolean)
     begin
         OnBeforeCreatePmtReconJnl(Rec);
@@ -366,6 +392,7 @@ table 11706 "Issued Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure UpdatePaymentReconciliationStatus(PaymentReconciliationStatus: Option)
     begin
         Validate("Payment Reconciliation Status", PaymentReconciliationStatus);
@@ -389,16 +416,17 @@ table 11706 "Issued Bank Statement Header"
         CreatePaymentReconJournal.RunModal();
     end;
 
-
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePmtReconJnl(var IssuedBankStatHeader: record "Issued Bank Statement Header")
     begin
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunPaymentReconJournalCreation(var IssuedBankStatementHeader: Record "Issued Bank Statement Header"; var ShowRequestForm: Boolean; var HideMessages: Boolean; var IsHandled: Boolean)
     begin
     end;
-
+#endif
 }
 

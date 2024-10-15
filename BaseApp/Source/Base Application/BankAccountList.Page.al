@@ -1,15 +1,20 @@
+#if not CLEAN18
 page 371 "Bank Account List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Bank Accounts';
     CardPageID = "Bank Account Card";
+#if not CLEAN17
     DataCaptionFields = "Account Type", "No.";
+#endif
     Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service,Bank Account,Navigate';
     SourceTable = "Bank Account";
     UsageCategory = Lists;
 
+    AboutTitle = 'About bank accounts';
+    AboutText = 'A bank account listed here corresponds to an account held in a bank or financial institute. You must periodically import transactions from the bank to reconcile with those posted in Business Central. Importing is done in the Bank Reconciliations Page.';
 
     layout
     {
@@ -18,6 +23,7 @@ page 371 "Bank Account List"
             repeater(Control1)
             {
                 ShowCaption = false;
+#if not CLEAN17
                 field("Account Type"; "Account Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -27,6 +33,7 @@ page 371 "Bank Account List"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,6 +79,28 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
+                }
+                field(BalanceAmt; Balance)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance.';
+                }
+                field(BalanceLCY; "Balance (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance in LCY.';
+                }
+                field(BalanceAtDate; "Balance at Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance on the last date included in the Date Filter field.';
+                    Visible = false;
+                }
+                field(BalanceAtDateLCY; "Balance at Date (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance in LCY on the last date included in the Date Filter field.';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -157,6 +186,7 @@ page 371 "Bank Account List"
     {
         area(navigation)
         {
+#if not CLEAN17
             group("&Line")
             {
                 Caption = '&Line';
@@ -185,6 +215,7 @@ page 371 "Bank Account List"
                     end;
                 }
             }
+#endif
             group("&Bank Acc.")
             {
                 Caption = '&Bank Acc.';
@@ -193,7 +224,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = Statistics;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -210,7 +243,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = ViewComments;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -223,7 +258,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Positive Pay Export';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = Export;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -235,13 +272,17 @@ page 371 "Bank Account List"
                 group(Dimensions)
                 {
                     Caption = 'Dimensions';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = Dimensions;
                     action("Dimensions-Single")
                     {
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-Single';
+#if not CLEAN17
                         Enabled = IsBankAccountType;
+#endif
                         Image = Dimensions;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -256,7 +297,9 @@ page 371 "Bank Account List"
                         AccessByPermission = TableData Dimension = R;
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
+#if not CLEAN17
                         Enabled = IsBankAccountType;
+#endif
                         Image = DimensionSets;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -277,7 +320,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = Balance;
                     Promoted = true;
                     PromotedCategory = Category6;
@@ -292,7 +337,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'St&atements';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = List;
                     RunObject = Page "Bank Account Statement List";
                     RunPageLink = "Bank Account No." = FIELD("No.");
@@ -302,7 +349,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = BankAccountLedger;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -318,7 +367,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Chec&k Ledger Entries';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = CheckLedger;
                     RunObject = Page "Check Ledger Entries";
                     RunPageLink = "Bank Account No." = FIELD("No.");
@@ -330,7 +381,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ontact';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = ContactPerson;
                     Promoted = true;
                     PromotedCategory = Category6;
@@ -345,7 +398,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create New Linked Bank Account';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = NewBank;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -365,7 +420,11 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Link to Online Bank Account';
+#if CLEAN17
+                    Enabled = NOT Linked;
+#else
                     Enabled = NOT Linked AND IsBankAccountType;
+#endif
                     Image = LinkAccount;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -383,7 +442,11 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unlink Online Bank Account';
+#if CLEAN17
+                    Enabled = Linked;
+#else
                     Enabled = Linked AND IsBankAccountType;
+#endif
                     Image = UnLinkAccount;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -452,7 +515,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Update Bank Account Linking';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = MapAccounts;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -469,7 +534,11 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Automatic Bank Statement Import Setup';
+#if CLEAN17
+                    Enabled = Linked;
+#else
                     Enabled = Linked AND IsBankAccountType;
+#endif
                     Image = ElectronicBanking;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -483,7 +552,9 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Positive Pay Entries';
+#if not CLEAN17
                     Enabled = IsBankAccountType;
+#endif
                     Image = CheckLedger;
                     RunObject = Page "Positive Pay Entries";
                     RunPageLink = "Bank Account No." = FIELD("No.");
@@ -493,6 +564,26 @@ page 371 "Bank Account List"
                     Visible = false;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(reporting)
         {
@@ -500,7 +591,9 @@ page 371 "Bank Account List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Detail Trial Balance';
+#if not CLEAN17
                 Enabled = IsBankAccountType;
+#endif
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
@@ -512,7 +605,9 @@ page 371 "Bank Account List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Check Details';
+#if not CLEAN17
                 Enabled = IsBankAccountType;
+#endif
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
@@ -523,7 +618,9 @@ page 371 "Bank Account List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Trial Balance by Period';
+#if not CLEAN17
                 Enabled = IsBankAccountType;
+#endif
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
@@ -556,7 +653,9 @@ page 371 "Bank Account List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Trial Balance';
+#if not CLEAN17
                 Enabled = IsBankAccountType;
+#endif
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
@@ -567,42 +666,81 @@ page 371 "Bank Account List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Bank Account Statements';
+#if not CLEAN17
                 Enabled = IsBankAccountType;
+#endif
                 Image = "Report";
                 RunObject = Report "Bank Account Statement";
                 ToolTip = 'View statements for selected bank accounts. For each bank transaction, the report shows a description, an applied amount, a statement amount, and other information.';
             }
         }
+        area(Processing)
+        {
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        BankAccount: Record "Bank Account";
     begin
         GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
         ShowBankLinkingActions := StatementProvidersExist;
+#if not CLEAN17
         IsBankAccountType := "Account Type" = "Account Type"::"Bank Account";
+#endif
+
+        CurrPage.SetSelectionFilter(BankAccount);
+        CanSendEmail := BankAccount.Count() = 1;
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalcFields("Check Report Name");
         GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
+#if not CLEAN17
         IsBankAccountType := "Account Type" = "Account Type"::"Bank Account"; // NAVCZ
+#endif
     end;
 
     trigger OnOpenPage()
     var
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         ShowBankLinkingActions := StatementProvidersExist;
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var
         MultiselectNotSupportedErr: Label 'You can only link to one online bank account at a time.';
+        [InDataSet]
+        CanSendEmail: Boolean;
         Linked: Boolean;
         ShowBankLinkingActions: Boolean;
+#if not CLEAN17
         IsBankAccountType: Boolean;
+#endif
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure VerifySingleSelection()
     var
@@ -615,3 +753,4 @@ page 371 "Bank Account List"
     end;
 }
 
+#endif

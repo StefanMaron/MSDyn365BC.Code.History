@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 page 403 "Purchase Order Statistics"
 {
     Caption = 'Purchase Order Statistics';
@@ -17,7 +18,7 @@ page 403 "Purchase Order Statistics"
                 field(LineAmountGeneral; TotalPurchLine[1]."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text002, false);
                     Caption = 'Amount';
@@ -27,7 +28,7 @@ page 403 "Purchase Order Statistics"
                 field(InvDiscountAmount_General; TotalPurchLine[1]."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Inv. Discount Amount';
                     ToolTip = 'Specifies the invoice discount amount for the entire purchase order.';
@@ -41,7 +42,7 @@ page 403 "Purchase Order Statistics"
                 field(Total_General; TotalAmount1[1])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, false);
                     Caption = 'Total';
@@ -56,7 +57,7 @@ page 403 "Purchase Order Statistics"
                 field("VATAmount[1]"; VATAmount[1])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = Format(VATAmountText[1]);
                     Caption = 'VAT Amount';
@@ -66,7 +67,7 @@ page 403 "Purchase Order Statistics"
                 field(TotalInclVAT_General; TotalAmount2[1])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, true);
                     Caption = 'Total Incl. VAT';
@@ -141,7 +142,7 @@ page 403 "Purchase Order Statistics"
                 field("TotalPurchLine[2].""Line Amount"""; TotalPurchLine[2]."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text002, false);
                     Caption = 'Amount';
@@ -151,7 +152,7 @@ page 403 "Purchase Order Statistics"
                 field(InvDiscountAmount_Invoicing; TotalPurchLine[2]."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Inv. Discount Amount';
                     ToolTip = 'Specifies the invoice discount amount.';
@@ -165,7 +166,7 @@ page 403 "Purchase Order Statistics"
                 field(Total_Invoicing; TotalAmount1[2])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, false);
                     Caption = 'Total';
@@ -180,7 +181,7 @@ page 403 "Purchase Order Statistics"
                 field(VATAmount_Invoicing; VATAmount[2])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = Format(VATAmountText[2]);
                     Caption = 'VAT Amount';
@@ -190,7 +191,7 @@ page 403 "Purchase Order Statistics"
                 field(TotalInclVAT_Invoicing; TotalAmount2[2])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, true);
                     Caption = 'Total Incl. VAT';
@@ -258,9 +259,9 @@ page 403 "Purchase Order Statistics"
                         VATLinesDrillDown(TempVATAmountLine2, true);
                         UpdateHeaderInfo(2, TempVATAmountLine2);
 
-                        if TempVATAmountLine2.GetAnyLineModified then begin
-                            UpdateVATOnPurchLines;
-                            RefreshOnAfterGetRecord;
+                        if TempVATAmountLine2.GetAnyLineModified() then begin
+                            UpdateVATOnPurchLines();
+                            RefreshOnAfterGetRecord();
                         end;
                     end;
                 }
@@ -271,7 +272,7 @@ page 403 "Purchase Order Statistics"
                 field("TotalPurchLine[3].""Line Amount"""; TotalPurchLine[3]."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text002, false);
                     Caption = 'Amount';
@@ -281,7 +282,7 @@ page 403 "Purchase Order Statistics"
                 field("TotalPurchLine[3].""Inv. Discount Amount"""; TotalPurchLine[3]."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     Caption = 'Inv. Discount Amount';
                     Editable = false;
@@ -290,7 +291,7 @@ page 403 "Purchase Order Statistics"
                 field("TotalAmount1[3]"; TotalAmount1[3])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, false);
                     Caption = 'Total';
@@ -300,7 +301,7 @@ page 403 "Purchase Order Statistics"
                 field("VATAmount[3]"; VATAmount[3])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = Format(VATAmountText[3]);
                     Caption = 'VAT Amount';
@@ -310,7 +311,7 @@ page 403 "Purchase Order Statistics"
                 field(TotalInclVAT_Shipping; TotalAmount2[3])
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text001, true);
                     Caption = 'Total Incl. VAT';
@@ -384,7 +385,7 @@ page 403 "Purchase Order Statistics"
                 field(PrepmtTotalAmount; PrepmtTotalAmount)
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text006, false);
 
@@ -397,7 +398,7 @@ page 403 "Purchase Order Statistics"
                 field(PrepmtVATAmount; PrepmtVATAmount)
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = Format(PrepmtVATAmountText);
                     Caption = 'Prepayment Amount Invoiced';
@@ -407,7 +408,7 @@ page 403 "Purchase Order Statistics"
                 field(PrepmtTotalAmount2; PrepmtTotalAmount2)
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text006, true);
                     Caption = 'Prepmt. Amount Invoiced';
@@ -428,6 +429,9 @@ page 403 "Purchase Order Statistics"
                     CaptionClass = '2,1,' + Text26506;
                     Editable = false;
                     ToolTip = 'Specifies prepmt. amt. requested of sales order';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(PrepmtAmtReceived; PrepmtAmtReceived)
                 {
@@ -437,11 +441,14 @@ page 403 "Purchase Order Statistics"
                     CaptionClass = '2,1,' + Text26507;
                     Editable = false;
                     ToolTip = 'Specifies prepmt. amt. received of sales order';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TotalPurchLine[1].""Prepmt. Amt. Inv."""; TotalPurchLine[1]."Prepmt. Amt. Inv.")
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text007, false);
                     Editable = false;
@@ -456,7 +463,7 @@ page 403 "Purchase Order Statistics"
                 field("TotalPurchLine[1].""Prepmt Amt Deducted"""; TotalPurchLine[1]."Prepmt Amt Deducted")
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text008, false);
                     Editable = false;
@@ -473,6 +480,9 @@ page 403 "Purchase Order Statistics"
                     ApplicationArea = Prepayments;
                     Editable = false;
                     ToolTip = 'Specifies the prepayment type for the purchase header.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TotalPurchLine[1].""Prepmt. VAT Amount Inv."""; TotalPurchLine[1]."Prepmt. VAT Amount Inv.")
                 {
@@ -480,11 +490,14 @@ page 403 "Purchase Order Statistics"
                     Caption = 'Prepmt. VAT Amt. Invoiced';
                     Editable = false;
                     ToolTip = 'Specifies the total prepayment VAT amount for the order, for all lines and all prepayment invoices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TotalPurchLine[1].""Prepmt Amt to Deduct"""; TotalPurchLine[1]."Prepmt Amt to Deduct")
                 {
                     ApplicationArea = Prepayments;
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text009, false);
                     Editable = false;
@@ -505,12 +518,19 @@ page 403 "Purchase Order Statistics"
             group("Prepayment (Deduct)")
             {
                 Caption = 'Prepayment (Deduct)';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+
                 field("-""Adv.Letter Link.Amt. to Deduct"""; -"Adv.Letter Link.Amt. to Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount Including VAT';
                     Editable = false;
                     ToolTip = 'Specifies the total prepayment amount for the order, for all lines and all prepayment invoices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempTotVATAmountLinePrep.""VAT Amount"""; TempTotVATAmountLinePrep."VAT Amount")
                 {
@@ -518,6 +538,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'VAT Amount';
                     Editable = false;
                     ToolTip = 'Specifies the vat amount';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempTotVATAmountLinePrep.""VAT Base"""; TempTotVATAmountLinePrep."VAT Base")
                 {
@@ -525,6 +548,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'VAT Base';
                     Editable = false;
                     ToolTip = 'Specifies vat base of sales quote';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempVATAmountLinePrep.COUNT"; TempVATAmountLinePrep.Count)
                 {
@@ -532,6 +558,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'No. of VAT Lines';
                     DrillDown = true;
                     ToolTip = 'Specifies the number of VAT lines.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnDrillDown()
                     begin
@@ -542,12 +571,19 @@ page 403 "Purchase Order Statistics"
             group("Invoicing (Final)")
             {
                 Caption = 'Invoicing (Final)';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+
                 field("TotalPurchLine[2].""Amount Including VAT"" - ""Adv.Letter Link.Amt. to Deduct"""; TotalPurchLine[2]."Amount Including VAT" - "Adv.Letter Link.Amt. to Deduct")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount Including VAT';
                     Editable = false;
                     ToolTip = 'Specifies the total prepayment amount for the order, for all lines and all prepayment invoices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempTotVATAmountLineTot.""VAT Amount"""; TempTotVATAmountLineTot."VAT Amount")
                 {
@@ -555,6 +591,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'VAT Amount';
                     Editable = false;
                     ToolTip = 'Specifies the vat amount';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempTotVATAmountLineTot.""VAT Base"""; TempTotVATAmountLineTot."VAT Base")
                 {
@@ -562,6 +601,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'VAT Base';
                     Editable = false;
                     ToolTip = 'Specifies vat base of sales quote';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("TempVATAmountLineTot.COUNT"; TempVATAmountLineTot.Count)
                 {
@@ -569,6 +611,9 @@ page 403 "Purchase Order Statistics"
                     Caption = 'No. of VAT Lines';
                     DrillDown = true;
                     ToolTip = 'Specifies the number of VAT lines.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnDrillDown()
                     begin
@@ -598,17 +643,17 @@ page 403 "Purchase Order Statistics"
     trigger OnAfterGetRecord()
     begin
         CalcFields("Adv.Letter Link.Amt. to Deduct"); // NAVCZ
-        RefreshOnAfterGetRecord;
+        RefreshOnAfterGetRecord();
     end;
 
     trigger OnOpenPage()
     begin
         PurchSetup.Get();
         AllowInvDisc :=
-          not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
+          not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists(Rec."Invoice Disc. Code"));
         AllowVATDifference :=
           PurchSetup."Allow VAT Difference" and
-          not ("Document Type" in ["Document Type"::Quote, "Document Type"::"Blanket Order"]);
+          not (Rec."Document Type" in ["Purchase Document Type"::Quote, "Purchase Document Type"::"Blanket Order"]);
         OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc;
         CurrPage.Editable := VATLinesFormIsEditable;
@@ -631,15 +676,12 @@ page 403 "Purchase Order Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.';
-        TotalPurchLine: array[3] of Record "Purchase Line";
-        TotalPurchLineLCY: array[3] of Record "Purchase Line";
         Vend: Record Vendor;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
         TempVATAmountLine3: Record "VAT Amount Line" temporary;
         TempVATAmountLine4: Record "VAT Amount Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
-        PurchPost: Codeunit "Purch.-Post";
         VATLinesForm: Page "VAT Amount Lines";
         PrepmtAmtRequested: Decimal;
         PrepmtAmtReceived: Decimal;
@@ -649,9 +691,6 @@ page 403 "Purchase Order Statistics"
         TempVATAmountLineTot: Record "VAT Amount Line" temporary;
         TempTotVATAmountLinePrep: Record "VAT Amount Line" temporary;
         TempTotVATAmountLineTot: Record "VAT Amount Line" temporary;
-        TotalAmount1: array[3] of Decimal;
-        TotalAmount2: array[3] of Decimal;
-        VATAmount: array[3] of Decimal;
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
         PrepmtTotalAmount2: Decimal;
@@ -672,6 +711,14 @@ page 403 "Purchase Order Statistics"
         Text009: Label 'Prepmt. Amt. to Deduct';
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
+    protected var
+        TotalPurchLine: array[3] of Record "Purchase Line";
+        TotalPurchLineLCY: array[3] of Record "Purchase Line";
+        PurchPost: Codeunit "Purch.-Post";
+        TotalAmount1: array[3] of Decimal;
+        TotalAmount2: array[3] of Decimal;
+        VATAmount: array[3] of Decimal;
+
     local procedure RefreshOnAfterGetRecord()
     var
         PurchLine: Record "Purchase Line";
@@ -683,12 +730,12 @@ page 403 "Purchase Order Statistics"
     begin
         CurrPage.Caption(StrSubstNo(Text000, "Document Type"));
 
-        if PrevNo = "No." then
+        if PrevNo = Rec."No." then
             exit;
-        PrevNo := "No.";
-        FilterGroup(2);
-        SetRange("No.", PrevNo);
-        FilterGroup(0);
+        PrevNo := Rec."No.";
+        Rec.FilterGroup(2);
+        Rec.SetRange("No.", PrevNo);
+        Rec.FilterGroup(0);
 
         Clear(PurchLine);
         Clear(TotalPurchLine);
@@ -726,7 +773,7 @@ page 403 "Purchase Order Statistics"
             IsHandled := false;
             OnRefreshOnAfterGetRecordAfterSumPurchLinesTemp(TempPurchLine, IsHandled);
             If not IsHandled then
-                if "Prices Including VAT" then begin
+                if Rec."Prices Including VAT" then begin
                     TotalAmount2[i] := TotalPurchLine[i].Amount;
                     TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
                     TotalPurchLine[i]."Line Amount" := TotalAmount1[i] + TotalPurchLine[i]."Inv. Discount Amount";
@@ -741,12 +788,10 @@ page 403 "Purchase Order Statistics"
         if "Prepayment Type" = "Prepayment Type"::Prepayment then begin // NAVCZ
             PurchPostPrepayments.GetPurchLines(Rec, 0, TempPurchLine);
             PurchPostPrepayments.SumPrepmt(
-              Rec, TempPurchLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
-            PrepmtInvPct :=
-              Pct(TotalPurchLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
-            PrepmtDeductedPct :=
-              Pct(TotalPurchLine[1]."Prepmt Amt Deducted", TotalPurchLine[1]."Prepmt. Amt. Inv.");
-            if "Prices Including VAT" then begin
+                Rec, TempPurchLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
+            PrepmtInvPct := Pct(TotalPurchLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
+            PrepmtDeductedPct := Pct(TotalPurchLine[1]."Prepmt Amt Deducted", TotalPurchLine[1]."Prepmt. Amt. Inv.");
+            if Rec."Prices Including VAT" then begin
                 PrepmtTotalAmount2 := PrepmtTotalAmount;
                 PrepmtTotalAmount := PrepmtTotalAmount + PrepmtVATAmount;
             end else
@@ -787,7 +832,7 @@ page 403 "Purchase Order Statistics"
             end;
         // NAVCZ
 
-        if Vend.Get("Pay-to Vendor No.") then
+        if Vend.Get(Rec."Pay-to Vendor No.") then
             Vend.CalcFields("Balance (LCY)")
         else
             Clear(Vend);
@@ -816,28 +861,26 @@ page 403 "Purchase Order Statistics"
 #endif
     begin
         TotalPurchLine[IndexNo]."Inv. Discount Amount" := VATAmountLine.GetTotalInvDiscAmount;
-        TotalAmount1[IndexNo] :=
-          TotalPurchLine[IndexNo]."Line Amount" - TotalPurchLine[IndexNo]."Inv. Discount Amount";
-        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount;
-        if "Prices Including VAT" then begin
+        TotalAmount1[IndexNo] := TotalPurchLine[IndexNo]."Line Amount" - TotalPurchLine[IndexNo]."Inv. Discount Amount";
+        VATAmount[IndexNo] := VATAmountLine.GetTotalVATAmount();
+        if Rec."Prices Including VAT" then begin
             TotalAmount1[IndexNo] := VATAmountLine.GetTotalAmountInclVAT;
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] - VATAmount[IndexNo];
-            TotalPurchLine[IndexNo]."Line Amount" :=
-              TotalAmount1[IndexNo] + TotalPurchLine[IndexNo]."Inv. Discount Amount";
+            TotalPurchLine[IndexNo]."Line Amount" := TotalAmount1[IndexNo] + TotalPurchLine[IndexNo]."Inv. Discount Amount";
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
         OnUpdateHeaderInfoAfterCalcTotalAmount(Rec);
 
-        if "Prices Including VAT" then
+        if Rec."Prices Including VAT" then
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
         else
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount1[IndexNo];
-        if "Currency Code" <> '' then begin
-            if "Posting Date" = 0D then
+        if Rec."Currency Code" <> '' then begin
+            if Rec."Posting Date" = 0D then
                 UseDate := WorkDate
             else
-                UseDate := "Posting Date";
+                UseDate := Rec."Posting Date";
 
             TotalPurchLineLCY[IndexNo].Amount :=
               CurrExchRate.ExchangeAmtFCYToLCY(
@@ -863,7 +906,7 @@ page 403 "Purchase Order Statistics"
                         Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
 #else
                         RoundingPrecisionLCY) - VATAmountLine."VAT Difference";
-#endif                 
+#endif
             end;
             // NAVCZ
         end;
@@ -889,12 +932,12 @@ page 403 "Purchase Order Statistics"
         end;
     end;
 
-    local procedure UpdateTotalAmount(IndexNo: Integer)
+    protected procedure UpdateTotalAmount(IndexNo: Integer)
     var
         SaveTotalAmount: Decimal;
     begin
-        CheckAllowInvDisc;
-        if "Prices Including VAT" then begin
+        CheckAllowInvDisc();
+        if Rec."Prices Including VAT" then begin
             SaveTotalAmount := TotalAmount1[IndexNo];
             UpdateInvDiscAmount(IndexNo);
             TotalAmount1[IndexNo] := SaveTotalAmount;
@@ -904,7 +947,7 @@ page 403 "Purchase Order Statistics"
         UpdateInvDiscAmount(IndexNo);
     end;
 
-    local procedure UpdateInvDiscAmount(ModifiedIndexNo: Integer)
+    protected procedure UpdateInvDiscAmount(ModifiedIndexNo: Integer)
     var
         ConfirmManagement: Codeunit "Confirm Management";
         PartialInvoicing: Boolean;
@@ -922,9 +965,9 @@ page 403 "Purchase Order Statistics"
                 Error('');
 
         if ModifiedIndexNo = 1 then
-            InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code")
+            InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, Rec."Currency Code")
         else
-            InvDiscBaseAmount := TempVATAmountLine2.GetTotalInvDiscBaseAmount(false, "Currency Code");
+            InvDiscBaseAmount := TempVATAmountLine2.GetTotalInvDiscBaseAmount(false, Rec."Currency Code");
 
         if InvDiscBaseAmount = 0 then
             Error(Text003, TempVATAmountLine2.FieldCaption("Inv. Disc. Base Amount"));
@@ -955,30 +998,30 @@ page 403 "Purchase Order Statistics"
                 if (i = 1) or not PartialInvoicing then
                     if IndexNo[i] = 1 then begin
                         TempVATAmountLine1.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
+                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
                     end else
                         TempVATAmountLine2.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
+                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 
                 if (i = 2) and PartialInvoicing then
                     if IndexNo[i] = 1 then begin
                         InvDiscBaseAmount := TempVATAmountLine2.GetTotalInvDiscBaseAmount(false, "Currency Code");
                         if InvDiscBaseAmount = 0 then
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
-                              0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
+                              0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine1.SetInvoiceDiscountPercent(
                               100 * TempVATAmountLine2.GetTotalInvDiscAmount / InvDiscBaseAmount,
-                              "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
+                              "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end else begin
                         InvDiscBaseAmount := TempVATAmountLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
                         if InvDiscBaseAmount = 0 then
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
-                              0, "Currency Code", "Prices Including VAT", false, "VAT Base Discount %")
+                              0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
                         else
                             TempVATAmountLine2.SetInvoiceDiscountPercent(
                               100 * TempVATAmountLine1.GetTotalInvDiscAmount / InvDiscBaseAmount,
-                              "Currency Code", "Prices Including VAT", false, "VAT Base Discount %");
+                              "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
                     end;
             end;
 
@@ -988,14 +1031,16 @@ page 403 "Purchase Order Statistics"
         if ModifiedIndexNo = 1 then
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine1)
         else begin
+#if not CLEAN18
             TempVATAmountLine2.ModifyAll("Modified (LCY)", false); // NAVCZ
+#endif
             VATLinesForm.SetTempVATAmountLine(TempVATAmountLine2);
         end;
 
-        "Invoice Discount Calculation" := "Invoice Discount Calculation"::Amount;
-        "Invoice Discount Value" := TotalPurchLine[1]."Inv. Discount Amount";
-        Modify;
-        UpdateVATOnPurchLines;
+        Rec."Invoice Discount Calculation" := Rec."Invoice Discount Calculation"::Amount;
+        Rec."Invoice Discount Value" := TotalPurchLine[1]."Inv. Discount Amount";
+        Rec.Modify();
+        UpdateVATOnPurchLines();
     end;
 
     local procedure UpdatePrepmtAmount()
@@ -1005,23 +1050,20 @@ page 403 "Purchase Order Statistics"
     begin
         PurchPostPrepmt.UpdatePrepmtAmountOnPurchLines(Rec, PrepmtTotalAmount);
         PurchPostPrepmt.GetPurchLines(Rec, 0, TempPurchLine);
-        PurchPostPrepmt.SumPrepmt(
-          Rec, TempPurchLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
-        PrepmtInvPct :=
-          Pct(TotalPurchLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
-        PrepmtDeductedPct :=
-          Pct(TotalPurchLine[1]."Prepmt Amt Deducted", TotalPurchLine[1]."Prepmt. Amt. Inv.");
-        if "Prices Including VAT" then begin
+        PurchPostPrepmt.SumPrepmt(Rec, TempPurchLine, TempVATAmountLine4, PrepmtTotalAmount, PrepmtVATAmount, PrepmtVATAmountText);
+        PrepmtInvPct := Pct(TotalPurchLine[1]."Prepmt. Amt. Inv.", PrepmtTotalAmount);
+        PrepmtDeductedPct := Pct(TotalPurchLine[1]."Prepmt Amt Deducted", TotalPurchLine[1]."Prepmt. Amt. Inv.");
+        if Rec."Prices Including VAT" then begin
             PrepmtTotalAmount2 := PrepmtTotalAmount;
             PrepmtTotalAmount := PrepmtTotalAmount + PrepmtVATAmount;
         end else
             PrepmtTotalAmount2 := PrepmtTotalAmount + PrepmtVATAmount;
-        Modify;
+        Rec.Modify();
     end;
 
-    local procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
+    protected procedure GetCaptionClass(FieldCaption: Text[100]; ReverseCaption: Boolean): Text[80]
     begin
-        if "Prices Including VAT" xor ReverseCaption then
+        if Rec."Prices Including VAT" xor ReverseCaption then
             exit('2,1,' + FieldCaption);
 
         exit('2,0,' + FieldCaption);
@@ -1073,15 +1115,20 @@ page 403 "Purchase Order Statistics"
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
+#if not CLEAN18
         // NAVCZ
         VATLinesForm.SetCurrencyFactor("Currency Factor");
+#if not CLEAN17
         if "Currency Factor" <> "VAT Currency Factor" then
             VATLinesForm.SetVATCurrencyFactor("VAT Currency Factor");
+#endif
         // NAVCZ
+#endif
         VATLinesForm.RunModal;
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SumPrepmt(PurchHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; var PrepmtTotalAmount: Decimal; var PrepmtVATAmount: Decimal; var PrepmtVATAmountText: Text[30])
     var
@@ -1124,6 +1171,7 @@ page 403 "Purchase Order Statistics"
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SumVATLinesAll()
     begin
@@ -1137,6 +1185,7 @@ page 403 "Purchase Order Statistics"
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SumVATLinesTo(var VATAmountLine: Record "VAT Amount Line")
     begin
@@ -1157,6 +1206,7 @@ page 403 "Purchase Order Statistics"
                         TempVATAmountLineTot."Amount Including VAT" += "Amount Including VAT";
                         TempVATAmountLineTot."Calculated VAT Amount" += "Calculated VAT Amount";
                         TempVATAmountLineTot."VAT Difference" += "VAT Difference";
+#if not CLEAN18
                         TempVATAmountLineTot."Ext. VAT Base (LCY)" += "Ext. VAT Base (LCY)";
                         TempVATAmountLineTot."Ext. VAT Amount (LCY)" += "Ext. VAT Amount (LCY)";
                         TempVATAmountLineTot."Ext.Amount Including VAT (LCY)" += "Ext.Amount Including VAT (LCY)";
@@ -1166,6 +1216,7 @@ page 403 "Purchase Order Statistics"
                         TempVATAmountLineTot."VAT Amount (LCY)" += "VAT Amount (LCY)";
                         TempVATAmountLineTot."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
                         TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
+#endif
                         TempVATAmountLineTot.Modify();
                     end;
                 until Next() = 0;
@@ -1173,6 +1224,7 @@ page 403 "Purchase Order Statistics"
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SumTotalVATLines(var VATAmountLine: Record "VAT Amount Line"; var AmountIncVAT: Decimal; var VATAmount: Decimal; var VATBaseAmount: Decimal)
     begin
@@ -1211,3 +1263,4 @@ page 403 "Purchase Order Statistics"
     end;
 }
 
+#endif

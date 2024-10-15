@@ -838,16 +838,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TemplatesFeatureKeyUT()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        // [SCENARIO] Get feature key for new templates
-        FeatureKey.Get('NewTemplates');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     [HandlerFunctions('SelectEmployeeTemplListHandler')]
     procedure EmployeeTemplCreateEmployeeFromContactTwoTemplatesUT()
     var
@@ -1040,10 +1030,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [GIVEN] Two items "I1" and "I2"
-        Item[1].Init();
-        Item[1].Insert(true);
-        Item[2].Init();
-        Item[2].Insert(true);
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
         Item[3].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
 
         // [WHEN] Apply "T2" for "I1" and "I2" at one time

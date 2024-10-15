@@ -554,8 +554,16 @@ table 124 "Purch. Cr. Memo Hdr."
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -563,7 +571,11 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Bank Account No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -572,7 +584,11 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -580,7 +596,11 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -588,8 +608,12 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Constant Symbol";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -597,16 +621,25 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Transit No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -616,21 +649,31 @@ table 124 "Purch. Cr. Memo Hdr."
                 CompanyInfo.CheckIBAN(IBAN);
                 // NAVCZ
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnLookup()
             var
@@ -641,20 +684,29 @@ table 124 "Purch. Cr. Memo Hdr."
                 if PAGE.RunModal(PAGE::"Cash Desk List", BankAcc) = ACTION::LookupOK then;
                 // NAVCZ
             end;
+#endif
         }
         field(11731; "Cash Document Status"; Option)
         {
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -664,21 +716,33 @@ table 124 "Purch. Cr. Memo Hdr."
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -704,10 +768,24 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31003; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -728,14 +806,22 @@ table 124 "Purch. Cr. Memo Hdr."
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31064; "Intrastat Exclude"; Boolean)
         {
             Caption = 'Intrastat Exclude';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -749,14 +835,22 @@ table 124 "Purch. Cr. Memo Hdr."
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -764,7 +858,11 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Original Document VAT Date';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -794,9 +892,14 @@ table 124 "Purch. Cr. Memo Hdr."
         key(Key7; "Pay-to Vendor No.")
         {
         }
+#if not CLEAN19
         key(Key8; "Letter No.")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Letter No." is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
+#endif
         key(Key9; "Posting Date")
         {
         }
@@ -845,6 +948,7 @@ table 124 "Purch. Cr. Memo Hdr."
         if not IsHandled then
             with PurchCrMemoHeader do begin
                 Copy(Rec);
+#if not CLEAN19
                 // NAVCZ
                 if FindFirst then;
                 if "Prepayment Credit Memo" then
@@ -852,8 +956,9 @@ table 124 "Purch. Cr. Memo Hdr."
                       ReportSelection.Usage::"P.Adv.CrM", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."))
                 else
                     // NAVCZ
-                    ReportSelection.PrintWithDialogForVend(
-                      ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
+#endif
+                ReportSelection.PrintWithDialogForVend(
+                ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
             end;
     end;
 

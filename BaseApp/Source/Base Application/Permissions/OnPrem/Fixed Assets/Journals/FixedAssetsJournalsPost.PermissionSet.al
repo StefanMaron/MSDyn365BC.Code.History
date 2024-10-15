@@ -17,7 +17,9 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "Currency Exchange Rate" = r,
                   tabledata Customer = r,
                   tabledata "Date Compr. Register" = r,
+#if not CLEAN18
                   tabledata "Depreciation Group" = R,
+#endif
 #if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
 #endif
@@ -27,8 +29,8 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "FA Depreciation Book" = Rm,
 #if not CLEAN18
                   tabledata "FA Extended Posting Group" = R,
-#endif
                   tabledata "FA History Entry" = Rim,
+#endif
                   tabledata "FA Journal Batch" = RID,
                   tabledata "FA Journal Line" = RIMD,
                   tabledata "FA Journal Setup" = R,
@@ -68,7 +70,9 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "VAT Assisted Setup Templates" = r,
                   tabledata "VAT Business Posting Group" = R,
                   tabledata "VAT Entry" = Ri,
+#if not CLEAN17
                   tabledata "VAT Period" = r,
+#endif
                   tabledata "VAT Posting Setup" = r,
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,

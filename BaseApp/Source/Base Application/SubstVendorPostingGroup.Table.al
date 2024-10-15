@@ -1,7 +1,11 @@
 table 11782 "Subst. Vendor Posting Group"
 {
     Caption = 'Subst. Vendor Posting Group';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 

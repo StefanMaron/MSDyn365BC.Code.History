@@ -1,7 +1,11 @@
 table 31048 "Credits Setup"
 {
     Caption = 'Credits Setup';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 

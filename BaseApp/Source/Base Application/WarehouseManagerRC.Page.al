@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 8909 "Warehouse Manager Role Center"
 {
     Caption = 'Warehouse Manager Role Center';
@@ -960,3 +961,4 @@ page 8909 "Warehouse Manager Role Center"
         }
     }
 }
+#endif

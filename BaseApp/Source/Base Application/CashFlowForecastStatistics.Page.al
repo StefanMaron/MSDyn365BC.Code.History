@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 868 "Cash Flow Forecast Statistics"
 {
     Caption = 'Cash Flow Forecast Statistics';
@@ -139,6 +140,9 @@ page 868 "Cash Flow Forecast Statistics"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Advances';
                     ToolTip = 'Specifies an amount of sales advances';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnDrillDown()
                     begin
@@ -150,6 +154,9 @@ page 868 "Cash Flow Forecast Statistics"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Advances';
                     ToolTip = 'Specifies an amount of purchase advances';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnDrillDown()
                     begin
@@ -212,3 +219,4 @@ page 868 "Cash Flow Forecast Statistics"
         CurrentDate: Date;
 }
 
+#endif

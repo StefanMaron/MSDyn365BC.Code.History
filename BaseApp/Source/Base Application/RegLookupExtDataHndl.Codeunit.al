@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11797 "Reg. Lookup Ext. Data Hndl"
 {
     TableNo = "Registration Log";
@@ -77,3 +78,5 @@ codeunit 11797 "Reg. Lookup Ext. Data Hndl"
     end;
 }
 
+
+#endif

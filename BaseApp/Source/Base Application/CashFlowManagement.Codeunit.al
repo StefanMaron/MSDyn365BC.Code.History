@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 841 "Cash Flow Management"
 {
 
@@ -271,6 +272,7 @@ codeunit 841 "Cash Flow Management"
         Budget.Run;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure ShowSalesAdvLetters(SourceNo: Code[20])
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -284,6 +286,7 @@ codeunit 841 "Cash Flow Management"
         SalesAdvanceLetter.Run;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure ShowPurchAdvLetters(SourceNo: Code[20])
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -845,3 +848,4 @@ codeunit 841 "Cash Flow Management"
     end;
 }
 
+#endif

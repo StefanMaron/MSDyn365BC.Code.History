@@ -50,7 +50,7 @@ codeunit 137404 "SCM Manufacturing"
         Capacity2: Decimal;
         DateChangeFormula: DateFormula;
         GLB_ItemTrackingQty: Integer;
-        GLB_SerialNo: Code[20];
+        GLB_SerialNo: Code[50];
         DocumentNoError: Label 'Document No. %1 does not exist.';
         ExpectedQuantityError: Label 'Quantity must be %1.';
         ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.';
@@ -750,6 +750,77 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify Production Forecast Entry must be copied.
         VerifyProductionForecastEntry(ProductionForecastEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionForecastHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CopyProductionForecastEntryWithItemVariantCode()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        ItemVariant: Record "Item Variant";
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Test and verify functionality of Copy Production Forecast report with Production Forecast Entry where 'Variant Code' is defined.
+
+        // [GIVEN] Create Production Forecast Name and Production Forecast Entry where 'Variant Code' for the item is set.
+        Initialize;
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name);
+        LibraryInventory.CreateItemVariant(ItemVariant, ProductionForecastEntry."Item No.");
+        ProductionForecastEntry.Validate("Variant Code", ItemVariant.Code);
+        ProductionForecastEntry.Modify(true);
+
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        ProductionForecastName2 := ProductionForecastName.Name;  // Use ProductionForecastName2 as global for handler.
+        ItemNo2 := ProductionForecastEntry."Item No.";  // Use ItemNo2 as global for handler.
+        LocationCode2 := ProductionForecastEntry."Location Code";  // Use LocationCode2 as global for handler.
+        Evaluate(DateChangeFormula, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use DateChangeFormula as global for handler and taking random value.
+
+        // [WHEN] Run Copy Production Forecast report.
+        ProductionForecastEntry.SetRange("Production Forecast Name", ProductionForecastEntry."Production Forecast Name");
+        RunCopyProductionForecast(ProductionForecastEntry);
+
+        // [THEN] Verify Production Forecast Entry must be copied.
+        VerifyProductionForecastEntry(ProductionForecastEntry);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DemandForecastEntriesEditabilityTest()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+        DemandForecastEntries: TestPage "Demand Forecast Entries";
+        DemandForecastNames: TestPage "Demand Forecast Names";
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Test and verify Demand Forecast Entries page.
+
+        // [GIVEN] Create Production Forecast Name.
+        Initialize;
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+
+        // [GIVEN] Open DemandForecastNames page.
+        DemandForecastNames.OpenView();
+        DemandForecastNames.GoToRecord(ProductionForecastName);
+
+        // [WHEN] "Demand Forecast Entries" action is invoked.
+        DemandForecastEntries.Trap();
+        DemandForecastNames."Demand Forecast Entries".Invoke();
+
+        // [THEN] 'Demand Forecast Entries' page opens and needed fields are editable
+        DemandForecastEntries.Edit().Invoke();
+        Assert.IsTrue(DemandForecastEntries."Production Forecast Name".Editable(), 'Field is expected to be not editable');
+        Assert.IsTrue(DemandForecastEntries."Item No.".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries.Description.Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Variant Code".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Location Code".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Forecast Quantity (Base)".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Forecast Date".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Forecast Quantity".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Unit of Measure Code".Editable(), 'Field is expected to be editable');
+        Assert.IsTrue(DemandForecastEntries."Component Forecast".Editable(), 'Field is expected to be editable');
     end;
 
     [Test]
@@ -1905,6 +1976,53 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] ProdOrderLine's BinCode is same as Work Center's Bin Code
         VerifyProdOrderLineBinCode(ProdOrderLine, WorkCenter."From-Production Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VariantFilterIsUsedToCalculateProdForecastQtyOnItem()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ForecastWithoutVariantCode: Decimal;
+        ForecastWithVariantCode: Decimal;
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Variant filter on item is used to calculate the prodution forecast quantity 
+
+        // [GIVEN] Create Production Forecast Name, create Production Forecast Entry for a item with 'Variant Code' = ''.
+        Initialize;
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name);
+
+        // [GIVEN] Create a item variant
+        LibraryInventory.CreateItemVariant(ItemVariant, ProductionForecastEntry."Item No.");
+
+        // [GIVEN] Create a Production Forecast Entry for the item of a particulat variant
+        ForecastWithoutVariantCode := ProductionForecastEntry."Forecast Quantity (Base)";
+        ForecastWithVariantCode := LibraryRandom.RandDec(100, 2);
+
+        Item.Get(ProductionForecastEntry."Item No.");
+        clear(ProductionForecastEntry);
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", ItemVariant.Code, CreateLocation(), WorkDate(), true);
+        ProductionForecastEntry.Validate("Forecast Quantity (Base)", ForecastWithVariantCode);
+        ProductionForecastEntry.Modify(true);
+
+        // [WHEN] Variant Filter is not set and 'Prod. Forecast Quantity (Base)' is calculated
+        Item.SetRange("Variant Filter");
+        Item.CalcFields("Prod. Forecast Quantity (Base)");
+
+        // [THEN] 'Prod. Forecast Quantity (Base)' is the sum of both entries (with variant code and without)
+        Item.TestField("Prod. Forecast Quantity (Base)", ForecastWithoutVariantCode + ForecastWithVariantCode);
+
+        // [WHEN] variant Filter is set and 'Prod. Forecast Qty. (Base)- is calculated
+        Item.SetRange("Variant Filter", ItemVariant.Code);
+        Item.CalcFields("Prod. Forecast Quantity (Base)");
+
+        // [THEN] 'Prod. Forecast Quantity (Base)' is same as the qty. set on forecast entry where the 'Variant Code' is same as the code in 'Variant Filter'
+        Item.TestField("Prod. Forecast Quantity (Base)", ForecastWithVariantCode);
     end;
 
     [Test]
@@ -4998,7 +5116,7 @@ codeunit 137404 "SCM Manufacturing"
         Reservation: Page Reservation;
     begin
         FindProdOrderComponent(ProdOrderComponent, ProdOrderStatus, ProdOrderNo);
-        Reservation.SetProdOrderComponent(ProdOrderComponent);
+        Reservation.SetReservSource(ProdOrderComponent);
         Reservation.RunModal;
     end;
 
@@ -5500,6 +5618,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionForecastEntry2.TestField("Forecast Date", CalcDate(DateChangeFormula, WorkDate));
         ProductionForecastEntry2.TestField("Forecast Quantity", ProductionForecastEntry."Forecast Quantity");
         ProductionForecastEntry2.TestField("Location Code", ProductionForecastEntry."Location Code");
+        ProductionForecastEntry2.TestField("Variant Code", ProductionForecastEntry."Variant Code");
         ProductionForecastEntry2.TestField("Component Forecast", ProductionForecastEntry."Component Forecast");
     end;
 

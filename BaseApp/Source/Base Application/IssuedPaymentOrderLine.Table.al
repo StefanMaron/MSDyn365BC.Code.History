@@ -1,16 +1,25 @@
 table 11711 "Issued Payment Order Line"
 {
     Caption = 'Issued Payment Order Line';
+#if not CLEAN19
     DrillDownPageID = "Issued Payment Order Lines";
     LookupPageID = "Issued Payment Order Lines";
     Permissions = TableData "Issued Payment Order Line" = rm;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Payment Order No."; Code[20])
         {
             Caption = 'Payment Order No.';
+#if not CLEAN19
             TableRelation = "Issued Payment Order Header"."No.";
+#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -29,7 +38,11 @@ table 11711 "Issued Payment Order Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor."No."
             ELSE
+#if CLEAN17
+            IF (Type = CONST("Bank Account")) "Bank Account"."No.";
+#else
             IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
+#endif            
         }
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
@@ -53,7 +66,9 @@ table 11711 "Issued Payment Order Line"
         field(9; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {
@@ -160,18 +175,26 @@ table 11711 "Issued Payment Order Line"
         field(151; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Header";
+#endif
         }
         field(152; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
+#if not CLEAN19
             TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
+#endif
         }
         field(190; "VAT Uncertainty Payer"; Boolean)
         {
             Caption = 'VAT Uncertainty Payer';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
@@ -179,7 +202,11 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'Public Bank Account';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
@@ -187,7 +214,11 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'Third Party Bank Account';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
@@ -221,11 +252,13 @@ table 11711 "Issued Payment Order Line"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     var
         ReallyCancelLineQst: Label 'Do you want to cancel payment order line?';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure LineCancel()
     var
         IssuedPaymentOrderLine: Record "Issued Payment Order Line";
@@ -243,6 +276,7 @@ table 11711 "Issued Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ConvertTypeToGenJnlLineType(): Integer
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -257,9 +291,11 @@ table 11711 "Issued Payment Order Line"
         end;
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIssuedPaymentOrderLineCancel(IssuedPaymentOrderLine: record "Issued Payment Order Line")
     begin
     end;
+#endif
 }
 

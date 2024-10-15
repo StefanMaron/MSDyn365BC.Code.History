@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31057 "Posted Credit Card"
 {
     Caption = 'Posted Credit Card (Obsolete)';
@@ -229,3 +230,5 @@ page 31057 "Posted Credit Card"
         HasIncomingDocument: Boolean;
 }
 
+
+#endif

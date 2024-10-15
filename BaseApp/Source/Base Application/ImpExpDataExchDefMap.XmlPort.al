@@ -1,3 +1,4 @@
+#if not CLEAN17
 xmlport 1225 "Imp / Exp Data Exch Def & Map"
 {
     Caption = 'Imp / Exp Data Exch Def & Map';
@@ -503,14 +504,14 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateFormatCode);
                                         'US_DATETIME_FORMAT':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateTimeFormatCode);
-                                            // NAVCZ
+                                        // NAVCZ
                                         'CZ_DECIMAL_FORMAT':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCzechDecimalFormatCode);
                                         'CZ_DATE_FORMAT':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCZDateFormatCode);
                                         'CZ_DATETIME_FORMAT':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCZDateTimeFormatCode);
-                                            // NAVCZ
+                                        // NAVCZ
                                         'DELETE_NOTPROVIDED':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDeleteNOTPROVIDEDCode);
                                         else
@@ -616,3 +617,4 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
     end;
 }
 
+#endif

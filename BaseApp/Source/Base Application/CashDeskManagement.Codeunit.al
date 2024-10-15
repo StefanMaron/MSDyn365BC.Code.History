@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11730 CashDeskManagement
 {
     ObsoleteState = Pending;
@@ -63,9 +64,7 @@ codeunit 11730 CashDeskManagement
         ThousandATxt: Label 'thousand';
         ThousandBTxt: Label 'thousand';
         UserSetupMgt: Codeunit "User Setup Management";
-#if not CLEAN18
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
@@ -521,10 +520,8 @@ codeunit 11730 CashDeskManagement
                     end;
                     if (BankAcc."Responsibility ID (Post)" <> '') and (BankAcc."Responsibility ID (Post)" <> UserId) then
                         Error(NotPermToPostErr, CashDocHeader.TableCaption);
-#if not CLEAN18
                     if not CheckBankAccount(BankAcc."No.") then
                         Error(NotPermToPostToBankAccountErr, BankAcc."No.");
-#endif
                 end;
         end;
         if CashDeskUser.IsEmpty() then
@@ -537,7 +534,7 @@ codeunit 11730 CashDeskManagement
                     Error(NotPermToPostErr, CashDocHeader.TableCaption);
             end;
     end;
-#if not CLEAN18
+
     local procedure CheckBankAccount(BankAccountNo: Code[20]): Boolean
     begin
         if not UserSetupAdvMgt.IsCheckAllowed then
@@ -546,7 +543,7 @@ codeunit 11730 CashDeskManagement
             exit(true);
         exit(UserSetupAdvMgt.CheckBankAccount(BankAccountNo));
     end;
-#endif
+
     [TryFunction]
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
@@ -747,4 +744,4 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 }
-
+#endif

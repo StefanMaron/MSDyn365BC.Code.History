@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 1253 "Bank Pmt. Appl. Settings"
 {
     Caption = 'Bank Payment Application Settings';
@@ -61,6 +62,7 @@ table 1253 "Bank Pmt. Appl. Settings"
     {
     }
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetOrInsert(BankPmtApplRuleCode: Code[10])
     begin
         if Get(BankPmtApplRuleCode) then
@@ -76,3 +78,4 @@ table 1253 "Bank Pmt. Appl. Settings"
     end;
 }
 
+#endif

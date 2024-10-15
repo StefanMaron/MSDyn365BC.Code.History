@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 5656 InsuranceJnlManagement
 {
     Permissions = TableData "Insurance Journal Template" = imd,
@@ -72,7 +73,10 @@ codeunit 5656 InsuranceJnlManagement
 
     procedure OpenJournal(var CurrentJnlBatchName: Code[10]; var InsuranceJnlLine: Record "Insurance Journal Line")
     begin
+        OnBeforeOpenJournal(CurrentJnlBatchName, InsuranceJnlLine);
+
         InsuranceJnlLine.CheckInsuranceJournalLineUserRestriction; // NAVCZ
+  
         CheckTemplateName(InsuranceJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         InsuranceJnlLine.FilterGroup := 2;
         InsuranceJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -188,5 +192,11 @@ codeunit 5656 InsuranceJnlManagement
             OldFANo := FA."No.";
         end;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var InsuranceJournalLine: Record "Insurance Journal Line")
+    begin
+    end;
 }
 
+#endif

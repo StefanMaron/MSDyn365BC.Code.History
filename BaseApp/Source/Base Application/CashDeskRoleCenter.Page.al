@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11750 "Cash Desk Role Center"
 {
     Caption = 'Cash Desk (Obsolete)', Comment = 'Use same translation as ''Profile Description'' ';
@@ -89,4 +90,4 @@ page 11750 "Cash Desk Role Center"
         }
     }
 }
-
+#endif

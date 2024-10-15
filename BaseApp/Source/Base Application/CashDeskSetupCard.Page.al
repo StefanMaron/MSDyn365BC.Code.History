@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11751 "Cash Desk Setup Card"
 {
     Caption = 'Cash Desk Setup Card (Obsolete)';
@@ -525,4 +526,4 @@ page 11751 "Cash Desk Setup Card"
         CurrPage.Update(false);
     end;
 }
-
+#endif

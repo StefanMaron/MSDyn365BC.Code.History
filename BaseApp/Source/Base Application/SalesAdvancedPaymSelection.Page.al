@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31011 "Sales Advanced Paym. Selection"
 {
-    Caption = 'Sales Advanced Paym. Selection';
+    Caption = 'Sales Advanced Paym. Selection (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Sales Adv. Payment Template";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -33,4 +37,4 @@ page 31011 "Sales Advanced Paym. Selection"
     {
     }
 }
-
+#endif

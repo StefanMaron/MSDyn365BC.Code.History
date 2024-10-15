@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31058 "Posted Credit Subform"
 {
     AutoSplitKey = true;
@@ -154,4 +155,4 @@ page 31058 "Posted Credit Subform"
         ShowDimensions();
     end;
 }
-
+#endif

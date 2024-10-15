@@ -1,4 +1,5 @@
-﻿codeunit 444 "Purchase-Post Prepayments"
+#if not CLEAN19
+codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "G/L Register" = rimd,
@@ -34,7 +35,9 @@
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
         TempPurchaseLine: Record "Purchase Line" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
+#if not CLEAN19
         TempLineRelation: Record "Advance Letter Line Relation" temporary;
+#endif
         CurrExchRate: Record "Currency Exchange Rate";
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -435,12 +438,12 @@
                                 TestField("Prepmt. Cr. Memo No. Series");
                                 "Prepmt. Cr. Memo No." := NoSeriesMgt.GetNextNo("Prepmt. Cr. Memo No. Series", "Posting Date", true);
                                 ModifyHeader := true;
-                          end else
-                              "Prepmt. Cr. Memo No." := '***';
-                      DocNo := "Prepmt. Cr. Memo No.";
-                      NoSeriesCode := "Prepmt. Cr. Memo No. Series";
-                  end;
-           end;
+                            end else
+                                "Prepmt. Cr. Memo No." := '***';
+                        DocNo := "Prepmt. Cr. Memo No.";
+                        NoSeriesCode := "Prepmt. Cr. Memo No. Series";
+                    end;
+            end;
     end;
 
     procedure CheckOpenPrepaymentLines(PurchHeader: Record "Purchase Header"; DocumentType: Option) Found: Boolean
@@ -796,10 +799,12 @@
                             VATAmountLine.InsertNewLine(
                               "Prepayment VAT Identifier", "Prepmt. VAT Calc. Type", "Prepayment Tax Group Code", false,
                               "Prepayment VAT %", NewAmount >= 0, true);
+#if not CLEAN18
                             // NAVCZ
                             VATAmountLine."Currency Code" := Currency.Code;
                             VATAmountLine.Modify();
                             // NAVCZ
+#endif
                         end;
 
                         VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + NewAmount;
@@ -924,6 +929,7 @@
                     end;
                 until PurchLine.Next() = 0;
         end;
+        ErrorMessageMgt.FinishTopContext();
     end;
 
     procedure BuildInvLineBuffer(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
@@ -1028,6 +1034,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure PrepmtAmount(PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo",Statistic,Advance): Decimal
     begin
         with PurchLine do
@@ -1148,10 +1155,12 @@
               PrepmtInvLineBuffer."Global Dimension 1 Code", PrepmtInvLineBuffer."Global Dimension 2 Code",
               PrepmtInvLineBuffer."Dimension Set ID", PurchHeader."Reason Code");
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := PurchHeader."VAT Date";
             // NAVCZ
 
+#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
             CopyFromPurchHeaderPrepmt(PurchHeader);
             CopyFromPrepmtInvoiceBuffer(PrepmtInvLineBuffer);
@@ -1186,10 +1195,12 @@
               PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
             OnPostVendorEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := PurchHeader."VAT Date";
             // NAVCZ
 
+#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
             CopyFromPurchHeaderPrepmtPost(PurchHeader, (DocumentType = DocumentType::Invoice) or CalcPmtDisc);
@@ -1221,10 +1232,12 @@
               PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
               PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
 
+#if not CLEAN17
             // NAVCZ
             "VAT Date" := PurchHeader."VAT Date";
             // NAVCZ
 
+#endif
             if DocType = "Document Type"::"Credit Memo" then
                 CopyDocumentFields("Document Type"::Refund, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode)
             else
@@ -1642,6 +1655,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure SetPrepmtType(Type: Option " ",Prepayment,Advance)
     begin
         // NAVCZ
@@ -1650,6 +1664,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure GetPrepmtAmounts(PurchHeader: Record "Purchase Header"; var PrepmtAmtReceived: Decimal)
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -1687,6 +1702,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure SaveLineRelation(Value: Boolean)
     begin
         // NAVCZ
@@ -1694,6 +1710,8 @@
         // NAVCZ
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure InsertLineRelation(var PrepmtInvBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     var
@@ -1728,6 +1746,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetLineRelations(var LineRelation: Record "Advance Letter Line Relation")
     begin
@@ -1742,7 +1761,9 @@
         // NAVCZ
     end;
 
+#endif
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure RealizeGainLoss(var GenJnlLine: Record "Gen. Journal Line"; PurchLine: Record "Purchase Line")
     var
         Currency: Record Currency;
@@ -1771,6 +1792,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure ReverseAmounts(var PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
     begin
         // NAVCZ
@@ -1788,6 +1810,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure InsertInvLineBuffer(var PrepmtInvBuf: Record "Prepayment Inv. Line Buffer"; PrepmtInvBuf2: Record "Prepayment Inv. Line Buffer"; PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo"; UpdateLine: Boolean)
     var
         PrePmtAmount: Decimal;
@@ -2094,3 +2117,4 @@
     begin
     end;
 }
+#endif

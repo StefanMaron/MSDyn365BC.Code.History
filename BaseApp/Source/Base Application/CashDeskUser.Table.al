@@ -1,8 +1,12 @@
 table 11740 "Cash Desk User"
 {
     Caption = 'Cash Desk User';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Cash Desk Users";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -12,7 +16,9 @@ table 11740 "Cash Desk User"
         {
             Caption = 'Cash Desk No.';
             NotBlank = true;
+#if not CLEAN17
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+#endif
         }
         field(2; "User ID"; Code[50])
         {
@@ -50,9 +56,6 @@ table 11740 "Cash Desk User"
         field(31120; "Post EET Only"; Boolean)
         {
             Caption = 'Post EET Only';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '18.0';
         }
     }
 
@@ -70,6 +73,7 @@ table 11740 "Cash Desk User"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     procedure GetUserName(UserName: Code[50]): Text[80]
@@ -81,5 +85,6 @@ table 11740 "Cash Desk User"
         if User.FindFirst then
             exit(User."Full Name");
     end;
+#endif
 }
 

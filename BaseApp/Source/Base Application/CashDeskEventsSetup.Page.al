@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11742 "Cash Desk Events Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -123,4 +124,4 @@ page 11742 "Cash Desk Events Setup"
         }
     }
 }
-
+#endif

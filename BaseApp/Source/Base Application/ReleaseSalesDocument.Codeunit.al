@@ -1,4 +1,5 @@
-﻿codeunit 414 "Release Sales Document"
+﻿#if not CLEAN18
+codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
     Permissions = TableData "Sales Header" = rm;
@@ -26,10 +27,8 @@
     local procedure "Code"() LinesWereModified: Boolean
     var
         SalesLine: Record "Sales Line";
-#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         UserCheck: Codeunit "User Setup Adv. Management";
-#endif
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -71,9 +70,7 @@
             if not SalesLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
             InvtSetup.Get();
-#if not CLEAN18
             GLSetup.Get(); // NAVCZ
-#endif
 
             if InvtSetup."Location Mandatory" then begin
                 SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -81,7 +78,6 @@
                     repeat
                         if SalesLine.IsInventoriableItem then
                             SalesLine.TestField("Location Code");
-#if not CLEAN18
                         // NAVCZ
                         if GLSetup."User Checks Allowed" then
                             if SalesLine.Type = SalesLine.Type::Item then begin
@@ -96,7 +92,6 @@
                                 end;
                             end;
                         // NAVCZ
-#endif
                         OnCodeOnAfterSalesLineCheck(SalesLine);
                     until SalesLine.Next() = 0;
                 SalesLine.SetFilter(Type, '>0');
@@ -427,3 +422,4 @@
     end;
 }
 
+#endif

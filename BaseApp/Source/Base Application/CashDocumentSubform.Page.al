@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11731 "Cash Document Subform"
 {
     AutoSplitKey = true;
@@ -499,4 +500,4 @@ page 11731 "Cash Document Subform"
         Clear(DimMgt);
     end;
 }
-
+#endif

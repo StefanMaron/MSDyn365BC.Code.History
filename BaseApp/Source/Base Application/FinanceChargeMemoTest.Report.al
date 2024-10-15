@@ -134,10 +134,12 @@ report 123 "Finance Charge Memo - Test"
                 column(Finance_Charge_Memo_Header___Fin__Charge_Terms_Code_Caption; "Finance Charge Memo Header".FieldCaption("Fin. Charge Terms Code"))
                 {
                 }
+#if not CLEAN17
                 column(Finance_Charge_Memo_Header___RegistrationNo; "Finance Charge Memo Header"."Registration No.")
                 {
                     IncludeCaption = true;
                 }
+#endif
                 dataitem(DimensionLoop; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));

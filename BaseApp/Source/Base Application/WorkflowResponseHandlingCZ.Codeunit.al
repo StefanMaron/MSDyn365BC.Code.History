@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 31111 "Workflow Response Handling CZ"
 {
     ObsoleteState = Pending;
@@ -31,21 +32,27 @@ codeunit 31111 "Workflow Response Handling CZ"
                 WorkflowResponseHandling.AddResponsePredecessor(
                   SetStatusToApprovedCode,
                   WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
+#if not CLEAN17
             CheckReleaseDocumentCode:
                 WorkflowResponseHandling.AddResponsePredecessor(
                   CheckReleaseDocumentCode,
                   WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
+#endif
             WorkflowResponseHandling.SetStatusToPendingApprovalCode:
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
+#if not CLEAN17
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
+#endif
+#if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
+#endif
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
@@ -58,12 +65,16 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
+#if not CLEAN17
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
+#endif
+#if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
+#endif
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
@@ -76,12 +87,16 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
+#if not CLEAN17
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
+#endif
+#if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode);
+#endif
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode);
@@ -94,12 +109,16 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
+#if not CLEAN17
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelCashDocApprovalRequestCode);
+#endif
+#if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelCreditApprovalRequestCode);
+#endif
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode);
@@ -112,12 +131,16 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
+#if not CLEAN17
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelCashDocApprovalRequestCode);
+#endif
+#if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelCreditApprovalRequestCode);
+#endif
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode);
@@ -137,11 +160,13 @@ codeunit 31111 "Workflow Response Handling CZ"
                     SetStatusToApproved(Variant);
                     ResponseExecuted := true;
                 end;
+#if not CLEAN17
             CheckReleaseDocumentCode:
                 begin
                     CheckReleaseDocument(Variant);
                     ResponseExecuted := true;
                 end;
+#endif
         end;
     end;
 
@@ -163,6 +188,7 @@ codeunit 31111 "Workflow Response Handling CZ"
     begin
         ApprovalsMgmt.SetStatusToApproved(Variant);
     end;
+#if not CLEAN17
 
     local procedure CheckReleaseDocument(var Variant: Variant)
     var
@@ -182,5 +208,7 @@ codeunit 31111 "Workflow Response Handling CZ"
                 Error(UnsupportedRecordTypeErr, RecRef.Caption);
         end;
     end;
+#endif
 }
 
+#endif

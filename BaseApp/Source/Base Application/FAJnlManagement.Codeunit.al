@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 5638 FAJnlManagement
 {
     Permissions = TableData "FA Journal Template" = imd,
@@ -81,6 +82,8 @@ codeunit 5638 FAJnlManagement
 
     procedure OpenJournal(var CurrentJnlBatchName: Code[10]; var FAJnlLine: Record "FA Journal Line")
     begin
+        OnBeforeOpenJournal(CurrentJnlBatchName, FAJnlLine);
+
         FAJnlLine.CheckFAJournalLineUserRestriction; // NAVCZ
         CheckTemplateName(FAJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         FAJnlLine.FilterGroup := 2;
@@ -208,5 +211,11 @@ codeunit 5638 FAJnlManagement
     local procedure OnBeforeGetFA(var FANo: Code[20]; var FADescription: Text[100]; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var FAJournalLine: Record "FA Journal Line")
+    begin        
+    end;
 }
 
+#endif

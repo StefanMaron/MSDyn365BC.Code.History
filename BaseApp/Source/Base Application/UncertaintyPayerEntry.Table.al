@@ -1,9 +1,13 @@
 table 11760 "Uncertainty Payer Entry"
 {
     Caption = 'Uncertainty Payer Entry';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Uncertainty Payer Entries";
     LookupPageID = "Uncertainty Payer Entries";
     ObsoleteState = Pending;
+#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -62,7 +66,7 @@ table 11760 "Uncertainty Payer Entry"
         }
         field(70; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup (Vendor.Name WHERE("No." = FIELD("Vendor No.")));
+            CalcFormula = Lookup(Vendor.Name WHERE("No." = FIELD("Vendor No.")));
             Caption = 'Vendor Name';
             FieldClass = FlowField;
         }

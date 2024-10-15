@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 840 "CF Forecast Statistics FactBox"
 {
     Caption = 'Cash Flow Forecast Statistic';
@@ -136,6 +137,10 @@ page 840 "CF Forecast Statistics FactBox"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales Advances';
                 ToolTip = 'Specifies an amount of sales advances';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
 
                 trigger OnDrillDown()
                 begin
@@ -147,6 +152,10 @@ page 840 "CF Forecast Statistics FactBox"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Advances';
                 ToolTip = 'Specifies an amount of purchase advances';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
 
                 trigger OnDrillDown()
                 begin
@@ -208,3 +217,4 @@ page 840 "CF Forecast Statistics FactBox"
         CurrentDate: Date;
 }
 
+#endif

@@ -61,10 +61,12 @@ table 295 "Reminder Header"
                 "Shortcut Dimension 1 Code" := Cust."Global Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := Cust."Global Dimension 2 Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
+#if not CLEAN17
                 // NAVCZ
                 "Registration No." := Cust."Registration No.";
                 "Tax Registration No." := Cust."Tax Registration No.";
                 // NAVCZ
+#endif
                 Cust.TestField("Customer Posting Group");
                 "Customer Posting Group" := Cust."Customer Posting Group";
                 "Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
@@ -75,7 +77,9 @@ table 295 "Reminder Header"
                 "Fin. Charge Terms Code" := Cust."Fin. Charge Terms Code";
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
                 Validate("Reminder Terms Code");
+#if not CLEAN18
                 UpdateBankInfo; // NAVCZ
+#endif
 
                 CreateDim(DATABASE::Customer, "Customer No.");
             end;
@@ -460,27 +464,45 @@ table 295 "Reminder Header"
         field(11700; "Bank No."; Code[20])
         {
             Caption = 'Bank No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 UpdateBankInfo;
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -488,7 +510,11 @@ table 295 "Reminder Header"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -496,7 +522,11 @@ table 295 "Reminder Header"
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -504,8 +534,12 @@ table 295 "Reminder Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Constant Symbol";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -513,16 +547,25 @@ table 295 "Reminder Header"
         {
             Caption = 'Transit No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -530,19 +573,28 @@ table 295 "Reminder Header"
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -553,14 +605,22 @@ table 295 "Reminder Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -1155,6 +1215,7 @@ table 295 "Reminder Header"
         exit(10000);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
@@ -1177,6 +1238,7 @@ table 295 "Reminder Header"
         end;
     end;
 
+#endif
     local procedure GetFilterCustNo(): Code[20]
     begin
         if GetFilter("Customer No.") <> '' then

@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31004 "Sales Adv. Letter Statistics"
 {
-    Caption = 'Sales Adv. Letter Statistics';
+    Caption = 'Sales Adv. Letter Statistics (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
     SourceTable = "Sales Advance Letter Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -203,4 +207,4 @@ page 31004 "Sales Adv. Letter Statistics"
         PrevNo := '';
     end;
 }
-
+#endif

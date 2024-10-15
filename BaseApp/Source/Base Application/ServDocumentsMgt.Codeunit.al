@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
@@ -54,7 +55,7 @@ codeunit 5988 "Serv-Documents Mgt."
         GenJnlLineExtDocNo: Code[35];
         GenJnlLineDocNo: Code[20];
         SrcCode: Code[10];
-        GenJnlLineDocType: Integer;
+        GenJnlLineDocType: Enum "Gen. Journal Document Type";
         ItemLedgShptEntryNo: Integer;
         NextServLedgerEntryNo: Integer;
         NextWarrantyLedgerEntryNo: Integer;
@@ -104,7 +105,9 @@ codeunit 5988 "Serv-Documents Mgt."
         SrcCodeSetup.Get();
         SrcCode := SrcCodeSetup."Service Management";
         ServPostingJnlsMgt.Initialize(ServHeader, Consume, Invoice);
+#if not CLEAN18
         ServPostingJnlsMgt.SetVariableSymbol(''); // NAVCZ
+#endif
         ServAmountsMgt.Initialize(ServHeader."Currency Code"); // roundingLineInserted is set to FALSE;
         TrackingSpecificationExists := false;
 
@@ -129,10 +132,12 @@ codeunit 5988 "Serv-Documents Mgt."
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineForSLE: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
-        InvPostingBuffer: array[2] of Record "Invoice Post. Buffer" temporary;
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
         DummyTrackingSpecification: Record "Tracking Specification";
         Item: Record Item;
+#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
+#endif
         ServItemMgt: Codeunit ServItemManagement;
         RemQtyToBeInvoiced: Decimal;
         RemQtyToBeInvoicedBase: Decimal;
@@ -153,9 +158,11 @@ codeunit 5988 "Serv-Documents Mgt."
             ServLine.CalcVATAmountLines(2, ServHeader, ServLine, TempVATAmountLineForSLE, Ship);
         end;
 
+#if not CLEAN18
         // NAVCZ
         GLSetup.Get();
         // NAVCZ
+#endif
         ServLine.Reset();
         SortLines(ServLine);
         ServLedgEntryNo := FindFirstServLedgEntry(ServLine);
@@ -315,7 +322,7 @@ codeunit 5988 "Serv-Documents Mgt."
 
                     if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then
                         // Copy sales to buffer
-                        ServAmountsMgt.FillInvPostingBuffer(InvPostingBuffer, ServLine, ServiceLineACY, ServHeader);
+                        ServAmountsMgt.FillInvoicePostBuffer(TempInvoicePostBuffer, ServLine, ServiceLineACY, ServHeader);
 
                     OnPostDocumentLinesOnAfterFillInvPostingBuffer(ServHeader, ServLine);
 
@@ -357,34 +364,33 @@ codeunit 5988 "Serv-Documents Mgt."
                 Clear(ServDocReg);
                 // fake service register entry to be used in the following PostServSalesDocument()
                 if Invoice and ("Document Type" = "Document Type"::Order) and (ServLine."Contract No." <> '') then
-                    ServDocReg.InsertServSalesDocument(
+                    ServDocReg.InsertServiceSalesDocument(
                       ServDocReg."Source Document Type"::Contract, ServLine."Contract No.",
                       ServDocReg."Destination Document Type"::Invoice, ServLine."Document No.");
-                ServDocReg.PostServSalesDocument(
+                ServDocReg.PostServiceSalesDocument(
                   ServDocReg."Destination Document Type"::Invoice,
                   ServLine."Document No.", ServInvHeader."No.");
             end;
             if Invoice or ("Document Type" = "Document Type"::"Credit Memo") then begin
                 Clear(ServDocReg);
-                ServDocReg.PostServSalesDocument(
+                ServDocReg.PostServiceSalesDocument(
                   ServDocReg."Destination Document Type"::"Credit Memo",
-                  ServLine."Document No.",
-                  ServCrMemoHeader."No.");
+                  ServLine."Document No.", ServCrMemoHeader."No.");
             end;
 
             // Post sales and VAT to G/L entries from posting buffer
             if Invoice then begin
                 OnPostDocumentLinesOnBeforePostInvoicePostBuffer(
-                  ServHeader, InvPostingBuffer[1], TotalServiceLine, TotalServiceLineLCY);
+                  ServHeader, TempInvoicePostBuffer, TotalServiceLine, TotalServiceLineLCY);
                 LineCount := 0;
-                if InvPostingBuffer[1].Find('+') then
+                if TempInvoicePostBuffer.Find('+') then
                     repeat
                         LineCount += 1;
                         Window.Update(3, LineCount);
                         ServPostingJnlsMgt.SetPostingDate("Posting Date");
                         ServPostingJnlsMgt.PostInvoicePostBufferLine(
-                          InvPostingBuffer[1], GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo);
-                    until InvPostingBuffer[1].Next(-1) = 0;
+                          TempInvoicePostBuffer, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo);
+                    until TempInvoicePostBuffer.Next(-1) = 0;
 
                 // Post customer entry
                 Window.Update(4, 1);
@@ -493,15 +499,11 @@ codeunit 5988 "Serv-Documents Mgt."
     local procedure MakeInvtAdjustment()
     var
         InvtSetup: Record "Inventory Setup";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
         InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <>
-           InvtSetup."Automatic Cost Adjustment"::Never
-        then begin
-            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.MakeMultiLevelAdjmt;
-        end;
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     procedure UpdateDocumentLines()
@@ -731,9 +733,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     procedure PrepareInvoiceHeader(var Window: Dialog): Code[20]
     var
+#if not CLEAN18
         BankAccount: Record "Bank Account";
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
         VariableSymbol: Code[10];
+#endif
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
         with ServHeader do begin
@@ -758,6 +762,7 @@ codeunit 5988 "Serv-Documents Mgt."
             ServInvHeader."Source Code" := SrcCode;
             ServInvHeader."User ID" := UserId;
             ServInvHeader."No. Printed" := 0;
+#if not CLEAN18
             // NAVCZ
             if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then begin
                 VariableSymbol := BankOperationsFunctions.CreateVariableSymbol(ServInvHeader."No.");
@@ -765,6 +770,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 ServPostingJnlsMgt.SetVariableSymbol(VariableSymbol);
             end;
             // NAVCZ
+#endif
             OnBeforeServInvHeaderInsert(ServInvHeader, ServHeader);
             ServInvHeader.Insert();
             OnAfterServInvHeaderInsert(ServInvHeader, ServHeader);
@@ -777,8 +783,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     ServLogMgt.ServOrderInvoicePost("No.", ServInvHeader."No.");
             end;
 
-            SetGenJnlLineDocNos(2,// Invoice
-              ServInvHeader."No.", "No.");
+            SetGenJnlLineDocNos("Gen. Journal Document Type"::Invoice, ServInvHeader."No.", "No.");
 
             if ("Document Type" = "Document Type"::Invoice) or
                ("Document Type" = "Document Type"::Order) and ServMgtSetup."Copy Comments Order to Invoice"
@@ -811,9 +816,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     procedure PrepareCrMemoHeader(var Window: Dialog): Code[20]
     var
+#if not CLEAN18
         BankAccount: Record "Bank Account";
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
         VariableSymbol: Code[10];
+#endif
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
         with ServHeader do begin
@@ -829,6 +836,7 @@ codeunit 5988 "Serv-Documents Mgt."
             ServCrMemoHeader."Source Code" := SrcCode;
             ServCrMemoHeader."User ID" := UserId;
             ServCrMemoHeader."No. Printed" := 0;
+#if not CLEAN18
             // NAVCZ
             if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then begin
                 VariableSymbol := BankOperationsFunctions.CreateVariableSymbol(ServCrMemoHeader."No.");
@@ -836,6 +844,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 ServPostingJnlsMgt.SetVariableSymbol(VariableSymbol);
             end;
             // NAVCZ
+#endif
             OnBeforeServCrMemoHeaderInsert(ServCrMemoHeader, ServHeader);
             ServCrMemoHeader.Insert();
             OnAfterServCrMemoHeaderInsert(ServCrMemoHeader, ServHeader);
@@ -843,8 +852,7 @@ codeunit 5988 "Serv-Documents Mgt."
             Clear(ServLogMgt);
             ServLogMgt.ServCrMemoPost("No.", ServCrMemoHeader."No.");
 
-            SetGenJnlLineDocNos(3,// Credit Memo
-              ServCrMemoHeader."No.", "No.");
+            SetGenJnlLineDocNos("Gen. Journal Document Type"::"Credit Memo", ServCrMemoHeader."No.", "No.");
 
             ServOrderMgt.CopyCommentLines(
               "Service Comment Table Name"::"Service Header".AsInteger(),
@@ -1563,12 +1571,13 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.SetPostingOptions(passedConsume, passedInvoice);
     end;
 
-    local procedure SetGenJnlLineDocNos(DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure SetGenJnlLineDocNos(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35])
+    var
+        DocTypeInt: Integer;
     begin
-#if not CLEAN16
-        OnBeforeSetGenJnlLineDocNosHandler(ServHeader, DocType, DocNo, ExtDocNo);
-#endif
-        OnBeforeSetGenJnlLineDocNumbers(ServHeader, DocType, DocNo, ExtDocNo);
+        DocTypeInt := DocType.AsInteger();
+        OnBeforeSetGenJnlLineDocNumbers(ServHeader, DocTypeInt, DocNo, ExtDocNo);
+        DocType := "Gen. Journal Document Type".FromInteger(DocTypeInt);
 
         GenJnlLineDocType := DocType;
         GenJnlLineDocNo := DocNo;
@@ -1576,18 +1585,6 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.SetGenJnlLineDocNos(GenJnlLineDocNo, GenJnlLineExtDocNo);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by OnBeforeSetGenJnlLineDocNumbers', '16.0')]
-    local procedure OnBeforeSetGenJnlLineDocNosHandler(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[35])
-    var
-        ShortExtDocNo: Code[20];
-    begin
-        ShortExtDocNo := CopyStr(ExtDocNo, 1, MaxStrLen(ShortExtDocNo));
-        OnBeforeSetGenJnlLineDocNos(ServHeader, DocType, DocNo, ShortExtDocNo);
-        if ShortExtDocNo <> CopyStr(ExtDocNo, 1, MaxStrLen(ShortExtDocNo)) then
-            ExtDocNo := ShortExtDocNo;
-    end;
-#endif
 
     local procedure UpdateRcptLinesOnInv()
     begin
@@ -2271,13 +2268,6 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
     end;
 
-#if not CLEAN16
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by OnBeforeSetGenJnlLineDocNumbers', '16.0')]
-    local procedure OnBeforeSetGenJnlLineDocNos(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[20])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJnlLineDocNumbers(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[35])
@@ -2439,4 +2429,4 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
     end;
 }
-
+#endif

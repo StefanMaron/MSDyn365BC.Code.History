@@ -16,7 +16,11 @@ table 270 "Bank Account"
             begin
                 if "No." <> xRec."No." then begin
                     GLSetup.Get();
+#if CLEAN17
+                    NoSeriesMgt.TestManual(GLSetup."Bank Account Nos.");
+#else
                     NoSeriesMgt.TestManual(GetNoSeriesCode()); // NAVCZ
+#endif
                     "No. Series" := '';
                 end;
             end;
@@ -83,6 +87,7 @@ table 270 "Bank Account"
         field(13; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -94,6 +99,7 @@ table 270 "Bank Account"
                     CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
                 // NAVCZ
             end;
+#endif
         }
         field(14; "Transit No."; Text[20])
         {
@@ -142,6 +148,7 @@ table 270 "Bank Account"
         {
             Caption = 'Bank Acc. Posting Group';
             TableRelation = "Bank Account Posting Group";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -150,6 +157,7 @@ table 270 "Bank Account"
                     CheckOpenBankAccLedgerEntries;
                 // NAVCZ
             end;
+#endif
         }
         field(22; "Currency Code"; Code[10])
         {
@@ -170,7 +178,9 @@ table 270 "Bank Account"
                 BankAcc.CalcFields(Balance, "Balance (LCY)");
                 BankAcc.TestField(Balance, 0);
                 BankAcc.TestField("Balance (LCY)", 0);
+#if not CLEAN19
                 BankAcc.TestZeroBalance; // NAVCZ
+#endif
                 if not BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open) then
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
@@ -179,10 +189,12 @@ table 270 "Bank Account"
                     Error(
                       Text000,
                       FieldCaption("Currency Code"));
+#if not CLEAN18
                 // NAVCZ
                 if "Currency Code" = '' then
                     "Exclude from Exch. Rate Adj." := false;
                 // NAVCZ
+#endif
             end;
         }
         field(24; "Language Code"; Code[10])
@@ -525,7 +537,7 @@ table 270 "Bank Account"
         field(121; "Bank Stmt. Service Record ID"; RecordID)
         {
             Caption = 'Bank Stmt. Service Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -641,18 +653,38 @@ table 270 "Bank Account"
         {
             Caption = 'Default Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Default Specific Symbol"; Code[10])
         {
             Caption = 'Default Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -661,78 +693,198 @@ table 270 "Bank Account"
             BlankZero = true;
             Caption = 'Domestic Payment Order';
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11706; "Foreign Payment Order"; Integer)
         {
             BlankZero = true;
             Caption = 'Foreign Payment Order';
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11707; "Bank Pmt. Appl. Rule Code"; Code[10])
         {
             Caption = 'Bank Pmt. Appl. Rule Code';
+#if not CLEAN19
             TableRelation = "Bank Pmt. Appl. Rule Code";
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11708; "Text-to-Account Mapping Code"; Code[10])
         {
             Caption = 'Text-to-Account Mapping Code';
+#if not CLEAN19
             TableRelation = "Text-to-Account Mapping Code";
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11710; "Dimension from Apply Entry"; Boolean)
         {
             Caption = 'Dimension from Apply Entry';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11711; "Check Ext. No. by Current Year"; Boolean)
         {
             Caption = 'Check Ext. No. by Current Year';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11712; "Check Czech Format on Issue"; Boolean)
         {
             Caption = 'Check Czech Format on Issue';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11713; "Variable S. to Description"; Boolean)
         {
             Caption = 'Variable S. to Description';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11714; "Variable S. to Variable S."; Boolean)
         {
             Caption = 'Variable S. to Variable S.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11715; "Variable S. to Ext. Doc.No."; Boolean)
         {
             Caption = 'Variable S. to Ext. Doc.No.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11716; "Foreign Payment Orders"; Boolean)
         {
             Caption = 'Foreign Payment Orders';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11717; "Post Per Line"; Boolean)
         {
             Caption = 'Post Per Line';
             InitValue = true;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11718; "Payment Partial Suggestion"; Boolean)
         {
             Caption = 'Payment Partial Suggestion';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11720; "Payment Order Line Description"; Text[50])
         {
             Caption = 'Payment Order Line Description';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11721; "Non Associated Payment Account"; Code[20])
         {
             Caption = 'Non Associated Payment Account';
             TableRelation = "G/L Account";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11722; "Base Calendar Code"; Code[10])
         {
             Caption = 'Base Calendar Code';
             TableRelation = "Base Calendar";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11723; "Payment Jnl. Template Name"; Code[10])
         {
             Caption = 'Payment Jnl. Template Name';
             TableRelation = "Gen. Journal Template" WHERE(Type = CONST(Payments));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -741,41 +893,82 @@ table 270 "Bank Account"
                     "Payment Jnl. Batch Name" := '';
                 // NAVCZ
             end;
+
+#endif
         }
         field(11724; "Payment Jnl. Batch Name"; Code[10])
         {
             Caption = 'Payment Jnl. Batch Name';
+#if not CLEAN19
             TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Payment Jnl. Template Name"),
                                                              "Bal. Account Type" = CONST("Bank Account"),
                                                              "Bal. Account No." = FIELD("No."),
                                                              "Allow Payment Export" = CONST(true));
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11725; "Payment Order Nos."; Code[20])
         {
             Caption = 'Payment Order Nos.';
             TableRelation = "No. Series";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11726; "Issued Payment Order Nos."; Code[20])
         {
             Caption = 'Issued Payment Order Nos.';
             TableRelation = "No. Series";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11727; "Bank Statement Nos."; Code[20])
         {
             Caption = 'Bank Statement Nos.';
             TableRelation = "No. Series";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11728; "Issued Bank Statement Nos."; Code[20])
         {
             Caption = 'Issued Bank Statement Nos.';
             TableRelation = "No. Series";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11730; "Max. Balance Checking"; Option)
         {
             Caption = 'Max. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -784,14 +977,22 @@ table 270 "Bank Account"
             Caption = 'Min. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11732; "Allow VAT Difference"; Boolean)
         {
             Caption = 'Allow VAT Difference';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -800,7 +1001,11 @@ table 270 "Bank Account"
             Caption = 'Payed To/By Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -808,7 +1013,11 @@ table 270 "Bank Account"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -820,21 +1029,33 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11736; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11737; "Confirm Inserting of Document"; Boolean)
         {
             Caption = 'Confirm Inserting of Document';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -842,7 +1063,11 @@ table 270 "Bank Account"
         {
             Caption = 'Debit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -850,7 +1075,11 @@ table 270 "Bank Account"
         {
             Caption = 'Credit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -858,7 +1087,11 @@ table 270 "Bank Account"
         {
             Caption = 'Rounding Method Code';
             TableRelation = "Rounding Method";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -870,9 +1103,14 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -880,6 +1118,7 @@ table 270 "Bank Account"
             begin
                 UserSelection.ValidateUserName("User ID");
             end;
+#endif
         }
         field(11742; "Responsibility ID (Post)"; Code[50])
         {
@@ -889,9 +1128,14 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -899,12 +1143,17 @@ table 270 "Bank Account"
             begin
                 UserSelection.ValidateUserName("User ID");
             end;
+#endif
         }
         field(11743; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -914,21 +1163,33 @@ table 270 "Bank Account"
             DecimalPlaces = 2 : 5;
             InitValue = 1;
             MinValue = 0;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11761; "CashReg Document Copies"; Integer)
         {
             Caption = 'CashReg Document Copies';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11762; "Direct Posting"; Boolean)
         {
             Caption = 'Direct Posting';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -937,9 +1198,14 @@ table 270 "Bank Account"
             Caption = 'Account Type';
             OptionCaption = 'Bank Account,Cash Desk';
             OptionMembers = "Bank Account","Cash Desk";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
             trigger OnValidate()
             var
                 ChangeAccountTypeErr: Label 'You cannot change %1.', Comment = '%1 = Account Type FieldCaption';
@@ -948,11 +1214,16 @@ table 270 "Bank Account"
                     if "Account Type" <> xRec."Account Type" then
                         Error(ChangeAccountTypeErr, FieldCaption("Account Type"));
             end;
+#endif
         }
         field(11764; "Max. Balance"; Decimal)
         {
             Caption = 'Max. Balance';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -960,7 +1231,11 @@ table 270 "Bank Account"
         {
             Caption = 'Cash Document Receipt Nos.';
             TableRelation = "No. Series";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -968,30 +1243,47 @@ table 270 "Bank Account"
         {
             Caption = 'Cash Document Withdrawal Nos.';
             TableRelation = "No. Series";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11767; "Cash Receipt Limit"; Decimal)
         {
             Caption = 'Cash Receipt Limit';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11768; "Cash Withdrawal Limit"; Decimal)
         {
             Caption = 'Cash Withdrawal Limit';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
             Caption = 'Exclude from Exch. Rate Adj.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -1001,12 +1293,17 @@ table 270 "Bank Account"
                         "Exclude from Exch. Rate Adj." := xRec."Exclude from Exch. Rate Adj."
                 end;
             end;
+#endif
         }
         field(11770; "Cashier No."; Code[20])
         {
             Caption = 'Cashier No.';
             TableRelation = Employee;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -1014,46 +1311,117 @@ table 270 "Bank Account"
         {
             Caption = 'Run Apply Automatically';
             InitValue = true;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11780; "Foreign Payment Export Format"; Code[20])
         {
             Caption = 'Foreign Payment Export Format';
             TableRelation = "Bank Export/Import Setup".Code WHERE(Direction = CONST(Export));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11781; "Payment Import Format"; Code[20])
         {
             Caption = 'Payment Import Format';
             TableRelation = "Bank Export/Import Setup".Code WHERE(Direction = CONST(Import));
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11782; "Not Apply Cust. Ledger Entries"; Boolean)
         {
             Caption = 'Not Apply Cust. Ledger Entries';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11783; "Not Apply Vend. Ledger Entries"; Boolean)
         {
             Caption = 'Not Apply Vend. Ledger Entries';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11784; "Not Apply Sales Advances"; Boolean)
         {
             Caption = 'Not Apply Sales Advances';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11785; "Not Apply Purchase Advances"; Boolean)
         {
             Caption = 'Not Apply Purchase Advances';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11786; "Not Apply Gen. Ledger Entries"; Boolean)
         {
             Caption = 'Not Apply Gen. Ledger Entries';
             InitValue = true;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11787; "Not Apl. Bank Acc.Ledg.Entries"; Boolean)
         {
             Caption = 'Not Apl. Bank Acc.Ledg.Entries';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11788; "Copy VAT Setup to Jnl. Line"; Boolean)
         {
             Caption = 'Copy VAT Setup to Jnl. Line';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN18
         field(31120; "EET Cash Register"; Boolean)
         {
             CalcFormula = Exist("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
@@ -1065,6 +1433,7 @@ table 270 "Bank Account"
             ObsoleteReason = 'The field is not used anywhere and will be deleted.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
@@ -1098,10 +1467,12 @@ table 270 "Bank Account"
     }
 
     trigger OnDelete()
+#if not CLEAN17
     var
         CashDocHdr: Record "Cash Document Header";
         CashDeskUser: Record "Cash Desk User";
         CashDeskEvent: Record "Cash Desk Event";
+#endif
     begin
         CheckDeleteBalancingBankAccount;
 
@@ -1114,6 +1485,7 @@ table 270 "Bank Account"
         UpdateContFromBank.OnDelete(Rec);
 
         DimMgt.DeleteDefaultDim(DATABASE::"Bank Account", "No.");
+#if not CLEAN17
 
         // NAVCZ
         if "Account Type" = "Account Type"::"Cash Desk" then begin
@@ -1126,20 +1498,29 @@ table 270 "Bank Account"
             CashDeskEvent.DeleteAll();
         end;
         // NAVCZ
+#endif
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
+#if CLEAN17
+            GLSetup.Get();
+            GLSetup.TestField("Bank Account Nos.");
+            NoSeriesMgt.InitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#else
             // NAVCZ
             TestNoSeries();
             NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
             // NAVCZ
+#endif
         end;
 
+#if not CLEAN17
         if "Account Type" <> "Account Type"::"Cash Desk" then // NAVCZ
-            if not InsertFromContact then
-                UpdateContFromBank.OnInsert(Rec);
+#endif
+        if not InsertFromContact then
+            UpdateContFromBank.OnInsert(Rec);
 
         DimMgt.UpdateDefaultDim(
           DATABASE::"Bank Account", "No.",
@@ -1179,11 +1560,16 @@ table 270 "Bank Account"
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
+#if not CLEAN17
         CashDeskMgt: Codeunit CashDeskManagement;
+#endif    
         InsertFromContact: Boolean;
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
+#if not CLEAN19
         ExcludeEntriesQst: Label 'All entries will be excluded from Exchange Rates Adjustment. Do you want to continue?';
         CannotDeleteErr: Label 'You cannot delete %1 %2, beacause %3 exist.', Comment = '%1 = account type, %2 = number, %3 = tablecaption';
+        CurrExchRateIsEmptyErr: Label 'There is no Currency Exchange Rate within the filter. Filters: %1.', Comment = '%1 = filters';
+#endif
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.';
         InvalidPercentageValueErr: Label 'If %1 is %2, then the value must be between 0 and 99.', Comment = '%1 is "field caption and %2 is "Percentage"';
         InvalidValueErr: Label 'The value must be positive.';
@@ -1200,14 +1586,21 @@ table 270 "Bank Account"
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = caption of field (Last Payment Statement No.)';
         CannotDeleteBalancingBankAccountErr: Label 'You cannot delete bank account that is used as balancing account in the Payment Registration Setup.', Locked = true;
         ConfirmDeleteBalancingBankAccountQst: Label 'This bank account is used as balancing account on the Payment Registration Setup page.\\Are you sure you want to delete it?';
-        CurrExchRateIsEmptyErr: Label 'There is no Currency Exchange Rate within the filter. Filters: %1.', Comment = '%1 = filters';
 
     procedure AssistEdit(OldBankAcc: Record "Bank Account"): Boolean
     begin
         with BankAcc do begin
             BankAcc := Rec;
+#if CLEAN17
+            GLSetup.Get();
+            GLSetup.TestField("Bank Account Nos.");
+            if NoSeriesMgt.SelectSeries(GLSetup."Bank Account Nos.", OldBankAcc."No. Series", "No. Series") then begin
+                GLSetup.Get();
+                GLSetup.TestField("Bank Account Nos.");
+#else
             TestNoSeries(); // NAVCZ
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldBankAcc."No. Series", "No. Series") then begin // NAVCZ
+#endif
                 NoSeriesMgt.SetSeries("No.");
                 Rec := BankAcc;
                 exit(true);
@@ -1365,6 +1758,8 @@ table 270 "Bank Account"
         DataExchDef.TestField(Type, DataExchDef.Type::"Payment Export");
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetDataExchDefForeignPaymentExport(var DataExchDef: Record "Data Exch. Def")
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
@@ -1377,6 +1772,7 @@ table 270 "Bank Account"
         DataExchDef.TestField(Type, DataExchDef.Type::"Payment Export");
     end;
 
+    [Obsolete('Merge to W1. Already tested in Currency Code OnValidate trigger.', '19.0')]
     [Scope('OnPrem')]
     procedure TestZeroBalance()
     begin
@@ -1384,7 +1780,8 @@ table 270 "Bank Account"
         TestField(Balance, 0);
         TestField("Balance (LCY)", 0);
     end;
-
+#endif
+#if not CLEAN17
     local procedure CheckOpenBankAccLedgerEntries()
     var
         BankAccount: Record "Bank Account";
@@ -1573,6 +1970,7 @@ table 270 "Bank Account"
         exit(TotalNetChange);
     end;
 
+#endif
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
         AccountNo := GetBankAccountNo;
@@ -1609,6 +2007,8 @@ table 270 "Bank Account"
         exit(BankExportImportSetup."Processing Codeunit ID");
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetForeignPaymentExportCodeunitID(): Integer
     var
@@ -1620,6 +2020,7 @@ table 270 "Bank Account"
         exit(BankExportImportSetup."Processing Codeunit ID");
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetPaymentImportCodeunitID(): Integer
     var
@@ -1631,6 +2032,7 @@ table 270 "Bank Account"
         exit(BankExportImportSetup."Processing Codeunit ID");
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetBankStatementImportCodeunitID(): Integer
     var
@@ -1642,6 +2044,7 @@ table 270 "Bank Account"
         exit(BankExportImportSetup."Processing Codeunit ID");
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CheckCurrExchRateExist(Date: Date)
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -1656,6 +2059,7 @@ table 270 "Bank Account"
             Error(CurrExchRateIsEmptyErr, CurrExchRate.GetFilters());
     end;
 
+#endif
     procedure IsLinkedToBankStatementServiceProvider(): Boolean
     var
         IsBankAccountLinked: Boolean;
@@ -1819,6 +2223,8 @@ table 270 "Bank Account"
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 4;
+        JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;
@@ -2032,6 +2438,7 @@ table 270 "Bank Account"
         // The subscriber of this event should insert a unique identifier (Name) and friendly name of the provider (Value)
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CheckCashDesks()
@@ -2042,6 +2449,7 @@ table 270 "Bank Account"
         CashDeskMgt.CheckCashDesks;
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnDisableStatementProviderEvent(ProviderName: Text)
     begin

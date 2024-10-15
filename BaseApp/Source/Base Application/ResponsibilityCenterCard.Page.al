@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5714 "Responsibility Center Card"
 {
     Caption = 'Responsibility Center Card';
@@ -205,3 +206,4 @@ page 5714 "Responsibility Center Card"
     }
 }
 
+#endif

@@ -3,7 +3,7 @@ table 49 "Invoice Post. Buffer"
     Caption = 'Invoice Post. Buffer';
     ReplicateData = false;
 #if CLEAN18
-        TableType = Temporary;
+    TableType = Temporary;
 #else
     ObsoleteState = Pending;
     ObsoleteTag = '18.0';
@@ -275,7 +275,11 @@ table 49 "Invoice Post. Buffer"
         {
             Caption = 'Correction';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -284,7 +288,11 @@ table 49 "Invoice Post. Buffer"
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -321,7 +329,11 @@ table 49 "Invoice Post. Buffer"
             AutoFormatType = 1;
             Caption = 'Ext. Amount';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -330,7 +342,11 @@ table 49 "Invoice Post. Buffer"
             AutoFormatType = 1;
             Caption = 'Ext. Amount Including VAT';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -339,7 +355,11 @@ table 49 "Invoice Post. Buffer"
             AutoFormatType = 1;
             Caption = 'Ext. VAT Difference (LCY)';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -349,12 +369,19 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
             DataClassification = SystemMetadata;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -362,9 +389,13 @@ table 49 "Invoice Post. Buffer"
 
     keys
     {
+
         key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "VAT Date", "Prepayment Type", "Additional Grouping Identifier")
         {
             Clustered = true;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Prepayment Type" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -418,16 +449,26 @@ table 49 "Invoice Post. Buffer"
             "VAT Amount (ACY)" := 0;
         end;
 
+#if not CLEAN19
         // NAVCZ
+#if not CLEAN18
         "VAT Difference (LCY)" := SalesLine."VAT Difference (LCY)";
+#endif
         if SalesLine."Prepayment Line" then
             "Prepayment Type" := "Prepayment Type"::Prepayment;
+#if not CLEAN18
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+#endif
+#if not CLEAN17
         "VAT Date" := SalesHeader."VAT Date";
         "Original Document VAT Date" := SalesHeader."Original Document VAT Date";
+#endif
+#if not CLEAN18
         Correction := SalesHeader.Correction xor SalesLine.Negative;
+#endif
         // NAVCZ
 
+#endif
         OnAfterInvPostBufferPrepareSales(SalesLine, Rec);
     end;
 
@@ -549,13 +590,19 @@ table 49 "Invoice Post. Buffer"
         end;
 
         // NAVCZ
+#if not CLEAN18
         "Ext. VAT Difference (LCY)" := PurchLine."Ext. VAT Difference (LCY)";
+#endif
         if PurchLine."Prepayment Line" then
             "Prepayment Type" := "Prepayment Type"::Prepayment;
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+#if not CLEAN17
         "VAT Date" := PurchHeader."VAT Date";
         "Original Document VAT Date" := PurchHeader."Original Document VAT Date";
+#endif
+#if not CLEAN18
         Correction := PurchHeader.Correction xor PurchLine.Negative;
+#endif
         // NAVCZ
 
         OnAfterInvPostBufferPreparePurchase(PurchLine, Rec);
@@ -618,8 +665,10 @@ table 49 "Invoice Post. Buffer"
     end;
 
     procedure PrepareService(var ServiceLine: Record "Service Line")
+#if not CLEAN17
     var
         ServiceHeader: Record "Service Header";
+#endif
     begin
         Clear(Rec);
         case ServiceLine.Type of
@@ -642,11 +691,15 @@ table 49 "Invoice Post. Buffer"
         "Job No." := ServiceLine."Job No.";
         "VAT %" := ServiceLine."VAT %";
         "VAT Difference" := ServiceLine."VAT Difference";
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := ServiceLine."VAT Difference (LCY)";
+#if not CLEAN17
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         "VAT Date" := ServiceHeader."VAT Date";
+#endif
         // NAVCZ
+#endif
         if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
             "Tax Area Code" := ServiceLine."Tax Area Code";
             "Tax Group Code" := ServiceLine."Tax Group Code";
@@ -660,37 +713,51 @@ table 49 "Invoice Post. Buffer"
         OnAfterInvPostBufferPrepareService(ServiceLine, Rec);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by PreparePrepmtAdjBuffer().', '19.0')]
     procedure FillPrepmtAdjBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
-    var
-        PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer";
     begin
-        with PrepmtAdjInvPostBuffer do begin
-            Init;
-            Type := Type::"Prepmt. Exch. Rate Difference";
-            "G/L Account" := GLAccountNo;
-            Amount := AdjAmount;
-            if RoundingEntry then
-                "Amount (ACY)" := AdjAmount
-            else
-                "Amount (ACY)" := 0;
-            "Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
-            "Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
-            "Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
-            "System-Created Entry" := true;
-            "Entry Description" := InvoicePostBuffer."Entry Description";
-            OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(PrepmtAdjInvPostBuffer, InvoicePostBuffer);
-            InvoicePostBuffer := PrepmtAdjInvPostBuffer;
+        TempInvoicePostBuffer.PreparePrepmtAdjBuffer(InvoicePostBuffer, GLAccountNo, AdjAmount, RoundingEntry);
+    end;
+#endif
 
-            TempInvoicePostBuffer := InvoicePostBuffer;
-            if TempInvoicePostBuffer.Find then begin
-                TempInvoicePostBuffer.Amount += InvoicePostBuffer.Amount;
-                TempInvoicePostBuffer."Amount (ACY)" += InvoicePostBuffer."Amount (ACY)";
-                TempInvoicePostBuffer.Modify();
-            end else begin
-                TempInvoicePostBuffer := InvoicePostBuffer;
-                TempInvoicePostBuffer.Insert();
-            end;
+    procedure PreparePrepmtAdjBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
+    var
+        PrepmtAdjInvoicePostBuffer: Record "Invoice Post. Buffer";
+    begin
+        PrepmtAdjInvoicePostBuffer.Init();
+        PrepmtAdjInvoicePostBuffer.Type := Type::"Prepmt. Exch. Rate Difference";
+        PrepmtAdjInvoicePostBuffer."G/L Account" := GLAccountNo;
+        PrepmtAdjInvoicePostBuffer.Amount := AdjAmount;
+        if RoundingEntry then
+            PrepmtAdjInvoicePostBuffer."Amount (ACY)" := AdjAmount
+        else
+            PrepmtAdjInvoicePostBuffer."Amount (ACY)" := 0;
+        PrepmtAdjInvoicePostBuffer."Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
+        PrepmtAdjInvoicePostBuffer."Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
+        PrepmtAdjInvoicePostBuffer."Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
+        PrepmtAdjInvoicePostBuffer."System-Created Entry" := true;
+        PrepmtAdjInvoicePostBuffer."Entry Description" := InvoicePostBuffer."Entry Description";
+        OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(PrepmtAdjInvoicePostBuffer, InvoicePostBuffer);
+        InvoicePostBuffer := PrepmtAdjInvoicePostBuffer;
+
+        Rec := InvoicePostBuffer;
+        if Rec.Find() then begin
+            Rec.Amount += InvoicePostBuffer.Amount;
+            Rec."Amount (ACY)" += InvoicePostBuffer."Amount (ACY)";
+            Rec.Modify();
+        end else begin
+            Rec := InvoicePostBuffer;
+            Rec.Insert();
         end;
+    end;
+
+    procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer")
+    var
+        InvDefLineNo: Integer;
+        DeferralLineNo: Integer;
+    begin
+        Update(InvoicePostBuffer, InvDefLineNo, DeferralLineNo);
     end;
 
     procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer"; var InvDefLineNo: Integer; var DeferralLineNo: Integer)
@@ -708,12 +775,14 @@ table 49 "Invoice Post. Buffer"
             "VAT Base Amount (ACY)" += InvoicePostBuffer."VAT Base Amount (ACY)";
             Quantity += InvoicePostBuffer.Quantity;
             "VAT Base Before Pmt. Disc." += InvoicePostBuffer."VAT Base Before Pmt. Disc.";
+#if not CLEAN18
             // NAVCZ
             "VAT Difference (LCY)" += InvoicePostBuffer."VAT Difference (LCY)";
             "Ext. Amount" += InvoicePostBuffer."Ext. Amount";
             "Ext. Amount Including VAT" += InvoicePostBuffer."Ext. Amount Including VAT";
             "Ext. VAT Difference (LCY)" += InvoicePostBuffer."Ext. VAT Difference (LCY)";
             // NAVCZ
+#endif
             if not InvoicePostBuffer."System-Created Entry" then
                 "System-Created Entry" := false;
             if "Deferral Code" = '' then
@@ -821,6 +890,7 @@ table 49 "Invoice Post. Buffer"
         end;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure SetExtAmounts(ExtAmount: Decimal; ExtAmountInclVAT: Decimal; ExtVATDiffLCY: Decimal)
@@ -837,6 +907,55 @@ table 49 "Invoice Post. Buffer"
     begin
         // NAVCZ
         "VAT Difference (LCY)" := NewVATDifferenceLCY;
+    end;
+#endif
+
+    procedure CopyToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlLine."Account No." := Rec."G/L Account";
+        GenJnlLine."System-Created Entry" := Rec."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        GenJnlLine."VAT Bus. Posting Group" := Rec."VAT Bus. Posting Group";
+        GenJnlLine."VAT Prod. Posting Group" := Rec."VAT Prod. Posting Group";
+        GenJnlLine."Tax Area Code" := Rec."Tax Area Code";
+        GenJnlLine."Tax Liable" := Rec."Tax Liable";
+        GenJnlLine."Tax Group Code" := Rec."Tax Group Code";
+        GenJnlLine."Use Tax" := Rec."Use Tax";
+        GenJnlLine.Quantity := Rec.Quantity;
+        GenJnlLine."VAT %" := Rec."VAT %";
+        GenJnlLine."VAT Calculation Type" := Rec."VAT Calculation Type";
+        GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+        GenJnlLine."Job No." := Rec."Job No.";
+        GenJnlLine."Deferral Code" := Rec."Deferral Code";
+        GenJnlLine."Deferral Line No." := Rec."Deferral Line No.";
+        GenJnlLine.Amount := Rec.Amount;
+        GenJnlLine."Source Currency Amount" := Rec."Amount (ACY)";
+        GenJnlLine."VAT Base Amount" := Rec."VAT Base Amount";
+        GenJnlLine."Source Curr. VAT Base Amount" := Rec."VAT Base Amount (ACY)";
+        GenJnlLine."VAT Amount" := Rec."VAT Amount";
+        GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
+        GenJnlLine."VAT Difference" := Rec."VAT Difference";
+        GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
+
+        OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
+    end;
+
+    procedure CopyToGenJnlLineFA(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlLine."Account Type" := "Gen. Journal Account Type"::"Fixed Asset";
+        GenJnlLine."FA Posting Date" := Rec."FA Posting Date";
+        GenJnlLine."Depreciation Book Code" := Rec."Depreciation Book Code";
+        GenJnlLine."Salvage Value" := Rec."Salvage Value";
+        GenJnlLine."Depr. until FA Posting Date" := Rec."Depr. until FA Posting Date";
+        GenJnlLine."Depr. Acquisition Cost" := Rec."Depr. Acquisition Cost";
+        GenJnlLine."Maintenance Code" := Rec."Maintenance Code";
+        GenJnlLine."Insurance No." := Rec."Insurance No.";
+        GenJnlLine."Budgeted FA No." := Rec."Budgeted FA No.";
+        GenJnlLine."Duplicate in Depreciation Book" := Rec."Duplicate in Depreciation Book";
+        GenJnlLine."Use Duplication List" := Rec."Use Duplication List";
+
+        OnAfterCopyToGenJnlLineFA(GenJnlLine, Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -896,6 +1015,16 @@ table 49 "Invoice Post. Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(var PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLineFA(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
     begin
     end;
 }

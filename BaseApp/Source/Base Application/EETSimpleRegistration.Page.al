@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31126 "EET Simple Registration"
 {
     Caption = 'EET Simple Registration (Obsolete)';
@@ -91,7 +92,7 @@ page 31126 "EET Simple Registration"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the source number of the entry.';
-
+#if not CLEAN17
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         exit(LookupSourceNo(Text));
@@ -101,6 +102,7 @@ page 31126 "EET Simple Registration"
                     begin
                         ValidateSourceNo;
                     end;
+#endif
                 }
                 field("Applied Document Type"; "Applied Document Type")
                 {
@@ -469,9 +471,12 @@ page 31126 "EET Simple Registration"
     begin
         GLSetup.Get();
         EETServiceSetup.Get();
+#if not CLEAN17
         InitVATRate;
+#endif        
     end;
 
+#if not CLEAN17
     local procedure InitVATRate()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -484,6 +489,7 @@ page 31126 "EET Simple Registration"
         end;
     end;
 
+#endif    
     local procedure LookupBusinessPremises(var Text: Text): Boolean
     begin
         EETBusinessPremises.Reset();
@@ -529,6 +535,7 @@ page 31126 "EET Simple Registration"
         Clear("Source No.");
     end;
 
+#if not CLEAN17
     local procedure LookupSourceNo(var Text: Text): Boolean
     var
         BankAccount: Record "Bank Account";
@@ -581,6 +588,7 @@ page 31126 "EET Simple Registration"
             end;
     end;
 
+#endif
     local procedure ValidateAppliedDocType()
     begin
         Clear("Applied Document No.");
@@ -680,7 +688,9 @@ page 31126 "EET Simple Registration"
         Clear(AmountExtFromVAT);
         Clear(AmtForSubseqDrawSettle);
         Clear(AmtSubseqDrawnSettled);
+#if not CLEAN17
         InitVATRate;
+#endif        
 
         SalesAmount[1] := TotalSalesAmount;
         ValidateSalesAmount(1);
@@ -738,7 +748,9 @@ page 31126 "EET Simple Registration"
 
         Init;
         CurrPage.Update();
+#if not CLEAN17
         InitVATRate;
+#endif        
         Clear(TotalSalesAmount);
         ValidateTotalSalesAmount;
 
@@ -748,4 +760,4 @@ page 31126 "EET Simple Registration"
                 PAGE.Run(PAGE::"EET Entry Card", EETEntry);
     end;
 }
-
+#endif

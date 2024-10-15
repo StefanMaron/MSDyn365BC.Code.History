@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145008 "Sales Documents"
 {
     Subtype = Test;
@@ -22,10 +23,6 @@ codeunit 145008 "Sales Documents"
         if isInitialized then
             exit;
 
-#if not CLEAN16
-        UpdateSalesSetup;
-
-#endif
         isInitialized := true;
         Commit();
     end;
@@ -75,51 +72,6 @@ codeunit 145008 "Sales Documents"
           GLEntry1.Amount + GLEntry2.Amount = 0, OppositeSignErr);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
-    procedure TransferingDescriptionToGLEntriesForSalesOrder()
-    var
-        SalesHdr: Record "Sales Header";
-    begin
-        TransferingDescriptionToGLEntries(SalesHdr."Document Type"::Order);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of general ledger entry description will be removed and this function should not be used. (Removed in release 01.2021)', '16.0')]
-    procedure TransferingDescriptionToGLEntriesForSalesInvoice()
-    var
-        SalesHdr: Record "Sales Header";
-    begin
-        TransferingDescriptionToGLEntries(SalesHdr."Document Type"::Invoice);
-    end;
-
-    local procedure TransferingDescriptionToGLEntries(DocumentType: Enum "Sales Document Type")
-    var
-        GLEntry: Record "G/L Entry";
-        SalesHdr: Record "Sales Header";
-        SalesLn: Record "Sales Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // 1. Setup
-        Initialize;
-
-        CreateSalesDocument(SalesHdr, SalesLn, DocumentType);
-
-        // 2. Exercise
-        PostedDocumentNo := PostSalesDocument(SalesHdr);
-
-        // 3. Verify
-        GLEntry.Reset();
-        GLEntry.SetRange("Document No.", PostedDocumentNo);
-        GLEntry.SetRange("Posting Date", SalesHdr."Posting Date");
-        GLEntry.FindFirst;
-        GLEntry.TestField(Description, SalesLn.Description);
-    end;
-
-#endif
     local procedure CreateNoSeriesCode(StartingNo: Code[20]; EndingNo: Code[20]): Code[20]
     var
         NoSeries: Record "No. Series";
@@ -160,20 +112,5 @@ codeunit 145008 "Sales Documents"
         SalesReceivablesSetup."Order Nos." := SeriesCode;
         SalesReceivablesSetup.Modify();
     end;
-#if not CLEAN16
-
-    local procedure UpdateSalesSetup()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (Acc.)", true);
-        SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (Item)", true);
-        SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (FA)", true);
-        SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (Res.)", true);
-        SalesReceivablesSetup.Validate("G/L Entry as Doc. Lines (Char)", true);
-        SalesReceivablesSetup.Modify();
-    end;
-#endif
 }
-
+#endif

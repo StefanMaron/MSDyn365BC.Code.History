@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11775 "VAT Documents List"
 {
     DefaultLayout = RDLC;
@@ -710,3 +711,5 @@ report 11775 "VAT Documents List"
         VATEntryDocumentType: Text;
 }
 
+
+#endif

@@ -1,13 +1,22 @@
 table 31021 "Purch. Advance Letter Line"
 {
     Caption = 'Purch. Advance Letter Line';
+#if not CLEAN19
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(3; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = "Purch. Advance Letter Header";
+#endif
         }
         field(4; "Line No."; Integer)
         {
@@ -18,21 +27,25 @@ table 31021 "Purch. Advance Letter Line"
             Caption = 'No.';
             Editable = false;
             TableRelation = "G/L Account";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestField("Amount Invoiced", 0);
             end;
+#endif
         }
         field(11; Description; Text[100])
         {
             Caption = 'Description';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if Description <> xRec.Description then
                     TestStatusOpen;
             end;
+#endif
         }
         field(12; "Advance Due Date"; Date)
         {
@@ -43,6 +56,7 @@ table 31021 "Purch. Advance Letter Line"
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -53,12 +67,14 @@ table 31021 "Purch. Advance Letter Line"
                 end;
                 CalcLineAmtIncVAT;
             end;
+#endif
         }
         field(29; Amount; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -87,12 +103,14 @@ table 31021 "Purch. Advance Letter Line"
 
                 "VAT Amount" := "Amount Including VAT" - Amount;
             end;
+#endif
         }
         field(30; "Amount Including VAT"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -104,6 +122,7 @@ table 31021 "Purch. Advance Letter Line"
 
                 Validate("VAT %");
             end;
+#endif
         }
         field(31; "VAT Amount"; Decimal)
         {
@@ -152,36 +171,42 @@ table 31021 "Purch. Advance Letter Line"
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(41; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(45; "Job No."; Code[20])
         {
             Caption = 'Job No.';
             Editable = false;
             TableRelation = Job;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(DATABASE::Job, "Job No.",
                   DATABASE::"G/L Account", "Advance G/L Account No.");
             end;
+#endif
         }
         field(47; "Applies-to ID"; Code[50])
         {
@@ -197,6 +222,7 @@ table 31021 "Purch. Advance Letter Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -204,11 +230,13 @@ table 31021 "Purch. Advance Letter Line"
                     if GenBusPostGr.ValidateVatBusPostingGroup(GenBusPostGr, "Gen. Bus. Posting Group") then
                         Validate("VAT Bus. Posting Group", GenBusPostGr."Def. VAT Bus. Posting Group");
             end;
+#endif
         }
         field(75; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -216,6 +244,7 @@ table 31021 "Purch. Advance Letter Line"
                     if GenProdPostGr.ValidateVatProdPostingGroup(GenProdPostGr, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostGr."Def. VAT Prod. Posting Group");
             end;
+#endif
         }
         field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
@@ -240,6 +269,7 @@ table 31021 "Purch. Advance Letter Line"
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -257,11 +287,13 @@ table 31021 "Purch. Advance Letter Line"
                 VendPostGr.TestField("Advance Account");
                 Validate("Advance G/L Account No.", VendPostGr."Advance Account");
             end;
+#endif
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -297,6 +329,7 @@ table 31021 "Purch. Advance Letter Line"
                 VendPostGr.TestField("Advance Account");
                 Validate("Advance G/L Account No.", VendPostGr."Advance Account");
             end;
+#endif
         }
         field(91; "Currency Code"; Code[10])
         {
@@ -328,6 +361,7 @@ table 31021 "Purch. Advance Letter Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -338,12 +372,14 @@ table 31021 "Purch. Advance Letter Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(31015; "Amount To Refund"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             BlankZero = true;
             Caption = 'Amount To Refund';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -364,7 +400,9 @@ table 31021 "Purch. Advance Letter Line"
 
                 "VAT Base To Refund" := "Amount To Refund" - "VAT Amount To Refund";
             end;
+#endif
         }
+#if not CLEAN19
         field(31016; "Vendor Posting Group"; Code[20])
         {
             CalcFormula = Lookup("Purch. Advance Letter Header"."Vendor Posting Group" WHERE("No." = FIELD("Letter No.")));
@@ -373,10 +411,12 @@ table 31021 "Purch. Advance Letter Line"
             FieldClass = FlowField;
             TableRelation = "Vendor Posting Group";
         }
+#endif
         field(31017; "Link Code"; Code[30])
         {
             Caption = 'Link Code';
         }
+#if not CLEAN19
         field(31018; "Document Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -396,6 +436,7 @@ table 31021 "Purch. Advance Letter Line"
             FieldClass = FlowFilter;
             TableRelation = "Purchase Header"."No.";
         }
+#endif
         field(31020; "Semifinished Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -403,6 +444,7 @@ table 31021 "Purch. Advance Letter Line"
             BlankZero = true;
             Caption = 'Semifinished Linked Amount';
         }
+#if not CLEAN19
         field(31021; "Document Linked Inv. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -416,18 +458,22 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31022; "Advance G/L Account No."; Code[20])
         {
             Caption = 'Advance G/L Account No.';
             Editable = false;
             TableRelation = "G/L Account";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(DATABASE::"G/L Account", "Advance G/L Account No.",
                   DATABASE::Job, "Job No.");
             end;
+#endif
         }
+#if not CLEAN19
         field(31023; "Document Linked Ded. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -454,6 +500,7 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31025; "VAT Difference Inv."; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -483,6 +530,7 @@ table 31021 "Purch. Advance Letter Line"
             BlankZero = true;
             Caption = 'VAT Amount To Refund';
         }
+#if not CLEAN19
         field(31031; "Amount on Payment Order (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
@@ -493,6 +541,7 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31032; "VAT Amount Inv. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -523,6 +572,7 @@ table 31021 "Purch. Advance Letter Line"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -777,7 +827,9 @@ table 31021 "Purch. Advance Letter Line"
                         VATAmountLine."VAT %" := "VAT %";
                         VATAmountLine.Modified := false;
                         VATAmountLine.Positive := "Amount Including VAT" >= 0;
+#if not CLEAN18
                         VATAmountLine."Currency Code" := Currency.Code;
+#endif
                         VATAmountLine.Quantity := 1;
                         VATAmountLine.Insert();
                     end;
@@ -787,12 +839,14 @@ table 31021 "Purch. Advance Letter Line"
                     VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + "Amount Including VAT";
                     VATAmountLine."Amount Including VAT" := VATAmountLine."Amount Including VAT" + "Amount Including VAT";
                     VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + "VAT Difference";
+#if not CLEAN18
                     VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Difference (LCY)" + "VAT Difference";
+#endif
                     VATAmountLine."Includes Prepayment" := false;
                     VATAmountLine.Modify();
                 until Next() = 0;
         end;
-
+#if not CLEAN18
         with VATAmountLine do
             if FindSet then
                 repeat
@@ -833,8 +887,10 @@ table 31021 "Purch. Advance Letter Line"
                                 "VAT Amount (LCY)" := "VAT Amount";
                             end;
                     "Modified (LCY)" := true;
+
                     Modify;
                 until Next() = 0;
+#endif
     end;
 
     [Scope('OnPrem')]
@@ -907,16 +963,20 @@ table 31021 "Purch. Advance Letter Line"
                         VATAmountLine."VAT %" := "VAT %";
                         VATAmountLine.Modified := false;
                         VATAmountLine.Positive := "Amount Including VAT" >= 0;
+#if not CLEAN18
                         VATAmountLine."Currency Code" := Currency.Code;
+#endif
                         VATAmountLine.Quantity := 1;
                         VATAmountLine.Insert();
                     end;
                     VATAmountLine."Amount Including VAT" := VATAmountLine."Amount Including VAT" + "Amount Including VAT";
                     VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + "VAT Difference Inv.";
+#if not CLEAN18
                     if "Currency Code" = '' then
                         VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Difference (LCY)" + "VAT Difference Inv."
                     else
                         VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Difference (LCY)" + "VAT Difference Inv. (LCY)";
+#endif
                     VATAmountLine."Includes Prepayment" := false;
 
                     VATAmountLine.Modify();
@@ -932,7 +992,9 @@ table 31021 "Purch. Advance Letter Line"
                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
                     "VAT Base" := "Amount Including VAT" - "VAT Amount";
                     "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
+#if not CLEAN18
                     if PurchAdvanceLetterHeader."Currency Code" = '' then begin
+
                         "Amount Including VAT (LCY)" := "Amount Including VAT";
                         "VAT Amount (LCY)" := "VAT Amount";
                         "VAT Base (LCY)" := "VAT Base";
@@ -950,6 +1012,7 @@ table 31021 "Purch. Advance Letter Line"
                         "VAT Base (LCY)" := "Amount Including VAT (LCY)" - "VAT Amount (LCY)";
                         "Calculated VAT Amount (LCY)" := "VAT Amount (LCY)" - "VAT Difference (LCY)";
                     end;
+#endif
                     Modify;
                 until Next() = 0;
     end;
@@ -998,6 +1061,9 @@ table 31021 "Purch. Advance Letter Line"
     var
         TempBufVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
+#if CLEAN18        
+        TempVATAmountLineLCYRemainder: Record "VAT Amount Line" temporary;
+#endif        
         VATAmount: Decimal;
         VATAmountLCY: Decimal;
         AmountToInvoiceLCY: Decimal;
@@ -1017,14 +1083,27 @@ table 31021 "Purch. Advance Letter Line"
             if FindSet then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
+#if CLEAN18
+                    if VATAmountLine.Modified then begin
+#else
                     if VATAmountLine.Modified or VATAmountLine."Modified (LCY)" then begin
+#endif
                         if not TempVATAmountLineRemainder.Get(
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                         then begin
                             TempVATAmountLineRemainder := VATAmountLine;
                             TempVATAmountLineRemainder.Init();
                             TempVATAmountLineRemainder.Insert();
+#if CLEAN18
+                            TempVATAmountLineLCYRemainder := VATAmountLine;
+                            TempVATAmountLineLCYRemainder.Init();
+                            TempVATAmountLineLCYRemainder.Insert();
+#endif
                         end;
+#if CLEAN18
+                        TempVATAmountLineLCYRemainder.Get(
+                             "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
+#endif
 
                         VATAmount :=
                           TempVATAmountLineRemainder."VAT Amount" +
@@ -1036,16 +1115,24 @@ table 31021 "Purch. Advance Letter Line"
                           VATAmountLine."VAT Difference" *
                           "Amount To Invoice" /
                           VATAmountLine."Amount Including VAT";
-
                         VATDifferenceLCY :=
+#if CLEAN18
+                          TempVATAmountLineLCYRemainder."VAT Difference" +
+                          VATAmountLine.GetVATDifferenceLCY(PurchAdvanceLetterHeader."VAT Date", PurchAdvanceLetterHeader."Currency Code", PurchAdvanceLetterHeader."Currency Factor") *
+#else
                           TempVATAmountLineRemainder."VAT Difference (LCY)" +
                           VATAmountLine."VAT Difference (LCY)" *
+#endif
                           "Amount To Invoice" /
                           VATAmountLine."Amount Including VAT";
-
                         AmountToInvoiceLCY :=
+#if CLEAN18
+                          TempVATAmountLineLCYRemainder."Amount Including VAT" +
+                          VATAmountLine.GetAmountIncludingVATLCY(PurchAdvanceLetterHeader."VAT Date", PurchAdvanceLetterHeader."Currency Code", PurchAdvanceLetterHeader."Currency Factor") *
+#else
                           TempVATAmountLineRemainder."Amount Including VAT (LCY)" +
                           VATAmountLine."Amount Including VAT (LCY)" *
+#endif
                           "Amount To Invoice" /
                           VATAmountLine."Amount Including VAT";
 
@@ -1055,7 +1142,11 @@ table 31021 "Purch. Advance Letter Line"
                             VATAmountLCY := VATAmount
                         else
                             VATAmountLCY :=
+#if CLEAN18
+                              TempVATAmountLineLCYRemainder."VAT Amount" + VATDifferenceLCY +
+#else
                               TempVATAmountLineRemainder."VAT Amount (LCY)" + VATDifferenceLCY +
+#endif
                               CurrencyExchRate.ExchangeAmtFCYToLCY(
                                 PurchAdvanceLetterHeader."Document Date", PurchAdvanceLetterHeader."Currency Code",
                                 "VAT Amount Inv.", PurchAdvanceLetterHeader."VAT Currency Factor");
@@ -1077,13 +1168,24 @@ table 31021 "Purch. Advance Letter Line"
 
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount -
                           Round(VATAmount, Currency."Amount Rounding Precision");
+#if CLEAN18
+                        TempVATAmountLineLCYRemainder."VAT Amount" := VATAmountLCY -
+#else
                         TempVATAmountLineRemainder."VAT Amount (LCY)" := VATAmountLCY -
+#endif
                           Round(VATAmountLCY, GLSetup."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Difference" := VATDifference -
                           Round(VATDifference, Currency."Amount Rounding Precision");
+#if CLEAN18
+                        TempVATAmountLineLCYRemainder."VAT Difference" := VATDifferenceLCY -
+#else
                         TempVATAmountLineRemainder."VAT Difference (LCY)" := VATDifferenceLCY -
+#endif
                           Round(VATDifferenceLCY, GLSetup."Amount Rounding Precision");
                         TempVATAmountLineRemainder.Modify();
+#if CLEAN18
+                        TempVATAmountLineLCYRemainder.Modify();
+#endif
                     end else begin
                         "VAT Difference Inv." := 0;
                         "VAT Difference Inv. (LCY)" := 0;
@@ -1292,5 +1394,6 @@ table 31021 "Purch. Advance Letter Line"
               "Amount To Link",
               PurchAdvanceLetterHdr."Currency Factor")));
     end;
+#endif
 }
 

@@ -211,6 +211,7 @@ page 43 "Sales Invoice"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -221,6 +222,7 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -343,6 +345,7 @@ page 43 "Sales Invoice"
                         SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -354,6 +357,7 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -834,6 +838,7 @@ page 43 "Sales Invoice"
                         }
                     }
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -843,6 +848,7 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Prepayment %"; "Prepayment %")
                 {
                     ApplicationArea = Prepayments;
@@ -853,12 +859,17 @@ page 43 "Sales Invoice"
                         Prepayment37OnAfterValidate;
                     end;
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment type for the sales header.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Compress Prepayment"; "Compress Prepayment")
                 {
                     ApplicationArea = Prepayments;
@@ -893,6 +904,7 @@ page 43 "Sales Invoice"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -902,6 +914,8 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -911,11 +925,13 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -934,6 +950,7 @@ page 43 "Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -945,6 +962,7 @@ page 43 "Sales Invoice"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -1046,6 +1064,7 @@ page 43 "Sales Invoice"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -1190,16 +1209,26 @@ page 43 "Sales Invoice"
                     ToolTip = 'View or add comments for the record.';
                 }
             }
+#if not CLEAN19
             group(Prepayment)
             {
-                Caption = 'Prepayment';
+                Caption = 'Prepayment (Obsolete)';
                 Image = Prepayment;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 action("Assignment Ad&vance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Assignment Ad&vance Letters';
+                    Caption = 'Assignment Ad&vance Letters (Obsolete)';
                     Image = Documents;
                     ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1209,7 +1238,7 @@ page 43 "Sales Invoice"
                 action("Assigned Adv. Letters - detail")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Assigned Adv. Letters - detail';
+                    Caption = 'Assigned Adv. Letters - detail (Obsolete)';
                     Image = ViewDetails;
                     RunObject = Page "Advance Letter Line Relations";
                     RunPageLink = Type = CONST(Sale),
@@ -1217,7 +1246,12 @@ page 43 "Sales Invoice"
                                   "Document No." = FIELD("No.");
                     RunPageView = SORTING(Type, "Document Type", "Document No.", "Document Line No.", "Letter No.", "Letter Line No.");
                     ToolTip = 'Specifies the assigned advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 action(Approvals)
                 {
                     AccessByPermission = TableData "Approval Entry" = R;
@@ -1230,9 +1264,9 @@ page 43 "Sales Invoice"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(Function_CustomerCard)
@@ -1287,7 +1321,9 @@ page 43 "Sales Invoice"
                         DocumentAttachmentDetails.RunModal;
                     end;
                 }
+#if not CLEAN19
             }
+#endif
         }
         area(processing)
         {
@@ -1610,17 +1646,27 @@ page 43 "Sales Invoice"
                     end;
                 }
             }
+#if not CLEAN19
             group(Action1220032)
             {
-                Caption = 'Prepayment';
+                Caption = 'Prepayment (Obsolete)';
                 Image = Prepayment;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 action("Create Ad&vance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create Ad&vance Letter';
+                    Caption = 'Create Ad&vance Letter (Obsolete)';
                     Ellipsis = true;
                     Image = NewDocument;
                     ToolTip = 'The funkction creates advance letter.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1630,10 +1676,14 @@ page 43 "Sales Invoice"
                 action("Link Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letter';
+                    Caption = 'Link Advance Letter (Obsolete)';
                     Ellipsis = true;
                     Image = LinkWithExisting;
                     ToolTip = 'The funkction allows to link advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1651,9 +1701,13 @@ page 43 "Sales Invoice"
                 action("Cancel All Adv. Payment Relations")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Cancel All Adv. Payment Relations';
+                    Caption = 'Cancel All Adv. Payment Relations (Obsolete)';
                     Image = Cancel;
                     ToolTip = 'The funkction cancels all advance payment relations.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1666,9 +1720,13 @@ page 43 "Sales Invoice"
                 action("Adjust VAT by Adv. Payment Deduction")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Adjust VAT by Adv. Payment Deduction';
+                    Caption = 'Adjust VAT by Adv. Payment Deduction (Obsolete)';
                     Image = AdjustEntries;
                     ToolTip = 'The function Adjust VAT by Advance Payment Deduction.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1677,6 +1735,7 @@ page 43 "Sales Invoice"
                         SalesPostAdvances.CorrectVATbyDeductedVAT(Rec); // NAVCZ
                     end;
                 }
+#endif
                 group(Flow)
                 {
                     Caption = 'Power Automate';
@@ -1712,7 +1771,9 @@ page 43 "Sales Invoice"
                         ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
+#if not CLEAN19
             }
+#endif
             group("P&osting")
             {
                 Caption = 'P&osting';
@@ -1773,6 +1834,7 @@ page 43 "Sales Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1877,8 +1939,8 @@ page 43 "Sales Invoice"
     begin
         WorkDescription := GetWorkDescription;
         UpdateShipToBillToGroupVisibility();
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1921,11 +1983,7 @@ page 43 "Sales Invoice"
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1957,7 +2015,9 @@ page 43 "Sales Invoice"
         UserMgt: Codeunit "User Setup Management";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+#if not CLEAN19
         CancelAllRelationsQst: Label 'Are you sure to cancel all advance payment relations?';
+#endif
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
@@ -2100,6 +2160,8 @@ page 43 "Sales Invoice"
         CurrPage.Update(); // NAVCZ
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CreateAdvanceLetter(): Boolean
     var
@@ -2133,6 +2195,7 @@ page 43 "Sales Invoice"
         // NAVCZ
     end;
 
+#endif
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;

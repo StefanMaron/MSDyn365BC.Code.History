@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11778 "Open Customer Entries at Date"
 {
     DefaultLayout = RDLC;
@@ -723,3 +724,5 @@ report 11778 "Open Customer Entries at Date"
     end;
 }
 
+
+#endif

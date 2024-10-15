@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31050 CreditManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -140,4 +141,4 @@ codeunit 31050 CreditManagement
             Message(ApplyDocManuallyMsg);
     end;
 }
-
+#endif

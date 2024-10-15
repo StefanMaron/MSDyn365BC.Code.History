@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 5883 "Posted Phys. Invt. Order"
 {
     ApplicationArea = Warehouse;
@@ -216,3 +217,4 @@ page 5883 "Posted Phys. Invt. Order"
     }
 }
 
+#endif

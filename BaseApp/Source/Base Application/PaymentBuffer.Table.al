@@ -123,7 +123,6 @@ table 372 "Payment Buffer"
     {
     }
 
-    [Scope('OnPrem')]
     procedure CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         "Creditor No." := VendorLedgerEntry."Creditor No.";
@@ -134,7 +133,6 @@ table 372 "Payment Buffer"
         OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
     end;
 
-    [Scope('OnPrem')]
     procedure CopyFieldsToGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine."Creditor No." := "Creditor No.";

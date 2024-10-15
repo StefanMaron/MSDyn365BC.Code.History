@@ -55,9 +55,11 @@ report 31048 "Fixed Asset Card"
             column(CompanyInfo__Registration_No__; CompanyInfo."Registration No.")
             {
             }
+#if not CLEAN17
             column(CompanyInfo__Tax_Registration_No__; CompanyInfo."Tax Registration No.")
             {
             }
+#endif
             column(Fixed_Asset_Inactive; Format(Inactive))
             {
             }

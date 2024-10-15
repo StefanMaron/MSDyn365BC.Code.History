@@ -203,13 +203,24 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31000; Advance; Boolean)
         {
             Caption = 'Advance';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -226,6 +237,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key3; "Cust. Ledger Entry No.", "Entry Type", "Posting Date")
         {
         }
+#if not CLEAN18
         key(Key4; "Ledger Entry Amount", "Cust. Ledger Entry No.", "Posting Date")
         {
             MaintainSQLIndex = false;
@@ -235,6 +247,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             ObsoleteReason = 'Replaced with "Key17" for better peformance.';
             ObsoleteTag = '18.0';
         }
+#endif
         key(Key5; "Initial Document Type", "Entry Type", "Customer No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Posting Date")
         {
             SumIndexFields = Amount, "Amount (LCY)";
@@ -255,6 +268,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key10; "Application No.", "Customer No.", "Entry Type")
         {
         }
+#if not CLEAN18
         key(Key11; "Customer No.", "Posting Date", "Entry Type", "Document Type", "Customer Posting Group", Advance)
         {
             SumIndexFields = "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)";
@@ -262,6 +276,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             ObsoleteReason = 'Field "Customer Posting Group" is removed and cannot be used in an active key.';
             ObsoleteTag = '18.0';
         }
+#endif
         key(Key12; "Customer No.", "Entry Type", "Posting Date", "Initial Document Type")
         {
             SumIndexFields = Amount, "Amount (LCY)";

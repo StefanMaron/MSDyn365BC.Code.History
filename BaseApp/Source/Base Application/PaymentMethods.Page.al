@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 427 "Payment Methods"
 {
     ApplicationArea = Basic, Suite;
@@ -107,3 +108,4 @@ page 427 "Payment Methods"
     }
 }
 
+#endif

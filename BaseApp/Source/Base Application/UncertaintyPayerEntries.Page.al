@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11760 "Uncertainty Payer Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -88,3 +89,5 @@ page 11760 "Uncertainty Payer Entries"
     }
 }
 
+
+#endif

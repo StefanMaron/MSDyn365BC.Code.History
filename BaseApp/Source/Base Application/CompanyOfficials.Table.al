@@ -2,9 +2,13 @@ table 11792 "Company Officials"
 {
     Caption = 'Company Officials';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Company Officials";
     LookupPageID = "Company Officials";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -13,6 +17,7 @@ table 11792 "Company Officials"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -22,6 +27,7 @@ table 11792 "Company Officials"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(2; "First Name"; Text[30])
         {
@@ -180,6 +186,7 @@ table 11792 "Company Officials"
         }
     }
 
+#if not CLEAN17
     trigger OnInsert()
     begin
         if "No." = '' then begin
@@ -189,6 +196,7 @@ table 11792 "Company Officials"
         end;
     end;
 
+#endif
     trigger OnModify()
     begin
         "Last Date Modified" := Today;
@@ -203,9 +211,12 @@ table 11792 "Company Officials"
         GLSetup: Record "General Ledger Setup";
         Employee: Record Employee;
         PostCode: Record "Post Code";
+#if not CLEAN17
         CompanyOfficials: Record "Company Officials";
+#endif
         NoSeriesMgt: Codeunit NoSeriesManagement;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure AssistEdit(OldCompanyOfficials: Record "Company Officials"): Boolean
@@ -244,5 +255,6 @@ table 11792 "Company Officials"
         if MapPoint.FindFirst then
             MapMgt.MakeSelection(DATABASE::"Company Officials", GetPosition);
     end;
+#endif
 }
 

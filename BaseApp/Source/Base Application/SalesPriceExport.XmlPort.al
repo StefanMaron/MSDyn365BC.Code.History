@@ -1,7 +1,11 @@
+#if not CLEAN19
 xmlport 31071 "Sales Price Export"
 {
     Caption = 'Sales Price Export';
     Direction = Export;
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
 
     schema
     {
@@ -71,4 +75,4 @@ xmlport 31071 "Sales Price Export"
         }
     }
 }
-
+#endif

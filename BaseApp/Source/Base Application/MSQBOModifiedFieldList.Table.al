@@ -10,7 +10,7 @@ table 7823 "MS-QBO Modified Field List"
         field(1; "Record Id"; RecordID)
         {
             Caption = 'Record Id';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(2; "Field Id"; Integer)
         {

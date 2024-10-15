@@ -25,6 +25,40 @@ codeunit 30 "Error Context Element"
         ElementID := ID;
     end;
 
+    procedure GetData(var ID: Integer; var ContextRecID: RecordID; var ContextFldNo: Integer; var AdditionalInfo: Text[250])
+    begin
+        ContextRecID := ContextRecordID;
+        ContextFldNo := ContextFieldNo;
+        AdditionalInfo := Description;
+        ID := ElementID;
+    end;
+
+    procedure Copy(ErrorContextElement: Codeunit "Error Context Element")
+    var
+        ContextRecID: RecordID;
+        ID: Integer;
+        ContextFldNo: Integer;
+        AdditionalInfo: Text[250];
+    begin
+        ErrorContextElement.GetData(ID, ContextRecID, ContextFldNo, AdditionalInfo);
+        Set(ID, ContextRecID, ContextFldNo, AdditionalInfo);
+    end;
+
+    procedure GetErrorMessage(var ErrorMessage: Record "Error Message")
+    begin
+        ErrorMessage.ID := ElementID;
+        ErrorMessage.Validate("Context Record ID", ContextRecordID);
+        ErrorMessage.Validate("Context Field Number", ContextFieldNo);
+        ErrorMessage."Additional Information" := Description;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetTopElementData', '', false, false)]
+    local procedure OnGetTopElementDataHandler(var TopElementID: Integer; var ContextRecID: RecordID; var ContextFldNo: Integer; var AdditionalInfo: Text[250])
+    begin
+        if TopElementID < ElementID then
+            GetData(TopElementID, ContextRecID, ContextFldNo, AdditionalInfo);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetTopElement', '', false, false)]
     local procedure OnGetTopElementHandler(var TopElementID: Integer)
     begin
@@ -35,12 +69,8 @@ codeunit 30 "Error Context Element"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetTopContext', '', false, false)]
     local procedure OnGetTopContextHandler(var ErrorMessage: Record "Error Message")
     begin
-        if ErrorMessage.ID < ElementID then begin
-            ErrorMessage.ID := ElementID;
-            ErrorMessage.Validate("Context Record ID", ContextRecordID);
-            ErrorMessage.Validate("Context Field Number", ContextFieldNo);
-            ErrorMessage."Additional Information" := Description;
-        end;
+        if ErrorMessage.ID < ElementID then
+            GetErrorMessage(ErrorMessage);
     end;
 }
 

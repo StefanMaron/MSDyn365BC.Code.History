@@ -251,7 +251,7 @@ codeunit 139065 "Hybrid Deployment Test"
         // [THEN] An error is thrown.
         asserterror HybridDeployment.CreateIntegrationRuntime(RuntimeName, PrimaryKey);
         // [THEN] An appropriate error message is provided.
-        Assert.AreEqual(FailedCreatingIRErr, GetLastErrorText, 'Unexpected error message');
+        Assert.ExpectedError(FailedCreatingIRErr);
     end;
 
     [Test]

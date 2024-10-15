@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 145002 "Balance Sheet Reports"
 {
     Subtype = Test;
@@ -355,3 +356,4 @@ codeunit 145002 "Balance Sheet Reports"
     end;
 }
 
+#endif

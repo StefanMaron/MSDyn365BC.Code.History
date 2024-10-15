@@ -46,6 +46,13 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of a list of purchases that were posted.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -259,6 +266,7 @@ page 5806 "Purch. Receipt Lines"
     end;
 
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         FromPurchRcptLine: Record "Purch. Rcpt. Line";
         TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary;
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";

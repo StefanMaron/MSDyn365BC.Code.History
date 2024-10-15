@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 298 "Batch Post Sales Credit Memos"
 {
     Caption = 'Batch Post Sales Credit Memos (Obsolete)';
@@ -174,4 +175,4 @@ report 298 "Batch Post Sales Credit Memos"
         UseVATDate := GLSetup."Use VAT Date";
     end;
 }
-
+#endif

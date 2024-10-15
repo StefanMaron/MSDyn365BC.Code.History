@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11784 "Close Balance Sheet"
 {
     ApplicationArea = Basic, Suite;
@@ -652,4 +653,4 @@ report 11784 "Close Balance Sheet"
         exit(s);
     end;
 }
-
+#endif

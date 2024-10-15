@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11789 "G/L VAT Reconciliation CZ"
 {
     DefaultLayout = RDLC;
@@ -190,4 +191,4 @@ report 11789 "G/L VAT Reconciliation CZ"
         TotalCaptionLbl: Label 'Total';
         G_L_Entry_Amount_Control41CaptionLbl: Label 'Total';
 }
-
+#endif

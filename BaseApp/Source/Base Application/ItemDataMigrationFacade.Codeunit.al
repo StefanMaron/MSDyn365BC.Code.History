@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 6113 "Item Data Migration Facade"
 {
     TableNo = "Data Migration Parameters";
@@ -98,6 +99,7 @@ codeunit 6113 "Item Data Migration Facade"
         GlobalItem.Modify(RunTrigger);
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the CreateSalesLineDiscountIfNeeded(SourceType: Enum "Price Source Type"; ...)', '17.0')]
     procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[20]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
     var
@@ -138,6 +140,7 @@ codeunit 6113 "Item Data Migration Facade"
                 exit("Price Asset Type"::"Item Discount Group");
         end;
     end;
+#endif
 
     procedure CreateSalesLineDiscountIfNeeded(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; MinimumQuantity: Decimal; LineDiscountPercent: Decimal): Boolean
     var
@@ -181,6 +184,7 @@ codeunit 6113 "Item Data Migration Facade"
         exit(true);
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the CreateSalesPriceIfNeeded(SourceType: Enum "Price Source Type"; ...)', '16.0')]
     procedure CreateSalesPriceIfNeeded(SalesTypeToSet: Option Customer,"Customer Price Group","All Customers",Campaign; SalesCodeToSet: Code[20]; ItemNoToSet: Code[20]; UnitPriceToSet: Decimal; CurrencyCodeToSet: Code[10]; StartingDateToSet: Date; UnitOfMeasureToSet: Code[10]; MinimumQuantityToSet: Decimal; VariantCodeToSet: Code[10]): Boolean
     var
@@ -240,6 +244,7 @@ codeunit 6113 "Item Data Migration Facade"
                 exit("Price Source Type"::Campaign);
         end;
     end;
+#endif
 
     procedure CreateSalesPriceIfNeeded(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; AssetNo: Code[20]; VariantCode: Code[10]; UnitOfMeasure: Code[10]; MinimumQuantity: Decimal; UnitPrice: Decimal): Boolean
     var
@@ -853,3 +858,4 @@ codeunit 6113 "Item Data Migration Facade"
     end;
 }
 
+#endif

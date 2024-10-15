@@ -1,10 +1,14 @@
+#if not CLEAN19
 report 31031 "VAT List on Purch. Adv. Letter"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATListonPurchAdvLetter.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT List on Purch. Adv. Letter';
+    Caption = 'VAT List on Purch. Adv. Letter (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -335,4 +339,4 @@ report 31031 "VAT List on Purch. Adv. Letter"
         end;
     end;
 }
-
+#endif

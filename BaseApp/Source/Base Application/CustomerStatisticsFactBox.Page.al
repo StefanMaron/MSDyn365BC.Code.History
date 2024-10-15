@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9082 "Customer Statistics FactBox"
 {
     Caption = 'Customer Statistics';
@@ -195,30 +196,42 @@ page 9082 "Customer Statistics FactBox"
             field("Bill-To No. of Open. Adv. L."; "Bill-To No. of Open. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Adv. Letters - Opened';
+                Caption = 'Adv. Letters - Opened (Obsolete)';
                 DrillDownPageID = "Sales Adv. Letters";
                 ToolTip = 'Specifies the number of advance letter with status = opened.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             field("Bill-To No. of P.Pay. Adv. L."; "Bill-To No. of P.Pay. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Adv. Letters - Pend. Pay.';
+                Caption = 'Adv. Letters - Pend. Pay. (Obsolete)';
                 DrillDownPageID = "Sales Adv. Letters";
                 ToolTip = 'Specifies the number of advance letter with status = pending payment.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             field("Bill-To No. of P.Inv. Adv. L."; "Bill-To No. of P.Inv. Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Adv. Letters - Pend. Inv.';
+                Caption = 'Adv. Letters - Pend. Inv. (Obsolete)';
                 DrillDownPageID = "Sales Adv. Letters";
                 ToolTip = 'Specifies the number of advance letter with status = pending invoice.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             field("Bill-To No. of P.F.Inv.Adv. L."; "Bill-To No. of P.F.Inv.Adv. L.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Adv. Letters - Pend. Fin. Inv.';
+                Caption = 'Adv. Letters - Pend. Fin. Inv. (Obsolete)';
                 DrillDownPageID = "Sales Adv. Letters";
                 ToolTip = 'Specifies the number of advance letter with status = pending final invoice.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
         }
     }
@@ -341,3 +354,4 @@ page 9082 "Customer Statistics FactBox"
     end;
 }
 
+#endif

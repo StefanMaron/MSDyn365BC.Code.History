@@ -406,9 +406,6 @@ table 6651 "Return Shipment Line"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
-#if not CLEAN16
-            AccessByPermission = TableData "Item Cross Reference" = R;
-#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
 #if not CLEAN17
@@ -424,8 +421,13 @@ table 6651 "Return Shipment Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5707; "Cross-Reference Type"; Option)
         {
@@ -433,15 +435,25 @@ table 6651 "Return Shipment Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5709; "Item Category Code"; Code[20])
         {

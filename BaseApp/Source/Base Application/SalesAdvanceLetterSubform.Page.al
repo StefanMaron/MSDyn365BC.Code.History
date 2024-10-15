@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 31001 "Sales Advance Letter Subform"
 {
     AutoSplitKey = true;
@@ -6,6 +7,9 @@ page 31001 "Sales Advance Letter Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Sales Advance Letter Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -428,4 +432,4 @@ page 31001 "Sales Advance Letter Subform"
         Clear(DimMgt);
     end;
 }
-
+#endif

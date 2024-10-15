@@ -76,7 +76,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
             DATABASE::"Gen. Jnl. Allocation",
             DATABASE::"Gen. Journal Line",
             DATABASE::Item,
+#if not CLEAN18
             DATABASE::"Item Template",
+#endif
             DATABASE::"Item Charge",
             DATABASE::"Purchase Line",
             DATABASE::Resource,
@@ -761,7 +763,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+#if not CLEAN18
+       ItemTemplate: Record "Item Template";
+#endif
         ItemCharge: Record "Item Charge";
         JobJournalLine: Record "Job Journal Line";
         MachineCenter: Record "Machine Center";
@@ -786,8 +790,10 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(GLAccount.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::Item:
                 exit(Item.FieldNo("Gen. Prod. Posting Group"));
+#if not CLEAN18
             DATABASE::"Item Template":
                 exit(ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
+#endif
             DATABASE::"Item Charge":
                 exit(ItemCharge.FieldNo("Gen. Prod. Posting Group"));
             DATABASE::"Job Journal Line":
@@ -948,8 +954,10 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(VATRateChangeSetup.FieldNo("Update G/L Accounts"));
             DATABASE::Item:
                 exit(VATRateChangeSetup.FieldNo("Update Items"));
+#if not CLEAN18
             DATABASE::"Item Template":
                 exit(VATRateChangeSetup.FieldNo("Update Item Templates"));
+#endif
             DATABASE::"Item Charge":
                 exit(VATRateChangeSetup.FieldNo("Update Item Charges"));
             DATABASE::"Job Journal Line":
@@ -1007,7 +1015,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
         GLAccount: Record "G/L Account";
         Item: Record Item;
+#if not CLEAN18
         ItemTemplate: Record "Item Template";
+#endif
         ItemCharge: Record "Item Charge";
         PurchaseLine: Record "Purchase Line";
         ReminderLine: Record "Reminder Line";
@@ -1029,8 +1039,10 @@ codeunit 131334 "ERM VAT Tool - Helper"
                 exit(GLAccount.FieldNo("VAT Prod. Posting Group"));
             DATABASE::Item:
                 exit(Item.FieldNo("VAT Prod. Posting Group"));
+#if not CLEAN18
             DATABASE::"Item Template":
                 exit(ItemTemplate.FieldNo("VAT Prod. Posting Group"));
+#endif
             DATABASE::"Item Charge":
                 exit(ItemCharge.FieldNo("VAT Prod. Posting Group"));
             DATABASE::"Purchase Line":

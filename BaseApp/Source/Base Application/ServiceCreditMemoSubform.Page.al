@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5936 "Service Credit Memo Subform"
 {
     AutoSplitKey = true;
@@ -59,6 +60,13 @@ page 5936 "Service Credit Memo Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the line.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -220,6 +228,7 @@ page 5936 "Service Credit Memo Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Service;
@@ -229,6 +238,7 @@ page 5936 "Service Credit Memo Subform"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -334,6 +344,7 @@ page 5936 "Service Credit Memo Subform"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
@@ -343,6 +354,7 @@ page 5936 "Service Credit Memo Subform"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -599,3 +611,4 @@ page 5936 "Service Credit Memo Subform"
     end;
 }
 
+#endif

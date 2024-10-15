@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11786 "Customer - Bal. Reconciliation"
 {
     DefaultLayout = RDLC;
@@ -699,4 +700,4 @@ report 11786 "Customer - Bal. Reconciliation"
             CommaSeparatedText := StrSubstNo('%1: %2', FieldCaption, FieldValue);
     end;
 }
-
+#endif

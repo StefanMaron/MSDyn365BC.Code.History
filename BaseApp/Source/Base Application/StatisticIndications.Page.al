@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31062 "Statistic Indications"
 {
     ApplicationArea = Basic, Suite;
@@ -71,3 +72,5 @@ page 31062 "Statistic Indications"
     }
 }
 
+
+#endif

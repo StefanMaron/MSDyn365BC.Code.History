@@ -1,3 +1,4 @@
+#if not CLEAN17
 xmlport 31100 "VAT Control Report"
 {
     Caption = 'VAT Control Report (Obsolete)';
@@ -1169,3 +1170,5 @@ xmlport 31100 "VAT Control Report"
     end;
 }
 
+
+#endif

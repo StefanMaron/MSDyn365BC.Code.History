@@ -1501,6 +1501,7 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(
                                 Text015,
                                 FieldCaption("Posting No. Series")));
+#if not CLEAN18
                 // NAVCZ
                 if Ship or Receive then
                     IntrastatTransaction := IsIntrastatTransaction;
@@ -1532,6 +1533,7 @@ report 402 "Purchase Document - Test"
                                 FieldCaption("Shipment Method Code")));
                 end;
                 // NAVCZ
+#endif
                 PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
@@ -1784,7 +1786,9 @@ report 402 "Purchase Document - Test"
         DimSetEntry2: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         InvtPeriod: Record "Inventory Period";
+#if not CLEAN18
         StatReportingSetup: Record "Stat. Reporting Setup";
+#endif
         FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -1935,7 +1939,15 @@ report 402 "Purchase Document - Test"
                                         MustBeForErr,
                                         Item.FieldCaption(Blocked), false, Item.TableCaption, "No."));
 
+#if not CLEAN18
                                 // NAVCZ
+#if CLEAN17
+                                if IntrastatTransaction and ("Purchase Header".Ship or "Purchase Header".Receive) then
+                                    if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
+                                        if "Net Weight" = 0 then
+                                            AddError(
+                                              StrSubstNo(MustBeForErr, Item.FieldCaption("Net Weight"), false, Item.TableCaption, "No."));
+#else
                                 if IntrastatTransaction and ("Purchase Header".Ship or "Purchase Header".Receive) then begin
                                     if StatReportingSetup."Tariff No. Mandatory" then
                                         if "Tariff No." = '' then
@@ -1946,8 +1958,10 @@ report 402 "Purchase Document - Test"
                                             AddError(
                                               StrSubstNo(MustBeForErr, Item.FieldCaption("Net Weight"), false, Item.TableCaption, "No."));
                                 end;
+#endif
                                 // NAVCZ
 
+#endif
                                 if Item."Costing Method" = Item."Costing Method"::Specific then
                                     if Item.Reserve = Item.Reserve::Always then begin
                                         CalcFields("Reserved Quantity");

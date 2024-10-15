@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 905 "Assembly Setup"
 {
     AccessByPermission = TableData "BOM Component" = R;
@@ -97,3 +98,4 @@ page 905 "Assembly Setup"
     end;
 }
 
+#endif

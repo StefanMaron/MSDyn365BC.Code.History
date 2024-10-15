@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11798 "Registration Log Mgt."
 {
     ObsoleteState = Pending;
@@ -366,3 +367,5 @@ codeunit 11798 "Registration Log Mgt."
     end;
 }
 
+
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 576 "VAT Specification Subform"
 {
     Caption = 'Lines';
@@ -312,10 +313,7 @@ page 576 "VAT Specification Subform"
         VATBaseDiscPct := NewVATBaseDiscPct;
         VATAmountEditable := AllowVATDifference;
         InvoiceDiscountAmountEditable := AllowInvDisc;
-        if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get(CurrencyCode);
+        Currency.Initialize(CurrencyCode);
         CurrPage.Update(false);
     end;
 
@@ -425,3 +423,4 @@ page 576 "VAT Specification Subform"
     end;
 }
 
+#endif

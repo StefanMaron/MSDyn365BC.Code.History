@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11736 "Posted Cash Document Subform"
 {
     AutoSplitKey = true;
@@ -250,4 +251,4 @@ page 11736 "Posted Cash Document Subform"
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
 }
-
+#endif

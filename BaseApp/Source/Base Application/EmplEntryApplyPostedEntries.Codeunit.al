@@ -93,10 +93,12 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             GenJnlLine."Original Document VAT Date" := GenJnlLine."Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
             GenJnlLine."Account No." := "Employee No.";
             CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
@@ -282,9 +284,11 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             EmplLedgEntry.Get("Employee Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := PostingDate;
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
             GenJnlLine."Account No." := "Employee No.";
             GenJnlLine.Correction := true;

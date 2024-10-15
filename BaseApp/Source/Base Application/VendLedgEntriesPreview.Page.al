@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 128 "Vend. Ledg. Entries Preview"
 {
     Caption = 'Vendor Entries Preview';
@@ -45,11 +46,19 @@ page 128 "Vend. Ledg. Entries Preview"
                     ApplicationArea = Prepayments;
                     Editable = false;
                     ToolTip = 'Specifies whether the entry was post like prepayment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment type of the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Vendor No."; "Vendor No.")
                 {
@@ -62,6 +71,7 @@ page 128 "Vend. Ledg. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                 }
+#if not CLEAN18
                 field("Vendor Name"; "Vendor Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -82,6 +92,7 @@ page 128 "Vend. Ledg. Entries Preview"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -295,6 +306,10 @@ page 128 "Vend. Ledg. Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry is open for advance letter.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("On Hold"; "On Hold")
                 {
@@ -320,6 +335,7 @@ page 128 "Vend. Ledg. Entries Preview"
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -418,6 +434,7 @@ page 128 "Vend. Ledg. Entries Preview"
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
@@ -614,3 +631,4 @@ page 128 "Vend. Ledg. Entries Preview"
     end;
 }
 
+#endif

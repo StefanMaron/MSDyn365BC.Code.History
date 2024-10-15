@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11761 "Mass Uncertainty Payer Get"
 {
     ApplicationArea = Basic, Suite;
@@ -85,3 +86,5 @@ report 11761 "Mass Uncertainty Payer Get"
         UpdatedStatusQst: Label 'Really actualize uncertainty status for %1 vendors?', Comment = '%1=COUNT';
 }
 
+
+#endif

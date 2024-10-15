@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1402 "Purchase No. Series Setup"
 {
     Caption = 'Purchase No. Series Setup';
@@ -55,6 +56,9 @@ page 1402 "Purchase No. Series Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to advance letter.';
                     Visible = AdvLetterNosVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
         }
@@ -99,3 +103,4 @@ page 1402 "Purchase No. Series Setup"
     end;
 }
 
+#endif

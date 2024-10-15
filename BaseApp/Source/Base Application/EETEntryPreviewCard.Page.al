@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31127 "EET Entry Preview Card"
 {
     Caption = 'EET Entry Preview Card (Obsolete)';
@@ -255,4 +256,4 @@ page 31127 "EET Entry Preview Card"
         EETEntryStatusLogPreview.RunModal;
     end;
 }
-
+#endif

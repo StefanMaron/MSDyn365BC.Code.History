@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31105 "VAT Ctrl.Report Stat. Subform"
 {
     Caption = 'Lines';
@@ -99,4 +100,4 @@ page 31105 "VAT Ctrl.Report Stat. Subform"
         CurrPage.Update(false);
     end;
 }
-
+#endif

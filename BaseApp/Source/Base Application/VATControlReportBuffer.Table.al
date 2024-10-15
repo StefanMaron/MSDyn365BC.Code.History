@@ -1,7 +1,11 @@
 table 31103 "VAT Control Report Buffer"
 {
     Caption = 'VAT Control Report Buffer';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -16,7 +20,9 @@ table 31103 "VAT Control Report Buffer"
         {
             Caption = 'VAT Control Rep. Section Code';
             DataClassification = SystemMetadata;
+#if not CLEAN17
             TableRelation = "VAT Control Report Section";
+#endif            
         }
         field(11; "Posting Date"; Date)
         {
@@ -109,7 +115,9 @@ table 31103 "VAT Control Report Buffer"
         {
             Caption = 'Commodity Code';
             DataClassification = SystemMetadata;
+#if not CLEAN17
             TableRelation = Commodity;
+#endif
         }
         field(42; "Supplies Mode Code"; Option)
         {
@@ -201,6 +209,7 @@ table 31103 "VAT Control Report Buffer"
             Caption = 'Total Amount';
             DataClassification = SystemMetadata;
         }
+#if not CLEAN17
         field(100; "VAT Control Rep. Section Desc."; Text[50])
         {
             CalcFormula = Lookup("VAT Control Report Section".Description WHERE(Code = FIELD("VAT Control Rep. Section Code")));
@@ -208,6 +217,7 @@ table 31103 "VAT Control Report Buffer"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
     }
 
     keys

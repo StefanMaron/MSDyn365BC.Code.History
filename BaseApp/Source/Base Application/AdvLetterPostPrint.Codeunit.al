@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 31010 "Adv.Letter-Post+Print"
 {
     EventSubscriberInstance = Manual;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -316,4 +320,4 @@ codeunit 31010 "Adv.Letter-Post+Print"
     begin
     end;
 }
-
+#endif

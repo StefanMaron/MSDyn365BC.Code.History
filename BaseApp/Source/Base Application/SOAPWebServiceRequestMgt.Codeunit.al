@@ -1,4 +1,5 @@
-﻿codeunit 1290 "SOAP Web Service Request Mgt."
+﻿#if not CLEAN19
+codeunit 1290 "SOAP Web Service Request Mgt."
 {
 
     trigger OnRun()
@@ -192,6 +193,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetResponse(var ResponseInStream: InStream)
     begin
         // NAVCZ
@@ -433,3 +435,4 @@
     end;
 }
 
+#endif

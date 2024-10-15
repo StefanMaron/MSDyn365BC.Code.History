@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 143011 "Library - EET"
 {
 
@@ -81,3 +82,4 @@ codeunit 143011 "Library - EET"
     end;
 }
 
+#endif

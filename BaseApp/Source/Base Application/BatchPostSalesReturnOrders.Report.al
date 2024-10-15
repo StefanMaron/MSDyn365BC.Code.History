@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 6655 "Batch Post Sales Return Orders"
 {
     Caption = 'Batch Post Sales Return Orders (Obsolete)';
@@ -196,4 +197,4 @@ report 6655 "Batch Post Sales Return Orders"
     begin
     end;
 }
-
+#endif

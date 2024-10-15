@@ -1,3 +1,4 @@
+#if not CLEAN17
 xmlport 31060 "VIES Declaration"
 {
     Caption = 'VIES Declaration (Obsolete)';
@@ -339,3 +340,5 @@ xmlport 31060 "VIES Declaration"
     end;
 }
 
+
+#endif

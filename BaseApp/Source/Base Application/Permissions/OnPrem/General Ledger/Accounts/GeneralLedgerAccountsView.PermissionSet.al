@@ -32,8 +32,10 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "Inventory Posting Setup" = R,
                   tabledata "Job Posting Group" = R,
                   tabledata "Service Contract Account Group" = R,
+#if not CLEAN18
                   tabledata "Subst. Customer Posting Group" = R,
                   tabledata "Subst. Vendor Posting Group" = R,
+#endif
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = R,

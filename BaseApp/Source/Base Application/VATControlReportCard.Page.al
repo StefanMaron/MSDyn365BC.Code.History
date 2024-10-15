@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31101 "VAT Control Report Card"
 {
     Caption = 'VAT Control Report Card (Obsolete)';
@@ -273,3 +274,5 @@ page 31101 "VAT Control Report Card"
     end;
 }
 
+
+#endif

@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9003 "Acc. Receivables Adm. RC"
 {
-    Caption = 'Accounts Receivable Administrator', Comment = '{Dependency=Match,"ProfileDescription_ARADMINISTRATOR"}';
+    Caption = 'Accounts Receivable Administrator';
     PageType = RoleCenter;
 
     layout
@@ -100,6 +101,7 @@ page 9003 "Acc. Receivables Adm. RC"
                 RunObject = Report "Customer/Item Sales";
                 ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
             }
+#if not CLEAN17
             action("Customer - Bal. Reconciliation")
             {
                 ApplicationArea = Basic, Suite;
@@ -112,6 +114,7 @@ page 9003 "Acc. Receivables Adm. RC"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
             separator(Action20)
             {
             }
@@ -297,6 +300,9 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Sales Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoice';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Receipts")
                 {
@@ -322,6 +328,9 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Sales Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Invoices")
                 {
@@ -337,6 +346,9 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoice';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
@@ -353,6 +365,9 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Issued Reminders")
                 {
@@ -549,3 +564,4 @@ page 9003 "Acc. Receivables Adm. RC"
     }
 }
 
+#endif

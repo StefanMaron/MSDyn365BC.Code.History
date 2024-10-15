@@ -168,9 +168,15 @@ table 5718 "Nonstock Item"
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code WHERE("Table ID" = CONST(27));
             ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
+#if not CLEAN18
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;;
+            ObsoleteTag = '21.0';
+#endif
 
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if ("Item Template Code" <> xRec."Item Template Code") and
@@ -178,6 +184,7 @@ table 5718 "Nonstock Item"
                 then
                     Error(Text001);
             end;
+#endif
         }
         field(13; "Product Group Code"; Code[10])
         {
@@ -302,10 +309,12 @@ table 5718 "Nonstock Item"
         VenLength := StrLen("Vendor Item No.");
 
         NonStockItemSetup.Get();
+#if not CLEAN18
         // NAVCZ
         if NonStockItemSetup."No. From No. Series" then
             exit;
         // NAVCZ
+#endif
         case NonStockItemSetup."No. Format" of
             NonStockItemSetup."No. Format"::"Entry No.":
                 ItemNo := "Entry No.";

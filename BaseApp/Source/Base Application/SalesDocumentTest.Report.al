@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 202 "Sales Document - Test"
 {
     DefaultLayout = RDLC;
@@ -844,6 +845,7 @@ report 202 "Sales Document - Test"
                                               StrSubstNo(
                                                 Text035, "Sales Header".FieldCaption("VAT Registration No.")));
                                         end;
+#if not CLEAN17
                                     // NAVCZ
                                     if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
                                         if ("Sales Header"."Registration No." = '') and (not RegNoError) then begin
@@ -853,6 +855,7 @@ report 202 "Sales Document - Test"
                                                 Text035, "Sales Header".FieldCaption("Registration No.")));
                                         end;
                                     // NAVCZ
+#endif
                                 end;
 
                                 if Quantity <> 0 then begin
@@ -1857,7 +1860,9 @@ report 202 "Sales Document - Test"
         TotalCaption_Control220Lbl: Label 'Total';
         ContinuedCaption_Control223Lbl: Label 'Continued';
         IntrastatTransaction: Boolean;
+#if not CLEAN17
         RegNoError: Boolean;
+#endif
 
     local procedure AddError(Text: Text[250])
     begin
@@ -2360,4 +2365,4 @@ report 202 "Sales Document - Test"
     begin
     end;
 }
-
+#endif

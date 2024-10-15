@@ -1,12 +1,16 @@
+#if not CLEAN19
 page 31018 "Advance Letter Line Relations"
 {
-    Caption = 'Advance Letter Line Relations';
+    Caption = 'Advance Letter Line Relations (Obsolete)';
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Advance Letter Line Relation";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -96,4 +100,4 @@ page 31018 "Advance Letter Line Relations"
         }
     }
 }
-
+#endif

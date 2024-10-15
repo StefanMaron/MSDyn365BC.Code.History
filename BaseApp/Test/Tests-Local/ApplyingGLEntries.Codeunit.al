@@ -7,11 +7,6 @@ codeunit 145007 "Applying G/L Entries"
     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
     ObsoleteTag = '19.0';
 
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
-
     var
         Assert: Codeunit Assert;
         LibraryCashDesk: Codeunit "Library - Cash Desk";

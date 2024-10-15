@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
@@ -54,8 +55,6 @@ codeunit 5980 "Service-Post"
         PreviewMode: Boolean;
         SuppressCommit: Boolean;
         NotSupportedDocumentTypeErr: Label 'Document type %1 is not supported.', Comment = '%1=Document Type e.g. Invoice';
-
-    protected var
         HideValidationDialog: Boolean;
 
     procedure PostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
@@ -293,6 +292,7 @@ codeunit 5980 "Service-Post"
                     if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                         FieldError("Posting Date", Text007);
                 end;
+
                 // NAVCZ
                 GLSetup.Get();
                 if not GLSetup."Use VAT Date" then
@@ -707,3 +707,4 @@ codeunit 5980 "Service-Post"
     end;
 }
 
+#endif

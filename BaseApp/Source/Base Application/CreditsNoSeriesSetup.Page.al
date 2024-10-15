@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31047 "Credits No. Series Setup"
 {
     Caption = 'Credits No. Series Setup';
@@ -44,4 +45,4 @@ page 31047 "Credits No. Series Setup"
         }
     }
 }
-
+#endif

@@ -398,7 +398,6 @@ codeunit 802 "Online Map Management"
           false, '', '0,1',
           'http://go.microsoft.com/fwlink/?LinkId=519372');
         OnlineMapSetup."Map Parameter Setup Code" := 'BING';
-        OnlineMapSetup."Distance In" := OnlineMapSetup."Distance In"::Kilometers; // NAVCZ
         OnlineMapSetup.Insert();
     end;
 

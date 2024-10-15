@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145005 "Foreign Currencies"
 {
     Subtype = Test;
@@ -337,7 +338,6 @@ codeunit 145005 "Foreign Currencies"
         LibraryVariableStorage.Dequeue(FieldValue);
         AdjustExchangeRates.DocumentNo.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
-#if not CLEAN18
         AdjustExchangeRates.AdjCust.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
         AdjustExchangeRates.AdjVend.SetValue(FieldValue);
@@ -345,7 +345,6 @@ codeunit 145005 "Foreign Currencies"
         AdjustExchangeRates.AdjBank.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
         AdjustExchangeRates.TestMode.SetValue(FieldValue);
-#endif
         AdjustExchangeRates.SaveAsXml(
           LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -358,3 +357,4 @@ codeunit 145005 "Foreign Currencies"
     end;
 }
 
+#endif

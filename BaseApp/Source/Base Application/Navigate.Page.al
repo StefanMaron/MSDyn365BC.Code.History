@@ -327,7 +327,9 @@
                         end else begin
                             DocumentEntries.TransferDocEntries(Rec);
                             DocumentEntries.TransferFilters(DocNoFilter, PostingDateFilter);
+#if not CLEAN17
                             DocumentEntries.SetCashDesk(CashDeskNo); // NAVCZ
+#endif
                             DocumentEntries.Run();
                         end;
                     end;
@@ -536,29 +538,38 @@
         PostedInvtRcptHeader: Record "Invt. Receipt Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedInvtShptHeader: Record "Invt. Shipment Header";
+#if not CLEAN19
         [SecurityFiltering(SecurityFilter::Filtered)]
         IssuedBankStmtHeader: Record "Issued Bank Statement Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         IssuedPmtOrderHeader: Record "Issued Payment Order Header";
+#endif
+#if not CLEAN18
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedCreditHeader: Record "Posted Credit Header";
+#endif
+#if not CLEAN19
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry";
+#endif
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedInvtPutawayHeader: Record "Posted Invt. Put-away Header";
+#if not CLEAN17
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedCashDocHeader: Record "Posted Cash Document Header";
+#endif
+#if not CLEAN18
         [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
         [SecurityFiltering(SecurityFilter::Filtered)]
         EETEntry: Record "EET Entry";
+#endif
         ItemTrackingFilters: Record Item;
         NewItemTrackingSetup: Record "Item Tracking Setup";
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
         Window: Dialog;
-        ContactNo: Code[250];
         DocType: Text[100];
         SourceType: Text[30];
         SourceNo: Code[20];
@@ -590,8 +601,10 @@
         [InDataSet]
         FilterSelectionChangedTxtVisible: Boolean;
         PageCaptionTxt: Label 'Selected - %1';
+#if not CLEAN17
         CashDeskNo: Code[20];
         PostedCashDocTxt: Label 'Posted Cash Document';
+#endif
 
     protected var
         SQSalesHeader: Record "Sales Header";
@@ -604,6 +617,7 @@
         SCMServHeader: Record "Service Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
+        ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         DocNoFilter: Text;
         PostingDateFilter: Text;
@@ -717,6 +731,7 @@
                             ServCrMemoHeader.SetFilter("Customer No.", ContactNo);
                             InsertIntoDocEntry(Rec, DATABASE::"Service Cr.Memo Header", PostedServiceCreditMemoTxt, ServCrMemoHeader.Count);
                         end;
+#if not CLEAN17
                     // NAVCZ
                     if PostedCashDocHeader.ReadPermission() then begin
                         PostedCashDocHeader.Reset();
@@ -725,6 +740,7 @@
                         InsertIntoDocEntry(Rec, DATABASE::"Posted Cash Document Header", 0, PostedCashDocTxt, PostedCashDocHeader.Count);
                     end;
                     // NAVCZ
+#endif
 
                     DocExists := Rec.FindFirst();
 
@@ -777,6 +793,7 @@
                 SetSourceForPurchase();
                 SetSourceForServiceDoc();
 
+#if not CLEAN17
                 // NAVCZ
                 if NoOfRecords(DATABASE::"Posted Cash Document Header") = 1 then begin
                     PostedCashDocHeader.FindFirst();
@@ -785,6 +802,7 @@
                       2, '');
                 end;
                 // NAVCZ
+#endif
                 IsSourceUpdated := false;
                 OnFindRecordsOnAfterSetSource(
                   Rec, PostingDate, DocType2, DocNo2, SourceType2, SourceNo2, DocNoFilter, PostingDateFilter, IsSourceUpdated);
@@ -841,6 +859,7 @@
             PostedInvtShptHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", 0, PostedInvtShptHeader.TableCaption, PostedInvtShptHeader.Count);
         end;
+#if not CLEAN19
         // NAVCZ
         if SalesAdvanceLetterEntry.ReadPermission() then begin
             SalesAdvanceLetterEntry.Reset();
@@ -858,8 +877,11 @@
             InsertIntoDocEntry(
               Rec, DATABASE::"Purch. Advance Letter Entry", 0, PurchAdvanceLetterEntry.TableCaption, PurchAdvanceLetterEntry.Count);
         end;
+#if not CLEAN18
         FindEETEntries();
+#endif
         // NAVCZ
+#endif
     end;
 
     local procedure FindCustEntries()
@@ -1112,6 +1134,7 @@
         FindPostedInvtReceipt();
         FindPostedInvtShipment();
         // NAVCZ
+#if not CLEAN17
         if PostedCashDocHeader.ReadPermission() then begin
             PostedCashDocHeader.Reset();
             if CashDeskNo <> '' then
@@ -1120,6 +1143,8 @@
             PostedCashDocHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Posted Cash Document Header", 0, PostedCashDocTxt, PostedCashDocHeader.Count);
         end;
+#endif
+#if not CLEAN19
         if IssuedBankStmtHeader.ReadPermission() then begin
             IssuedBankStmtHeader.Reset();
             IssuedBankStmtHeader.SetFilter("No.", DocNoFilter);
@@ -1134,12 +1159,15 @@
             InsertIntoDocEntry(
               Rec, DATABASE::"Issued Payment Order Header", 0, IssuedPmtOrderHeader.TableCaption, IssuedPmtOrderHeader.Count);
         end;
+#endif
+#if not CLEAN18
         if PostedCreditHeader.ReadPermission() then begin
             PostedCreditHeader.Reset();
             PostedCreditHeader.SetFilter("No.", DocNoFilter);
             PostedCreditHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"Posted Credit Header", 0, PostedCreditHeader.TableCaption, PostedCreditHeader.Count);
         end;
+#endif
         if PostedInvtPutawayHeader.ReadPermission() then begin
             PostedInvtPutawayHeader.Reset();
             PostedInvtPutawayHeader.SetFilter("No.", DocNoFilter);
@@ -1730,6 +1758,7 @@
                 DATABASE::"Posted Whse. Receipt Line":
                     PAGE.Run(0, PostedWhseRcptLine);
                 // NAVCZ
+#if not CLEAN19
                 DATABASE::"Issued Bank Statement Header":
                     if "No. of Records" = 1 then begin
                         IssuedBankStmtHeader.FindFirst();
@@ -1744,21 +1773,27 @@
                         PAGE.Run(PAGE::"Issued Payment Order", IssuedPmtOrderHeader);
                     end else
                         PAGE.Run(0, IssuedPmtOrderHeader);
+#endif
+#if not CLEAN18
                 DATABASE::"Posted Credit Header":
                     if "No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Credit Card", PostedCreditHeader)
                     else
                         PAGE.Run(0, PostedCreditHeader);
+#endif
                 DATABASE::"Posted Invt. Put-away Header":
                     if "No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Invt. Put-away", PostedInvtPutawayHeader)
                     else
                         PAGE.Run(0, PostedInvtPutawayHeader);
+#if not CLEAN17
                 DATABASE::"Posted Cash Document Header":
                     if "No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Cash Document", PostedCashDocHeader)
                     else
                         PAGE.Run(0, PostedCashDocHeader);
+
+#endif
                 // NAVCZ
                 DATABASE::"G/L Entry":
                     PAGE.Run(0, GLEntry);
@@ -1843,14 +1878,18 @@
                         PAGE.Run(PAGE::"Posted Invt. Shipment", PostedInvtShptHeader)
                     else
                         PAGE.Run(0, PostedInvtShptHeader);
+#if not CLEAN19
                 // NAVCZ
                 DATABASE::"Sales Advance Letter Entry":
                     PAGE.Run(0, SalesAdvanceLetterEntry);
                 DATABASE::"Purch. Advance Letter Entry":
                     PAGE.Run(0, PurchAdvanceLetterEntry);
+#if not CLEAN18
                 DATABASE::"EET Entry":
                     ShowEETEntries();
+#endif
             // NAVCZ
+#endif
             end;
 
         OnAfterNavigateShowRecords(
@@ -1932,14 +1971,14 @@
         PAGE.Run(PAGE::"Detailed Empl. Ledger Entries", DtldEmplLedgEntry);
     end;
 
-    local procedure SetPostingDate(PostingDate: Text)
+    protected procedure SetPostingDate(PostingDate: Text)
     begin
         FilterTokens.MakeDateFilter(PostingDate);
         Rec.SetFilter("Posting Date", PostingDate);
         PostingDateFilter := Rec.GetFilter("Posting Date");
     end;
 
-    local procedure SetDocNo(DocNo: Text)
+    protected procedure SetDocNo(DocNo: Text)
     begin
         Rec.SetFilter("Document No.", DocNo);
         DocNoFilter := Rec.GetFilter("Document No.");
@@ -2121,6 +2160,7 @@
         ExtDocNo := '';
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure SetCashDesk(NewCashDeskNo: Code[20])
@@ -2128,6 +2168,7 @@
         CashDeskNo := NewCashDeskNo; // NAVCZ
     end;
 
+#endif
     local procedure DocNoFilterOnAfterValidate()
     begin
         ClearSourceInfo();
@@ -2252,6 +2293,7 @@
         end;
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
     local procedure FindEETEntries()
     begin
@@ -2269,6 +2311,7 @@
         PAGE.Run(PAGE::"EET Entry Card", EETEntry);
     end;
 
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnAfterFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin

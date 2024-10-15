@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31096 "Commodity Setup"
 {
     Caption = 'Commodity Setup (Obsolete)';
@@ -56,4 +57,4 @@ page 31096 "Commodity Setup"
     {
     }
 }
-
+#endif

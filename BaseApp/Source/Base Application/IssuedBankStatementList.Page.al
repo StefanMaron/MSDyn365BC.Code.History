@@ -1,7 +1,8 @@
+#if not CLEAN19
 page 11714 "Issued Bank Statement List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Issued Bank Statements';
+    Caption = 'Issued Bank Statements (Obsolete)';
     CardPageID = "Issued Bank Statement";
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -9,6 +10,9 @@ page 11714 "Issued Bank Statement List"
     PageType = List;
     SourceTable = "Issued Bank Statement Header";
     UsageCategory = History;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -193,7 +197,7 @@ page 11714 "Issued Bank Statement List"
         IssuedBankStmtHdr: Record "Issued Bank Statement Header";
     begin
         OnBeforeCreatePaymentReconJournal(Rec, IssuedBankStmtHdr);
-        
+
         CurrPage.SetSelectionFilter(IssuedBankStmtHdr);
         IssuedBankStmtHdr.CreatePmtReconJnl(true);
     end;
@@ -203,4 +207,4 @@ page 11714 "Issued Bank Statement List"
     begin
     end;
 }
-
+#endif

@@ -1,9 +1,16 @@
 table 31002 "Sales Advance Letter Entry"
 {
     Caption = 'Sales Advance Letter Entry';
+#if not CLEAN19
     DrillDownPageID = "Sales Advance Letter Entries";
     LookupPageID = "Sales Advance Letter Entries";
     Permissions =;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,17 +22,23 @@ table 31002 "Sales Advance Letter Entry"
         {
             Caption = 'Template Name';
             NotBlank = true;
+#if not CLEAN19
             TableRelation = "Sales Adv. Payment Template";
+#endif
         }
         field(11; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = "Sales Advance Letter Header";
+#endif
         }
         field(12; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
+#if not CLEAN19
             TableRelation = "Sales Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
+#endif
         }
         field(13; "Entry Type"; Option)
         {
@@ -170,6 +183,7 @@ table 31002 "Sales Advance Letter Entry"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -177,5 +191,6 @@ table 31002 "Sales Advance Letter Entry"
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
+#endif
 }
 

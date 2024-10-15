@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31021 "Purchase - Advance Invoice CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchaseAdvanceInvoiceCZ.rdlc';
-    Caption = 'Purchase - Advance Invoice CZ';
+    Caption = 'Purchase - Advance Invoice CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -119,12 +123,41 @@ report 31021 "Purchase - Advance Invoice CZ"
             column(VATRegistrationNo_PurchInvHeader; "VAT Registration No.")
             {
             }
+#if CLEAN17
+            column(RegistrationNo_PurchInvHeaderCaption; FieldCaptionDictionary.Get(RegistrationNoFldTok))
+            {
+            }
+            column(RegistrationNo_PurchInvHeader; FieldValueDictionary.Get(RegistrationNoFldTok))
+            {
+            }
+#else
             column(RegistrationNo_PurchInvHeaderCaption; FieldCaption("Registration No."))
             {
             }
             column(RegistrationNo_PurchInvHeader; "Registration No.")
             {
             }
+#endif
+#if CLEAN18
+            column(BankAccountNo_PurchInvHeaderCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
+            {
+            }
+            column(BankAccountNo_PurchInvHeader; FieldValueDictionary.Get(BankAccountNoFldTok))
+            {
+            }
+            column(IBAN_PurchInvHeaderCaption; FieldCaptionDictionary.Get(IBANFldTok))
+            {
+            }
+            column(IBAN_PurchInvHeader; FieldValueDictionary.Get(IBANFldTok))
+            {
+            }
+            column(BIC_PurchInvHeaderCaption; FieldCaptionDictionary.Get(SWIFTCodeFldTok))
+            {
+            }
+            column(BIC_PurchInvHeader; FieldValueDictionary.Get(SWIFTCodeFldTok))
+            {
+            }
+#else
             column(BankAccountNo_PurchInvHeaderCaption; FieldCaption("Bank Account No."))
             {
             }
@@ -143,18 +176,28 @@ report 31021 "Purchase - Advance Invoice CZ"
             column(BIC_PurchInvHeader; "SWIFT Code")
             {
             }
+#endif
             column(DocumentDate_PurchInvHeaderCaption; FieldCaption("Document Date"))
             {
             }
             column(DocumentDate_PurchInvHeader; "Document Date")
             {
             }
+#if CLEAN17
+            column(VATDate_PurchInvHeaderCaption; FieldCaptionDictionary.Get(VATDateFldTok))
+            {
+            }
+            column(VATDate_PurchInvHeader; FieldValueDictionary.Get(VATDateFldTok))
+            {
+            }
+#else
             column(VATDate_PurchInvHeaderCaption; FieldCaption("VAT Date"))
             {
             }
             column(VATDate_PurchInvHeader; "VAT Date")
             {
             }
+#endif
             column(PaymentTerms; PaymentTerms.Description)
             {
             }
@@ -227,7 +270,11 @@ report 31021 "Purchase - Advance Invoice CZ"
                             VATPostingSetup.Init();
 
                         TempVATAmountLine.Init();
+#if CLEAN18
+                        TempVATAmountLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
+#else
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+#endif
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
                         TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
@@ -261,12 +308,20 @@ report 31021 "Purchase - Advance Invoice CZ"
                         AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                         AutoFormatType = 1;
                     }
+#if CLEAN18
+                    column(VATAmtLineVATBaseLCY; VATAmountLineVATBaseLCY)
+#else
                     column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY)")
+#endif
                     {
                         AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                         AutoFormatType = 1;
                     }
+#if CLEAN18
+                    column(VATAmtLineVATAmtLCY; VATAmountLineVATAmountLCY)
+#else
                     column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY)")
+#endif
                     {
                         AutoFormatExpression = "Purch. Inv. Header"."Currency Code";
                         AutoFormatType = 1;
@@ -277,12 +332,19 @@ report 31021 "Purchase - Advance Invoice CZ"
                         TempVATAmountLine.GetLine(Number);
 
                         if CalculatedExchRate <> 1 then begin
+#if CLEAN18
+                            VATAmountLineVATBaseLCY := TempVATAmountLine."VAT Base";
+                            VATAmountLineVATAmountLCY := TempVATAmountLine."VAT Amount";
+                            TempVATAmountLine."VAT Base" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
+                            TempVATAmountLine."VAT Amount" := Round(VATAmountLineVATBaseLCY / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
+#else
                             TempVATAmountLine."VAT Base (LCY)" := TempVATAmountLine."VAT Base";
                             TempVATAmountLine."VAT Amount (LCY)" := TempVATAmountLine."VAT Amount";
                             TempVATAmountLine."VAT Base" :=
                               Round(TempVATAmountLine."VAT Base (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
                             TempVATAmountLine."VAT Amount" :=
                               Round(TempVATAmountLine."VAT Amount (LCY)" / CalculatedExchRate * CurrExchRate."Exchange Rate Amount");
+#endif
                         end;
                     end;
 
@@ -342,11 +404,15 @@ report 31021 "Purchase - Advance Invoice CZ"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
+#if CLEAN17
+                DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
+#else
                 DocFooter.SetFilter("Language Code", '%1|%2', '', "Language Code");
                 if DocFooter.FindLast then
                     DocFooterText := DocFooter."Footer Text"
                 else
-                    DocFooterText := '';
+#endif
+                DocFooterText := '';
 
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
@@ -371,6 +437,11 @@ report 31021 "Purchase - Advance Invoice CZ"
                     PaymentMethod.Init
                 else
                     PaymentMethod.Get("Payment Method Code");
+#if CLEAN17
+
+                EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
+                ExtensionFieldsManagement.GetRecordExtensionFields("Purch. Inv. Header".RecordId, FieldValueDictionary, FieldCaptionDictionary);
+#endif
             end;
         }
     }
@@ -410,15 +481,34 @@ report 31021 "Purchase - Advance Invoice CZ"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
+#if not CLEAN17
         DocFooter: Record "Document Footer";
+#endif
         VATPostingSetup: Record "VAT Posting Setup";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
+#if CLEAN17
+        FormatDocument: Codeunit "Format Document";
+        ExtensionFieldsManagement: Codeunit "Extension Fields Management";
+        FieldValueDictionary: Dictionary of [Text[30], Text];
+        FieldCaptionDictionary: Dictionary of [Text[30], Text];
+        RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
+        VATDateFldTok: Label 'VAT Date CZL', Locked = true;
+#endif
+#if CLEAN18
+        BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
+        IBANFldTok: Label 'IBAN CZL', Locked = true;
+        SWIFTCodeFldTok: Label 'SWIFT Code CZL', Locked = true;
+#endif
         ExchRateText: Text[50];
         CompanyAddr: array[8] of Text[100];
         VendAddr: array[8] of Text[100];
         DocFooterText: Text[250];
         CalculatedExchRate: Decimal;
+#if CLEAN18
+        VATAmountLineVATBaseLCY: Decimal;
+        VATAmountLineVATAmountLCY: Decimal;
+#endif
         NoOfCopies: Integer;
         CopyNo: Integer;
         NoOfLoops: Integer;
@@ -444,5 +534,20 @@ report 31021 "Purchase - Advance Invoice CZ"
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
-}
+#if CLEAN17
 
+    local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
+    begin
+        FieldValueDictionary.Add(RegistrationNoFldTok, '');
+        FieldValueDictionary.Add(VATDateFldTok, '');
+#if CLEAN18
+        FieldValueDictionary.Add(BankAccountNoFldTok, '');
+        FieldValueDictionary.Add(IBANFldTok, '');
+        FieldValueDictionary.Add(SWIFTCodeFldTok, '');
+#endif
+
+        ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
+    end;
+#endif    
+}
+#endif

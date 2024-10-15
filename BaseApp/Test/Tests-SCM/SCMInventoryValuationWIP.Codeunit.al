@@ -1221,7 +1221,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
 
         // Receive and invoice component.
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Qty * QtyPer, ReceiptDate,
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Round(Qty * QtyPer, 1, '>'), ReceiptDate,
           LibraryRandom.RandDec(100, 2), true, Invoice);
 
         // Make prod order.

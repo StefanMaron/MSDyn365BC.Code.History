@@ -1,4 +1,5 @@
-﻿codeunit 1522 "Workflow Request Page Handling"
+﻿#if not CLEAN19
+codeunit 1522 "Workflow Request Page Handling"
 {
 
     trigger OnRun()
@@ -14,10 +15,14 @@
         IncomingDocumentDescTxt: Label 'Incoming Document';
         PaymentOrderCodeTxt: Label 'PMTORD', Locked = true;
         PaymentOrderDescTxt: Label 'Payment Order';
+#if not CLEAN17
         CashDocumentCodeTxt: Label 'CASHDOC', Locked = true;
         CashDocumentDescTxt: Label 'Cash Document';
+#endif
+#if not CLEAN18
         CreditDocumentCodeTxt: Label 'CREDIT', Locked = true;
         CreditDocumentDescTxt: Label 'Credit';
+#endif
         SalesAdvanceLetterCodeTxt: Label 'SALESADV', Locked = true;
         SalesAdvanceLetterDescTxt: Label 'Sales Advance Letter';
         PurchAdvanceLetterCodeTxt: Label 'PURCHADV', Locked = true;
@@ -37,8 +42,12 @@
         AssignEntityToWorkflowEvent(DATABASE::"Incoming Document", IncomingDocumentCodeTxt);
         // NAVCZ
         AssignEntityToWorkflowEvent(DATABASE::"Payment Order Header", PaymentOrderCodeTxt);
+#if not CLEAN17
         AssignEntityToWorkflowEvent(DATABASE::"Cash Document Header", CashDocumentCodeTxt);
+#endif
+#if not CLEAN18
         AssignEntityToWorkflowEvent(DATABASE::"Credit Header", CreditDocumentCodeTxt);
+#endif
         AssignEntityToWorkflowEvent(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterCodeTxt);
         AssignEntityToWorkflowEvent(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterCodeTxt);
         // NAVCZ
@@ -59,10 +68,15 @@
         // NAVCZ
         InsertReqPageEntity(
           PaymentOrderCodeTxt, PaymentOrderDescTxt, DATABASE::"Payment Order Header", DATABASE::"Payment Order Line");
+#if not CLEAN17
         InsertReqPageEntity(
+
           CashDocumentCodeTxt, CashDocumentDescTxt, DATABASE::"Cash Document Header", DATABASE::"Cash Document Line");
+#endif
+#if not CLEAN18
         InsertReqPageEntity(
           CreditDocumentCodeTxt, CreditDocumentDescTxt, DATABASE::"Credit Header", DATABASE::"Credit Line");
+#endif
         InsertReqPageEntity(
           SalesAdvanceLetterCodeTxt, SalesAdvanceLetterDescTxt,
           DATABASE::"Sales Advance Letter Header", DATABASE::"Sales Advance Letter Line");
@@ -125,11 +139,15 @@
         InsertPaymentOrderHeaderReqPageFields();
         InsertPaymentOrderLineReqPageFields();
 
+#if not CLEAN17
         InsertCashDocHeaderReqPageFields();
         InsertCashDocLineReqPageFields();
 
+#endif
+#if not CLEAN18
         InsertCreditHeaderReqPageFields();
         InsertCreditLineReqPageFields();
+#endif
 
         InsertSalesAdvanceLetterHeaderReqPageFields();
         InsertSalesAdvanceLetterLineReqPageFields();
@@ -137,6 +155,7 @@
         InsertPurchaseAdvanceLetterHeaderReqPageFields();
         InsertPurchaseAdvanceLetterLineReqPageFields();
         // NAVCZ
+
         InsertApprovalEntryReqPageFields();
 
         OnAfterInsertRequestPageFields();
@@ -259,6 +278,7 @@
         InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("Amount to Pay"));
     end;
 
+#if not CLEAN17
     local procedure InsertCashDocHeaderReqPageFields()
     var
         CashDocHdr: Record "Cash Document Header";
@@ -280,6 +300,8 @@
         InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo(Amount));
     end;
 
+#endif
+#if not CLEAN18
     local procedure InsertCreditHeaderReqPageFields()
     var
         CreditHdr: Record "Credit Header";
@@ -302,6 +324,7 @@
         InsertDynReqPageField(DATABASE::"Credit Line", CreditLn.FieldNo(Amount));
     end;
 
+#endif
     local procedure InsertSalesAdvanceLetterHeaderReqPageFields()
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -399,3 +422,4 @@
     end;
 }
 
+#endif

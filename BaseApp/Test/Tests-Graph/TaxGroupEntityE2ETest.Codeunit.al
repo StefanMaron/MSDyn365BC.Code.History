@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135509 "Tax Group Entity E2E Test"
 {
     Subtype = Test;
@@ -284,4 +285,4 @@ codeunit 135509 "Tax Group Entity E2E Test"
         exit(LowerCase(LibraryGraphMgt.StripBrackets(Value)));
     end;
 }
-
+#endif

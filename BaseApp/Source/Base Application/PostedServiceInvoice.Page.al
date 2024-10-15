@@ -149,6 +149,7 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Service;
@@ -160,6 +161,7 @@ page 5978 "Posted Service Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Order No."; "Order No.")
                 {
                     ApplicationArea = Service;
@@ -327,6 +329,7 @@ page 5978 "Posted Service Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Service;
@@ -337,6 +340,7 @@ page 5978 "Posted Service Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
                     ApplicationArea = Service;
@@ -482,6 +486,7 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the area where the customer company is located.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -492,12 +497,14 @@ page 5978 "Posted Service Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -518,6 +525,7 @@ page 5978 "Posted Service Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -531,6 +539,7 @@ page 5978 "Posted Service Invoice"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -640,6 +649,7 @@ page 5978 "Posted Service Invoice"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -833,8 +843,8 @@ page 5978 "Posted Service Invoice"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnFindRecord(Which: Text): Boolean

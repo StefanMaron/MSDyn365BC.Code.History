@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31038 "Initialize FA History"
 {
     Caption = 'Initialize FA History (Obsolete)';
@@ -84,4 +85,4 @@ report 31038 "Initialize FA History"
         PostingDate := NewPostingDate;
     end;
 }
-
+#endif

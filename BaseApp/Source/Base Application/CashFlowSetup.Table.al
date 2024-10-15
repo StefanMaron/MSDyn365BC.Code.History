@@ -253,21 +253,39 @@ table 843 "Cash Flow Setup"
         {
             Caption = 'S. Adv. Letter CF Account No.';
             TableRelation = "Cash Flow Account";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CheckAccountType("S. Adv. Letter CF Account No."); // NAVCZ
             end;
+#endif
         }
         field(31001; "P. Adv. Letter CF Account No."; Code[20])
         {
             Caption = 'P. Adv. Letter CF Account No.';
             TableRelation = "Cash Flow Account";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CheckAccountType("P. Adv. Letter CF Account No."); // NAVCZ
             end;
+#endif
         }
         field(34; "Azure AI Enabled"; Boolean)
         {

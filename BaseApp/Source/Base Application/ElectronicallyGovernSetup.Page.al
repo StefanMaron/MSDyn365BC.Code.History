@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11761 "Electronically Govern. Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -85,4 +86,4 @@ page 11761 "Electronically Govern. Setup"
         end;
     end;
 }
-
+#endif

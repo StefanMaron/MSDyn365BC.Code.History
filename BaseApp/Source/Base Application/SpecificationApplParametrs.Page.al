@@ -1,12 +1,16 @@
+#if not CLEAN19
 page 11728 "Specification Appl. Parametrs"
 {
-    Caption = 'Specification Appl. Parametrs';
+    Caption = 'Specification Appl. Parametrs (Obsolete)';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
     InstructionalText = 'Set appl. parameters.';
     ModifyAllowed = false;
     PageType = ConfirmationDialog;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -76,6 +80,9 @@ page 11728 "Specification Appl. Parametrs"
                 Editable = UseTextToAccMappingCode;
                 TableRelation = "Text-to-Account Mapping Code";
                 ToolTip = 'Specifies which Text-to-Account Mapping use Apply Automatically function in Payment Recon.Journal.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Banking Documents Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             field(OnlyNotAppliedLines; OnlyNotAppliedLines)
             {
@@ -110,6 +117,7 @@ page 11728 "Specification Appl. Parametrs"
         OnlyNotAppliedLines: Boolean;
         IsManual: Boolean;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetBankAccount(BankAccount: Record "Bank Account")
     begin
@@ -126,12 +134,14 @@ page 11728 "Specification Appl. Parametrs"
         UseTextToAccMappingCode := true;
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetIsManual(Manual: Boolean)
     begin
         IsManual := Manual;
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetValuesForApp(var NotApplyCustLedgerEntriesNew: Boolean; var NotApplyVendLedgerEntriesNew: Boolean; var NotApplySalesAdvancesNew: Boolean; var NotApplyPurchaseAdvancesNew: Boolean; var NotApplyGenLedgerEntriesNew: Boolean; var NotAplBankAccLedgEntriesNew: Boolean; var UsePaymentAppRulesNew: Boolean; var UseTextToAccMappingCodeNew: Boolean; var BankPmtApplRuleCodeNew: Code[10]; var TextToAccountMappingCodeNew: Code[10]; var OnlyNotAppliedLinesNew: Boolean)
     begin
@@ -158,3 +168,4 @@ page 11728 "Specification Appl. Parametrs"
     end;
 }
 
+#endif

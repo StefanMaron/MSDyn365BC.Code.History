@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 31007 "Links to Advance Letter"
 {
-    Caption = 'Links to Advance Letter';
+    Caption = 'Links to Advance Letter (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Advance Link";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -124,4 +128,4 @@ page 31007 "Links to Advance Letter"
         CurrPage.SetSelectionFilter(AdvanceLink);
     end;
 }
-
+#endif

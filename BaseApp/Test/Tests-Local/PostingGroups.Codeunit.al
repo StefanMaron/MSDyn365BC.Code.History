@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 145004 "Posting Groups"
 {
     Subtype = Test;
@@ -154,7 +155,6 @@ codeunit 145004 "Posting Groups"
         // 3. Verify in Confirm Handler
     end;
 
-#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure AddingDefGenBusPostGroupsForTransferOrder()
@@ -218,7 +218,6 @@ codeunit 145004 "Posting Groups"
         TransferRoute.Modify();
     end;
 
-#endif
     local procedure CreateCustomerLedgerEnty(Customer: Record Customer)
     var
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -298,3 +297,4 @@ codeunit 145004 "Posting Groups"
     end;
 }
 
+#endif

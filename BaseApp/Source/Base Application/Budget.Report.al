@@ -218,7 +218,7 @@ report 8 Budget
                     CalcFields("Budgeted Amount");
                     if InThousands then
                         "Budgeted Amount" := "Budgeted Amount" / 1000;
-                    GLBudgetedAmount[i] := MatrixMgt.RoundValue("Budgeted Amount", RndFactor);
+                    GLBudgetedAmount[i] := MatrixMgt.RoundAmount("Budgeted Amount", RndFactor);
                     TotalBudgetAmount += GLBudgetedAmount[i];
                 end;
                 SetRange("Date Filter", PeriodStartDate[1], PeriodStartDate[ArrayLen(PeriodStartDate)] - 1);
@@ -264,7 +264,6 @@ report 8 Budget
                     {
                         ApplicationArea = Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies the factor that is used to round the amounts.';
                     }
                 }
@@ -328,7 +327,7 @@ report 8 Budget
         GLAccNameCaptionLbl: Label 'Name';
         RowNumber: Integer;
         GLAccountTypePosting: Boolean;
-        RndFactor: Option "None","1","1000","1000000";
+        RndFactor: Enum "Analysis Rounding Factor";
         TotalLbl: Label 'Total';
         StartingDateAsText: Text;
         StartingDateTok: Label 'Starting Date: %1', Comment = '%1 - date';
@@ -365,7 +364,15 @@ report 8 Budget
         exit(GlobalLanguageCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetRoundingFactor().', '19.0')]
     procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        RndFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
+    end;
+#endif
+
+    procedure SetRoundingFactor(NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         RndFactor := NewRoundingFactor;
     end;

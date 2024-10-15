@@ -2,8 +2,15 @@ table 31020 "Purch. Advance Letter Header"
 {
     Caption = 'Purch. Advance Letter Header';
     DataCaptionFields = "No.", "Pay-to Name";
+#if not CLEAN19
     DrillDownPageID = "Purchase Adv. Letters";
     LookupPageID = "Purchase Adv. Letters";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,10 +22,18 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
+#if not CLEAN19
 
             trigger OnValidate()
             var
                 VendBankAcc: Record "Vendor Bank Account";
+#if CLEAN17
+                ExtensionFieldsManagement: Codeunit "Extension Fields Management";
+                FieldValueDictionary: Dictionary of [Text[30], Text];
+                RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
+                TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
+#endif
+
             begin
                 if "No." = '' then
                     InitRecord;
@@ -88,17 +103,31 @@ table 31020 "Purch. Advance Letter Header"
                 "Payment Terms Code" := Vend."Payment Terms Code";
                 "Payment Method Code" := Vend."Payment Method Code";
                 "VAT Registration No." := Vend."VAT Registration No.";
+#if CLEAN17
+                FieldValueDictionary.Add(RegistrationNoFldTok, '');
+                FieldValueDictionary.Add(TaxRegistrationNoFldTok, '');
+                ExtensionFieldsManagement.GetRecordExtensionFields(Vend.RecordId, FieldValueDictionary);
+                "Registration No." := CopyStr(FieldValueDictionary.Get(RegistrationNoFldTok), 1, MaxStrlen("Registration No."));
+                "Tax Registration No." := CopyStr(FieldValueDictionary.Get(TaxRegistrationNoFldTok), 1, MaxStrlen("Registration No."));
+#else
                 "Registration No." := Vend."Registration No.";
                 "Tax Registration No." := Vend."Tax Registration No.";
+#endif
 
                 Validate("VAT Country/Region Code");
                 VendBankAcc.SetRange("Vendor No.", "Pay-to Vendor No.");
+#if CLEAN18
+                if not VendBankAcc.Get(Vend."No.", Vend."Preferred Bank Account Code") then
+                    if VendBankAcc.FindFirst then;
+#else
                 if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then
                     VendBankAcc.SetFilter(Priority, '%1..', 1);
                 if not VendBankAcc.FindFirst then begin
                     VendBankAcc.SetRange(Priority);
                     if VendBankAcc.FindFirst then;
                 end;
+#endif
+
                 Validate("Bank Account Code", VendBankAcc.Code);
 
                 CreateDim(
@@ -113,12 +142,14 @@ table 31020 "Purch. Advance Letter Header"
                 if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") then
                     RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId);
             end;
+#endif
         }
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
             TableRelation = Vendor.Name;
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -127,6 +158,7 @@ table 31020 "Purch. Advance Letter Header"
                 if ShouldLookForVendorByName("Pay-to Vendor No.") then
                     Validate("Pay-to Vendor No.", Vendor.GetVendorNo("Pay-to Name"));
             end;
+#endif
         }
         field(6; "Pay-to Name 2"; Text[50])
         {
@@ -135,20 +167,24 @@ table 31020 "Purch. Advance Letter Header"
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(9; "Pay-to City"; Text[30])
         {
@@ -157,6 +193,7 @@ table 31020 "Purch. Advance Letter Header"
             ELSE
             IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -169,15 +206,18 @@ table 31020 "Purch. Advance Letter Header"
                   "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(10; "Pay-to Contact"; Text[100])
         {
             Caption = 'Pay-to Contact';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(11; "Your Reference"; Text[35])
         {
@@ -186,6 +226,7 @@ table 31020 "Purch. Advance Letter Header"
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -197,6 +238,7 @@ table 31020 "Purch. Advance Letter Header"
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Posting Date" then
                     Validate("Original Document VAT Date", "Posting Date");
             end;
+#endif
         }
         field(22; "Posting Description"; Text[100])
         {
@@ -206,6 +248,7 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -215,34 +258,40 @@ table 31020 "Purch. Advance Letter Header"
                 end else
                     Validate("Advance Due Date", "Document Date");
             end;
+#endif
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(30; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(31; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
             Editable = false;
             TableRelation = "Vendor Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -251,11 +300,13 @@ table 31020 "Purch. Advance Letter Header"
                 if CurrFieldNo = FieldNo("Vendor Posting Group") then
                     PostingGroupManagement.CheckPostingGroupChange("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
             end;
+#endif
         }
         field(32; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -282,6 +333,7 @@ table 31020 "Purch. Advance Letter Header"
                         end;
                 end;
             end;
+#endif
         }
         field(33; "Currency Factor"; Decimal)
         {
@@ -289,6 +341,7 @@ table 31020 "Purch. Advance Letter Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -300,6 +353,7 @@ table 31020 "Purch. Advance Letter Header"
 
                 ClearVATCorrection;
             end;
+#endif
         }
         field(41; "Language Code"; Code[10])
         {
@@ -310,6 +364,7 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Purchaser Code';
             TableRelation = "Salesperson/Purchaser";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -319,12 +374,14 @@ table 31020 "Purch. Advance Letter Header"
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center");
             end;
+#endif
         }
         field(44; "Order No."; Code[20])
         {
             Caption = 'Order No.';
             TableRelation = "Purchase Header"."No." WHERE("Document Type" = CONST(Order));
         }
+#if not CLEAN19
         field(46; Comment; Boolean)
         {
             CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
@@ -334,10 +391,12 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(47; "No. Printed"; Integer)
         {
             Caption = 'No. Printed';
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -345,11 +404,13 @@ table 31020 "Purch. Advance Letter Header"
                 if Status = Status::Open then
                     Release;
             end;
+#endif
         }
         field(51; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
         }
+#if not CLEAN19
         field(61; "Amount Including VAT"; Decimal)
         {
             CalcFormula = Sum("Purch. Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
@@ -357,6 +418,7 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(68; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
@@ -374,6 +436,7 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -385,6 +448,7 @@ table 31020 "Purch. Advance Letter Header"
                 end;
                 "VAT Registration No." := NewVATRegNo;
             end;
+#endif
         }
         field(85; "Pay-to Post Code"; Code[20])
         {
@@ -393,6 +457,7 @@ table 31020 "Purch. Advance Letter Header"
             ELSE
             IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -405,30 +470,36 @@ table 31020 "Purch. Advance Letter Header"
                   "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(86; "Pay-to County"; Text[30])
         {
             Caption = 'Pay-to County';
             CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(87; "Pay-to Country/Region Code"; Code[10])
         {
             Caption = 'Pay-to Country/Region Code';
             TableRelation = "Country/Region";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
             end;
+#endif
         }
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -440,6 +511,7 @@ table 31020 "Purch. Advance Letter Header"
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Document Date" then
                     Validate("Original Document VAT Date", "Document Date");
             end;
+#endif
         }
         field(104; "Payment Method Code"; Code[10])
         {
@@ -456,13 +528,16 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then
                     RecreateLines(FieldCaption("VAT Bus. Posting Group"));
             end;
+#endif
         }
+#if not CLEAN19
         field(120; Status; Option)
         {
             CalcFormula = Min("Purch. Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
@@ -472,10 +547,15 @@ table 31020 "Purch. Advance Letter Header"
             FieldClass = FlowField;
             OptionCaption = 'Open,Pending Payment,Pending Invoice,Pending Final Invoice,Closed,Pending Approval';
             OptionMembers = Open,"Pending Payment","Pending Invoice","Pending Final Invoice",Closed,"Pending Approval";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(137; "Advance Due Date"; Date)
         {
             Caption = 'Advance Due Date';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -490,11 +570,13 @@ table 31020 "Purch. Advance Letter Header"
                     UpdatePurchAdvLines(FieldCaption("Advance Due Date"), CurrFieldNo <> 0);
                 end;
             end;
+#endif
         }
         field(165; "Incoming Document Entry No."; Integer)
         {
             Caption = 'Incoming Document Entry No.';
             TableRelation = "Incoming Document";
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -507,12 +589,14 @@ table 31020 "Purch. Advance Letter Header"
                 else
                     IncomingDocument.SetPurchAdvLetterDoc(Rec);
             end;
+#endif
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -523,11 +607,13 @@ table 31020 "Purch. Advance Letter Header"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
             TableRelation = Campaign;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -537,11 +623,13 @@ table 31020 "Purch. Advance Letter Header"
                   DATABASE::"Salesperson/Purchaser", "Purchaser Code",
                   DATABASE::"Responsibility Center", "Responsibility Center");
             end;
+#endif
         }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -556,11 +644,13 @@ table 31020 "Purch. Advance Letter Header"
                   DATABASE::"Salesperson/Purchaser", "Purchaser Code",
                   DATABASE::Campaign, "Campaign No.");
             end;
+#endif
         }
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -578,11 +668,14 @@ table 31020 "Purch. Advance Letter Header"
                 TestField("Pay-to Vendor No.");
                 VendBankAcc.Get("Pay-to Vendor No.", "Bank Account Code");
                 "Bank Account No." := VendBankAcc."Bank Account No.";
+#if not CLEAN18
                 "Specific Symbol" := VendBankAcc."Specific Symbol";
+#endif
                 "Transit No." := VendBankAcc."Transit No.";
                 IBAN := VendBankAcc.IBAN;
                 "SWIFT Code" := VendBankAcc."SWIFT Code";
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
@@ -607,7 +700,9 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -618,6 +713,7 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'IBAN';
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -625,6 +721,7 @@ table 31020 "Purch. Advance Letter Header"
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
@@ -635,6 +732,7 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Bank Name';
         }
+#if not CLEAN19
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
             CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
@@ -644,9 +742,11 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -657,17 +757,20 @@ table 31020 "Purch. Advance Letter Header"
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"VAT Date" then
                     Validate("Original Document VAT Date", "VAT Date");
             end;
+#endif
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
             Caption = 'VAT Currency Factor';
             DecimalPlaces = 0 : 15;
             MinValue = 0;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestField("Currency Code");
             end;
+#endif
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -692,6 +795,7 @@ table 31020 "Purch. Advance Letter Header"
         field(31010; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -702,13 +806,17 @@ table 31020 "Purch. Advance Letter Header"
                         Error(Text005Err, FieldCaption("Amounts Including VAT"));
                 end;
             end;
+#endif
         }
         field(31012; "Template Code"; Code[10])
         {
             Caption = 'Template Code';
             Editable = false;
+#if not CLEAN19
             TableRelation = "Purchase Adv. Payment Template";
+#endif
         }
+#if not CLEAN19
         field(31013; "Amount To Link"; Decimal)
         {
             CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
@@ -793,6 +901,7 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31023; "Vendor Adv. Payment No."; Code[20])
         {
             Caption = 'Vendor Adv. Payment No.';
@@ -800,12 +909,14 @@ table 31020 "Purch. Advance Letter Header"
         field(31024; "Due Date from Line"; Boolean)
         {
             Caption = 'Due Date from Line';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if xRec."Due Date from Line" and (not "Due Date from Line") then
                     CheckLinesForDueDates;
             end;
+#endif
         }
         field(31025; "Post Advance VAT Option"; Option)
         {
@@ -857,6 +968,7 @@ table 31020 "Purch. Advance Letter Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -1316,7 +1428,6 @@ table 31020 "Purch. Advance Letter Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemAmount() RemAmount: Decimal
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
@@ -1329,7 +1440,6 @@ table 31020 "Purch. Advance Letter Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemAmountLCY(): Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -1691,5 +1801,6 @@ table 31020 "Purch. Advance Letter Header"
     local procedure OnAfterReopenPurchaseAdvanceLetter(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
     end;
+#endif
 }
 

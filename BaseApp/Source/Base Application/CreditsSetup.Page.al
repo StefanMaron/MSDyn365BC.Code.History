@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31048 "Credits Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -74,4 +75,4 @@ page 31048 "Credits Setup"
         end;
     end;
 }
-
+#endif

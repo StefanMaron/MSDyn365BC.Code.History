@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5632 "FA Jnl.-Post Line"
 {
     Permissions = TableData "FA Ledger Entry" = r,
@@ -89,7 +90,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                 UpdateFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
             end;
         // NAVCZ
-
         OnAfterFAJnlPostLine(FAJnlLine);
     end;
 
@@ -104,10 +104,12 @@ codeunit 5632 "FA Jnl.-Post Line"
                 exit;
             if "FA Posting Date" = 0D then
                 "FA Posting Date" := "Posting Date";
+#if not CLEAN17
             // NAVCZ
             if "VAT Date" = 0D then
                 "VAT Date" := "Posting Date";
             // NAVCZ
+#endif
             if "Journal Template Name" = '' then
                 Quantity := 0;
             DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
@@ -252,12 +254,10 @@ codeunit 5632 "FA Jnl.-Post Line"
             then
                 FAInsertLedgEntry.SetNetdisposal(true);
 
-#if not CLEAN18
             // NAVCZ
             if DeprBook."G/L Integration - Disposal" then
                 FAPostingGroup.Get(FADeprBook."FA Posting Group");
             // NAVCZ
-#endif
             if DisposalType = DisposalType::FirstDisposal then begin
                 CalculateDisposal.CalcGainLoss(FANo, DeprBookCode, EntryAmounts);
                 for i := 1 to 14 do
@@ -273,7 +273,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             SetResultOnDisposal(FALedgEntry);
-#if not CLEAN18
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
                            not FAPostingGroup.UseStandardDisposal()
@@ -312,7 +311,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                                     end;
                         end else
                             // NAVCZ
-#endif
                         FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
@@ -358,7 +356,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                             "Result on Disposal" := "Result on Disposal"::" ";
                         if i = 10 then
                             "Result on Disposal" := ResultOnDisposal;
-#if not CLEAN18
                         // NAVCZ
                         if (DeprBook."Disposal Calculation Method" <> DeprBook."Disposal Calculation Method"::Net) and
                            not FAPostingGroup.UseStandardDisposal()
@@ -398,7 +395,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                                     end;
                         end else
                             // NAVCZ
-#endif
                         FAInsertLedgEntry.InsertFA(FALedgEntry);
                         PostAllocation(FALedgEntry);
                     end;
@@ -750,3 +746,4 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 }
 
+#endif

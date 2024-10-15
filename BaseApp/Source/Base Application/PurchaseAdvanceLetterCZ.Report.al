@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31020 "Purchase - Advance Letter CZ"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchaseAdvanceLetterCZ.rdlc';
-    Caption = 'Purchase - Advance Letter CZ';
+    Caption = 'Purchase - Advance Letter CZ (Obsolete)';
     PreviewMode = PrintLayout;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -348,9 +352,11 @@ report 31020 "Purchase - Advance Letter CZ"
         with PurchAdvanceLetterHeader do begin
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
+#if not CLEAN17
 
             DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
+#endif
         end;
     end;
 }
-
+#endif

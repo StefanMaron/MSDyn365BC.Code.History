@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5703 "Catalog Item Management"
 {
 
@@ -24,7 +25,6 @@ codeunit 5703 "Catalog Item Management"
         BOMComp: Record "BOM Component";
         ProdBOMLine: Record "Production BOM Line";
         ProdBOMHeader: Record "Production BOM Header";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         ProgWindow: Dialog;
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
@@ -51,12 +51,8 @@ codeunit 5703 "Catalog Item Management"
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock2);
-        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+        if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(NonStock2);
-#if not CLEAN17
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
-            NonstockItemCrossRef(NonStock2);
-#endif
 
         OnAfterNonstockAutoItem(NonStock2, NewItem);
     end;
@@ -181,31 +177,21 @@ codeunit 5703 "Catalog Item Management"
                 OnAfterItemReferenceInsert(ItemReference, NonStock2);
             end;
         end;
+
+        OnAfterNonstockItemCrossRef(NonStock2);
     end;
 
     procedure NonstockItemDel(var Item: Record Item)
     var
-#if not CLEAN16
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         ItemReference: Record "Item Reference";
     begin
         ItemVend.SetRange("Item No.", Item."No.");
         ItemVend.SetRange("Vendor No.", Item."Vendor No.");
         ItemVend.DeleteAll();
 
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then begin
-            ItemCrossReference.SetRange("Item No.", Item."No.");
-            ItemCrossReference.SetRange("Variant Code", Item."Variant Filter");
-            ItemCrossReference.DeleteAll();
-        end;
-#endif
-        if ItemReferenceMgt.IsEnabled() then begin
-            ItemReference.SetRange("Item No.", Item."No.");
-            ItemReference.SetRange("Variant Code", Item."Variant Filter");
-            ItemReference.DeleteAll();
-        end;
+        ItemReference.SetRange("Item No.", Item."No.");
+        ItemReference.SetRange("Variant Code", Item."Variant Filter");
+        ItemReference.DeleteAll();
 
         NonStock.SetCurrentKey("Item No.");
         NonStock.SetRange("Item No.", Item."No.");
@@ -261,12 +247,8 @@ codeunit 5703 "Catalog Item Management"
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
-        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+        if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(NonStock);
-#if not CLEAN17
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
-            NonstockItemCrossRef(NonStock);
-#endif
 
         OnNonStockSalesOnBeforeProgWindowClose(NonStock, NewItem);
         ProgWindow.Close();
@@ -353,12 +335,9 @@ codeunit 5703 "Catalog Item Management"
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
-        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+        if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(NonStock);
-#if not CLEAN17
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
-            NonstockItemCrossRef(NonStock);
-#endif
+
         ProgWindow.Close();
     end;
 
@@ -384,12 +363,8 @@ codeunit 5703 "Catalog Item Management"
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(Nonstock2);
-        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+        if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(Nonstock2);
-#if not CLEAN17
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
-            NonstockItemCrossRef(Nonstock2);
-#endif
     end;
 
     local procedure CheckLicensePermission(TableID: Integer): Boolean
@@ -481,7 +456,7 @@ codeunit 5703 "Catalog Item Management"
             end;
     end;
 
-    local procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
+    procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     var
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -498,7 +473,7 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    local procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
+    procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
     var
         NonstockItemSetupMy: Record "Nonstock Item Setup";
         IsHandled: Boolean;
@@ -558,7 +533,7 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    local procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
+    procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
     var
         Item: Record Item;
     begin
@@ -591,16 +566,7 @@ codeunit 5703 "Catalog Item Management"
     local procedure InitItemFromTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     var
         ItemTempl: Record "Item Templ.";
-#if not CLEAN18
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not ItemTemplMgt.IsEnabled() then begin
-            InitItemFromOldTemplate(Item, NonstockItem);
-            exit;
-        end;
-#endif
         ItemTempl.Get(NonstockItem."Item Templ. Code");
         Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
         Item."Costing Method" := ItemTempl."Costing Method";
@@ -613,38 +579,8 @@ codeunit 5703 "Catalog Item Management"
         OnAfterInitItemFromTemplate(Item, ItemTempl, NonstockItem);
     end;
 
-#if not CLEAN18
-    local procedure InitItemFromOldTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
-    var
-        DummyItemTemplate: Record "Item Template";
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-        ConfigTemplateHeader.FindFirst;
-        DummyItemTemplate.InitializeTempRecordFromConfigTemplate(DummyItemTemplate, ConfigTemplateHeader);
-        Item."Inventory Posting Group" := DummyItemTemplate."Inventory Posting Group";
-        Item."Costing Method" := DummyItemTemplate."Costing Method";
-        Item."Gen. Prod. Posting Group" := DummyItemTemplate."Gen. Prod. Posting Group";
-        Item."Tax Group Code" := DummyItemTemplate."Tax Group Code";
-        Item."VAT Prod. Posting Group" := DummyItemTemplate."VAT Prod. Posting Group";
-        Item."Item Disc. Group" := DummyItemTemplate."Item Disc. Group";
-        Item."Item Category Code" := DummyItemTemplate."Item Category Code";
-
-        OnBeforeCreateNewItem(Item, DummyItemTemplate, NonstockItem);
-    end;
-#endif
-
     local procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
-#if not CLEAN18
-    var
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not ItemTemplMgt.IsEnabled() then
-            NonstockItem.TestField("Item Template Code")
-        else
-#endif
         NonstockItem.TestField("Item Templ. Code");
     end;
 
@@ -787,12 +723,10 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
-#if not CLEAN17
     [IntegrationEvent(false, false)]
     local procedure OnAfterNonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitItemFromTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; NonstockItem: Record "Nonstock Item")
@@ -805,3 +739,4 @@ codeunit 5703 "Catalog Item Management"
     end;
 }
 
+#endif

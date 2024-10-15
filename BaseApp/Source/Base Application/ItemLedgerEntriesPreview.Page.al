@@ -249,6 +249,7 @@ page 167 "Item Ledger Entries Preview"
                     ToolTip = 'Specifies the source number used on the entry.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Source No. 2"; "Source No. 2")
                 {
                     ApplicationArea = Basic, Suite;
@@ -267,6 +268,7 @@ page 167 "Item Ledger Entries Preview"
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;

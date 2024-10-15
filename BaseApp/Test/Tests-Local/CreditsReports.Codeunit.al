@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145001 "Credits Reports"
 {
     Subtype = Test;
@@ -283,3 +284,4 @@ codeunit 145001 "Credits Reports"
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11749 "Cash Desk Activities"
 {
     Caption = 'Cash Desk Activities (Obsolete)';
@@ -93,4 +94,4 @@ page 11749 "Cash Desk Activities"
         FilterGroup(0);
     end;
 }
-
+#endif

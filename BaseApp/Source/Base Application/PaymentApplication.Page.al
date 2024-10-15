@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1292 "Payment Application"
 {
     Caption = 'Payment Application';
@@ -52,6 +53,10 @@ page 1292 "Payment Application"
                     Caption = 'Variable Symbol';
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(SpecificSymbol; BankAccReconLine."Specific Symbol")
                 {
@@ -59,6 +64,10 @@ page 1292 "Payment Application"
                     Caption = 'Specific Symbol';
                     Editable = false;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
             group("Open Entries")
@@ -222,18 +231,30 @@ page 1292 "Payment Application"
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the additional symbol of bank payments.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field("Variable Symbol"; "Variable Symbol")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the detail information for payment.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field("Constant Symbol"; "Constant Symbol")
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
                         ToolTip = 'Specifies the additional symbol of bank payments.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field("Match Confidence"; "Match Confidence")
                     {
@@ -569,6 +590,7 @@ page 1292 "Payment Application"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetWithSetup(WithSetupNew: Boolean)
     begin
         // NAVCZ
@@ -582,3 +604,4 @@ page 1292 "Payment Application"
     end;
 }
 
+#endif

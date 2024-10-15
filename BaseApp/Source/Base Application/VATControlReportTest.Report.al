@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31101 "VAT Control Report - Test"
 {
     DefaultLayout = RDLC;
@@ -523,3 +524,5 @@ report 31101 "VAT Control Report - Test"
     end;
 }
 
+
+#endif

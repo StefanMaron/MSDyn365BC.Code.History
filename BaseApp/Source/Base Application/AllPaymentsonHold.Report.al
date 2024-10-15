@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11780 "All Payments on Hold"
 {
     DefaultLayout = RDLC;
@@ -190,4 +191,4 @@ report 11780 "All Payments on Hold"
         Vendor_Ledger_Entry__Due_Date_CaptionLbl: Label 'Due Date';
         VendorTotalCaptionLbl: Label 'Total (LCY)';
 }
-
+#endif

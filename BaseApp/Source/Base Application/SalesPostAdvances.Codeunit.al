@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 31000 "Sales-Post Advances"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -6,6 +7,9 @@ codeunit 31000 "Sales-Post Advances"
                   TableData "Sales Cr.Memo Header" = im,
                   TableData "Sales Cr.Memo Line" = im,
                   TableData "Sales Advance Letter Entry" = rimd;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -166,8 +170,10 @@ codeunit 31000 "Sales-Post Advances"
             SalesAdvanceLetterHeader."Language Code" := "Language Code";
             SalesAdvanceLetterHeader."Payment Terms Code" := "Prepmt. Payment Terms Code";
             SalesAdvanceLetterHeader."Payment Method Code" := "Payment Method Code";
+#if not CLEAN17
             SalesAdvanceLetterHeader."Registration No." := "Registration No.";
             SalesAdvanceLetterHeader."Tax Registration No." := "Tax Registration No.";
+#endif
             SalesAdvanceLetterHeader."VAT Country/Region Code" := "VAT Country/Region Code";
 
             SalesAdvanceLetterHeader."Template Code" := AdvanceTemplCode;
@@ -1021,7 +1027,9 @@ codeunit 31000 "Sales-Post Advances"
             "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
             "Posting Date" := PostingDate;
             "Document Date" := PostingDate;
+#if not CLEAN17
             "VAT Date" := VATDate;
+#endif
             if "Currency Code" <> '' then
                 "Currency Factor" := GetInvCurrFactor(SalesAdvanceLetterHeader."No.");
             "Pre-Assigned No. Series" := '';
@@ -1033,12 +1041,14 @@ codeunit 31000 "Sales-Post Advances"
             "External Document No." := SalesAdvanceLetterHeader."External Document No.";
             "Your Reference" := SalesAdvanceLetterHeader."Your Reference";
             "Language Code" := SalesAdvanceLetterHeader."Language Code";
+#if not CLEAN17
             "Registration No." := SalesAdvanceLetterHeader."Registration No.";
             "Tax Registration No." := SalesAdvanceLetterHeader."Tax Registration No.";
+#endif
             if SalesAdvanceLetterHeader."Order No." <> '' then
                 "Prepayment Order No." := SalesHeader."No.";
             "Letter No." := SalesAdvanceLetterHeader."No.";
-            OnPostLetter_SetInvHeaderOnBeforeInsertSalesInvoiceHeader(SalesAdvanceLetterHeader, SalesInvoiceHeader);
+            OnPostLetter_SetInvHeaderOnBeforeInsertSalesInvoiceHeader(SalesAdvanceLetterHeader, SalesInvoiceHeader, VATDate);
             Insert;
         end;
     end;
@@ -1079,7 +1089,9 @@ codeunit 31000 "Sales-Post Advances"
     begin
         with SalesCrMemoHeader do begin
             Init;
+#if not CLEAN18
             SalesInvoiceHeader."Bank Account Code" := '';
+#endif
             TransferFields(SalesInvoiceHeader);
             "No." := GenJnlLineDocNo;
             "Payment Discount %" := 0;
@@ -1094,12 +1106,16 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "Reason Code" := SalesAdvanceLetterHeader."Reason Code";
+#if not CLEAN17
             "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
+#endif
             "Posting Date" := SalesAdvanceLetterHeader."Document Date";
             "Document Date" := "Posting Date";
+#if not CLEAN17
             "VAT Date" := SalesAdvanceLetterHeader."VAT Date";
             IF "VAT Date" = 0D THEN
                 "VAT Date" := "Posting Date";
+#endif
             OnPostLetter_SetCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader);
             Insert;
         end;
@@ -1133,7 +1149,9 @@ codeunit 31000 "Sales-Post Advances"
             "Advance Letter No." := SalesAdvanceLetterHeader."No.";
             "Advance Letter Line No." := PrepaymentInvLineBuffer."Line No.";
             "Posting Date" := PostingDate;
+#if not CLEAN17
             "VAT Date" := VATDate;
+#endif
             "Document Date" := "Posting Date";
             Description := PostingDescription;
             Prepayment := true;
@@ -1199,7 +1217,7 @@ codeunit 31000 "Sales-Post Advances"
             "Source No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
             "External Document No." := SalesAdvanceLetterHeader."External Document No.";
         end;
-        OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesAdvanceLetterEntry, GenJournalLine, DocumentType);
+        OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesAdvanceLetterEntry, GenJournalLine, VATDate, DocumentType);
     end;
 
     local procedure PostLetter_UpdtAdvLines(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; LineAmount: Decimal; PostingDate: Date)
@@ -1793,7 +1811,9 @@ codeunit 31000 "Sales-Post Advances"
     local procedure PrepareGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header")
     begin
         GenJnlLine."Posting Date" := SalesInvHeader."Posting Date";
+#if not CLEAN17
         GenJnlLine."VAT Date" := SalesInvHeader."VAT Date";
+#endif
         GenJnlLine."Document Date" := SalesInvHeader."Document Date";
         GenJnlLine."Prepayment Type" := GenJnlLine."Prepayment Type"::Advance;
         GenJnlLine."Reason Code" := SalesInvHeader."Reason Code";
@@ -2576,7 +2596,10 @@ codeunit 31000 "Sales-Post Advances"
         SalesHeader.TransferFields(SalesAdvanceLetterHeader);
         CopyBillToSellFromAdvLetter(SalesHeader, SalesAdvanceLetterHeader);
 
+#if not CLEAN17
         SalesHeader."VAT Date" := VATDate;
+
+#endif
 
         SourceCodeSetup.Get();
         SrcCode := SourceCodeSetup.Sales;
@@ -2584,10 +2607,14 @@ codeunit 31000 "Sales-Post Advances"
         // Create posted header
         with SalesCrMemoHeader do begin
             Init;
+#if not CLEAN18
             SalesHeader."Bank Account Code" := '';
+#endif
             TransferFields(SalesHeader);
             "Posting Date" := PostingDate;
+#if not CLEAN17
             "VAT Date" := VATDate;
+#endif
             "Document Date" := PostingDate;
             "Currency Factor" :=
               CurrExchRate.ExchangeRate(PostingDate, SalesHeader."Currency Code");
@@ -2602,8 +2629,10 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "Reason Code" := SalesAdvanceLetterHeader."Reason Code";
+#if not CLEAN17
             "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-            OnPostVATCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader);
+#endif
+            OnPostVATCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader, VATDate);
             Insert;
         end;
     end;
@@ -2647,7 +2676,9 @@ codeunit 31000 "Sales-Post Advances"
             "Advance Letter No." := SalesAdvanceLetterHeader."No.";
             "Advance Letter Line No." := PrepaymentInvLineBuffer."Line No.";
             "Posting Date" := PostingDate;
+#if not CLEAN17
             "VAT Date" := VATDate;
+#endif
             "Document Date" := PostingDate;
             Description := PrepaymentInvLineBuffer.Description;
             Prepayment := true;
@@ -2703,7 +2734,7 @@ codeunit 31000 "Sales-Post Advances"
             "Posting No. Series" := SalesCrMemoHeader."No. Series";
             "Reason Code" := SalesCrMemoHeader."Reason Code";
         end;
-        OnAfterPostVATCrMemoPrepareGL(GenJnlLine, SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesCrMemoHeader);
+        OnAfterPostVATCrMemoPrepareGL(GenJnlLine, SalesAdvanceLetterHeader, PrepaymentInvLineBuffer, SalesCrMemoHeader, VATDate);
     end;
 
     local procedure PostVATCrMemo_UpdtLine(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
@@ -2894,7 +2925,9 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
         GenJnlLine."Posting Date" := PostingDate;
+#if not CLEAN17
         GenJnlLine."VAT Date" := VATDate;
+#endif
         GenJnlLine."Document Date" := PostingDate;
         GenJnlLine."Prepayment Type" := GenJnlLine."Prepayment Type"::Advance;
         GenJnlLine."Document No." := DocumentNo;
@@ -2906,7 +2939,7 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."VAT Registration No." := SalesAdvanceLetterHeader."VAT Registration No.";
         GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
         GenJnlLine."Source No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
-        OnPostRefundCorrToGLOnFillAdvanceRefundGenJnlLine(SalesAdvanceLetterHeader, GenJnlLine);
+        OnPostRefundCorrToGLOnFillAdvanceRefundGenJnlLine(SalesAdvanceLetterHeader, GenJnlLine, VATDate);
 
         if TempCustLedgEntry.FindSet then
             repeat
@@ -2946,7 +2979,9 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Financial Void" := true;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Posting Date" := PostingDate;
+#if not CLEAN17
         GenJnlLine."VAT Date" := VATDate;
+#endif
         GenJnlLine."Document Date" := PostingDate;
         GenJnlLine."Document No." := DocumentNo;
         GenJnlLine.Validate("Account No.", SalesAdvanceLetterHeader."Bill-to Customer No.");
@@ -2965,10 +3000,12 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Shortcut Dimension 1 Code" := SalesAdvanceLetterHeader."Shortcut Dimension 1 Code";
         GenJnlLine."Shortcut Dimension 2 Code" := SalesAdvanceLetterHeader."Shortcut Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := SalesAdvanceLetterHeader."Dimension Set ID";
+#if not CLEAN18
         GenJnlLine."Variable Symbol" := SalesAdvanceLetterHeader."Variable Symbol";
         GenJnlLine."Constant Symbol" := SalesAdvanceLetterHeader."Constant Symbol";
         GenJnlLine."Specific Symbol" := SalesAdvanceLetterHeader."Specific Symbol";
-        OnPostRefundCorrToGLOnBeforePostAdvancePaymentGenJnlLine(SalesAdvanceLetterHeader, GenJnlLine);
+#endif
+        OnPostRefundCorrToGLOnBeforePostAdvancePaymentGenJnlLine(SalesAdvanceLetterHeader, GenJnlLine, VATDate);
 
         if GenJnlLine.Amount <> 0 then
             GenJnlPostLine.RunWithCheck(GenJnlLine);
@@ -3174,12 +3211,16 @@ codeunit 31000 "Sales-Post Advances"
         TempSalesAdvanceLetterEntry."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
         TempSalesAdvanceLetterEntry."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
         TempSalesAdvanceLetterEntry."VAT %" := VATPct;
+#if not CLEAN18
         TempSalesAdvanceLetterEntry."VAT Identifier" := VATEntry."VAT Identifier";
+#endif
         TempSalesAdvanceLetterEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type";
         TempSalesAdvanceLetterEntry."VAT Base Amount (LCY)" := VATEntry."Advance Base";
         TempSalesAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempSalesAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
+#if not CLEAN17
         TempSalesAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
+#endif
         OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(TempSalesAdvanceLetterEntry, VATEntry);
         TempSalesAdvanceLetterEntry.Modify();
     end;
@@ -3495,7 +3536,9 @@ codeunit 31000 "Sales-Post Advances"
                 GenJnlLine.Init();
                 GenJnlLine."Document No." := DtldCustLedgEntry."Document No.";
                 GenJnlLine."Posting Date" := DtldCustLedgEntry."Posting Date";
+#if not CLEAN17
                 GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
+#endif
                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
                 GenJnlLine."Account No." := DtldCustLedgEntry."Customer No.";
                 GenJnlLine.Correction := true;
@@ -3725,6 +3768,9 @@ codeunit 31000 "Sales-Post Advances"
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
         VATPostingSetup: Record "VAT Posting Setup";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+#if CLEAN18
+        TempVATAmountLineLCY: Record "VAT Amount Line" temporary;
+#endif
         AdvanceLink: Record "Advance Link";
         CustLedgEntry: Record "Cust. Ledger Entry";
         ResidumAmtLCY: Decimal;
@@ -3763,10 +3809,21 @@ codeunit 31000 "Sales-Post Advances"
                             TempVATAmountLine."VAT %" := SalesAdvanceLetterLine."VAT %";
                             TempVATAmountLine.Modified := true;
                             TempVATAmountLine.Positive := SalesAdvanceLetterLine."Amount To Invoice" >= 0;
+#if not CLEAN18
                             TempVATAmountLine."Currency Code" := SalesAdvanceLetterLine."Currency Code";
+#endif
                             TempVATAmountLine.Quantity := 1;
                             TempVATAmountLine.Insert();
+#if CLEAN18
+                            TempVATAmountLineLCY := TempVATAmountLine;
+                            TempVATAmountLineLCY.Insert();
+#endif
                         end;
+#if CLEAN18
+                        TempVATAmountLineLCY.Get(
+                            TempVATAmountLine."VAT Identifier", TempVATAmountLine."VAT Calculation Type",
+                            TempVATAmountLine."Tax Group Code", TempVATAmountLine."Use Tax", TempVATAmountLine.Positive);
+#endif
                         TempVATAmountLine."Amount Including VAT" := TempVATAmountLine."Amount Including VAT" +
                             SalesAdvanceLetterLine."Amount To Invoice";
                         TempVATAmountLine.Modify();
@@ -3812,25 +3869,45 @@ codeunit 31000 "Sales-Post Advances"
 
         if TempVATAmountLine.Find('-') then begin
             repeat
+#if CLEAN18
+                TempVATAmountLineLCY.Get(
+                    TempVATAmountLine."VAT Identifier", TempVATAmountLine."VAT Calculation Type",
+                    TempVATAmountLine."Tax Group Code", TempVATAmountLine."Use Tax", TempVATAmountLine.Positive);
+#endif
                 if SalesAdvanceLetterHeader."Currency Code" <> '' then
+#if CLEAN18
+                    TempVATAmountLineLCY."Amount Including VAT" :=
+#else
                     TempVATAmountLine."Amount Including VAT (LCY)" :=
+#endif
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           CustLedgEntry."Posting Date", SalesAdvanceLetterHeader."Currency Code",
                           TempVATAmountLine."Amount Including VAT", CustLedgEntry."Original Currency Factor"))
                 else
+#if CLEAN18
+                    TempVATAmountLineLCY."Amount Including VAT" := TempVATAmountLine."Amount Including VAT";
+#else
                     TempVATAmountLine."Amount Including VAT (LCY)" := TempVATAmountLine."Amount Including VAT";
+#endif
 
                 TempVATAmountLine."VAT Amount" :=
                     Round(TempVATAmountLine."Amount Including VAT" * TempVATAmountLine."VAT %" / (100 + TempVATAmountLine."VAT %"),
                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
 
+#if CLEAN18
+                TempVATAmountLineLCY."VAT Amount" :=
+#else
                 TempVATAmountLine."VAT Amount (LCY)" :=
+#endif
                     Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           CustLedgEntry."Posting Date", SalesAdvanceLetterHeader."Currency Code",
                           TempVATAmountLine."VAT Amount", CustLedgEntry."Original Currency Factor"));
                 TempVATAmountLine.Modify();
+#if CLEAN18
+                TempVATAmountLineLCY.Modify();
+#endif
 
                 ResidumAmtLCY := 0;
                 ResidumAmt := 0;
@@ -3843,7 +3920,11 @@ codeunit 31000 "Sales-Post Advances"
                     repeat
                         NewVATAmountLCY := ResidumAmtLCY +
                           (TempPrepmtInvLineBuf."Amount Incl. VAT" / TempVATAmountLine."Amount Including VAT") *
+#if CLEAN18
+                          TempVATAmountLineLCY."VAT Amount";
+#else
                           TempVATAmountLine."VAT Amount (LCY)";
+#endif
                         PrepmtInvLineBuf."VAT Amount (LCY)" := Round(NewVATAmountLCY);
                         PrepmtInvLineBuf."Amount (LCY)" := TempPrepmtInvLineBuf."Amount Incl. VAT (LCY)" -
                           PrepmtInvLineBuf."VAT Amount (LCY)";
@@ -3859,7 +3940,11 @@ codeunit 31000 "Sales-Post Advances"
 
                             NewTotalAmtLCY := ResidumTotalAmtLCY +
                               (TempPrepmtInvLineBuf."Amount Incl. VAT" / TempVATAmountLine."Amount Including VAT") *
+#if CLEAN18
+                              TempVATAmountLineLCY."Amount Including VAT";
+#else
                               TempVATAmountLine."Amount Including VAT (LCY)";
+#endif
                             TempPrepmtInvLineBuf."Amount Incl. VAT (LCY)" := Round(NewTotalAmtLCY);
                             PrepmtInvLineBuf."Amount (LCY)" := TempPrepmtInvLineBuf."Amount Incl. VAT (LCY)" -
                               PrepmtInvLineBuf."VAT Amount (LCY)";
@@ -4619,6 +4704,10 @@ codeunit 31000 "Sales-Post Advances"
         TotalInvoicedAmtLoc: Decimal;
         AdvanceLetterRemainderAmt: Decimal;
         ReduceAmt: Decimal;
+#if CLEAN18
+        SalesLineVATDifferenceLCY: Decimal;
+#endif
+
     begin
         AdvanceLetterLineRelation.Reset();
         TempSalesLine.Reset();
@@ -4634,13 +4723,27 @@ codeunit 31000 "Sales-Post Advances"
            (SalesHeader."Adv.Letter Link.Amt. to Deduct" > 0)
         then begin
             AdvanceLetterRemainderAmt := SalesHeader."Adv.Letter Link.Amt. to Deduct" - TotalInvoicedAmtLoc;
+#if CLEAN18
+            SalesLine.SetFilter("VAT Difference", '>0');
+#else
             SalesLine.SetFilter("VAT Difference (LCY)", '>0');
+#endif
             SalesLine.SetFilter("Prepmt Amt to Deduct", '<>0');
             SalesLine.SetRange("Adjust Prepmt. Relation", true);
             if SalesLine.FindSet then
                 repeat
+#if CLEAN18
+                    SalesLineVATDifferenceLCY := Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                            SalesHeader."Posting Date", SalesHeader."Currency Code",
+                            SalesLine."VAT Difference", SalesHeader."Currency Factor"));
+
+                    if AdvanceLetterRemainderAmt > SalesLineVATDifferenceLCY then
+                        ReduceAmt := SalesLineVATDifferenceLCY
+#else
                     if AdvanceLetterRemainderAmt > SalesLine."VAT Difference (LCY)" then
                         ReduceAmt := SalesLine."VAT Difference (LCY)"
+#endif
                     else
                         ReduceAmt := AdvanceLetterRemainderAmt;
                     AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
@@ -4665,7 +4768,11 @@ codeunit 31000 "Sales-Post Advances"
                         until (AdvanceLetterLineRelation.Next() = 0) or (ReduceAmt = 0);
                 until (SalesLine.Next() = 0) or (AdvanceLetterRemainderAmt = 0);
             if AdvanceLetterRemainderAmt > 0 then begin
+#if CLEAN18
+                SalesLine.SetRange("VAT Difference");
+#else
                 SalesLine.SetRange("VAT Difference (LCY)");
+#endif
                 SalesLine.SetFilter("Prepmt Amt to Deduct", '<>0');
                 SalesLine.SetRange("Adjust Prepmt. Relation", true);
                 if SalesLine.FindSet then
@@ -4893,11 +5000,15 @@ codeunit 31000 "Sales-Post Advances"
             TempVATAmountLine."VAT Base" -= BaseToDeduct;
             TempVATAmountLine."Amount Including VAT" -= (VATAmtToDeduct + BaseToDeduct);
 
+#if not CLEAN18
             TempVATAmountLine."VAT Amount (LCY)" -= VATAmountLCY;
             TempVATAmountLine."VAT Base (LCY)" -= BaseToDeductLCY;
             TempVATAmountLine."Amount Including VAT (LCY)" -= (VATAmountLCY + BaseToDeductLCY);
+#endif
             TempVATAmountLine."Calculated VAT Amount" := TempVATAmountLine."VAT Amount";
+#if not CLEAN18
             TempVATAmountLine."Calculated VAT Amount (LCY)" := TempVATAmountLine."VAT Amount (LCY)";
+#endif            
             TempVATAmountLine.Modify();
         end;
     end;
@@ -5009,8 +5120,13 @@ codeunit 31000 "Sales-Post Advances"
                 TempVATAmountLineOrigSum := TempSumVATAmountLine;
                 TempVATAmountLineOrigSum.Insert();
             until TempSumVATAmountLine.Next() = 0;
+#if CLEAN18
+        TempSumVATAmountLine.SetFilter("Amount Including VAT", '<>0');
+        TempSumVATAmountLine.SetRange("VAT Difference", 0);
+#else
         TempSumVATAmountLine.SetFilter("Amount Including VAT (LCY)", '<>0');
         TempSumVATAmountLine.SetRange("VAT Difference (LCY)", 0);
+#endif
         TempSumVATAmountLine.SetRange("VAT Difference", 0);
         if TempSumVATAmountLine.FindSet then begin
             repeat
@@ -5043,8 +5159,8 @@ codeunit 31000 "Sales-Post Advances"
                         VATPostingSetup.TestField("Sales Ded. VAT Base Adj. Acc.");
                         if TempSalesLine.GetCPGInvRoundAcc(SalesHeader) = VATPostingSetup."Sales Ded. VAT Base Adj. Acc." then
                             Error(
-                              Text4005251Err, VATPostingSetup.FieldCaption("Sales Ded. VAT Base Adj. Acc."),
-                              CustPostingGroup.FieldCaption("Invoice Rounding Account"));
+                            Text4005251Err, VATPostingSetup.FieldCaption("Sales Ded. VAT Base Adj. Acc."),
+                            CustPostingGroup.FieldCaption("Invoice Rounding Account"));
                         SalesLineCorr.SetRange("Document Type", SalesHeader."Document Type");
                         SalesLineCorr.SetRange("Document No.", SalesHeader."No.");
                         SalesLineCorr.SetRange("VAT Bus. Posting Group", TempSalesLine."VAT Bus. Posting Group");
@@ -5149,15 +5265,19 @@ codeunit 31000 "Sales-Post Advances"
                         TempVATAmountLine."VAT Base" := TempVATAmountLine."Amount Including VAT" - TempVATAmountLine."VAT Amount"
                     else
                         TempVATAmountLine."Amount Including VAT" := TempVATAmountLine."VAT Amount" + TempVATAmountLine."VAT Base";
+#if not CLEAN18
                     if SalesHeader."Currency Code" = '' then begin
                         TempVATAmountLine.Validate("VAT Amount (LCY)", TempVATAmountLine."VAT Amount");
                         TempVATAmountLine."VAT Base (LCY)" := TempVATAmountLine."VAT Base";
                         TempVATAmountLine."Amount Including VAT (LCY)" := TempVATAmountLine."Amount Including VAT";
                     end;
                     TempVATAmountLine."Modified (LCY)" := true;
+#endif
                     TempVATAmountLine.Modified := true;
                     TempVATAmountLine.Modify();
+#if not CLEAN18
                     TempVATAmountLine.ModifyAll("Modified (LCY)", true);
+#endif
                     TempVATAmountLine.ModifyAll(Modified, true);
                 until TempVATAmountLineDiff.Next() = 0;
             end;
@@ -5190,9 +5310,11 @@ codeunit 31000 "Sales-Post Advances"
                         TempVATAmountLineSum."Inv. Disc. Base Amount" += TempVATAmountLineNeg."Inv. Disc. Base Amount";
                         TempVATAmountLineSum."Invoice Discount Amount" += TempVATAmountLineNeg."Invoice Discount Amount";
                         TempVATAmountLineSum."VAT Difference" += TempVATAmountLineNeg."VAT Difference";
+#if not CLEAN18
                         TempVATAmountLineSum."VAT Base (LCY)" += TempVATAmountLineNeg."VAT Base (LCY)";
                         TempVATAmountLineSum."VAT Amount (LCY)" += TempVATAmountLineNeg."VAT Amount (LCY)";
                         TempVATAmountLineSum."Amount Including VAT (LCY)" += TempVATAmountLineNeg."Amount Including VAT (LCY)";
+#endif
                     end;
                 end;
                 if TempVATAmountLineSum."Amount Including VAT" > 0 then
@@ -5365,16 +5487,21 @@ codeunit 31000 "Sales-Post Advances"
         SalesHeader.Init();
         SalesHeader.TransferFields(SalesAdvanceLetterHeader);
         CopyBillToSellFromAdvLetter(SalesHeader, SalesAdvanceLetterHeader);
+#if not CLEAN17
         SalesHeader."VAT Date" := VATDate;
-
+#endif
         // Create posted header
         with SalesCrMemoHeader do begin
             Init;
+#if not CLEAN18
             SalesHeader."Bank Account Code" := '';
+#endif
             TransferFields(SalesHeader);
             "No." := DocumentNo;
             "Posting Date" := PostingDate;
+#if not CLEAN17
             "VAT Date" := VATDate;
+#endif
             "Document Date" := PostingDate;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "User ID" := UserId;
@@ -5383,8 +5510,10 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Currency Factor" :=
               CurrExchRate.ExchangeRate(PostingDate, SalesHeader."Currency Code");
+#if not CLEAN17
             "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-            OnCreateBlankCrMemoOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader);
+#endif
+            OnCreateBlankCrMemoOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader, VATDate);
             Insert;
         end;
 
@@ -5543,12 +5672,12 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostVATCrMemoPrepareGL(var GenJournalLine: Record "Gen. Journal Line"; SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure OnAfterPostVATCrMemoPrepareGL(var GenJournalLine: Record "Gen. Journal Line"; SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; VATDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostLetter_SetInvHeaderOnBeforeInsertSalesInvoiceHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    local procedure OnPostLetter_SetInvHeaderOnBeforeInsertSalesInvoiceHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; VATDate: Date)
     begin
     end;
 
@@ -5558,7 +5687,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostVATCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure OnPostVATCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; VATDate: Date)
     begin
     end;
 
@@ -5578,7 +5707,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostRefundCorrToGLOnFillAdvanceRefundGenJnlLine(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnPostRefundCorrToGLOnFillAdvanceRefundGenJnlLine(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var GenJnlLine: Record "Gen. Journal Line"; VATDate: Date)
     begin
     end;
 
@@ -5588,7 +5717,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostRefundCorrToGLOnBeforePostAdvancePaymentGenJnlLine(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnPostRefundCorrToGLOnBeforePostAdvancePaymentGenJnlLine(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var GenJnlLine: Record "Gen. Journal Line"; VATDate: Date)
     begin
     end;
 
@@ -5678,12 +5807,12 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateBlankCrMemoOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure OnCreateBlankCrMemoOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; VATDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option Invoice,"Credit Memo")
+    local procedure OnAfterPostLetterPostToGL(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line"; VATDate: Date; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 
@@ -5867,4 +5996,4 @@ codeunit 31000 "Sales-Post Advances"
     begin
     end;
 }
-
+#endif

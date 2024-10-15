@@ -1,13 +1,17 @@
+#if not CLEAN19
 page 31022 "Purchase Advance Letters"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Purchase Advance Letters';
+    Caption = 'Purchase Advance Letters (Obsolete)';
     CardPageID = "Purchase Advance Letter";
     Editable = false;
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     SourceTable = "Purch. Advance Letter Header";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -392,4 +396,4 @@ page 31022 "Purchase Advance Letters"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
     end;
 }
-
+#endif

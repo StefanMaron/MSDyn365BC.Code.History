@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5167 "Purchase Order Archive"
 {
     Caption = 'Purchase Order Archive';
@@ -128,6 +129,7 @@ page 5167 "Purchase Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Suite;
@@ -137,6 +139,7 @@ page 5167 "Purchase Order Archive"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field("Vendor Order No."; "Vendor Order No.")
                 {
                     ApplicationArea = Suite;
@@ -467,6 +470,7 @@ page 5167 "Purchase Order Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -485,6 +489,7 @@ page 5167 "Purchase Order Archive"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Version)
             {
@@ -690,8 +695,8 @@ page 5167 "Purchase Order Archive"
 
     trigger OnAfterGetRecord()
     begin
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     var
@@ -704,3 +709,4 @@ page 5167 "Purchase Order Archive"
         IsShipToCountyVisible: Boolean;
 }
 
+#endif

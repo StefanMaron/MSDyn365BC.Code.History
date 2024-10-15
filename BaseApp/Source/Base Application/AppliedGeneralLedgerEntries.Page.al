@@ -127,6 +127,7 @@ page 11777 "Applied General Ledger Entries"
             until DtldGLEntry1.Next() = 0;
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure Caption(): Text
     begin

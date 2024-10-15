@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11715 "Exp. Launcher Payment Order"
 {
     TableNo = "Issued Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     var
@@ -69,4 +73,4 @@ codeunit 11715 "Exp. Launcher Payment Order"
             PAGE.RunModal(PAGE::"Payment Journal", GenJnlLn);
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1220 "SEPA CT-Export File"
 {
     Permissions = TableData "Data Exch. Field" = rimd;
@@ -21,6 +22,7 @@ codeunit 1220 "SEPA CT-Export File"
     var
         ExportToServerFile: Boolean;
 
+    [Obsolete('Merge to W1.', '19.0')]
     [Scope('OnPrem')]
     procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; FileType: Text[10]): Boolean
     var
@@ -73,3 +75,4 @@ codeunit 1220 "SEPA CT-Export File"
     end;
 }
 
+#endif

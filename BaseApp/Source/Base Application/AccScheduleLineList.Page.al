@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31086 "Acc. Schedule Line List"
 {
     Caption = 'Acc. Schedule Line List (Obsolete)';
@@ -56,4 +57,4 @@ page 31086 "Acc. Schedule Line List"
         CurrPage.LookupMode := true;
     end;
 }
-
+#endif

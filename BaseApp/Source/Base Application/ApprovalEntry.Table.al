@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 454 "Approval Entry"
 {
     Caption = 'Approval Entry';
@@ -123,7 +124,7 @@ table 454 "Approval Entry"
         field(22; "Record ID to Approve"; RecordID)
         {
             Caption = 'Record ID to Approve';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(23; "Delegation Date Formula"; DateFormula)
         {
@@ -265,8 +266,12 @@ table 454 "Approval Entry"
         SalesHeader: Record "Sales Header";
         PurchHeader: Record "Purchase Header";
         PaymentOrderHeader: Record "Payment Order Header";
+#if not CLEAN17
         CashDocumentHeader: Record "Cash Document Header";
+#endif
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         RecRef: RecordRef;
@@ -302,6 +307,7 @@ table 454 "Approval Entry"
                     exit(StrSubstNo('%1 ; %2: %3', PaymentOrderHeader."Bank Account Name",
                         PaymentOrderHeader.FieldCaption(Amount), PaymentOrderHeader.Amount));
                 end;
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 begin
                     RecRef.SetTable(CashDocumentHeader);
@@ -309,6 +315,8 @@ table 454 "Approval Entry"
                     exit(StrSubstNo('%1 ; %2: %3', CashDocumentHeader."Cash Document Type",
                         CashDocumentHeader.FieldCaption(Amount), CashDocumentHeader.Amount));
                 end;
+#endif
+#if not CLEAN18
             DATABASE::"Credit Header":
                 begin
                     RecRef.SetTable(CreditHeader);
@@ -316,6 +324,7 @@ table 454 "Approval Entry"
                     exit(StrSubstNo('%1 ; %2: %3', CreditHeader."Company Name",
                         CreditHeader.FieldCaption("Credit Balance (LCY)"), CreditHeader."Credit Balance (LCY)"));
                 end;
+#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     RecRef.SetTable(SalesAdvanceLetterHeader);
@@ -458,3 +467,4 @@ table 454 "Approval Entry"
     end;
 }
 
+#endif

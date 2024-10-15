@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11734 "Cash Document-Post + Print"
 {
     TableNo = "Cash Document Header";
@@ -48,4 +49,4 @@ codeunit 11734 "Cash Document-Post + Print"
         PostedCashDocHeader.PrintRecords(false);
     end;
 }
-
+#endif

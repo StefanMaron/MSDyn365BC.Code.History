@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11735 "Cash Document-Post"
 {
     Permissions = TableData "Posted Cash Document Header" = i,
@@ -470,4 +471,4 @@ codeunit 11735 "Cash Document-Post"
     begin
     end;
 }
-
+#endif

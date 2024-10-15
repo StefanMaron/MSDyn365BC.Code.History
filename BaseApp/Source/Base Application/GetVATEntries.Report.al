@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31100 "Get VAT Entries"
 {
     Caption = 'Get VAT Entries (Obsolete)';
@@ -135,4 +136,4 @@ report 31100 "Get VAT Entries"
         ProcessEntryType := ProcessEntryType::Add;
     end;
 }
-
+#endif

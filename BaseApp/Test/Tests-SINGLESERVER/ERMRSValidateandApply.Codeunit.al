@@ -2309,7 +2309,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
     local procedure CreateFieldMapping(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; OldValue: Text[250]; NewValue: Text[250])
     var
-        ConfigFieldMapping: Record "Config. Field Mapping";
+        ConfigFieldMapping: Record "Config. Field Map";
     begin
         ConfigFieldMapping.Init();
         ConfigFieldMapping.Validate("Package Code", PackageCode);

@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31033 "Purch.Let.Head. - Adv.Link."
 {
-    Caption = 'Purch.Let.Head. - Adv.Link.';
+    Caption = 'Purch.Let.Head. - Adv.Link. (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Advance Letter Header";
     SourceTableView = SORTING("No.");
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -274,4 +278,4 @@ page 31033 "Purch.Let.Head. - Adv.Link."
         LinkingType := LinkingType1;
     end;
 }
-
+#endif

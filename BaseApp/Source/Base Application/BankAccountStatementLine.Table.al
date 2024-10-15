@@ -1,4 +1,5 @@
-﻿table 276 "Bank Account Statement Line"
+#if not CLEAN17
+table 276 "Bank Account Statement Line"
 {
     Caption = 'Bank Account Statement Line';
 
@@ -98,6 +99,8 @@
         CheckLedgEntry: Record "Check Ledger Entry";
 
     procedure DisplayApplication()
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
     begin
         case Type of
             Type::"Bank Account Ledger Entry":
@@ -108,7 +111,15 @@
                     BankAccLedgEntry.SetRange(Open, false);
                     BankAccLedgEntry.SetRange("Statement Status", BankAccLedgEntry."Statement Status"::Closed);
                     BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
-                    BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+
+                    BankAccRecMatchBuffer.SetRange("Bank Account No.", "Bank Account No.");
+                    BankAccRecMatchBuffer.SetRange("Statement No.", "Statement No.");
+                    BankAccRecMatchBuffer.SetRange("Statement Line No.", "Statement Line No.");
+
+                    if BankAccRecMatchBuffer.FindFirst() then
+                        BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.")
+                    else
+                        BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
                     OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
                     PAGE.Run(0, BankAccLedgEntry);
                 end;
@@ -142,6 +153,13 @@
         exit('');
     end;
 
+    procedure FilterManyToOneMatches(var BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer")
+    begin
+        BankAccRecMatchBuffer.SetRange("Statement No.", Rec."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", Rec."Bank Account No.");
+        BankAccRecMatchBuffer.SetRange("Statement Line No.", Rec."Statement Line No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDisplayApplication(var BankAccountStatementLine: Record "Bank Account Statement Line")
     begin
@@ -157,4 +175,4 @@
     begin
     end;
 }
-
+#endif

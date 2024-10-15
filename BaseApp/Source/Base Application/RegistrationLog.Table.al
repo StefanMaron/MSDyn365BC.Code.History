@@ -1,7 +1,11 @@
 table 11758 "Registration Log"
 {
     Caption = 'Registration Log';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -95,6 +99,7 @@ table 11758 "Registration Log"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
@@ -138,5 +143,6 @@ table 11758 "Registration Log"
 
         RecordRef.Modify(true);
     end;
+#endif
 }
 

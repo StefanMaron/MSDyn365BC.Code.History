@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31067 "VIES Declaration Subform"
 {
     AutoSplitKey = true;
@@ -173,4 +174,4 @@ page 31067 "VIES Declaration Subform"
         VATRegNoOfOriginalCustEditable := "Record Code" = "Record Code"::"3";
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31042 "Fixed Asset - Analysis 2"
 {
     DefaultLayout = RDLC;
@@ -666,4 +667,4 @@ report 31042 "Fixed Asset - Analysis 2"
         FADateType.CreateTypes;
     end;
 }
-
+#endif

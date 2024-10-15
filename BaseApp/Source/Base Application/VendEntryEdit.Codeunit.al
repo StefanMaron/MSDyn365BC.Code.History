@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 113 "Vend. Entry-Edit"
 {
     Permissions = TableData "Vendor Ledger Entry" = m,
@@ -62,3 +63,4 @@ codeunit 113 "Vend. Entry-Edit"
     end;
 }
 
+#endif

@@ -9,6 +9,20 @@ codeunit 11790 "Local Upgrade Tag Definitions"
     begin
         PerCompanyUpgradeTags.Add(GetCorrectionsForBadReceivableUpgradeTag());
         PerCompanyUpgradeTags.Add(GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVendorTemplateUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntrastatJnlLineShipmentMethodCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemJournalLineShipmentMethodCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemLedgerEntryShipmentMethodCodeUpgradeTag());
+#if CLEAN17
+        PerCompanyUpgradeTags.Add(GetCashDeskWorkflowTemplatesCodeUpgradeTag());
+#endif
+#if CLEAN18
+        PerCompanyUpgradeTags.Add(GetCreditWorkflowTemplatesCodeUpgradeTag());
+#endif
+#if CLEAN19
+        PerCompanyUpgradeTags.Add(GetPaymentOrderWorkflowTemplatesCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAdvanceLetterWorkflowTemplatesCodeUpgradeTag());
+#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -51,4 +65,29 @@ codeunit 11790 "Local Upgrade Tag Definitions"
     begin
         exit('CZ-386361-ItemLedgerEntryShipmentMethodCode-20210122');
     end;
+#if CLEAN17
+    procedure GetCashDeskWorkflowTemplatesCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-403757-CashDeskWorkflowTemplatesCode-20210629');
+    end;
+
+#endif
+#if CLEAN18
+    procedure GetCreditWorkflowTemplatesCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-403757-CreditWorkflowTemplatesCode-20210629');
+    end;
+
+#endif
+#if CLEAN19
+    procedure GetPaymentOrderWorkflowTemplatesCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-403757-PaymentOrderWorkflowTemplatesCode-20210629');
+    end;
+
+    procedure GetAdvanceLetterWorkflowTemplatesCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-403757-AdvanceLetterWorkflowTemplatesCode-20210629');
+    end;
+#endif
 }

@@ -1,4 +1,4 @@
-﻿table 5621 "FA Journal Line"
+table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
 
@@ -505,16 +505,20 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use FAJnlManagement event OnBeforeOpenJournal.', '19.0')]
     procedure CheckFAJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckFAJournalLineUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use FAJnlManagement event OnBeforeOpenJournal.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckFAJournalLineUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var FAJournalLine: Record "FA Journal Line"; FAJnlTemplate: Record "FA Journal Template"; FAJnlBatch: Record "FA Journal Batch"; LastFAJnlLine: Record "FA Journal Line")

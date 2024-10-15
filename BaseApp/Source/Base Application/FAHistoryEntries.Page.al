@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31044 "FA History Entries"
 {
     Caption = 'FA History Entries (Obsolete)';
@@ -109,4 +110,4 @@ page 31044 "FA History Entries"
     }
 #endif
 }
-
+#endif

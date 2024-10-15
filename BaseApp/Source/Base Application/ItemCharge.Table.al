@@ -77,9 +77,14 @@ table 5800 "Item Charge"
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -88,13 +93,19 @@ table 5800 "Item Charge"
                     TestField("Incl. in Intrastat Stat. Value", false);
                 end;
             end;
+#endif
         }
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -103,6 +114,7 @@ table 5800 "Item Charge"
                     TestField("Incl. in Intrastat Amount", false);
                 end;
             end;
+#endif
         }
         field(31070; "Use Ledger Entry Dimensions"; Boolean)
         {
@@ -237,6 +249,7 @@ table 5800 "Item Charge"
     local procedure OnBeforeValidateShortcutDimCode(var ItemCharge: Record "Item Charge"; xItemCharge: Record "Item Charge"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
@@ -248,5 +261,6 @@ table 5800 "Item Charge"
         StatReportingSetup.Get();
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
+#endif
 }
 

@@ -77,14 +77,18 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Purchase Line" = r,
                   tabledata "Standard Sales Line" = r,
+#if not CLEAN18
                   tabledata "Subst. Customer Posting Group" = R,
                   tabledata "Subst. Vendor Posting Group" = R,
+#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Group" = R,
                   tabledata "VAT Assisted Setup Bus. Grp." = r,
                   tabledata "VAT Assisted Setup Templates" = r,
                   tabledata "VAT Business Posting Group" = R,
+#if not CLEAN17
                   tabledata "VAT Period" = R,
+#endif
                   tabledata "VAT Posting Setup" = r,
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5741 "Transfer Order Subform"
 {
     AutoSplitKey = true;
@@ -73,6 +74,7 @@ page 5741 "Transfer Order Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of the item reserved at the transfer-from location.';
                 }
+#if not CLEAN18
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
                     ApplicationArea = Location;
@@ -100,11 +102,15 @@ page 5741 "Transfer Order Subform"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Net Weight"; "Net Weight")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the net weight of the item.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
                 {
@@ -527,3 +533,4 @@ page 5741 "Transfer Order Subform"
     end;
 }
 
+#endif

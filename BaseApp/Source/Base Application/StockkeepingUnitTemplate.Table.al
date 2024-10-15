@@ -1,8 +1,12 @@
 table 31072 "Stockkeeping Unit Template"
 {
     Caption = 'Stockkeeping Unit Template';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Stockkeeping Unit Templates";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 

@@ -1,4 +1,4 @@
-﻿table 156 Resource
+table 156 Resource
 {
     Caption = 'Resource';
     DataCaptionFields = "No.", Name;
@@ -512,6 +512,11 @@
                     Blocked := false;
             end;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+        }
         field(900; "Qty. on Assembly Order"; Decimal)
         {
             CalcFormula = Sum("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
@@ -600,7 +605,11 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -631,6 +640,9 @@
         {
         }
         key(Key8; SystemModifiedAt)
+        {
+        }
+        key(Key9; "Coupled to CRM")
         {
         }
     }
@@ -698,6 +710,8 @@
             Error(Text006, TableCaption, "No.");
 
         DimMgt.DeleteDefaultDim(DATABASE::Resource, "No.");
+
+        DeleteResourceUnitGroup();
     end;
 
     trigger OnInsert()
@@ -722,11 +736,15 @@
         DimMgt.UpdateDefaultDim(
           DATABASE::Resource, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
+
+        UpdateResourceUnitGroup();
     end;
 
     trigger OnModify()
     begin
         "Last Date Modified" := Today;
+
+        UpdateResourceUnitGroup();
     end;
 
     trigger OnRename()
@@ -737,6 +755,8 @@
         DimMgt.RenameDefaultDim(DATABASE::Resource, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Resource, xRec."No.", "No.");
         "Last Date Modified" := Today;
+
+        UpdateResourceUnitGroup();
     end;
 
     var
@@ -768,6 +788,7 @@
         PrivacyBlockedErr: Label 'You cannot create this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
+        ResourceUnitGroupPrefixLbl: Label 'RESOURCE', Locked = true;
 
     procedure AssistEdit(OldRes: Record Resource): Boolean
     var
@@ -911,6 +932,42 @@
                 Error(PrivacyBlockedPostErr, "No.");
             Error(PrivacyBlockedErr, "No.");
         end;
+    end;
+
+    local procedure UpdateResourceUnitGroup()
+    var
+        UnitGroup: Record "Unit Group";
+        Modified: Boolean;
+    begin
+        if UnitGroup.Get(UnitGroup."Source Type"::Resource, Rec.SystemId) then begin
+            if UnitGroup."Code" <> ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR' then begin
+                UnitGroup."Code" := ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
+                Modified := true;
+            end;
+            if UnitGroup."Source Name" <> Rec.Name then begin
+                UnitGroup."Source Name" := Rec.Name;
+                Modified := true;
+            end;
+            if Modified then
+                UnitGroup.Modify();
+            exit;
+        end else begin
+            UnitGroup.Init();
+            UnitGroup."Source Id" := Rec.SystemId;
+            UnitGroup."Source No." := Rec."No.";
+            UnitGroup."Code" := ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
+            UnitGroup."Source Name" := Rec.Name;
+            UnitGroup."Source Type" := UnitGroup."Source Type"::Resource;
+            UnitGroup.Insert();
+        end;
+    end;
+
+    local procedure DeleteResourceUnitGroup()
+    var
+        UnitGroup: Record "Unit Group";
+    begin
+        if UnitGroup.Get(UnitGroup."Source Type"::Resource, Rec.SystemId) then
+            UnitGroup.Delete();
     end;
 
     [IntegrationEvent(false, false)]

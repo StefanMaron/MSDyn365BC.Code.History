@@ -1,4 +1,5 @@
-﻿table 5200 Employee
+#if not CLEAN17
+table 5200 Employee
 {
     Caption = 'Employee';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
@@ -718,3 +719,4 @@
     end;
 }
 
+#endif

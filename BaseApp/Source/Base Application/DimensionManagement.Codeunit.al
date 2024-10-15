@@ -43,8 +43,10 @@ codeunit 408 DimensionManagement
         DimSetFilterCtr: Integer;
         IsCollectErrorsMode: Boolean;
         SourceCode: Code[10];
+#if not CLEAN17
         [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
         DontCheckDim: Boolean;
+#endif
         InitDimQst: Label 'Do you want to initialize dimensions the selected tables. This may take some time and you can undo your changes. Do you really want to continue?';
         EnterDimErr: Label 'You must enter dimension %1.', Comment = '%1 = dimension code';
         DimValueErr: Label '%1 %2 must match the filter %3.', Comment = '%1 = fieldcaption of dimension value code; %2 = dimension code; %3 = dimension value code';
@@ -223,7 +225,7 @@ codeunit 408 DimensionManagement
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         i: Integer;
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         GlobalDimVal1 := '';
         GlobalDimVal2 := '';
         DimSetEntry.Reset();
@@ -298,7 +300,7 @@ codeunit 408 DimensionManagement
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
-    local procedure GetGLSetup()
+    procedure GetGLSetup(var GLSetupShortcutDimCode: array[8] of Code[20])
     var
         GLSetup: Record "General Ledger Setup";
     begin
@@ -360,7 +362,9 @@ codeunit 408 DimensionManagement
     var
         DimSetEntry: Record "Dimension Set Entry";
         TempDefaultDim: Record "Default Dimension" temporary;
+#if not CLEAN18
         TempDimBuf: Record "Dimension Buffer" temporary;
+#endif
         DimValuePerAccount: Record "Dim. Value per Account";
         IsHandled: Boolean;
         IsChecked: Boolean;
@@ -376,11 +380,12 @@ codeunit 408 DimensionManagement
             if not IsCollectErrorsMode then
                 exit(false);
 
+#if not CLEAN17
         // NAVCZ
         if DontCheckDim then
             exit(true);
         // NAVCZ
-
+#endif
         LastErrorID := GetLastDimErrorID;
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
@@ -751,7 +756,7 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         // NAVCZ
         AutoCreateDimension(TableID, No);
         // NAVCZ
@@ -782,7 +787,7 @@ codeunit 408 DimensionManagement
     begin
         OnBeforeGetDefaultDimID(TableID, No, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo);
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if InheritFromDimSetID > 0 then
             GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
         if TempDimSetEntry0.FindSet then
@@ -1030,7 +1035,7 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -1055,7 +1060,7 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -1112,7 +1117,7 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1178,10 +1183,12 @@ codeunit 408 DimensionManagement
         if IsHandled then
             exit(IsChecked);
 
+#if not CLEAN17
         // NAVCZ
         if DontCheckDim then
             exit(true);
         // NAVCZ
+#endif
         DefaultDim.SetFilter("Value Posting", '<>%1', DefaultDim."Value Posting"::" ");
         NoFilter[2] := '';
         for i := 1 to ArrayLen(TableID) do
@@ -1409,9 +1416,13 @@ codeunit 408 DimensionManagement
             EXIT(Result);
 
         if Dim.Get(DimCode) then begin
+#if CLEAN17
+            if Dim.Blocked then begin
+#else
             // NAVCZ
             if Dim.Blocked and (not DontCheckDim) then begin
                 // NAVCZ
+#endif
                 LogError(
                   Dim.RecordId, Dim.FieldNo(Blocked), StrSubstNo(Text014, Dim.TableCaption, DimCode), '');
                 exit(false);
@@ -1437,8 +1448,12 @@ codeunit 408 DimensionManagement
 
         if (DimCode <> '') and (DimValCode <> '') then
             if DimVal.Get(DimCode, DimValCode) then begin
+#if CLEAN17
+                if DimVal.Blocked then begin
+#else
                 // NAVCZ
                 if DimVal.Blocked and (not DontCheckDim) then begin
+#endif                
                     LogError(
                       DimVal.RecordId, DimVal.FieldNo(Blocked),
                       StrSubstNo(DimValueBlockedErr, DimVal.TableCaption, DimCode, DimValCode), '');
@@ -1506,7 +1521,7 @@ codeunit 408 DimensionManagement
         FindLastErrorMessage(ErrorMessage);
     end;
 
-    local procedure LogError(SourceRecVariant: Variant; SourceFieldNo: Integer; Message: Text; HelpArticleCode: Code[30]) IsLogged: Boolean
+    procedure LogError(SourceRecVariant: Variant; SourceFieldNo: Integer; Message: Text; HelpArticleCode: Code[30]) IsLogged: Boolean
     var
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
@@ -1530,7 +1545,7 @@ codeunit 408 DimensionManagement
     begin
         OnBeforeLookupDimValueCodeNoUpdate(FieldNumber);
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if GLSetupShortcutDimCode[FieldNumber] = '' then
             Error(Text002, GLSetup.TableCaption);
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
@@ -1827,7 +1842,7 @@ codeunit 408 DimensionManagement
     var
         JobTaskDim: Record "Job Task Dimension";
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if JobTaskDim.Get(JobNo, JobTaskNo, GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1848,7 +1863,7 @@ codeunit 408 DimensionManagement
 
     procedure SaveJobTaskTempDim(FieldNumber: Integer; ShortcutDimCode: Code[20])
     begin
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         if ShortcutDimCode <> '' then begin
             if TempJobTaskDimBuffer.Get('', '', GLSetupShortcutDimCode[FieldNumber])
             then begin
@@ -1869,8 +1884,14 @@ codeunit 408 DimensionManagement
     var
         DefaultDim: Record "Default Dimension";
         JobTaskDim: Record "Job Task Dimension";
+        IsHandled: Boolean;
     begin
-        GetGLSetup;
+        IsHandled := false;
+        OnBeforeInsertJobTaskDim(JobNo, JobTaskNo, GlobalDim1Code, GlobalDim2Code, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetGLSetup(GLSetupShortcutDimCode);
         DefaultDim.SetRange("Table ID", DATABASE::Job);
         DefaultDim.SetRange("No.", JobNo);
         if DefaultDim.FindSet(false, false) then
@@ -2413,6 +2434,7 @@ codeunit 408 DimensionManagement
             until DefaultDim.Next() = 0;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetCheckDim(NewPostDate: Date)
@@ -2425,11 +2447,12 @@ codeunit 408 DimensionManagement
             exit;
         end;
 
-        GetGLSetup;
+        GetGLSetup(GLSetupShortcutDimCode);
         GLSetup.Get();
         DontCheckDim := ((ClosingDate(NewPostDate) = NewPostDate) and GLSetup."Dont Check Dimension");
     end;
 
+#endif
     procedure InsertObject(var TempAllObjWithCaption: Record AllObjWithCaption temporary; TableID: Integer)
     var
         AllObjWithCaption: Record AllObjWithCaption;
@@ -2876,12 +2899,12 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimComb(DimensionCombination: Record "Dimension Combination")
+    local procedure OnBeforeCheckDimComb(var DimensionCombination: Record "Dimension Combination")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValueComb(DimensionValueCombination: Record "Dimension Value Combination")
+    local procedure OnBeforeCheckDimValueComb(var DimensionValueCombination: Record "Dimension Value Combination")
     begin
     end;
 
@@ -2957,6 +2980,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

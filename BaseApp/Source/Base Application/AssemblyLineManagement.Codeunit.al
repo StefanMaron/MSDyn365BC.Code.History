@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
@@ -95,16 +96,16 @@ codeunit 905 "Assembly Line Management"
             if AssemblyLine.Type <> AssemblyLine.Type::" " then
                 AssemblyLine.Validate(
                   "Quantity per",
-                  AssemblyLine.CalcQuantityFromBOM(
+                  AssemblyLine.CalcBOMQuantity(
                     BOMComponent.Type, BOMComponent."Quantity per", 1, QtyPerUoM, AssemblyLine."Resource Usage Type"));
             OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent);
             AssemblyLine.Validate(
                 Quantity,
-                AssemblyLine.CalcQuantityFromBOM(
+                AssemblyLine.CalcBOMQuantity(
                     BOMComponent.Type, BOMComponent."Quantity per", Quantity, QtyPerUoM, AssemblyLine."Resource Usage Type"));
             AssemblyLine.Validate(
                 "Quantity to Consume",
-                AssemblyLine.CalcQuantityFromBOM(
+                AssemblyLine.CalcBOMQuantity(
                     BOMComponent.Type, BOMComponent."Quantity per", "Quantity to Assemble", QtyPerUoM, AssemblyLine."Resource Usage Type"));
             AssemblyLine.ValidateDueDate(AssemblyHeader, "Starting Date", ShowDueDateBeforeWorkDateMessage);
             DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate) and ShowDueDateBeforeWorkDateMessage;
@@ -132,7 +133,6 @@ codeunit 905 "Assembly Line Management"
         AddBOMLine(AsmHeader, AssemblyLine, false, BOMComponent, GetWarningMode(), AsmHeader."Qty. per Unit of Measure");
     end;
 
-    [Scope('OnPrem')]
     procedure ExplodeAsmList(var AsmLine: Record "Assembly Line")
     var
         AssemblyHeader: Record "Assembly Header";
@@ -484,7 +484,7 @@ codeunit 905 "Assembly Line Management"
                 if not AssemblyLine.FixedUsage then begin
                     AssemblyLine.InitQtyToConsume;
                     QtyToConsume := AssemblyLine.Quantity * "Quantity to Assemble" / Quantity;
-                    RoundQty(QtyToConsume);
+                    AssemblyLine.RoundQty(QtyToConsume);
                     UpdateQuantityToConsume(AsmHeader, AssemblyLine, QtyToConsume);
                 end;
 
@@ -516,6 +516,7 @@ codeunit 905 "Assembly Line Management"
     local procedure UpdateAssemblyLineQuantity(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; QtyRatio: Decimal)
     var
         IsHandled: Boolean;
+        RoundedQty: Decimal;
     begin
         IsHandled := false;
         OnBeforeUpdateAssemblyLineQuantity(AsmHeader, AssemblyLine, QtyRatio, IsHandled);
@@ -524,8 +525,11 @@ codeunit 905 "Assembly Line Management"
 
         if AssemblyLine.FixedUsage then
             AssemblyLine.Validate(Quantity)
-        else
-            AssemblyLine.Validate(Quantity, AssemblyLine.Quantity * QtyRatio);
+        else begin
+            RoundedQty := AssemblyLine.Quantity * QtyRatio;
+            AssemblyLine.RoundQty(RoundedQty);
+            AssemblyLine.Validate(Quantity, RoundedQty);
+        end;
     end;
 
     procedure ShowDueDateBeforeWorkDateMsg(ActualLineDueDate: Date)
@@ -726,7 +730,6 @@ codeunit 905 "Assembly Line Management"
     procedure CreateWhseItemTrkgForAsmLines(AsmHeader: Record "Assembly Header")
     var
         AssemblyLine: Record "Assembly Line";
-        WhseWkshLine: Record "Whse. Worksheet Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         with AssemblyLine do begin
@@ -734,15 +737,9 @@ codeunit 905 "Assembly Line Management"
             if FindSet() then
                 repeat
                     if ItemTrackingMgt.GetWhseItemTrkgSetup("No.") then
-                        ItemTrackingMgt.InitItemTrkgForTempWkshLine(
-                          WhseWkshLine."Whse. Document Type"::Assembly,
-                          "Document No.",
-                          "Line No.",
-                          DATABASE::"Assembly Line",
-                          "Document Type".AsInteger(),
-                          "Document No.",
-                          "Line No.",
-                          0);
+                        ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+                            "Warehouse Worksheet Document Type"::Assembly, "Document No.", "Line No.",
+                            DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0);
                 until Next() = 0;
         end;
     end;
@@ -854,3 +851,4 @@ codeunit 905 "Assembly Line Management"
     end;
 }
 
+#endif

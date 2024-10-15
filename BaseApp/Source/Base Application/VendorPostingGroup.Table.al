@@ -20,9 +20,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payables Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
+#if not CLEAN19
                       "Payables Account", GLAccountCategory."Account Category"::Liabilities,
                       GLAccountCategoryMgt.GetCII4TradePayables()); // NAVCZ
+#else
+                      "Payables Account", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities);
+#endif
 
                 Validate("Payables Account");
             end;
@@ -32,10 +36,16 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payables Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Payables Account", false, false, GLAccountCategory."Account Category"::Liabilities,
+                    CheckGLAccount(
+#if not CLEAN19
+                      FieldNo("Payables Account"), "Payables Account", false, false, GLAccountCategory."Account Category"::Liabilities,
                       GLAccountCategoryMgt.GetCII4TradePayables()); // NAVCZ
+#else
+                      FieldNo("Payables Account"), "Payables Account", false, false, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetCurrentLiabilities);
+#endif
+#if not CLEAN18
                 CheckOpenVendLedgEntries(false); // NAVCZ
+#endif
             end;
         }
         field(7; "Service Charge Acc."; Code[20])
@@ -48,9 +58,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Service Charge Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
+#if not CLEAN19
                       "Service Charge Acc.", GLAccountCategory."Account Category"::Expense,
                       GLAccountCategoryMgt.GetKOtherFinancialCosts()); // NAVCZ
+#else
+                      "Service Charge Acc.", GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense);
+#endif
 
                 Validate("Service Charge Acc.");
             end;
@@ -60,9 +74,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Expense,
+                    CheckGLAccount(
+#if not CLEAN19
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Expense,
                       GLAccountCategoryMgt.GetKOtherFinancialCosts()); // NAVCZ
+#else
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Liabilities, GLAccountCategoryMgt.GetFeesExpense);
+#endif
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -75,7 +93,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Disc. Debit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Payment Disc. Debit Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Payment Disc. Debit Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Payment Disc. Debit Acc.");
             end;
@@ -85,7 +103,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Disc. Debit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Payment Disc. Debit Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Payment Disc. Debit Acc."), "Payment Disc. Debit Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(9; "Invoice Rounding Account"; Code[20])
@@ -98,7 +116,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Invoice Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Invoice Rounding Account", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Invoice Rounding Account", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Invoice Rounding Account");
             end;
@@ -108,7 +126,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", true, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(10; "Debit Curr. Appln. Rndg. Acc."; Code[20])
@@ -121,7 +139,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Debit Curr. Appln. Rndg. Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Debit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Debit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Debit Curr. Appln. Rndg. Acc.");
             end;
@@ -131,8 +149,8 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Debit Curr. Appln. Rndg. Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Debit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(
+                      FieldNo("Debit Curr. Appln. Rndg. Acc."), "Debit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(11; "Credit Curr. Appln. Rndg. Acc."; Code[20])
@@ -145,7 +163,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Credit Curr. Appln. Rndg. Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Credit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Credit Curr. Appln. Rndg. Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Credit Curr. Appln. Rndg. Acc.");
             end;
@@ -155,8 +173,8 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Credit Curr. Appln. Rndg. Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Credit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(
+                      FieldNo("Credit Curr. Appln. Rndg. Acc."), "Credit Curr. Appln. Rndg. Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(12; "Debit Rounding Account"; Code[20])
@@ -169,7 +187,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Debit Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Debit Rounding Account", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Debit Rounding Account", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Debit Rounding Account");
             end;
@@ -179,7 +197,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Debit Rounding Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Debit Rounding Account", false, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Debit Rounding Account"), "Debit Rounding Account", false, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(13; "Credit Rounding Account"; Code[20])
@@ -192,7 +210,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Credit Rounding Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Credit Rounding Account", GLAccountCategory."Account Category"::Expense, '');
+                    LookupGLAccount("Credit Rounding Account", GLAccountCategory."Account Category"::Expense, '');
 
                 Validate("Credit Rounding Account");
             end;
@@ -202,7 +220,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Credit Rounding Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Credit Rounding Account", false, false, GLAccountCategory."Account Category"::Expense, '');
+                    CheckGLAccount(FieldNo("Credit Rounding Account"), "Credit Rounding Account", false, false, GLAccountCategory."Account Category"::Expense, '');
             end;
         }
         field(16; "Payment Disc. Credit Acc."; Code[20])
@@ -215,7 +233,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Disc. Credit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Payment Disc. Credit Acc.", GLAccountCategory."Account Category"::Income, '');
+                    LookupGLAccount("Payment Disc. Credit Acc.", GLAccountCategory."Account Category"::Income, '');
 
                 Validate("Payment Disc. Credit Acc.");
             end;
@@ -225,7 +243,7 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Disc. Credit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Payment Disc. Credit Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Payment Disc. Credit Acc."), "Payment Disc. Credit Acc.", false, false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(17; "Payment Tolerance Debit Acc."; Code[20])
@@ -238,8 +256,12 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Debit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
+#if not CLEAN19
                       "Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+#else
+                      "Payment Tolerance Debit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+#endif
 
                 Validate("Payment Tolerance Debit Acc.");
             end;
@@ -249,8 +271,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Tolerance Debit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Payment Tolerance Debit Acc.", false, false, GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+                    CheckGLAccount(
+                      FieldNo("Payment Tolerance Debit Acc."), "Payment Tolerance Debit Acc.", false, false,
+#if not CLEAN19
+                      GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+#else
+                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+#endif
             end;
         }
         field(18; "Payment Tolerance Credit Acc."; Code[20])
@@ -263,8 +290,12 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Credit Acc.")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount(
+                    LookupGLAccount(
+#if not CLEAN19
                       "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+#else
+                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+#endif
 
                 Validate("Payment Tolerance Credit Acc.");
             end;
@@ -274,8 +305,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Payment Tolerance Credit Acc.", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount(
-                      "Payment Tolerance Credit Acc.", false, false, GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+                    CheckGLAccount(
+                      FieldNo("Payment Tolerance Credit Acc."), "Payment Tolerance Credit Acc.", false, false,
+#if not CLEAN19
+                      GLAccountCategory."Account Category"::Income, ''); // NAVCZ
+#else
+                      GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeInterest);
+#endif
             end;
         }
         field(20; Description; Text[100])
@@ -290,13 +326,21 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'Advance Account';
             TableRelation = "G/L Account";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnLookup()
             begin
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Advance Account")
                 else
-                    GLAccountCategoryMgt.LookupGLAccount("Advance Account", GLAccountCategory."Account Category"::Assets,
+                    LookupGLAccount("Advance Account", GLAccountCategory."Account Category"::Assets,
                         GLAccountCategoryMgt.GetCII244ShorttermAdvancedPayments());
 
                 Validate("Advance Account");
@@ -307,11 +351,13 @@ table 93 "Vendor Posting Group"
                 if "View All Accounts on Lookup" then
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Advance Account", false, false)
                 else
-                    GLAccountCategoryMgt.CheckGLAccount("Advance Account", false, false, GLAccountCategory."Account Category"::Assets,
+                    CheckGLAccount(FieldNo("Advance Account"), "Advance Account", false, false, GLAccountCategory."Account Category"::Assets,
                         GLAccountCategoryMgt.GetCII244ShorttermAdvancedPayments());
-
+#if not CLEAN18
                 CheckOpenVendLedgEntries(true);
+#endif
             end;
+#endif
         }
     }
 
@@ -333,7 +379,9 @@ table 93 "Vendor Posting Group"
     trigger OnDelete()
     begin
         CheckGroupUsage;
+#if not CLEAN18
         DeleteSubstPostingGroups; // NAVCZ
+#endif
     end;
 
     var
@@ -360,8 +408,8 @@ table 93 "Vendor Posting Group"
     procedure GetPayablesAccount(): Code[20]
     begin
         if "Payables Account" = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Payables Account"));
-        TestField("Payables Account");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Payables Account"));
+
         exit("Payables Account");
     end;
 
@@ -369,13 +417,13 @@ table 93 "Vendor Posting Group"
     begin
         if Debit then begin
             if "Payment Disc. Debit Acc." = '' then
-                PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Payment Disc. Debit Acc."));
-            TestField("Payment Disc. Debit Acc.");
+                PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Payment Disc. Debit Acc."));
+
             exit("Payment Disc. Debit Acc.");
         end;
         if "Payment Disc. Credit Acc." = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Payment Disc. Credit Acc."));
-        TestField("Payment Disc. Credit Acc.");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Payment Disc. Credit Acc."));
+
         exit("Payment Disc. Credit Acc.");
     end;
 
@@ -383,13 +431,13 @@ table 93 "Vendor Posting Group"
     begin
         if Debit then begin
             if "Payment Tolerance Debit Acc." = '' then
-                PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Payment Tolerance Debit Acc."));
-            TestField("Payment Tolerance Debit Acc.");
+                PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Payment Tolerance Debit Acc."));
+
             exit("Payment Tolerance Debit Acc.");
         end;
         if "Payment Tolerance Credit Acc." = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Payment Tolerance Credit Acc."));
-        TestField("Payment Tolerance Credit Acc.");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Payment Tolerance Credit Acc."));
+
         exit("Payment Tolerance Credit Acc.");
     end;
 
@@ -397,13 +445,13 @@ table 93 "Vendor Posting Group"
     begin
         if Debit then begin
             if "Debit Rounding Account" = '' then
-                PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Debit Rounding Account"));
-            TestField("Debit Rounding Account");
+                PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Debit Rounding Account"));
+
             exit("Debit Rounding Account");
         end;
         if "Credit Rounding Account" = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Credit Rounding Account"));
-        TestField("Credit Rounding Account");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Credit Rounding Account"));
+
         exit("Credit Rounding Account");
     end;
 
@@ -411,13 +459,13 @@ table 93 "Vendor Posting Group"
     begin
         if Debit then begin
             if "Debit Curr. Appln. Rndg. Acc." = '' then
-                PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Debit Curr. Appln. Rndg. Acc."));
-            TestField("Debit Curr. Appln. Rndg. Acc.");
+                PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Debit Curr. Appln. Rndg. Acc."));
+
             exit("Debit Curr. Appln. Rndg. Acc.");
         end;
         if "Credit Curr. Appln. Rndg. Acc." = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Credit Curr. Appln. Rndg. Acc."));
-        TestField("Credit Curr. Appln. Rndg. Acc.");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Credit Curr. Appln. Rndg. Acc."));
+
         exit("Credit Curr. Appln. Rndg. Acc.");
     end;
 
@@ -429,16 +477,16 @@ table 93 "Vendor Posting Group"
             GLAccount.Get("Invoice Rounding Account");
             GLAccount.CheckGenProdPostingGroup();
         end else
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Invoice Rounding Account"));
-        TestField("Invoice Rounding Account");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Invoice Rounding Account"));
+
         exit("Invoice Rounding Account");
     end;
 
     procedure GetServiceChargeAccount(): Code[20]
     begin
         if "Service Charge Acc." = '' then
-            PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Service Charge Acc."));
-        TestField("Service Charge Acc.");
+            PostingSetupMgt.LogVendPostingGroupFieldError(Rec, FieldNo("Service Charge Acc."));
+
         exit("Service Charge Acc.");
     end;
 
@@ -455,6 +503,7 @@ table 93 "Vendor Posting Group"
         InvRoundingVisible := PurchSetup."Invoice Rounding";
         ApplnRoundingVisible := PurchSetup."Appln. between Currencies" <> PurchSetup."Appln. between Currencies"::None;
     end;
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
@@ -492,7 +541,7 @@ table 93 "Vendor Posting Group"
     local procedure CheckOpenVendLedgEntries(Prepayment1: Boolean)
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
-        ConfirmManagement: Codeunit "Confirm Management";        
+        ConfirmManagement: Codeunit "Confirm Management";
         Caption1: Text[250];
         ChangeText: Label 'Do you really want to change %1 although open entries exist?';
         IsHandled: Boolean;
@@ -512,7 +561,7 @@ table 93 "Vendor Posting Group"
                 Caption1 := FieldCaption("Advance Account")
             else
                 Caption1 := FieldCaption("Payables Account");
-            if not ConfirmManagement.GetResponse(StrSubstNo(ChangeText, Caption1), false) then                
+            if not ConfirmManagement.GetResponse(StrSubstNo(ChangeText, Caption1), false) then
                 Error('');
         end;
     end;
@@ -521,6 +570,17 @@ table 93 "Vendor Posting Group"
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckOpenVendLedgEntries(var Prepayment1: Boolean; var IsHandled: Boolean);
     begin
+    end;
+#endif
+
+    local procedure CheckGLAccount(ChangedFieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
+    begin
+        GLAccountCategoryMgt.CheckGLAccount(Database::"Vendor Posting Group", ChangedFieldNo, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory);
+    end;
+
+    local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        GLAccountCategoryMgt.LookupGLAccount(Database::"Vendor Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
     end;
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31067 "Suggest VIES Declaration Lines"
 {
     Caption = 'Suggest VIES Declaration Lines (Obsolete)';
@@ -326,3 +327,5 @@ report 31067 "Suggest VIES Declaration Lines"
     end;
 }
 
+
+#endif

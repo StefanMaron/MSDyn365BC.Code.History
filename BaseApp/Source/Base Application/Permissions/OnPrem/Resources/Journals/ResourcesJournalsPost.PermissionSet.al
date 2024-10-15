@@ -19,6 +19,10 @@ permissionset 3300 "Resources Journals - Post"
                   tabledata "Time Sheet Detail Archive" = Rm,
                   tabledata "Time Sheet Header" = R,
                   tabledata "Time Sheet Line" = Rm,
+#if CLEAN17
+                  tabledata "Time Sheet Posting Entry" = R;
+#else
                   tabledata "Time Sheet Posting Entry" = R,
                   tabledata "VAT Period" = R;
+#endif                  
 }

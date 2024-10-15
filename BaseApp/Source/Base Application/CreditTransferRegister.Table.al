@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 1205 "Credit Transfer Register"
 {
     Caption = 'Credit Transfer Register';
@@ -34,7 +35,7 @@ table 1205 "Credit Transfer Register"
         }
         field(6; "No. of Transfers"; Integer)
         {
-            CalcFormula = Count ("Credit Transfer Entry" WHERE("Credit Transfer Register No." = FIELD("No.")));
+            CalcFormula = Count("Credit Transfer Entry" WHERE("Credit Transfer Register No." = FIELD("No.")));
             Caption = 'No. of Transfers';
             FieldClass = FlowField;
         }
@@ -45,7 +46,7 @@ table 1205 "Credit Transfer Register"
         }
         field(8; "From Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("From Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("From Bank Account No.")));
             Caption = 'From Bank Account Name';
             FieldClass = FlowField;
         }
@@ -132,4 +133,4 @@ table 1205 "Credit Transfer Register"
         ExportToServerFile := true;
     end;
 }
-
+#endif

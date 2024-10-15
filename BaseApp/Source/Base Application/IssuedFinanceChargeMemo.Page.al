@@ -169,6 +169,7 @@ page 450 "Issued Finance Charge Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18 
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -178,7 +179,9 @@ page 450 "Issued Finance Charge Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
+#if not CLEAN18            
             group(Payments)
             {
                 Caption = 'Payments';
@@ -278,6 +281,7 @@ page 450 "Issued Finance Charge Memo"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {

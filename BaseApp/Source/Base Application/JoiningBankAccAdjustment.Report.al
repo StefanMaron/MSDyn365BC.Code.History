@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11773 "Joining Bank. Acc. Adjustment"
 {
     DefaultLayout = RDLC;
@@ -390,3 +391,5 @@ report 11773 "Joining Bank. Acc. Adjustment"
         Text002: Label 'Please enter a Filter to Bank Account No..';
 }
 
+
+#endif

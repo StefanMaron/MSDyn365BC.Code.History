@@ -719,7 +719,7 @@ report 5753 "Get Source Documents"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowReceiptDialog(IsHandled);
+        OnBeforeShowReceiptDialog(IsHandled, ErrorOccured, ActivitiesCreated, LineCreated);
         if IsHandled then
             exit;
 
@@ -1060,7 +1060,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowReceiptDialog(var IsHandled: Boolean)
+    local procedure OnBeforeShowReceiptDialog(var IsHandled: Boolean; ErrorOccured: Boolean; ActivitiesCreated: Integer; LineCreated: Boolean)
     begin
     end;
 

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5708 "Release Transfer Document"
 {
     TableNo = "Transfer Header";
@@ -6,10 +7,8 @@ codeunit 5708 "Release Transfer Document"
     trigger OnRun()
     var
         TransLine: Record "Transfer Line";
-#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         IsHandled: Boolean;
     begin
         if Rec.Status = Rec.Status::Released then
@@ -38,7 +37,7 @@ codeunit 5708 "Release Transfer Document"
         Rec.TestField(Status, Rec.Status::Open);
 
         CheckTransLines(TransLine, Rec);
-#if not CLEAN18
+
         // NAVCZ
         GLSetup.Get();
         if GLSetup."User Checks Allowed" then
@@ -63,7 +62,7 @@ codeunit 5708 "Release Transfer Document"
                 end;
             until TransLine.Next() = 0;
         // NAVCZ
-#endif
+
         OnRunOnBeforeSetStatusReleased(Rec);
         Rec.Validate(Status, Rec.Status::Released);
         Rec.Modify();
@@ -149,3 +148,4 @@ codeunit 5708 "Release Transfer Document"
     end;
 }
 
+#endif

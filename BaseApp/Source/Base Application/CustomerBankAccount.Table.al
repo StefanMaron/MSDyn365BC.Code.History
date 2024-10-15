@@ -94,6 +94,7 @@ table 287 "Customer Bank Account"
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -105,6 +106,7 @@ table 287 "Customer Bank Account"
                     CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
                 // NAVCZ
             end;
+#endif
         }
         field(15; "Transit No."; Text[20])
         {
@@ -190,9 +192,14 @@ table 287 "Customer Bank Account"
         {
             BlankZero = true;
             Caption = 'Priority';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Removed from Base Application, use Preferred Bank Account Code instead.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -207,12 +214,17 @@ table 287 "Customer Bank Account"
                         Error(POEText, FieldCaption(Priority), Priority, FieldCaption("Customer No."), "Customer No.");
                 end;
             end;
+#endif
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Removed from Base Application.';
             ObsoleteTag = '18.0';
         }
@@ -224,16 +236,21 @@ table 287 "Customer Bank Account"
         {
             Clustered = true;
         }
+#if not CLEAN18
         key(Key2; "Customer No.", Priority)
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Field "Priority" is removed and cannot be used in an active key.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }

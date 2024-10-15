@@ -7,6 +7,9 @@ page 6630 "Sales Return Order"
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER("Return Order"));
 
+    AboutTitle = 'About sales return order details';
+    AboutText = 'When you receive items back from the customer, you post the quantity received and the quantity you choose to credit the customer. Posting issues a related sales credit memo and return-related documents.';
+
     layout
     {
         area(content)
@@ -47,6 +50,9 @@ page 6630 "Sales Return Order"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer.';
+
+                    AboutTitle = 'Who''s returning the items?';
+                    AboutText = 'This is the customer that bought the items now being returned, and who will be credited if you choose to accept the return.';
 
                     trigger OnValidate()
                     begin
@@ -172,6 +178,7 @@ page 6630 "Sales Return Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -182,6 +189,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field(Correction; Correction)
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -198,6 +206,7 @@ page 6630 "Sales Return Order"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -216,6 +225,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Order Date"; "Order Date")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -319,6 +329,7 @@ page 6630 "Sales Return Order"
                         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -330,6 +341,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -345,6 +357,7 @@ page 6630 "Sales Return Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -354,6 +367,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -536,6 +550,7 @@ page 6630 "Sales Return Order"
                         ToolTip = 'Specifies the name of the contact person at the shipping address.';
                     }
                 }
+#if not CLEAN18
                 field("Physical Transfer"; "Physical Transfer")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -545,6 +560,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
@@ -709,6 +725,7 @@ page 6630 "Sales Return Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -718,6 +735,8 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = BasicEU;
@@ -727,11 +746,13 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -750,6 +771,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
@@ -761,6 +783,7 @@ page 6630 "Sales Return Order"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -862,6 +885,7 @@ page 6630 "Sales Return Order"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -1023,9 +1047,9 @@ page 6630 "Sales Return Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1383,6 +1407,9 @@ page 6630 "Sales Return Order"
                     PromotedOnly = true;
                     ToolTip = 'Copy one or more posted sales document lines in order to reverse the original order.';
 
+                    AboutTitle = 'Choosing what is returned';
+                    AboutText = 'To create lines for the sales return order, you can overview and select lines from the documents posted for a certain customer, and have the information copied here.';
+
                     trigger OnAction()
                     begin
                         GetPstdDocLinesToReverse();
@@ -1435,6 +1462,9 @@ page 6630 "Sales Return Order"
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
+                    AboutTitle = 'Post the quantities you''ve set';
+                    AboutText = 'Choose one of the post actions to trigger receipt and/or crediting of the quantities you entered on the lines. You can post multiple times from the same return order if the items are not received at once.';
+
                     trigger OnAction()
                     begin
                         PostDocument(CODEUNIT::"Sales-Post (Yes/No)");
@@ -1447,6 +1477,7 @@ page 6630 "Sales Return Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1615,8 +1646,8 @@ page 6630 "Sales Return Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1647,11 +1678,7 @@ page 6630 "Sales Return Order"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields;
 

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 11 "Shipment Methods"
 {
     ApplicationArea = Basic, Suite;
@@ -95,3 +96,4 @@ page 11 "Shipment Methods"
     }
 }
 
+#endif

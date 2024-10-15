@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 11705 "Bank Statement Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -97,4 +101,4 @@ codeunit 11705 "Bank Statement Management"
     begin
     end;
 }
-
+#endif

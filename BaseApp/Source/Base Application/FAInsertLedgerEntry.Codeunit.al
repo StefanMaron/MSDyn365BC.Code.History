@@ -1,4 +1,5 @@
-﻿codeunit 5600 "FA Insert Ledger Entry"
+﻿#if not CLEAN19
+codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
                   TableData "FA Depreciation Book" = rim,
@@ -622,6 +623,7 @@
             LastEntryNo := FALedgEntry.GetLastEntryNo();
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     procedure SetFAPostingType2(FAPostingType2: Option " ",AcqCost,BookVal,Appreciation,WrDown)
     begin
@@ -629,6 +631,8 @@
         FAPostingType := FAPostingType2;
     end;
 
+#endif
+    [Obsolete('Moved to Fixed Asset Localization for Czech.', '19.0')]
     procedure SetReasonMaintenanceCode(ReasonMaintenanceCode2: Code[10])
     begin
         // NAVCZ
@@ -697,4 +701,4 @@
     begin
     end;
 }
-
+#endif

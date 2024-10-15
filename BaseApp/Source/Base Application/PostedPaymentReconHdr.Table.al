@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 1295 "Posted Payment Recon. Hdr"
 {
     Caption = 'Posted Payment Recon. Hdr';
@@ -68,4 +69,4 @@ table 1295 "Posted Payment Recon. Hdr"
         exit('');
     end;
 }
-
+#endif

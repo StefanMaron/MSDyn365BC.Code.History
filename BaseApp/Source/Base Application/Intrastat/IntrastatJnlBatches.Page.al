@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 327 "Intrastat Jnl. Batches"
 {
     Caption = 'Intrastat Jnl. Batches';
@@ -132,3 +133,4 @@ page 327 "Intrastat Jnl. Batches"
     end;
 }
 
+#endif

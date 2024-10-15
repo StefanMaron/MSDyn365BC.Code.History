@@ -29,11 +29,7 @@ table 342 "Acc. Sched. Cell Value"
         {
             Caption = 'Schedule Name';
             TableRelation = "Acc. Schedule Name";
-#if CLEAN19
-            ObsoleteState = Removed;
-#else
             ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Field Schedule Name will be removed and this field should not be used.';
             ObsoleteTag = '19.0';
         }
@@ -41,7 +37,6 @@ table 342 "Acc. Sched. Cell Value"
 
     keys
     {
-#if not CLEAN19
         key(Key1; "Schedule Name", "Row No.", "Column No.")
         {
             Clustered = true;
@@ -49,12 +44,6 @@ table 342 "Acc. Sched. Cell Value"
             ObsoleteReason = 'Field Schedule Name will be removed from the primary key.';
             ObsoleteTag = '19.0';
         }
-#else
-        key(Key1; "Row No.", "Column No.")
-        {
-            Clustered = true;           
-        }
-#endif
     }
 
     fieldgroups

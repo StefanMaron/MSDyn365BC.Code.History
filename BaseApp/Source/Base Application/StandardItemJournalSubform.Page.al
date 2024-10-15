@@ -15,6 +15,7 @@ page 755 "Standard Item Journal Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
+#if not CLEAN17
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
                     ApplicationArea = Suite;
@@ -25,6 +26,7 @@ page 755 "Standard Item Journal Subform"
                     Visible = false;
 
                 }
+#endif
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Suite;

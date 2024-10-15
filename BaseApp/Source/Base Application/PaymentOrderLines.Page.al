@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 11718 "Payment Order Lines"
 {
-    Caption = 'Payment Order Lines';
+    Caption = 'Payment Order Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Payment Order Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -85,6 +89,7 @@ page 11718 "Payment Order Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
+#if not CLEAN17
 
                     trigger OnValidate()
                     begin
@@ -92,12 +97,14 @@ page 11718 "Payment Order Lines"
                         if Type <> Type::Vendor then
                             Clear("Third Party Bank Account");
                     end;
+#endif
                 }
                 field("Payment Order No."; "Payment Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Payment Order.';
                 }
+#if not CLEAN17
                 field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -125,6 +132,7 @@ page 11718 "Payment Order Lines"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -132,11 +140,13 @@ page 11718 "Payment Order Lines"
     actions
     {
     }
+#if not CLEAN17
 
     trigger OnAfterGetRecord()
     begin
         if Type <> Type::Vendor then
             Clear("Third Party Bank Account");
     end;
+#endif
 }
-
+#endif

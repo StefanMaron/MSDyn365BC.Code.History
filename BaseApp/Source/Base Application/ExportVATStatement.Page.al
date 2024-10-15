@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11774 "Export VAT Statement"
 {
     Caption = 'Export VAT Statement (Obsolete)';
@@ -582,4 +583,4 @@ page 11774 "Export VAT Statement"
         ExportToServerFile := true;
     end;
 }
-
+#endif

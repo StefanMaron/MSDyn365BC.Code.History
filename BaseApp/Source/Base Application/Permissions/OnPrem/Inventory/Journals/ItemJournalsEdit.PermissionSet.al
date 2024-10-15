@@ -55,6 +55,10 @@ permissionset 3627 "Item Journals - Edit"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+#if CLEAN17
+                  tabledata "VAT Setup Posting Groups" = R;
+#else
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "Whse. Net Change Template" = R;
+#endif
 }

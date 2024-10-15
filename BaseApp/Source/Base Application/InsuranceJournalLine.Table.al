@@ -1,4 +1,4 @@
-﻿table 5635 "Insurance Journal Line"
+table 5635 "Insurance Journal Line"
 {
     Caption = 'Insurance Journal Line';
 
@@ -288,16 +288,20 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use InsuranceJnlManagement event OnBeforeOpenJournal.', '19.0')]
     procedure CheckInsuranceJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckInsuranceJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use InsuranceJnlManagement event OnBeforeOpenJournal.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckInsuranceJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var InsuranceJnlLine: Record "Insurance Journal Line"; InsuranceJnlTempl: Record "Insurance Journal Template"; InsuranceJnlBatch: Record "Insurance Journal Batch"; LastInsuranceJnlLine: Record "Insurance Journal Line")

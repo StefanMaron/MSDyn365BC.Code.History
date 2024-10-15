@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5601 "Fixed Asset List"
 {
     AdditionalSearchTerms = 'fa list';
@@ -431,7 +432,6 @@ page 5601 "Fixed Asset List"
                 RunObject = Report "Fixed Asset Register";
                 ToolTip = 'View registers containing all the fixed asset entries that are created. Each register shows the first and last entry number of its entries.';
             }
-#if not CLEAN18
             action(Action1220003)
             {
                 ApplicationArea = FixedAssets;
@@ -456,7 +456,6 @@ page 5601 "Fixed Asset List"
                 ObsoleteTag = '18.0';
                 Visible = false;
             }
-#endif
         }
     }
 
@@ -470,3 +469,4 @@ page 5601 "Fixed Asset List"
     end;
 }
 
+#endif

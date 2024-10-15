@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11709 "Payment Order Management"
 {
     Permissions = TableData "Issued Payment Order Header" = rm;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -482,4 +486,4 @@ codeunit 11709 "Payment Order Management"
     begin
     end;
 }
-
+#endif

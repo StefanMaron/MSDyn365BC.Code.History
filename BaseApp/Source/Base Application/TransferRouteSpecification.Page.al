@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5748 "Transfer Route Specification"
 {
     Caption = 'Trans. Route Spec.';
@@ -26,7 +27,6 @@ page 5748 "Transfer Route Specification"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-#if not CLEAN18                
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
                     ApplicationArea = Location;
@@ -45,7 +45,6 @@ page 5748 "Transfer Route Specification"
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
-#endif                
             }
         }
         area(factboxes)
@@ -93,3 +92,4 @@ page 5748 "Transfer Route Specification"
     end;
 }
 
+#endif

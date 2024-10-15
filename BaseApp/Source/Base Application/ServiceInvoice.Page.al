@@ -143,6 +143,7 @@ page 5933 "Service Invoice"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service document should be posted.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Service;
@@ -152,6 +153,7 @@ page 5933 "Service Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Service;
@@ -383,6 +385,7 @@ page 5933 "Service Invoice"
                         PricesIncludingVATOnAfterValid;
                     end;
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Service;
@@ -392,6 +395,7 @@ page 5933 "Service Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Service;
@@ -498,6 +502,7 @@ page 5933 "Service Invoice"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -509,6 +514,7 @@ page 5933 "Service Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
@@ -534,6 +540,7 @@ page 5933 "Service Invoice"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -552,11 +559,13 @@ page 5933 "Service Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -575,6 +584,7 @@ page 5933 "Service Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -586,6 +596,7 @@ page 5933 "Service Invoice"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -687,6 +698,7 @@ page 5933 "Service Invoice"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -901,15 +913,11 @@ page 5933 "Service Invoice"
 
                     trigger OnAction()
                     var
-                        ServiceHeader: Record "Service Header";
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                         InstructionMgt: Codeunit "Instruction Mgt.";
                         PreAssignedNo: Code[20];
                     begin
                         PreAssignedNo := "No.";
-                        ServPostYesNo.PostDocument(Rec);
-
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage(PreAssignedNo);
@@ -922,6 +930,7 @@ page 5933 "Service Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -943,11 +952,8 @@ page 5933 "Service Invoice"
                     ToolTip = 'Finalize and prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Service-Post and Send", Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -962,12 +968,8 @@ page 5933 "Service Invoice"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServPostPrint.PostDocument(Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -1023,8 +1025,8 @@ page 5933 "Service Invoice"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

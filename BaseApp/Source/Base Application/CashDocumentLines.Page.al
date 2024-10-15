@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11733 "Cash Document Lines"
 {
     Caption = 'Cash Document Lines (Obsolete)';
@@ -101,4 +102,4 @@ page 11733 "Cash Document Lines"
     {
     }
 }
-
+#endif

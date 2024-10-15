@@ -259,16 +259,34 @@ table 91 "User Setup"
         field(11700; "Check Payment Orders"; Boolean)
         {
             Caption = 'Check Payment Orders';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Check Bank Statements"; Boolean)
         {
             Caption = 'Check Bank Statements';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11730; "Cash Resp. Ctr. Filter"; Code[10])
         {
             Caption = 'Cash Resp. Ctr. Filter';
             TableRelation = "Responsibility Center";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -363,14 +381,22 @@ table 91 "User Setup"
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -456,23 +482,45 @@ table 91 "User Setup"
         {
             BlankZero = true;
             Caption = 'Bank Amount Approval Limit';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31111; "Unlimited Bank Approval"; Boolean)
         {
             Caption = 'Unlimited Bank Approval';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31112; "Cash Desk Amt. Approval Limit"; Integer)
         {
             BlankZero = true;
             Caption = 'Cash Desk Amt. Approval Limit';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31113; "Unlimited Cash Desk Approval"; Boolean)
         {
             Caption = 'Unlimited Cash Desk Approval';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -545,10 +593,14 @@ table 91 "User Setup"
         ApprovalUserSetup.Validate("User ID", User."User Name");
         ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit);
         ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit);
+#if not CLEAN19        
         // NAVCZ
         ApprovalUserSetup.Validate("Bank Amount Approval Limit", GetDefaultBankApprovalLimit);
+#if not CLEAN17
         ApprovalUserSetup.Validate("Cash Desk Amt. Approval Limit", GetDefaultCashDeskApprovalLimit);
+#endif
         // NAVCZ
+#endif
         ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
         if UserSetup.FindFirst then
@@ -612,6 +664,8 @@ table 91 "User Setup"
         exit(0);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetDefaultBankApprovalLimit(): Integer
     var
@@ -634,6 +688,8 @@ table 91 "User Setup"
         exit(0);
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetDefaultCashDeskApprovalLimit(): Integer
@@ -657,6 +713,7 @@ table 91 "User Setup"
         exit(0);
     end;
 
+#endif
     procedure HideExternalUsers()
     var
         EnvironmentInfo: Codeunit "Environment Information";

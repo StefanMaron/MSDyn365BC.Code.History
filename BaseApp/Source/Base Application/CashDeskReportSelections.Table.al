@@ -1,7 +1,11 @@
 table 11759 "Cash Desk Report Selections"
 {
     Caption = 'Cash Desk Report Selections';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -49,6 +53,7 @@ table 11759 "Cash Desk Report Selections"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     var
         CashDeskReportSelections: Record "Cash Desk Report Selections";
@@ -63,5 +68,6 @@ table 11759 "Cash Desk Report Selections"
         else
             Sequence := '1';
     end;
+#endif
 }
 

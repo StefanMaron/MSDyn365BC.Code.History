@@ -67,9 +67,13 @@ table 11796 "User Setup Line"
             ELSE
             IF (Type = CONST("Whse. Journal")) "Warehouse Journal Template"
             ELSE
+#if CLEAN17
+            IF (Type = CONST("Whse. Worksheet")) "Whse. Worksheet Template";
+#else
             IF (Type = CONST("Whse. Worksheet")) "Whse. Worksheet Template"
             ELSE
             IF (Type = CONST("Whse. Net Change Templates")) "Whse. Net Change Template";
+#endif            
         }
     }
 

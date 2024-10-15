@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 11703 "Constant Symbols"
 {
     ApplicationArea = Basic, Suite;
@@ -34,4 +35,4 @@ page 11703 "Constant Symbols"
     {
     }
 }
-
+#endif

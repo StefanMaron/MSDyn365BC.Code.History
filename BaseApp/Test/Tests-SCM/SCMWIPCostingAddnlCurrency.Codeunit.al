@@ -32,7 +32,6 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         Currency: Record Currency;
         ItemJournalBatch: Record "Item Journal Batch";
         ProductionOrderNo: Code[20];
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // [FEATURE] [Cost Standard]
@@ -44,7 +43,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever;
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LibraryERM.SetAddReportingCurrency('');
 

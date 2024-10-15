@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31097 "Document Footers"
 {
     Caption = 'Document Footers (Obsolete)';
@@ -45,4 +46,4 @@ page 31097 "Document Footers"
     {
     }
 }
-
+#endif

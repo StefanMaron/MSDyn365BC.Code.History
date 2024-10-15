@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 426 "Vendor Bank Account List"
 {
     Caption = 'Vendor Bank Account List';
@@ -91,7 +92,12 @@ page 426 "Vendor Bank Account List"
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     Visible = false;
                 }
+#if not CLEAN18
+#if CLEAN17
+                field("UncertPayerMgmt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; DummyBooleanValue)
+#else
                 field("UncertPayerMgmt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgmt.IsPublicBankAccount("Vendor No.", "Vendor VAT Registration No.", "Bank Account No.", IBAN))
+#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Public Bank Account';
@@ -101,7 +107,11 @@ page 426 "Vendor Bank Account List"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if CLEAN17
+                field("Third Party Bank Account"; DummyBooleanValue)
+#else
                 field("Third Party Bank Account"; "Third Party Bank Account")
+#endif
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the account is third party bank account.';
@@ -110,6 +120,7 @@ page 426 "Vendor Bank Account List"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -139,6 +150,11 @@ page 426 "Vendor Bank Account List"
     end;
 
     var
+#if CLEAN17
+        DummyBooleanValue: Boolean;
+#else
         UncertPayerMgmt: Codeunit "Unc. Payer Mgt.";
+#endif
 }
 
+#endif

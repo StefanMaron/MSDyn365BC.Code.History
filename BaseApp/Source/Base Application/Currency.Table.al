@@ -459,6 +459,11 @@ table 4 Currency
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -470,7 +475,11 @@ table 4 Currency
         {
             Caption = 'Customs Currency Code';
             TableRelation = Currency;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '18.0';
         }
@@ -483,6 +492,9 @@ table 4 Currency
             Clustered = true;
         }
         key(Key2; SystemModifiedAt)
+        {
+        }
+        key(Key3; "Coupled to CRM")
         {
         }
     }
@@ -511,10 +523,12 @@ table 4 Currency
 
         CurrExchRate.SetRange("Currency Code", Code);
         CurrExchRate.DeleteAll();
+#if not CLEAN18
         // NAVCZ
         IntrastatCurrExchRate.SetRange("Currency Code", Code);
         IntrastatCurrExchRate.DeleteAll();
         // NAVCZ
+#endif
     end;
 
     trigger OnInsert()
@@ -543,7 +557,9 @@ table 4 Currency
         GLSetup: Record "General Ledger Setup";
         Text002: Label 'There is one or more opened entries in the %1 table using %2 %3.', Comment = '1 either customer or vendor ledger entry table 2 name co currency table 3 currencency code';
         IncorrectEntryTypeErr: Label 'Incorrect Entry Type %1.';
+#if not CLEAN18
         IntrastatCurrExchRate: Record "Intrastat Currency Exch. Rate";
+#endif
         EuroDescriptionTxt: Label 'Euro', Comment = 'Currency Description';
         CanadiandollarDescriptionTxt: Label 'Canadian dollar', Comment = 'Currency Description';
         BritishpoundDescriptionTxt: Label 'Pound Sterling', Comment = 'Currency Description';
@@ -764,10 +780,17 @@ table 4 Currency
 
     procedure Initialize(CurrencyCode: Code[10])
     begin
-        if CurrencyCode <> '' then
-            Get(CurrencyCode)
-        else
-            InitRoundingPrecision;
+        Initialize(CurrencyCode, false);
+    end;
+
+    procedure Initialize(CurrencyCode: Code[10]; CheckAmountRoundingPrecision: Boolean)
+    begin
+        if CurrencyCode <> '' then begin
+            Get(CurrencyCode);
+            if CheckAmountRoundingPrecision then
+                TestField("Amount Rounding Precision");
+        end else
+            InitRoundingPrecision();
     end;
 
     procedure SuggestSetupAccounts()

@@ -378,7 +378,10 @@ codeunit 134982 "ERM Financial Reports"
         // Setup.
         Initialize;
         CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
-        asserterror ReverseFALedgerEntry(GenJournalLine."Document No."); // NAVCZ
+        // NAVCZ
+        asserterror ReverseFALedgerEntry(GenJournalLine."Document No.");
+        Assert.ExpectedError(ReverseFALedgerEntryErr);
+        // NAVCZ
 
         // Exercise: Save Fixed Asset Detail Report.
         FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, true);
@@ -386,10 +389,7 @@ codeunit 134982 "ERM Financial Reports"
         // Verify: Verify Amounts on Fixed Asset Detail Report.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', GenJournalLine.Amount);
-        // NAVCZ
-        LibraryReportDataset.AssertElementWithValueNotExist('FA_Ledger_Entry_Amount', -GenJournalLine.Amount);
-        Assert.ExpectedError(ReverseFALedgerEntryErr);
-        // NAVCZ
+        LibraryReportDataset.AssertElementWithValueNotExist('FA_Ledger_Entry_Amount', -GenJournalLine.Amount); // NAVCZ
     end;
 
     [Test]

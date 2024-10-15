@@ -8,7 +8,11 @@ table 1296 "Posted Payment Recon. Line"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -128,26 +132,63 @@ table 1296 "Posted Payment Recon. Line"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11705; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11710; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11711; "Currency Factor"; Decimal)
         {
@@ -155,11 +196,25 @@ table 1296 "Posted Payment Recon. Line"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11715; "Statement Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Statement Amount (LCY)';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11716; "Debit Amount"; Decimal)
         {
@@ -167,6 +222,13 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11717; "Credit Amount"; Decimal)
         {
@@ -174,17 +236,38 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11720; "Document Type"; Option)
         {
             Caption = 'Document Type';
             OptionCaption = ' ,Payment,,,,,Refund';
             OptionMembers = " ",Payment,,,,,Refund;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11725; "Difference (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Difference (LCY)';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11726; "Applied Amount (LCY)"; Decimal)
         {
@@ -192,10 +275,24 @@ table 1296 "Posted Payment Recon. Line"
             AutoFormatType = 1;
             Caption = 'Applied Amount (LCY)';
             Editable = false;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31000; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -215,11 +312,13 @@ table 1296 "Posted Payment Recon. Line"
     var
         BankAcc2: Record "Bank Account";
     begin
+#if not CLEAN19
         // NAVCZ
         if "Currency Code" <> '' then
             exit("Currency Code");
         // NAVCZ
 
+#endif
         if "Bank Account No." = BankAcc2."No." then
             exit(BankAcc2."Currency Code");
 

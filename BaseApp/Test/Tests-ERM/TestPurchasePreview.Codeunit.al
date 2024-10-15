@@ -1,4 +1,4 @@
-﻿codeunit 134762 "Test Purchase Preview"
+codeunit 134762 "Test Purchase Preview"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -19,6 +19,7 @@
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJournals: Codeunit "Library - Journals";
         ExpectedCost: Decimal;
@@ -58,7 +59,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -90,7 +90,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -126,7 +125,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -162,7 +160,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -288,7 +285,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -320,7 +316,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -356,7 +351,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -392,7 +386,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
         asserterror Error('');
     end;
 
@@ -433,7 +426,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
     end;
 
     [Test]
@@ -473,7 +465,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
     end;
 
     [Test]
@@ -523,7 +514,6 @@
 
         // Cleanup
         PurchaseHeader.Delete();
-        ClearAll;
     end;
 
     [Test]
@@ -763,6 +753,74 @@
         GLPostingPreview.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendedPostingPreviewPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
+        ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview";
+    begin
+        // [SCENARIO 354973] "Extended G/L Posting Preview" page shows Vendor related entries
+        Initialize();
+
+        // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
+        UpdateGLSetupPostingPreviewType("Posting Preview Type"::Extended);
+
+        // [GIVEN] Create gen. journal line
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandInt(100), LibraryRandom.RandInt(10));
+
+        // [WHEN] Run posting preview 
+        Commit();
+        ExtendedGLPostingPreview.Trap();
+        asserterror PurchPostYesNo.Preview(PurchaseHeader);
+
+        // [THEN] "Extended G/L Posting Preview" page shows Vendor related entries
+        VerifyExtendedPostingPreviewVendorRelatedEntriesExist(ExtendedGLPostingPreview);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendedPostingPreviewVATHierarchicalView()
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
+        ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview";
+        TotalVATAmount: array[2] of Decimal;
+        TotalBaseAmount: array[2] of Decimal;
+    begin
+        // [SCENARIO 354973] Extended posting preview shows grouped VAT entries 
+        Initialize();
+
+        // [GIVEN] Set GLSetup."Posting Preview Type" = Extended
+        UpdateGLSetupPostingPreviewType("Posting Preview Type"::Extended);
+        // [GIVEN] Create 2 VAT Posting Setups: VBG, VPG1 and VBG, VPG2
+        CreateTwoVATPostingSetups(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20), 0);
+
+        // [GIVEN] Create purchase order
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order,
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
+        // [GIVEN] Create purchase line with VAT Posting Setups: VBG, VPG1
+        CreatePurchLineWithVATPostingSetup(PurchaseHeader, TotalVATAmount[1], TotalBaseAmount[1], VATPostingSetup[1]);
+
+        // [GIVEN] Create purchase line with VAT Posting Setups: VBG, VPG2
+        CreatePurchLineWithVATPostingSetup(PurchaseHeader, TotalVATAmount[2], TotalBaseAmount[2], VATPostingSetup[2]);
+
+        // [GIVEN] Run posting preview 
+        Commit();
+        ExtendedGLPostingPreview.Trap();
+        asserterror PurchPostYesNo.Preview(PurchaseHeader);
+
+        // [WHEN] Set Show Hierarchical Veiw = true on "Extended G/L Posting Preview" page
+        ExtendedGLPostingPreview.ShowHierarchicalViewControl.SetValue(true);
+
+        // [THEN] Extended G/L Posting Preview page shows grouped VAT Entries: VBG, VPG1 and VBG, VPG2
+        VerifyVATEntriesExtendedGrouped(ExtendedGLPostingPreview, VATPostingSetup, TotalVATAmount, TotalBaseAmount);
+    end;
+
     procedure PreviewPurchInvoiceWithSameInvoiceAndPostingInvoiceNos()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -799,13 +857,19 @@
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Purchase Preview");
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        Commit();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
@@ -877,6 +941,22 @@
         Commit();
     end;
 
+    local procedure CreatePurchLineWithVATPostingSetup(PurchaseHeader: Record "Purchase Header"; var TotalVATAmount: Decimal; var TotalBaseAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        PurchaseLine: Record "Purchase Line";
+        i: Integer;
+    begin
+        for i := 1 to LibraryRandom.RandInt(5) do begin
+            LibraryPurchase.CreatePurchaseLine(
+                PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+                LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+            PurchaseLine.Modify(true);
+            TotalBaseAmount := TotalBaseAmount + PurchaseLine."VAT Base Amount";
+            TotalVATAmount := TotalVATAmount + PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+        end;
+    end;
+
     local procedure CreateItemWithFIFO(): Code[20]
     var
         Item: Record Item;
@@ -901,6 +981,20 @@
         ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateTwoVATPostingSetups(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; VATPercent1: Decimal; VATPercent2: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATPercent1);
+
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup[2].Validate("VAT Calculation Type", VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup[2].Validate("VAT %", VATPercent2);
+        VATPostingSetup[2].Modify(true);
     end;
 
     local procedure PostPartialQuantity(var PurchaseHeader: Record "Purchase Header"; Invoice: Boolean)
@@ -993,6 +1087,40 @@
         LibraryERM.SetApplyVendorEntry(ApplyingVendLedgerEntry, ApplyingVendLedgerEntry."Remaining Amount");
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, InvNo);
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntry);
+    end;
+
+    local procedure UpdateGLSetupPostingPreviewType(PostingPreviewType: Enum "Posting Preview Type")
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup.Validate("Posting Preview Type", PostingPreviewType);
+        GLSetup.Modify(true);
+    end;
+
+    local procedure VerifyExtendedPostingPreviewVendorRelatedEntriesExist(var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview")
+    var
+        DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
+        DummyDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        ExtendedGLPostingPreview.DocEntriesPreviewSubform.Filter.SetFilter("Table Name", DummyVendorLedgerEntry.TableCaption());
+        ExtendedGLPostingPreview.DocEntriesPreviewSubform.First();
+        ExtendedGLPostingPreview.DocEntriesPreviewSubform.Filter.SetFilter("Table Name", DummyDetailedVendorLedgEntry.TableCaption());
+        ExtendedGLPostingPreview.DocEntriesPreviewSubform.First();
+    end;
+
+    local procedure VerifyVATEntriesExtendedGrouped(var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview"; VATPostingSetup: array[2] of Record "VAT Posting Setup"; TotalVATAmount: array[2] of Decimal; TotalBaseAmount: array[2] of Decimal)
+    begin
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Filter.SetFilter("VAT Bus. Posting Group", VATPostingSetup[1]."VAT Bus. Posting Group");
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Filter.SetFilter("VAT Prod. Posting Group", VATPostingSetup[1]."VAT Prod. Posting Group");
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.First();
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Amount.AssertEquals(TotalVATAmount[1]);
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Base.AssertEquals(TotalBaseAmount[1]);
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Filter.SetFilter("VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group");
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Filter.SetFilter("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.First();
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Amount.AssertEquals(TotalVATAmount[2]);
+        ExtendedGLPostingPreview.VATEntriesPreviewHierarchical.Base.AssertEquals(TotalBaseAmount[2]);
     end;
 
     [ConfirmHandler]

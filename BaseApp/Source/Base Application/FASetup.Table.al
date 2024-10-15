@@ -69,9 +69,14 @@ table 5603 "FA Setup"
         {
             Caption = 'Tax Depr. Book';
             TableRelation = "Depreciation Book";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -91,13 +96,19 @@ table 5603 "FA Setup"
                         until FixedAsset.Next() = 0;
                 end;
             end;
+#endif
         }
         field(31042; "Fixed Asset History"; Boolean)
         {
             Caption = 'Fixed Asset History';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -108,6 +119,7 @@ table 5603 "FA Setup"
                     InitFAHistory.RunModal;
                 end;
             end;
+#endif
         }
         field(31043; "FA Maintenance By Maint. Code"; Boolean)
         {
@@ -119,7 +131,11 @@ table 5603 "FA Setup"
         field(31044; "FA Acquisition As Custom 2"; Boolean)
         {
             Caption = 'FA Acquisition As Custom 2';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
             ObsoleteTag = '18.0';
         }

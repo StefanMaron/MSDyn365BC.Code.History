@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 11725 "Issued Payment Order Stat."
 {
-    Caption = 'Issued Payment Order Stat.';
+    Caption = 'Issued Payment Order Stat. (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Card;
     SourceTable = "Issued Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -57,4 +61,4 @@ page 11725 "Issued Payment Order Stat."
         EndBalance: Decimal;
         BegBalance: Decimal;
 }
-
+#endif

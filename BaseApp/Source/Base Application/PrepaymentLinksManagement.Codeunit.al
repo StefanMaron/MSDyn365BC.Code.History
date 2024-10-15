@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 31032 "Prepayment Links Management"
 {
     TableNo = "Advance Link Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -16,6 +20,7 @@ codeunit 31032 "Prepayment Links Management"
         LinkType: Option ,GenJnlLine;
         Text001Err: Label '%1 can''t be %2.', Comment = '%1=Fieldcaption account type;%2=account type';
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure FillBuf(var AdvanceLinkBuf: Record "Advance Link Buffer"; CustMode: Boolean)
     begin
@@ -48,6 +53,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
@@ -78,6 +84,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingCustPayment(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -94,6 +101,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Customer;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingVendPayment(VendLedgEntry: Record "Vendor Ledger Entry")
     begin
@@ -110,6 +118,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Vendor;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingSalesLetter(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
@@ -124,6 +133,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Customer;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingPurchLetter(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
@@ -138,6 +148,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Vendor;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingSalesLetterLine(SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
@@ -154,6 +165,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Customer;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingPurchLetterLine(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
@@ -170,6 +182,7 @@ codeunit 31032 "Prepayment Links Management"
         AdvanceLinkBufDefEntry."Source Type" := AdvanceLinkBufDefEntry."Source Type"::Vendor;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkingEntry(var AdvanceLinkBuf: Record "Advance Link Buffer"; Manual: Boolean)
     begin
@@ -198,6 +211,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure UpdateLinkingEntry(var AdvanceLinkBuf: Record "Advance Link Buffer"; Set: Boolean)
     begin
@@ -214,6 +228,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkIDToRec(var AdvanceLinkBuf: Record "Advance Link Buffer"; AdvanceLinkBuf2: Record "Advance Link Buffer"): Boolean
     var
@@ -244,6 +259,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetLinkID(var AdvanceLinkBuf: Record "Advance Link Buffer"; Difference: Decimal)
     var
@@ -306,6 +322,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcBalance(var AdvanceLinkBuf: Record "Advance Link Buffer") Balance: Decimal
     var
@@ -333,6 +350,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure LinkEntries(var AdvanceLinkBuf: Record "Advance Link Buffer"; CustMode: Boolean)
     begin
@@ -361,12 +379,14 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetLinkingEntry(var AdvanceLinkBuf: Record "Advance Link Buffer")
     begin
         AdvanceLinkBuf := TempAdvanceLinkBuf;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetLinkID(): Code[20]
     begin
@@ -378,6 +398,7 @@ codeunit 31032 "Prepayment Links Management"
         exit(LinkID);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunCustPaymentLink(var CustLedgEntry: Record "Cust. Ledger Entry")
     var
@@ -392,6 +413,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunVendPaymentLink(var VendLedgEntry: Record "Vendor Ledger Entry")
     var
@@ -406,6 +428,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunSalesLetterLink(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     var
@@ -419,6 +442,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunPurchLetterLink(var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     var
@@ -432,6 +456,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CollectSalesLetters(var AdvanceLinkBuf: Record "Advance Link Buffer")
     var
@@ -494,6 +519,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CollectPurchLetters(var AdvanceLinkBuf: Record "Advance Link Buffer")
     var
@@ -554,6 +580,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CollectSalesPayments(var AdvanceLinkBuf: Record "Advance Link Buffer")
     var
@@ -602,6 +629,7 @@ codeunit 31032 "Prepayment Links Management"
             end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CollectPurchPayments(var AdvanceLinkBuf: Record "Advance Link Buffer")
     var
@@ -652,6 +680,7 @@ codeunit 31032 "Prepayment Links Management"
             end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure UpdateAmount(var AdvanceLinkBuf: Record "Advance Link Buffer"; var AdvanceLinkBuf2: Record "Advance Link Buffer"; Amount: Decimal)
     begin
@@ -674,6 +703,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SaveLinkIDToLetterLines(var AdvanceLinkBuf: Record "Advance Link Buffer"; Cust: Boolean)
     var
@@ -711,6 +741,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure LinkWholeSalesLetter(CustCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var CustPostingGroup: Code[20]) Result: Decimal
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -740,6 +771,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure UnLinkWholeSalesLetter(LinkCode: Code[30])
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -758,6 +790,7 @@ codeunit 31032 "Prepayment Links Management"
             until SalesAdvanceLetterLine.Next() = 0;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure LinkWholePurchLetter(VendCode: Code[20]; CurrencyCode: Code[10]; LinkCode: Code[30]; var VendPostingGroup: Code[20]) Result: Decimal
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -787,6 +820,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure UnLinkWholePurchLetter(LinkCode: Code[30])
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
@@ -805,6 +839,7 @@ codeunit 31032 "Prepayment Links Management"
             until PurchAdvanceLetterLine.Next() = 0;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LinkCashDocLine(var CashDocLine: Record "Cash Document Line")
@@ -868,6 +903,8 @@ codeunit 31032 "Prepayment Links Management"
         CashDocLine.Modify();
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure LinkGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -909,6 +946,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure UnLinkGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
@@ -922,6 +960,7 @@ codeunit 31032 "Prepayment Links Management"
         GenJnlLine.Modify();
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetLinkedPostingGroup(IsCust: Boolean; LinkCode: Code[30]) Result: Code[20]
     var
@@ -984,12 +1023,14 @@ codeunit 31032 "Prepayment Links Management"
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnLinkCashDocLineOnBeforeModifyCashDocLine(var CashDocLine: Record "Cash Document Line")
     begin
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterHeaderFilters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
@@ -1035,4 +1076,4 @@ codeunit 31032 "Prepayment Links Management"
     begin
     end;
 }
-
+#endif

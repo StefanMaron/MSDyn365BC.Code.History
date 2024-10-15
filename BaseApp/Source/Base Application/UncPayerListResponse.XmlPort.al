@@ -1,3 +1,4 @@
+#if not CLEAN17
 xmlport 11765 "Unc. Payer List - Response"
 {
     Caption = 'Unc. Payer List - Response';
@@ -186,3 +187,5 @@ xmlport 11765 "Unc. Payer List - Response"
     end;
 }
 
+
+#endif

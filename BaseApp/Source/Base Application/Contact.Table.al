@@ -1,4 +1,4 @@
-table 5050 Contact
+﻿table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
@@ -281,6 +281,11 @@ table 5050 Contact
             begin
                 Validate("Privacy Blocked", true);
             end;
+        }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
         }
         field(5050; Type; Enum "Contact Type")
         {
@@ -661,12 +666,10 @@ table 5050 Contact
             MaxValue = 100;
             MinValue = 0;
         }
-        field(5095; "Task Status Filter"; Option)
+        field(5095; "Task Status Filter"; Enum "Task Status")
         {
             Caption = 'Task Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
         }
         field(5096; "Task Closed Filter"; Boolean)
         {
@@ -735,22 +738,33 @@ table 5050 Contact
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 if "Registration No." <> xRec."Registration No." then
                     RegistrationNoValidation;
             end;
+#endif
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -758,6 +772,7 @@ table 5050 Contact
             begin
                 RegistrationNoMgt.CheckTaxRegistrationNo("Tax Registration No.", "No.", DATABASE::Contact);
             end;
+#endif
         }
         field(11792; "Registered Name"; Text[250])
         {
@@ -769,6 +784,13 @@ table 5050 Contact
         field(11795; "Instant Messaging"; Text[250])
         {
             Caption = 'Instant Messaging';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Instant Messaging has been discontinued.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -814,6 +836,9 @@ table 5050 Contact
         key(Key13; SystemModifiedAt)
         {
         }
+        key(Key14; "Coupled to CRM")
+        {
+        }
     }
 
     fieldgroups
@@ -845,7 +870,9 @@ table 5050 Contact
         IntrastatSetup: Record "Intrastat Setup";
         CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+#if not CLEAN17
         RegistrationLogMgt: Codeunit "Registration Log Mgt.";
+#endif
     begin
         Task.SetCurrentKey("Contact Company No.", "Contact No.", Closed, Date);
         Task.SetRange("Contact Company No.", "Company No.");
@@ -964,10 +991,12 @@ table 5050 Contact
         ContAltAddrDateRange.SetRange("Contact No.", "No.");
         if not ContAltAddrDateRange.IsEmpty() then
             ContAltAddrDateRange.DeleteAll();
+#if not CLEAN17
 
         // NAVCZ
         RegistrationLogMgt.DeleteContactLog(Rec);
         // NAVCZ
+#endif
 
         VATRegistrationLogMgt.DeleteContactLog(Rec);
 
@@ -1054,7 +1083,6 @@ table 5050 Contact
         CampaignMgt: Codeunit "Campaign Target Group Mgt";
         SelectedBusRelationCodes: Text;
         ContChanged: Boolean;
-        SkipDefaults: Boolean;
         Text012: Label 'You cannot change %1 because one or more unlogged segments are assigned to the contact.';
         Text019: Label 'The %2 record of the %1 already has the %3 with %4 %5.';
         CreateCustomerFromContactQst: Label 'Do you want to create a contact as a customer using a customer template?';
@@ -1074,6 +1102,7 @@ table 5050 Contact
 
     protected var
         HideValidationDialog: Boolean;
+        SkipDefaults: Boolean;
 
     procedure DoModify(ContactBeforeModify: Record Contact)
     var
@@ -1081,10 +1110,10 @@ table 5050 Contact
         Cont: Record Contact;
         IsDuplicateCheckNeeded: Boolean;
     begin
-        SetLastDateTimeModified;
+        SetLastDateTimeModified();
 
         if "No." <> '' then
-            if IsUpdateNeeded then
+            if IsUpdateNeeded(ContactBeforeModify) then
                 UpdateCustVendBank.Run(Rec);
 
         if Type = Type::Company then begin
@@ -1208,10 +1237,13 @@ table 5050 Contact
               (City <> ContactBeforeModify.City) or
               ("Post Code" <> ContactBeforeModify."Post Code") or
               ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
+#if CLEAN17
+              ("Phone No." <> ContactBeforeModify."Phone No.");
+#else
               ("Phone No." <> ContactBeforeModify."Phone No.") or
               ("Registration No." <> ContactBeforeModify."Registration No.") or
               ("Tax Registration No." <> ContactBeforeModify."Tax Registration No.");
-
+#endif              
             OnBeforeDuplicateCheck(Rec, ContactBeforeModify, IsDuplicateCheckNeeded);
 
             if IsDuplicateCheckNeeded then
@@ -1287,10 +1319,12 @@ table 5050 Contact
                         TestField("No. of Industry Groups", 0);
                         TestField("Currency Code", '');
                         TestField("VAT Registration No.", '');
+#if not CLEAN17
                         // NAVCZ
                         TestField("Registration No.", '');
                         TestField("Tax Registration No.", '');
                         // NAVCZ
+#endif
                         OnTypeChangeOnAfterTypePersonTestFields(Rec);
                     end;
                     if "Company No." = "No." then begin
@@ -1341,15 +1375,11 @@ table 5050 Contact
         CustomerTempl: Record "Customer Templ.";
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
-        if CustomerTemplMgt.IsEnabled() then
-            if CustomerTemplMgt.SelectCustomerTemplateFromContact(CustomerTempl, Rec) then
-                exit(CreateCustomerFromTemplate(CustomerTempl.Code))
-            else
-                if CustomerTemplMgt.TemplatesAreNotEmpty() then
-                    exit;
-#if not CLEAN18
-        exit(CreateCustomer(ChooseCustomerTemplate()));
-#endif
+        if CustomerTemplMgt.SelectCustomerTemplateFromContact(CustomerTempl, Rec) then
+            exit(CreateCustomerFromTemplate(CustomerTempl.Code))
+        else
+            if CustomerTemplMgt.TemplatesAreNotEmpty() then
+                exit;
     end;
 
 #if not CLEAN18
@@ -1450,9 +1480,6 @@ table 5050 Contact
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
 
-        if CustomerTemplateCode <> '' then
-            CustTemplate.Get(CustomerTemplateCode);
-
         Clear(Cust);
         Cust.SetInsertFromContact(true);
         Cust."Contact Type" := Type;
@@ -1476,8 +1503,10 @@ table 5050 Contact
         OnCreateCustomerOnBeforeCustomerModify(Cust, Rec);
         Cust.Modify();
 
-        if CustomerTemplateCode <> '' then
+        if CustomerTemplateCode <> '' then begin
+            CustTemplate.Get(CustomerTemplateCode);
             CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustTemplate);
+        end;
         OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate);
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
@@ -1546,6 +1575,15 @@ table 5050 Contact
 
     procedure CreateVendor() VendorNo: Code[20]
     var
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+    begin
+        if VendorTemplMgt.SelectVendorTemplateFromContact(VendorTempl, Rec) then
+            exit(CreateVendorFromTemplate(VendorTempl.Code));
+    end;
+
+    procedure CreateVendorFromTemplate(VendorTemplateCode: Code[20]) VendorNo: Code[20]
+    var
         ContBusRel: Record "Contact Business Relation";
         Vend: Record Vendor;
         ContComp: Record Contact;
@@ -1556,7 +1594,6 @@ table 5050 Contact
         OfficeMgt: Codeunit "Office Management";
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
         IsHandled: Boolean;
-        TemplateSelected: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateVendor(Rec, VendorNo, IsHandled);
@@ -1564,19 +1601,12 @@ table 5050 Contact
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
-        if CreateCompanyContactVendor(VendorNo) then
+        if CreateCompanyContactVendor(VendorNo, VendorTemplateCode) then
             exit;
         CheckIfPrivacyBlockedGeneric;
         CheckCompanyNo;
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Vendors");
-
-        if VendorTemplMgt.IsEnabled() then begin
-            TemplateSelected := VendorTemplMgt.SelectVendorTemplateFromContact(VendorTempl, Rec);
-            if not TemplateSelected then
-                if VendorTemplMgt.TemplatesAreNotEmpty() then
-                    exit;
-        end;
 
         Clear(Vend);
         Vend.SetInsertFromContact(true);
@@ -1604,8 +1634,10 @@ table 5050 Contact
         if not IsHandled then
             Commit();
         Vend.Get(Vend."No.");
-        if TemplateSelected then
+        if VendorTemplateCode <> '' then begin
+            VendorTempl.Get(VendorTemplateCode);
             VendorTemplMgt.ApplyVendorTemplate(Vend, VendorTempl);
+        end;
 
 #if not CLEAN18
         TempVendorTemplate.CopyFromVendorTempl(VendorTempl);
@@ -1623,7 +1655,7 @@ table 5050 Contact
         OnAfterCreateVendor(Rec, Vend);
     end;
 
-    local procedure CreateCompanyContactVendor(var VendorNo: Code[20]) VendorCreated: Boolean
+    local procedure CreateCompanyContactVendor(var VendorNo: Code[20]; VendorTemplateCode: Code[20]) VendorCreated: Boolean
     var
         Contact: Record Contact;
         IsHandled: Boolean;
@@ -1636,7 +1668,7 @@ table 5050 Contact
         if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
             if Contact.Get("Company No.") then begin
                 Contact.SetHideValidationDialog(HideValidationDialog);
-                VendorNo := Contact.CreateVendor();
+                VendorNo := Contact.CreateVendorFromTemplate(VendorTemplateCode);
                 exit(true);
             end;
 
@@ -1857,7 +1889,7 @@ table 5050 Contact
     begin
         OldBusinessRelation := "Contact Business Relation";
         "Contact Business Relation" := GetBusinessRelation();
-#if not CLEAN19
+#if not CLEAN18
         "Business Relation" := StrSubstNo(Format("Contact Business Relation"), 1, MaxStrLen("Business Relation"));
 #endif
         exit(OldBusinessRelation <> "Contact Business Relation")
@@ -2026,7 +2058,7 @@ table 5050 Contact
         NewName := CopyStr(NewName92, 1, MaxStrLen(NewName));
     end;
 
-    local procedure UpdateSearchName()
+    protected procedure UpdateSearchName()
     var
         IsHandled: Boolean;
     begin
@@ -2684,10 +2716,8 @@ table 5050 Contact
     end;
 
     procedure GetHideValidationDialog(): Boolean
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        exit(HideValidationDialog or EnvInfoProxy.IsInvoicing);
+        exit(HideValidationDialog);
     end;
 
     procedure DisplayMap()
@@ -2723,7 +2753,7 @@ table 5050 Contact
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessPersonNameChange(IsHandled);
+        OnBeforeProcessPersonNameChange(IsHandled, Rec, Customer, Vendor);
         if IsHandled then
             exit;
 
@@ -2867,16 +2897,16 @@ table 5050 Contact
     procedure LookupNewCustomerTemplate(): Code[20]
     var
         CustomerTemplate: Record "Customer Templ.";
-        CustomerTemplateList: Page "Customer Templ. List";
+        SelectCustomerTemplList: Page "Select Customer Templ. List";
     begin
         CustomerTemplate.FilterGroup(2);
         CustomerTemplate.SetRange("Contact Type", Type);
         CustomerTemplate.FilterGroup(0);
-        CustomerTemplateList.LookupMode := true;
+        SelectCustomerTemplList.LookupMode := true;
         OnLookupNewCustomerTemplateOnBeforeSetTableView(Rec, CustomerTemplate);
-        CustomerTemplateList.SetTableView(CustomerTemplate);
-        if CustomerTemplateList.RunModal() = ACTION::LookupOK then begin
-            CustomerTemplateList.GetRecord(CustomerTemplate);
+        SelectCustomerTemplList.SetTableView(CustomerTemplate);
+        if SelectCustomerTemplList.RunModal() = ACTION::LookupOK then begin
+            SelectCustomerTemplList.GetRecord(CustomerTemplate);
             exit(CustomerTemplate.Code);
         end;
     end;
@@ -3045,7 +3075,7 @@ table 5050 Contact
                     Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true))
     end;
 
-    local procedure SetDefaultSalesperson()
+    protected procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
@@ -3061,7 +3091,7 @@ table 5050 Contact
         OnAfterSetDefaultSalesperson(Rec);
     end;
 
-    local procedure VATRegistrationValidation()
+    procedure VATRegistrationValidation()
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
         VATRegistrationLog: Record "VAT Registration Log";
@@ -3097,6 +3127,7 @@ table 5050 Contact
             VATRegistrationLogMgt.LogContact(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure RegistrationNoValidation()
     var
@@ -3117,12 +3148,14 @@ table 5050 Contact
         end;
     end;
 
+#endif
     procedure VerifyAndUpdateFromVIES()
     begin
         // NAVCZ
         VATRegistrationValidation;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure VerifyAndUpdateFromARES()
     begin
@@ -3130,6 +3163,7 @@ table 5050 Contact
         RegistrationNoValidation;
     end;
 
+#endif
     procedure GetContNo(ContactText: Text): Code[20]
     var
         Contact: Record Contact;
@@ -3181,7 +3215,7 @@ table 5050 Contact
         exit('');
     end;
 
-    local procedure MarkContactsWithSimilarName(var Contact: Record Contact; ContactText: Text)
+    protected procedure MarkContactsWithSimilarName(var Contact: Record Contact; ContactText: Text)
     var
         TypeHelper: Codeunit "Type Helper";
         ContactCount: Integer;
@@ -3210,36 +3244,42 @@ table 5050 Contact
         Contact.MarkedOnly(true);
     end;
 
-    local procedure IsUpdateNeeded(): Boolean
+    local procedure IsUpdateNeeded(ContactBeforeModify: Record Contact): Boolean
     var
         UpdateNeeded: Boolean;
     begin
         UpdateNeeded :=
-          (Name <> xRec.Name) or
-          ("Search Name" <> xRec."Search Name") or
-          ("Name 2" <> xRec."Name 2") or
-          (Address <> xRec.Address) or
-          ("Address 2" <> xRec."Address 2") or
-          (City <> xRec.City) or
-          ("Phone No." <> xRec."Phone No.") or
-          ("Telex No." <> xRec."Telex No.") or
-          ("Territory Code" <> xRec."Territory Code") or
-          ("Currency Code" <> xRec."Currency Code") or
-          ("Language Code" <> xRec."Language Code") or
-          ("Salesperson Code" <> xRec."Salesperson Code") or
-          ("Country/Region Code" <> xRec."Country/Region Code") or
-          ("Fax No." <> xRec."Fax No.") or
-          ("Telex Answer Back" <> xRec."Telex Answer Back") or
-          ("VAT Registration No." <> xRec."VAT Registration No.") or
-          ("Post Code" <> xRec."Post Code") or
-          (County <> xRec.County) or
-          ("E-Mail" <> xRec."E-Mail") or
-          ("Home Page" <> xRec."Home Page") or
-          (Type <> xRec.Type) or
-          ("Registration No." <> xRec."Registration No.") or
-          ("Tax Registration No." <> xRec."Tax Registration No.");
+          (Name <> ContactBeforeModify.Name) or
+          ("Search Name" <> ContactBeforeModify."Search Name") or
+          ("Name 2" <> ContactBeforeModify."Name 2") or
+          (Address <> ContactBeforeModify.Address) or
+          ("Address 2" <> ContactBeforeModify."Address 2") or
+          (City <> ContactBeforeModify.City) or
+          ("Phone No." <> ContactBeforeModify."Phone No.") or
+          ("Mobile Phone No." <> ContactBeforeModify."Mobile Phone No.") or
+          ("Telex No." <> ContactBeforeModify."Telex No.") or
+          ("Territory Code" <> ContactBeforeModify."Territory Code") or
+          ("Currency Code" <> ContactBeforeModify."Currency Code") or
+          ("Language Code" <> ContactBeforeModify."Language Code") or
+          ("Salesperson Code" <> ContactBeforeModify."Salesperson Code") or
+          ("Country/Region Code" <> ContactBeforeModify."Country/Region Code") or
+          ("Fax No." <> ContactBeforeModify."Fax No.") or
+          ("Telex Answer Back" <> ContactBeforeModify."Telex Answer Back") or
+          ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
+          ("Post Code" <> ContactBeforeModify."Post Code") or
+          (County <> ContactBeforeModify.County) or
+          ("E-Mail" <> ContactBeforeModify."E-Mail") or
+          ("Search E-Mail" <> ContactBeforeModify."Search E-Mail") or
+          ("Home Page" <> ContactBeforeModify."Home Page") or
+#if CLEAN17
+          (Type <> ContactBeforeModify.Type);
+#else
+          (Type <> ContactBeforeModify.Type) or
+          ("Registration No." <> ContactBeforeModify."Registration No.") or
+          ("Tax Registration No." <> ContactBeforeModify."Tax Registration No.");
+#endif          
 
-        OnBeforeIsUpdateNeeded(Rec, xRec, UpdateNeeded);
+        OnBeforeIsUpdateNeeded(Rec, ContactBeforeModify, UpdateNeeded);
         exit(UpdateNeeded);
     end;
 
@@ -3273,7 +3313,7 @@ table 5050 Contact
         exit(false);
     end;
 
-    local procedure SetSearchEmail()
+    protected procedure SetSearchEmail()
     begin
         if "Search E-Mail" <> "E-Mail".ToUpper() then
             "Search E-Mail" := "E-Mail";
@@ -3328,6 +3368,12 @@ table 5050 Contact
         MarketingSetup.Get();
         MarketingSetup.TestField("Bus. Rel. Code for Employees");
         CreateLink(Page::"Employee Link", MarketingSetup."Bus. Rel. Code for Employees", ContBusRel."Link to Table"::Employee);
+    end;
+
+    procedure GetOrClear(ContactNo: Code[20])
+    begin
+        if not Rec.Get(ContactNo) then
+            Clear(Rec);
     end;
 
 #if not CLEAN18
@@ -3710,7 +3756,7 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeProcessPersonNameChange(var IsHandled: Boolean)
+    local procedure OnBeforeProcessPersonNameChange(var IsHandled: Boolean; var Contact: Record Contact; var Customer: Record Customer; var Vendor: Record Vendor)
     begin
     end;
 

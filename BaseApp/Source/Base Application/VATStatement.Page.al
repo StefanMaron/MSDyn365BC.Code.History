@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 317 "VAT Statement"
 {
     ApplicationArea = Basic, Suite;
@@ -85,6 +86,7 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN17
                 field("G/L Amount Type"; "G/L Amount Type")
                 {
                     ApplicationArea = VAT;
@@ -130,16 +132,22 @@ page 317 "VAT Statement"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the VAT statement prepayment type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Amount Type"; "Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts or the base amounts on which the VAT is calculated.';
                 }
+#if not CLEAN17
                 field("Use Row Date Filter"; "Use Row Date Filter")
                 {
                     ApplicationArea = VAT;
@@ -149,6 +157,7 @@ page 317 "VAT Statement"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Row Totaling"; "Row Totaling")
                 {
                     ApplicationArea = Basic, Suite;
@@ -164,6 +173,7 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the VAT statement line will be printed on the report that contains the finished VAT statement.';
                 }
+#if not CLEAN17
                 field(Show; Show)
                 {
                     ApplicationArea = VAT;
@@ -173,6 +183,7 @@ page 317 "VAT Statement"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Print with"; "Print with")
                 {
                     ApplicationArea = Basic, Suite;
@@ -183,6 +194,7 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a new page should begin immediately after this line when the VAT statement is printed. To start a new page after this line, place a check mark in the field.';
                 }
+#if not CLEAN17
                 field("Attribute Code"; "Attribute Code")
                 {
                     ApplicationArea = VAT;
@@ -210,6 +222,7 @@ page 317 "VAT Statement"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -285,6 +298,7 @@ page 317 "VAT Statement"
                     RunObject = Report "Calc. and Post VAT Settlement";
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account.';
                 }
+#if not CLEAN17
                 action(Export)
                 {
                     ApplicationArea = VAT;
@@ -303,6 +317,7 @@ page 317 "VAT Statement"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -337,3 +352,4 @@ page 317 "VAT Statement"
     end;
 }
 
+#endif

@@ -1285,12 +1285,15 @@ codeunit 134337 "ERM Purch. Batch Posting"
     local procedure FindAndRunJobQueueEntryByRecord(var PurchaseHeader: Record "Purchase Header")
     var
         JobQueueEntry: Record "Job Queue Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         JobQueueEntry.Get(PurchaseHeader."Job Queue Entry ID");
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Modify();
-        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        Commit();
+        if not Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry) then
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
     end;
 
     local procedure UpdateGeneralLedgerSetup()

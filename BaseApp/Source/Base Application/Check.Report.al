@@ -805,7 +805,11 @@ report 1401 Check
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Account';
+#if CLEAN17
+                        TableRelation = "Bank Account";
+#else
                         TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
                         ToolTip = 'Specifies the bank account that the printed checks will be drawn from.';
 
                         trigger OnValidate()

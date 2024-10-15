@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 11711 "Bank Operations Functions"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -21,6 +25,7 @@ codeunit 11711 "Bank Operations Functions"
         IdentificationIncorrectChecksumErr: Label 'Bank account identification has incorrect checksum.';
         FirstHyphenErr: Label 'Bank account no. must not start with character "-".';
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetBankCode(BankAccountNo: Text[30]): Text[4]
     var
@@ -31,6 +36,7 @@ codeunit 11711 "Bank Operations Functions"
             exit(CopyStr(BankAccountNo, SlashPosition + 1));
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CheckBankAccountNoCharacters(BankAccountNo: Text[30])
     begin
@@ -38,12 +44,21 @@ codeunit 11711 "Bank Operations Functions"
             Error(InvalidCharactersErr, GetInvalidCharactersFromBankAccountNo(BankAccountNo));
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure ChopLeftChars(Input: Text[250]; NewChar: Text[1]): Text[250]
     begin
         exit(DelChr(Input, '<', NewChar));
     end;
 
+#endif
+#if CLEAN18
+    internal procedure CreateVariableSymbol(DocumentNo: Code[35]) VariableSymbol: Code[10]
+    begin
+        VariableSymbol := DelChr(DocumentNo, '=', DelChr(DocumentNo, '=', '0123456789'));
+        VariableSymbol := CopyStr((DelChr(VariableSymbol, '<', '0')), 1, MaxStrLen(VariableSymbol));
+    end;
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CreateVariableSymbol(Input: Code[35]): Code[10]
@@ -55,7 +70,9 @@ codeunit 11711 "Bank Operations Functions"
         Input := CopyStr(ChopLeftChars(Input, '0'), 1, MaxStrLen(Input));
         exit(CopyStr(Input, 1, 10));
     end;
+#endif
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IBANBankCode(IBAN: Code[50]): Code[10]
     begin
@@ -70,6 +87,7 @@ codeunit 11711 "Bank Operations Functions"
         exit('');
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure OnlyNumbers(Input: Text[250]): Text[250]
@@ -83,6 +101,16 @@ codeunit 11711 "Bank Operations Functions"
         exit(CopyStr(Output, 1, 250));
     end;
 
+#endif
+#if CLEAN18
+    internal procedure CheckBankAccountNo(BankAccountNo: Text[30]; ShowErrorMessages: Boolean): Boolean
+    var
+        HasErrors: Boolean;
+    begin
+        OnBeforeCheckBankAccountNo(BankAccountNo, ShowErrorMessages, HasErrors, TempErrorMessage);
+        exit(not HasErrors);
+    end;
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckBankAccountNo(BankAccountNo: Text[30]; ShowErrorMessages: Boolean): Boolean
@@ -113,6 +141,8 @@ codeunit 11711 "Bank Operations Functions"
 
         exit(not HasErrors);
     end;
+#endif
+#if not CLEAN18
 
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure CheckBankCode(BankAccountNo: Text[30])
@@ -235,6 +265,19 @@ codeunit 11711 "Bank Operations Functions"
         exit(OutputSum mod 11);
     end;
 
+#endif
+#if CLEAN18
+    internal procedure HasBankAccountNoValidCharacters(BankAccountNo: Text[30]): Boolean
+    begin
+        exit(GetInvalidCharactersFromBankAccountNo(BankAccountNo) = '');
+    end;
+
+    internal procedure GetInvalidCharactersFromBankAccountNo(BankAccountNo: Text[30]): Text
+    begin
+        exit(DelChr(BankAccountNo, '=', GetValidCharactersForBankAccountNo));
+    end;
+
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure HasBankAccountNoValidCharacters(BankAccountNo: Text[30]): Boolean
@@ -249,6 +292,13 @@ codeunit 11711 "Bank Operations Functions"
         exit(DelChr(BankAccountNo, '=', GetValidCharactersForBankAccountNo));
     end;
 
+#endif
+#if CLEAN18
+    internal procedure GetValidCharactersForBankAccountNo(): Text
+    begin
+        exit('0123456789-/');
+    end;
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetValidCharactersForBankAccountNo(): Text
@@ -256,22 +306,33 @@ codeunit 11711 "Bank Operations Functions"
         exit('0123456789-/');
     end;
 
+#endif
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetValidCharactersForVariableSymbol(): Text
     begin
         exit('0123456789');
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetValidCharactersForConstantSymbol(): Text
     begin
         exit('0123456789');
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetValidCharactersForSpecificSymbol(): Text
     begin
         exit('0123456789');
     end;
-}
+#if CLEAN18
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBankAccountNo(BankAccountNo: Text[30]; ShowErrorMessages: Boolean; var HasErrors: Boolean; var TempErrorMessage: Record "Error Message")
+    begin
+    end;
+#endif
+}
+#endif

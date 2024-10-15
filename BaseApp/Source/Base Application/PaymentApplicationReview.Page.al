@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 page 1287 "Payment Application Review"
 {
     PageType = Card;
@@ -321,27 +322,43 @@ page 1287 "Payment Application Review"
                         end;
                     }
                 }
-
                 group(SymbolMatching)
                 {
                     Caption = 'Symbol Matching Details';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+
                     field(VariableSymbolMatched; BankPmtApplRule."Variable Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Variable Symbol Matched';
                         ToolTip = 'Specifies if the exact transaction variable symbol is found on one or more open entries';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field(SpecificSymbolMatched; BankPmtApplRule."Specific Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Specific Symbol Matched';
                         ToolTip = 'Specifies the symbol matched';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                     field(ConstantSymbolMatched; BankPmtApplRule."Constant Symbol Matched")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Constant Symbol Matched';
                         ToolTip = 'Specifies the match rule for constant symbol';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
                 }
             }
@@ -521,7 +538,6 @@ page 1287 "Payment Application Review"
         Clear(NoOfLedgerEntriesWithinAmountTolerance);
         Clear(NoOfLedgerEntriesOutsideAmountTolerance);
         Clear(RelatedPartyMatchedText);
-        Clear(RelatedPartyMatchedText);
         Clear(AmountMatchText);
         Clear(DocumentMatchedText);
         Clear(DirectDebitMatchedText);
@@ -542,19 +558,11 @@ page 1287 "Payment Application Review"
         LineNotAppliedVisible: Boolean;
         DifferenceVisible: Boolean;
         ReviewRequiredVisible: Boolean;
-        AmountMatchText: Text;
-        NoOfLedgerEntriesWithinAmountTolerance: Integer;
-        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
         RemainingAmountAfterPosting: Decimal;
         StatementToRemAmtDifference: Decimal;
         PmtAppliedToTxt: Text;
         ReviewRequiredTxt: Text;
-        RelatedPartyMatchedText: Text;
-        DocumentMatchDetailsEnabled: Boolean;
         RelatedPartyMatchDetailsEnabled: Boolean;
-        DocumentMatchedText: Text;
-        DirectDebitMatchedText: Text;
-        DirectDebitMatched: Boolean;
         IsMatchedAutomatically: Boolean;
         TotalNumberOfRecordsToReview: Integer;
         CurrentRecordToReview: Integer;
@@ -564,6 +572,17 @@ page 1287 "Payment Application Review"
         DifferenceToReconcileLbl: Label 'The difference must be resolved before you can post.';
         RemainingRecordToReviewPageCaptionLbl: Label ' - %1 Remaining', Comment = 'Text before is Payment Application Review - Remaining - %1. %1 is the total number of lines.';
         WouldYouLikeToRunMapTexttoAccountAgainQst: Label 'Do you want to re-apply the text to account mapping rules to all lines in the bank statement?';
+
+    protected var
+        AmountMatchText: Text;
+        DirectDebitMatchedText: Text;
+        DirectDebitMatched: Boolean;
+        DocumentMatchDetailsEnabled: Boolean;
+        DocumentMatchedText: Text;
         DocumentMatchInfoText: Text;
+        RelatedPartyMatchedText: Text;
         RelatedPartyMatchInfoText: Text;
+        NoOfLedgerEntriesWithinAmountTolerance: Integer;
+        NoOfLedgerEntriesOutsideAmountTolerance: Integer;
 }
+#endif

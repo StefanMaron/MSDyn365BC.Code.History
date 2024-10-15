@@ -60,7 +60,11 @@ table 905 "Assembly Setup"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

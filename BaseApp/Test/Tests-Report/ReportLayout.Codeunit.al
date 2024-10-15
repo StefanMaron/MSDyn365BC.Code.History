@@ -193,6 +193,7 @@ codeunit 132600 "Report Layout"
         REPORT.Run(REPORT::"Inventory - Availability Plan");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
@@ -207,6 +208,7 @@ codeunit 132600 "Report Layout"
         Commit();
         REPORT.Run(REPORT::"Price List");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('RHGLConsolidationEliminations')]
@@ -765,6 +767,7 @@ codeunit 132600 "Report Layout"
         InventoryAvailabilityPlan.SaveAsPdf(FormatFileName(InventoryAvailabilityPlan.Caption));
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHPriceList(var PriceList: TestRequestPage "Price List")
@@ -773,6 +776,7 @@ codeunit 132600 "Report Layout"
         PriceList.Date.SetValue(WorkDate);
         PriceList.SaveAsPdf(FormatFileName(PriceList.Caption));
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

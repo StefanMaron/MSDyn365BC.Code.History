@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 31030 "Purch. Advance Letter List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PurchAdvanceLetterList.rdlc';
-    Caption = 'Purchase Advance Letters';
+    Caption = 'Purchase Advance Letters (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -147,4 +151,4 @@ report 31030 "Purch. Advance Letter List"
         Purch_Advance_Letter_ListCaptionLbl: Label 'Purchase Advance Letter List';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }
-
+#endif

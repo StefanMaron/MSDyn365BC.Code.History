@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31055 "Cust. Ledg. Entries Subform"
 {
     Caption = 'Customer Ledger Entries';
@@ -322,4 +323,4 @@ page 31055 "Cust. Ledg. Entries Subform"
         CurrPage.Update(false);
     end;
 }
-
+#endif

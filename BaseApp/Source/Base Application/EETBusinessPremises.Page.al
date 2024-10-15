@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31121 "EET Business Premises"
 {
     Caption = 'EET Business Premises (Obsolete)';
@@ -56,4 +57,4 @@ page 31121 "EET Business Premises"
         }
     }
 }
-
+#endif

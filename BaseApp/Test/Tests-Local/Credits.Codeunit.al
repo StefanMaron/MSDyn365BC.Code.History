@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145000 Credits
 {
     Subtype = Test;
@@ -371,3 +372,4 @@ codeunit 145000 Credits
     end;
 }
 
+#endif

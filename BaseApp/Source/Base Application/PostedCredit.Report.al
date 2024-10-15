@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31057 "Posted Credit"
 {
     DefaultLayout = RDLC;
@@ -453,6 +454,7 @@ report 31057 "Posted Credit"
                     Addr := Addr + ' ' + "Company Address 2";
                 if ("Company Post Code" <> '') or ("Company City" <> '') then
                     Addr := Addr + ', ' + "Company Post Code" + ' ' + "Company City";
+#if not CLEAN17
 
                 case Type of
                     Type::Vendor:
@@ -474,6 +476,7 @@ report 31057 "Posted Credit"
                             RegNo := Cont."Registration No.";
                         end;
                 end;
+#endif
             end;
 
             trigger OnPreDataItem()
@@ -570,3 +573,5 @@ report 31057 "Posted Credit"
         AmtFormatTxt: Text;
 }
 
+
+#endif

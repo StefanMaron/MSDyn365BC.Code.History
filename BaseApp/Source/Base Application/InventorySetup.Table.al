@@ -23,11 +23,9 @@
             Caption = 'Item Nos.';
             TableRelation = "No. Series";
         }
-        field(30; "Automatic Cost Adjustment"; Option)
+        field(30; "Automatic Cost Adjustment"; Enum "Automatic Cost Adjustment Type")
         {
             Caption = 'Automatic Cost Adjustment';
-            OptionCaption = 'Never,Day,Week,Month,Quarter,Year,Always';
-            OptionMembers = Never,Day,Week,Month,Quarter,Year,Always;
 
             trigger OnValidate()
             begin
@@ -106,6 +104,11 @@
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
+        field(5725; "Use Item References"; Boolean)
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Use Item References';
+        }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -135,13 +138,11 @@
         {
             Caption = 'Default Costing Method';
         }
-        field(5804; "Average Cost Calc. Type"; Option)
+        field(5804; "Average Cost Calc. Type"; Enum "Average Cost Calculation Type")
         {
             Caption = 'Average Cost Calc. Type';
             InitValue = "Item & Location & Variant";
             NotBlank = true;
-            OptionCaption = ' ,Item,Item & Location & Variant';
-            OptionMembers = " ",Item,"Item & Location & Variant";
 
             trigger OnValidate()
             begin
@@ -289,30 +290,46 @@
         field(31071; "Use GPPG from SKU"; Boolean)
         {
             Caption = 'Use GPPG from SKU';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31072; "Date Order Inventory Change"; Boolean)
         {
             Caption = 'Date Order Inventory Change';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31073; "Def.Template for Phys.Pos.Adj"; Code[10])
         {
             Caption = 'Def.Template for Phys.Pos.Adj';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Whse. Net Change Template";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31074; "Def.Template for Phys.Neg.Adj"; Code[10])
         {
             Caption = 'Def.Template for Phys.Neg.Adj';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Whse. Net Change Template";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -348,14 +365,22 @@
         field(31078; "Post Neg. Transfers as Corr."; Boolean)
         {
             Caption = 'Post Neg. Transfers as Corr.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31079; "Post Exp. Cost Conv. as Corr."; Boolean)
         {
             Caption = 'Post Exp. Cost Conv. as Corr.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -418,6 +443,11 @@
                 exit(false);
 
         exit(true);
+    end;
+
+    procedure AutomaticCostAdjmtRequired(): Boolean
+    begin
+        exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
 }
 

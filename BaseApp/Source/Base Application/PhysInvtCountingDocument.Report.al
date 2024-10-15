@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31074 "Phys. Invt. Counting Document"
 {
     DefaultLayout = RDLC;
@@ -495,3 +496,5 @@ report 31074 "Phys. Invt. Counting Document"
         signature_Caption_Control1470082Lbl: Label '(signature)';
 }
 
+
+#endif

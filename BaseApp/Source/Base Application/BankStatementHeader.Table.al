@@ -2,14 +2,22 @@ table 11704 "Bank Statement Header"
 {
     Caption = 'Bank Statement Header';
     DataCaptionFields = "No.", "Bank Account No.", "Bank Account Name";
+#if not CLEAN19
     DrillDownPageID = "Bank Statement List";
     LookupPageID = "Bank Statement List";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -19,6 +27,7 @@ table 11704 "Bank Statement Header"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(2; "No. Series"; Code[20])
         {
@@ -29,7 +38,12 @@ table 11704 "Bank Statement Header"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif            
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -45,10 +59,11 @@ table 11704 "Bank Statement Header"
 
                 CalcFields("Bank Account Name");
             end;
+#endif
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -60,6 +75,7 @@ table 11704 "Bank Statement Header"
         field(6; "Document Date"; Date)
         {
             Caption = 'Document Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -69,11 +85,13 @@ table 11704 "Bank Statement Header"
                         ConfirmUpdateCurrencyFactor;
                 end;
             end;
+#endif
         }
         field(7; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -92,12 +110,14 @@ table 11704 "Bank Statement Header"
 
                 Validate("Bank Statement Currency Code", "Currency Code");
             end;
+#endif
         }
         field(8; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -106,24 +126,26 @@ table 11704 "Bank Statement Header"
                 if "Currency Factor" <> xRec."Currency Factor" then
                     UpdateBankStmtLine(FieldCaption("Currency Factor"), false);
             end;
+#endif
         }
+#if not CLEAN19
         field(9; Amount; Decimal)
         {
-            CalcFormula = Sum ("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Sum("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Sum("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; Debit; Decimal)
         {
-            CalcFormula = - Sum ("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = - Sum("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
                                                                    Positive = CONST(false)));
             Caption = 'Debit';
             Editable = false;
@@ -131,7 +153,7 @@ table 11704 "Bank Statement Header"
         }
         field(12; "Debit (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = - Sum("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
                                                                            Positive = CONST(false)));
             Caption = 'Debit (LCY)';
             Editable = false;
@@ -139,7 +161,7 @@ table 11704 "Bank Statement Header"
         }
         field(13; Credit; Decimal)
         {
-            CalcFormula = Sum ("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = Sum("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
                                                                   Positive = CONST(true)));
             Caption = 'Credit';
             Editable = false;
@@ -147,7 +169,7 @@ table 11704 "Bank Statement Header"
         }
         field(14; "Credit (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
+            CalcFormula = Sum("Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
                                                                           Positive = CONST(true)));
             Caption = 'Credit (LCY)';
             Editable = false;
@@ -155,11 +177,12 @@ table 11704 "Bank Statement Header"
         }
         field(15; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Bank Statement Line" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = Count("Bank Statement Line" WHERE("Bank Statement No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -179,6 +202,7 @@ table 11704 "Bank Statement Header"
         {
             Caption = 'Bank Statement Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -195,12 +219,14 @@ table 11704 "Bank Statement Header"
                                 ConfUpdateOrderCurrencyFactor;
                         end;
             end;
+#endif
         }
         field(21; "Bank Statement Currency Factor"; Decimal)
         {
             Caption = 'Bank Statement Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -209,6 +235,7 @@ table 11704 "Bank Statement Header"
                 if "Bank Statement Currency Factor" <> xRec."Bank Statement Currency Factor" then
                     UpdateBankStmtLine(FieldCaption("Bank Statement Currency Factor"), CurrFieldNo <> 0);
             end;
+#endif
         }
         field(30; "Last Issuing No."; Code[20])
         {
@@ -219,6 +246,7 @@ table 11704 "Bank Statement Header"
         field(35; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -251,6 +279,7 @@ table 11704 "Bank Statement Header"
                     exit;
                 end;
             end;
+#endif
         }
         field(55; "File Name"; Text[250])
         {
@@ -307,6 +336,7 @@ table 11704 "Bank Statement Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -351,6 +381,7 @@ table 11704 "Bank Statement Header"
         UpdateLinesQst: Label 'You have modified %1.\Do you want update lines?', Comment = '%1=FIELDCAPTION';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure AssistEdit(OldBankStmtHeader: Record "Bank Statement Header"): Boolean
     var
         BankStmtHeader: Record "Bank Statement Header";
@@ -390,6 +421,7 @@ table 11704 "Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure UpdateBankStmtLine(ChangedFieldName: Text[30]; AskQuestion: Boolean)
     var
         BankStmtLine: Record "Bank Statement Line";
@@ -442,6 +474,7 @@ table 11704 "Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure BankStmtLinesExist(): Boolean
     var
         BankStmtLine: Record "Bank Statement Line";
@@ -475,12 +508,14 @@ table 11704 "Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetHideValidationDialog(HideValidationDialogNew: Boolean)
     begin
         HideValidationDialog := HideValidationDialogNew;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ImportBankStatement()
     var
         BankAcc: Record "Bank Account";
@@ -493,6 +528,7 @@ table 11704 "Bank Statement Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure TestPrintRecords(ShowRequestForm: Boolean)
     var
         BankStmtHdr: Record "Bank Statement Header";
@@ -500,5 +536,6 @@ table 11704 "Bank Statement Header"
         BankStmtHdr.Copy(Rec);
         REPORT.RunModal(REPORT::"Bank Statement - Test", ShowRequestForm, false, BankStmtHdr);
     end;
+#endif
 }
 

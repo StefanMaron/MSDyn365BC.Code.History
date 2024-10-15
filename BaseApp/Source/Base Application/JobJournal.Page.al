@@ -55,6 +55,7 @@ page 201 "Job Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Whse. Net Change Template"; "Whse. Net Change Template")
                 {
                     ApplicationArea = Jobs;
@@ -64,6 +65,7 @@ page 201 "Job Journal"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = Jobs;
@@ -272,6 +274,7 @@ page 201 "Job Journal"
                     ToolTip = 'Specifies the total price for the journal line. The amount is in the local currency.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Net Weight"; "Net Weight")
                 {
                     ApplicationArea = Jobs;
@@ -281,6 +284,7 @@ page 201 "Job Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Applies-to Entry"; "Applies-to Entry")
                 {
                     ApplicationArea = Jobs;
@@ -298,6 +302,7 @@ page 201 "Job Journal"
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Intrastat Transaction"; "Intrastat Transaction")
                 {
                     ApplicationArea = Jobs;
@@ -316,6 +321,7 @@ page 201 "Job Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
@@ -334,6 +340,7 @@ page 201 "Job Journal"
                     ToolTip = 'Specifies a code for the transaction specification, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Jobs;
@@ -352,6 +359,7 @@ page 201 "Job Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Time Sheet No."; "Time Sheet No.")
                 {
                     ApplicationArea = Jobs;

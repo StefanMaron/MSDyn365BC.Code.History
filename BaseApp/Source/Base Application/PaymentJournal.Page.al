@@ -1,4 +1,5 @@
-﻿page 256 "Payment Journal"
+#if not CLEAN19
+page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -47,6 +48,7 @@
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -56,6 +58,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -129,6 +132,7 @@
                         CurrPage.SaveRecord();
                     end;
                 }
+#if not CLEAN18
                 field("Posting Group"; "Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -138,6 +142,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Recipient Bank Account"; "Recipient Bank Account")
                 {
                     ApplicationArea = Basic, Suite;
@@ -267,6 +272,9 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance VAT base amount for the general journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("VAT Difference"; "VAT Difference")
                 {
@@ -390,6 +398,7 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                 }
+#if not CLEAN18
                 field(Compensation; Compensation)
                 {
                     ApplicationArea = Basic, Suite;
@@ -398,6 +407,7 @@
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field(CommentField; Comment)
                 {
                     ApplicationArea = Comments;
@@ -430,12 +440,26 @@
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if line of IC general journal is prepayment';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+                }
+                field(LinkedAdvances; GetLinkedAdvanceLetters(Rec."Account Type", Rec."Advance Letter Link Code"))
+                {
+                    Caption = 'Linked Advances';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Shows the number of the advances with which the journal line is linked.';
+                    Editable = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {
@@ -565,15 +589,19 @@
             group(Control24)
             {
                 ShowCaption = false;
+#if not CLEAN19
                 fixed(Control80)
                 {
                     ShowCaption = false;
                     Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'This control is no longer consider needed';
+                    ObsoleteReason = 'This control is no longer considered needed';
                     ObsoleteTag = '16.0';
                     group(Control82)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control is no longer considered needed';
+                        ObsoleteTag = '19.0';
                         ShowCaption = false;
                         field(OverdueWarningText; OverdueWarningText)
                         {
@@ -581,9 +609,13 @@
                             Style = Unfavorable;
                             StyleExpr = TRUE;
                             ToolTip = 'Specifies the text that is displayed for overdue payments.';
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control is no longer considered needed';
+                            ObsoleteTag = '19.0';
                         }
                     }
                 }
+#endif
                 fixed(Control1903561801)
                 {
                     ShowCaption = false;
@@ -1076,20 +1108,28 @@
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Image = LinkWithExisting;
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1099,9 +1139,13 @@
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1229,7 +1273,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1242,6 +1286,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category8;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1264,7 +1309,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1855,6 +1900,46 @@
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
     end;
 
+    local procedure GetLinkedAdvanceLetters(AccountType: Enum "Gen. Journal Account Type"; LinkCode: Code[30]) Result: Code[250]
+    var
+        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
+        PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
+        AdvanceLetterCodes: List of [Code[20]];
+        AdvanceLetterCode: Code[20];
+    begin
+        if LinkCode = '' then
+            exit('');
+
+        case AccountType of
+            Enum::"Gen. Journal Account Type"::Customer:
+                begin
+                    SalesAdvanceLetterLine.SetCurrentKey("Link Code");
+                    SalesAdvanceLetterLine.SetRange("Link Code", LinkCode);
+                    if SalesAdvanceLetterLine.FindSet() then
+                        repeat
+                            if not AdvanceLetterCodes.Contains(SalesAdvanceLetterLine."Letter No.") then
+                                AdvanceLetterCodes.Add(SalesAdvanceLetterLine."Letter No.");
+                        until SalesAdvanceLetterLine.Next() = 0;
+                end;
+            Enum::"Gen. Journal Account Type"::Vendor:
+                begin
+                    PurchAdvanceLetterLine.SetCurrentKey("Link Code");
+                    PurchAdvanceLetterLine.SetRange("Link Code", LinkCode);
+                    if PurchAdvanceLetterLine.FindSet() then
+                        repeat
+                            if not AdvanceLetterCodes.Contains(PurchAdvanceLetterLine."Letter No.") then
+                                AdvanceLetterCodes.Add(PurchAdvanceLetterLine."Letter No.");
+                        until PurchAdvanceLetterLine.Next() = 0;
+                end;
+        end;
+
+        foreach AdvanceLetterCode in AdvanceLetterCodes do
+            if Result = '' then
+                Result := AdvanceLetterCode
+            else
+                Result := CopyStr(Result + ',' + AdvanceLetterCode, 1, 250);
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var AccName: Text[100]; var BalAccName: Text[100])
     begin
@@ -1891,3 +1976,4 @@
     end;
 }
 
+#endif

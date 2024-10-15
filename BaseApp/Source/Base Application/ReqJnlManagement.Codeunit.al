@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 330 ReqJnlManagement
 {
     Permissions = TableData "Req. Wksh. Template" = imd,
@@ -264,3 +265,4 @@ codeunit 330 ReqJnlManagement
     end;
 }
 
+#endif

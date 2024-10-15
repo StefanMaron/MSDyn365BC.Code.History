@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 497 "Batch Post Purchase Invoices"
 {
     Caption = 'Batch Post Purchase Invoices (Obsolete)';
@@ -172,4 +173,4 @@ report 497 "Batch Post Purchase Invoices"
         UseVATDate := GLSetup."Use VAT Date";
     end;
 }
-
+#endif

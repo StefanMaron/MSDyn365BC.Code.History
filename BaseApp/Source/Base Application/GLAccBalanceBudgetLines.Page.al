@@ -169,7 +169,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, GLPeriodLength);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -178,7 +178,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, GLPeriodLength);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -191,28 +191,38 @@ page 350 "G/L Acc. Balance/Budget Lines"
         AccountingPeriod: Record "Accounting Period";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         GLAcc: Record "G/L Account";
         ClosingEntryFilter: Option Include,Exclude;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewGLAcc: Record "G/L Account"; NewGLPeriodLength: Integer; NewAmountType: Option "Net Change",Balance; NewClosingEntryFilter: Option Include,Exclude)
     begin
+        SetLines(
+            NewGLAcc, "Analysis Period Type".FromInteger(NewGLPeriodLength), "Analysis Amount Type".FromInteger(NewAmountType),
+            NewClosingEntryFilter);
+    end;
+#endif
+
+    procedure SetLines(var NewGLAcc: Record "G/L Account"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewClosingEntryFilter: Option Include,Exclude)
+    begin
         GLAcc.Copy(NewGLAcc);
-        DeleteAll();
+        Rec.DeleteAll();
 
         if GLAcc.GetFilter("Date Filter") <> '' then begin
-            FilterGroup(2);
-            SetFilter("Period Start", GLAcc.GetFilter("Date Filter"));
-            FilterGroup(0);
+            Rec.FilterGroup(2);
+            Rec.SetFilter("Period Start", GLAcc.GetFilter("Date Filter"));
+            Rec.FilterGroup(0);
             DateRec.FilterGroup(2);
             DateRec.SetFilter("Period Start", GLAcc.GetFilter("Date Filter"));
             DateRec.FilterGroup(0);
         end;
 
-        GLPeriodLength := NewGLPeriodLength;
+        PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         ClosingEntryFilter := NewClosingEntryFilter;
         CurrPage.Update(false);
@@ -232,6 +242,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
         GLEntry.SetFilter("Global Dimension 1 Code", GLAcc.GetFilter("Global Dimension 1 Filter"));
         GLEntry.SetFilter("Global Dimension 2 Code", GLAcc.GetFilter("Global Dimension 2 Filter"));
         GLEntry.SetFilter("Business Unit Code", GLAcc.GetFilter("Business Unit Filter"));
+        OnBalanceDrillDownOnAfterSetFilters(GLEntry, GLAcc);
         PAGE.Run(0, GLEntry);
     end;
 
@@ -306,6 +317,11 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcFormFields(var GLAccount: Record "G/L Account"; var BudgetPct: Decimal; var GLAccBalanceBudgetBuffer: Record "G/L Acc. Balance/Budget Buffer"; ClosingEntryFilter: Option Include,Exclude)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBalanceDrillDownOnAfterSetFilters(var GLEntry: Record "G/L Entry"; GLAccount: Record "G/L Account")
     begin
     end;
 }

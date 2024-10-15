@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31003 "Sales Adv. Letters"
 {
-    Caption = 'Sales Adv. Letters';
+    Caption = 'Sales Adv. Letters (Obsolete)';
     CardPageID = "Sales Advance Letter";
     Editable = false;
     PageType = List;
     SourceTable = "Sales Advance Letter Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -152,4 +156,4 @@ page 31003 "Sales Adv. Letters"
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
 }
-
+#endif

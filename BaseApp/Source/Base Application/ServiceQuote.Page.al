@@ -550,6 +550,7 @@ page 5964 "Service Quote"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -561,6 +562,7 @@ page 5964 "Service Quote"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -591,6 +593,7 @@ page 5964 "Service Quote"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -600,6 +603,8 @@ page 5964 "Service Quote"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -609,11 +614,13 @@ page 5964 "Service Quote"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -632,6 +639,7 @@ page 5964 "Service Quote"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -643,6 +651,7 @@ page 5964 "Service Quote"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -744,6 +753,7 @@ page 5964 "Service Quote"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -960,13 +970,9 @@ page 5964 "Service Quote"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

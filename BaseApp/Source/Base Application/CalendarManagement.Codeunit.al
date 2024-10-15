@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 7600 "Calendar Management"
 {
 
@@ -705,3 +706,4 @@ codeunit 7600 "Calendar Management"
     end;
 }
 
+#endif

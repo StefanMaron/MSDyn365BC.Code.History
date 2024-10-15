@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5814 "Item Charge Assignment (Sales)"
 {
     AutoSplitKey = true;
@@ -462,3 +463,4 @@ page 5814 "Item Charge Assignment (Sales)"
     end;
 }
 
+#endif

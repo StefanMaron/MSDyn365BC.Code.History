@@ -1,4 +1,5 @@
-﻿codeunit 1255 "Match Bank Payments"
+﻿#if not CLEAN19
+codeunit 1255 "Match Bank Payments"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -13,6 +14,19 @@
         Code(BankAccReconciliationLine);
 
         Rec := BankAccReconciliationLine;
+
+        OnAfterCode(BankAccReconciliationLine);
+    end;
+
+    procedure MatchNoOverwriteOfManualOrAccepted(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        BankAccReconciliationLineBackup: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLineBackup.Copy(BankAccReconciliationLine);
+
+        Code(BankAccReconciliationLineBackup);
+
+        BankAccReconciliationLine := BankAccReconciliationLineBackup;
 
         OnAfterCode(BankAccReconciliationLine);
     end;
@@ -435,11 +449,10 @@
                     InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer);
                 end;
                 CurrencyCode := BankAccReconciliationLine."Currency Code";
-#if not CLEAN19
+
                 TempGeneralLedgerEntryMatchingBuffer.Reset();
                 TempGeneralLedgerEntryMatchingBuffer.DeleteAll();
                 InitializeGeneralLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempGeneralLedgerEntryMatchingBuffer);
-#endif
                 // NAVCZ
 
                 StartTime := CurrentDateTime();
@@ -496,6 +509,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure MapAdvanceLetterToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         Window: Dialog;
@@ -753,8 +767,8 @@
           TempEmployeeLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(
             MinAmount, MaxAmount, BankAccReconciliationLine."Transaction Date", UsePaymentDiscounts);
     end;
-#if not CLEAN19
-[Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
+
+    [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     [Scope('OnPrem')]
     procedure MatchSingleLineGLAccount(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliesToEntryNo: Integer; var NoOfLedgerEntriesWithinTolerance: Integer; var NoOfLedgerEntriesOutsideTolerance: Integer)
     var
@@ -786,7 +800,6 @@
           TempGeneralLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(
             MinAmount, MaxAmount, BankAccReconciliationLine."Transaction Date", false);
     end;
-#endif
 
     procedure MatchSingleLineBankAccountLedgerEntry(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliesToEntryNo: Integer; var NoOfLedgerEntriesWithinTolerance: Integer; var NoOfLedgerEntriesOutsideTolerance: Integer)
     var
@@ -917,6 +930,7 @@
         // NAVCZ
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure FindMatchingAdvanceLetters(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempAdvanceLetterMatchingBuffer: Record "Advance Letter Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type")
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
@@ -930,6 +944,7 @@
             until TempAdvanceLetterMatchingBuffer.Next() = 0;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure FindMatchingAdvanceLetter(var TempAdvanceLetterMatchingBuffer: Record "Advance Letter Matching Buffer" temporary; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
     var
         Score: Integer;
@@ -1092,7 +1107,7 @@
             TempVendLedgMatchingBufferInitialized := true;
         end;
     end;
-#if not CLEAN19
+
     [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure InitializeGeneralLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
     var
@@ -1116,8 +1131,8 @@
                 TempLedgerEntryMatchingBuffer.InsertFromGeneralLedgerEntry(GLEntry);
             until GLEntry.Next() = 0;
     end;
-#endif
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure InitializeSalesAdvanceLettersMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempSalesAdvanceMatchingBuffer: Record "Advance Letter Matching Buffer" temporary)
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -1158,6 +1173,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure InitializePurchaseAdvanceLettersMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempPurchAdvanceLetterMatchingBuffer: Record "Advance Letter Matching Buffer" temporary)
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -1458,6 +1474,7 @@
         until TempBankStmtMultipleMatchLine.Next() = 0;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure ApplyAdvanceLetter(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; LetterType: Option; LetterNo: Code[20])
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
@@ -1518,6 +1535,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure ApplyAdvanceLetterLines(LetterType: Option; LetterNo: Code[20]; Amount: Decimal; AdvanceLetterLinkCode: Code[30]): Decimal
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -1577,6 +1595,7 @@
         exit(Exp * (Abs(Amount) - SourceAmount));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetPostingGroupFromAdvanceLetter(LetterType: Option; LetterNo: Code[20]): Code[10]
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -2930,6 +2949,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetValuesForApp(NotApplyCustLedgerEntriesNew: Boolean; NotApplyVendLedgerEntriesNew: Boolean; NotApplySalesAdvancesNew: Boolean; NotApplyPurchaseAdvancesNew: Boolean; NotApplyGenLedgerEntriesNew: Boolean; NotAplBankAccLedgEntriesNew: Boolean; UsePaymentAppRulesNew: Boolean; UseTextToAccMappingCodeNew: Boolean; BankPmtApplRuleCodeNew: Code[10]; TextToAccMappingCodeNew: Code[10]; OnlyNotAppliedLinesNew: Boolean)
     begin
         // NAVCZ
@@ -3169,3 +3189,4 @@
     end;
 }
 
+#endif

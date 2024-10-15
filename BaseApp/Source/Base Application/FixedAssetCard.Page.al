@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5600 "Fixed Asset Card"
 {
     Caption = 'Fixed Asset Card';
@@ -706,7 +707,6 @@ page 5600 "Fixed Asset Card"
                 ObsoleteTag = '18.0';
                 Visible = false;
             }
-#if not CLEAN18
             action("FA Receipt Report")
             {
                 ApplicationArea = FixedAssets;
@@ -743,7 +743,6 @@ page 5600 "Fixed Asset Card"
                 ObsoleteTag = '18.0';
                 Visible = false;
             }
-#endif
         }
     }
 
@@ -944,3 +943,4 @@ page 5600 "Fixed Asset Card"
     end;
 }
 
+#endif

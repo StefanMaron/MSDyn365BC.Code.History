@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31124 "EET Entry Card"
 {
     Caption = 'EET Entry Card (Obsolete)';
@@ -240,11 +241,12 @@ page 31124 "EET Entry Card"
                 Caption = 'Show Document';
                 Image = Document;
                 ToolTip = 'Displays the document related to the entry.';
-
+#if not CLEAN17
                 trigger OnAction()
                 begin
                     ShowDocument;
                 end;
+#endif
             }
         }
         area(processing)
@@ -335,4 +337,4 @@ page 31124 "EET Entry Card"
         StyleText := EETEntryManagement.GetEETStatusStyleExpr("EET Status");
     end;
 }
-
+#endif

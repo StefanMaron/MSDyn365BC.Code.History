@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11746 "Cash Desk Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -136,4 +137,4 @@ page 11746 "Cash Desk Setup"
         "Account Type" := "Account Type"::"Cash Desk";
     end;
 }
-
+#endif

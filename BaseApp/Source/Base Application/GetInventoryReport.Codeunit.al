@@ -1,4 +1,5 @@
-﻿codeunit 5845 "Get Inventory Report"
+#if not CLEAN18
+codeunit 5845 "Get Inventory Report"
 {
     TableNo = "Inventory Report Entry";
 
@@ -181,7 +182,6 @@
                         UpDateWindow(WindowType, WindowNo, FieldCaption("WIP Account"));
                         InsertGLInvtReportEntry(InventoryReportLine, "WIP Account", InventoryReportLine."WIP Inventory");
                     end;
-#if not CLEAN18
                     // NAVCZ
                     TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Consumption Account", "Consumption Account");
@@ -205,7 +205,6 @@
                           InventoryReportLine, "Change In Inv.Of Product Acc.", InventoryReportLine."Change In Inv.Of Product");
                     end;
                     // NAVCZ
-#endif
 
                     OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
                     TempInvtPostingSetup := InvtPostingSetup;
@@ -236,7 +235,7 @@
                         InsertGLInvtReportEntry(
                           InventoryReportLine, "Inventory Adjmt. Account", InventoryReportLine."Inventory Adjmt.");
                     end;
-#if not CLEAN18
+
                     // NAVCZ
                     TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Invt. Rounding Adj. Account", "Invt. Rounding Adj. Account");
@@ -246,7 +245,6 @@
                           InventoryReportLine, "Invt. Rounding Adj. Account", InventoryReportLine."Inv. Rounding Adj.");
                     end;
                     // NAVCZ
-#endif
                     TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", "Invt. Accrual Acc. (Interim)");
                     if not TempGenPostingSetup.FindFirst then begin
@@ -406,14 +404,12 @@
             Inventory := Inventory + CalcInventory(ValueEntry);
             "Direct Cost Applied" := "Direct Cost Applied" + CalcDirectCostApplied(ValueEntry);
             "Overhead Applied" := "Overhead Applied" + CalcOverheadApplied(ValueEntry);
-#if not CLEAN18
             // NAVCZ
             "Inv. Rounding Adj." := "Inv. Rounding Adj." + CalcInvRndAdjmt(ValueEntry);
             Consumption := Consumption + CalcConsumption(ValueEntry);
             "Change In Inv.Of WIP" := "Change In Inv.Of WIP" + CalcChInvWIP(ValueEntry);
             "Change In Inv.Of Product" := "Change In Inv.Of Product" + CalcChInvProduct(ValueEntry);
             // NAVCZ
-#endif
 
             OnAfterCalcValueEntries(InventoryReportLine, ValueEntry);
         end;
@@ -446,11 +442,9 @@
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
-#if not CLEAN18
             // NAVCZ
             CalcSums(Consumption, "Change In Inv.Of WIP", "Change In Inv.Of Product", "Inv. Rounding Adj.");
             // NAVCZ
-#endif
 
             OnCalcDiffOnAfterCalcSumsTypeGLAccount(InventoryReportLine);
             CalcInventoryReportLine := InventoryReportLine;
@@ -465,11 +459,9 @@
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
-#if not CLEAN18
             // NAVCZ
             CalcSums(Consumption, "Change In Inv.Of WIP", "Change In Inv.Of Product", "Inv. Rounding Adj.");
             // NAVCZ
-#endif
 
             OnCalcDiffOnAfterCalcSumsTypeItem(InventoryReportLine);
         end;
@@ -496,14 +488,12 @@
             "WIP To Interim" := "WIP To Interim" - InventoryReportLine."WIP To Interim";
             "Direct Cost Applied" := "Direct Cost Applied" - InventoryReportLine."Direct Cost Applied";
             "Overhead Applied" := "Overhead Applied" - InventoryReportLine."Overhead Applied";
-#if not CLEAN18
             // NAVCZ
             "Inv. Rounding Adj." := "Inv. Rounding Adj." - InventoryReportLine."Inv. Rounding Adj.";
             Consumption := Consumption - InventoryReportLine.Consumption;
             "Change In Inv.Of WIP" := "Change In Inv.Of WIP" - InventoryReportLine."Change In Inv.Of WIP";
             "Change In Inv.Of Product" := "Change In Inv.Of Product" - InventoryReportLine."Change In Inv.Of Product";
             // NAVCZ
-#endif
 
             OnCalcDiffOnBeforeCopytoInventoryReportEntry(CalcInventoryReportLine, InventoryReportLine);
             InventoryReportLine.Copy(CalcInventoryReportLine);
@@ -1691,7 +1681,6 @@
         end;
     end;
 
-#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CalcInvRndAdjmt(var ValueEntry1: Record "Value Entry"): Decimal
@@ -1864,7 +1853,6 @@
             PAGE.Run(0, ValueEntry1, "Cost Amount (Expected)");
         end;
     end;
-#endif
 
     local procedure IsGLNotTheSameHandled(var InventoryReportLine: Record "Inventory Report Entry"; var InvtPostingSetup: Record "Inventory Posting Setup"; var TempInvtPostingSetup: Record "Inventory Posting Setup" temporary; var TotalInventory: Decimal) IsHandled: Boolean
     begin
@@ -1917,3 +1905,4 @@
     end;
 }
 
+#endif

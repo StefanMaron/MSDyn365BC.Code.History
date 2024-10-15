@@ -54,7 +54,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         {
             Caption = 'Review Required';
         }
-	
+
         field(41; "Apply Immediatelly"; Boolean)
         {
             Caption = 'Apply Immediatelly';
@@ -63,7 +63,12 @@ table 1252 "Bank Pmt. Appl. Rule"
         field(11700; "Bank Pmt. Appl. Rule Code"; Code[10])
         {
             Caption = 'Bank Pmt. Appl. Rule Code';
+#if not CLEAN19
             TableRelation = "Bank Pmt. Appl. Rule Code";
+#endif
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
 
         field(11705; "Variable Symbol Matched"; Option)
@@ -71,24 +76,52 @@ table 1252 "Bank Pmt. Appl. Rule"
             Caption = 'Variable Symbol Matched';
             OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
             OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11706; "Specific Symbol Matched"; Option)
         {
             Caption = 'Specific Symbol Matched';
             OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
             OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11707; "Constant Symbol Matched"; Option)
         {
             Caption = 'Constant Symbol Matched';
             OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
             OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11710; "Bank Transaction Type"; Option)
         {
             Caption = 'Bank Transaction Type';
             OptionCaption = 'Both,+,-';
             OptionMembers = Both,"+","-";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -97,6 +130,9 @@ table 1252 "Bank Pmt. Appl. Rule"
         key(Key1; "Bank Pmt. Appl. Rule Code", "Match Confidence", Priority)
         {
             Clustered = true;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key2; Score)
         {
@@ -122,7 +158,12 @@ table 1252 "Bank Pmt. Appl. Rule"
         WrongPriorityNoErr: Label 'The %1 you entered is invalid. The %1 must be between %2 and %3.', Comment = '%1 - Table field with caption Priority. %2 and %3 are numbers presenting a range - e.g. 1 and 999';
         LoadRulesOnlyOnTempRecordsErr: Label 'Programming error: The LoadRules function can only be called from temporary records.', Comment = 'Description to developers, should not be seen by users';
 
+#if CLEAN19
+    procedure LoadRules()
+#else
+    [Obsolete('Merge to W1.', '19.0')]
     procedure LoadRules(BankPmtApplRuleCode: Code[10])
+#endif
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
@@ -130,7 +171,11 @@ table 1252 "Bank Pmt. Appl. Rule"
             Error(LoadRulesOnlyOnTempRecordsErr);
 
         DeleteAll();
+#if CLEAN19
+        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", ''); // NAVCZ
+#else
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankPmtApplRuleCode); // NAVCZ
+#endif
         if BankPmtApplRule.FindSet then
             repeat
                 TransferFields(BankPmtApplRule);
@@ -160,6 +205,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           ParameterBankPmtApplRule."Direct Debit Collect. Matched",
           ParameterBankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
+#if not CLEAN19
         // NAVCZ
         SetFilter("Variable Symbol Matched", '%1|%2',
           ParameterBankPmtApplRule."Variable Symbol Matched",
@@ -178,6 +224,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           ParameterBankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
 
+#endif
         if FindFirst then
             exit(Score);
 
@@ -215,7 +262,11 @@ table 1252 "Bank Pmt. Appl. Rule"
         MediumConfidenceHighestScore: Integer;
     begin
         // Text mapper should override only Medium confidence and lower
+#if CLEAN19
+        MediumConfidenceHighestScore := CalculateScore("Match Confidence"::Medium, 0);
+#else
         MediumConfidenceHighestScore := CalculateScore("Match Confidence"::Medium, Priority); // NAVCZ
+#endif
         exit(MediumConfidenceHighestScore);
     end;
 
@@ -244,12 +295,21 @@ table 1252 "Bank Pmt. Appl. Rule"
         exit(GetConfidenceScoreRange - 1);
     end;
 
+#if CLEAN19
+    procedure GetMatchConfidence(MatchQuality: Integer): Integer
+#else
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetMatchConfidence(MatchQuality: Integer; IsTextMapper: Boolean): Integer
+#endif
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         OptionNo: Integer;
     begin
+#if CLEAN19
+        if MatchQuality = GetTextMapperScore then
+#else
         if IsTextMapper then // NAVCZ
+#endif
             exit(BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
 
         OptionNo := MatchQuality div GetConfidenceScoreRange;
@@ -285,7 +345,11 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         RulePriority: Integer;
     begin
+#if CLEAN19
+        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", ''); // NAVCZ
+#else
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", "Bank Pmt. Appl. Rule Code"); // NAVCZ
+#endif
         if not BankPmtApplRule.IsEmpty() then
             exit;
 
@@ -297,6 +361,9 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::Yes,
+#if CLEAN19
+          true);
+#else
           true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Not Considered",
@@ -304,13 +371,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ;
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          true);
+#else
           true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -318,13 +393,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          true);
+#else
           true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -332,13 +415,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          true);
+#else
           true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -346,13 +437,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           true,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -360,13 +459,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -374,13 +481,22 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match", // NAVCZ
+#endif
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -388,13 +504,22 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches", // NAVCZ
+#endif
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -402,13 +527,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -416,13 +549,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -444,13 +585,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::High, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -458,15 +607,23 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         // Insert Medium Confidence rules
         RulePriority := 1;
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -474,13 +631,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -488,13 +653,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -502,13 +675,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
@@ -516,13 +697,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -530,10 +719,25 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
+
+        InsertBankPaymentApplicationRule(
+          BankPmtApplRule."Match Confidence"::Medium, RulePriority,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+          false);
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
@@ -544,13 +748,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -558,13 +770,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Medium, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::Yes,
@@ -572,15 +792,23 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         // Insert Low Confidence rules
         RulePriority := 1;
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::Fully,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -588,13 +816,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -602,13 +838,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::Partially,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -616,13 +860,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -630,13 +882,21 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
 
         InsertBankPaymentApplicationRule(
           BankPmtApplRule."Match Confidence"::Low, RulePriority,
           BankPmtApplRule."Related Party Matched"::No,
+#if CLEAN19
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+#else
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered", // NAVCZ
+#endif
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
+#if CLEAN19
+          false);
+#else
           false,
           // NAVCZ
           BankPmtApplRule."Variable Symbol Matched"::No,
@@ -644,14 +904,23 @@ table 1252 "Bank Pmt. Appl. Rule"
           BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
           BankPmtApplRule."Bank Transaction Type"::Both);
         // NAVCZ
+#endif
     end;
 
+#if CLEAN19
+    local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; ApplyAutomatically: Boolean)
+#else
     local procedure InsertBankPaymentApplicationRule(MatchConfidence: Option; var RulePriority: Integer; RelatedPartyIdentification: Option; DocumentMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; ApplyAutomatically: Boolean; VariableSymbolMatch: Option; SpecificSymbolMatch: Option; ConstantSymbolMatch: Option; BankTransactionType: Option)
+#endif
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         BankPmtApplRule.Init();
+#if CLEAN19
+        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := ''; // NAVCZ
+#else
         BankPmtApplRule."Bank Pmt. Appl. Rule Code" := "Bank Pmt. Appl. Rule Code"; // NAVCZ
+#endif
         BankPmtApplRule."Match Confidence" := MatchConfidence;
         BankPmtApplRule.Priority := RulePriority;
         BankPmtApplRule."Related Party Matched" := RelatedPartyIdentification;
@@ -660,6 +929,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule."Direct Debit Collect. Matched" := DirectDebitCollectionMatch;
         BankPmtApplRule."Apply Immediatelly" := ApplyAutomatically;
 
+#if not CLEAN19
         // NAVCZ
         BankPmtApplRule."Variable Symbol Matched" := VariableSymbolMatch;
         BankPmtApplRule."Specific Symbol Matched" := SpecificSymbolMatch;
@@ -667,14 +937,17 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule."Bank Transaction Type" := BankTransactionType;
         // NAVCZ
 
+#endif
         if BankPmtApplRule."Match Confidence" in [BankPmtApplRule."Match Confidence"::None, BankPmtApplRule."Match Confidence"::Low, BankPmtApplRule."Match Confidence"::Medium] then
             BankPmtApplRule."Review Required" := true;
 
         BankPmtApplRule.Insert(true);
         RulePriority += 1;
     end;
+#if not CLEAN19
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure GetBankTransactionType(Amount: Decimal): Integer
     begin
         // NAVCZ
@@ -687,6 +960,7 @@ table 1252 "Bank Pmt. Appl. Rule"
     end;
 
     // NAV CZ
+    [Obsolete('Merge to W1.', '19.0')]
     procedure FilterToBankAccountRules(BankAccReconcilationLine: Record "Bank Acc. Reconciliation Line"; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"): Boolean
     var
         BankAccount: Record "Bank Account";
@@ -705,6 +979,7 @@ table 1252 "Bank Pmt. Appl. Rule"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Merge to W1.', '19.0')]
     procedure UpdateFromBankStmtMatchingBuffer(BankStmtMatchingBuffer: Record "Bank Statement Matching Buffer")
     begin
         // NAVCZ
@@ -747,5 +1022,6 @@ table 1252 "Bank Pmt. Appl. Rule"
                 "Constant Symbol Matched" := "Constant Symbol Matched"::"Yes - Multiple";
         end;
     end;
+#endif
 }
 

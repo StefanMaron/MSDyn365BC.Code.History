@@ -1,4 +1,5 @@
-﻿codeunit 5602 "FA Get G/L Account No."
+﻿#if not CLEAN18
+codeunit 5602 "FA Get G/L Account No."
 {
 
     trigger OnRun()
@@ -11,9 +12,7 @@
 
     procedure GetAccNo(var FALedgEntry: Record "FA Ledger Entry"): Code[20]
     var
-#if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
-#endif
     begin
         with FALedgEntry do begin
             FAPostingGr.GetPostingGroup("FA Posting Group", "Depreciation Book Code");
@@ -33,7 +32,6 @@
                     "FA Posting Type"::"Custom 2":
                         GLAccNo := FAPostingGr.GetCustom2Account;
                     "FA Posting Type"::"Proceeds on Disposal":
-#if not CLEAN18
                         // NAVCZ
                         if not FAPostingGr.UseStandardDisposal() then begin
                             FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
@@ -41,7 +39,6 @@
                             GLAccNo := FAExtPostingGr."Sales Acc. On Disp. (Gain)";
                         end else
                             // NAVCZ
-#endif
                         GLAccNo := FAPostingGr.GetSalesAccountOnDisposalGain;
                     "FA Posting Type"::"Gain/Loss":
                         begin
@@ -58,11 +55,9 @@
                         GLAccNo := FAPostingGr.GetAcquisitionCostAccountOnDisposal;
                     "FA Posting Type"::Depreciation:
                         begin
-#if not CLEAN18
                             // NAVCZ
                             if FAPostingGr.UseStandardDisposal() then
                                 // NAVCZ
-#endif
                             FAPostingGr.TestField("Accum. Depr. Acc. on Disposal");
                             GLAccNo := FAPostingGr."Accum. Depr. Acc. on Disposal";
                         end;
@@ -77,7 +72,6 @@
                     "FA Posting Type"::"Book Value on Disposal":
                         begin
                             if "Result on Disposal" = "Result on Disposal"::Gain then
-#if not CLEAN18
                                 // NAVCZ
                                 if not FAPostingGr.UseStandardDisposal() then begin
                                     FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
@@ -85,10 +79,8 @@
                                     GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Gain)";
                                 end else
                                     // NAVCZ
-#endif
                                     GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalGain;
                             if "Result on Disposal" = "Result on Disposal"::Loss then
-#if not CLEAN18
                                 // NAVCZ
                                 if not FAPostingGr.UseStandardDisposal() then begin
                                     FAExtPostingGr.Get(FAPostingGr.Code, 1, "Reason Code");
@@ -96,7 +88,6 @@
                                     GLAccNo := FAExtPostingGr."Book Val. Acc. on Disp. (Loss)";
                                 end else
                                     // NAVCZ
-#endif
                                     GLAccNo := FAPostingGr.GetBookValueAccountOnDisposalLoss;
                             "Result on Disposal" := "Result on Disposal"::" ";
                         end;
@@ -120,14 +111,11 @@
     end;
 
     procedure GetMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"): Code[20]
-#if not CLEAN18
     var
         FAExtPostingGr: Record "FA Extended Posting Group";
-#endif
     begin
         FAPostingGr.GetPostingGroup(
             MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
-#if not CLEAN18
         // NAVCZ
         if not FAPostingGr.UseStandardMaintenance() then begin
             FAExtPostingGr.Get(MaintenanceLedgEntry."FA Posting Group", 2, MaintenanceLedgEntry."Maintenance Code");
@@ -135,11 +123,9 @@
             exit(FAExtPostingGr."Maintenance Expense Account");
         end;
         // NAVCZ
-#endif
         exit(FAPostingGr.GetMaintenanceExpenseAccount);
     end;
 
-#if not CLEAN18
     [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure GetCorrespondAccNo(var FALedgEntry: Record "FA Ledger Entry"): Code[20]
@@ -166,7 +152,6 @@
         exit(GLAccNo);
         // NAVCZ
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccNo(var FALedgEntry: Record "FA Ledger Entry"; var GLAccNo: Code[20])
@@ -174,3 +159,4 @@
     end;
 }
 
+#endif

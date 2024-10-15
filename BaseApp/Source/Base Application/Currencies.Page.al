@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5 Currencies
 {
     AdditionalSearchTerms = 'multiple foreign currency';
@@ -7,7 +8,7 @@ page 5 Currencies
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Exchange Rate Service';
     SourceTable = Currency;
-    UsageCategory = Lists;
+    UsageCategory = Administration;
 
     layout
     {
@@ -66,6 +67,7 @@ page 5 Currencies
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the currency is an EMU currency, for example DEM or EUR.';
                 }
+#if not CLEAN18
                 field("Customs Currency Code"; "Customs Currency Code")
                 {
                     ApplicationArea = Suite;
@@ -75,6 +77,7 @@ page 5 Currencies
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Realized Gains Acc."; "Realized Gains Acc.")
                 {
                     ApplicationArea = Suite;
@@ -210,6 +213,12 @@ page 5 Currencies
                         CurrencyExchangeRate.SetCurrentCurrencyFactor(Code, CurrencyFactor);
                     end;
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the currency is coupled to a currency in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                }
             }
         }
         area(factboxes)
@@ -287,7 +296,7 @@ page 5 Currencies
                 Image = AdjustExchangeRates;
                 Promoted = true;
                 PromotedCategory = Process;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("Exchange Rate Adjust. Register")
@@ -404,6 +413,25 @@ page 5 Currencies
                             CRMIntegrationManagement.DefineCoupling(RecordId);
                         end;
                     }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledCurrency;
+                        ToolTip = 'Couple currencies to currencies in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Currency: Record Currency;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Currency);
+                            RecRef.GetTable(Currency);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
                     action(DeleteCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = D;
@@ -429,6 +457,9 @@ page 5 Currencies
             group("&Currency")
             {
                 Caption = '&Currency';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Merge to W1.';
+                ObsoleteTag = '19.0';
 #if not CLEAN18
                 action("&Performance Country Exch. Rates")
                 {
@@ -446,7 +477,6 @@ page 5 Currencies
                         Error('');
                     end;
                 }
-#endif
                 action("Intrastat Exch. Rates")
                 {
                     ApplicationArea = Suite;
@@ -460,6 +490,7 @@ page 5 Currencies
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 action(ShowLog)
                 {
                     ApplicationArea = Suite;
@@ -535,3 +566,4 @@ page 5 Currencies
     end;
 }
 
+#endif

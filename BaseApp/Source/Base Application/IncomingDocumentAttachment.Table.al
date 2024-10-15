@@ -255,6 +255,8 @@ table 133 "Incoming Document Attachment"
           PurchaseHeader."No.");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure NewAttachmentFromSalesAdvLetterDocument(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
@@ -265,6 +267,7 @@ table 133 "Incoming Document Attachment"
         NewAttachment;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure NewAttachmentFromPurchAdvLetterDocument(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
@@ -275,6 +278,8 @@ table 133 "Incoming Document Attachment"
         NewAttachment;
     end;
 
+#endif
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure NewAttachmentFromCreditDocument(CreditHeader: Record "Credit Header")
@@ -286,6 +291,7 @@ table 133 "Incoming Document Attachment"
         NewAttachment;
     end;
 
+#endif
     procedure NewAttachmentFromDocument(EntryNo: Integer; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
     begin
         SetRange("Incoming Document Entry No.", EntryNo);
@@ -307,7 +313,18 @@ table 133 "Incoming Document Attachment"
 
     procedure Import(): Boolean
     begin
-        exit(CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec));
+        exit(Import(false));
+    end;
+
+    procedure Import(RethrowError: Boolean): Boolean
+    begin
+        if CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec) then
+            exit(true);
+
+        if not RethrowError then
+            exit(false);
+
+        Error(GetLastErrorText());
     end;
 
     [Scope('OnPrem')]
@@ -566,9 +583,13 @@ table 133 "Incoming Document Attachment"
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         PurchInvHeader: Record "Purch. Inv. Header";
+#if not CLEAN19
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#endif
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         DataTypeManagement: Codeunit "Data Type Management";
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         DocumentNoFieldRef: FieldRef;
@@ -606,6 +627,7 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
                     IncomingDocumentAttachment.SetRange("Journal Line No. Filter", GenJournalLine."Line No.");
                 end;
+#if not CLEAN19
             // NAVCZ
             DATABASE::"Sales Advance Letter Header":
                 begin
@@ -619,13 +641,16 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
                     IncomingDocumentAttachment.SetRange("Document No. Filter", PurchAdvanceLetterHeader."No.");
                 end;
+#if not CLEAN18
             DATABASE::"Credit Header":
                 begin
                     MainRecordRef.SetTable(CreditHeader);
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
                     IncomingDocumentAttachment.SetRange("Document No. Filter", CreditHeader."No.");
                 end;
+#endif
             // NAVCZ
+#endif
             else begin
                     if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, GenJournalLine.FieldName("Document No.")) then
                         if not DataTypeManagement.FindFieldByName(MainRecordRef, DocumentNoFieldRef, PurchInvHeader.FieldName("No.")) then

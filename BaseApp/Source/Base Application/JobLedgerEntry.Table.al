@@ -464,7 +464,11 @@ table 169 "Job Ledger Entry"
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -472,22 +476,36 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if not CLEAN17
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31063; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -495,7 +513,11 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -503,7 +525,11 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Merge to W1';
             ObsoleteTag = '18.0';
         }
@@ -511,7 +537,11 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

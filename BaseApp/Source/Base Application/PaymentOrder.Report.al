@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 11709 "Payment Order"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PaymentOrder.rdlc';
-    Caption = 'Payment Order';
+    Caption = 'Payment Order (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -136,3 +140,5 @@ report 11709 "Payment Order"
         Total_AmountCaptionLbl: Label 'Total Amount';
 }
 
+
+#endif

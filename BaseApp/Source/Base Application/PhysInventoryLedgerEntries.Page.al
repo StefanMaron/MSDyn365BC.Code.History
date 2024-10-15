@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 390 "Phys. Inventory Ledger Entries"
 {
     AdditionalSearchTerms = 'physical count entries,inventory cycle entries';
@@ -263,6 +264,10 @@ page 390 "Phys. Inventory Ledger Entries"
         }
         area(reporting)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
+#if not CLEAN17
             action("&Print")
             {
                 ApplicationArea = Basic, Suite;
@@ -289,6 +294,7 @@ page 390 "Phys. Inventory Ledger Entries"
                     // NAVCZ
                 end;
             }
+#endif
         }
     }
 
@@ -319,3 +325,5 @@ page 390 "Phys. Inventory Ledger Entries"
     end;
 }
 
+
+#endif

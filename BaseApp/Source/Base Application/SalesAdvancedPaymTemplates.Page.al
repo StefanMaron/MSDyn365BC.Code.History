@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31010 "Sales Advanced Paym. Templates"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Sales Advance Payment Templates';
+    Caption = 'Sales Advance Payment Templates (Obsolete)';
     PageType = List;
     SourceTable = "Sales Adv. Payment Template";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -72,4 +76,4 @@ page 31010 "Sales Advanced Paym. Templates"
     {
     }
 }
-
+#endif

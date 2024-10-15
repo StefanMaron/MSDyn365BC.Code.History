@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31065 "Stat. Reporting Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -18,6 +19,7 @@ page 31065 "Stat. Reporting Setup"
             group(VIES)
             {
                 Caption = 'VIES';
+#if not CLEAN17
                 field("Tax Office Number"; "Tax Office Number")
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,6 +74,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Taxpayer Type"; "Taxpayer Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -81,6 +84,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Tax Payer Status"; "Tax Payer Status")
                 {
                     ApplicationArea = Basic, Suite;
@@ -227,6 +231,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Intrastat)
             {
@@ -321,6 +326,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Area Code"; "Area Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -330,6 +336,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#endif
                 field("Intrastat Export Object Type"; "Intrastat Export Object Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -442,6 +449,7 @@ page 31065 "Stat. Reporting Setup"
             group("VAT Statement")
             {
                 Caption = 'VAT Statement';
+#if not CLEAN17
                 field("VAT Stat. Auth.Employee No."; "VAT Stat. Auth.Employee No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -514,10 +522,12 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group("Company Official")
             {
                 Caption = 'Company Official';
+#if not CLEAN17
                 field("Official Code"; "Official Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -590,6 +600,7 @@ page 31065 "Stat. Reporting Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -607,4 +618,4 @@ page 31065 "Stat. Reporting Setup"
         end;
     end;
 }
-
+#endif

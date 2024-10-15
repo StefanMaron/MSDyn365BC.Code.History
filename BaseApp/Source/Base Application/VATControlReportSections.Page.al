@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31102 "VAT Control Report Sections"
 {
     ApplicationArea = Basic, Suite;
@@ -44,3 +45,5 @@ page 31102 "VAT Control Report Sections"
     }
 }
 
+
+#endif

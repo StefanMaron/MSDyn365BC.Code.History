@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 846 "Cash Flow Setup"
 {
     // HYPERLINK('https://go.microsoft.com/fwlink/?linkid=828352');
@@ -65,11 +66,19 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account for sales adv. letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("P. Adv. Letter CF Account No."; "P. Adv. Letter CF Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the cash flow account for purchase adv. letters ';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Job CF Account No."; "Job CF Account No.")
                 {
@@ -224,3 +233,4 @@ page 846 "Cash Flow Setup"
         TaxAccountTypeValid: Boolean;
 }
 
+#endif

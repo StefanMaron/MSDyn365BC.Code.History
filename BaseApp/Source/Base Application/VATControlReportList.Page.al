@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31100 "VAT Control Report List"
 {
     ApplicationArea = Basic, Suite;
@@ -199,3 +200,5 @@ page 31100 "VAT Control Report List"
         ReleaseVATControlReport: Codeunit "Release VAT Control Report";
 }
 
+
+#endif

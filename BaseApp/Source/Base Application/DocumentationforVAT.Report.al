@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11764 "Documentation for VAT"
 {
     DefaultLayout = RDLC;
@@ -705,4 +706,4 @@ report 11764 "Documentation for VAT"
         VATAmountTotal[2] := VATAmountPurchTotal[2] + VATAmountReverseChargeVATTotal[2] + VATAmountSaleTotal[2];
     end;
 }
-
+#endif

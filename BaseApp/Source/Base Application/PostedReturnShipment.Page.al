@@ -431,6 +431,7 @@ page 6650 "Posted Return Shipment"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -441,6 +442,7 @@ page 6650 "Posted Return Shipment"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -477,6 +479,7 @@ page 6650 "Posted Return Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -497,6 +500,7 @@ page 6650 "Posted Return Shipment"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -702,8 +706,8 @@ page 6650 "Posted Return Shipment"
 
     trigger OnAfterGetRecord()
     begin
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     var

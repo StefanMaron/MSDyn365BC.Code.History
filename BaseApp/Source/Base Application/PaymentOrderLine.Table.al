@@ -1,14 +1,22 @@
 table 11709 "Payment Order Line"
 {
     Caption = 'Payment Order Line';
+#if not CLEAN19
     DrillDownPageID = "Payment Order Lines";
     LookupPageID = "Payment Order Lines";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Payment Order No."; Code[20])
         {
             Caption = 'Payment Order No.';
+#if not CLEAN19
             TableRelation = "Payment Order Header"."No.";
 
             trigger OnValidate()
@@ -23,6 +31,7 @@ table 11709 "Payment Order Line"
                     "Specific Symbol" := BankAccount."Default Specific Symbol";
                 end;
             end;
+#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -33,6 +42,7 @@ table 11709 "Payment Order Line"
             Caption = 'Type';
             OptionCaption = ' ,Customer,Vendor,Bank Account,Employee';
             OptionMembers = " ",Customer,Vendor,"Bank Account",Employee;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -44,6 +54,7 @@ table 11709 "Payment Order Line"
                     Type := PmtOrdLn.Type;
                 end;
             end;
+#endif
         }
         field(4; "No."; Code[20])
         {
@@ -54,7 +65,12 @@ table 11709 "Payment Order Line"
             ELSE
             IF (Type = CONST(Employee)) Employee."No."
             ELSE
+#if CLEAN17
+            IF (Type = CONST("Bank Account")) "Bank Account"."No.";
+#else
             IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -84,6 +100,12 @@ table 11709 "Payment Order Line"
                                 Name := Cust.Name;
                                 "Payment Method Code" := Cust."Payment Method Code";
                                 CustBankAcc.SetRange("Customer No.", "No.");
+#if CLEAN18
+                                if CustBankAcc.Get(Cust."No.", Cust."Preferred Bank Account Code") then begin
+                                    Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
+                                    exit;
+                                end;
+#else
                                 if CustBankAcc.SetCurrentKey("Customer No.", Priority) then begin
                                     CustBankAcc.SetFilter(Priority, '%1..', 1);
                                     if CustBankAcc.FindFirst then begin
@@ -91,6 +113,7 @@ table 11709 "Payment Order Line"
                                         exit;
                                     end;
                                 end;
+#endif                                
                                 if CustBankAcc.FindFirst then
                                     Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
                             end;
@@ -103,6 +126,12 @@ table 11709 "Payment Order Line"
                                 Name := Vend.Name;
                                 "Payment Method Code" := Vend."Payment Method Code";
                                 VendBankAcc.SetRange("Vendor No.", "No.");
+#if CLEAN18
+                                if VendBankAcc.Get(Vend."No.", Vend."Preferred Bank Account Code") then begin
+                                    Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
+                                    exit;
+                                end;
+#else
                                 if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then begin
                                     VendBankAcc.SetFilter(Priority, '%1..', 1);
                                     if VendBankAcc.FindFirst then begin
@@ -110,6 +139,7 @@ table 11709 "Payment Order Line"
                                         exit;
                                     end;
                                 end;
+#endif
                                 if VendBankAcc.FindFirst then
                                     Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
                             end;
@@ -133,7 +163,9 @@ table 11709 "Payment Order Line"
                                 BankAcc.Init();
                             BankAcc.TestField(Blocked, false);
                             "Account No." := BankAcc."Bank Account No.";
+#if not CLEAN18
                             "Specific Symbol" := BankAcc."Specific Symbol";
+#endif
                             "Transit No." := BankAcc."Transit No.";
                             IBAN := BankAcc.IBAN;
                             "SWIFT Code" := BankAcc."SWIFT Code";
@@ -141,6 +173,7 @@ table 11709 "Payment Order Line"
                         end;
                 end;
             end;
+#endif
         }
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
@@ -148,6 +181,7 @@ table 11709 "Payment Order Line"
             TableRelation = IF (Type = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("No."))
             ELSE
             IF (Type = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -161,7 +195,9 @@ table 11709 "Payment Order Line"
                             if not VendBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
                                 VendBankAcc.Init();
                             "Account No." := VendBankAcc."Bank Account No.";
+#if not CLEAN18
                             "Specific Symbol" := VendBankAcc."Specific Symbol";
+#endif
                             "Transit No." := VendBankAcc."Transit No.";
                             IBAN := VendBankAcc.IBAN;
                             "SWIFT Code" := VendBankAcc."SWIFT Code";
@@ -171,7 +207,9 @@ table 11709 "Payment Order Line"
                             if not CustBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
                                 CustBankAcc.Init();
                             "Account No." := CustBankAcc."Bank Account No.";
+#if not CLEAN18
                             "Specific Symbol" := CustBankAcc."Specific Symbol";
+#endif
                             "Transit No." := CustBankAcc."Transit No.";
                             IBAN := CustBankAcc.IBAN;
                             "SWIFT Code" := CustBankAcc."SWIFT Code";
@@ -180,6 +218,7 @@ table 11709 "Payment Order Line"
                         FieldError(Type);
                 end;
             end;
+#endif
         }
         field(6; Description; Text[100])
         {
@@ -188,10 +227,13 @@ table 11709 "Payment Order Line"
         field(7; "Account No."; Text[30])
         {
             Caption = 'Account No.';
+#if not CLEAN19
 
             trigger OnValidate()
             var
+#if not CLEAN17
                 CompanyInfo: Record "Company Information";
+#endif
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
                 TestStatusOpen;
@@ -199,9 +241,11 @@ table 11709 "Payment Order Line"
                 GetPaymentOrder();
                 if not PmtOrdHdr."Foreign Payment Order" then begin
                     BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
+#if not CLEAN17
 
                     CompanyInfo.Get();
                     CompanyInfo.CheckCzBankAccountNo("Account No.");
+#endif
                 end;
 
                 if "Account No." <> xRec."Account No." then begin
@@ -215,46 +259,56 @@ table 11709 "Payment Order Line"
                     "Applies-to C/V/E Entry No." := 0;
                 end;
             end;
+#endif
         }
         field(8; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
             Numeric = true;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(9; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             Numeric = true;
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Numeric = true;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(11; "Amount to Pay"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Pay';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -283,11 +337,13 @@ table 11709 "Payment Order Line"
 
                 Positive := ("Amount to Pay" > 0);
             end;
+#endif
         }
         field(12; "Amount (LCY) to Pay"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY) to Pay';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -314,16 +370,19 @@ table 11709 "Payment Order Line"
 
                 Positive := ("Amount (LCY) to Pay" > 0);
             end;
+#endif
         }
         field(13; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
                 TestField("Applies-to C/V/E Entry No.", 0);
             end;
+#endif
         }
         field(14; "Applies-to Doc. No."; Code[20])
         {
@@ -384,6 +443,7 @@ table 11709 "Payment Order Line"
                         end;
                 end;
             end;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -446,6 +506,7 @@ table 11709 "Payment Order Line"
                         end;
                 end;
             end;
+#endif
         }
         field(16; "Applies-to C/V/E Entry No."; Integer)
         {
@@ -525,6 +586,7 @@ table 11709 "Payment Order Line"
                         end;
                 end;
             end;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -564,6 +626,7 @@ table 11709 "Payment Order Line"
                         FieldError(Type);
                 end;
             end;
+#endif
         }
         field(17; Positive; Boolean)
         {
@@ -590,6 +653,7 @@ table 11709 "Payment Order Line"
         {
             Caption = 'Payment Order Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -612,12 +676,14 @@ table 11709 "Payment Order Line"
                         Validate("Amount (LCY) to Pay");
                 end;
             end;
+#endif
         }
         field(26; "Amount(Pay.Order Curr.) to Pay"; Decimal)
         {
             AutoFormatExpression = "Payment Order Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount(Pay.Order Curr.) to Pay';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -644,6 +710,7 @@ table 11709 "Payment Order Line"
 
                 Positive := ("Amount(Pay.Order Curr.) to Pay" > 0);
             end;
+#endif
         }
         field(27; "Payment Order Currency Factor"; Decimal)
         {
@@ -662,15 +729,18 @@ table 11709 "Payment Order Line"
         field(30; "Due Date"; Date)
         {
             Caption = 'Due Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(40; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -679,35 +749,42 @@ table 11709 "Payment Order Line"
                 TestStatusOpen;
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(45; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
             TableRelation = "SWIFT Code";
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(50; "Amount Must Be Checked"; Boolean)
         {
             Caption = 'Amount Must Be Checked';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(70; Name; Text[100])
         {
             Caption = 'Name';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(80; "Original Amount"; Decimal)
         {
@@ -737,11 +814,13 @@ table 11709 "Payment Order Line"
         field(120; "Skip Payment"; Boolean)
         {
             Caption = 'Skip Payment';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
         field(130; "Pmt. Discount Date"; Date)
         {
@@ -765,6 +844,7 @@ table 11709 "Payment Order Line"
             Caption = 'Letter Type';
             OptionCaption = ' ,,Purchase';
             OptionMembers = " ",,Purchase;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -780,10 +860,12 @@ table 11709 "Payment Order Line"
                 "Pmt. Discount Possible" := false;
                 "Remaining Pmt. Disc. Possible" := 0;
             end;
+#endif
         }
         field(151; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Header";
 
             trigger OnValidate()
@@ -873,10 +955,12 @@ table 11709 "Payment Order Line"
                         FieldError(Type);
                 end;
             end;
+#endif
         }
         field(152; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
+#if not CLEAN19
             TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
 
             trigger OnValidate()
@@ -971,12 +1055,17 @@ table 11709 "Payment Order Line"
                         FieldError(Type);
                 end;
             end;
+#endif
         }
         field(190; "VAT Uncertainty Payer"; Boolean)
         {
             Caption = 'VAT Uncertainty Payer';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
@@ -984,10 +1073,15 @@ table 11709 "Payment Order Line"
         {
             Caption = 'Public Bank Account';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
+#if not CLEAN17
         field(192; "Third Party Bank Account"; Boolean)
         {
             CalcFormula = Lookup("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("No."),
@@ -999,15 +1093,18 @@ table 11709 "Payment Order Line"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
+#endif
         field(200; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 TestStatusOpen;
             end;
+#endif
         }
     }
 
@@ -1050,6 +1147,7 @@ table 11709 "Payment Order Line"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     begin
@@ -1088,6 +1186,7 @@ table 11709 "Payment Order Line"
         StatusCheckSuspended: Boolean;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetPaymentOrder()
     begin
         if "Payment Order No." <> PmtOrdHdr."No." then begin
@@ -1103,6 +1202,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetOrderCurrency()
     begin
         if "Payment Order Currency Code" <> CurrencyG2.Code then
@@ -1116,6 +1216,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CreateDescription(DocType: Text[30]; DocNo: Text[20]; PartnerNo: Text[20]; PartnerName: Text[100]; ExtNo: Text[35]): Text[50]
     begin
         exit(
@@ -1125,6 +1226,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetGLSetup()
     begin
         if not GLSetupRead then begin
@@ -1134,6 +1236,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ModifyPayOrderHeader()
     begin
         GetPaymentOrder;
@@ -1144,6 +1247,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure AppliesToCustLedgEntryNo()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -1154,9 +1258,11 @@ table 11709 "Payment Order Line"
         CustLedgEntry.Get("Applies-to C/V/E Entry No.");
         "Applies-to Doc. Type" := CustLedgEntry."Document Type";
         "Applies-to Doc. No." := CustLedgEntry."Document No.";
+#if not CLEAN18
         "Variable Symbol" := CustLedgEntry."Variable Symbol";
         if CustLedgEntry."Constant Symbol" <> '' then
             "Constant Symbol" := CustLedgEntry."Constant Symbol";
+#endif
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := CustLedgEntry.Description
@@ -1168,6 +1274,7 @@ table 11709 "Payment Order Line"
         Type := Type::Customer;
         "No." := CustLedgEntry."Customer No.";
         Validate("No.", CustLedgEntry."Customer No.");
+#if not CLEAN18
         "Cust./Vendor Bank Account Code" :=
           CopyStr(CustLedgEntry."Bank Account Code", 1, MaxStrLen("Cust./Vendor Bank Account Code"));
         "Account No." := CustLedgEntry."Bank Account No.";
@@ -1175,6 +1282,7 @@ table 11709 "Payment Order Line"
         "Transit No." := CustLedgEntry."Transit No.";
         IBAN := CustLedgEntry.IBAN;
         "SWIFT Code" := CustLedgEntry."SWIFT Code";
+#endif
         Validate("Applied Currency Code", CustLedgEntry."Currency Code");
         if CustLedgEntry."Due Date" > "Due Date" then
             "Due Date" := CustLedgEntry."Due Date";
@@ -1215,6 +1323,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure AppliesToVendLedgEntryNo()
     var
         VendorLedgEntry: Record "Vendor Ledger Entry";
@@ -1225,9 +1334,11 @@ table 11709 "Payment Order Line"
         VendorLedgEntry.Get("Applies-to C/V/E Entry No.");
         "Applies-to Doc. Type" := VendorLedgEntry."Document Type";
         "Applies-to Doc. No." := VendorLedgEntry."Document No.";
+#if not CLEAN18
         "Variable Symbol" := VendorLedgEntry."Variable Symbol";
         if VendorLedgEntry."Constant Symbol" <> '' then
             "Constant Symbol" := VendorLedgEntry."Constant Symbol";
+#endif
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := VendorLedgEntry.Description
@@ -1239,6 +1350,7 @@ table 11709 "Payment Order Line"
         Type := Type::Vendor;
         "No." := VendorLedgEntry."Vendor No.";
         Validate("No.", VendorLedgEntry."Vendor No.");
+#if not CLEAN18
         "Cust./Vendor Bank Account Code" :=
           CopyStr(VendorLedgEntry."Bank Account Code", 1, MaxStrLen("Cust./Vendor Bank Account Code"));
         "Account No." := VendorLedgEntry."Bank Account No.";
@@ -1246,6 +1358,7 @@ table 11709 "Payment Order Line"
         "Transit No." := VendorLedgEntry."Transit No.";
         IBAN := VendorLedgEntry.IBAN;
         "SWIFT Code" := VendorLedgEntry."SWIFT Code";
+#endif
         Validate("Applied Currency Code", VendorLedgEntry."Currency Code");
         if VendorLedgEntry."Due Date" > "Due Date" then
             "Due Date" := VendorLedgEntry."Due Date";
@@ -1290,6 +1403,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure AppliesToEmplLedgEntryNo()
     var
         EmplLedgEntry: Record "Employee Ledger Entry";
@@ -1300,10 +1414,12 @@ table 11709 "Payment Order Line"
 
         "Applies-to Doc. Type" := EmplLedgEntry."Document Type";
         "Applies-to Doc. No." := EmplLedgEntry."Document No.";
+#if not CLEAN18
         "Variable Symbol" := EmplLedgEntry."Variable Symbol";
         "Specific Symbol" := EmplLedgEntry."Specific Symbol";
         if EmplLedgEntry."Constant Symbol" <> '' then
             "Constant Symbol" := EmplLedgEntry."Constant Symbol";
+#endif            
         BankAccount.Get(PmtOrdHdr."Bank Account No.");
         if BankAccount."Payment Order Line Description" = '' then
             Description := EmplLedgEntry.Description
@@ -1338,6 +1454,7 @@ table 11709 "Payment Order Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
@@ -1354,6 +1471,8 @@ table 11709 "Payment Order Line"
         exit(true);
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     procedure IsUncertaintyPayerCheckPossible(): Boolean
     begin
@@ -1390,5 +1509,6 @@ table 11709 "Payment Order Line"
 
         exit(UncPayerMgt.IsPublicBankAccount('', Vendor."VAT Registration No.", "Account No.", IBAN));
     end;
+#endif    
 }
 

@@ -494,24 +494,37 @@ table 31272 "Compensation Header CZC"
 
     procedure CheckCompensationReleaseRestrictions()
     begin
+#if not CLEAN19
 #pragma warning disable AL0432
+#endif
         OnCheckCompensationReleaseRestrictions();
+#if not CLEAN19
 #pragma warning restore AL0432
+
+#endif
         CompensationApprovMgtCZC.PrePostApprovalCheckCompensation(Rec);
     end;
 
     procedure CheckCompensationPostRestrictions()
     begin
+#if not CLEAN19
 #pragma warning disable AL0432
+#endif
         OnCheckCompensationPostRestrictions();
+#if not CLEAN19
 #pragma warning restore AL0432
+#endif
     end;
 
     procedure CheckCompensationPrintRestrictions()
     begin
+#if not CLEAN19
 #pragma warning disable AL0432
+#endif
         OnCheckCompensationPrintRestrictions();
+#if not CLEAN19
 #pragma warning restore AL0432
+#endif
     end;
 
     local procedure DeleteRecordInApprovalRequest()
@@ -528,20 +541,32 @@ table 31272 "Compensation Header CZC"
     end;
 
     [IntegrationEvent(true, false)]
+#if not CLEAN19
     [Obsolete('The event will be changed to local. Use the CheckCompensationReleaseRestrictions function instead.', '19.0')]
     procedure OnCheckCompensationReleaseRestrictions()
+#else
+    local procedure OnCheckCompensationReleaseRestrictions()
+#endif
     begin
     end;
 
     [IntegrationEvent(true, false)]
+#if not CLEAN19
     [Obsolete('The event will be changed to local. Use the CheckCompensationPostRestrictions function instead.', '19.0')]
     procedure OnCheckCompensationPostRestrictions()
+#else
+    local procedure OnCheckCompensationPostRestrictions()
+#endif
     begin
     end;
 
     [IntegrationEvent(true, false)]
+#if not CLEAN19
     [Obsolete('The event will be changed to local. Use the CheckCompensationPrintRestrictions function instead.', '19.0')]
     procedure OnCheckCompensationPrintRestrictions()
+#else
+    local procedure OnCheckCompensationPrintRestrictions()
+#endif
     begin
     end;
 

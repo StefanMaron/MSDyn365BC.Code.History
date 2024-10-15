@@ -1,5 +1,10 @@
+#if not CLEAN19
 codeunit 11774 "Init Report Selection Handler"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Core Localization Pack for Czech & Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Report Selection Mgt.", 'OnBeforeInitReportSelectionSales', '', false, false)]
     local procedure InitReportSelectionSalesOnAfterInitReportSelectionSales()
     var
@@ -104,6 +109,7 @@ codeunit 11774 "Init Report Selection Handler"
                 Usage::"Fin.Charge":
                     InsertRepSelection(Usage::"Fin.Charge", '1', Report::"Finance Charge Memo CZ");
 #endif
+#if not CLEAN19
                 Usage::"S.Adv.Let":
                     InsertRepSelection(Usage::"S.Adv.Let", '1', Report::"Sales - Advance Letter CZ");
                 Usage::"S.Adv.Inv":
@@ -116,6 +122,7 @@ codeunit 11774 "Init Report Selection Handler"
                     InsertRepSelection(Usage::"P.Adv.Inv", '1', Report::"Purchase - Advance Invoice CZ");
                 Usage::"P.Adv.CrM":
                     InsertRepSelection(Usage::"P.Adv.CrM", '1', Report::"Purchase - Advance Cr. Memo CZ");
+#endif
             end;
     end;
 
@@ -132,3 +139,4 @@ codeunit 11774 "Init Report Selection Handler"
         end;
     end;
 }
+#endif

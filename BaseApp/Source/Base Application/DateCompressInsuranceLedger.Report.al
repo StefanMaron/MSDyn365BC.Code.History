@@ -67,6 +67,8 @@ report 5697 "Date Compress Insurance Ledger"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(InsuranceReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -105,6 +107,9 @@ report 5697 "Date Compress Insurance Ledger"
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Insurance Ledger"));
             end;
         }
     }
@@ -180,6 +185,13 @@ report 5697 "Date Compress Insurance Ledger"
                             DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compress Insurance Ledger", RetainDimText);
                         end;
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -212,6 +224,14 @@ report 5697 "Date Compress Insurance Ledger"
             InsertField("Ins. Coverage Ledger Entry".FieldNo("Global Dimension 2 Code"), "Ins. Coverage Ledger Entry".FieldCaption("Global Dimension 2 Code"));
 
             RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Insurance Ledger", '');
+
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+            UseDataArchive := DataArchiveProviderExists;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -259,6 +279,7 @@ report 5697 "Date Compress Insurance Ledger"
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         InsCoverageLedgEntryFilter: Text[250];
         NoOfFields: Integer;
@@ -273,6 +294,9 @@ report 5697 "Date Compress Insurance Ledger"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -362,6 +386,8 @@ report 5697 "Date Compress Insurance Ledger"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(InsCoverageLedgEntry);
     end;
 
     local procedure ComprCollectedEntries()
@@ -435,6 +461,11 @@ report 5697 "Date Compress Insurance Ledger"
 
     procedure InitializeRequest(StartingDateFrom: Date; EndingDateFrom: Date; PeriodLengthFrom: Option; DescriptionFrom: Text[100]; OnlyIndexEntriesFrom: Boolean; RetainDocumentNo: Boolean; RetainDimTextFrom: Text[250])
     begin
+        InitializeRequest(StartingDateFrom, EndingDateFrom, PeriodLengthFrom, DescriptionFrom, OnlyIndexEntriesFrom, RetainDocumentNo, RetainDimTextFrom, true);
+    end;
+
+    procedure InitializeRequest(StartingDateFrom: Date; EndingDateFrom: Date; PeriodLengthFrom: Option; DescriptionFrom: Text[100]; OnlyIndexEntriesFrom: Boolean; RetainDocumentNo: Boolean; RetainDimTextFrom: Text[250]; DoUseDataArchive: Boolean)
+    begin
         EntrdDateComprReg."Starting Date" := StartingDateFrom;
         EntrdDateComprReg."Ending Date" := EndingDateFrom;
         EntrdDateComprReg."Period Length" := PeriodLengthFrom;
@@ -446,24 +477,25 @@ report 5697 "Date Compress Insurance Ledger"
         InsertField("Ins. Coverage Ledger Entry".FieldNo("Document No."), "Ins. Coverage Ledger Entry".FieldCaption("Document No."));
         InsertField("Ins. Coverage Ledger Entry".FieldNo("Global Dimension 1 Code"), "Ins. Coverage Ledger Entry".FieldCaption("Global Dimension 1 Code"));
         InsertField("Ins. Coverage Ledger Entry".FieldNo("Global Dimension 2 Code"), "Ins. Coverage Ledger Entry".FieldCaption("Global Dimension 2 Code"));
+
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     local procedure LogStartTelemetryMessage()
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdInsCoverageLedgEntry.Description);
         TelemetryDimensions.Add('OnlyIndexEntriesFrom', Format(OnlyIndexEntries, 0, 9));
         TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "Ins. Coverage Ledger Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4Q', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -472,7 +504,6 @@ report 5697 "Date Compress Insurance Ledger"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

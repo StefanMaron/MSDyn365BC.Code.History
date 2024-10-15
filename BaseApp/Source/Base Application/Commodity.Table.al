@@ -2,9 +2,13 @@ table 31095 Commodity
 {
     Caption = 'Commodity';
     DataCaptionFields = "Code";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = Commodities;
     LookupPageID = Commodities;
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 

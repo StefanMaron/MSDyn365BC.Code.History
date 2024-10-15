@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31061 "Intrastat - Invoice Checklist"
 {
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
@@ -372,4 +373,4 @@ report 31061 "Intrastat - Invoice Checklist"
         end;
     end;
 }
-
+#endif

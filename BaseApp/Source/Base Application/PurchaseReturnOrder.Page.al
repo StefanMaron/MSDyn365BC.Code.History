@@ -174,6 +174,7 @@ page 6640 "Purchase Return Order"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -192,6 +193,7 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("No. of Archived Versions"; "No. of Archived Versions")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -306,6 +308,7 @@ page 6640 "Purchase Return Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -317,6 +320,8 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -326,6 +331,7 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -352,6 +358,7 @@ page 6640 "Purchase Return Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -361,6 +368,7 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -540,6 +548,7 @@ page 6640 "Purchase Return Order"
                         ToolTip = 'Specifies the name of the vendor contact person.';
                     }
                 }
+#if not CLEAN18
                 field("Physical Transfer"; "Physical Transfer")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -549,6 +558,7 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 group("Pay-to")
                 {
                     Caption = 'Pay-to';
@@ -707,6 +717,7 @@ page 6640 "Purchase Return Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -717,6 +728,8 @@ page 6640 "Purchase Return Order"
                     Visible = false;
 
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = BasicEU;
@@ -726,11 +739,13 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -749,6 +764,7 @@ page 6640 "Purchase Return Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
@@ -759,6 +775,7 @@ page 6640 "Purchase Return Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
                 }
+#if not CLEAN17
                 field(VATCurrencyCode; "Currency Code")
                 {
                     ApplicationArea = BasicEU;
@@ -792,7 +809,9 @@ page 6640 "Purchase Return Order"
                         CurrencyCodeOnAfterValidate; // NAVCZ
                     end;
                 }
+#endif
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -874,6 +893,7 @@ page 6640 "Purchase Return Order"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -1020,10 +1040,9 @@ page 6640 "Purchase Return Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1501,6 +1520,7 @@ page 6640 "Purchase Return Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1604,8 +1624,8 @@ page 6640 "Purchase Return Order"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1630,17 +1650,14 @@ page 6640 "Purchase Return Order"
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
+        SetDocNoVisible();
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

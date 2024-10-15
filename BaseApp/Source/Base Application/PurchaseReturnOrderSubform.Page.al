@@ -1,4 +1,5 @@
-﻿page 6641 "Purchase Return Order Subform"
+﻿#if not CLEAN18
+page 6641 "Purchase Return Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -71,7 +72,7 @@
 #if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
-                    ApplicationArea = PurchReturnOrder;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
                     ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
@@ -96,7 +97,7 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = PurchReturnOrder;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the cross-referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -166,6 +167,13 @@
                     begin
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -376,6 +384,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#if not CLEAN17
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -394,6 +403,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Net Weight"; "Net Weight")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -688,6 +698,24 @@
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
+                    Visible = false;
                 }
             }
             group(Control43)
@@ -1331,10 +1359,11 @@
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     local procedure UpdateCurrency()
@@ -1382,3 +1411,4 @@
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 1237 "Transformation Rule"
 {
     Caption = 'Transformation Rule';
@@ -225,7 +226,8 @@ table 1237 "Transformation Rule"
         // NAVCZ
         OnCreateTransformationRules();
         InsertFindAndReplaceRule(
-          DeleteNOTPROVIDEDTxt, DeleteNOTPROVIDEDDescriptionTxt, "Transformation Type"::"Regular Expression - Replace", 'NOTPROVIDED', '');
+          DeleteNOTPROVIDEDTxt, DeleteNOTPROVIDEDDescriptionTxt, "Transformation Type"::"Regular Expression - Replace",
+          'NOTPROVIDED', '', '');
     end;
 
     procedure IsDataFormatUpdateAllowed(): Boolean
@@ -268,14 +270,14 @@ table 1237 "Transformation Rule"
         Insert(true);
     end;
 
-    local procedure InsertFindAndReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250])
+    procedure InsertFindAndReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250]; NextTransformationRule: Code[20])
     var
         TransformationRule: Record "Transformation Rule";
     begin
         if TransformationRule.Get(NewCode) then
             exit;
 
-        TransformationRule.ReplaceRule(NewCode, NewDescription, NewTransformationType, NewFindValue, NewReplaceValue);
+        TransformationRule.ReplaceRule(NewCode, NewDescription, NewTransformationType, NewFindValue, NewReplaceValue, NextTransformationRule);
     end;
 
     procedure ReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250])
@@ -286,6 +288,18 @@ table 1237 "Transformation Rule"
         Validate("Transformation Type", NewTransformationType);
         Validate("Find Value", NewFindValue);
         Validate("Replace Value", NewReplaceValue);
+        Insert(true);
+    end;
+
+    procedure ReplaceRule(NewCode: Code[20]; NewDescription: Text[100]; NewTransformationType: Option; NewFindValue: Text[250]; NewReplaceValue: Text[250]; NextTransformationRule: Code[20])
+    begin
+        Init();
+        Validate(Code, NewCode);
+        Validate(Description, NewDescription);
+        Validate("Transformation Type", NewTransformationType);
+        Validate("Find Value", NewFindValue);
+        Validate("Replace Value", NewReplaceValue);
+        Validate("Next Transformation Rule", NextTransformationRule);
         Insert(true);
     end;
 
@@ -678,3 +692,4 @@ table 1237 "Transformation Rule"
     end;
 }
 
+#endif

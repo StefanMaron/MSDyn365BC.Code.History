@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11757 "Registration Config"
 {
     ApplicationArea = Basic, Suite;
@@ -131,3 +132,5 @@ page 11757 "Registration Config"
     end;
 }
 
+
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11779 "VAT Attribute Codes"
 {
     Caption = 'VAT Attribute Codes (Obsolete)';
@@ -57,3 +58,5 @@ page 11779 "VAT Attribute Codes"
     }
 }
 
+
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11770 "VAT Statement Comment Sheet"
 {
     AutoSplitKey = true;
@@ -43,3 +44,5 @@ page 11770 "VAT Statement Comment Sheet"
     end;
 }
 
+
+#endif

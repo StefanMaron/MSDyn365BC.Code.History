@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 11771 "Sending Document Handler"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -179,3 +183,4 @@ codeunit 11771 "Sending Document Handler"
     end;
 }
 
+#endif

@@ -784,7 +784,7 @@ page 6030 "Service Statistics"
                             Currency."Amount Rounding Precision") - TempVATAmountLine."VAT Difference";
 #else
                             RoundingPrecisionLCY) - TempVATAmountLine."VAT Difference";
-#endif                            
+#endif                        
             end;
         end;
         // NAVCZ
@@ -851,7 +851,9 @@ page 6030 "Service Statistics"
 
         TempVATAmountLine.SetInvoiceDiscountAmount(
           TotalServLine[1]."Inv. Discount Amount", "Currency Code", "Prices Including VAT", "VAT Base Discount %");
+#if not CLEAN18
         TempVATAmountLine.ModifyAll("Modified (LCY)", false);// NAVCZ
+#endif
         UpdateHeaderInfo(1, TempVATAmountLine);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
 

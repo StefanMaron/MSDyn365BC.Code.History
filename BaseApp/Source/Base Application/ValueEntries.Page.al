@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5802 "Value Entries"
 {
     AdditionalSearchTerms = 'costing,inventory cost,inventory valuation';
@@ -615,3 +616,4 @@ page 5802 "Value Entries"
     end;
 }
 
+#endif

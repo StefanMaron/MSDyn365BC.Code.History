@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 144205 "Tax VAT Control Reports"
 {
     Subtype = Test;
@@ -902,3 +903,4 @@ codeunit 144205 "Tax VAT Control Reports"
     end;
 }
 
+#endif

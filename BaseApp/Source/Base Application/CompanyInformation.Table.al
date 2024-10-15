@@ -77,11 +77,13 @@ table 79 "Company Information"
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 CheckCzBankAccountNo("Bank Account No."); // NAVCZ
             end;
+#endif
         }
         field(15; "Payment Routing No."; Text[20])
         {
@@ -312,6 +314,7 @@ table 79 "Company Information"
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Inbox Details';
 
+#if not CLEAN17
             trigger OnLookup()
             var
                 FileMgt: Codeunit "File Management";
@@ -328,17 +331,16 @@ table 79 "Company Information"
                             else
                                 FileName := "IC Inbox Details" + StrSubstNo('\%1.xml', "IC Partner Code");
 
-#if not CLEAN17
                             FileName2 := FileMgt.SaveFileDialog(Text001, FileName, '');
                             if FileName <> FileName2 then begin
                                 Path := FileMgt.GetDirectoryName(FileName2);
                                 if Path <> '' then
                                     "IC Inbox Details" := CopyStr(Path, 1, 250);
                             end;
-#endif
                         end;
                 end;
             end;
+#endif
         }
         field(44; "Auto. Send Transactions"; Boolean)
         {
@@ -505,7 +507,11 @@ table 79 "Company Information"
         field(11700; "Bank Account Format Check"; Boolean)
         {
             Caption = 'Bank Account Format Check';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -513,7 +519,11 @@ table 79 "Company Information"
         {
             Caption = 'Court Authority No.';
             TableRelation = Vendor;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -521,18 +531,31 @@ table 79 "Company Information"
         {
             Caption = 'Tax Authority No.';
             TableRelation = Vendor;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11760; "Default Bank Account Code"; Code[20])
         {
             Caption = 'Default Bank Account Code';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+#if CLEAN17
+            TableRelation = "Bank Account" WHERE("Currency Code" = CONST(''));
+#else
             TableRelation = "Bank Account" WHERE("Currency Code" = CONST(''),
                                                   "Account Type" = CONST("Bank Account"));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '17.0';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -545,25 +568,38 @@ table 79 "Company Information"
                     "Bank Branch No." := BankAcc."Bank Branch No.";
                 end;
             end;
+#endif
         }
         field(11761; "Branch Name"; Text[50])
         {
             Caption = 'Branch Name';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11790; "Primary Business Activity"; Text[100])
         {
             Caption = 'Primary Business Activity';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -572,7 +608,11 @@ table 79 "Company Information"
             Caption = 'Company Type';
             OptionCaption = ' ,Individual,Corporate';
             OptionMembers = " ",Individual,Corporate;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -586,45 +626,69 @@ table 79 "Company Information"
         field(11794; "Equity Capital"; Decimal)
         {
             Caption = 'Equity Capital';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11795; "Registration Date"; Date)
         {
             Caption = 'Registration Date';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11796; "Paid Equity Capital"; Decimal)
         {
             Caption = 'Paid Equity Capital';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11797; "General Manager No."; Code[20])
         {
             Caption = 'General Manager No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Company Officials";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11798; "Accounting Manager No."; Code[20])
         {
             Caption = 'Accounting Manager No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Company Officials";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11799; "Finance Manager No."; Code[20])
         {
             Caption = 'Finance Manager No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Company Officials";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -659,7 +723,9 @@ table 79 "Company Information"
     var
         PostCode: Record "Post Code";
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
+#if not CLEAN17
         Text001: Label 'File Location for IC files';
+#endif
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
@@ -698,7 +764,7 @@ table 79 "Company Information"
             IBANError(OriginalIBANCode);
     end;
 
-    local procedure ConvertIBAN(var IBANCode: Code[100])
+    procedure ConvertIBAN(var IBANCode: Code[100])
     var
         I: Integer;
     begin
@@ -711,7 +777,7 @@ table 79 "Company Information"
         end;
     end;
 
-    local procedure CalcModulus(Number: Code[10]; Modulus97: Integer): Code[10]
+    procedure CalcModulus(Number: Code[10]; Modulus97: Integer): Code[10]
     var
         I: Integer;
     begin
@@ -722,7 +788,7 @@ table 79 "Company Information"
         exit(Format(I));
     end;
 
-    local procedure ConvertLetter(var IBANCode: Code[100]; Letter: Code[1]; LetterPlace: Integer): Boolean
+    procedure ConvertLetter(var IBANCode: Code[100]; Letter: Code[1]; LetterPlace: Integer): Boolean
     var
         Letter2: Code[2];
         LetterCharInt: Integer;
@@ -732,11 +798,11 @@ table 79 "Company Information"
         LetterCharInt := Letter[1];
         if LetterCharInt in [65 .. 90] then begin
             Letter2 := Format(LetterCharInt - 55, 9);
-            if LetterPlace = 1 then
-                IBANCode := Letter2 + CopyStr(IBANCode, 2)
-            else begin
-                if LetterPlace = StrLen(IBANCode) then
-                    IBANCode := CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2
+            case LetterPlace of
+                1:
+                    IBANCode := Letter2 + CopyStr(IBANCode, 2);
+                StrLen(IBANCode):
+                    IBANCode := CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2;
                 else
                     IBANCode :=
                       CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2 + CopyStr(IBANCode, LetterPlace + 1);
@@ -749,7 +815,7 @@ table 79 "Company Information"
         IBANError(IBANCode);
     end;
 
-    local procedure IsDigit(LetterChar: Char): Boolean
+    procedure IsDigit(LetterChar: Char): Boolean
     var
         Letter: Code[1];
     begin
@@ -757,12 +823,12 @@ table 79 "Company Information"
         exit((Letter >= '0') and (Letter <= '9'))
     end;
 
-    local procedure IBANError(WrongIBAN: Text)
+    procedure IBANError(WrongIBAN: Text)
     var
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
-        OnBeforeIBANError(IsHandled);
+        OnBeforeIBANError(IsHandled, WrongIBAN);
         if IsHandled then
             exit;
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NotValidIBANErr, WrongIBAN), true) then
@@ -875,22 +941,7 @@ table 79 "Company Information"
         OnAfterGetSystemIndicator(Text, Style)
     end;
 
-    local procedure GetDatabaseIndicatorText(IncludeCompany: Boolean): Text[250]
-    var
-        ActiveSession: Record "Active Session";
-        Text: Text[1024];
-    begin
-        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
-        ActiveSession.SetRange("Session ID", SessionId);
-        ActiveSession.FindFirst;
-        Text := ActiveSession."Database Name" + ' - ' + ActiveSession."Server Computer Name";
-        if IncludeCompany then
-            Text := CompanyName + ' - ' + Text;
-        if StrLen(Text) > 250 then
-            exit(CopyStr(Text, 1, 247) + '...');
-        exit(Text)
-    end;
-
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetDocFooter(LanguageCode: Code[10]): Text[250]
@@ -914,6 +965,7 @@ table 79 "Company Information"
         if "Bank Account Format Check" then
             BankOperationsFunctions.CheckBankAccountNo(BankAccountNo, true);
     end;
+#endif
 
     procedure GetCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
     begin
@@ -965,13 +1017,12 @@ table 79 "Company Information"
         Company: Record Company;
     begin
         Company.SetFilter(Name, '<>%1', CompanyName);
-        if Company.FindSet then begin
+        if Company.FindSet then
             repeat
                 CompanyInformation.ChangeCompany(Company.Name);
                 if CompanyInformation.Get then
                     SyncEnabled := CompanyInformation."Sync with O365 Bus. profile";
             until (Company.Next() = 0) or SyncEnabled;
-        end;
     end;
 
     local procedure SetBrandColorValue()
@@ -1000,7 +1051,7 @@ table 79 "Company Information"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeIBANError(var IsHandled: Boolean)
+    local procedure OnBeforeIBANError(var IsHandled: Boolean; WrongIBAN: Text)
     begin
     end;
 

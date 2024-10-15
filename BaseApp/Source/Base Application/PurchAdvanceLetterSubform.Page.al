@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 31021 "Purch. Advance Letter Subform"
 {
     AutoSplitKey = true;
@@ -6,6 +7,9 @@ page 31021 "Purch. Advance Letter Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Purch. Advance Letter Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -470,4 +474,4 @@ page 31021 "Purch. Advance Letter Subform"
         Clear(DimMgt);
     end;
 }
-
+#endif

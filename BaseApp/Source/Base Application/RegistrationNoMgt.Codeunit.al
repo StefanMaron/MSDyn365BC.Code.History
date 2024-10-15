@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11799 "Registration No. Mgt."
 {
     ObsoleteState = Pending;
@@ -131,3 +132,5 @@ codeunit 11799 "Registration No. Mgt."
     end;
 }
 
+
+#endif

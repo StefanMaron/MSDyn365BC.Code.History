@@ -1,5 +1,7 @@
 codeunit 11739 "Workflow Handler CZP"
 {
+    Permissions = tabledata "NAV App Installed App" = r;
+
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowManagement: Codeunit "Workflow Management";
@@ -166,17 +168,25 @@ codeunit 11739 "Workflow Handler CZP"
         end;
     end;
 
+#if not CLEAN19
 #pragma warning disable AL0432
+#endif
     [EventSubscriber(ObjectType::Table, Database::"Cash Document Header CZP", 'OnCheckCashDocReleaseRestrictions', '', false, false)]
+#if not CLEAN19
 #pragma warning restore AL0432
+#endif
     local procedure CheckCashDocReleaseRestrictions(var Sender: Record "Cash Document Header CZP")
     begin
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
+#if not CLEAN19
 #pragma warning disable AL0432
+#endif
     [EventSubscriber(ObjectType::Table, Database::"Cash Document Header CZP", 'OnCheckCashDocPostRestrictions', '', false, false)]
+#if not CLEAN19
 #pragma warning restore AL0432
+#endif
     local procedure CheckCashDocPostRestrictions(var Sender: Record "Cash Document Header CZP")
     begin
         CheckRecordHasUsageRestrictions(Sender);

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 318 "VAT Statement Templates"
 {
     ApplicationArea = Basic, Suite;
@@ -84,3 +85,4 @@ page 318 "VAT Statement Templates"
     }
 }
 
+#endif

@@ -1,4 +1,4 @@
-table 312 "Purchases & Payables Setup"
+﻿table 312 "Purchases & Payables Setup"
 {
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
@@ -245,6 +245,10 @@ table 312 "Purchases & Payables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Purchase Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -333,6 +337,22 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
+        }
+        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Purchase Header");
+                end;
+            end;
         }
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
@@ -423,46 +443,30 @@ table 312 "Purchases & Payables Setup"
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
-#if CLEAN16
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -476,43 +480,83 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default VAT Date';
             OptionCaption = 'Posting Date,Document Date,Blank';
             OptionMembers = "Posting Date","Document Date",Blank;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letter)';
             ObsoleteTag = '17.0';
         }
         field(11767; "Allow Alter Posting Groups"; Boolean)
         {
             Caption = 'Allow Alter Posting Groups';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(11768; "Automatic Adv. Invoice Posting"; Boolean)
         {
             Caption = 'Automatic Adv. Invoice Posting';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31000; "Advance Letter Nos."; Code[20])
         {
             Caption = 'Advance Letter Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Advance Invoice Nos."; Code[20])
         {
             Caption = 'Advance Invoice Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Advance Credit Memo Nos."; Code[20])
         {
             Caption = 'Advance Credit Memo Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31100; "Default Orig. Doc. VAT Date"; Option)
         {
             Caption = 'Default Orig. Doc. VAT Date';
             OptionCaption = 'Blank,Posting Date,VAT Date,Document Date';
             OptionMembers = Blank,"Posting Date","VAT Date","Document Date";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '17.0';
         }
     }
@@ -547,4 +591,3 @@ table 312 "Purchases & Payables Setup"
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 }
-

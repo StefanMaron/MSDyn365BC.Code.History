@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 111 "Vend. Entry-SetAppl.ID"
 {
     Permissions = TableData "Vendor Ledger Entry" = imd;
@@ -96,3 +97,4 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     end;
 }
 
+#endif

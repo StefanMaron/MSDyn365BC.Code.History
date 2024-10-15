@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5934 "Service Invoice Subform"
 {
     AutoSplitKey = true;
@@ -59,6 +60,13 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the line.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -206,6 +214,7 @@ page 5934 "Service Invoice Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Service;
@@ -215,6 +224,7 @@ page 5934 "Service Invoice Subform"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -320,6 +330,7 @@ page 5934 "Service Invoice Subform"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = Basic, Suite;
@@ -329,6 +340,7 @@ page 5934 "Service Invoice Subform"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -354,6 +366,7 @@ page 5934 "Service Invoice Subform"
                         PickPrice();
                     end;
                 }
+#if not CLEAN19
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -372,6 +385,7 @@ page 5934 "Service Invoice Subform"
                         PickDiscount();
                     end;
                 }
+#endif
                 action(GetLineDiscount)
                 {
                     AccessByPermission = TableData "Sales Discount Access" = R;
@@ -650,3 +664,4 @@ page 5934 "Service Invoice Subform"
     end;
 }
 
+#endif

@@ -91,9 +91,13 @@ table 1262 "Isolated Certificate"
         {
             Caption = 'Certificate Code';
             Editable = false;
-            TableRelation = "Certificate CZ Code";
             DataClassification = CustomerContent;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            TableRelation = "Certificate CZ Code";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -175,6 +179,7 @@ table 1262 "Isolated Certificate"
     begin
         exit(ISOLATEDSTORAGE.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
     end;
+#if not CLEAN18
 
     [Obsolete('This function will be removed.', '18.0')]
     procedure GetDotNetX509Certificate2(var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
@@ -182,5 +187,6 @@ table 1262 "Isolated Certificate"
         // NAVCZ
         CertificateManagement.GetCertAsDotNetX509Certificate2(Rec, DotNetX509Certificate2);
     end;
+#endif
 }
 

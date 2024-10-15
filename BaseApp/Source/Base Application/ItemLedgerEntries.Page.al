@@ -277,6 +277,7 @@
                     ToolTip = 'Specifies where the entry originated.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Source No. 2"; "Source No. 2")
                 {
                     ApplicationArea = Basic, Suite;
@@ -295,6 +296,7 @@
                     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -520,8 +522,10 @@
 
     trigger OnOpenPage()
     begin
-        if (GetFilters() <> '') and not Find() then
-            if FindFirst() then;
+        OnBeforeOpenPage();
+
+        if (Rec.GetFilters() <> '') and not Rec.Find() then
+            if Rec.FindFirst() then;
 
         SetPackageTrackingVisibility();
         SetDimVisibility();
@@ -638,6 +642,8 @@
         exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
     end;
 
+#if not CLEAN19
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure GetSelectionEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -646,11 +652,17 @@
         CurrPage.SetSelectionFilter(ItemLedgEntry);
     end;
 
+#endif
     local procedure SetPackageTrackingVisibility()
     var
         PackageMgt: Codeunit "Package Management";
     begin
         PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenPage()
+    begin
     end;
 }
 

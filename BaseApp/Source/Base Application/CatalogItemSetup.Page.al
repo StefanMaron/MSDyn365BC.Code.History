@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5732 "Catalog Item Setup"
 {
     AdditionalSearchTerms = 'non-inventoriable setup,special order setup';
@@ -65,3 +66,4 @@ page 5732 "Catalog Item Setup"
     end;
 }
 
+#endif

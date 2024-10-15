@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9096 "Vendor Hist. Pay-to FactBox"
 {
     Caption = 'Pay-to Vendor History';
@@ -92,16 +93,22 @@ page 9096 "Vendor Hist. Pay-to FactBox"
                 field("Pay-to No. of Out. Adv. L."; "Pay-to No. of Out. Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Outstanding Adv. Letters';
+                    Caption = 'Outstanding Adv. Letters (Obsolete';
                     DrillDownPageID = "Purchase Adv. Letters";
                     ToolTip = 'Specifies how many outstanding advance letters have been registered for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Pay-to No. of Closed Adv. L."; "Pay-to No. of Closed Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Closed Adv. Letters';
+                    Caption = 'Closed Adv. Letters (Obsolete)';
                     DrillDownPageID = "Purchase Adv. Letters";
                     ToolTip = 'Specifies how many closed advance letters have been registered for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
             cuegroup(Control23)
@@ -176,16 +183,22 @@ page 9096 "Vendor Hist. Pay-to FactBox"
                 field(PayToNoOfOutAdvLettersTile; "Pay-to No. of Out. Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Outstanding Adv. Letters';
+                    Caption = 'Outstanding Adv. Letters (Obsolete)';
                     DrillDownPageID = "Purchase Adv. Letters";
                     ToolTip = 'Specifies how many outstanding advance letters have been registered for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(PayToNoOfClosedAdvLettersTile; "Pay-to No. of Closed Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Closed Adv. Letters';
+                    Caption = 'Closed Adv. Letters (Obsolete)';
                     DrillDownPageID = "Purchase Adv. Letters";
                     ToolTip = 'Specifies how many closed advance letters have been registered for the vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
         }
@@ -210,3 +223,4 @@ page 9096 "Vendor Hist. Pay-to FactBox"
     end;
 }
 
+#endif

@@ -2,8 +2,12 @@ table 31130 "Certificate CZ Code"
 {
     Caption = 'Certificate Code';
     DataCaptionFields = "Code", Description;
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Certificate Code List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 
@@ -30,6 +34,7 @@ table 31130 "Certificate CZ Code"
     fieldgroups
     {
     }
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
@@ -65,4 +70,5 @@ table 31130 "Certificate CZ Code"
         IsolatedCertificate.SetRange("Company ID", CompanyName);
         exit(IsolatedCertificate.FindFirst());
     end;
+#endif
 }

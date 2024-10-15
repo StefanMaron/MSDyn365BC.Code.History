@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11734 "Cash Document Statistics"
 {
     Caption = 'Cash Document Statistics (Obsolete)';
@@ -208,4 +209,4 @@ page 11734 "Cash Document Statistics"
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 }
-
+#endif

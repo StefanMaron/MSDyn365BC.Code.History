@@ -1,13 +1,12 @@
+#if not CLEAN18
 codeunit 5631 "FA Jnl.-Check Line"
 {
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
     var
-#if not CLEAN18
         GLSetup: Record "General Ledger Setup";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
     begin
         CheckJobNo(Rec);
         TestField("FA Posting Type");
@@ -20,6 +19,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             Error(
               Text001,
               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type");
+
         // NAVCZ
         FASetup.Get();
         // NAVCZ
@@ -39,13 +39,11 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FieldCaption("Bal. Account Type"),
                 GenJnlline2."Account Type"));
         end;
-#if not CLEAN18
         // NAVCZ
         GLSetup.Get();
         if GLSetup."User Checks Allowed" then
             UserSetupAdvMgt.CheckGeneralJournalLine(Rec);
         // NAVCZ
-#endif
         DeprBookCode := "Depreciation Book Code";
         if "FA Posting Date" = 0D then
             "FA Posting Date" := "Posting Date";
@@ -802,3 +800,4 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 }
 
+#endif

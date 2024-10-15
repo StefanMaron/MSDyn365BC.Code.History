@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1521 "Workflow Response Handling"
 {
     Permissions = TableData "Sales Header" = rm,
@@ -541,8 +542,12 @@ codeunit 1521 "Workflow Response Handling"
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
+#if not CLEAN18
         ReleaseCreditDocument: Codeunit "Release Credit Document";
+#endif
+#if not CLEAN17
         CashDocRelease: Codeunit "Cash Document-Release";
+#endif
         RecRef: RecordRef;
         TargetRecRef: RecordRef;
         Handled: Boolean;
@@ -574,10 +579,14 @@ codeunit 1521 "Workflow Response Handling"
             // NAVCZ
             DATABASE::"Payment Order Header":
                 CODEUNIT.Run(CODEUNIT::"Issue Payment Order", Variant);
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 CashDocRelease.PerformManualRelease(Variant);
+#endif
+#if not CLEAN18
             DATABASE::"Credit Header":
                 ReleaseCreditDocument.PerformManualRelease(Variant);
+#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     SalesAdvanceLetterHeader := Variant;
@@ -606,9 +615,13 @@ codeunit 1521 "Workflow Response Handling"
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
+#if not CLEAN18
         ReleaseCreditDocument: Codeunit "Release Credit Document";
+#endif
         IssuePaymentOrder: Codeunit "Issue Payment Order";
+#if not CLEAN17
         CashDocRelease: Codeunit "Cash Document-Release";
+#endif
         RecRef: RecordRef;
         TargetRecRef: RecordRef;
         Handled: Boolean;
@@ -639,10 +652,14 @@ codeunit 1521 "Workflow Response Handling"
             // NAVCZ
             DATABASE::"Payment Order Header":
                 IssuePaymentOrder.Reopen(Variant);
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 CashDocRelease.Reopen(Variant);
+#endif
+#if not CLEAN18
             DATABASE::"Credit Header":
                 ReleaseCreditDocument.Reopen(Variant);
+#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     SalesAdvanceLetterHeader := Variant;
@@ -1266,3 +1283,4 @@ codeunit 1521 "Workflow Response Handling"
     end;
 }
 
+#endif

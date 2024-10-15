@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 473 "VAT Posting Setup Card"
 {
     Caption = 'VAT Posting Setup Card';
@@ -58,6 +59,7 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group are to be reported as services in the periodic VAT reports.';
                 }
+#if not CLEAN18
                 field("Intrastat Service"; "Intrastat Service")
                 {
                     ApplicationArea = Basic, Suite;
@@ -67,6 +69,7 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Adjust for Payment Discount"; "Adjust for Payment Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -78,6 +81,7 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if documents that use this combination of VAT business posting group and VAT product posting group require a certificate of supply.';
                 }
+#if not CLEAN17
                 field("Allow Blank VAT Date"; "Allow Blank VAT Date")
                 {
                     ApplicationArea = VAT;
@@ -87,6 +91,7 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
 #if not CLEAN18
                 field("Non Deduct. VAT Corr. Account"; '')
                 {
@@ -100,6 +105,7 @@ page 473 "VAT Posting Setup Card"
                     Visible = false;
                 }
 #endif
+#if not CLEAN17
                 field("Reverse Charge Check"; "Reverse Charge Check")
                 {
                     ApplicationArea = VAT;
@@ -109,11 +115,13 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Tax Category"; "Tax Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
                 }
+#if not CLEAN17
                 field("VAT Rate"; "VAT Rate")
                 {
                     ApplicationArea = VAT;
@@ -150,6 +158,7 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Sales)
             {
@@ -165,6 +174,7 @@ page 473 "VAT Posting Setup Card"
                     ToolTip = 'Specifies the general ledger account number to which to post unrealized sales VAT (as calculated when you post sales invoices) using this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = UnrealizedVATVisible;
                 }
+#if not CLEAN17
                 field("VIES Sales"; "VIES Sales")
                 {
                     ApplicationArea = VAT;
@@ -183,6 +193,7 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
             group(Purchases)
             {
@@ -222,6 +233,7 @@ page 473 "VAT Posting Setup Card"
                     Visible = false;
                 }
 #endif
+#if not CLEAN17
                 field("VIES Purchases"; "VIES Purchases")
                 {
                     ApplicationArea = VAT;
@@ -240,39 +252,69 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
             group(Advances)
             {
-                Caption = 'Advances';
+                Caption = 'Advances (Obsolete)';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 field("Sales Advance Offset VAT Acc."; "Sales Advance Offset VAT Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the sales advance VAT account for VAT posting setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Sales Advance VAT Account"; "Sales Advance VAT Account")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the sales advance VAT account for VAT posting setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Sales Ded. VAT Base Adj. Acc."; "Sales Ded. VAT Base Adj. Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies he number of the general ledger account for sales ded. vat base adj. Account';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Purch. Advance Offset VAT Acc."; "Purch. Advance Offset VAT Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the purchase advance offset VAT account for VAT posting setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Purch. Advance VAT Account"; "Purch. Advance VAT Account")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the purchase advance VAT account number for VAT posting setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Purch. Ded. VAT Base Adj. Acc."; "Purch. Ded. VAT Base Adj. Acc.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies he number of the general ledger account for purch. ded. vat base adj. account';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
             group(Usage)
@@ -348,3 +390,4 @@ page 473 "VAT Posting Setup Card"
         AdjustForPmtDiscVisible: Boolean;
 }
 
+#endif

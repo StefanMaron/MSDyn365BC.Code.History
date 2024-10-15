@@ -1,8 +1,12 @@
 table 31122 "EET Cash Register"
 {
     Caption = 'EET Cash Register';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "EET Cash Registers";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '18.0';
 
@@ -12,7 +16,9 @@ table 31122 "EET Cash Register"
         {
             Caption = 'Business Premises Code';
             NotBlank = true;
+#if not CLEAN18
             TableRelation = "EET Business Premises";
+#endif
         }
         field(2; "Code"; Code[10])
         {
@@ -33,7 +39,10 @@ table 31122 "EET Cash Register"
         field(12; "Register No."; Code[20])
         {
             Caption = 'Register No.';
+#if not CLEAN17
             TableRelation = IF ("Register Type" = CONST("Cash Desk")) "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+#endif
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -45,6 +54,7 @@ table 31122 "EET Cash Register"
                     "Register Name" := GetRegisterName;
                 end;
             end;
+#endif
         }
         field(15; "Register Name"; Text[50])
         {
@@ -53,7 +63,9 @@ table 31122 "EET Cash Register"
         field(17; "Certificate Code"; Code[10])
         {
             Caption = 'Certificate Code';
+#if not CLEAN18
             TableRelation = "Certificate CZ Code";
+#endif
         }
         field(20; "Receipt Serial Nos."; Code[20])
         {
@@ -77,6 +89,7 @@ table 31122 "EET Cash Register"
     {
     }
 
+#if not CLEAN18
     trigger OnDelete()
     var
         EETEntry: Record "EET Entry";
@@ -88,6 +101,7 @@ table 31122 "EET Cash Register"
             Error(EntryExistsErr, TableCaption, Code);
     end;
 
+#endif
     var
         EntryExistsErr: Label 'You cannot delete %1 %2 because there is at least one EET entry.', Comment = '%1 = Table Caption;%2 = Primary Key';
         RegisterDuplicatedErr: Label 'Register No. %1 is already defined for EET Cash Register: %2 %3.', Comment = '%1=Register Number, %2=Business Premises Code, %3=Cach Register Code';
@@ -105,6 +119,7 @@ table 31122 "EET Cash Register"
         end;
     end;
 
+#if not CLEAN18
     [TryFunction]
     local procedure CheckDuplicateRegister()
     var
@@ -116,5 +131,6 @@ table 31122 "EET Cash Register"
         if EETCashRegister.FindFirst then
             Error(RegisterDuplicatedErr, "Register No.", EETCashRegister."Business Premises Code", EETCashRegister.Code);
     end;
+#endif    
 }
 

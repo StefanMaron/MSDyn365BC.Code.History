@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 521 "Application Worksheet"
 {
     AdditionalSearchTerms = 'undo application';
@@ -414,9 +415,7 @@ page 521 "Application Worksheet"
     begin
         Apply.SetCalledFromApplicationWorksheet(true);
         ReapplyTouchedEntries; // in case OnQueryClosePage trigger was not executed due to a sudden crash
-#if not CLEAN18
         UserSetupAdvMgt.CheckItemUnapply; // NAVCZ
-#endif
         InventoryPeriod.IsValidDate(InventoryOpenedFrom);
         if InventoryOpenedFrom <> 0D then
             if GetFilter("Posting Date") = '' then
@@ -446,9 +445,7 @@ page 521 "Application Worksheet"
     var
         InventoryPeriod: Record "Inventory Period";
         TempUnapplyItem: Record Item temporary;
-#if not CLEAN18
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-#endif
         Apply: Codeunit "Item Jnl.-Post Line";
         ApplicationsForm: Page "View Applied Entries";
         InventoryOpenedFrom: Date;
@@ -542,3 +539,4 @@ page 521 "Application Worksheet"
     end;
 }
 
+#endif

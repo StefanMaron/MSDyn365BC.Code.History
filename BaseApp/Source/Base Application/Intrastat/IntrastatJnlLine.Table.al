@@ -1,4 +1,4 @@
-table 263 "Intrastat Jnl. Line"
+﻿table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
 
@@ -37,7 +37,9 @@ table 263 "Intrastat Jnl. Line"
             trigger OnValidate()
             begin
                 GetItemDescription;
+#if not CLEAN18
                 "Statistic Indication" := ''; // NAVCZ
+#endif
             end;
         }
         field(7; "Item Description"; Text[250])
@@ -59,12 +61,11 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
-        field(11; "Source Type"; Option)
+        field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             BlankZero = true;
             Caption = 'Source Type';
-            OptionCaption = ',Item Entry,Job Entry';
-            OptionMembers = ,"Item Entry","Job Entry";
+
             trigger OnValidate()
             begin
                 if Type = Type::Shipment then begin
@@ -92,12 +93,14 @@ table 263 "Intrastat Jnl. Line"
                     "Total Weight" := Round("Net Weight" * Quantity, 0.00001)
                 else
                     "Total Weight" := 0;
+#if not CLEAN18
                 // NAVCZ
                 if Item.Get("Item No.") then
                     if "Supplementary Units" then
                         "Supplem. UoM Net Weight" := "Net Weight" *
                            UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
                 // NAVCZ
+#endif
             end;
         }
         field(14; Amount; Decimal)
@@ -120,17 +123,20 @@ table 263 "Intrastat Jnl. Line"
 
             trigger OnValidate()
             begin
+#if CLEAN18
+                if (Quantity <> 0) and Item.Get("Item No.") then
+                    Validate("Net Weight", Item."Net Weight")
+                else
+                    Validate("Net Weight", 0);
+#else
                 // NAVCZ
-                // IF (Quantity <> 0) AND Item.GET("Item No.") THEN
-                // VALIDATE("Net Weight",Item."Net Weight")
-                // ELSE
-                // VALIDATE("Net Weight",0);
                 "Total Weight" := RoundValue("Net Weight" * Quantity);
                 if Item.Get("Item No.") then
                     if "Supplementary Units" then
                         "Supplem. UoM Quantity" := Quantity /
                            UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Supplem. UoM Code");
                 // NAVCZ
+#endif
             end;
         }
         field(16; "Cost Regulation %"; Decimal)
@@ -181,8 +187,10 @@ table 263 "Intrastat Jnl. Line"
                     Item.Get("Item No.");
 
                 Name := Item.Description;
+#if CLEAN18
+                "Tariff No." := Item."Tariff No.";
+#else
                 // NAVCZ
-                // "Tariff No." := Item."Tariff No.";
                 Validate("Net Weight", Item."Net Weight");
                 Validate("Tariff No.", Item."Tariff No.");
                 "Base Unit of Measure" := Item."Base Unit of Measure";
@@ -190,9 +198,12 @@ table 263 "Intrastat Jnl. Line"
                 "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
                 GetItemDescription;
                 // NAVCZ
+#if not CLEAN17
                 "Statistic Indication" := Item."Statistic Indication";
+#endif
                 "Specific Movement" := Item."Specific Movement";
                 // NAVCZ
+#endif
             end;
         }
         field(21; Name; Text[100])
@@ -257,7 +268,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Additional Costs';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -265,15 +280,25 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Source Entry Date';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if not CLEAN17
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -281,7 +306,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Statistics Period';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -289,7 +318,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Declaration No.';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -299,16 +332,25 @@ table 263 "Intrastat Jnl. Line"
             Editable = false;
             OptionCaption = 'Primary,Null,Replacing,Deleting';
             OptionMembers = Primary,Null,Replacing,Deleting;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31067; "Prev. Declaration No."; Code[10])
         {
             Caption = 'Prev. Declaration No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnLookup()
             var
@@ -328,13 +370,19 @@ table 263 "Intrastat Jnl. Line"
                     "Prev. Declaration No." := IntrastatJnlLine2."Declaration No.";
                 end;
             end;
+#endif
         }
         field(31068; "Prev. Declaration Line No."; Integer)
         {
             Caption = 'Prev. Declaration Line No.';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnLookup()
             var
@@ -366,6 +414,7 @@ table 263 "Intrastat Jnl. Line"
                     TransferFields(IntrastatJnlLine2, false);
                 end;
             end;
+#endif
         }
         field(31069; "Shipment Method Code"; Code[10])
         {
@@ -378,8 +427,12 @@ table 263 "Intrastat Jnl. Line"
         field(31070; "Specific Movement"; Code[10])
         {
             Caption = 'Specific Movement';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Specific Movement".Code;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -388,7 +441,11 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Code';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -397,7 +454,11 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Quantity';
             DecimalPlaces = 0 : 3;
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -406,7 +467,11 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Supplem. UoM Net Weight';
             DecimalPlaces = 2 : 5;
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -415,7 +480,11 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Base Unit of Measure';
             Editable = false;
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -436,6 +505,7 @@ table 263 "Intrastat Jnl. Line"
         key(Key4; "Internal Ref. No.")
         {
         }
+#if not CLEAN18
         key(Key5; Type, "Country/Region Code", "Tariff No.", "Statistic Indication", "Transaction Type", "Shpt. Method Code", "Area", "Transport Method")
         {
             ObsoleteState = Pending;
@@ -448,6 +518,7 @@ table 263 "Intrastat Jnl. Line"
             ObsoleteReason = 'Field "Statistic Indication" is removed and cannot be used in an active key.';
             ObsoleteTag = '18.0';
         }
+#endif
         key(Key7; "Document No.")
         {
         }
@@ -494,12 +565,13 @@ table 263 "Intrastat Jnl. Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetItemDescription(IsHandled);
+        OnBeforeGetItemDescription(IsHandled, Rec);
         if IsHandled then
             exit;
 
         if "Tariff No." <> '' then begin
             TariffNumber.Get("Tariff No.");
+#if not CLEAN18
             // NAVCZ
             TariffNumber.CalcFields("Supplementary Units");
             if TariffNumber."Supplementary Units" then begin
@@ -508,15 +580,22 @@ table 263 "Intrastat Jnl. Line"
             end else
                 "Supplem. UoM Code" := '';
             // NAVCZ
+#endif
             "Item Description" := TariffNumber.Description;
             "Supplementary Units" := TariffNumber."Supplementary Units";
+#if CLEAN18
+        end else
+            "Item Description" := '';
+#else
         end else begin // NAVCZ
             "Item Description" := '';
             "Supplementary Units" := false;
             "Supplem. UoM Code" := '';
         end; // NAVCZ
+#endif            
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure RoundValue(Value: Decimal): Decimal
@@ -562,6 +641,7 @@ table 263 "Intrastat Jnl. Line"
         exit(Format(Round("Total Weight", 1, '>'), 0, PrecisionFormat));
     end;
 
+#endif
     procedure IsOpenedFromBatch(): Boolean
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -776,6 +856,7 @@ table 263 "Intrastat Jnl. Line"
         exit(false);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     local procedure PrecisionFormat(): Text
     begin
@@ -783,27 +864,30 @@ table 263 "Intrastat Jnl. Line"
         exit('<Precision,3:3><Standard Format,9>');
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
+    [Obsolete('This procedure is discontinued. Use IntraJnlManagement event OnBeforeOpenJnl.', '18.0')]
     procedure CheckIntrastatJnlLineUserRestriction()
     begin
         // NAVCZ
         OnCheckIntrastatJnlTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBatchIsNotReported(xIntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
+#if not CLEAN18
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '18.1')]
+    [Obsolete('This Integration Event is discontinued. Use IntraJnlManagement event OnBeforeOpenJnl.', '18.1')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckIntrastatJnlTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 }
 

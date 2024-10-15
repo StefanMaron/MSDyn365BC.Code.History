@@ -17,13 +17,19 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Bank Export/Import Setup" = RIMD,
                   tabledata "Base Calendar" = RIMD,
                   tabledata "Base Calendar Change" = RIMD,
+#if not CLEAN17
                   tabledata Commodity = RIMD,
                   tabledata "Commodity Setup" = RIMD,
+#endif
                   tabledata "Company Information" = RIMD,
+#if not CLEAN17
                   tabledata "Company Officials" = RIMD,
+#endif
                   tabledata "Country/Region" = RIMD,
+#if not CLEAN18
                   tabledata "Credit Report Selections" = RIMD,
                   tabledata "Credits Setup" = RIMD,
+#endif
                   tabledata Currency = RIMD,
                   tabledata "Currency Exchange Rate" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
@@ -85,7 +91,9 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
                   tabledata "Standard Text" = RIMD,
+#if not CLEAN18
                   tabledata "Stat. Reporting Setup" = RIMD,
+#endif
                   tabledata Territory = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "User Setup" = RIMD,
@@ -97,14 +105,18 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "User Time Register" = RIMD,
                   tabledata "VAT Assisted Setup Bus. Grp." = RIMD,
                   tabledata "VAT Assisted Setup Templates" = RIMD,
+#if not CLEAN17
                   tabledata "VAT Attribute Code" = RIMD,
+#endif
                   tabledata "VAT Business Posting Group" = RIMD,
+#if not CLEAN17
                   tabledata "VAT Control Report Buffer" = rimd,
                   tabledata "VAT Control Report Header" = RIMD,
                   tabledata "VAT Control Report Line" = RIMD,
                   tabledata "VAT Control Report Section" = RIMD,
                   tabledata "VAT Ctrl.Rep. - VAT Entry Link" = Rimd,
                   tabledata "VAT Period" = RIMD,
+#endif
                   tabledata "VAT Posting Setup" = RIMD,
                   tabledata "VAT Product Posting Group" = RIMD,
                   tabledata "VAT Rate Change Conversion" = RIMD,
@@ -112,8 +124,10 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "VAT Rate Change Setup" = RIMD,
                   tabledata "VAT Report Setup" = RIMD,
                   tabledata "VAT Setup Posting Groups" = RIMD,
+#if not CLEAN17
                   tabledata "VAT Statement Attachment" = RIMD,
                   tabledata "VAT Statement Comment Line" = RIMD,
+#endif
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,

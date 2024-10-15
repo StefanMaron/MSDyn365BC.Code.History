@@ -1071,7 +1071,7 @@ codeunit 134163 "Company Init Unit Test"
         Assert.RecordCount(TempApplicationAreaBuffer, 5);
 
         TempApplicationAreaBuffer.SetRange(Selected, false);
-        Assert.RecordCount(TempApplicationAreaBuffer, 31);
+        Assert.RecordCount(TempApplicationAreaBuffer, 32);
     end;
 }
 

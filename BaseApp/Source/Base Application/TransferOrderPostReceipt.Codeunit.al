@@ -7,7 +7,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
     var
         Item: Record Item;
         SourceCodeSetup: Record "Source Code Setup";
-        InvtSetup: Record "Inventory Setup";
         ValueEntry: Record "Value Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
@@ -43,7 +42,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 CheckWarehouse(TransLine);
 
             WhsePosting := IsWarehousePosting("Transfer-to Code");
-
+#if not CLEAN18
             // NAVCZ
             IntrastatTransaction := IsIntrastatTransaction;
             if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
@@ -58,12 +57,15 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     TestField("Shipment Method Code");
             end;
             // NAVCZ
+#endif
 
-            Window.Open(
-              '#1#################################\\' +
-              Text003);
+            if GuiAllowed then begin
+                Window.Open(
+                  '#1#################################\\' +
+                  Text003);
 
-            Window.Update(1, StrSubstNo(Text004, "No."));
+                Window.Update(1, StrSubstNo(Text004, "No."));
+            end;
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
@@ -106,7 +108,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if TransLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if GuiAllowed then
+                        Window.Update(2, LineCount);
 
                     if TransLine."Item No." <> '' then begin
                         Item.Get(TransLine."Item No.");
@@ -115,6 +118,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                         if not IsHandled then
                             Item.TestField(Blocked, false);
                     end;
+#if not CLEAN18
                     // NAVCZ
                     if IntrastatTransaction then begin
                         if StatReportingSetup."Tariff No. Mandatory" then
@@ -125,7 +129,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                             TransLine.TestField("Country/Region of Origin Code");
                     end;
                     // NAVCZ
-
+#endif
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
 
                     InsertTransRcptLine(TransRcptHeader."No.", TransRcptLine, TransLine);
@@ -133,10 +137,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
             OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
 
-            if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
 
             ValueEntry.LockTable();
             ItemLedgEntry.LockTable();
@@ -175,7 +176,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
             DeleteOne := ShouldDeleteOneTransferOrder(TransLine);
-            OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne);
+            OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne, TransRcptHeader);
             if DeleteOne then
                 DeleteOneTransferOrder(TransHeader, TransLine)
             else begin
@@ -190,8 +191,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
             Clear(WhsePostRcpt);
-            Clear(InvtAdjmt);
-            Window.Close;
+            if GuiAllowed() then
+                Window.Close();
         end;
 
         Rec := TransHeader;
@@ -208,6 +209,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3.';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
         Text008: Label 'Base Qty. to Receive must be 0.';
+        InvtSetup: Record "Inventory Setup";
         TransRcptHeader: Record "Transfer Receipt Header";
         TransRcptLine: Record "Transfer Receipt Line";
         TransHeader: Record "Transfer Header";
@@ -224,13 +226,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TempWhseSplitSpecification: Record "Tracking Specification" temporary;
         WhseEntry: Record "Warehouse Entry";
         TempItemEntryRelation2: Record "Item Entry Relation" temporary;
+#if not CLEAN18
         StatReportingSetup: Record "Stat. Reporting Setup";
+#endif
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         DimMgt: Codeunit DimensionManagement;
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostRcpt: Codeunit "Whse.-Post Receipt";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhsePosting: Boolean;
@@ -241,8 +244,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         InvtPickPutaway: Boolean;
         SuppressCommit: Boolean;
         IntrastatTransaction: Boolean;
-
-    protected var
         TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 
@@ -299,20 +300,20 @@ codeunit 5705 "TransferOrder-Post Receipt"
         ItemJnlLine."Transaction Specification" := TransRcptHeader2."Transaction Specification";
         ItemJnlLine."Shpt. Method Code" := TransRcptHeader2."Shipment Method Code";
         ItemJnlLine."Direct Transfer" := TransLine."Direct Transfer";
+#if not CLEAN18
         // NAVCZ
         ItemJnlLine."Tariff No." := TransLine."Tariff No.";
         ItemJnlLine."Statistic Indication" := TransLine."Statistic Indication";
         ItemJnlLine."Net Weight" := TransLine."Net Weight";
         ItemJnlLine."Country/Region of Origin Code" := TransLine."Country/Region of Origin Code";
         ItemJnlLine."Intrastat Transaction" := IntrastatTransaction;
-#if not CLEAN18        
         ItemJnlLine.Validate("Gen. Bus. Posting Group", TransRcptLine2."Gen. Bus. Post. Group Receive");
-#endif
         // recalc to base UOM
         if ItemJnlLine."Net Weight" <> 0 then
             if TransLine."Qty. per Unit of Measure" <> 0 then
                 ItemJnlLine."Net Weight" := Round(ItemJnlLine."Net Weight" / TransLine."Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
@@ -710,6 +711,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
         end;
     end;
 
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+    end;
+
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
@@ -771,7 +780,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteOneTransferHeader(TransferHeader: Record "Transfer Header"; var DeleteOne: Boolean)
+    local procedure OnBeforeDeleteOneTransferHeader(TransferHeader: Record "Transfer Header"; var DeleteOne: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 

@@ -41,10 +41,16 @@ permissionset 8823 "Item Journals - Post"
                   tabledata "User Setup" = R,
                   tabledata "Value Entry" = Rim,
                   tabledata "VAT Business Posting Group" = R,
+#if not CLEAN17
                   tabledata "VAT Period" = R,
+#endif
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
+#if CLEAN17
+                  tabledata "Warehouse Register" = r;
+#else
                   tabledata "Warehouse Register" = r,
                   tabledata "Whse. Net Change Template" = R;
+#endif                  
 }

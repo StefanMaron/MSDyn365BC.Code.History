@@ -89,7 +89,7 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryInventory.CreateItem(Item);
         Quantity := CreateAndRegisterPutAwayFromPurchaseOrder(Location.Code, Item."No.", false);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Quantity);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", Location.Code);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", Location.Code);
         RunCalculateInventory(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, Item."No.");
 
         // Exercise: Create Pick from Sales Order.
@@ -741,7 +741,8 @@ codeunit 137408 "SCM Warehouse VI"
 
         // Create and register two Warehouse Item Journal Lines with Item Tracking and Expiration Date.
         ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+
         CreateAndRegisterWarehouseItemJournalWithItemTracking(
           WarehouseJournalBatch, WarehouseJournalLine, Bin.Code, Location.Code, Bin."Zone Code",
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandInt(10), ExpirationDate,
@@ -1069,7 +1070,7 @@ codeunit 137408 "SCM Warehouse VI"
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseEntry: Record "Warehouse Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Lot Specific Tracking]
@@ -1714,7 +1715,7 @@ codeunit 137408 "SCM Warehouse VI"
         Bin: Record Bin;
         ToBin: Record Bin;
         WarehouseJournalLine: Record "Warehouse Journal Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Quantity: Decimal;
     begin
         // [FEATURE] [Warehouse Journal] [Item Tracking]
@@ -1809,8 +1810,8 @@ codeunit 137408 "SCM Warehouse VI"
         BinContent: Record "Bin Content";
         WhseReclassificationJournal: TestPage "Whse. Reclassification Journal";
         NewBinCode: Code[20];
-        LotNo: Code[20];
-        SerialNo: Code[20];
+        LotNo: Code[50];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [Whse. Reclassification Journal] [Item Tracking]
         // [SCENARIO 280754] Whse. reclassification journal can be registered when serial no. and lot no. in item tracking have filter-like codes.
@@ -2325,7 +2326,7 @@ codeunit 137408 "SCM Warehouse VI"
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         BinContent: Record "Bin Content";
         SCMWarehouseVI: Codeunit "SCM Warehouse VI";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Warehouse Pick] [Item Tracking]
@@ -2539,7 +2540,7 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Item purchased for location "WHITE": lots "LOT1","LOT2", each with Quantity = 10
         Quantity := LibraryRandom.RandDec(10, 2);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
         for Index := 1 to ArrayLen(LotNo) do begin
             LotNo[Index] := LibraryUtility.GenerateGUID;
             CreateAndRegisterWhseJnlLineWithLotAndUoM(
@@ -2579,7 +2580,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         Qty: Decimal;
-        NewLotNo: Code[20];
+        NewLotNo: Code[50];
     begin
         // [FEATURE] [Pick] [Item Tracking] [Reservation]
         // [SCENARIO 377492] Lot availability is checked when a user validates Lot No. on warehouse pick line.
@@ -3451,7 +3452,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
     end;
 
-    local procedure BlockedLotNoInformation(ItemNo: Code[20]; LotNo: Code[20]; BlockLot: Boolean)
+    local procedure BlockedLotNoInformation(ItemNo: Code[20]; LotNo: Code[50]; BlockLot: Boolean)
     var
         LotNoInformation: Record "Lot No. Information";
     begin
@@ -3596,7 +3597,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
           Bin."Zone Code", Bin.Code, EntryType, ItemNo, Quantity);
@@ -3620,13 +3621,13 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, true);
     end;
 
-    local procedure CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[20]; ExpirationDate: Date; Quantity: Decimal)
+    local procedure CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin: Record Bin; ItemNo: Code[20]; LotNo: Code[50]; ExpirationDate: Date; Quantity: Decimal)
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
@@ -3646,7 +3647,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
@@ -3684,7 +3685,7 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         FindBinContent(BinContent, ItemNo);
         BinCode := FindEmptyBin(LocationCode, BinContent."Zone Code");
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
         Commit();
         WhseReclassificationJournal.OpenEdit;
         WhseReclassificationJournal.CurrentLocationCode.SetValue(LocationCode);
@@ -3845,7 +3846,7 @@ codeunit 137408 "SCM Warehouse VI"
         UpdateBinRankingOnBin(Bin, BinRanking);
     end;
 
-    local procedure CreateBinAndRegisterWhseAdjustment(var BinContent: Record "Bin Content"; Item: Record Item; LocationCode: Code[10]; LotNo: Code[20]; QtyToRegister: Integer; BinRanking: Integer; QtyMin: Decimal; QtyMax: Decimal; ExpDate: Date)
+    local procedure CreateBinAndRegisterWhseAdjustment(var BinContent: Record "Bin Content"; Item: Record Item; LocationCode: Code[10]; LotNo: Code[50]; QtyToRegister: Integer; BinRanking: Integer; QtyMin: Decimal; QtyMax: Decimal; ExpDate: Date)
     var
         Zone: Record Zone;
         Bin: Record Bin;
@@ -4032,7 +4033,7 @@ codeunit 137408 "SCM Warehouse VI"
           ItemUnitOfMeasure2."Qty. per Unit of Measure" + LibraryRandom.RandInt(10));  // Use random Quantity per Unit of Measure and value is required for test.
     end;
 
-    local procedure UpdateInventoryInBinUsingWhseJournalWithLotNo(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure UpdateInventoryInBinUsingWhseJournalWithLotNo(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     begin
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Quantity);
@@ -4144,7 +4145,8 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
         LibraryWarehouse.CreateWhseWorksheetLine(
-          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode, 0);
+          WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode,
+          "Warehouse Worksheet Template Type"::"Put-away");
         // Validation of Qty. to Handle depends on CurrFieldNo so we have to do this via UI
         MovementWorksheetPage.OpenEdit;
         MovementWorksheetPage.GotoRecord(WhseWorksheetLine);
@@ -4158,7 +4160,7 @@ codeunit 137408 "SCM Warehouse VI"
         MovementWorksheetPage.Close;
     end;
 
-    local procedure CreateMovementAndVerifyMovementLinesForLot(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[20]; Quantity: Integer)
+    local procedure CreateMovementAndVerifyMovementLinesForLot(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[50]; Quantity: Integer)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4245,14 +4247,6 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, true);
     end;
 
-    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateType: Option; LocationCode: Code[10])
-    var
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-    begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplateType);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
-    end;
-
     local procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseLine: Record "Purchase Line")
     var
         Location: Record Location;
@@ -4279,7 +4273,7 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
-    local procedure CreateSalesOrderWithPick(ItemNo: Code[20]; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreateSalesOrderWithPick(ItemNo: Code[20]; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4315,7 +4309,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure CreateMovementWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; FromBin: Record Bin; ToBin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreateMovementWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; FromBin: Record Bin; ToBin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     begin
         CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalLine."Entry Type"::Movement,
@@ -4335,12 +4329,12 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
-    local procedure CreateRegisteredDocument(var RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; Type: Option)
+    local procedure CreateRegisteredDocument(var RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; ActivityType: Enum "Warehouse Activity Type")
     var
         Location: Record Location;
     begin
         RegisteredWhseActivityHdr.Init();
-        RegisteredWhseActivityHdr.Type := Type;
+        RegisteredWhseActivityHdr.Type := ActivityType;
         RegisteredWhseActivityHdr."No." := LibraryUtility.GenerateGUID;
         RegisteredWhseActivityHdr."Location Code" := LibraryWarehouse.CreateLocation(Location);
         RegisteredWhseActivityHdr.Insert();
@@ -4377,7 +4371,7 @@ codeunit 137408 "SCM Warehouse VI"
         exit(Bin.Code);
     end;
 
-    local procedure SetWhseActivityLinesLotNo(LocationCode: Code[10]; ActivityType: Option; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure SetWhseActivityLinesLotNo(LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; LotNo: Code[50])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4387,6 +4381,17 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, LotNo);
         SetWarehouseActivityLineLotNo(
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, LotNo);
+    end;
+
+    local procedure SetIncrementBatchName(WarehouseJournalBatch: Record "Warehouse Journal Batch"; Increment: Boolean)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        WarehouseJournalTemplate.Get(WarehouseJournalBatch."Journal Template Name");
+        if WarehouseJournalTemplate."Increment Batch Name" <> Increment then begin
+            WarehouseJournalTemplate."Increment Batch Name" := Increment;
+            WarehouseJournalTemplate.Modify();
+        end;
     end;
 
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
@@ -4468,7 +4473,7 @@ codeunit 137408 "SCM Warehouse VI"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindRegisteredWarehouseActivityHeader(var RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; LocationCode: Code[10]; Type: Option)
+    local procedure FindRegisteredWarehouseActivityHeader(var RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; LocationCode: Code[10]; Type: Enum "Warehouse Activity Type")
     begin
         RegisteredWhseActivityHdr.SetRange("Location Code", LocationCode);
         RegisteredWhseActivityHdr.SetRange(Type, Type);
@@ -4494,10 +4499,10 @@ codeunit 137408 "SCM Warehouse VI"
         StockkeepingUnit.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; Type: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.SetRange(Type, Type);
+        WarehouseActivityHeader.SetRange(Type, ActivityType);
         WarehouseActivityHeader.FindFirst;
     end;
 
@@ -4512,14 +4517,14 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityHeader.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; ActionType: Option; ItemNo: Code[20])
+    local procedure FindWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20])
     begin
         with WarehouseActivityLine do begin
             SetRange("Item No.", ItemNo);
@@ -4740,7 +4745,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         CreateAndRegisterWarehouseItemJournalWithItemTracking(
           WarehouseJournalBatch, WarehouseJournalLine, Bin.Code, Bin."Location Code", Bin."Zone Code",
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity, 0D,
@@ -4777,7 +4782,9 @@ codeunit 137408 "SCM Warehouse VI"
         // Create and register two Warehouse Item Journal Lines with Item Tracking and Expiration Date.
         ExpirationDate := CalcDate('<+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         Quantity := LibraryRandom.RandInt(10);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        SetIncrementBatchName(WarehouseJournalBatch, true);
+
         CreateAndRegisterWarehouseItemJournalWithItemTracking(
           WarehouseJournalBatch, WarehouseJournalLine, Bin.Code, Location.Code, Bin."Zone Code",
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity, ExpirationDate, TrackingAction);
@@ -4803,12 +4810,12 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
-    local procedure RegisterWarehouseActivityHeader(LocationCode: Code[10]; Type: Option)
+    local procedure RegisterWarehouseActivityHeader(LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.SetRange(Type, Type);
+        WarehouseActivityHeader.SetRange(Type, ActivityType);
         WarehouseActivityHeader.FindFirst;
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
@@ -4840,7 +4847,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalLine: Record "Warehouse Journal Line";
         PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
         WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         WarehouseJournalBatch.Modify(true);
         WarehouseJournalLine.Init();
@@ -4944,7 +4951,7 @@ codeunit 137408 "SCM Warehouse VI"
         i: Integer;
     begin
         FindBin(Bin, LocationCode);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, LocationCode);
         for i := 1 to ArrayLen(Item) do begin
             ItemNoFilter += Item[i]."No." + '|';
             LibraryWarehouse.CreateWhseJournalLine(
@@ -4970,7 +4977,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         FindBin(Bin, LocationCode);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
           Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
@@ -5120,7 +5127,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseReceipt.OK.Invoke;
     end;
 
-    local procedure SetWarehouseActivityLineLotNo(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure SetWarehouseActivityLineLotNo(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; LotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5214,7 +5221,7 @@ codeunit 137408 "SCM Warehouse VI"
         WhseWorksheetLine.TestField("Shipping Advice", ShippingAdvice);
     end;
 
-    local procedure VerifyRegisteredWarehouseActivityLine(SalesLine: Record "Sales Line"; ActionType: Option)
+    local procedure VerifyRegisteredWarehouseActivityLine(SalesLine: Record "Sales Line"; ActionType: Enum "Warehouse Action Type")
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5225,7 +5232,7 @@ codeunit 137408 "SCM Warehouse VI"
         RegisteredWhseActivityLine.SetRange(Quantity, SalesLine.Quantity);
     end;
 
-    local procedure VerifyRegisteredWarehouseMovementLine(RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal)
+    local procedure VerifyRegisteredWarehouseMovementLine(RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal)
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5238,7 +5245,7 @@ codeunit 137408 "SCM Warehouse VI"
         RegisteredWhseActivityLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; ItemNo: Code[20]; ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; Quantity: Decimal)
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5256,7 +5263,7 @@ codeunit 137408 "SCM Warehouse VI"
     var
         WarehouseEntry: Record "Warehouse Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotNo2: Code[20];
     begin
         LotNo := FindWarehouseEntry(WarehouseEntry, WarehouseEntry."Entry Type"::"Positive Adjmt.", BinCode, ItemNo);
@@ -5277,7 +5284,7 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
-    local procedure VerifyWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; BinCode: Code[20]; LotNo: Code[20]; SerialNo: Code[50]; Qty: Decimal)
+    local procedure VerifyWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; BinCode: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; Qty: Decimal)
     begin
         with WarehouseActivityLine do begin
             TestField("Bin Code", BinCode);
@@ -5288,7 +5295,7 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
-    local procedure VerifyWarehouseActivityLineCount(HeaderNo: Code[20]; BinCode: Code[20]; ActionType: Option; UnitOfMeasure: Code[10]; "Count": Integer)
+    local procedure VerifyWarehouseActivityLineCount(HeaderNo: Code[20]; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type"; UnitOfMeasure: Code[10]; "Count": Integer)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5310,7 +5317,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseJournalLine.TestField(Quantity, WarehouseJournalLine.Quantity);
     end;
 
-    local procedure VerifyWarehouseMovementLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal)
+    local procedure VerifyWarehouseMovementLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5349,7 +5356,7 @@ codeunit 137408 "SCM Warehouse VI"
         Assert.AreEqual(ExpDate, SKU."Last Counting Period Update", SKU.FieldCaption("Last Counting Period Update"));
     end;
 
-    local procedure VerifyLastWarehouseEntry(ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure VerifyLastWarehouseEntry(ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin

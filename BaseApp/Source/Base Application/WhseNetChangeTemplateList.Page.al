@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31073 "Whse. Net Change Template List"
 {
     ApplicationArea = Basic, Suite;
@@ -45,3 +46,5 @@ page 31073 "Whse. Net Change Template List"
     }
 }
 
+
+#endif

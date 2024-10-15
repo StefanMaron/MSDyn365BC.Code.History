@@ -1,4 +1,4 @@
-﻿codeunit 393 "Reminder-Issue"
+codeunit 393 "Reminder-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Issued Reminder Header" = rimd,
@@ -11,8 +11,10 @@
         ReminderLine: Record "Reminder Line";
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         ReminderCommentLine: Record "Reminder Comment Line";
+#if not CLEAN18
         BankAccount: Record "Bank Account";
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -79,10 +81,12 @@
                 GenJnlLine.Insert();
                 OnRunOnAfterGenJnlLineInsertPostInterest(GenJnlLine);
             end;
+#if not CLEAN18
             // NAVCZ
             if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then
                 "Variable Symbol" := BankOperationsFunctions.CreateVariableSymbol(DocNo);
             // NAVCZ
+#endif
 
             if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
@@ -154,7 +158,7 @@
                             DtldIssuedReminderLine."Issued Reminder No." := IssuedReminderHeader."No.";
                             DtldIssuedReminderLine.Insert();
                         until DtldReminderLine.Next() = 0;
-                    // NAVCZ
+                // NAVCZ
                 until ReminderLine.Next() = 0;
             // NAVCZ
             DtldReminderLine2.SetRange("Reminder No.", ReminderLine."Reminder No.");
@@ -225,9 +229,11 @@
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := "Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := AccType;
             GenJnlLine."Account No." := AccNo;
             GenJnlLine.Validate("Account No.");
@@ -241,6 +247,7 @@
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
                 GenJnlLine."Due Date" := "Due Date";
+#if not CLEAN18
                 // NAVCZ
                 GenJnlLine."Bank Account Code" := "Bank No.";
                 GenJnlLine."Bank Account No." := "Bank Account No.";
@@ -251,6 +258,7 @@
                 GenJnlLine.IBAN := IBAN;
                 GenJnlLine."SWIFT Code" := "SWIFT Code";
                 // NAVCZ
+#endif
             end;
             GenJnlLine.Description := "Posting Description";
             GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;

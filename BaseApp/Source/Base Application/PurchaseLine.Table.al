@@ -39,8 +39,8 @@
                 if IsHandled then
                     exit;
 
-                GetPurchHeader;
-                TestStatusOpen;
+                GetPurchHeader();
+                TestStatusOpen();
 
                 TestField("Qty. Rcd. Not Invoiced", 0);
                 TestField("Quantity Received", 0);
@@ -52,8 +52,10 @@
 
                 TestField("Prepmt. Amt. Inv.", 0);
 
+#if not CLEAN19
                 xTestLeterLineExist; // NAVCZ
 
+#endif
                 CheckAssosiatedSalesOrder();
                 CheckAssosiatedProdOrder();
 
@@ -81,7 +83,7 @@
                           xRec.GetDeferralAmount(), PurchHeader."Posting Date", '', xRec."Currency Code", true);
                 end;
                 TempPurchLine := Rec;
-                Init;
+                Init();
                 SystemId := TempPurchLine.SystemId;
 
                 if xRec."Line Amount" <> 0 then
@@ -172,7 +174,7 @@
 
                 OnValidateNoOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempPurchLine := Rec;
-                Init;
+                Init();
                 SystemId := TempPurchLine.SystemId;
                 if xRec."Line Amount" <> 0 then
                     "Recalculate Invoice Disc." := true;
@@ -182,7 +184,7 @@
                 if "No." = '' then
                     exit;
 
-                if HasTypeToFillMandatoryFields then begin
+                if HasTypeToFillMandatoryFields() then begin
                     Quantity := TempPurchLine.Quantity;
                     "Outstanding Qty. (Base)" := TempPurchLine."Outstanding Qty. (Base)";
                 end;
@@ -191,37 +193,34 @@
 
                 OnBeforeAssignHeaderValues(Rec, PurchHeader);
 
-                GetPurchHeader;
+                GetPurchHeader();
                 InitHeaderDefaults(PurchHeader, TempPurchLine);
-                UpdateLeadTimeFields;
-                UpdateDates;
+                UpdateLeadTimeFields();
+                UpdateDates();
 
                 OnAfterAssignHeaderValues(Rec, PurchHeader);
 
                 case Type of
                     Type::" ":
-                        CopyFromStandardText;
+                        CopyFromStandardText();
                     Type::"G/L Account":
-                        CopyFromGLAccount;
+                        CopyFromGLAccount();
                     Type::Item:
-                        CopyFromItem;
+                        CopyFromItem();
                     Type::Resource:
                         CopyFromResource();
                     Type::"Fixed Asset":
-                        CopyFromFixedAsset;
+                        CopyFromFixedAsset();
                     Type::"Charge (Item)":
-                        CopyFromItemCharge;
+                        CopyFromItemCharge();
                 end;
 
                 OnAfterAssignFieldsForNo(Rec, xRec, PurchHeader);
 
-                // NAVCZ
                 if Type <> Type::" " then begin
                     PostingSetupMgt.CheckGenPostingSetupPurchAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
                     PostingSetupMgt.CheckVATPostingSetupPurchAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                    VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 end;
-                // NAVCZ
 
                 IsHandled := false;
                 OnBeforeValidateVATProdPostingGroup(Rec, xRec, IsHandled);
@@ -229,15 +228,15 @@
                     if HasTypeToFillMandatoryFields() and not (Type = Type::"Fixed Asset") then
                         Validate("VAT Prod. Posting Group");
 
-                UpdatePrepmtSetupFields;
+                UpdatePrepmtSetupFields();
 
-                if HasTypeToFillMandatoryFields then begin
+                if HasTypeToFillMandatoryFields() then begin
                     PlanPriceCalcByField(FieldNo("No."));
                     Quantity := xRec.Quantity;
                     OnValidateNoOnAfterAssignQtyFromXRec(Rec, TempPurchLine);
                     Validate("Unit of Measure Code");
                     InitOutstandingAndQtyToShipReceive(TempPurchLine);
-                    UpdateWithWarehouseReceive;
+                    UpdateWithWarehouseReceive();
                     UpdateJobFields();
                 end;
 
@@ -247,16 +246,16 @@
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Work Center", "Work Center No.");
 
-                GetPurchHeader;
-                UpdateItemReference;
+                GetPurchHeader();
+                UpdateItemReference();
                 UpdateDirectUnitCostByField(FieldNo("No."));
 
-                GetDefaultBin;
+                GetDefaultBin();
 
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(true);
-                    UpdateJobPrices;
-                    UpdateDimensionsFromJobTask;
+                    UpdateJobPrices();
+                    UpdateDimensionsFromJobTask();
                 end;
             end;
         }
@@ -267,20 +266,13 @@
 
             trigger OnValidate()
             var
-                Item: Record Item;
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
 
                 IsHandled := false;
                 OnBeforeUpdateLocationCode(Rec, IsHandled);
-                if not IsHandled then
-                    if "Location Code" <> '' then
-                        if IsNonInventoriableItem then begin
-                            GetItem(Item);
-                            Item.TestField(Type, Item.Type::Inventory);
-                        end;
                 if xRec."Location Code" <> "Location Code" then begin
                     if "Prepmt. Amt. Inv." <> 0 then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -306,15 +298,15 @@
                         Error(Text001, FieldCaption("Location Code"), "Special Order Sales No.");
 
                 if "Location Code" <> xRec."Location Code" then begin
-                    InitItemAppl;
-                    if IsInventoriableItem then
+                    InitItemAppl();
+                    if IsInventoriableItem() then
                         PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
                 end;
 
                 if (xRec."Location Code" <> "Location Code") and (Quantity <> 0) then begin
                     PurchLineReserve.VerifyChange(Rec, xRec);
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
-                    UpdateWithWarehouseReceive;
+                    UpdateWithWarehouseReceive();
                 end;
                 "Bin Code" := '';
 
@@ -329,16 +321,19 @@
                     if Location.Get("Location Code") then
                         "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
 
-                UpdateLeadTimeFields;
-                UpdateDates;
+                UpdateLeadTimeFields();
+                UpdateDates();
 
-                GetDefaultBin;
-                CheckWMS;
+                GetDefaultBin();
+                CheckWMS();
+
+#if not CLEAN18
                 // NAVCZ
                 if Type = Type::Item then
-                    xSetGPPGfromSKU;
+                    xSetGPPGfromSKU();
                 // NAVCZ
 
+#endif
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
 
@@ -456,19 +451,20 @@
                 IsHandled: Boolean;
                 DoInitOutstanding: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 IsHandled := false;
                 OnValidateQuantityOnBeforeDropShptCheck(Rec, xRec, CurrFieldNo, IsHandled);
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
                 if not IsHandled then
                     if "Drop Shipment" and ("Document Type" <> "Document Type"::Invoice) then
                         Error(
                           Text001, FieldCaption(Quantity), "Sales Order No.");
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec);
-
-                if IsCreditDocType then begin
+                if IsCreditDocType() then begin
                     if (Quantity * "Return Qty. Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Return Qty. Shipped")) and ("Return Shipment No." = ''))
                     then
@@ -497,26 +493,26 @@
 
                 OnValidateQuantityOnBeforeCheckRcptRetShptRelation(Rec, CurrFieldNo);
                 if "Receipt No." <> '' then
-                    CheckReceiptRelation
+                    CheckReceiptRelation()
                 else
                     if "Return Shipment No." <> '' then
-                        CheckRetShptRelation;
+                        CheckRetShptRelation();
 
                 DoInitOutstanding := (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") or ("No." = xRec."No.");
                 OnValidateQuantityOnAfterCalcDoInitOutstanding(Rec, xRec, CurrFieldNo, DoInitOutstanding);
                 if DoInitOutstanding then begin
-                    InitOutstanding;
-                    if IsCreditDocType then
-                        InitQtyToShip
+                    InitOutstanding();
+                    if IsCreditDocType() then
+                        InitQtyToShip()
                     else begin
                         IsHandled := FALSE;
                         OnValidateQuantityOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
                         if not IsHandled then
-                            InitQtyToReceive;
+                            InitQtyToReceive();
                     end;
                 end;
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
-                    InitItemAppl;
+                    InitItemAppl();
 
                 if Quantity <> xRec.Quantity then
                     PlanPriceCalcByField(FieldNo(Quantity));
@@ -527,7 +523,7 @@
                 if Type = Type::"Charge (Item)" then
                     "Line Discount %" := 0;
 
-                UpdateWithWarehouseReceive;
+                UpdateWithWarehouseReceive();
                 if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
                     OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
                     PurchLineReserve.VerifyQuantity(Rec, xRec);
@@ -535,7 +531,7 @@
                     OnValidateQuantityOnBeforePurchaseLineVerifyChange(Rec, StatusCheckSuspended, IsHandled, xRec);
                     if not IsHandled then
                         WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
-                    CheckApplToItemLedgEntry;
+                    CheckApplToItemLedgEntry();
                 end;
 
                 if (xRec.Quantity <> Quantity) and (Quantity = 0) and
@@ -547,17 +543,17 @@
                 end;
 
                 UpdateDirectUnitCostByField(FieldNo(Quantity));
-                UpdatePrePaymentAmounts;
+                UpdatePrePaymentAmounts();
 
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(true);
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
 
-                CheckWMS;
+                CheckWMS();
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -580,11 +576,15 @@
                 if IsHandled then
                     exit;
 
+                "Qty. to Invoice" := UOMMgt.RoundAndValidateQty("Qty. to Invoice", "Qty. Rounding Precision", FieldCaption("Qty. to Invoice"));
+
                 if "Qty. to Invoice" = MaxQtyToInvoice then
-                    InitQtyToInvoice
-                else
-                    "Qty. to Invoice (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure");
+                    InitQtyToInvoice()
+                else begin
+                    "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
+                    if "Qty. per Unit of Measure" <> 0 then
+                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+                end;
                 if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice)) then
                     Error(
                       Text006,
@@ -594,12 +594,14 @@
                       Text007,
                       MaxQtyToInvoiceBase);
                 "VAT Difference" := 0;
+#if not CLEAN18
                 // NAVCZ
                 "VAT Difference (LCY)" := 0;
                 "VAT Correction" := false;
                 // NAVCZ
-                CalcInvDiscToInvoice;
-                CalcPrepaymentToDeduct;
+#endif
+                CalcInvDiscToInvoice();
+                CalcPrepaymentToDeduct();
 
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
@@ -616,6 +618,7 @@
                 IsHandled: Boolean;
                 ShouldCheckLocationRequireReceive: Boolean;
             begin
+                "Qty. to Receive" := UOMMgt.RoundAndValidateQty("Qty. to Receive", "Qty. Rounding Precision", FieldCaption("Qty. to Receive"));
                 ShouldCheckLocationRequireReceive := "Qty. to Receive" <> 0;
                 OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(Rec, ShouldCheckLocationRequireReceive);
                 if ShouldCheckLocationRequireReceive then
@@ -626,12 +629,13 @@
                     IsHandled := false;
                     OnValidateQtyToReceiveOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
                     if not IsHandled then
-                        InitQtyToReceive;
+                        InitQtyToReceive();
                 end else begin
-                    "Qty. to Receive (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                    "Qty. to Receive (Base)" := CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)"));
+                    if "Qty. per Unit of Measure" <> 0 then
+                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
                     OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(Rec, CurrFieldNo);
-                    InitQtyToInvoice;
+                    InitQtyToInvoice();
                 end;
 
                 IsHandled := false;
@@ -651,7 +655,7 @@
                     end;
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Qty. to Receive" < 0) then
-                    CheckApplToItemLedgEntry;
+                    CheckApplToItemLedgEntry();
 
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
@@ -679,7 +683,7 @@
                 Item: Record Item;
                 IndirectCostPercent: Decimal;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("No.");
                 TestField(Quantity);
 
@@ -698,10 +702,10 @@
                     end;
 
                 UnitCostCurrency := "Unit Cost (LCY)";
-                GetPurchHeader;
+                GetPurchHeader();
                 if PurchHeader."Currency Code" <> '' then begin
                     PurchHeader.TestField("Currency Factor");
-                    GetGLSetup;
+                    GetGLSetup();
                     UnitCostCurrency :=
                       Round(
                         CurrExchRate.ExchangeAmtLCYToFCY(
@@ -731,7 +735,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end
             end;
         }
@@ -769,16 +773,16 @@
                 if IsHandled then
                     exit;
 
-                GetPurchHeader;
+                GetPurchHeader();
                 "Line Discount Amount" := Round("Line Discount Amount", Currency."Amount Rounding Precision");
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField(Quantity);
                 if xRec."Line Discount Amount" <> "Line Discount Amount" then
                     UpdateLineDiscPct;
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
-                UpdateAmounts;
-                UpdateUnitCost;
+                UpdateAmounts();
+                UpdateUnitCost();
                 NotifyOnMissingSetup(FieldNo("Line Discount Amount"));
             end;
         }
@@ -791,7 +795,7 @@
 
             trigger OnValidate()
             begin
-                GetPurchHeader;
+                GetPurchHeader();
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
@@ -832,8 +836,8 @@
                         end;
                 end;
 
-                InitOutstandingAmount;
-                UpdateUnitCost;
+                InitOutstandingAmount();
+                UpdateUnitCost();
             end;
         }
         field(30; "Amount Including VAT"; Decimal)
@@ -845,7 +849,7 @@
 
             trigger OnValidate()
             begin
-                GetPurchHeader;
+                GetPurchHeader();
                 "Amount Including VAT" := Round("Amount Including VAT", Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
@@ -888,8 +892,8 @@
                         end;
                 end;
 
-                InitOutstandingAmount;
-                UpdateUnitCost;
+                InitOutstandingAmount();
+                UpdateUnitCost();
             end;
         }
         field(31; "Unit Price (LCY)"; Decimal)
@@ -904,7 +908,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and "Allow Invoice Disc." then
                     Error(CannotAllowInvDiscountErr, FieldCaption("Allow Invoice Disc."));
 
@@ -913,8 +917,8 @@
                         "Inv. Discount Amount" := 0;
                         "Inv. Disc. Amount to Invoice" := 0;
                     end;
-                    UpdateAmounts;
-                    UpdateUnitCost;
+                    UpdateAmounts();
+                    UpdateUnitCost();
                 end;
             end;
         }
@@ -945,13 +949,13 @@
 
             trigger OnLookup()
             begin
-                SelectItemEntry;
+                SelectItemEntry();
             end;
 
             trigger OnValidate()
             begin
                 if "Appl.-to Item Entry" <> 0 then
-                    "Location Code" := CheckApplToItemLedgEntry;
+                    "Location Code" := CheckApplToItemLedgEntry();
             end;
         }
         field(40; "Shortcut Dimension 1 Code"; Code[20])
@@ -1009,6 +1013,7 @@
                 end;
 
                 VerifyLineTypeForJob();
+                CheckWMS();
 
                 IsHandled := false;
                 OnValidateJobNoOnBeforeGetJob(Rec, xRec, IsHandled);
@@ -1016,7 +1021,7 @@
                     exit;
 
                 Job.Get("Job No.");
-                Job.TestBlocked;
+                Job.TestBlocked();
                 "Job Currency Code" := Job."Currency Code";
 
                 CreateDim(
@@ -1037,7 +1042,7 @@
                 Item: Record Item;
             begin
                 TestField("No.");
-                TestStatusOpen;
+                TestStatusOpen();
 
                 CheckLineTypeOnIndirectCostPercentUpdate();
 
@@ -1050,7 +1055,7 @@
                           FieldCaption("Indirect Cost %"), Item.FieldCaption("Costing Method"), Item."Costing Method");
                 end;
 
-                UpdateUnitCost;
+                UpdateUnitCost();
             end;
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
@@ -1069,8 +1074,8 @@
             var
                 Currency2: Record Currency;
             begin
-                GetPurchHeader;
-                Currency2.InitRoundingPrecision;
+                GetPurchHeader();
+                Currency2.InitRoundingPrecision();
                 if PurchHeader."Currency Code" <> '' then
                     "Outstanding Amount (LCY)" :=
                       Round(
@@ -1103,8 +1108,8 @@
             var
                 Currency2: Record Currency;
             begin
-                GetPurchHeader;
-                Currency2.InitRoundingPrecision;
+                GetPurchHeader();
+                Currency2.InitRoundingPrecision();
                 if PurchHeader."Currency Code" <> '' then
                     "Amt. Rcd. Not Invoiced (LCY)" :=
                       Round(
@@ -1172,9 +1177,9 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
-                UpdateUnitCost;
-                CalcInvDiscToInvoice;
+                UpdateAmounts();
+                UpdateUnitCost();
+                CalcInvDiscToInvoice();
             end;
         }
         field(70; "Vendor Item No."; Text[50])
@@ -1236,8 +1241,8 @@
                     Validate("Inbound Whse. Handling Time");
                     Evaluate("Safety Lead Time", '<0D>');
                     Validate("Safety Lead Time");
-                    InitOutstanding;
-                    InitQtyToReceive;
+                    InitOutstanding();
+                    InitQtyToReceive();
                 end;
             end;
         }
@@ -1260,7 +1265,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
@@ -1310,7 +1315,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(86; "Tax Liable"; Boolean)
@@ -1319,7 +1324,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(87; "Tax Group Code"; Code[20])
@@ -1329,8 +1334,8 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                UpdateAmounts;
+                TestStatusOpen();
+                UpdateAmounts();
             end;
         }
         field(88; "Use Tax"; Boolean)
@@ -1339,7 +1344,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(89; "VAT Bus. Posting Group"; Code[20])
@@ -1361,16 +1366,20 @@
             var
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
+#if not CLEAN19
                 CheckPrepmtAmtInvEmpty();
+#endif
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
                 "VAT Difference" := 0;
+#if not CLEAN18
                 // NAVCZ
                 "VAT Difference (LCY)" := 0;
                 "VAT Correction" := false;
                 // NAVCZ
-                GetPurchHeader;
+#endif
+                GetPurchHeader();
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
@@ -1396,9 +1405,10 @@
                       Round(
                         "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
                         Currency."Unit-Amount Rounding Precision"));
-
-                UpdateAmounts;
+                UpdateAmounts();
+#if not CLEAN19
                 Validate("Prepayment %"); // NAVCZ
+#endif
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -1475,7 +1485,7 @@
 
             trigger OnLookup()
             begin
-                BlanketOrderLookup;
+                BlanketOrderLookup();
             end;
 
             trigger OnValidate()
@@ -1540,7 +1550,7 @@
                 TestField(Quantity);
                 CheckDirectUnitCost();
 
-                GetPurchHeader;
+                GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 Validate(
                   "Line Discount Amount", Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Amount");
@@ -1594,9 +1604,6 @@
             var
                 ICGLAccount: Record "IC G/L Account";
                 Item: Record Item;
-#if not CLEAN16
-                ItemCrossReference: Record "Item Cross Reference";
-#endif
                 ItemVendorCatalog: Record "Item Vendor";
             begin
                 if "No." <> '' then
@@ -1613,24 +1620,9 @@
                                 if PAGE.RunModal(PAGE::"Item List", Item) = ACTION::LookupOK then
                                     Validate("IC Partner Reference", Item."No.");
                             end;
-#if not CLEAN16
-                        "IC Partner Ref. Type"::"Cross Reference":
-                            begin
-                                GetPurchHeader;
-                                ItemCrossReference.Reset();
-                                ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
-                                ItemCrossReference.SetFilter(
-                                  "Cross-Reference Type", '%1|%2',
-                                  ItemCrossReference."Cross-Reference Type"::Vendor,
-                                  ItemCrossReference."Cross-Reference Type"::" ");
-                                ItemCrossReference.SetFilter("Cross-Reference Type No.", '%1|%2', PurchHeader."Buy-from Vendor No.", '');
-                                if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then
-                                    Validate("IC Partner Reference", ItemCrossReference."Cross-Reference No.");
-                            end;
-#endif
                         "IC Partner Ref. Type"::"Vendor Item No.":
                             begin
-                                GetPurchHeader;
+                                GetPurchHeader();
                                 ItemVendorCatalog.SetCurrentKey("Vendor No.");
                                 ItemVendorCatalog.SetRange("Vendor No.", PurchHeader."Buy-from Vendor No.");
                                 if PAGE.RunModal(PAGE::"Vendor Item Catalog", ItemVendorCatalog) = ACTION::LookupOK then
@@ -1648,11 +1640,11 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                UpdatePrepmtSetupFields;
+                TestStatusOpen();
+                UpdatePrepmtSetupFields();
 
-                if HasTypeToFillMandatoryFields then
-                    UpdateAmounts;
+                if HasTypeToFillMandatoryFields() then
+                    UpdateAmounts();
                 UpdateBaseAmounts(Amount, "Amount Including VAT", "VAT Base Amount");
             end;
         }
@@ -1666,9 +1658,10 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 PrePaymentLineAmountEntered := true;
                 TestField("Line Amount");
+#if not CLEAN19
                 // NAVCZ
                 GetPurchHeader;
                 if "Adjust Prepmt. Relation" then begin
@@ -1676,11 +1669,12 @@
                         FieldError("Prepmt. Line Amount", StrSubstNo(Text038, "Prepmt. Amt. Inv."));
                 end else
                     // NAVCZ
+#endif
                     if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then
                         FieldError("Prepmt. Line Amount", StrSubstNo(Text038, "Prepmt. Amt. Inv."));
                 if "Prepmt. Line Amount" > "Line Amount" then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount"));
-                Validate("Prepayment %", Round("Prepmt. Line Amount" * 100 / "Line Amount", 0.00001));
+                Validate("Prepayment %", "Prepmt. Line Amount" * 100 / "Line Amount");
             end;
         }
         field(111; "Prepmt. Amt. Inv."; Decimal)
@@ -1736,7 +1730,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(119; "Prepayment Tax Liable"; Boolean)
@@ -1745,7 +1739,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(120; "Prepayment Tax Group Code"; Code[20])
@@ -1755,8 +1749,8 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                UpdateAmounts;
+                TestStatusOpen();
+                UpdateAmounts();
             end;
         }
         field(121; "Prepmt Amt to Deduct"; Decimal)
@@ -1786,10 +1780,12 @@
                       StrSubstNo(Text038,
                         "Prepmt. Amt. Inv." - "Prepmt Amt Deducted" -
                         (Quantity - "Qty. to Invoice" - "Quantity Invoiced") * "Direct Unit Cost"));
+#if not CLEAN19
                 // NAVCZ
                 if "Qty. to Invoice" = Quantity - "Quantity Invoiced" then
                     TestField("Prepmt Amt to Deduct", "Prepmt. Amt. Inv." - "Prepmt Amt Deducted");
                 // NAVCZ
+#endif
             end;
         }
         field(122; "Prepmt Amt Deducted"; Decimal)
@@ -1827,7 +1823,7 @@
             begin
                 if "IC Partner Code" <> '' then begin
                     TestField(Type, Type::"G/L Account");
-                    GetPurchHeader;
+                    GetPurchHeader();
                     PurchHeader.TestField("Buy-from IC Partner Code", '');
                     PurchHeader.TestField("Pay-to IC Partner Code", '');
                     Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"G/L Account");
@@ -1912,7 +1908,7 @@
             trigger OnValidate()
             begin
                 TestField(Quantity);
-                UpdateAmounts;
+                UpdateAmounts();
             end;
         }
         field(480; "Dimension Set ID"; Integer)
@@ -1956,7 +1952,7 @@
                 if "Job Task No." = '' then begin
                     Clear(TempJobJnlLine);
                     "Job Line Type" := "Job Line Type"::" ";
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                     CreateDim(
                       DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
                       DATABASE::Job, "Job No.",
@@ -1965,12 +1961,12 @@
                     exit;
                 end;
 
-                JobSetCurrencyFactor;
+                JobSetCurrencyFactor();
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(true);
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
-                UpdateDimensionsFromJobTask;
+                UpdateDimensionsFromJobTask();
             end;
         }
         field(1002; "Job Line Type"; Enum "Job Line Type")
@@ -2003,7 +1999,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Unit Price", "Job Unit Price");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2031,7 +2027,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Line Amount", "Job Line Amount");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2052,7 +2048,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Line Discount Amount", "Job Line Discount Amount");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2074,7 +2070,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Line Discount %", "Job Line Discount %");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2094,7 +2090,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Unit Price (LCY)", "Job Unit Price (LCY)");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2122,7 +2118,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Line Amount (LCY)", "Job Line Amount (LCY)");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2143,7 +2139,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(false);
                     TempJobJnlLine.Validate("Line Discount Amount (LCY)", "Job Line Disc. Amount (LCY)");
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
             end;
         }
@@ -2228,8 +2224,8 @@
                             "Job Remaining Qty." := 0;
                     end;
                 end;
-                "Job Remaining Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Job Remaining Qty.", "Qty. per Unit of Measure");
+                "Job Remaining Qty." := UOMMgt.RoundAndValidateQty("Job Remaining Qty.", "Qty. Rounding Precision", FieldCaption("Job Remaining Qty."));
+                "Job Remaining Qty. (Base)" := CalcBaseQty("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"));
             end;
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
@@ -2245,7 +2241,7 @@
             var
                 DeferralPostDate: Date;
             begin
-                GetPurchHeader;
+                GetPurchHeader();
                 DeferralPostDate := GetDeferralPostDate(PurchHeader);
 
                 DeferralUtilities.DeferralCodeOnValidate(
@@ -2270,7 +2266,7 @@
                 DeferralHeader: Record "Deferral Header";
                 DeferralUtilities: Codeunit "Deferral Utilities";
             begin
-                GetPurchHeader;
+                GetPurchHeader();
                 if DeferralHeader.Get(
                     "Deferral Document Type"::Purchase.AsInteger(), '', '', "Document Type", "Document No.", "Line No.")
                 then
@@ -2321,7 +2317,7 @@
             begin
                 if "Variant Code" <> '' then
                     TestField(Type, Type::Item);
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if xRec."Variant Code" <> "Variant Code" then begin
                     TestField("Qty. Rcd. Not Invoiced", 0);
@@ -2338,10 +2334,12 @@
 
                 OnValidateVariantCodeOnAfterValidationChecks(Rec, xRec, CurrFieldNo);
 
+#if not CLEAN18
                 // NAVCZ
                 if Type = Type::Item then
                     xSetGPPGfromSKU;
                 // NAVCZ
+#endif
                 if Type = Type::Item then
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
@@ -2349,23 +2347,23 @@
                 if (xRec."Variant Code" <> "Variant Code") and (Quantity <> 0) then begin
                     PurchLineReserve.VerifyChange(Rec, xRec);
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
-                    InitItemAppl;
+                    InitItemAppl();
                 end;
 
-                UpdateLeadTimeFields;
-                UpdateDates;
-                GetDefaultBin;
+                UpdateLeadTimeFields();
+                UpdateDates();
+                GetDefaultBin();
                 IsHandled := false;
                 OnValidateVariantCodeOnBeforeUpdateItemReference(Rec, IsHandled);
                 if not IsHandled then
                     if Type = Type::Item then
-                        UpdateItemReference;
+                        UpdateItemReference();
 
                 OnValidateVariantCodeOnAfterUpdateItemReference(Rec, CurrFieldNo);
 
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(true);
-                    UpdateJobPrices;
+                    UpdateJobPrices();
                 end;
                 UpdateDirectUnitCostByField(FieldNo("Variant Code"));
             end;
@@ -2401,6 +2399,7 @@
 
             trigger OnValidate()
             var
+                Item: Record Item;
                 WMSManagement: Codeunit "WMS Management";
             begin
                 if "Bin Code" <> '' then begin
@@ -2416,10 +2415,13 @@
                 TestField(Type, Type::Item);
                 TestField("Location Code");
 
+                GetItem(Item);
+                Item.TestField(Type, Item.Type::Inventory);
+
                 if "Bin Code" <> '' then begin
                     GetLocation("Location Code");
                     Location.TestField("Bin Mandatory");
-                    CheckWarehouse;
+                    CheckWarehouse();
                 end;
             end;
         }
@@ -2429,6 +2431,24 @@
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
+        }
+        field(5405; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5406; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(5407; "Unit of Measure Code"; Code[10])
         {
@@ -2447,7 +2467,7 @@
                 Resource: Record Resource;
                 IsHandled: Boolean;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Quantity Received", 0);
                 TestField("Qty. Received (Base)", 0);
                 TestField("Qty. Rcd. Not Invoiced", 0);
@@ -2473,7 +2493,7 @@
                 else begin
                     UnitOfMeasure.Get("Unit of Measure Code");
                     "Unit of Measure" := UnitOfMeasure.Description;
-                    GetPurchHeader;
+                    GetPurchHeader();
                     if PurchHeader."Language Code" <> '' then begin
                         UnitOfMeasureTranslation.SetRange(Code, "Unit of Measure Code");
                         UnitOfMeasureTranslation.SetRange("Language Code", PurchHeader."Language Code");
@@ -2482,7 +2502,7 @@
                     end;
                 end;
                 if Type = Type::Item then
-                    UpdateItemReference;
+                    UpdateItemReference();
                 if "Prod. Order No." = '' then
                     case Type of
                         Type::Item:
@@ -2492,7 +2512,8 @@
 
                                 OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
                                 if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
-                                    InitItemAppl;
+                                    InitItemAppl();
+
                                 UpdateUOMQtyPerStockQty;
                             end;
                         Type::Resource:
@@ -2607,19 +2628,23 @@
             OptionMembers = " ","Acquisition Cost",Maintenance,"Custom 2",Appreciation;
 
             trigger OnValidate()
+#if not CLEAN18
             var
                 FASetup: Record "FA Setup";
+#endif
             begin
                 if Type = Type::"Fixed Asset" then begin
                     TestField("Job No.", '');
                     if "FA Posting Type" = "FA Posting Type"::" " then
                         "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
+#if not CLEAN18
                     // NAVCZ
                     if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then
                         if FASetup.Get then
                             if FASetup."FA Acquisition As Custom 2" then
                                 "FA Posting Type" := "FA Posting Type"::"Custom 2";
                     // NAVCZ
+#endif
                     GetFAPostingGroup();
                 end else begin
                     "Depreciation Book Code" := '';
@@ -2664,11 +2689,13 @@
         {
             Caption = 'Maintenance Code';
             TableRelation = Maintenance;
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 GetFAPostingGroup; // NAVCZ
             end;
+#endif
         }
         field(5610; "Insurance No."; Code[20])
         {
@@ -2727,33 +2754,14 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
-#if not CLEAN16
-            AccessByPermission = TableData "Item Cross Reference" = R;
-#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
             ObsoleteState = Removed;
             ObsoleteTag = '20.0';
-#endif
-
-#if not CLEAN16
-            trigger OnLookup()
-            begin
-                CrossReferenceNoLookUp;
-            end;
-
-            trigger OnValidate()
-            var
-                ItemCrossReference: Record "Item Cross Reference";
-            begin
-                GetPurchHeader;
-                "Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
-                ValidateCrossReferenceNo(ItemCrossReference, true);
-            end;
 #endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
@@ -2761,8 +2769,13 @@
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5707; "Cross-Reference Type"; Option)
         {
@@ -2770,15 +2783,25 @@
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -2932,7 +2955,7 @@
                     UpdateOrderDateFromRequestedReceiptDate(CustomCalendarChange);
                 end else
                     if "Requested Receipt Date" <> xRec."Requested Receipt Date" then
-                        GetUpdateBasicDates;
+                        GetUpdateBasicDates();
             end;
         }
         field(5791; "Promised Receipt Date"; Date)
@@ -2970,7 +2993,7 @@
                 if "Requested Receipt Date" <> 0D then
                     Validate("Planned Receipt Date")
                 else
-                    GetUpdateBasicDates;
+                    GetUpdateBasicDates();
             end;
         }
         field(5793; "Inbound Whse. Handling Time"; DateFormula)
@@ -3013,7 +3036,7 @@
                         "Expected Receipt Date" :=
                           CalendarMgmt.CalcDateBOC(InternalLeadTimeDays("Planned Receipt Date"), "Planned Receipt Date", CustomCalendarChange, false)
                     end else
-                        GetUpdateBasicDates;
+                        GetUpdateBasicDates();
 
                 if not TrackingBlocked then
                     CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
@@ -3100,14 +3123,17 @@
                 then
                     CheckWarehouse;
 
+                "Return Qty. to Ship" := UOMMgt.RoundAndValidateQty("Return Qty. to Ship", "Qty. Rounding Precision", FieldCaption("Return Qty. to Ship"));
+
                 OnValidateReturnQtyToShipOnAfterCheck(Rec, CurrFieldNo);
 
                 if "Return Qty. to Ship" = Quantity - "Return Qty. Shipped" then
-                    InitQtyToShip
+                    InitQtyToShip()
                 else begin
-                    "Return Qty. to Ship (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Return Qty. to Ship", "Qty. per Unit of Measure");
-                    InitQtyToInvoice;
+                    "Return Qty. to Ship (Base)" := CalcBaseQty("Return Qty. to Ship", FieldCaption("Return Qty. to Ship"), FieldCaption("Return Qty. to Ship (Base)"));
+                    if "Qty. per Unit of Measure" <> 0 then
+                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Return Qty. to Ship", "Return Qty. to Ship (Base)", "Return Qty. Shipped", "Return Qty. Shipped (Base)");
+                    InitQtyToInvoice();
                 end;
 
                 IsHandled := false;
@@ -3126,7 +3152,7 @@
                 end;
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Return Qty. to Ship" > 0) then
-                    CheckApplToItemLedgEntry;
+                    CheckApplToItemLedgEntry();
             end;
         }
         field(5804; "Return Qty. to Ship (Base)"; Decimal)
@@ -3163,7 +3189,7 @@
             var
                 Currency2: Record Currency;
             begin
-                GetPurchHeader;
+                GetPurchHeader();
                 Currency2.InitRoundingPrecision;
                 if PurchHeader."Currency Code" <> '' then
                     "Return Shpd. Not Invd. (LCY)" :=
@@ -3262,35 +3288,31 @@
                     "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::" ";
                     exit;
                 end;
-                if CurrFieldNo = FieldNo("Over-Receipt Quantity") then
-                    if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
-                        exit;
+
+                if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
+                    exit;
                 PurchaseHeader.Get("Document Type", "Document No.");
                 PurchaseHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
                 PurchaseHeader.TestField(Status, PurchHeader.Status::Released);
                 TestField(Type, Type::Item);
                 TestField("No.");
-                if CurrFieldNo <> FieldNo("Over-Receipt Code") then begin
+                if "Over-Receipt Quantity" <> 0 then begin
                     if "Over-Receipt Code" = '' then
                         "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(Rec);
                     TestField("Over-Receipt Code");
                 end;
-
-                if ((CurrFieldNo <> FieldNo("Qty. to Receive")) and ("Over-Receipt Quantity" <> 0)) then
+                if "Over-Receipt Quantity" <> 0 then
                     CheckLocationRequireReceive();
-                if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) and (CurrFieldNo <> FieldNo("Over-Receipt Code")) then
-                    "Over-Receipt Quantity" += xRec."Over-Receipt Quantity";
+
                 if ("Over-Receipt Code" <> '') then begin
                     OverReceiptMgt.VerifyOverReceiptQuantity(Rec, xRec);
                     OverReceiptCode.Get("Over-Receipt Code");
                     if OverReceiptCode."Required Approval" then
                         "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::Pending;
                 end;
+
                 SuspendStatusCheck(true);
-                if (CurrFieldNo = FieldNo("Over-Receipt Quantity")) or (CurrFieldNo = 0) or (CurrFieldNo = FieldNo("Qty. to Receive")) or
-                   (CurrFieldNo = FieldNo("Over-Receipt Code"))
-                then
-                    Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
+                Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
                 Validate("Direct Unit Cost");
                 if "Over-Receipt Quantity" = 0 then begin
                     "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::" ";
@@ -3318,9 +3340,14 @@
         {
             Caption = 'VAT Correction';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -3330,6 +3357,7 @@
                     "Ext. VAT Difference (LCY)" := 0;
                 end;
             end;
+#endif
         }
         field(11764; "VAT Difference (LCY)"; Decimal)
         {
@@ -3337,7 +3365,11 @@
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3371,7 +3403,11 @@
         field(11768; Negative; Boolean)
         {
             Caption = 'Negative';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3381,7 +3417,11 @@
             AutoFormatType = 1;
             Caption = 'Ext. Amount (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3391,7 +3431,11 @@
             AutoFormatType = 1;
             Caption = 'Ext.Amount Including VAT (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3401,7 +3445,11 @@
             AutoFormatType = 1;
             Caption = 'Ext. VAT Difference (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3411,7 +3459,15 @@
             AutoFormatType = 1;
             Caption = 'Amt. Prep. To Inv. Incl. VAT';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(31002; "Adv.Letter Linked Inv. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -3423,6 +3479,9 @@
             Caption = 'Adv.Letter Linked Inv. Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31003; "Adv.Letter Linked Ded. Amount"; Decimal)
         {
@@ -3435,6 +3494,9 @@
             Caption = 'Adv.Letter Linked Ded. Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31004; "Adv.Letter Link.Amt. to Deduct"; Decimal)
         {
@@ -3447,6 +3509,9 @@
             Caption = 'Adv.Letter Link.Amt. to Deduct';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31005; "Has Letter Line Relation"; Boolean)
         {
@@ -3456,13 +3521,25 @@
                                                                       "Document Line No." = FIELD("Line No.")));
             Caption = 'Has Letter Line Relation';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31006; "Adjust Prepmt. Relation"; Boolean)
         {
             Caption = 'Adjust Prepmt. Relation';
             Editable = false;
             InitValue = true;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(31007; "Prepmt. Amt. Requested"; Decimal)
         {
             CalcFormula = Sum("Advance Letter Line Relation"."Requested Amount" WHERE(Type = CONST(Purchase),
@@ -3470,11 +3547,23 @@
                                                                                        "Document Line No." = FIELD("Line No.")));
             Caption = 'Prepmt. Amt. Requested';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31008; "Prepmt. VAT Amount Inv."; Decimal)
         {
             Caption = 'Prepmt. VAT Amount Inv.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#if not CLEAN19
         field(31009; "Adv.Letter Linked Amount"; Decimal)
         {
             CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
@@ -3483,13 +3572,22 @@
                                                                            "Document Line No." = FIELD("Line No.")));
             Caption = 'Adv.Letter Linked Amount';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -3499,14 +3597,20 @@
                         FieldError("Document Type");
                 end;
             end;
+#endif
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -3522,12 +3626,17 @@
                 if "Tariff No." <> xRec."Tariff No." then
                     "Statistic Indication" := '';
             end;
+#endif
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
 
@@ -3536,7 +3645,11 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -3850,7 +3963,7 @@
             "Line Discount Amount" := 0;
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
-            UpdateAmounts;
+            UpdateAmounts();
         end;
 
         if "Deferral Code" <> '' then
@@ -3861,7 +3974,7 @@
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             PurchLineReserve.VerifyQuantity(Rec, xRec);
@@ -3954,7 +4067,9 @@
         UOMMgt: Codeunit "Unit of Measure Management";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimMgt: Codeunit DimensionManagement;
+#if not CLEAN19
         DistIntegration: Codeunit "Dist. Integration";
+#endif
         ItemReferenceMgt: Codeunit "Item Reference Management";
         CatalogItemMgt: Codeunit "Catalog Item Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
@@ -4005,7 +4120,7 @@
 
     procedure InitOutstanding()
     begin
-        if IsCreditDocType then begin
+        if IsCreditDocType() then begin
             "Outstanding Quantity" := Quantity - "Return Qty. Shipped";
             "Outstanding Qty. (Base)" := "Quantity (Base)" - "Return Qty. Shipped (Base)";
             "Return Qty. Shipped Not Invd." := "Return Qty. Shipped" - "Quantity Invoiced";
@@ -4020,12 +4135,14 @@
         OnAfterInitOutstandingQty(Rec);
         "Completely Received" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
         OnInitOutstandingOnBeforeInitOutstandingAmount(Rec);
-        InitOutstandingAmount;
+        InitOutstandingAmount();
+#if not CLEAN18
         // NAVCZ
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup."Mark Neg. Qty as Correction" then
             Negative := (Quantity < 0);
         // NAVCZ
+#endif
     end;
 
     procedure InitOutstandingAmount()
@@ -4041,14 +4158,14 @@
             "Return Shpd. Not Invd." := 0;
             "Return Shpd. Not Invd. (LCY)" := 0;
         end else begin
-            GetPurchHeader;
+            GetPurchHeader();
             AmountInclVAT := "Amount Including VAT";
             Validate(
               "Outstanding Amount",
               Round(
                 AmountInclVAT * "Outstanding Quantity" / Quantity,
                 Currency."Amount Rounding Precision"));
-            if IsCreditDocType then
+            if IsCreditDocType() then
                 Validate(
                   "Return Shpd. Not Invd.",
                   Round(
@@ -4074,7 +4191,7 @@
         if IsHandled then
             exit;
 
-        GetPurchSetup;
+        GetPurchSetup();
         if (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Remainder) or
            ("Document Type" = "Document Type"::Invoice)
         then begin
@@ -4083,11 +4200,10 @@
         end else
             if "Qty. to Receive" <> 0 then
                 "Qty. to Receive (Base)" :=
-                    MaxQtyToReceiveBase(UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure"));
-
+                  MaxQtyToReceiveBase(CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)")));
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
 
-        InitQtyToInvoice;
+        InitQtyToInvoice();
     end;
 
     procedure InitQtyToShip()
@@ -4099,7 +4215,7 @@
         if IsHandled then
             exit;
 
-        GetPurchSetup;
+        GetPurchSetup();
         if (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Remainder) or
            ("Document Type" = "Document Type"::"Credit Memo")
         then begin
@@ -4107,12 +4223,10 @@
             "Return Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
         end else
             if "Return Qty. to Ship" <> 0 then
-                "Return Qty. to Ship (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Return Qty. to Ship", "Qty. per Unit of Measure");
-
+                "Return Qty. to Ship (Base)" := CalcBaseQty("Return Qty. to Ship", FieldCaption("Return Qty. to Ship"), FieldCaption("Return Qty. to Ship (Base)"));
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
 
-        InitQtyToInvoice;
+        InitQtyToInvoice();
     end;
 
     procedure InitQtyToInvoice()
@@ -4127,16 +4241,18 @@
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := 0;
         "Ext. VAT Difference (LCY)" := 0;
         "VAT Correction" := false;
         // NAVCZ
+#endif
 
         OnBeforeCalcInvDiscToInvoice(Rec, CurrFieldNo);
-        CalcInvDiscToInvoice;
+        CalcInvDiscToInvoice();
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
-            CalcPrepaymentToDeduct;
+            CalcPrepaymentToDeduct();
 
         OnAfterInitQtyToInvoice(Rec, CurrFieldNo);
     end;
@@ -4151,11 +4267,11 @@
             exit;
 
         if Quantity <> 0 then begin
-            InitOutstanding;
-            if IsCreditDocType then
-                InitQtyToShip
+            InitOutstanding();
+            if IsCreditDocType() then
+                InitQtyToShip()
             else
-                InitQtyToReceive;
+                InitQtyToReceive();
         end;
     end;
 
@@ -4177,11 +4293,7 @@
         "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
         IsHandled := false;
         OnBeforeUpdateLocationCode(Rec, IsHandled);
-        if IsHandled then
-            "Location Code" := PurchHeader."Location Code"
-        else
-            if not IsNonInventoriableItem then
-                "Location Code" := PurchHeader."Location Code";
+        "Location Code" := PurchHeader."Location Code";
         "Transaction Type" := PurchHeader."Transaction Type";
         "Transport Method" := PurchHeader."Transport Method";
         "Pay-to Vendor No." := PurchHeader."Pay-to Vendor No.";
@@ -4194,7 +4306,7 @@
         "Tax Area Code" := PurchHeader."Tax Area Code";
         "Tax Liable" := PurchHeader."Tax Liable";
         if not "System-Created Entry" and ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
-           HasTypeToFillMandatoryFields or IsServiceCharge
+           HasTypeToFillMandatoryFields() or IsServiceCharge()
         then // NAVCZ
             "Prepayment %" := PurchHeader."Prepayment %";
         "Prepayment Tax Area Code" := PurchHeader."Tax Area Code";
@@ -4236,7 +4348,7 @@
         if "Prepayment Line" then
             exit(1);
 
-        if IsCreditDocType then
+        if IsCreditDocType() then
             exit("Return Qty. Shipped" + "Return Qty. to Ship" - "Quantity Invoiced");
 
         exit("Quantity Received" + "Qty. to Receive" - "Quantity Invoiced");
@@ -4252,7 +4364,7 @@
         if IsHandled then
             exit(MaxQtyBase);
 
-        if IsCreditDocType then
+        if IsCreditDocType() then
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
 
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
@@ -4270,7 +4382,7 @@
     var
         OldInvDiscAmtToInv: Decimal;
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         OldInvDiscAmtToInv := "Inv. Disc. Amount to Invoice";
         if Quantity = 0 then
             Validate("Inv. Disc. Amount to Invoice", 0)
@@ -4284,10 +4396,14 @@
         if OldInvDiscAmtToInv <> "Inv. Disc. Amount to Invoice" then begin
             "Amount Including VAT" := "Amount Including VAT" - "VAT Difference";
             "VAT Difference" := 0;
+#if not CLEAN18
             "VAT Difference (LCY)" := 0; // NAVCZ
             "Ext. VAT Difference (LCY)" := 0; // NAVCZ
+#endif
         end;
+#if not CLEAN18
         "VAT Correction" := false; // NAVCZ
+#endif
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
 
         OnAfterCalcInvDiscToInvoice(Rec);
@@ -4343,7 +4459,7 @@
         "Tax Group Code" := GLAcc."Tax Group Code";
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
-        InitDeferralCode;
+        InitDeferralCode();
         OnAfterAssignGLAccountValues(Rec, GLAcc);
     end;
 
@@ -4354,13 +4470,13 @@
         IsHandled: Boolean;
     begin
         GetItem(Item);
-        GetGLSetup;
+        GetGLSetup();
         OnBeforeCopyFromItem(Rec, Item);
         Item.TestField(Blocked, false);
         Item.TestField("Gen. Prod. Posting Group");
         if Item."Purchasing Blocked" then
-            if IsCreditDocType then
-                SendBlockedItemNotification
+            if IsCreditDocType() then
+                SendBlockedItemNotification()
             else
                 Error(PurchasingBlockedErr, Item."No.");
         if Item.Type = Item.Type::Inventory then begin
@@ -4387,7 +4503,9 @@
         if IsInventoriableItem then
             PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
 
+#if not CLEAN18
         xSetGPPGfromSKU; // NAVCZ
+#endif
         if Item."Price Includes VAT" then begin
             if not VATPostingSetup.Get(Item."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group") then
                 VATPostingSetup.Init();
@@ -4415,13 +4533,17 @@
             "Unit of Measure Code" := Item."Purch. Unit of Measure"
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
-        InitDeferralCode;
+        InitDeferralCode();
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := Item."Tariff No.";
         "Statistic Indication" := Item."Statistic Indication";
+#endif
         "Physical Transfer" := PurchHeader."Physical Transfer";
         "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
         // NAVCZ
+#endif
         OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
     end;
 
@@ -4542,7 +4664,7 @@
         GetPurchHeader(PurchHeader, Currency);
     end;
 
-    procedure GetPurchHeader(var OutPurchHeader: Record "Purchase Header"; OutCurrency: Record Currency)
+    procedure GetPurchHeader(var OutPurchHeader: Record "Purchase Header"; var OutCurrency: Record Currency)
     var
         IsHandled: Boolean;
     begin
@@ -4695,7 +4817,7 @@
             exit;
 
         if (CurrFieldNo <> 0) and ("Prod. Order No." <> '') then
-            UpdateAmounts;
+            UpdateAmounts();
 
         if ((CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0)) or
            ("Prod. Order No." <> '')
@@ -4707,7 +4829,7 @@
             Type::Item,
             Type::Resource:
                 begin
-                    GetPurchHeader;
+                    GetPurchHeader();
                     IsHandled := false;
                     OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
                     if not IsHandled then begin
@@ -4725,7 +4847,7 @@
         OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(Rec, CalledByFieldNo);
         if Type = Type::Item then
             if CalledByFieldNo in [FieldNo("No."), FieldNo("Variant Code"), FieldNo("Location Code")] then
-                UpdateItemReference;
+                UpdateItemReference();
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateDirectUnitCost(Rec, xRec, CalledByFieldNo, CurrFieldNo);
@@ -4815,12 +4937,7 @@
         PriceCalculation: Interface "Price Calculation";
     begin
         GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-        if ItemReferenceMgt.IsEnabled() then
-            PriceCalculation.ApplyPrice(FieldNo("Item Reference No."));
-#if not CLEAN16
-        if not ItemReferenceMgt.IsEnabled() then
-            PriceCalculation.ApplyPrice(FieldNo("Cross-Reference No."));
-#endif
+        PriceCalculation.ApplyPrice(FieldNo("Item Reference No."));
         PriceCalculation.ApplyDiscount();
         GetLineWithCalculatedPrice(PriceCalculation);
     end;
@@ -4836,8 +4953,8 @@
         if IsHandled then
             exit;
 
-        GetPurchHeader;
-        GetGLSetup;
+        GetPurchHeader();
+        GetGLSetup();
         if Quantity = 0 then
             DiscountAmountPerQty := 0
         else
@@ -4890,7 +5007,7 @@
         if JobTaskIsSet and not UpdateFromVAT and not "Prepayment Line" then begin
             CreateTempJobJnlLine(false);
             TempJobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
-            UpdateJobPrices;
+            UpdateJobPrices();
         end;
     end;
 
@@ -4909,7 +5026,7 @@
         if Type = Type::" " then
             exit;
 
-        GetPurchHeader;
+        GetPurchHeader();
 
         VATBaseAmount := "VAT Base Amount";
         "Recalculate Invoice Disc." := true;
@@ -4930,12 +5047,12 @@
             LineAmountChanged := false;
         end;
 
-        InitOutstandingAmount;
+        InitOutstandingAmount();
 
         if Type = Type::"Charge (Item)" then
             UpdateItemChargeAssgnt();
 
-        CalcPrepaymentToDeduct;
+        CalcPrepaymentToDeduct();
 
         OnAfterUpdateAmountsDone(Rec, xRec, CurrFieldNo);
     end;
@@ -4997,7 +5114,7 @@
         if IsHandled then
             exit;
 
-        GetPurchHeader;
+        GetPurchHeader();
         PurchLine2.SetRange("Document Type", "Document Type");
         PurchLine2.SetRange("Document No.", "Document No.");
         PurchLine2.SetFilter("Line No.", '<>%1', "Line No.");
@@ -5156,18 +5273,24 @@
         if IsHandled then
             exit;
 
-        if ("Prepayment %" <> 0) and HasTypeToFillMandatoryFields then begin
+        if ("Prepayment %" <> 0) and HasTypeToFillMandatoryFields() then begin
+#if CLEAN19
+            TestField("Document Type", "Document Type"::Order);
+#else
             // NAVCZ
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 FieldError("Document Type");
             // NAVCZ
+#endif            
             TestField("No.");
+#if not CLEAN19
             // NAVCZ
             GetPurchHeader;
             if PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance then
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group")
             else begin
                 // NAVCZ
+#endif
                 GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
                 if GenPostingSetup."Purch. Prepayments Account" <> '' then begin
                     GLAcc.Get(GenPostingSetup."Purch. Prepayments Account");
@@ -5175,7 +5298,9 @@
                     VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
                 end else
                     Clear(VATPostingSetup);
+#if not CLEAN19
             end; // NAVCZ
+#endif
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
@@ -5265,11 +5390,13 @@
 
         if "FA Posting Type" = "FA Posting Type"::" " then
             "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
+#if not CLEAN18
         // NAVCZ
         if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then
             if FASetup."FA Acquisition As Custom 2" then
                 "FA Posting Type" := "FA Posting Type"::"Custom 2";
         // NAVCZ
+#endif
         FADeprBook.Get("No.", "Depreciation Book Code");
         FADeprBook.TestField("FA Posting Group");
         FAPostingGr.GetPostingGroup(FADeprBook."FA Posting Group", FADeprBook."Depreciation Book Code");
@@ -5348,7 +5475,7 @@
         GetItem(Item);
         "Unit Cost (LCY)" := Item."Unit Cost" * "Qty. per Unit of Measure";
         "Unit Price (LCY)" := Item."Unit Price" * "Qty. per Unit of Measure";
-        GetPurchHeader;
+        GetPurchHeader();
         if PurchHeader."Currency Code" <> '' then
             "Unit Cost" :=
               CurrExchRate.ExchangeAmtLCYToFCY(
@@ -5402,16 +5529,16 @@
         LastPurchLine: Record "Purchase Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-                PurchLine.Init();
-                PurchLine."Line No." += 10000;
-                PurchLine.Validate(Type, Type::Item);
+        PurchLine.Init();
+        PurchLine."Line No." += 10000;
+        PurchLine.Validate(Type, Type::Item);
         PurchLine.Validate("No.", ItemNo);
-                PurchLine.Insert(true);
-                if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
-                    TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
-                    PurchLine."Line No." := LastPurchLine."Line No."
-                end;
-                OnAfterAddItem(PurchLine, LastPurchLine);
+        PurchLine.Insert(true);
+        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
+            TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
+            PurchLine."Line No." := LastPurchLine."Line No."
+        end;
+        OnAfterAddItem(PurchLine, LastPurchLine);
     end;
 
     local procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
@@ -5491,7 +5618,7 @@
 
     procedure GetDate(): Date
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         if PurchHeader."Posting Date" <> 0D then
             exit(PurchHeader."Posting Date");
         exit(WorkDate);
@@ -5501,12 +5628,12 @@
     begin
         case "Document Type" of
             "Document Type"::Quote,
-          "Document Type"::Order,
-          "Document Type"::Invoice,
-          "Document Type"::"Blanket Order":
+            "Document Type"::Order,
+            "Document Type"::Invoice,
+            "Document Type"::"Blanket Order":
                 exit(Value);
             "Document Type"::"Return Order",
-          "Document Type"::"Credit Memo":
+            "Document Type"::"Credit Memo":
                 exit(-Value);
         end;
     end;
@@ -5555,7 +5682,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."));
-        VerifyItemLineDim;
+        VerifyItemLineDim();
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         IsChanged := OldDimSetID <> "Dimension Set ID";
 
@@ -5606,7 +5733,7 @@
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        GetPurchHeader;
+        GetPurchHeader();
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases,
@@ -5711,6 +5838,8 @@
         "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
         "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
         "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+        "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+        "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
     end;
 
     local procedure ValidatePlannedReceiptDateWithCustomCalendarChange(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
@@ -5777,7 +5906,7 @@
             exit;
         end;
 
-        GetPurchHeader;
+        GetPurchHeader();
         if PurchHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision
         else
@@ -5799,7 +5928,7 @@
         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
         ItemChargeAssgntPurch.SetRange("Item Charge No.", "No.");
-        if not ItemChargeAssgntPurch.FindLast then begin
+        if not ItemChargeAssgntPurch.FindLast() then begin
             ItemChargeAssgntPurch."Document Type" := "Document Type";
             ItemChargeAssgntPurch."Document No." := "Document No.";
             ItemChargeAssgntPurch."Document Line No." := "Line No.";
@@ -5815,7 +5944,7 @@
             ItemChargeAssgntLineAmt :=
                 Round(ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity), Currency."Amount Rounding Precision");
 
-        if IsCreditDocType then
+        if IsCreditDocType() then
             AssignItemChargePurch.CreateDocChargeAssgnt(ItemChargeAssgntPurch, "Return Shipment No.")
         else
             AssignItemChargePurch.CreateDocChargeAssgnt(ItemChargeAssgntPurch, "Receipt No.");
@@ -5823,7 +5952,7 @@
         Commit();
 
         ItemChargeAssgnts.Initialize(Rec, ItemChargeAssgntLineAmt);
-        ItemChargeAssgnts.RunModal;
+        ItemChargeAssgnts.RunModal();
 
         CalcFields("Qty. to Assign");
         OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntPurch);
@@ -5864,8 +5993,9 @@
             ItemChargeAssgntPurch.SetRange("Qty. Assigned");
         end;
 
+
         if ItemChargeAssgntPurch.FindSet(true) and (Quantity <> 0) then begin
-            GetPurchHeader;
+            GetPurchHeader();
             TotalAmtToAssign := CalcTotalAmtToAssign(TotalQtyToAssign);
             repeat
                 ShareOfVAT := 1;
@@ -5877,6 +6007,7 @@
                     ItemChargeAssgntPurch."Unit Cost" :=
                       Round(CalcLineAmount / Quantity / ShareOfVAT, Currency."Unit-Amount Rounding Precision");
                 if TotalQtyToAssign <> 0 then begin
+
                     ItemChargeAssgntPurch."Amount to Assign" :=
                       Round(ItemChargeAssgntPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmtToAssign,
                         Currency."Amount Rounding Precision");
@@ -6002,7 +6133,7 @@
             exit;
 
         if not "System-Created Entry" then
-            if (xRec.Type <> Type) or HasTypeToFillMandatoryFields then
+            if (xRec.Type <> Type) or HasTypeToFillMandatoryFields() then
                 PurchHeader.TestField(Status, PurchHeader.Status::Open);
 
         OnAfterTestStatusOpen(Rec, PurchHeader);
@@ -6028,7 +6159,7 @@
             exit;
 
         if Type = Type::Item then begin
-            GetPurchHeader;
+            GetPurchHeader();
 
             Evaluate("Lead Time Calculation",
               LeadTimeMgt.PurchaseLeadTime(
@@ -6042,7 +6173,7 @@
 
     procedure GetUpdateBasicDates()
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         if PurchHeader."Expected Receipt Date" <> 0D then
             Validate("Expected Receipt Date", PurchHeader."Expected Receipt Date")
         else
@@ -6064,7 +6195,7 @@
             if "Requested Receipt Date" <> 0D then
                 Validate("Requested Receipt Date")
             else
-                GetUpdateBasicDates;
+                GetUpdateBasicDates();
 
         OnAfterUpdateDates(Rec);
     end;
@@ -6129,15 +6260,23 @@
             SetRange("Document No.", PurchHeader."No.");
             OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not ZeroAmountLine(QtyType) and
+#if CLEAN19
+                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
+#else
                        ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0) or
                         (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance))
+#endif
                     then begin
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0);
+#if CLEAN18
+                        if VATAmountLine.Modified then begin
+#else
                         if VATAmountLine.Modified or VATAmountLine."Modified (LCY)" then begin // NAVCZ
+#endif
                             if not TempVATAmountLineRemainder.Get(
                                  "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0)
                             then begin
@@ -6259,6 +6398,7 @@
                                       TempVATAmountLineRemainder."VAT Difference" +
                                       VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) /
                                       (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount");
+#if not CLEAN18
                                     VATDifferenceLCY :=
                                       TempVATAmountLineRemainder."VAT Difference (LCY)" +
                                       VATAmountLine."VAT Difference (LCY)" * (LineAmountToInvoice - InvDiscAmount) /
@@ -6267,7 +6407,14 @@
                                       TempVATAmountLineRemainder."Ext. VAT Difference (LCY)" +
                                       VATAmountLine."Ext. VAT Difference (LCY)" * (LineAmountToInvoice - InvDiscAmount) /
                                       (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount");
+#endif
                                 end;
+#if CLEAN18
+                                if LineAmountToInvoice = 0 then
+                                    "VAT Difference" := 0
+                                else
+                                    "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+#else
                                 if LineAmountToInvoice = 0 then begin
                                     "VAT Difference" := 0;
                                     "VAT Difference (LCY)" := 0;
@@ -6277,6 +6424,7 @@
                                     "VAT Difference (LCY)" := Round(VATDifferenceLCY, Currency."Amount Rounding Precision");
                                     "Ext. VAT Difference (LCY)" := Round(ExtVATDifferenceLCY, Currency."Amount Rounding Precision"); // NAVCZ
                                 end;
+#endif
                             end;
                             // NAVCZ
                             OnUpdateVATOnLinesOnBeforeInitOutstanding(Rec, QtyType);
@@ -6287,10 +6435,12 @@
                             end;
                             if Type = Type::"Charge (Item)" then
                                 UpdateItemChargeAssgnt();
+#if not CLEAN18
                             // NAVCZ
                             if QtyType = QtyType::Invoicing then
                                 "VAT Correction" := VATAmountLine."Modified (LCY)";
                             // NAVCZ
+#endif
                             Modify;
                             LineWasModified := true;
 
@@ -6301,10 +6451,12 @@
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
+#if not CLEAN18
                             // NAVCZ
                             TempVATAmountLineRemainder."VAT Difference (LCY)" := VATDifferenceLCY - "VAT Difference (LCY)";
                             TempVATAmountLineRemainder."Ext. VAT Difference (LCY)" := ExtVATDifferenceLCY - "Ext. VAT Difference (LCY)";
                             // NAVCZ
+#endif
                             OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount);
                             TempVATAmountLineRemainder.Modify();
                         end;
@@ -6354,21 +6506,27 @@
                         then begin
                             VATAmountLine.InsertNewLine(
                               "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "VAT %", "Line Amount" >= 0, false);
+#if not CLEAN18
                             // NAVCZ
                             VATAmountLine."Currency Code" := Currency.Code;
                             VATAmountLine.Modify();
                             // NAVCZ
+#endif
                         end;
 
                         case QtyType of
                             QtyType::General:
                                 begin
                                     VATAmountLine.Quantity += "Quantity (Base)";
+#if not CLEAN19
                                     // NAVCZ
+#if not CLEAN18
                                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
                                     VATAmountLine."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
+#endif
                                     VATAmountLine."Letter VAT Amount (LCY)" := CalcLetterVATAmount(PurchHeader, PurchLine);
                                     // NAVCZ
+#endif
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
                                     VATAmountLine.SumLine(
                                       "Line Amount", "Inv. Discount Amount", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
@@ -6399,11 +6557,15 @@
                                             end;
                                     end;
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
+#if not CLEAN19
                                     // NAVCZ
+#if not CLEAN18
                                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
                                     VATAmountLine."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
+#endif
                                     VATAmountLine."Letter VAT Amount (LCY)" := CalcLetterVATAmount(PurchHeader, PurchLine);
                                     // NAVCZ
+#endif
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
                                     if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
                                         VATAmountLine.SumLine(
@@ -6426,20 +6588,28 @@
                                     end;
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                     OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
+#if not CLEAN19
                                     // NAVCZ
                                     if QtyToHandle <> 0 then begin
+#if not CLEAN18
                                         VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
                                         VATAmountLine."Ext. VAT Difference (LCY)" += "Ext. VAT Difference (LCY)";
+#endif
                                         VATAmountLine."Letter VAT Amount (LCY)" := CalcLetterVATAmount(PurchHeader, PurchLine);
+#endif
                                         VATAmountLine.SumLine(
                                           AmtToHandle, Round("Inv. Discount Amount" * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
                                           "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
+#if not CLEAN19
                                     end;
                                     // NAVCZ
+#endif
                                 end;
                         end;
                         TotalVATAmount += "Amount Including VAT" - Amount;
+#if not CLEAN18
                         VATCorrection := VATCorrection and "VAT Correction"; // NAVCZ
+#endif
                         OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, PurchHeader, PurchLine, Currency, QtyType, TotalVATAmount);
                     end;
 
@@ -6455,9 +6625,11 @@
           PurchHeader."VAT Base Discount %", PurchHeader."Tax Area Code", PurchHeader."Tax Liable", PurchHeader."Posting Date");
 
         // NAVCZ
+#if not CLEAN18
         VATAmountLine.UpdateLinesWithVATCorrection(
           Currency, PurchHeader."Prices Including VAT", PurchSetup."Allow VAT Difference", VATCorrection);
 
+#endif
         if PurchSetup."Allow VAT Difference" and (PurchHeader."Currency Code" <> '') and not VATAmountLine.IsEmpty() then
             UpdateLinesLCY(PurchHeader, TempPurchLine, QtyType, VATCorrection, VATAmountLine);
         // NAVCZ
@@ -6534,10 +6706,10 @@
                         Validate("Return Qty. to Ship", "Outstanding Quantity");
             end;
 
-        GetPurchHeader;
+        GetPurchHeader();
         OnAfterUpdateWithWarehouseReceive(PurchHeader, Rec);
 
-        SetDefaultQuantity;
+        SetDefaultQuantity();
     end;
 
     local procedure CheckWarehouse()
@@ -6670,7 +6842,7 @@
         if IsHandled then
             exit;
 
-        GetPurchHeader;
+        GetPurchHeader();
         if ItemTranslation.Get("No.", "Variant Code", PurchHeader."Language Code") then begin
             Description := ItemTranslation.Description;
             "Description 2" := ItemTranslation."Description 2";
@@ -6730,7 +6902,7 @@
         if IsHandled then
             exit;
 
-        if Type <> Type::Item then
+        if (Type <> Type::Item) or IsNonInventoriableItem() then
             exit;
 
         "Bin Code" := '';
@@ -6766,14 +6938,14 @@
             WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
 
-#if not CLEAN18
+#if not CLEAN19
     [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure CrossReferenceNoLookUp()
     var
         ItemCrossReference: Record "Item Cross Reference";
     begin
         if Type = Type::Item then begin
-            GetPurchHeader;
+            GetPurchHeader();
             ItemCrossReference.Reset();
             ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
             ItemCrossReference.SetFilter(
@@ -6794,7 +6966,7 @@
     end;
 #endif
 
-#if not CLEAN18
+#if not CLEAN19
     [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     local procedure ValidateCrossReferenceNo(ItemCrossReference: Record "Item Cross Reference"; SearchItem: Boolean)
     var
@@ -6833,7 +7005,7 @@
         end;
 
         UpdateDirectUnitCostByField(FieldNo("Cross-Reference No."));
-        UpdateICPartner;
+        UpdateICPartner();
 
         OnAfterValidateCrossReferenceNo(Rec, ItemCrossReference);
     end;
@@ -6862,7 +7034,7 @@
         exit(true);
     end;
 
-    local procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
+    procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
         FindRecordManagement: Codeunit "Find Record Management";
@@ -6874,7 +7046,7 @@
         if IsHandled then
             exit("No.");
 
-        GetPurchSetup;
+        GetPurchSetup();
 
         if Type = Type::Item then begin
             if Item.TryGetItemNoOpenCardWithView(
@@ -6920,7 +7092,7 @@
         TestField(Quantity);
         if Signed(Quantity) > 0 then
             TestField("Prod. Order No.", '');
-        if IsCreditDocType then begin
+        if IsCreditDocType() then begin
             if Quantity < 0 then
                 FieldError(Quantity, Text029);
         end else begin
@@ -6929,7 +7101,7 @@
         end;
         ItemLedgEntry.Get("Appl.-to Item Entry");
         ItemLedgEntry.TestField(Positive, true);
-        if ItemLedgEntry.TrackingExists then
+        if ItemLedgEntry.TrackingExists() then
             Error(Text040, ItemTrackingLines.Caption, FieldCaption("Appl.-to Item Entry"));
 
         ItemLedgEntry.TestField("Item No.", "No.");
@@ -6942,7 +7114,7 @@
               ItemLedgEntry.Quantity, ItemLedgEntry.FieldCaption("Document No."),
               ItemLedgEntry."Document No.");
 
-        if IsCreditDocType then
+        if IsCreditDocType() then
             if Abs("Outstanding Qty. (Base)") > ItemLedgEntry."Remaining Quantity" then begin
                 ReturnedQty := ApplyRec.Returned(ItemLedgEntry."Entry No.");
                 RemainingtobeReturnedQty := ItemLedgEntry.Quantity - ReturnedQty;
@@ -6965,8 +7137,10 @@
 
     procedure CalcPrepaymentToDeduct()
     var
+#if not CLEAN19
         GrossAmount: Decimal;
         MaxAmount: Decimal;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -6974,9 +7148,22 @@
         if IsHandled then
             exit;
 
+#if CLEAN19
+        if ("Qty. to Invoice" <> 0) and ("Prepmt. Amt. Inv." <> 0) then begin
+            GetPurchHeader();
+            if ("Prepayment %" = 100) and not IsFinalInvoice then
+                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice") - "Inv. Disc. Amount to Invoice"
+            else
+                "Prepmt Amt to Deduct" :=
+                  Round(
+                    ("Prepmt. Amt. Inv." - "Prepmt Amt Deducted") *
+                    "Qty. to Invoice" / (Quantity - "Quantity Invoiced"), Currency."Amount Rounding Precision")
+        end else
+            "Prepmt Amt to Deduct" := 0
+#else
         // NAVCZ
         if ((Quantity - "Quantity Invoiced") <> 0) and (("Prepmt. Amt. Inv." - "Prepmt Amt Deducted") > 0) then begin
-            GetPurchHeader;
+            GetPurchHeader();
             if PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance then begin
                 GrossAmount := Round("Direct Unit Cost" * Quantity, Currency."Amount Rounding Precision");
                 "Prepmt Amt to Deduct" :=
@@ -7000,6 +7187,7 @@
         end else
             "Prepmt Amt to Deduct" := 0;
         // NAVCZ
+#endif
     end;
 
     procedure IsFinalInvoice(): Boolean
@@ -7015,7 +7203,7 @@
         if "Line Discount %" = 100 then
             exit(0);
 
-        GetPurchHeader;
+        GetPurchHeader();
 
         if "Prepmt Amt to Deduct" = 0 then
             LineAmount := Round(QtyToHandle * "Direct Unit Cost", Currency."Amount Rounding Precision")
@@ -7040,18 +7228,26 @@
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
         DocType: Option Invoice,"Credit Memo",Statistic,Advance;
     begin
+#if not CLEAN19
         GetPurchHeader(); // NAVCZ
+#endif
         if "Line Discount %" = 100 then
             exit(0);
+#if not CLEAN19
         // NAVCZ
+#endif
         if IsCreditDocType() then
             DocType := DocType::"Credit Memo"
         else
             DocType := DocType::Invoice;
 
+#if CLEAN19
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
+#else
         if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and
            (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Prepayment) // NAVCZ
         then
+#endif
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
                 exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
         exit(GetLineAmountToHandle(QtyToHandle));
@@ -7075,7 +7271,7 @@
         if IsHandled then
             exit;
 
-        GetPurchHeader;
+        GetPurchHeader();
         Clear(TempJobJnlLine);
         TempJobJnlLine.DontCheckStdCost;
         TempJobJnlLine.Validate("Job No.", "Job No.");
@@ -7155,7 +7351,7 @@
     var
         IsHandled: Boolean;
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         IsHandled := false;
         OnBeforeJobSetCurrencyFactor(Rec, IsHandled);
         if IsHandled then
@@ -7183,16 +7379,18 @@
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := 0;
         "VAT Correction" := false;
         // NAVCZ
+#endif
 
         OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(Rec, xRec);
 
-        CalcInvDiscToInvoice;
+        CalcInvDiscToInvoice();
 
-        CalcPrepaymentToDeduct;
+        CalcPrepaymentToDeduct();
 
         if "Job Planning Line No." <> 0 then
             Validate("Job Planning Line No.");
@@ -7210,7 +7408,7 @@
             exit;
 
         if "Document Type" = "Document Type"::Order then begin
-            GetPurchSetup;
+            GetPurchSetup();
             if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then begin
                 "Qty. to Receive" := 0;
                 "Qty. to Receive (Base)" := 0;
@@ -7229,7 +7427,7 @@
 
     procedure SetDefaultQuantity()
     begin
-        GetPurchSetup;
+        GetPurchSetup();
         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then begin
             if (("Document Type" = "Document Type"::Order) and ("Over-Receipt Quantity" = 0)) or ("Document Type" = "Document Type"::Quote) then begin
                 "Qty. to Receive" := 0;
@@ -7263,11 +7461,13 @@
         if ("Document Type" <> "Document Type"::Invoice) or ("Prepayment %" = 0) then
             exit;
 
+#if not CLEAN19
         // NAVCZ
         GetPurchHeader;
         if PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance then
             exit;
         // NAVCZ
+#endif
         if not ReceiptLine.Get("Receipt No.", "Receipt Line No.") then begin
             "Prepmt Amt to Deduct" := 0;
             "Prepmt VAT Diff. to Deduct" := 0;
@@ -7286,7 +7486,7 @@
                 "Prepmt VAT Diff. to Deduct" := 0;
             end;
 
-        GetPurchHeader;
+        GetPurchHeader();
         PurchHeader.TestField("Prices Including VAT", PurchOrderHeader."Prices Including VAT");
         if PurchHeader."Prices Including VAT" then begin
             "Prepmt. Amt. Incl. VAT" := "Prepmt Amt to Deduct";
@@ -7347,6 +7547,7 @@
         SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Expected Receipt Date");
         SetRange("Document Type", DocumentType);
         SetRange(Type, Type::Item);
+
         SetRange("No.", Item."No.");
         SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
         SetFilter("Location Code", Item.GetFilter("Location Filter"));
@@ -7409,7 +7610,7 @@
         if IsHandled then
             exit(AccountNo);
 
-        GetPurchSetup;
+        GetPurchSetup();
         if PurchSetup."Invoice Rounding" then
             if Vendor.Get(PurchHeader."Pay-to Vendor No.") then
                 VendorPostingGroup.Get(Vendor."Vendor Posting Group");
@@ -7458,7 +7659,7 @@
     local procedure VerifyItemLineDim()
     begin
         if IsReceivedShippedItemDimChanged then
-            ConfirmReceivedShippedItemDimChange;
+            ConfirmReceivedShippedItemDimChange();
     end;
 
     procedure IsReceivedShippedItemDimChanged(): Boolean
@@ -7474,7 +7675,7 @@
         if Type <> Type::"G/L Account" then
             exit(false);
 
-        GetPurchHeader;
+        GetPurchHeader();
         VendorPostingGroup.Get(PurchHeader."Vendor Posting Group");
         exit(VendorPostingGroup."Service Charge Acc." = "No.");
     end;
@@ -7512,10 +7713,20 @@
         OnAfterInitType(rec, xRec, PurchHeader);
     end;
 
+    procedure GetDefaultLineType(): Enum "Purchase Line Type"
+    begin
+        GetPurchSetup();
+        if PurchSetup."Document Default Line Type" <> PurchSetup."Document Default Line Type"::" " then
+            exit(PurchSetup."Document Default Line Type");
+    end;
+
     local procedure CheckWMS()
     begin
         if CurrFieldNo <> 0 then
-            CheckLocationOnWMS;
+            CheckLocationOnWMS();
+        if ("Job No." <> '') then
+            if Location.Get("Location Code") then
+                Location.TestField("Directed Put-away and Pick", false);
     end;
 
     procedure CheckLocationOnWMS()
@@ -7551,7 +7762,7 @@
         if "No." = '' then
             exit(false);
         GetItem(Item);
-        exit(Item.IsNonInventoriableType);
+        exit(Item.IsNonInventoriableType());
     end;
 
     procedure IsInventoriableItem(): Boolean
@@ -7563,7 +7774,7 @@
         if "No." = '' then
             exit(false);
         GetItem(Item);
-        exit(Item.IsInventoriableType);
+        exit(Item.IsInventoriableType());
     end;
 
     local procedure CheckReservationForJobNo(): Boolean
@@ -7612,13 +7823,13 @@
         if IsHandled then
             exit;
 
-        TestStatusOpen;
+        TestStatusOpen();
         IsHandled := false;
         OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo, IsHandled);
         if IsHandled then
             exit;
 
-        GetPurchHeader;
+        GetPurchHeader();
         "Line Discount Amount" :=
           Round(
             Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") *
@@ -7628,8 +7839,8 @@
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
         end;
-        UpdateAmounts;
-        UpdateUnitCost;
+        UpdateAmounts();
+        UpdateUnitCost();
     end;
 
     local procedure NotifyOnMissingSetup(FieldNumber: Integer)
@@ -7638,7 +7849,7 @@
     begin
         if CurrFieldNo = 0 then
             exit;
-        GetPurchSetup;
+        GetPurchSetup();
         DiscountNotificationMgt.RecallNotification(PurchSetup.RecordId);
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
@@ -7657,11 +7868,13 @@
         ModPurchLine.SetRange("Document No.", "Document No.");
         ModPurchLine.SetFilter("Line No.", '<>%1', "Line No.");
         ModPurchLine.SetFilter(Type, '> %1', ModPurchLine.Type::" ");
+#if not CLEAN18
         ModPurchLine.SetRange("VAT Correction", true);
         ModPurchLine.ModifyAll("VAT Difference", 0);
         ModPurchLine.ModifyAll("VAT Difference (LCY)", 0);
         ModPurchLine.ModifyAll("Ext. VAT Difference (LCY)", 0);
         ModPurchLine.ModifyAll("VAT Correction", false);
+#endif
     end;
 
     local procedure DivideAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping; PurchLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
@@ -7772,8 +7985,10 @@
             if PurchHeader."Currency Code" <> '' then begin
                 if PurchHeader."Posting Date" = 0D then
                     PurchHeader."Posting Date" := WorkDate;
+#if not CLEAN17
                 if PurchHeader."VAT Date" = 0D then
                     PurchHeader."VAT Date" := PurchHeader."Posting Date";
+#endif
                 NoVAT := Amount = "Amount Including VAT";
                 "Amount Including VAT" :=
                   Round(
@@ -7781,28 +7996,46 @@
                       PurchHeader."Posting Date", PurchHeader."Currency Code",
                       TotalPurchLine."Amount Including VAT", PurchHeader."Currency Factor")) -
                   TotalPurchLineLCY."Amount Including VAT";
+#if not CLEAN18
                 "Ext.Amount Including VAT (LCY)" :=
+#if CLEAN17
+                0;
+#else
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
                       PurchHeader."VAT Date", PurchHeader."Currency Code",
                       TotalPurchLine."Amount Including VAT", PurchHeader."VAT Currency Factor")) -
                   TotalPurchLineLCY."Ext.Amount Including VAT (LCY)";
+#endif
+#endif
+#if CLEAN18
+                if NoVAT then
+                    Amount := "Amount Including VAT"
+                else begin
+#else
                 if NoVAT then begin
                     Amount := "Amount Including VAT";
                     "Ext. Amount (LCY)" := "Ext.Amount Including VAT (LCY)";
                 end else begin
+#endif
                     Amount :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           PurchHeader."Posting Date", PurchHeader."Currency Code",
                           TotalPurchLine.Amount, PurchHeader."Currency Factor")) -
                       TotalPurchLineLCY.Amount;
+#if not CLEAN18
                     "Ext. Amount (LCY)" :=
+#if CLEAN17
+                        0;
+#else
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
                           PurchHeader."VAT Date", PurchHeader."Currency Code",
                           TotalPurchLine.Amount, PurchHeader."VAT Currency Factor")) -
                       TotalPurchLineLCY."Ext. Amount (LCY)";
+#endif
+#endif
                 end;
                 "Line Amount" :=
                   Round(
@@ -7846,10 +8079,12 @@
             Increment(TotalPurchLine.Amount, Amount);
             Increment(TotalPurchLine."VAT Base Amount", "VAT Base Amount");
             Increment(TotalPurchLine."VAT Difference", "VAT Difference");
+#if not CLEAN18
             Increment(TotalPurchLine."VAT Difference (LCY)", "VAT Difference (LCY)");
             Increment(TotalPurchLine."Ext. VAT Difference (LCY)", "Ext. VAT Difference (LCY)");
             Increment(TotalPurchLine."Ext. Amount (LCY)", "Ext. Amount (LCY)");
             Increment(TotalPurchLine."Ext.Amount Including VAT (LCY)", "Ext.Amount Including VAT (LCY)");
+#endif
             Increment(TotalPurchLine."Amount Including VAT", "Amount Including VAT");
             Increment(TotalPurchLine."Line Discount Amount", "Line Discount Amount");
             Increment(TotalPurchLine."Inv. Discount Amount", "Inv. Discount Amount");
@@ -7892,7 +8127,7 @@
                 end;
                 DivideAmount(PurchHeader, TempPurchLine, QtyType, QtyFactor, VATAmountLine, TempVATAmountLineRemainder);
                 RoundAmount(QtyFactor, PurchHeader, TempPurchLine);
-
+#if not CLEAN18
                 VATAmountLine."Amount Including VAT (LCY)" += TempPurchLine."Amount Including VAT";
                 VATAmountLine."VAT Base (LCY)" += TempPurchLine.Amount;
 
@@ -7905,6 +8140,7 @@
                   VATAmountLine."Ext.Amount Including VAT (LCY)" - VATAmountLine."Ext. VAT Base (LCY)";
                 VATAmountLine."Ext. Calc. VAT Amount (LCY)" := VATAmountLine."Ext. VAT Amount (LCY)";
                 VATAmountLine."Ext. VAT Amount (LCY)" += VATAmountLine."Ext. VAT Difference (LCY)";
+#endif
 
                 if not VATCorrection then begin
                     TempPurchLine2.Reset();
@@ -7916,22 +8152,34 @@
                         TempPurchLine2.SetFilter("Qty. to Invoice", '<>0');
                     TempPurchLine2.FindLast;
                     if TempPurchLine2."Line No." = TempPurchLine."Line No." then begin
+#if not CLEAN18
                         VATAmountLine."VAT Amount (LCY)" := VATAmountLine.RoundVAT(VATAmountLine."VAT Amount (LCY)");
                         VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Amount (LCY)" - VATAmountLine."Calculated VAT Amount (LCY)";
                         VATAmountLine."Ext. VAT Amount (LCY)" := VATAmountLine.RoundVAT(VATAmountLine."Ext. VAT Amount (LCY)");
                         VATAmountLine."Ext. VAT Difference (LCY)" :=
                           VATAmountLine."Ext. VAT Amount (LCY)" - VATAmountLine."Ext. Calc. VAT Amount (LCY)";
+#endif
+#if not CLEAN17
                         if PurchHeader."Currency Factor" <> PurchHeader."VAT Currency Factor" then
                             VATAmountLine."Letter VAT Difference (LCY)" :=
                               VATAmountLine."Ext. VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)"
                         else
-                            VATAmountLine."Letter VAT Difference (LCY)" :=
-                              VATAmountLine."VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)";
+#endif
+#if not CLEAN19
+                        VATAmountLine."Letter VAT Difference (LCY)" :=
+#if CLEAN18
+                          VATAmountLine.GetVATAmountLCY(PurchHeader."Posting Date", PurchHeader."Currency Code", PurchHeader."Currency Factor") - VATAmountLine."Letter VAT Amount (LCY)";
+#else
+                          VATAmountLine."VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)";
+#endif
+#endif
+
                         VATAmountLine.Modified := true;
                     end;
                 end;
                 VATAmountLine.Modify();
             until TempPurchLine.Next() = 0;
+#if not CLEAN18
             VATAmountLine."Amount Including VAT (LCY)" := Round(
                 VATAmountLine."Amount Including VAT (LCY)", Currency."Amount Rounding Precision");
             VATAmountLine."VAT Base (LCY)" := Round(
@@ -7948,12 +8196,22 @@
                 VATAmountLine."Ext. Calc. VAT Amount (LCY)", Currency."Amount Rounding Precision");
             VATAmountLine."Ext. VAT Amount (LCY)" := VATAmountLine.RoundVAT(
                 Round(VATAmountLine."Ext. VAT Amount (LCY)", Currency."Amount Rounding Precision"));
+#endif
+#if not CLEAN17
             if PurchHeader."Currency Factor" <> PurchHeader."VAT Currency Factor" then
                 VATAmountLine."Letter VAT Difference (LCY)" :=
                   VATAmountLine."Ext. VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)"
             else
-                VATAmountLine."Letter VAT Difference (LCY)" :=
-                  VATAmountLine."VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)";
+#endif
+#if not CLEAN19
+            VATAmountLine."Letter VAT Difference (LCY)" :=
+#if CLEAN18
+              VATAmountLine.GetVATAmountLCY(GetDate, PurchHeader."Currency Code", PurchHeader."Currency Factor") - VATAmountLine."Letter VAT Amount (LCY)";
+#else
+              VATAmountLine."VAT Amount (LCY)" - VATAmountLine."Letter VAT Amount (LCY)";
+#endif
+#endif
+
             VATAmountLine.Modify();
         end;
     end;
@@ -7975,6 +8233,7 @@
         end;
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Advanced Localization Pack for Czech.', '18.0')]
     local procedure xSetGPPGfromSKU()
     var
@@ -7997,14 +8256,19 @@
         end else begin
             if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
                 Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
+#if not CLEAN17
             if GetSKU then
                 if (SKU."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group") and (SKU."Gen. Prod. Posting Group" <> '') then
                     Validate("Gen. Prod. Posting Group", SKU."Gen. Prod. Posting Group");
+#endif
         end;
         if "Gen. Bus. Posting Group" <> '' then
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
 
+#endif
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure xTestLeterLineExist() lboLinkExist: Boolean
     var
@@ -8028,6 +8292,7 @@
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcLetterVATAmount(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"): Decimal
     var
@@ -8042,10 +8307,12 @@
         if LetterRelation.FindSet(false, false) then
             repeat
                 if PurchHeader."Currency Code" <> '' then begin
+#if not CLEAN17
                     if (PurchHeader."Currency Factor" <> PurchHeader."VAT Currency Factor") and (PurchHeader."VAT Currency Factor" <> 0) then
                         VATAmtLCY += Round(LetterRelation."VAT Doc. VAT Amount" /
                             PurchHeader."VAT Currency Factor", Currency."Amount Rounding Precision")
                     else
+#endif
                         if PurchHeader."Currency Factor" <> 0 then
                             VATAmtLCY += Round(LetterRelation."VAT Doc. VAT Amount" /
                                 PurchHeader."Currency Factor", Currency."Amount Rounding Precision");
@@ -8056,6 +8323,7 @@
         exit(VATAmtLCY);
     end;
 
+#endif
     local procedure UpdateDimensionsFromJobTask()
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -8088,35 +8356,15 @@
         if IsHandled then
             exit;
 
-        if ItemReferenceMgt.IsEnabled() then
-            ItemReferenceMgt.EnterPurchaseItemReference(Rec);
-#if not CLEAN16            
-        if not ItemReferenceMgt.IsEnabled() then
-            DistIntegration.EnterPurchaseItemCrossRef(Rec);
-#endif
+        ItemReferenceMgt.EnterPurchaseItemReference(Rec);
 
         UpdateICPartner();
 
         if Type <> Type::Item then
             exit;
 
-        if ItemReferenceMgt.IsEnabled() then
-            UpdateVendorItemNoFromItemReference();
-#if not CLEAN16            
-        if not ItemReferenceMgt.IsEnabled() then
-            UpdateVendorItemNoFromItemCrossRef();
-#endif            
+        UpdateVendorItemNoFromItemReference();
     end;
-
-#if not CLEAN16
-    local procedure UpdateVendorItemNoFromItemCrossRef()
-    begin
-        if "Cross-Reference No." = '' then
-            SetVendorItemNo()
-        else
-            Validate("Vendor Item No.", "Cross-Reference No.");
-    end;
-#endif
 
     local procedure UpdateVendorItemNoFromItemReference()
     begin
@@ -8151,25 +8399,20 @@
                         case ICPartner."Outbound Purch. Item No. Type" of
                             ICPartner."Outbound Purch. Item No. Type"::"Common Item No.":
                                 Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
-                            ICPartner."Outbound Purch. Item No. Type"::"Internal No.",
+                            ICPartner."Outbound Purch. Item No. Type"::"Internal No.":
+                                begin
+                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::Item);
+                                    "IC Partner Reference" := "No.";
+                                end;
                             ICPartner."Outbound Purch. Item No. Type"::"Cross Reference":
                                 begin
-                                    if ICPartner."Outbound Purch. Item No. Type" = ICPartner."Outbound Purch. Item No. Type"::"Internal No." then
-                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::Item)
-                                    else
-                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
-
-                                    if ItemReferenceMgt.IsEnabled() then
-                                        UpdateICPartnerItemReference();
-#if not CLEAN16                    
-                                    if not ItemReferenceMgt.IsEnabled() then
-                                        UpdateICPartnerItemCrossReference();
-#endif                                
+                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
+                                    UpdateICPartnerItemReference();
                                 end;
                             ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
                                 begin
                                     "IC Partner Ref. Type" := "IC Partner Ref. Type"::"Vendor Item No.";
-                                    "IC Partner Reference" := "Vendor Item No.";
+                                    "IC Item Reference No." := "Vendor Item No.";
                                 end;
                         end;
                     end;
@@ -8186,7 +8429,7 @@
     var
         ItemReference: Record "Item Reference";
     begin
-        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
         ItemReference.SetRange("Reference Type No.", "Buy-from Vendor No.");
         ItemReference.SetRange("Item No.", "No.");
         ItemReference.SetRange("Variant Code", "Variant Code");
@@ -8194,25 +8437,8 @@
         if ItemReference.FindFirst() then
             "IC Item Reference No." := ItemReference."Reference No."
         else
-            "IC Item Reference No." := "No.";
-    end;
-
-#if not CLEAN16
-    local procedure UpdateICPartnerItemCrossReference()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-        ItemCrossReference.SetRange("Cross-Reference Type No.", "Buy-from Vendor No.");
-        ItemCrossReference.SetRange("Item No.", "No.");
-        ItemCrossReference.SetRange("Variant Code", "Variant Code");
-        ItemCrossReference.SetRange("Unit of Measure", "Unit of Measure Code");
-        if ItemCrossReference.FindFirst() then
-            "IC Partner Reference" := ItemCrossReference."Cross-Reference No."
-        else
             "IC Partner Reference" := "No.";
     end;
-#endif
 
     local procedure CalcTotalAmtToAssign(TotalQtyToAssign: Decimal) TotalAmtToAssign: Decimal
     begin
@@ -8259,7 +8485,7 @@
         DeferralPostDate: Date;
         AdjustStartDate: Boolean;
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         OnUpdateDeferralAmountsOnBeforeSetDeferralPostDate(PurchHeader, Rec, DeferralPostDate);
         DeferralPostDate := PurchHeader."Posting Date";
         AdjustStartDate := true;
@@ -8325,7 +8551,7 @@
     procedure DefaultDeferralCode()
     begin
         if Type in [Type::"G/L Account", Type::Item, Type::Resource] then
-            InitDeferralCode;
+            InitDeferralCode();
     end;
 
     procedure IsCreditDocType() Result: Boolean
@@ -8343,7 +8569,7 @@
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        GetPurchHeader;
+        GetPurchHeader();
         if not IncomingDocument.Get(PurchHeader."Incoming Document Entry No.") then
             exit(false);
         exit(IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success);
@@ -8432,7 +8658,7 @@
 
     procedure RenameNo(LineType: Enum "Purchase Document Type"; OldNo: Code[20]; NewNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetRange(Type, LineType);
         SetRange("No.", OldNo);
         if not Rec.IsEmpty() then
@@ -8469,12 +8695,20 @@
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CancelAdvanceLetterRelations()
     var
         AdvanceLetterLineRelation: Record "Advance Letter Line Relation";
+        IsHandled: boolean;
     begin
         // NAVCZ
+        IsHandled := false;
+        OnBeforeCancelAdvanceLetterRelations(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Purchase);
         AdvanceLetterLineRelation.SetRange("Document Type", "Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", "Document No.");
@@ -8485,9 +8719,14 @@
             until AdvanceLetterLineRelation.Next() = 0;
     end;
 
+#endif
     procedure UpdatePrepmtAmounts()
     begin
+#if CLEAN19
+        if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
+#else
         if true then begin // NAVCZ
+#endif
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then begin
                 "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
@@ -8503,7 +8742,9 @@
 
     local procedure CheckPrepmtAmounts()
     var
+#if not CLEAN19
         VendPostGr: Record "Vendor Posting Group";
+#endif
         RemLineAmountToInvoice: Decimal;
         IsHandled: Boolean;
     begin
@@ -8513,6 +8754,14 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+#if CLEAN19
+            if Quantity < 0 then
+                FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
+            if "Direct Unit Cost" < 0 then
+                FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
+        end;
+        if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
+#else
             if not VendPostGr.Get(PurchHeader."Vendor Posting Group") then
                 VendPostGr.Init();
             if not ((Type = Type::"G/L Account") and ("No." = VendPostGr."Invoice Rounding Account")) then begin
@@ -8528,6 +8777,7 @@
             if "Prepmt. Amt. Inv." + Currency."Amount Rounding Precision" < "Prepmt Amt Deducted" then
                 FieldError("Prepmt. Amt. Inv.", StrSubstNo(Text044, "Prepmt Amt Deducted"));
         end else
+#endif
             if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
@@ -8541,6 +8791,16 @@
             if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text039, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
         end;
+#if CLEAN19
+        end else
+            if (CurrFieldNo <> 0) and ("Line Amount" <> xRec."Line Amount") and
+               ("Prepmt. Amt. Inv." <> 0) and ("Prepayment %" = 100)
+            then begin
+                if "Line Amount" < xRec."Line Amount" then
+                    FieldError("Line Amount", StrSubstNo(Text038, xRec."Line Amount"));
+                FieldError("Line Amount", StrSubstNo(Text039, xRec."Line Amount"));
+            end;
+#endif
     end;
 
     local procedure CheckPrepmtAmtInvEmpty()
@@ -8573,10 +8833,10 @@
         if IsHandled then
             exit(Result);
 
-        if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
+        if not OverReceiptMgt.IsOverReceiptAllowed() or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
             exit(false);
 
-        Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Quantity Received");
+        Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Quantity Received" + "Over-Receipt Quantity");
         exit(true);
     end;
 
@@ -8631,18 +8891,22 @@
         if "Line Amount" <> xRec."Line Amount" then begin
             "VAT Difference" := 0;
             LineAmountChanged := true;
+#if not CLEAN18
             "VAT Difference (LCY)" := 0;
             "VAT Correction" := false;
             "Ext. VAT Difference (LCY)" := 0;
+#endif
         end;
         if "Line Amount" <> Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount" then begin
             "Line Amount" :=
               Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Discount Amount";
             "VAT Difference" := 0;
             LineAmountChanged := true;
+#if not CLEAN18
             "VAT Difference (LCY)" := 0;
             "VAT Correction" := false;
             "Ext. VAT Difference (LCY)" := 0;
+#endif
         end;
     end;
 
@@ -8656,7 +8920,7 @@
             exit;
 
         GetLocation("Location Code");
-        if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
+        if (CurrFieldNo <> 0) and IsInventoriableItem() and (not "Drop Shipment") then begin
             if Location."Require Receive" then
                 CheckWarehouse();
             IsHandled := false;
@@ -8671,7 +8935,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckDropShipment(IsHandled);
+        OnBeforeCheckDropShipment(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -8745,6 +9009,12 @@
         PurchCrMemoLine.SetRange("Blanket Order No.", Rec."Document No.");
         PurchCrMemoLine.SetRange("Blanket Order Line No.", Rec."Line No.");
         PAGE.RunModal(PAGE::"Posted Purchase Cr. Memo Lines", PurchCrMemoLine);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     [IntegrationEvent(false, false)]
@@ -9107,7 +9377,7 @@
     begin
     end;
 
-#if not CLEAN18
+#if not CLEAN19
     [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCrossReferenceNo(var PurchaseLine: Record "Purchase Line"; ItemCrossReference: Record "Item Cross Reference")
@@ -9525,7 +9795,7 @@
     begin
     end;
 
-#if not CLEAN18
+#if not CLEAN19
     [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookUpOnAfterSetFilters(var ItemCrossReference: Record "Item Cross Reference"; PurchaseLine: Record "Purchase Line")
@@ -9533,10 +9803,13 @@
     end;
 #endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookupOnBeforeValidateDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
@@ -9628,7 +9901,7 @@
     begin
     end;
 
-#if not CLEAN18
+#if not CLEAN19
     [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateCrossReferenceNoOnBeforeAssignNo(var PurchaseLine: Record "Purchase Line"; var ItemCrossReference: Record "Item Cross Reference")
@@ -9851,7 +10124,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckDropShipment(var IsHandled: Boolean)
+    local procedure OnBeforeCheckDropShipment(var IsHandled: Boolean; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9994,5 +10267,12 @@
     local procedure OnBeforeUpdateLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
+#if not CLEAN19
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCancelAdvanceLetterRelations(var PurchaseLine: Record "Purchase Line"; var IsHandled: boolean)
+    begin
+    end;
+#endif
 }
 

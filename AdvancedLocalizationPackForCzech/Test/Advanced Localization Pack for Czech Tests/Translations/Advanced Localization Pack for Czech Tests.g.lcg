@@ -14,4 +14,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Applying G/L Entries CZA - NamedType UnexpectedRemAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2505294720 - NamedType 1941270961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer Posting Group  cannot be changed in Customer No.='%1'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Customer No.]D;]A;(LookupHint=Codeunit Posting Groups CZA - NamedType ChangeCustPostGrErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2505294720 - NamedType 488863791" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you really want to change %1 although open entries exist?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=FIELDCAPTION]D;]A;(LookupHint=Codeunit Posting Groups CZA - NamedType ChangeRecAccountQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2505294720 - NamedType 998480905" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor Posting Group  cannot be changed in Vendor No.='%1'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Vendor No.]D;]A;(LookupHint=Codeunit Posting Groups CZA - NamedType ChangeVendPostGrErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2367228582 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is no dataset row corresponding to Element Name %1 with value %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption,%2=Field Value;]D;]A;(LookupHint=Codeunit Reports and Documents CZA - NamedType RowNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

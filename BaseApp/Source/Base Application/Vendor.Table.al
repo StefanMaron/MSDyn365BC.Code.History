@@ -8,10 +8,12 @@
                   TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-                  TableData "Purchase Price Access" = rd,
-                  TableData "Purchase Discount Access" = rd,
+#if not CLEAN19
                   TableData "Purchase Price" = rd,
-                  TableData "Purchase Line Discount" = rd;
+                  TableData "Purchase Line Discount" = rd,
+#endif
+                  TableData "Purchase Price Access" = rd,
+                  TableData "Purchase Discount Access" = rd;
 
     fields
     {
@@ -183,11 +185,12 @@
         {
             Caption = 'Vendor Posting Group';
             TableRelation = "Vendor Posting Group";
-
+#if not CLEAN17
             trigger OnValidate()
             begin
                 CheckVendorLedgerOpenEntries; // NAVCZ
             end;
+#endif
         }
         field(22; "Currency Code"; Code[10])
         {
@@ -261,7 +264,7 @@
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
 
                 if "Country/Region Code" <> xRec."Country/Region Code" then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(38; Comment; Boolean)
@@ -1056,6 +1059,11 @@
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
@@ -1404,6 +1412,7 @@
             Caption = 'Last Statement Date';
             Editable = false;
         }
+#if not CLEAN17
         field(11763; "Last Uncertainty Check Date"; Date)
         {
             CalcFormula = Max("Uncertainty Payer Entry"."Check Date" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
@@ -1429,39 +1438,54 @@
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
+#endif
         field(11765; "Disable Uncertainty Check"; Boolean)
         {
             Caption = 'Disable Uncertainty Check';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
-
+#if not CLEAN17
             trigger OnValidate()
             begin
                 if "Registration No." <> xRec."Registration No." then
                     RegistrationNoValidation;
             end;
+#endif
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
-
+#if not CLEAN17
             trigger OnValidate()
             var
                 RegistrationNoMgt: Codeunit "Registration No. Mgt.";
             begin
                 RegistrationNoMgt.CheckTaxRegistrationNo("Tax Registration No.", "No.", DATABASE::Vendor);
             end;
+#endif
         }
         field(11792; "Registered Name"; Text[250])
         {
@@ -1475,6 +1499,7 @@
             Caption = 'Default Order Address Code';
             TableRelation = "Order Address".Code WHERE("Vendor No." = FIELD("No."));
         }
+#if not CLEAN19
         field(31000; "Advances (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE(Advance = CONST(true),
@@ -1486,6 +1511,9 @@
             Caption = 'Advances (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31010; "Pay-to No. of Out. Adv. L."; Integer)
         {
@@ -1494,6 +1522,9 @@
             Caption = 'Pay-to No. of Outstanding Adv. Letters';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31011; "Pay-to No. of Closed Adv. L."; Integer)
         {
@@ -1502,6 +1533,9 @@
             Caption = 'Pay-to No. of Closed Adv. Letters';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31015; "Pay-to No. of Open. Adv. L."; Integer)
         {
@@ -1510,6 +1544,9 @@
             Caption = 'Pay-to No. of Opened Adv. Letters';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31016; "Pay-to No. of P.Pay. Adv. L."; Integer)
         {
@@ -1518,6 +1555,9 @@
             Caption = 'Pay-to No. of Adv. Letters to Pend. Pay.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31017; "Pay-to No. of P.Inv. Adv. L."; Integer)
         {
@@ -1526,6 +1566,9 @@
             Caption = 'Pay-to No. of Adv. Letters to Pend. Inv.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31018; "Pay-to No. of P.F.Inv. Adv. L."; Integer)
         {
@@ -1534,12 +1577,20 @@
             Caption = 'Pay-to No. of Adv. Letters to Pend. Fin. Inv.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
+#endif
         field(31060; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
             TableRelation = "Transaction Type";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1547,7 +1598,11 @@
         {
             Caption = 'Transaction Specification';
             TableRelation = "Transaction Specification";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1555,7 +1610,11 @@
         {
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1610,16 +1669,21 @@
         key(Key13; Contact)
         {
         }
+#if not CLEAN17
         key(Key14; "Registration No.")
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
+#endif
         key(Key16; Blocked)
         {
         }
         key(Key17; SystemModifiedAt)
+        {
+        }
+        key(Key18; "Coupled to CRM")
         {
         }
     }
@@ -1643,7 +1707,9 @@
         IntrastatSetup: Record "Intrastat Setup";
         ItemReference: Record "Item Reference";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+#if not CLEAN17
         RegistrationLogMgt: Codeunit "Registration Log Mgt.";
+#endif
     begin
         ApprovalsMgmt.OnCancelVendorApprovalRequest(Rec);
 
@@ -1692,10 +1758,12 @@
         if not PurchPrepmtPct.IsEmpty() then
             PurchPrepmtPct.DeleteAll(true);
 
+#if not CLEAN17
         // NAVCZ
         RegistrationLogMgt.DeleteVendorLog(Rec);
         // NAVCZ
 
+#endif
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
 
         IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Vendor, "No.");
@@ -2079,6 +2147,7 @@
           "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" - GetInvoicedPrepmtAmountLCY);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure GetLinkedCustomer(): Code[20]
@@ -2098,6 +2167,8 @@
         end;
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure CheckVendorLedgerOpenEntries()
     var
@@ -2112,6 +2183,7 @@
             FieldError("Vendor Posting Group", ChangeErr);
     end;
 
+#endif
     procedure HasAddress(): Boolean
     begin
         case true of
@@ -2378,9 +2450,13 @@
           ("Post Code" <> xRec."Post Code") or
           (County <> xRec.County) or
           ("E-Mail" <> xRec."E-Mail") or
+#if CLEAN17
+          ("Home Page" <> xRec."Home Page");
+#else
           ("Home Page" <> xRec."Home Page") or
           ("Registration No." <> xRec."Registration No.") or
           ("Tax Registration No." <> xRec."Tax Registration No.");
+#endif
 
         if not UpdateNeeded and not IsTemporary then
             UpdateNeeded := VendContUpdate.ContactNameIsBlank("No.");
@@ -2416,7 +2492,7 @@
         Contact := VendorContact;
     end;
 
-    local procedure SetDefaultPurchaser()
+    protected procedure SetDefaultPurchaser()
     var
         UserSetup: Record "User Setup";
         IsHandled: Boolean;
@@ -2447,7 +2523,7 @@
         PriceSource.Validate("Source No.", "No.");
     end;
 
-    local procedure VATRegistrationValidation()
+    procedure VATRegistrationValidation()
     var
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
@@ -2483,6 +2559,7 @@
             VATRegistrationLogMgt.LogVendor(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     local procedure RegistrationNoValidation()
     var
@@ -2503,12 +2580,14 @@
         end;
     end;
 
+#endif
     procedure VerifyAndUpdateFromVIES()
     begin
         // NAVCZ
         VATRegistrationValidation;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure VerifyAndUpdateFromARES()
     begin
@@ -2569,6 +2648,7 @@
         exit(UncertaintyPayerEntry."Uncertainty Payer");
     end;
 
+#endif
     procedure UpdateCurrencyId()
     var
         Currency: Record Currency;
@@ -2651,12 +2731,12 @@
         if IsTemporary then
             exit;
 
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
-        UpdateCurrencyId;
-        UpdatePaymentTermsId;
-        UpdatePaymentMethodId;
+        UpdateCurrencyId();
+        UpdatePaymentTermsId();
+        UpdatePaymentMethodId();
     end;
 
     procedure GetReferencedIds(var TempField: Record "Field" temporary)
@@ -2706,6 +2786,7 @@
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsUncertaintyPayerCheckPossible(var Vendor: Record Vendor; var CheckPossible: Boolean)
@@ -2718,6 +2799,7 @@
     begin
     end;
 
+#endif
     local procedure IsOnBeforeCheckBlockedVendHandled(Vendor: Record Vendor; Source: Option Journal,Document; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean) IsHandled: Boolean
     begin
         OnBeforeCheckBlockedVend(Vendor, Source, DocType.AsInteger(), Transaction, IsHandled)
@@ -2843,6 +2925,7 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2855,5 +2938,6 @@
     local procedure OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
+#endif
 }
 

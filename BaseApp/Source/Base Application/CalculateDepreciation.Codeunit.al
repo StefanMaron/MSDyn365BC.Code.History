@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5610 "Calculate Depreciation"
 {
 
@@ -126,3 +127,4 @@ codeunit 5610 "Calculate Depreciation"
     end;
 }
 
+#endif

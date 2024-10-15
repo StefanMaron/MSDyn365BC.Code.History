@@ -1,3 +1,4 @@
+#if not CLEAN17
 enum 1370 "Batch Posting Parameter Type"
 {
     Extensible = true;
@@ -14,3 +15,4 @@ enum 1370 "Batch Posting Parameter Type"
     value(10000; "VAT Date") { Caption = 'VAT Date'; ObsoleteState = Pending; ObsoleteReason = 'Moved to Core Localization Pack for Czech.'; ObsoleteTag = '17.4'; }
     value(10001; "Replace VAT Date") { Caption = 'Replace VAT Date'; ObsoleteState = Pending; ObsoleteReason = 'Moved to Core Localization Pack for Czech.'; ObsoleteTag = '17.4'; }
 }
+#endif

@@ -65,7 +65,11 @@ table 84 "Acc. Schedule Name"
             Caption = 'Acc. Schedule Type';
             OptionCaption = ' ,Balance Sheet,Income Statement';
             OptionMembers = " ","Balance Sheet","Income Statement";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -104,9 +108,32 @@ table 84 "Acc. Schedule Name"
 
     var
         AccSchedLine: Record "Acc. Schedule Line";
+        ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
 #if not CLEAN19
         Text26570: Label '%1 has results. Do you want to delete it anyway?';
-        ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
+    [Scope('OnPrem')]
+    procedure IsResultsExist(AccSchedName: Code[10]): Boolean
+    var
+        AccScheduleResultHeader: Record "Acc. Schedule Result Header";
+    begin
+        // NAVCZ
+        AccScheduleResultHeader.SetRange("Acc. Schedule Name", AccSchedName);
+        exit(not AccScheduleResultHeader.IsEmpty);
+    end;
+
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
+    [Scope('OnPrem')]
+    procedure GetRecordDescription(AccSchedName: Code[10]): Text[100]
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+    begin
+        // NAVCZ
+        AccScheduleName.Get(AccSchedName);
+        exit(StrSubstNo('%1 %2=''%3''', AccScheduleName.TableCaption, FieldCaption(Name), AccSchedName));
+    end;
+#endif
 
     local procedure AnalysisViewGet(var AnalysisView: Record "Analysis View"; AnalysisViewName: Code[10])
     var
@@ -160,28 +187,6 @@ table 84 "Acc. Schedule Name"
         Evaluate(DimensionCode, Format(FieldRef.Value));
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure IsResultsExist(AccSchedName: Code[10]): Boolean
-    var
-        AccScheduleResultHeader: Record "Acc. Schedule Result Header";
-    begin
-        // NAVCZ
-        AccScheduleResultHeader.SetRange("Acc. Schedule Name", AccSchedName);
-        exit(not AccScheduleResultHeader.IsEmpty);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetRecordDescription(AccSchedName: Code[10]): Text[100]
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
-    begin
-        // NAVCZ
-        AccScheduleName.Get(AccSchedName);
-        exit(StrSubstNo('%1 %2=''%3''', AccScheduleName.TableCaption, FieldCaption(Name), AccSchedName));
-    end;
-#endif
     procedure Print()
     var
         AccountSchedule: Report "Account Schedule";

@@ -24,8 +24,6 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CostCenterFilter: Code[20];
         CostObjectFilter: Code[20];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
         ViewAsError: Label 'Set View As to Net Change before you edit entries.';
         EmptyFiltersError: Label '%1 or %2 must not be blank.', Comment = '%1=fieldcaption Cost Center,%2=fieldcaption Cost Object';
         InvalidColumnIndex: Label 'The ColumnNo param is outside the permitted range.';
@@ -37,7 +35,6 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         PostingDateError: Label '%1 must be equal to Workdate.';
         CostBudgetAmountError: Label 'The amount for %1 %2 for column %3 is not equal to the amount on the %4 %5.', Comment = '%1:Table Caption;%2:Field Value;%3:Column Caption;%4:Table Caption;%5:Field Value;';
         ColumnDateError: Label 'The column captions (dates) were not updated after invoking the %1 action.';
-        RoundingFactor: Option "None","1","1000","1000000";
         GLAccountNo: Code[20];
         CostJournalAmountError: Label 'The amount that was posted from %1 must be equal to amount in %2.';
         InvalidColumnCaptionError: Label 'Period in columns caption were not updated according to the view by filter.';
@@ -171,7 +168,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
-        SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
+        SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
 
         VerifyFiltersOnCostBudgetByCostCenterMatrixPage(CostBudgetByCostCenterPage, Format(ExpectedDate));
 
@@ -191,7 +188,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostCenterPage(
-          CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+          CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
 
         VerifyFiltersOnCostBudgetByCostCenterMatrixPage(CostBudgetByCostCenterPage, StrSubstNo('''''..%1', ExpectedDate));
 
@@ -210,7 +207,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Setup:
         CostBudgetByCostCenterPage.OpenEdit();
         SetFieldsOnCostBudgetByCostCenterPage(
-          CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+          CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
 
         // Exercise & Verify:
         asserterror CostBudgetByCostCenterPage.MatrixForm.Column1.SetValue(LibraryRandom.RandDec(100, 2));
@@ -250,7 +247,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostCenterPage(
-          CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name);
+          CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name);
 
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
         if CostCenter.Count > 12 then // 12 is Max number of columns on the matrix page
@@ -286,7 +283,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
-          OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
+          OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
         VerifyFiltersOnCostBudgetByCostObjectMatrixPage(CostBudgetByCostObjectPage, Format(ExpectedDate));
 
         CostBudgetByCostObjectPage.Close();
@@ -303,7 +300,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
-          OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+          OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
         VerifyFiltersOnCostBudgetByCostObjectMatrixPage(CostBudgetByCostObjectPage, StrSubstNo('''''..%1', ExpectedDate));
 
         CostBudgetByCostObjectPage.OK.Invoke;
@@ -321,7 +318,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Setup:
         CostBudgetByCostObjectPage.OpenEdit();
         SetFieldsOnCostBudgetByCostObjectPage(
-          CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+          CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
 
         // Exercise & Verify:
         asserterror CostBudgetByCostObjectPage.MatrixForm.Column1.SetValue(LibraryRandom.RandDec(100, 2));
@@ -361,7 +358,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         ExpectedDate := GetCurrentDate(CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostObjectPage(
-          CostBudgetByCostObjectPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name);
+          CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name);
 
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
         if CostObject.Count > 12 then // 12 is Max number of columns on the matrix page
@@ -397,7 +394,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetPerPeriodPage.OpenEdit();
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         ExpectedDateFilter := Format(CalcDate('<11D>', WorkDate));  // 12 matrix columns
         VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, ExpectedDateFilter);
@@ -416,7 +413,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '', '', '');
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '', '', '');
 
         VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, StrSubstNo('''''..%1', CalcDate('<11D>', WorkDate))); // 12 matrix columns
 
@@ -435,7 +432,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Setup:
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '', '', '');
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise & Verify:
         asserterror CostBudgetPerPeriodPage.MatrixForm.Column1.SetValue(LibraryRandom.RandDec(100, 2));
@@ -456,7 +453,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup:
         CostBudgetPerPeriodPage.OpenEdit();
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise & Verify:
         asserterror CostBudgetPerPeriodPage.MatrixForm.Column1.SetValue(LibraryRandom.RandDec(100, 2));
@@ -490,7 +487,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Setup page:
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, CostCenter.Code, '');
 
         ColumnNo := LibraryRandom.RandInt(12); // pick a random column for the matrix page
         Amount := LibraryRandom.RandDec(100, 2);
@@ -745,7 +742,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
-        SetFieldsOnCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
+        SetFieldsOnCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
 
         Assert.AreEqual(Format(WorkDate), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
         CostBudgetByCostObjectPage.Close();
@@ -762,7 +759,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
-            CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+            CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
         Assert.AreEqual(StrSubstNo('''''..%1', ExpectedDate), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
         CostBudgetByCostObjectPage.Close();
@@ -779,7 +776,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
-            CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
+            CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Month), '');
         Assert.AreEqual(
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"),
           DateFilterError);
@@ -798,7 +795,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
-            CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
+            CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Month), '');
 
         Assert.AreEqual(
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"),
@@ -1059,7 +1056,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostCenterPage.OpenEdit();
-        SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
+        SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '');
 
         Assert.AreEqual(Format(WorkDate), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
         CostBudgetByCostCenterPage.Close();
@@ -1076,7 +1073,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
-          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
+          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
         Assert.AreEqual(StrSubstNo('''''..%1', ExpectedDate), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
         CostBudgetByCostCenterPage.Close();
@@ -1093,7 +1090,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
-          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Month), '');
+          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '');
         Assert.AreEqual(
           StrSubstNo('%1..%2', CalcDate('<CM-30D>', ExpectedDate), CalcDate('<CM>', ExpectedDate)),
           CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
@@ -1112,7 +1109,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
-          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
+          OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Month), '');
         Assert.AreEqual(
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"),
           DateFilterError);
@@ -1167,7 +1164,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         // [WHEN] Set "Amount Type" = "Net Change" and "Period Type" = Day on "Cost Type Balance/Budget" page
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // [THEN] "Date Filter" is 01.01.2017 on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(ExpectedDate);
@@ -1195,7 +1192,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         // [WHEN] Set "Amount Type" = "Balance at Date" and "Period Type" = Day on "Cost Type Balance/Budget" page
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '', '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '', '', '');
 
         // [THEN] "Date Filter" is "..01.01.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(StrSubstNo('''''..%1', ExpectedDate));
@@ -1223,7 +1220,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         // [WHEN] Set "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Month), '', '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '', '', '');
 
         // [THEN] "Date Filter" is "01.01.2017..31.01.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
@@ -1252,7 +1249,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         // [WHEN] Set "Amount Type" = "Balance at Date" and "Period Type" = Month on "Cost Type Balance/Budget" page
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '', '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Month), '', '', '');
 
         // [THEN] "Date Filter" is "..31.01.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)));
@@ -1278,7 +1275,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [GIVEN] "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
         ExpectedDate :=
           CalcDate('<1M>', OpenCostTypeBalanceBudgetPage(
-              CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Month), '', '', ''));
+              CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '', '', ''));
 
         // [WHEN] Press "Next Period" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.NextPeriod.Invoke;
@@ -1308,7 +1305,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [GIVEN] "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
         ExpectedDate :=
           CalcDate('<-1M>', OpenCostTypeBalanceBudgetPage(
-              CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Month), '', '', ''));
+              CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '', '', ''));
 
         // [WHEN] Press "Previous Period" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.PreviousPeriod.Invoke;
@@ -1343,7 +1340,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Exercise:
         CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, '', '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
         NetChange := PostCostJournalLine(CostType."No.", CostCenter.Code, '', PostingDate);
         BudgetAmount := CreateBudgetEntry(CostBudgetName.Name, CostType."No.", PostingDate);
@@ -1379,7 +1376,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Exercise:
         CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, '', '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
         PostCostJournalLine(CostType."No.", CostCenter.Code, '', PostingDate);
         CostTypeBalanceBudgetPage.GotoRecord(CostType);
@@ -1450,7 +1447,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         ExpectedDate :=
-          OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+          OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise:
         CostTypeBalanceBudgetPage.NextPeriod.Invoke;
@@ -1474,7 +1471,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         ExpectedDate :=
-          OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+          OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise:
         CostTypeBalanceBudgetPage.PreviousPeriod.Invoke;
@@ -1512,7 +1509,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Setup Cost Type Balance/Budget page:
         CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
-          CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
+          CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, CostCenter.Code, '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
         NetChange := PostCostJournalLine(CostType."No.", CostCenter.Code, '', PostingDate);
         CostTypeBalanceBudgetPage.GotoRecord(CostType);
@@ -1619,7 +1616,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     begin
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        ValidateCostTypeBalanceAmountType(AmountType::"Balance at Date");
+        ValidateCostTypeBalanceAmountType("Analysis Amount Type"::"Balance at Date");
     end;
 
     [Test]
@@ -1628,7 +1625,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     begin
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        ValidateCostTypeBalanceAmountType(AmountType::"Net Change");
+        ValidateCostTypeBalanceAmountType("Analysis Amount Type"::"Net Change");
     end;
 
     [Test]
@@ -1648,7 +1645,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Exercise
         CostTypeBalance.OpenEdit();
         UpdateCostTypeBalanceFilters(
-          CostTypeBalance, CostType."Cost Center Code", '', PeriodType::Day, AmountType::"Balance at Date", RoundingFactor::None);
+          CostTypeBalance, CostType."Cost Center Code", '', "Analysis Period Type"::Day, "Analysis Amount Type"::"Balance at Date", "Analysis Rounding Factor"::None);
 
         // Verify
         CostType.TestField("Cost Center Code", Format(CostTypeBalance.MatrixForm.FILTER.GetFilter("Cost Center Filter")));
@@ -1681,7 +1678,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Exercise
         CostTypeBalance.OpenEdit();
         UpdateCostTypeBalanceFilters(
-          CostTypeBalance, '', CostType."Cost Object Code", PeriodType::Day, AmountType::"Balance at Date", RoundingFactor::None);
+          CostTypeBalance, '', CostType."Cost Object Code", "Analysis Period Type"::Day, "Analysis Amount Type"::"Balance at Date", "Analysis Rounding Factor"::None);
 
         // Verify
         CostType.TestField("Cost Object Code", Format(CostTypeBalance.MatrixForm.FILTER.GetFilter("Cost Object Filter")));
@@ -1696,7 +1693,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostType: Record "Cost Type";
         CostTypeBalance: TestPage "Cost Type Balance";
-        SelectedRoundingFactor: Option;
+        SelectedRoundingFactor: Enum "Analysis Rounding Factor";
     begin
         Initialize();
 
@@ -1707,12 +1704,13 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Pre-Setup
         CostType.SetFilter("Date Filter", '%1', WorkDate);
         CostType.CalcFields("Balance at Date");
-        SelectedRoundingFactor := LibraryRandom.RandInt(4) - 1; // None, 1, 1000, or 1000000
+        SelectedRoundingFactor := "Analysis Rounding Factor".FromInteger(LibraryRandom.RandInt(4) - 1);
 
         // Exercise
         CostTypeBalance.OpenEdit();
         CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
-        UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', PeriodType::Day, AmountType::"Balance at Date", SelectedRoundingFactor);
+        UpdateCostTypeBalanceFilters(
+            CostTypeBalance, '', '', "Analysis Period Type"::Day, "Analysis Amount Type"::"Balance at Date", SelectedRoundingFactor);
 
         // Verify
         CostType.SetFilter("Balance at Date", '<>%1', 0);
@@ -1757,7 +1755,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, CostCenter.Code, '');
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostType."No.");
 
         // Verify: Verify the Expected Amount with the column value of matrix page.
@@ -1802,7 +1800,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', CostObject.Code);
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName.Name, '', CostObject.Code);
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostType."No.");
 
         // Verify: Verify the Expected Amount with the column value of matrix page.
@@ -1833,7 +1831,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Next Set and after invoking the Next Set.
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
         GetColumnDatesOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Set");
 
@@ -1863,7 +1861,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Previous Set and after invoking the Previous Set.
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
         GetColumnDatesOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Set");
 
@@ -1893,7 +1891,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Previous Column and after invoking the Previous Column.
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
         GetColumnDatesOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Column");
 
@@ -1923,7 +1921,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Next Column and after invoking the Next Column.
-        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
+        SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
         GetColumnDatesOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Column");
 
@@ -2119,7 +2117,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostJournalLineAmount := PostCostJournalLine(CostType."No.", CostCenter.Code, '', CostJournaLinePostingDate);
         CostTypeBalanceAmount :=
           OpenCostTypeBalancePage(
-            CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), CostCenter.Code, '', CostType."No.",
+            CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), CostCenter.Code, '', CostType."No.",
             ColoumnNo);
 
         // Verify: Verify Posted Amount with the value in the Matrix form.
@@ -2159,7 +2157,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostJournalLineAmount := PostCostJournalLine(CostType."No.", '', CostObject.Code, CostJournaLinePostingDate);
         CostTypeBalanceAmount :=
           OpenCostTypeBalancePage(
-            CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', CostObject.Code, CostType."No.",
+            CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), '', CostObject.Code, CostType."No.",
             ColoumnNo);
 
         // Verify: Verify Posted Amount with the value in the Matrix form.
@@ -2187,12 +2185,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Week), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Week), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy week filter.
         ActualDate := WorkDate;
         for i := 1 to 12 do begin
-            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, PeriodType::Week, ActualDate, i);
+            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Week, ActualDate, i);
             ActualDate := CalcDate('<1W>', ActualDate);
         end;
 
@@ -2216,12 +2214,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Month), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Month), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Month filter.
         ActualDate := WorkDate;
         for i := 1 to 12 do begin
-            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, PeriodType::Month, ActualDate, i);
+            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Month, ActualDate, i);
             ActualDate := CalcDate('<1M>', ActualDate);
         end;
 
@@ -2245,12 +2243,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Year), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Year), Format("Analysis Amount Type"::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Year filter.
         ActualDate := WorkDate;
         for i := 1 to 12 do begin
-            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, PeriodType::Year, ActualDate, i);
+            VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage, "Analysis Period Type"::Year, ActualDate, i);
             ActualDate := CalcDate('<1Y>', ActualDate);
         end;
 
@@ -2275,7 +2273,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Next Column action.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Column");
 
@@ -2304,7 +2302,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Next Set action.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Set");
 
         // Verify: Verify caption value of column on invoking Next Set Action.
@@ -2332,7 +2330,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Previous Set action.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Set");
 
@@ -2361,7 +2359,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Previous Column action.
         CostTypeBalancePage.OpenEdit();
-        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
+        SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format("Analysis Period Type"::Day), Format("Analysis Amount Type"::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Column");
 
@@ -2450,7 +2448,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
+        LibraryLowerPermissions.AddCostAccountingSetup();
         LibraryLowerPermissions.AddCostAccountingEdit();
         CostAccountingSetup.Get();
         OldAlignmentValue := CostAccountingSetup."Align G/L Account";
@@ -2458,14 +2456,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
 
-        LibraryLowerPermissions.AddO365BusFull;
+        LibraryLowerPermissions.AddO365BusFull();
         // Exercise: Invoking Get Cost Types form Chart of Accounts Action and set filters on Chart of Cost Type Page.
         ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.GetCostTypesFromChartOfAccounts.Invoke;
         ChartOfCostTypePage.FILTER.SetFilter("No.", GLAccount."No.");
 
         LibraryLowerPermissions.SetCostAccountingView();
-        LibraryLowerPermissions.AddCostAccountingSetup;
+        LibraryLowerPermissions.AddCostAccountingSetup();
         // Verify: To check that created G/L Account is extracted to Chart of Cost Tyep Page on invoking Chart of Account Action.
         ChartOfCostTypePage."No.".AssertEquals(GLAccount."No.");
 
@@ -2564,7 +2562,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
+        LibraryLowerPermissions.AddCostAccountingSetup();
         LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
@@ -2606,7 +2604,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
+        LibraryLowerPermissions.AddCostAccountingSetup();
         LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfId::"Auto Generated");
         LibraryCostAccounting.CreateAllocTarget(
@@ -2856,16 +2854,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Clear(ActionFilter);
     end;
 
-    local procedure CostTypeBalanceWithRoundingFactor(CurrentValue: Decimal; SelectedRoundingFactor: Option) RoundedValue: Decimal
+    local procedure CostTypeBalanceWithRoundingFactor(CurrentValue: Decimal; SelectedRoundingFactor: Enum "Analysis Rounding Factor") RoundedValue: Decimal
     begin
         case SelectedRoundingFactor of
-            RoundingFactor::None:
+            "Analysis Rounding Factor"::None:
                 RoundedValue := CurrentValue;
-            RoundingFactor::"1":
+            "Analysis Rounding Factor"::"1":
                 RoundedValue := Round(CurrentValue, 1);
-            RoundingFactor::"1000":
+            "Analysis Rounding Factor"::"1000":
                 RoundedValue := Round(CurrentValue / 1000, 0.1);
-            RoundingFactor::"1000000":
+            "Analysis Rounding Factor"::"1000000":
                 RoundedValue := Round(CurrentValue / 1000000, 0.1);
         end;
     end;
@@ -3249,7 +3247,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     begin
         CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName, CostCenterFilter,
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName, CostCenterFilter,
           CostObjectFilter);
         CostBudgetPerPeriodPage.MatrixForm.FILTER.SetFilter("No.", CostTypeNo);
     end;
@@ -3341,7 +3339,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetEntry.Modify(true);
     end;
 
-    local procedure UpdateCostTypeBalanceFilters(var CostTypeBalance: TestPage "Cost Type Balance"; CostCenterFilter: Code[20]; CostObjectFilter: Code[20]; PeriodType: Option; AmountType: Option; RoundingFactor: Option)
+    local procedure UpdateCostTypeBalanceFilters(var CostTypeBalance: TestPage "Cost Type Balance"; CostCenterFilter: Code[20]; CostObjectFilter: Code[20]; PeriodType: Enum "Analysis Period Type"; AmountType: Enum "Analysis Amount Type"; RoundingFactor: Enum "Analysis Rounding Factor")
     begin
         CostTypeBalance.CostCenterFilter.SetValue(CostCenterFilter);
         CostTypeBalance.CostObjectFilter.SetValue(CostObjectFilter);
@@ -3350,7 +3348,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalance.RoundingFactor.SetValue(RoundingFactor);
     end;
 
-    local procedure ValidateCostTypeBalanceAmountType(AmountType: Option)
+    local procedure ValidateCostTypeBalanceAmountType(AmountType: Enum "Analysis Amount Type")
     var
         BalCostType: Record "Cost Type";
         CostType: Record "Cost Type";
@@ -3367,7 +3365,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Exercise
         CostTypeBalance.OpenEdit();
         CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
-        UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', PeriodType::Day, AmountType, RoundingFactor::None);
+        UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', "Analysis Period Type"::Day, AmountType, "Analysis Rounding Factor"::None);
 
         // Verify
         CostTypeBalance.MatrixForm.GotoRecord(CostType);
@@ -3505,7 +3503,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetAmount: Text;
     begin
         SetFieldsOnCostBudgetPerPeriodPage(
-          CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName,
+          CostBudgetPerPeriodPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), CostBudgetName,
           CostBudgetEntry."Cost Center Code", '');
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostBudgetEntry."Cost Type No.");
         Assert.AreEqual(Amount, CostBudgetAmount,
@@ -3604,7 +3602,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
             Error(NextSetNotAvailableError);
     end;
 
-    local procedure VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage: TestPage "Cost Type Balance"; Period: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Date: Date; Counter: Integer)
+    local procedure VerifyFiltersOnCostTypeBalanceByViewMatrixPage(CostTypeBalancePage: TestPage "Cost Type Balance"; Period: Enum "Analysis Period Type"; Date: Date; Counter: Integer)
     var
         ColumnDate: Text[30];
         ColumnCaption: Text[30];
@@ -3614,24 +3612,24 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreEqual(ColumnDate, ColumnCaption, InvalidColumnCaptionError);
     end;
 
-    local procedure CreatePeriodFormat(PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Date: Date): Text[30]
+    local procedure CreatePeriodFormat(PeriodType: Enum "Analysis Period Type"; Date: Date): Text[30]
     begin
         case PeriodType of
-            PeriodType::Day:
+            "Analysis Period Type"::Day:
                 exit(Format(Date));
-            PeriodType::Week:
+            "Analysis Period Type"::Week:
                 begin
                     if Date2DWY(Date, 2) = 1 then
                         Date := Date + 7 - Date2DWY(Date, 1);
                     exit(Format(Date, 0, '<Week>.<Year4>'));
                 end;
-            PeriodType::Month:
+            "Analysis Period Type"::Month:
                 exit(Format(Date, 0, '<Month Text,3> <Year4>'));
-            PeriodType::Quarter:
+            "Analysis Period Type"::Quarter:
                 exit(Format(Date, 0, '<Quarter>/<Year4>'));
-            PeriodType::Year:
+            "Analysis Period Type"::Year:
                 exit(Format(Date, 0, '<Year4>'));
-            PeriodType::"Accounting Period":
+            "Analysis Period Type"::"Accounting Period":
                 exit(Format(Date));
         end;
     end;

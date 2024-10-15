@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11744 "Cash Desk List"
 {
     ApplicationArea = Basic, Suite;
@@ -284,4 +285,4 @@ page 11744 "Cash Desk List"
     var
         CashDeskMgt: Codeunit CashDeskManagement;
 }
-
+#endif

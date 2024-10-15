@@ -2,10 +2,17 @@ table 11710 "Issued Payment Order Header"
 {
     Caption = 'Issued Payment Order Header';
     DataCaptionFields = "No.", "Bank Account No.", "Bank Account Name";
+#if not CLEAN19
     DrillDownPageID = "Issued Payment Order List";
     LookupPageID = "Issued Payment Order List";
     Permissions = TableData "Issued Payment Order Header" = m,
                   TableData "Issued Payment Order Line" = md;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -24,11 +31,15 @@ table 11710 "Issued Payment Order Header"
             Caption = 'Bank Account No.';
             Editable = true;
             NotBlank = true;
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -52,9 +63,10 @@ table 11710 "Issued Payment Order Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
         }
+#if not CLEAN19
         field(9; Amount; Decimal)
         {
-            CalcFormula = Sum ("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
                                                                         Status = CONST(" ")));
             Caption = 'Amount';
             Editable = false;
@@ -62,7 +74,7 @@ table 11710 "Issued Payment Order Header"
         }
         field(10; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
                                                                                 Status = CONST(" ")));
             Caption = 'Amount (LCY)';
             Editable = false;
@@ -70,7 +82,7 @@ table 11710 "Issued Payment Order Header"
         }
         field(11; Debit; Decimal)
         {
-            CalcFormula = Sum ("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
                                                                         Positive = CONST(true),
                                                                         Status = CONST(" ")));
             Caption = 'Debit';
@@ -79,7 +91,7 @@ table 11710 "Issued Payment Order Header"
         }
         field(12; "Debit (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
                                                                                 Positive = CONST(true),
                                                                                 Status = CONST(" ")));
             Caption = 'Debit (LCY)';
@@ -88,7 +100,7 @@ table 11710 "Issued Payment Order Header"
         }
         field(13; Credit; Decimal)
         {
-            CalcFormula = - Sum ("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = - Sum("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
                                                                          Positive = CONST(false),
                                                                          Status = CONST(" ")));
             Caption = 'Credit';
@@ -97,7 +109,7 @@ table 11710 "Issued Payment Order Header"
         }
         field(14; "Credit (LCY)"; Decimal)
         {
-            CalcFormula = - Sum ("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
+            CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Payment Order No." = FIELD("No."),
                                                                                  Positive = CONST(false),
                                                                                  Status = CONST(" ")));
             Caption = 'Credit (LCY)';
@@ -106,11 +118,12 @@ table 11710 "Issued Payment Order Header"
         }
         field(15; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Issued Payment Order Line" WHERE("Payment Order No." = FIELD("No.")));
+            CalcFormula = Count("Issued Payment Order Line" WHERE("Payment Order No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -197,6 +210,7 @@ table 11710 "Issued Payment Order Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -216,6 +230,7 @@ table 11710 "Issued Payment Order Header"
         NothingToExportErr: Label 'There is nothing to export.';
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
@@ -225,6 +240,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PrintDomesticPmtOrd(ShowRequestForm: Boolean)
     var
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
@@ -238,6 +254,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure PrintForeignPmtOrd(ShowRequestForm: Boolean)
     var
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
@@ -251,6 +268,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure Navigate()
     var
         NavigatePage: Page Navigate;
@@ -260,6 +278,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure IncreaseNoExported()
     begin
         "No. exported" += 1;
@@ -267,6 +286,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ExportPmtOrd()
     var
         IssuedPmtOrdLn: Record "Issued Payment Order Line";
@@ -274,7 +294,7 @@ table 11710 "Issued Payment Order Header"
         CodeunitID: Integer;
     begin
         OnBeforeExportPmtOrd(Rec);
-        
+
         IssuedPmtOrdLn.SetRange("Payment Order No.", "No.");
         if IssuedPmtOrdLn.IsEmpty() then
             Error(NothingToExportErr);
@@ -295,6 +315,7 @@ table 11710 "Issued Payment Order Header"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CreatePmtJnl(JnlTemplateName: Code[10]; JnlBatchName: Code[10])
     var
         IssuedPmtOrdLn: Record "Issued Payment Order Line";
@@ -335,7 +356,9 @@ table 11710 "Issued Payment Order Header"
 
                 GenJnlLn."Posting Date" := "Document Date";
                 GenJnlLn."Document Date" := "Document Date";
+#if not CLEAN17
                 GenJnlLn."VAT Date" := "Document Date";
+#endif
 
                 case IssuedPmtOrdLn.Type of
                     IssuedPmtOrdLn.Type::Vendor,
@@ -365,15 +388,16 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn."Variable Symbol" := IssuedPmtOrdLn."Variable Symbol";
                 GenJnlLn."Constant Symbol" := IssuedPmtOrdLn."Constant Symbol";
                 GenJnlLn."Specific Symbol" := IssuedPmtOrdLn."Specific Symbol";
-                GenJnlLn.Modify();
 #endif
+                GenJnlLn.Modify();
             until IssuedPmtOrdLn.Next() = 0;
         end;
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportPmtOrd(var IssuedPaymentOrderHeader: record "Issued Payment Order Header")
     begin
     end;
+#endif
 }
-

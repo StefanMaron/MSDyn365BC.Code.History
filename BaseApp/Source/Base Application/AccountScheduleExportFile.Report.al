@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31080 "Account Schedule Export File"
 {
     Caption = 'Account Schedule Export File (Obsolete)';
@@ -517,4 +518,4 @@ report 31080 "Account Schedule Export File"
         DoUpdateExistingWorksheet := UpdateExistingWorksheet;
     end;
 }
-
+#endif

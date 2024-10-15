@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31015 "Sales Advance Letter Entries"
 {
-    Caption = 'Sales Advance Letter Entries';
+    Caption = 'Sales Advance Letter Entries (Obsolete)';
     DataCaptionExpression = GetCaption;
     Editable = false;
     PageType = List;
     SourceTable = "Sales Advance Letter Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -204,4 +208,4 @@ page 31015 "Sales Advance Letter Entries"
         exit(StrSubstNo(CaptionTxt, EntryType, CurrDocNo));
     end;
 }
-
+#endif

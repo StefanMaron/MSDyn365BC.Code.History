@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11703 "Issue Bank Statement (Yes/No)"
 {
     TableNo = "Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -33,4 +37,4 @@ codeunit 11703 "Issue Bank Statement (Yes/No)"
         end;
     end;
 }
-
+#endif

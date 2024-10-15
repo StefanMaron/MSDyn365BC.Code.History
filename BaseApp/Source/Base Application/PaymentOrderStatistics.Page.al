@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 11720 "Payment Order Statistics"
 {
-    Caption = 'Payment Order Statistics';
+    Caption = 'Payment Order Statistics (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Card;
     SourceTable = "Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -57,4 +61,4 @@ page 11720 "Payment Order Statistics"
         EndBalance: Decimal;
         BegBalance: Decimal;
 }
-
+#endif

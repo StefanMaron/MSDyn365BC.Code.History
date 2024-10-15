@@ -29,15 +29,45 @@ table 5404 "Item Unit of Measure"
             InitValue = 1;
 
             trigger OnValidate()
+            var
+                BaseItemUoM: Record "Item Unit of Measure";
             begin
                 if "Qty. per Unit of Measure" <= 0 then
                     FieldError("Qty. per Unit of Measure", Text000);
                 if xRec."Qty. per Unit of Measure" <> "Qty. per Unit of Measure" then
-                    CheckNoEntriesWithUoM;
+                    CheckNoEntriesWithUoM();
                 Item.Get("Item No.");
                 if Item."Base Unit of Measure" = Code then
-                    TestField("Qty. per Unit of Measure", 1);
+                    TestField("Qty. per Unit of Measure", 1)
+                else
+                    if BaseItemUoM.Get(Rec."Item No.", Item."Base Unit of Measure") then
+                        CheckQtyPerUoMPrecision(Rec, BaseItemUoM."Qty. Rounding Precision");
                 CalcWeight;
+            end;
+        }
+        field(4; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+
+            trigger OnValidate()
+            var
+                ItemUoM: Record "Item Unit of Measure";
+            begin
+                if xRec."Qty. Rounding Precision" <> "Qty. Rounding Precision" then begin
+                    CheckNoEntriesWithUoM();
+                    Item.Get(Rec."Item No.");
+                    ItemUoM.SetFilter("Item No.", Rec."Item No.");
+                    ItemUoM.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
+                    if (ItemUoM.FindSet()) then
+                        repeat
+                            CheckQtyPerUoMPrecision(ItemUoM, Rec."Qty. Rounding Precision");
+                        until (ItemUoM.Next() = 0);
+                    Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPercisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", "Item No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
+                end;
             end;
         }
         field(7300; Length; Decimal)
@@ -88,7 +118,11 @@ table 5404 "Item Unit of Measure"
         field(31060; "Intrastat Default"; Boolean)
         {
             Caption = 'Intrastat Default';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '18.0';
         }
@@ -125,7 +159,7 @@ table 5404 "Item Unit of Measure"
     trigger OnDelete()
     begin
         TestItemUOM;
-        CheckNoEntriesWithUoM;
+        CheckNoEntriesWithUoM();
     end;
 
     trigger OnRename()
@@ -143,6 +177,9 @@ table 5404 "Item Unit of Measure"
         CannotModifyPutAwayUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s put-away unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
         CannotModifyUnitOfMeasureErr: Label 'You cannot modify %1 %2 for item %3 because non-zero %5 with %2 exists in %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Entry Table Name, %5 Field Caption';
         CannotModifyUOMWithWhseEntriesErr: Label 'You cannot modify %1 %2 for item %3 because there are one or more warehouse adjustment entries for the item.', Comment = '%1 = Item Unit of Measure %2 = Code %3 = Item No.';
+        QtyPerUoMRoundPrecisionNotAlignedErr: Label 'The quantity per unit of measure %1 for item %2 does not align with the quantity rounding precision %3 for the current base unit of measure.', Comment = '%1 = Qty. per Unit of Measure value, %2 = Item Code, %3 = Qty. Rounding Precision value';
+        UoMLoggingTelemetryCategoryTxt: Label 'AL UoM Logging.', Locked = true;
+        UoMQtyRoundingPercisionChangedTxt: Label 'Base UoM Qty. Rounding Precision changed from %1 to %2, for item: %3.', Locked = true;
 
     local procedure CalcCubage()
     var
@@ -358,6 +395,16 @@ table 5404 "Item Unit of Measure"
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption, xRec.Code, "Item No.",
               AssemblyLine.TableCaption, AssemblyLine.FieldCaption("Remaining Quantity"));
+    end;
+
+    local procedure CheckQtyPerUoMPrecision(ItemUoM: Record "Item Unit of Measure"; BaseRoundingPrecision: Decimal)
+    begin
+        if BaseRoundingPrecision <> 0 then
+            if ItemUoM."Qty. per Unit of Measure" MOD BaseRoundingPrecision <> 0 then
+                Error(QtyPerUoMRoundPrecisionNotAlignedErr,
+                    ItemUoM."Qty. per Unit of Measure",
+                    ItemUoM.Code,
+                    BaseRoundingPrecision);
     end;
 
     [IntegrationEvent(false, false)]

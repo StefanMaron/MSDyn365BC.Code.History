@@ -1,8 +1,12 @@
+#if not CLEAN19
 codeunit 11706 "Issue Payment Order"
 {
     Permissions = TableData "Issued Payment Order Header" = im,
                   TableData "Issued Payment Order Line" = im;
     TableNo = "Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -69,10 +73,12 @@ codeunit 11706 "Issue Payment Order"
                     IssuedPmtOrdLn.Init();
                     IssuedPmtOrdLn.TransferFields(PmtOrdLn);
                     IssuedPmtOrdLn."Payment Order No." := IssuedPmtOrdHdr."No.";
+#if not CLEAN17
                     PmtOrdLn.CalcFields("Third Party Bank Account");
                     if PmtOrdLn.Type <> PmtOrdLn.Type::Vendor then
                         Clear(PmtOrdLn."Third Party Bank Account");
                     IssuedPmtOrdLn."Third Party Bank Account" := PmtOrdLn."Third Party Bank Account";
+#endif
                     OnBeforeIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);
                     IssuedPmtOrdLn.Insert();
                     OnAfterIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);
@@ -207,4 +213,4 @@ codeunit 11706 "Issue Payment Order"
     begin
     end;
 }
-
+#endif

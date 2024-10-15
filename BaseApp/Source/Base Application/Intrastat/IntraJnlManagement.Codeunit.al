@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 350 IntraJnlManagement
 {
     Permissions = TableData "Intrastat Jnl. Template" = imd,
@@ -71,7 +72,9 @@ codeunit 350 IntraJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, IntrastatJnlLine);
         IntrastatJnlLine.CheckIntrastatJnlLineUserRestriction; // NAVCZ
+
         CheckTemplateName(IntrastatJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         IntrastatJnlLine.FilterGroup(2);
         IntrastatJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -324,5 +327,11 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
         if AdvancedIntrastatChecklist.Insert() then;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+    end;
 }
 
+#endif

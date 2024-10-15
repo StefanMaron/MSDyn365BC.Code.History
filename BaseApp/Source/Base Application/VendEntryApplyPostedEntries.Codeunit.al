@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 227 "VendEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
@@ -106,10 +107,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             GenJnlLine."Original Document VAT Date" := GenJnlLine."Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
             GenJnlLine."Account No." := "Vendor No.";
             CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
@@ -326,10 +329,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             VendLedgEntry.Get("Vendor Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := PostingDate;
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
             GenJnlLine."Original Document VAT Date" := GenJnlLine."VAT Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
             GenJnlLine."Account No." := "Vendor No.";
             GenJnlLine.Correction := true;
@@ -499,6 +504,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure GetPrepmtApplTransNo(VendLedgEntryNo: Integer; var TransactionNo: Integer)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -664,3 +670,4 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 }
 
+#endif

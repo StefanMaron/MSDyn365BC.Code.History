@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 11768 "Posting Group Management"
 {
     ObsoleteState = Pending;
@@ -34,8 +35,10 @@ codeunit 11768 "Posting Group Management"
                 CheckPostingGroupChangeInServiceHeader(NewPostingGroup, OldPostingGroup);
             DATABASE::"Bank Acc. Reconciliation Line":
                 CheckPostingGroupChangeInBankAccReconLine(NewPostingGroup, OldPostingGroup, Variant);
+#if not CLEAN17
             DATABASE::"Cash Document Line":
                 CheckPostingGroupChangeInCashDocLine(NewPostingGroup, OldPostingGroup, Variant);
+#endif
             DATABASE::"Sales Advance Letter Header":
                 CheckPostingGroupChangeInSalesAdvLetterHeader(NewPostingGroup, OldPostingGroup);
             DATABASE::"Purch. Advance Letter Header":
@@ -104,6 +107,7 @@ codeunit 11768 "Posting Group Management"
             end;
     end;
 
+#if not CLEAN17
     local procedure CheckPostingGroupChangeInCashDocLine(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CashDocumentLine: Record "Cash Document Line")
     begin
         with CashDocumentLine do
@@ -115,6 +119,7 @@ codeunit 11768 "Posting Group Management"
             end;
     end;
 
+#endif
     local procedure CheckPostingGroupChangeInSalesAdvLetterHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
     begin
         CheckCustomerPostingGroupChange(NewPostingGroup, OldPostingGroup);
@@ -233,3 +238,5 @@ codeunit 11768 "Posting Group Management"
     end;
 }
 
+
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 20 "General Ledger Entries"
 {
     AdditionalSearchTerms = 'g/l transactions';
@@ -27,6 +28,7 @@ page 20 "General Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -37,6 +39,7 @@ page 20 "General Ledger Entries"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -128,7 +131,6 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the Amount of the entry.';
                     Visible = AmountVisible;
                 }
-#if not CLEAN19
                 field("Applied Amount"; "Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -161,7 +163,6 @@ page 20 "General Ledger Entries"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#endif
                 field("Debit Amount"; "Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -221,6 +222,20 @@ page 20 "General Ledger Entries"
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
+                    Visible = false;
+                }
+                field("Source Type"; "Source Type")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
+                    Visible = false;
+                }
+                field("Source No."; "Source No.")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
@@ -479,7 +494,6 @@ page 20 "General Ledger Entries"
                         ShowValueEntries;
                     end;
                 }
-#if not CLEAN19
                 action("Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -493,7 +507,6 @@ page 20 "General Ledger Entries"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#endif
             }
         }
         area(processing)
@@ -525,7 +538,6 @@ page 20 "General Ledger Entries"
                         ReversalEntry.ReverseTransaction("Transaction No.")
                     end;
                 }
-#if not CLEAN19
                 action("Apply Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -563,7 +575,6 @@ page 20 "General Ledger Entries"
                         GLEntryPostApplication.UnApplyGLEntry("Entry No."); // NAVCZ
                     end;
                 }
-#endif
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';
@@ -763,3 +774,4 @@ page 20 "General Ledger Entries"
     end;
 }
 
+#endif

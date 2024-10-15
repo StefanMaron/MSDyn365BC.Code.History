@@ -40,6 +40,7 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT entry''s posting date.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -58,6 +59,7 @@ page 123 "VAT Entries Preview"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -84,12 +86,17 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the VAT entry.';
                 }
+#if not CLEAN19
                 field("Advance Base"; "Advance Base")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance base of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field(Base; Base)
                 {
                     ApplicationArea = Basic, Suite;
@@ -100,12 +107,17 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
                 }
+#if not CLEAN19
                 field("Advance Exch. Rate Difference"; "Advance Exch. Rate Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance exchange rate difference of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("VAT Difference"; "VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -186,6 +198,7 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -195,6 +208,7 @@ page 123 "VAT Entries Preview"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
@@ -234,6 +248,7 @@ page 123 "VAT Entries Preview"
                     ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("VAT Settlement No."; "VAT Settlement No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -252,6 +267,7 @@ page 123 "VAT Entries Preview"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
     }

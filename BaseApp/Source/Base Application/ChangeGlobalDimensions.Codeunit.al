@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 483 "Change Global Dimensions"
 {
     Permissions = TableData "G/L Entry" = rm,
@@ -75,16 +76,22 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Return Shipment Line" = rm,
                   TableData "Return Receipt Header" = rm,
                   TableData "Return Receipt Line" = rm,
+#if not CLEAN17
                   TableData "Cash Document Header" = rm,
                   TableData "Cash Document Line" = rm,
                   TableData "Posted Cash Document Header" = rm,
                   TableData "Posted Cash Document Line" = rm,
+#endif
                   TableData "Sales Advance Letter Header" = rm,
                   TableData "Sales Advance Letter Line" = rm,
                   TableData "Purch. Advance Letter Header" = rm,
+#if CLEAN18
+                  TableData "Purch. Advance Letter Line" = rm;
+#else
                   TableData "Purch. Advance Letter Line" = rm,
                   TableData "Credit Line" = rm,
                   TableData "Posted Credit Line" = rm;
+#endif
     TableNo = "Change Global Dim. Log Entry";
 
     trigger OnRun()
@@ -829,3 +836,4 @@ codeunit 483 "Change Global Dimensions"
 
 }
 
+#endif

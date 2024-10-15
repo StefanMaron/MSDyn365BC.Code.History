@@ -1,6 +1,13 @@
 table 31027 "VAT Amount Line Adv. Payment"
 {
     Caption = 'VAT Amount Line Adv. Payment';
+#if not CLEAN19
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -79,6 +86,7 @@ table 31027 "VAT Amount Line Adv. Payment"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     [Scope('OnPrem')]
     procedure InsertLine()
@@ -98,5 +106,6 @@ table 31027 "VAT Amount Line Adv. Payment"
             end;
         end;
     end;
+#endif
 }
 

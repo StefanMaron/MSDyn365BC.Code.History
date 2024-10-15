@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 11708 "Issued Bank Statement - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './IssuedBankStatementTest.rdlc';
-    Caption = 'Issued Bank Statement - Test';
+    Caption = 'Issued Bank Statement - Test (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -122,3 +126,4 @@ report 11708 "Issued Bank Statement - Test"
         NotFirst: Boolean;
 }
 
+#endif

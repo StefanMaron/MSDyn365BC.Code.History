@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 1720 "Deferral Utilities"
 {
 
@@ -1007,3 +1008,4 @@ codeunit 1720 "Deferral Utilities"
     end;
 }
 
+#endif

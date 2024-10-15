@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11787 "Vendor - Bal. Reconciliation"
 {
     DefaultLayout = RDLC;
@@ -709,3 +710,5 @@ report 11787 "Vendor - Bal. Reconciliation"
     end;
 }
 
+
+#endif

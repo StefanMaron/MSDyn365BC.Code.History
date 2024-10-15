@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31075 "Quantity Shipped Check"
 {
     DefaultLayout = RDLC;
@@ -316,3 +317,5 @@ report 31075 "Quantity Shipped Check"
         Return_Receipt_Line__Return_Order_Line_No__CaptionLbl: Label 'Order Line No.';
 }
 
+
+#endif

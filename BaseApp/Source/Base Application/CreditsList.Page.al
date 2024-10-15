@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31052 "Credits List"
 {
     ApplicationArea = Basic, Suite;
@@ -168,4 +169,4 @@ page 31052 "Credits List"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
     end;
 }
-
+#endif

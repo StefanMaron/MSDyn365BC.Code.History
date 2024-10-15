@@ -82,9 +82,11 @@ report 31047 "FA Disposal Report"
             column(CompanyInfo__Registration_No__; CompanyInfo."Registration No.")
             {
             }
+#if not CLEAN17            
             column(CompanyInfo__Tax_Registration_No__; CompanyInfo."Tax Registration No.")
             {
             }
+#endif
             column(Employee_FullNameCaption; Employee_FullNameCaptionLbl)
             {
             }
@@ -325,6 +327,7 @@ report 31047 "FA Disposal Report"
                         ApplicationArea = Basic, Suite;
                         Caption = '1. Persona';
                         ToolTip = 'Specifies an employee name from the Company Officials table. Each persona will print on the report with a corresponding signature line for authorization.';
+#if not CLEAN17
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
@@ -332,12 +335,14 @@ report 31047 "FA Disposal Report"
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[1] := CompanyOfficials.FullName;
                         end;
+#endif
                     }
                     field("Member[2]"; Member[2])
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = '2. Persona';
                         ToolTip = 'Specifies an employee name from the Company Officials table. Each persona will print on the report with a corresponding signature line for authorization.';
+#if not CLEAN17
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
@@ -345,6 +350,7 @@ report 31047 "FA Disposal Report"
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[2] := CompanyOfficials.FullName;
                         end;
+#endif
                     }
                 }
             }
@@ -381,7 +387,9 @@ report 31047 "FA Disposal Report"
     end;
 
     var
+#if not CLEAN17
         CompanyOfficials: Record "Company Officials";
+#endif
         CompanyInfo: Record "Company Information";
         Location: Record Location;
         FALocation: Record "FA Location";

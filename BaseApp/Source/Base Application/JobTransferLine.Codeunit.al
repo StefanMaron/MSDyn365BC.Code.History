@@ -77,6 +77,7 @@ codeunit 1004 "Job Transfer Line"
         JobLedgEntry."Unit Price" := JobJnlLine2."Unit Price";
 
         JobLedgEntry."Line Discount %" := JobJnlLine2."Line Discount %";
+#if not CLEAN18
         // NAVCZ
         JobLedgEntry."Shipment Method Code" := JobJnlLine2."Shipment Method Code";
         JobLedgEntry."Tariff No." := JobJnlLine2."Tariff No.";
@@ -86,6 +87,7 @@ codeunit 1004 "Job Transfer Line"
         JobLedgEntry."Intrastat Transaction" := JobJnlLine2."Intrastat Transaction";
         JobLedgEntry.Correction := JobJnlLine2.Correction;
         // NAVCZ
+#endif
 
         OnAfterFromJnlLineToLedgEntry(JobLedgEntry, JobJnlLine2);
     end;
@@ -207,15 +209,19 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Entry/Exit Point" := SalesLine."Exit Point";
         JobJnlLine.Area := SalesLine.Area;
         JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
+#if not CLEAN18
         // NAVCZ
         JobJnlLine."Shipment Method Code" := SalesHeader."Shipment Method Code";
+#if not CLEAN17
         JobJnlLine."Tariff No." := SalesLine."Tariff No.";
         JobJnlLine."Statistic Indication" := SalesLine."Statistic Indication";
+#endif
         JobJnlLine."Net Weight" := SalesLine."Net Weight";
         JobJnlLine."Country/Region of Origin Code" := SalesLine."Country/Region of Origin Code";
         JobJnlLine."Intrastat Transaction" := SalesHeader.IsIntrastatTransaction;
         JobJnlLine.CheckIntrastat;
         // NAVCZ
+#endif
 
         JobJnlLine."Shortcut Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
         JobJnlLine."Shortcut Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
@@ -237,8 +243,9 @@ codeunit 1004 "Job Transfer Line"
         end else
             ValidateUnitCostAndPrice(JobJnlLine, SalesLine, SalesLine."Unit Cost", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", SalesLine."Line Discount %");
+#if not CLEAN18
         UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
-
+#endif
         OnAfterFromPlanningSalesLineToJnlLine(JobJnlLine, JobPlanningLine, SalesHeader, SalesLine, EntryType);
     end;
 
@@ -314,8 +321,9 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
         JobJnlLine.Validate("Unit Price", JobPlanningLine."Unit Price");
         JobJnlLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
+#if not CLEAN18
         UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
-
+#endif
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
         JobJnlLine.UpdateDimensions;
@@ -384,7 +392,9 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Line Discount Amount" := GenJnlLine."Job Line Discount Amount";
 
         JobJnlLine."Line Discount %" := GenJnlLine."Job Line Discount %";
+#if not CLEAN18
         UpdateCorrectionIfNegQty(JobJnlLine); // NAVCZ
+#endif
 
         OnAfterFromGenJnlLineToJnlLine(JobJnlLine, GenJnlLine);
     end;
@@ -617,12 +627,18 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine.Area := Area;
             JobJnlLine."Country/Region Code" := PurchHeader."VAT Country/Region Code";
             JobJnlLine."Transaction Specification" := "Transaction Specification";
+#if not CLEAN18
             JobJnlLine."Shipment Method Code" := PurchHeader."Shipment Method Code";
+#endif
+#if not CLEAN17
             JobJnlLine."Tariff No." := "Tariff No.";
             JobJnlLine."Statistic Indication" := "Statistic Indication";
+#endif
+#if not CLEAN18
             JobJnlLine."Net Weight" := "Net Weight";
             JobJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
             UpdateCorrectionIfNegQty(JobJnlLine);
+#endif
             // NAVCZ
         end;
 
@@ -688,6 +704,7 @@ codeunit 1004 "Job Transfer Line"
         JobJournalLine.Validate("Unit Price", UnitPrice);
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure UpdateCorrectionIfNegQty(JobJnlLine: Record "Job Journal Line")
@@ -700,6 +717,7 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine.Correction := JobJnlLine.Quantity < 0;
     end;
 
+#endif
     local procedure UpdateBaseQtyForPurchLine(var Item: Record Item; PurchLine: Record "Purchase Line"): Boolean
     begin
         if PurchLine.Type = PurchLine.Type::Item then begin

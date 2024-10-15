@@ -10,7 +10,9 @@ permissionset 505 "Fixed Assets Journals - Edit"
                   tabledata Customer = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
+#if not CLEAN18
                   tabledata "Depreciation Group" = R,
+#endif
                   tabledata "Depreciation Table Header" = R,
                   tabledata "Depreciation Table Line" = R,
                   tabledata "FA Allocation" = R,
@@ -18,8 +20,8 @@ permissionset 505 "Fixed Assets Journals - Edit"
                   tabledata "FA Depreciation Book" = R,
 #if not CLEAN18
                   tabledata "FA Extended Posting Group" = R,
-#endif
                   tabledata "FA History Entry" = Rim,
+#endif
                   tabledata "FA Journal Batch" = RI,
                   tabledata "FA Journal Line" = RIMD,
                   tabledata "FA Journal Setup" = R,

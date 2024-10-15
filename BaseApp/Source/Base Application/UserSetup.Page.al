@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 119 "User Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -40,6 +41,7 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post to the company.';
                 }
+#if not CLEAN17
                 field("Allow VAT Posting From"; "Allow VAT Posting From")
                 {
                     ApplicationArea = Basic, Suite;
@@ -58,6 +60,7 @@ page 119 "User Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Register Time"; "Register Time")
                 {
                     ApplicationArea = Basic, Suite;
@@ -99,6 +102,7 @@ page 119 "User Setup"
                     ObsoleteTag = '18.0';
                 }
 #endif
+#if not CLEAN17
                 field("Cash Resp. Ctr. Filter"; "Cash Resp. Ctr. Filter")
                 {
                     ApplicationArea = Basic, Suite;
@@ -108,15 +112,24 @@ page 119 "User Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Check Payment Orders"; "Check Payment Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check payment orders allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Check Bank Statements"; "Check Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check Bank Statemsnts allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
 #if not CLEAN18
                 field("Check Document Date(work date)"; "Check Document Date(work date)")
@@ -266,13 +279,16 @@ page 119 "User Setup"
 
     actions
     {
-#if not CLEAN18
         area(navigation)
         {
             group("U&ser Check")
             {
                 Caption = 'U&ser Check';
                 Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
+#if not CLEAN18
                 action(Card)
                 {
                     ApplicationArea = Basic, Suite;
@@ -319,6 +335,7 @@ page 119 "User Setup"
                         UserSetupAdvMgt.SelectDimensionsToCheck(Rec); // NAVCZ
                     end;
                 }
+#endif
             }
         }
 
@@ -328,6 +345,10 @@ page 119 "User Setup"
             {
                 Caption = 'F&unctions';
                 Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
+#if not CLEAN18
                 action("Copy User Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -349,10 +370,12 @@ page 119 "User Setup"
                         CopyUserSetup.RunModal;
                     end;
                 }
+#endif
             }
         }
         area(reporting)
         {
+#if not CLEAN18
             action("Pr&int")
             {
                 ApplicationArea = Basic, Suite;
@@ -379,8 +402,8 @@ page 119 "User Setup"
                     // NAVCZ
                 end;
             }
-        }
 #endif
+        }
     }
 
     trigger OnOpenPage()
@@ -389,3 +412,4 @@ page 119 "User Setup"
     end;
 }
 
+#endif

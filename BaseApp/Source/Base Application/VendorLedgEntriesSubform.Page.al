@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31056 "Vendor Ledg. Entries Subform"
 {
     Caption = 'Vendor Ledger Entries';
@@ -276,6 +277,9 @@ page 31056 "Vendor Ledg. Entries Subform"
     {
         area(processing)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '18.0';
             action(Mark)
             {
                 ApplicationArea = Basic, Suite;
@@ -344,4 +348,4 @@ page 31056 "Vendor Ledg. Entries Subform"
         CurrPage.Update(false);
     end;
 }
-
+#endif

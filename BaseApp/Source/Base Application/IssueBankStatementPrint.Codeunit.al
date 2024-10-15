@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11704 "Issue Bank Statement + Print"
 {
     TableNo = "Bank Statement Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -37,4 +41,4 @@ codeunit 11704 "Issue Bank Statement + Print"
         IssuedBankStmtHdr.PrintRecords(false);
     end;
 }
-
+#endif

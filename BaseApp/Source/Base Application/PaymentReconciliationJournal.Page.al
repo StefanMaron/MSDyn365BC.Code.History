@@ -70,16 +70,25 @@ page 1290 "Payment Reconciliation Journal"
                         CurrPage.Update(false)
                     end;
                 }
+#if not CLEAN19
                 field("Statement Amount (LCY)"; "Statement Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transaction Amount (LCY)';
                     ToolTip = 'Specifies transaction amount (LCY) of payment reconciliation journal';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Currency Code"; "Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency of amounts on the document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAssistEdit()
                     var
@@ -95,17 +104,23 @@ page 1290 "Payment Reconciliation Journal"
                         // NAVCZ
                     end;
                 }
+#endif
                 field("Applied Amount"; "Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that has been applied to one or more open entries.';
                 }
+#if not CLEAN19
                 field("Applied Amount (LCY)"; "Applied Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the applied amount (in LCY) in the bank statement beside customer''s or vendor''s entries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field(Difference; Difference)
                 {
                     ApplicationArea = Basic, Suite;
@@ -113,13 +128,18 @@ page 1290 "Payment Reconciliation Journal"
                     Style = Unfavorable;
                     ToolTip = 'Specifies the difference between the amount in the Statement Amount field and the amount in the Applied Amount field.';
                 }
+#if not CLEAN19
                 field("Difference (LCY)"; "Difference (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the difference amount which it is not conected to customer''s or vendor''s entries.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field(StatementToRemAmtDifference; StatementToRemAmtDifference)
                 {
                     ApplicationArea = Basic, Suite;
@@ -270,50 +290,78 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
                     Width = 30;
                 }
+#if not CLEAN19
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(IBAN; IBAN)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("SWIFT Code"; "SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("External Document No."; "External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of payment (payment or refund).';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Statement No."; "Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statement number from which is created payment reconciliation journal.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Posting Group"; "Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -323,10 +371,17 @@ page 1290 "Payment Reconciliation Journal"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN19
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -777,16 +832,21 @@ page 1290 "Payment Reconciliation Journal"
                         CurrPage.Update(false);
                     end;
                 }
+#if not CLEAN19
                 action(ApplyAutomaticallyWithSetup)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Apply Automatically with Setup';
+                    Caption = 'Apply Automatically with Setup (Obsolete)';
                     Image = MapAccounts;
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     RunPageOnRec = true;
                     ToolTip = 'Apply payments to their related open entries based on data matches between bank transaction text and entry information with user setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -842,6 +902,7 @@ page 1290 "Payment Reconciliation Journal"
                         CurrPage.Update(false);
                     end;
                 }
+#endif
                 group(Action58)
                 {
                     Caption = 'Post';
@@ -1012,16 +1073,21 @@ page 1290 "Payment Reconciliation Journal"
                         GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
                     end;
                 }
+#if not CLEAN19
                 action(ApplyEntriesWithParam)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Apply Manually with Setup';
+                    Caption = '&Apply Manually with Setup (Obsolete)';
                     Ellipsis = true;
                     Image = ApplyEntries;
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     ToolTip = 'Review and apply payments that were applied automatically to wrong open entries or not applied at all with user setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -1037,6 +1103,7 @@ page 1290 "Payment Reconciliation Journal"
                         GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
                     end;
                 }
+#endif
             }
             group(Review)
             {
@@ -1144,17 +1211,26 @@ page 1290 "Payment Reconciliation Journal"
                     end;
                 }
             }
-
+#if not CLEAN19
             group("F&unctions")
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Image = LinkWithExisting;
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1164,9 +1240,13 @@ page 1290 "Payment Reconciliation Journal"
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1174,6 +1254,7 @@ page 1290 "Payment Reconciliation Journal"
                     end;
                 }
             }
+#endif
         }
         area(navigation)
         {
@@ -1250,9 +1331,9 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
+                        EditinExcel.EditPageInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
                     end;
                 }
             }
@@ -1583,4 +1664,5 @@ page 1290 "Payment Reconciliation Journal"
     begin
     end;
 }
+
 

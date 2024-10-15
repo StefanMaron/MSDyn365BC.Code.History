@@ -158,6 +158,7 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the date on which the invoice was posted.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -169,6 +170,7 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -401,6 +403,7 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -411,6 +414,7 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -663,6 +667,7 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -673,12 +678,14 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -699,6 +706,7 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -711,6 +719,7 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
+#if not CLEAN18
             }
             group(Payments)
             {
@@ -820,6 +829,7 @@ page 132 "Posted Sales Invoice"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
@@ -1053,10 +1063,11 @@ page 132 "Posted Sales Invoice"
                         StartTrackingSite();
                     end;
                 }
+#if not CLEAN19
                 action("Unpost Link Advance")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Unpost Link Advance';
+                    Caption = 'Unpost Link Advance (Obsolete)';
                     Image = PostedVendorBill;
                     ToolTip = 'Unposts link advance';
 
@@ -1067,6 +1078,7 @@ page 132 "Posted Sales Invoice"
                         SalesPostAdv.UnPostInvoiceCorrection(Rec);  // NAVCZ
                     end;
                 }
+#endif
             }
             action(SendCustom)
             {
@@ -1353,13 +1365,15 @@ page 132 "Posted Sales Invoice"
         IncomingDocument: Record "Incoming Document";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
-        DocExchStatusStyle := GetDocExchStatusStyle;
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        if CRMIntegrationEnabled then begin
-            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
-            if "No." <> xRec."No." then
-                CRMIntegrationManagement.SendResultNotification(Rec);
+        if GuiAllowed() then begin
+            HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
+            DocExchStatusStyle := GetDocExchStatusStyle;
+            CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
+            if CRMIntegrationEnabled then begin
+                CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+                if "No." <> xRec."No." then
+                    CRMIntegrationManagement.SendResultNotification(Rec);
+            end;
         end;
         UpdatePaymentService;
         DocExcStatusVisible := DocExchangeStatusIsSent;
@@ -1368,8 +1382,8 @@ page 132 "Posted Sales Invoice"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnInit()

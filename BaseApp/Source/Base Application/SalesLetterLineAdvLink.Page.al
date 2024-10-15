@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31014 "Sales Letter Line - Adv.Link."
 {
-    Caption = 'Sales Letter Line - Adv.Link.';
+    Caption = 'Sales Letter Line - Adv.Link. (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Sales Advance Letter Line";
     SourceTableView = SORTING("Letter No.", "Line No.");
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -266,4 +270,4 @@ page 31014 "Sales Letter Line - Adv.Link."
         LinkingType := LinkingType1;
     end;
 }
-
+#endif

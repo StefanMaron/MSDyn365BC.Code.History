@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31125 "EET Entry Status Log"
 {
     Caption = 'EET Entry Status Log (Obsolete)';
@@ -73,4 +74,4 @@ page 31125 "EET Entry Status Log"
         CurrPage.ErrorMessagesPart.PAGE.Update;
     end;
 }
-
+#endif

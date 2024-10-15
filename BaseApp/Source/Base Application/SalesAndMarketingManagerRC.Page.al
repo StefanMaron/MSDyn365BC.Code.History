@@ -456,12 +456,19 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Customer - Order Summary';
                         RunObject = report "Customer - Order Summary";
                     }
+#if not CLEAN19
                     action("Sales Advance Letter List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Sales Advance Letter List';
+                        Caption = 'Sales Advance Letter List (Obsolete)';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                         RunObject = report "Sales Advance Letter List";
                     }
+#endif
+#if not CLEAN17
                     action("Quantity Shipped Check")
                     {
                         ApplicationArea = Basic, Suite;
@@ -472,6 +479,7 @@ page 8907 "Sales & Marketing Manager RC"
                         ObsoleteTag = '17.0';
                         Visible = false;
                     }
+#endif
                 }
             }
             group("Group11")
@@ -587,12 +595,17 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Adjust Item Costs/Prices';
                     RunObject = report "Adjust Item Costs/Prices";
                 }
+#if not CLEAN19
                 action("Sales Price Import/Export")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Import/Export';
                     RunObject = report "Sales Price Import/Export";
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 }
+#endif
                 group("Group14")
                 {
                     Caption = 'Reports';
@@ -766,12 +779,18 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Report Selections Sales';
                     RunObject = page "Report Selection - Sales";
                 }
+#if not CLEAN19
                 action("Adv. Payment Selection-Sales")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Adv. Payment Selection-Sales';
+                    Caption = 'Adv. Payment Selection-Sales (Obsolete)';
                     RunObject = page "Adv. Payment Selection - Sales";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 action("Standard Sales Codes")
                 {
                     ApplicationArea = Suite;

@@ -37,24 +37,38 @@ page 1288 "Payment-to-Entry Match"
                     Caption = 'Amount Incl. Tolerance Matched:';
                     ToolTip = 'Specifies how many entries must match the amount, including payment tolerance, before a payment is automatically applied to the open entry.';
                 }
+#if not CLEAN19
                 field(VariableSymbolMatched; BankPmtApplRule."Variable Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Variable Symbol Matched';
                     ToolTip = 'Specifies if the exact transaction variable symbol is found on one or more open entries';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(SpecificSymbolMatched; BankPmtApplRule."Specific Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Specific Symbol Matched';
                     ToolTip = 'Specifies the symbol matched';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(ConstantSymbolMatched; BankPmtApplRule."Constant Symbol Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Constant Symbol Matched';
                     ToolTip = 'Specifies the match rule forconstant symbol';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("BankAccReconciliationLine.GetAppliedEntryAccountName(""Applies-to Entry No."")"; BankAccReconciliationLine.GetAppliedEntryAccountName("Applies-to Entry No."))
                 {
                     ApplicationArea = Basic, Suite;
@@ -178,7 +192,11 @@ page 1288 "Payment-to-Entry Match"
             end;
 
             Evaluate(Quality, GetFilter(Quality));
+#if CLEAN19
+            BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", ''); // NAVCZ
+#else
             BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccReconciliationLine.GetBankPmtApplRuleCode); // NAVCZ
+#endif
             BankPmtApplRule.SetRange(Score, Quality);
             if not BankPmtApplRule.FindFirst then
                 BankPmtApplRule."Match Confidence" := BankPmtApplRule."Match Confidence"::None;

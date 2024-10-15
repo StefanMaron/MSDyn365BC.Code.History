@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31059 "Posted Credits List"
 {
     ApplicationArea = Basic, Suite;
@@ -122,3 +123,5 @@ page 31059 "Posted Credits List"
     end;
 }
 
+
+#endif

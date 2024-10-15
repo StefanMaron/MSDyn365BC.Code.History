@@ -1,9 +1,13 @@
 table 31102 "VAT Control Report Section"
 {
     Caption = 'VAT Control Report Section';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "VAT Control Report Sections";
     LookupPageID = "VAT Control Report Sections";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -27,7 +31,9 @@ table 31102 "VAT Control Report Section"
         field(10; "Simplified Tax Doc. Sect. Code"; Code[20])
         {
             Caption = 'Simplified Tax Doc. Sect. Code';
+#if not CLEAN17
             TableRelation = "VAT Control Report Section".Code;
+#endif
         }
     }
 

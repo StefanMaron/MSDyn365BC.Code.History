@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 11719 "Create Bank Acc. Stmt Line"
 {
     TableNo = "Bank Acc. Reconciliation";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     var
@@ -26,4 +30,4 @@ codeunit 11719 "Create Bank Acc. Stmt Line"
             until BankAccReconLn.Next() = 0;
     end;
 }
-
+#endif

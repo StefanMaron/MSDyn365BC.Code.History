@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 7171 "Sales Info-Pane Management"
 {
 
@@ -195,6 +196,7 @@ codeunit 7171 "Sales Info-Pane Management"
         OnAfterSetItemFilter(Item, SalesLine);
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure xCalcSaldo(CustNo: Code[20]): Decimal
     var
@@ -209,6 +211,7 @@ codeunit 7171 "Sales Info-Pane Management"
         exit(0);
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure xLookupSaldo(CustNo: Code[20])
     var
@@ -277,3 +280,4 @@ codeunit 7171 "Sales Info-Pane Management"
     end;
 }
 
+#endif

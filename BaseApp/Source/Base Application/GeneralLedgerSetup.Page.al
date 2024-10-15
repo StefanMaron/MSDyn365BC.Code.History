@@ -44,6 +44,12 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies where you want the contact name to appear in mailing addresses.';
                 }
+                field("Req.Country/Reg. Code in Addr."; "Req.Country/Reg. Code in Addr.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether to clear the Post Code, City, and County fields when the value in the Country/Region Code field is changed.';
+                }
                 field("Inv. Rounding Precision (LCY)"; "Inv. Rounding Precision (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -90,6 +96,7 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that you want the program to protect G/L accounts that are used in setup tables from being deleted.';
                 }
+#if not CLEAN18
                 field("Mark Neg. Qty as Correction"; "Mark Neg. Qty as Correction")
                 {
                     ApplicationArea = Basic, Suite;
@@ -99,6 +106,7 @@ page 118 "General Ledger Setup"
                     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Mark Cr. Memos as Corrections"; "Mark Cr. Memos as Corrections")
                 {
                     ApplicationArea = Basic, Suite;
@@ -171,6 +179,7 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank accounts.';
                 }
+#if not CLEAN17
                 field("Cash Desk Nos."; "Cash Desk Nos.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -180,6 +189,8 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN17
                 field("Company Officials Nos."; "Company Officials Nos.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -188,6 +199,7 @@ page 118 "General Ledger Setup"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
 #if not CLEAN19
                 field("Acc. Schedule Results Nos."; "Acc. Schedule Results Nos.")
                 {
@@ -223,6 +235,7 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '18.0';
                 }
 #endif
+#if not CLEAN17
                 field("Dont Check Dimension"; "Dont Check Dimension")
                 {
                     ApplicationArea = Basic, Suite;
@@ -232,11 +245,18 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Show Amounts"; "Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies which type of amounts are shown in journals and in ledger entries windows. Amount Only: The Amount and Amount (LCY) fields are shown. Debit/Credit Only: The Debit Amount, Debit Amount (LCY), Credit Amount, and Credit Amount (LCY) fields are shown. All Amounts: All amount fields are shown. ';
+                }
+                field(PostingPreviewType; "Posting Preview Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the amount of detail to include in the posting preview. Standard gives an overview of entries grouped by type, and you can choose the type of entry to view details. Extended displays the details for G/L entries and VAT entries.';
                 }
                 field(SEPANonEuroExport; "SEPA Non-Euro Export")
                 {
@@ -466,6 +486,7 @@ page 118 "General Ledger Setup"
                     Visible = false;
                 }
             }
+#if not CLEAN17
             group(VAT)
             {
                 Caption = 'VAT';
@@ -522,28 +543,52 @@ page 118 "General Ledger Setup"
                     Visible = false;
                 }
             }
+#endif
+#if not CLEAN19
             group(Advances)
             {
                 Caption = 'Advances';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies default of premayment type (Prepayment or advance).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Use Adv. CM Nos for Adv. Corr."; "Use Adv. CM Nos for Adv. Corr.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to use the advance credit memo number series for corrective posting of advance documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Correction As Storno"; "Correction As Storno")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to post corrective postings to advance payments in the same column as the original posting but with the opposite sign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
             group(Other)
             {
                 Caption = 'Other';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Merge to W1.';
+                ObsoleteTag = '19.0';
+                Visible = false;
+#endif
 #if not CLEAN18
                 field("User Checks Allowed"; "User Checks Allowed")
                 {
@@ -593,6 +638,7 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '18.0';
                 }
 #endif
+#if not CLEAN17
                 field("Cash Payment Limit (LCY)"; "Cash Payment Limit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -602,8 +648,11 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
-            }
+#endif
         }
+#if not CLEAN19
+        }
+#endif    
         area(factboxes)
         {
             systempart(Control1900383207; Links)
@@ -893,4 +942,5 @@ page 118 "General Ledger Setup"
           ("Shortcut Dimension 8 Code" <> xGeneralLedgerSetup."Shortcut Dimension 8 Code"));
     end;
 }
+
 

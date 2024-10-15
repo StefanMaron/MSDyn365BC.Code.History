@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 13 "VAT Register"
 {
     DefaultLayout = RDLC;
@@ -210,4 +211,4 @@ report 13 "VAT Register"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
     end;
 }
-
+#endif

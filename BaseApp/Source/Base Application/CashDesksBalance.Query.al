@@ -1,3 +1,4 @@
+#if not CLEAN18
 query 11750 "Cash Desks Balance"
 {
     Caption = 'Cash Desks Balance';
@@ -24,6 +25,8 @@ query 11750 "Cash Desks Balance"
             }
         }
     }
+#endif
+#if not CLEAN17
 
     trigger OnBeforeOpen()
     var
@@ -36,5 +39,7 @@ query 11750 "Cash Desks Balance"
         else
             SetRange(No, '');
     end;
+#endif
+#if not CLEAN18    
 }
-
+#endif

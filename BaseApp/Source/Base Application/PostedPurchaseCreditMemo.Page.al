@@ -148,6 +148,7 @@ page 140 "Posted Purchase Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the date on which the purchase document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -168,6 +169,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Pre-Assigned No."; "Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -269,6 +271,7 @@ page 140 "Posted Purchase Credit Memo"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN17
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
@@ -279,6 +282,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -309,6 +313,7 @@ page 140 "Posted Purchase Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the credit memo.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -319,12 +324,14 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -345,6 +352,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -357,6 +365,7 @@ page 140 "Posted Purchase Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of vendor';
                 }
+#if not CLEAN17
                 field(VATCurrencyCode; "Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -381,6 +390,8 @@ page 140 "Posted Purchase Credit Memo"
                         // NAVCZ
                     end;
                 }
+#endif
+#if not CLEAN18
             }
             group(Payments)
             {
@@ -389,7 +400,6 @@ page 140 "Posted Purchase Credit Memo"
                 ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                 ObsoleteTag = '18.0';
                 Visible = false;
-
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -470,6 +480,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -514,6 +525,7 @@ page 140 "Posted Purchase Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -524,6 +536,7 @@ page 140 "Posted Purchase Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group("Shipping and Payment")
             {
@@ -985,8 +998,8 @@ page 140 "Posted Purchase Credit Memo"
 
     trigger OnAfterGetRecord()
     begin
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnOpenPage()

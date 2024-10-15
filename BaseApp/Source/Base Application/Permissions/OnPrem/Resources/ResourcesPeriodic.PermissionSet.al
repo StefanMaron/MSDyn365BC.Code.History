@@ -21,10 +21,16 @@ permissionset 9338 "Resources - Periodic"
                   tabledata "Res. Ledger Entry" = Rid,
                   tabledata Resource = RM,
                   tabledata "Resource Group" = R,
+#if not CLEAN19
                   tabledata "Resource Price" = RIMD,
                   tabledata "Resource Price Change" = RIMD,
+#endif
                   tabledata "Resource Register" = Rd,
                   tabledata "Rounding Method" = R,
+#if CLEAN17
+                  tabledata "Source Code Setup" = R;
+#else
                   tabledata "Source Code Setup" = R,
                   tabledata "VAT Period" = R;
+#endif
 }

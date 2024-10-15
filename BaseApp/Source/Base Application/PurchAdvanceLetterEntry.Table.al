@@ -1,9 +1,16 @@
 table 31022 "Purch. Advance Letter Entry"
 {
     Caption = 'Purch. Advance Letter Entry';
+#if not CLEAN19
     DrillDownPageID = "Purch. Advance Letter Entries";
     LookupPageID = "Purch. Advance Letter Entries";
     Permissions =;
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,17 +22,23 @@ table 31022 "Purch. Advance Letter Entry"
         {
             Caption = 'Template Name';
             NotBlank = true;
+#if not CLEAN19
             TableRelation = "Purchase Adv. Payment Template";
+#endif
         }
         field(11; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
+#if not CLEAN19
             TableRelation = "Purch. Advance Letter Header";
+#endif
         }
         field(12; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
+#if not CLEAN19
             TableRelation = "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
+#endif
         }
         field(13; "Entry Type"; Option)
         {
@@ -170,12 +183,15 @@ table 31022 "Purch. Advance Letter Entry"
     fieldgroups
     {
     }
-    
+#if not CLEAN19
+
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
+#endif
 }
 

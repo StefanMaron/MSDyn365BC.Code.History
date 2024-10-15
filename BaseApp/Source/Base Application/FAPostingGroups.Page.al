@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5613 "FA Posting Groups"
 {
     AdditionalSearchTerms = 'fixed asset posting groups';
@@ -245,7 +246,6 @@ page 5613 "FA Posting Groups"
                     ToolTip = 'Specifies the total percentage for maintenance transactions that can be allocated when maintenance transactions are posted.';
                     Visible = false;
                 }
-#if not CLEAN18
                 field("Acq. Cost Bal. Acc. on Disp."; "Acq. Cost Bal. Acc. on Disp.")
                 {
                     ApplicationArea = FixedAssets;
@@ -264,7 +264,6 @@ page 5613 "FA Posting Groups"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
             }
         }
         area(factboxes)
@@ -290,7 +289,6 @@ page 5613 "FA Posting Groups"
             {
                 Caption = 'P&osting Gr.';
                 Image = Group;
-#if not CLEAN18
                 action("&Extended Posting Gr.")
                 {
                     ApplicationArea = FixedAssets;
@@ -304,7 +302,6 @@ page 5613 "FA Posting Groups"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
                 group(Allocations)
                 {
                     Caption = 'Allocations';
@@ -395,3 +392,4 @@ page 5613 "FA Posting Groups"
     }
 }
 
+#endif

@@ -1,6 +1,13 @@
 table 31018 "Advance Link Buffer"
 {
     Caption = 'Advance Link Buffer';
+#if not CLEAN19
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -22,6 +29,7 @@ table 31018 "Advance Link Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
             Editable = false;
+#if not CLEAN19
             TableRelation = IF ("Entry Type" = CONST("Letter Line")) "Sales Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Document No."))
             ELSE
             IF ("Entry Type" = CONST(Payment),
@@ -29,6 +37,7 @@ table 31018 "Advance Link Buffer"
             ELSE
             IF ("Entry Type" = CONST(Payment),
                                               Type = CONST(Vendor)) "Vendor Ledger Entry"."Entry No.";
+#endif
         }
         field(4; Type; Option)
         {
@@ -65,6 +74,7 @@ table 31018 "Advance Link Buffer"
         {
             Caption = 'Amount To Link';
             DataClassification = SystemMetadata;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -74,6 +84,7 @@ table 31018 "Advance Link Buffer"
                 if Abs("Amount To Link") > Abs("Remaining Amount") then
                     FieldError("Amount To Link", StrSubstNo(Text001Err, FieldCaption("Remaining Amount")));
             end;
+#endif
         }
         field(9; "Due Date"; Date)
         {
@@ -148,6 +159,7 @@ table 31018 "Advance Link Buffer"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     var
         Text000Err: Label 'must have the same sign as %1';
@@ -261,5 +273,6 @@ table 31018 "Advance Link Buffer"
             LinkedPrepayments.Run;
         end;
     end;
+#endif
 }
 

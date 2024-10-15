@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31122 "EET Send Entries To Service"
 {
     ObsoleteState = Pending;
@@ -24,4 +25,4 @@ codeunit 31122 "EET Send Entries To Service"
         EETEntry2: Record "EET Entry";
         EETEntryMgt: Codeunit "EET Entry Management";
 }
-
+#endif

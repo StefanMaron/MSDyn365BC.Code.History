@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9002 "Acc. Payables Coordinator RC"
 {
-    Caption = 'Accounts Payable Coordinator', Comment = '{Dependency=Match,"ProfileDescription_APCOORDINATOR"} ';
+    Caption = 'Accounts Payable Coordinator';
     PageType = RoleCenter;
 
     layout
@@ -107,6 +108,7 @@ page 9002 "Acc. Payables Coordinator RC"
                 RunObject = Report "Purchase Statistics";
                 ToolTip = 'View a list of amounts for purchases, invoice discount and payment discount in $ for each vendor.';
             }
+#if not CLEAN17
             action("V&endor - Bal. Reconciliation")
             {
                 ApplicationArea = Basic, Suite;
@@ -118,6 +120,7 @@ page 9002 "Acc. Payables Coordinator RC"
                 ObsoleteTag = '17.4';
                 Visible = false;
             }
+#endif
             separator(Action63)
             {
             }
@@ -200,7 +203,9 @@ page 9002 "Acc. Payables Coordinator RC"
                 Caption = 'Bank Accounts';
                 Image = BankAccount;
                 RunObject = Page "Bank Account List";
+#if not CLEAN17
                 RunPageView = WHERE("Account Type" = CONST("Bank Account"));
+#endif
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
             action(Items)
@@ -270,6 +275,9 @@ page 9002 "Acc. Payables Coordinator RC"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoice';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
@@ -286,6 +294,9 @@ page 9002 "Acc. Payables Coordinator RC"
                     RunObject = Page "Posted Purchase Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Shipments")
                 {
@@ -422,3 +433,4 @@ page 9002 "Acc. Payables Coordinator RC"
     }
 }
 
+#endif

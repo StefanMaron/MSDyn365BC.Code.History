@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31062 "Tariff Number Import (XML)"
 {
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
@@ -268,3 +269,5 @@ report 31062 "Tariff Number Import (XML)"
     end;
 }
 
+
+#endif

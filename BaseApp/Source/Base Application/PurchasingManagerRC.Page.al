@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 8905 "Purchasing Manager Role Center"
 {
     Caption = 'Purchasing Manager Role Center';
@@ -269,9 +270,13 @@ page 8905 "Purchasing Manager Role Center"
                     action("Purch. Advance Letter List")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Purch. Advance Letter List';
+                        Caption = 'Purch. Advance Letter List (Obsolete)';
                         RunObject = report "Purch. Advance Letter List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                        ObsoleteTag = '19.0';
                     }
+#if not CLEAN17
                     action("Quantity Received Check")
                     {
                         ApplicationArea = Basic, Suite;
@@ -282,6 +287,7 @@ page 8905 "Purchasing Manager Role Center"
                         ObsoleteTag = '17.0';
                         Visible = false;
                     }
+#endif
                 }
             }
             group("Group4")
@@ -702,8 +708,11 @@ page 8905 "Purchasing Manager Role Center"
                 action("Adv. Payment Selection-Purch")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Adv. Payment Selection-Purch';
+                    Caption = 'Adv. Payment Selection-Purch (Obsolete)';
                     RunObject = page "Adv. Payment Selection - Purch";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Req. Worksheet")
                 {
@@ -797,3 +806,4 @@ page 8905 "Purchasing Manager Role Center"
         }
     }
 }
+#endif

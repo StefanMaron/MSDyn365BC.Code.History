@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31020 "Purchase Advance Letter"
 {
-    Caption = 'Purchase Advance Letter';
+    Caption = 'Purchase Advance Letter (Obsolete)';
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Approve,Request Approval';
     RefreshOnActivate = true;
     SourceTable = "Purch. Advance Letter Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -1018,4 +1022,4 @@ page 31020 "Purchase Advance Letter"
         AdvLetterPostPrint.PreviewPurchRefundAndCloseLetter(Rec, "Posting Date", "VAT Date");
     end;
 }
-
+#endif

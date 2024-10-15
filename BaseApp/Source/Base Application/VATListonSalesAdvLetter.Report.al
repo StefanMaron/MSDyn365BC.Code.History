@@ -1,10 +1,14 @@
+#if not CLEAN19
 report 31011 "VAT List on Sales Adv. Letter"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATListonSalesAdvLetter.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT List on Sales Adv. Letter';
+    Caption = 'VAT List on Sales Adv. Letter (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -341,4 +345,4 @@ report 31011 "VAT List on Sales Adv. Letter"
         end;
     end;
 }
-
+#endif

@@ -1,10 +1,13 @@
+#if not CLEAN19
 page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service,Bank Account,Navigate';
     SourceTable = "Bank Account";
+#if not CLEAN17
     SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
+#endif
 
     layout
     {
@@ -129,6 +132,34 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the Bank Account card was last modified.';
+                }
+                group("Payment Matching")
+                {
+                    Caption = 'Payment Matching';
+                    field("Disable Automatic Pmt Matching"; "Disable Automatic Pmt Matching")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Disable Automatic Payment Matching';
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether to disable automatic payment matching after importing bank transactions for this bank account.';
+                    }
+                }
+                group("Payment Match Tolerance")
+                {
+                    Caption = 'Payment Match Tolerance';
+                    field("Match Tolerance Type"; "Match Tolerance Type")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Additional;
+                        ToolTip = 'Specifies by which tolerance the automatic payment application function will apply the Amount Incl. Tolerance Matched rule for this bank account.';
+                    }
+                    field("Match Tolerance Value"; "Match Tolerance Value")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        DecimalPlaces = 0 : 2;
+                        Importance = Additional;
+                        ToolTip = 'Specifies if the automatic payment application function will apply the Amount Incl. Tolerance Matched rule by Percentage or Amount.';
+                    }
                 }
             }
             group(Communication)
@@ -291,6 +322,7 @@ page 370 "Bank Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
+#if not CLEAN18
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
@@ -300,6 +332,7 @@ page 370 "Bank Account Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Bank Statement Import Format"; "Bank Statement Import Format")
                 {
                     ApplicationArea = Basic, Suite;
@@ -310,26 +343,44 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank file that will be exported when you choose the Export Payments to File button in the Payment Journal window.';
                 }
+#if not CLEAN19
                 field("Foreign Payment Export Format"; "Foreign Payment Export Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the export format for foreign payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Payment Import Format"; "Payment Import Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of the bank file that will be imported when you choose the import Payments to File button in the Payment Journal window.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Payment Jnl. Template Name"; "Payment Jnl. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of payment journal template.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Payment Jnl. Batch Name"; "Payment Jnl. Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of payment journal batch.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Positive Pay Export Code"; "Positive Pay Export Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -341,25 +392,45 @@ page 370 "Bank Account Card"
             group(Numbering)
             {
                 Caption = 'Numbering';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
                 field("Payment Order Nos."; "Payment Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to payment orders.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Issued Payment Order Nos."; "Issued Payment Order Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to issued payment order.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Bank Statement Nos."; "Bank Statement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Issued Bank Statement Nos."; "Issued Bank Statement Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to issued bank statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Credit Transfer Msg. Nos."; "Credit Transfer Msg. Nos.")
                 {
@@ -375,166 +446,252 @@ page 370 "Bank Account Card"
             group("Pmt. Reconciliation Journal")
             {
                 Caption = 'Pmt. Reconciliation Journal';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
                 field("Variable S. to Description"; "Variable S. to Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol on the payment to the entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Variable S. to Variable S."; "Variable S. to Variable S.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol of the payment to the variable symbol field in payment reconciliation journal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Variable S. to Ext. Doc.No."; "Variable S. to Ext. Doc.No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying variable symbol of the payment to the external document number field in payment reconciliation journal.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Dimension from Apply Entry"; "Dimension from Apply Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transfer the Dimension from Apply Entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Post Per Line"; "Post Per Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Bank account will be used as Balance Account number on each line.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Non Associated Payment Account"; "Non Associated Payment Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account for non associated payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Bank Pmt. Appl. Rule Code"; "Bank Pmt. Appl. Rule Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies payment application rule code';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Text-to-Account Mapping Code"; "Text-to-Account Mapping Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for text-to-account mapping.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Run Apply Automatically"; "Run Apply Automatically")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if Apply Automatically function is started after Payment Recon.Journal creating.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apply Cust. Ledger Entries"; "Not Apply Cust. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Customer Ledger Entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apply Vend. Ledger Entries"; "Not Apply Vend. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Vendor Ledger Entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apply Sales Advances"; "Not Apply Sales Advances")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Sales Advances.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apply Purchase Advances"; "Not Apply Purchase Advances")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Purchase Advances.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apply Gen. Ledger Entries"; "Not Apply Gen. Ledger Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to General Ledger Entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Not Apl. Bank Acc.Ledg.Entries"; "Not Apl. Bank Acc.Ledg.Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if applying functions in Payment Recon.Journal applies to Bank Account Ledger Entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Copy VAT Setup to Jnl. Line"; "Copy VAT Setup to Jnl. Line")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the program to calculate VAT for accounts and balancing accounts on the journal line of the selected bank account.';
                     Importance = Additional;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
-                group("Payment Matching")
+                group("Payment Orders/Bank Statements")
                 {
-                    Caption = 'Payment Matching';
-                    field("Disable Automatic Pmt Matching"; "Disable Automatic Pmt Matching")
+                    Caption = 'Payment Orders/Bank Statements';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
+                    field("Domestic Payment Order"; "Domestic Payment Order")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Disable Automatic Payment Matching';
-                        Importance = Additional;
-                        ToolTip = 'Specifies whether to disable automatic payment matching after importing bank transactions for this bank account.';
+                        ToolTip = 'Specifies the report setup for domestic payment order.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
-                }
-                group("Payment Match Tolerance")
-                {
-                    Caption = 'Payment Match Tolerance';
-                    field("Match Tolerance Type"; "Match Tolerance Type")
+                    field("Foreign Payment Order"; "Foreign Payment Order")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies by which tolerance the automatic payment application function will apply the Amount Incl. Tolerance Matched rule for this bank account.';
+                        ToolTip = 'Specifies the foreign or domestic payment order.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
-                    field("Match Tolerance Value"; "Match Tolerance Value")
+                    field("Base Calendar Code"; "Base Calendar Code")
                     {
                         ApplicationArea = Basic, Suite;
-                        DecimalPlaces = 0 : 2;
-                        ToolTip = 'Specifies if the automatic payment application function will apply the Amount Incl. Tolerance Matched rule for this bank account by Percentage or Amount.';
+                        ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
                     }
-                }
-            }
-            group("Payment Orders/Bank Statements")
-            {
-                Caption = 'Payment Orders/Bank Statements';
-                field("Domestic Payment Order"; "Domestic Payment Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the report setup for domestic payment order.';
-                }
-                field("Foreign Payment Order"; "Foreign Payment Order")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the foreign or domestic payment order.';
-                }
-                field("Base Calendar Code"; "Base Calendar Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
-                }
-                field("Default Constant Symbol"; "Default Constant Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default constant symbol for payment.';
-                }
-                field("Default Specific Symbol"; "Default Specific Symbol")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default specific symbol for payment.';
-                }
-                field("Payment Order Line Description"; "Payment Order Line Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Description which will be transfered into Payment Order Line';
-                }
-                field("Payment Partial Suggestion"; "Payment Partial Suggestion")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the Partial Suggestion of Payment have to be suggest.';
-                }
-                field("Foreign Payment Orders"; "Foreign Payment Orders")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the foreign or domestic payment order.';
-                }
-                field("Check Czech Format on Issue"; "Check Czech Format on Issue")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies check the Bank account Format on Payment Order Issue for Domestic Payment Order';
-                }
-                field("Check Ext. No. by Current Year"; "Check Ext. No. by Current Year")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies check the external number of document by current year by Payment Order Apply';
+                    field("Default Constant Symbol"; "Default Constant Symbol")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the default constant symbol for payment.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Default Specific Symbol"; "Default Specific Symbol")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the default specific symbol for payment.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Payment Order Line Description"; "Payment Order Line Description")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the Description which will be transfered into Payment Order Line';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Payment Partial Suggestion"; "Payment Partial Suggestion")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the Partial Suggestion of Payment have to be suggest.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Foreign Payment Orders"; "Foreign Payment Orders")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the foreign or domestic payment order.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Check Czech Format on Issue"; "Check Czech Format on Issue")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies check the Bank account Format on Payment Order Issue for Domestic Payment Order';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
+                    field("Check Ext. No. by Current Year"; "Check Ext. No. by Current Year")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies check the external number of document by current year by Payment Order Apply';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                        ObsoleteTag = '19.0';
+                        Visible = false;
+                    }
                 }
             }
         }
@@ -699,6 +856,26 @@ page 370 "Bank Account Card"
                     Visible = false;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
+            }
             action(BankAccountReconciliations)
             {
                 ApplicationArea = Basic, Suite;
@@ -840,6 +1017,7 @@ page 370 "Bank Account Card"
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Open the list of payment journals where you can register payments to vendors.';
             }
+#if not CLEAN17
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -888,6 +1066,7 @@ page 370 "Bank Account Card"
                     end;
                 }
             }
+#endif
             action(PagePosPayExport)
             {
                 ApplicationArea = Suite;
@@ -899,6 +1078,23 @@ page 370 "Bank Account Card"
                 RunPageLink = "No." = FIELD("No.");
                 ToolTip = 'Export a Positive Pay file with relevant payment information that you then send to the bank for reference when you process payments to make sure that your bank only clears validated checks and amounts.';
                 Visible = false;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
             }
         }
         area(reporting)
@@ -973,7 +1169,9 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
@@ -989,6 +1187,7 @@ page 370 "Bank Account Card"
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var
@@ -1011,3 +1210,4 @@ page 370 "Bank Account Card"
     end;
 }
 
+#endif

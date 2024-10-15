@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 11781 "Subst. Customer Posting Groups"
 {
     Caption = 'Subst. Customer Posting Groups (Obsolete)';
@@ -42,3 +43,5 @@ page 11781 "Subst. Customer Posting Groups"
     }
 }
 
+
+#endif

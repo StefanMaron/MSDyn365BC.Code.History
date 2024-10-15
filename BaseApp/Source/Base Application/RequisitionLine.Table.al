@@ -53,13 +53,7 @@ table 246 "Requisition Line"
             Caption = 'No.';
             TableRelation = IF (Type = CONST("G/L Account")) "G/L Account"
             ELSE
-            IF (Type = CONST(Item),
-                                     "Worksheet Template Name" = FILTER(<> ''),
-                                     "Journal Batch Name" = FILTER(<> '')) Item WHERE(Type = CONST(Inventory))
-            ELSE
-            IF (Type = CONST(Item),
-                                              "Worksheet Template Name" = CONST(''),
-                                              "Journal Batch Name" = CONST('')) Item;
+            IF (Type = CONST(Item)) Item;
 
             trigger OnValidate()
             begin
@@ -114,7 +108,14 @@ table 246 "Requisition Line"
 
             trigger OnValidate()
             begin
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := UOMMgt.CalcBaseQty(
+                    "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure",
+                    "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity),
+                    FieldCaption("Quantity (Base)")
+                );
+
                 if Type = Type::Item then begin
                     GetDirectCost(FieldNo(Quantity));
                     "Remaining Quantity" := Quantity - "Finished Quantity";
@@ -483,6 +484,12 @@ table 246 "Requisition Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(73; "Drop Shipment"; Boolean)
+        {
+            AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
+            Caption = 'Drop Shipment';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -568,6 +575,8 @@ table 246 "Requisition Line"
                     TestField("Action Message", "Action Message"::New);
                 TestField(Type, Type::Item);
                 TestField("Location Code");
+                GetItem();
+                Item.TestField(Type, Item.Type::Inventory);
                 if ("Bin Code" <> xRec."Bin Code") and ("Bin Code" <> '') then begin
                     GetLocation("Location Code");
                     Location.TestField("Bin Mandatory");
@@ -584,6 +593,24 @@ table 246 "Requisition Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
+        }
+        field(5405; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5406; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(5407; "Unit of Measure Code"; Code[10])
         {
@@ -603,6 +630,9 @@ table 246 "Requisition Line"
                     "Unit Cost" := Item."Unit Cost";
                     "Overhead Rate" := Item."Overhead Rate";
                     "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                    "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                    "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
                     if "Unit of Measure Code" <> '' then begin
                         "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                         "Unit Cost" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
@@ -844,7 +874,6 @@ table 246 "Requisition Line"
         field(5706; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
-            Editable = false;
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
 
             trigger OnValidate()
@@ -1296,7 +1325,11 @@ table 246 "Requisition Line"
                 TestField(Type, Type::Item);
                 TestField("No.");
                 GetItem;
-                GetPlanningParameters.AtSKU(StockkeepingUnit, "No.", "Variant Code", "Location Code");
+
+                if Item.IsNonInventoriableType() then
+                    TestField("Replenishment System", "Replenishment System"::Purchase);
+
+                StockkeepingUnit := Item.GetSKU("Location Code", "Variant Code");
                 if Subcontracting then
                     StockkeepingUnit."Replenishment System" := StockkeepingUnit."Replenishment System"::"Prod. Order";
 
@@ -1306,7 +1339,7 @@ table 246 "Requisition Line"
                     "Replenishment System"::Purchase:
                         SetReplenishmentSystemFromPurchase(StockkeepingUnit);
                     "Replenishment System"::"Prod. Order":
-                        SetReplenishmentSystemFromProdOrder;
+                        SetReplenishmentSystemFromProdOrder(StockkeepingUnit);
                     "Replenishment System"::Assembly:
                         SetReplenishmentSystemFromAssembly;
                     "Replenishment System"::Transfer:
@@ -1530,7 +1563,7 @@ table 246 "Requisition Line"
         {
             MaintainSQLIndex = false;
         }
-        key(Key3; Type, "No.", "Variant Code", "Location Code", "Sales Order No.", "Planning Line Origin", "Due Date")
+        key(Key3; Type, "No.", "Variant Code", "Location Code", "Sales Order No.", "Planning Line Origin", "Due Date", "Drop Shipment")
         {
             MaintainSIFTIndex = false;
             SumIndexFields = "Quantity (Base)";
@@ -1678,7 +1711,9 @@ table 246 "Requisition Line"
         Text043: Label 'The number %1 on number series %2 cannot be extended to more than 20 characters.';
         Text044: Label 'You cannot assign numbers greater than %1 from the number series %2.';
         ReplenishmentErr: Label 'Requisition Worksheet cannot be used to create Prod. Order replenishment.';
+#if not CLEAN19
         SourceDropShipment: Boolean;
+#endif
 
     local procedure CopyFromGLAcc()
     var
@@ -1702,9 +1737,9 @@ table 246 "Requisition Line"
         Description := GLAcc.Name;
     end;
 
-    local procedure CopyFromItem()
+    procedure CopyFromItem()
     begin
-        GetItem;
+        GetItem();
         OnBeforeCopyFromItem(Rec, Item, xRec, CurrFieldNo, TempPlanningErrorLog, PlanningResiliency);
 
         if PlanningResiliency and Item.Blocked then
@@ -1726,8 +1761,9 @@ table 246 "Requisition Line"
         "Indirect Cost %" := Item."Indirect Cost %";
         UpdateReplenishmentSystem();
         "Accept Action Message" := true;
+        "Action Message" := "Action Message"::New;
         GetDirectCost(FieldNo("No."));
-        SetFromBinCode;
+        SetFromBinCode();
 
         OnAfterCopyFromItem(Rec, Item);
     end;
@@ -1849,7 +1885,6 @@ table 246 "Requisition Line"
     var
         ItemVariant: Record "Item Variant";
         SalesLine: Record "Sales Line";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         IsHandled: Boolean;
     begin
         OnBeforeUpdateDescription(Rec, CurrFieldNo, IsHandled);
@@ -1877,14 +1912,7 @@ table 246 "Requisition Line"
         end;
 
         if "Vendor No." <> '' then
-            if ItemReferencemgt.IsEnabled() then
-                UpdateItemReferenceDescription();
-
-#if not CLEAN16
-        if "Vendor No." <> '' then
-            if not ItemReferencemgt.IsEnabled() then
-                UpdateItemCrossRefDescription();
-#endif
+            UpdateItemReferenceDescription();
     end;
 
     local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
@@ -1920,29 +1948,6 @@ table 246 "Requisition Line"
                 end;
         end;
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by Item Reference feature.', '17.0')]
-    local procedure UpdateItemCrossRefDescription()
-    var
-        ItemCrossRef: Record "Item Cross Reference";
-        ItemTranslation: Record "Item Translation";
-        Vendor: Record Vendor;
-    begin
-        if not ItemCrossRef.FindItemDescription(
-                Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
-                ItemCrossRef."Cross-Reference Type"::Vendor, "Vendor No.")
-        then begin
-            Vendor.Get("Vendor No.");
-            if Vendor."Language Code" <> '' then
-                if ItemTranslation.Get("No.", "Variant Code", Vendor."Language Code") then begin
-                    Description := ItemTranslation.Description;
-                    "Description 2" := ItemTranslation."Description 2";
-                    OnUpdateDescriptionFromItemTranslation(Rec, ItemTranslation);
-                end;
-        end;
-    end;
-#endif
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
@@ -3251,16 +3256,19 @@ table 246 "Requisition Line"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by Drop Shipment field.', '19.0')]
     procedure SetDropShipment(NewDropShipment: Boolean)
     begin
         SourceDropShipment := NewDropShipment;
     end;
+#endif
 
     procedure IsDropShipment(): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
-        if SourceDropShipment then
+        if "Drop Shipment" then
             exit(true);
 
         if "Replenishment System" = "Replenishment System"::Purchase then
@@ -3379,15 +3387,17 @@ table 246 "Requisition Line"
             Validate("Unit of Measure Code", Item."Purch. Unit of Measure");
     end;
 
-    local procedure SetReplenishmentSystemFromProdOrder()
+    local procedure SetReplenishmentSystemFromProdOrder(StockkeepingUnit: Record "Stockkeeping Unit")
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
         IsHandled: Boolean;
+        ProductionBOMNo: Code[20];
+        RoutingNo: Code[20];
     begin
         OnBeforeSetReplenishmentSystemFromProdOrder(Rec);
 
         if ReqWkshTmpl.Get("Worksheet Template Name") and
-           (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not SourceDropShipment
+           (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not "Drop Shipment"
         then
             Error(ReplenishmentErr);
 
@@ -3420,16 +3430,30 @@ table 246 "Requisition Line"
 
         IsHandled := false;
         OnSetReplenishmentSystemFromProdOrderOnBeforeAssignProdFields(Rec, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
+            // If needed field is '' on SKU, then fall back to values from Item
+            if StockkeepingUnit."Production BOM No." <> '' then
+                ProductionBOMNo := StockkeepingUnit."Production BOM No."
+            else
+                ProductionBOMNo := Item."Production BOM No.";
+
+            if StockkeepingUnit."Routing No." <> '' then
+                RoutingNo := StockkeepingUnit."Routing No."
+            else
+                RoutingNo := Item."Routing No.";
+
             if not Subcontracting then begin
                 OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(
                     Rec, Item, Subcontracting, PlanningResiliency, TempPlanningErrorLog);
-                Validate("Production BOM No.", Item."Production BOM No.");
-                Validate("Routing No.", Item."Routing No.");
+
+                // Get SKU and use that. If needed field is '' on SKU, then fall back to values from Item 
+                Validate("Production BOM No.", ProductionBOMNo);
+                Validate("Routing No.", RoutingNo);
             end else begin
-                "Production BOM No." := Item."Production BOM No.";
-                "Routing No." := Item."Routing No.";
+                "Production BOM No." := ProductionBOMNo;
+                "Routing No." := RoutingNo;
             end;
+        end;
 
         OnSetReplenishmentSystemFromProdOrderOnAfterSetProdFields(Rec, Item, Subcontracting);
 
@@ -3473,7 +3497,6 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", '');
-        Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
         if ("Planning Line Origin" = "Planning Line Origin"::"Order Planning") and ValidateFields then
             PlanningLineMgt.Calculate(Rec, 1, true, true, 0);
@@ -3491,7 +3514,6 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", StockkeepingUnit."Transfer-from Code");
-        Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
         OnAfterSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
     end;
@@ -3500,7 +3522,8 @@ table 246 "Requisition Line"
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        GetPlanningParameters.AtSKU(StockkeepingUnit, "No.", "Variant Code", "Location Code");
+        GetItem();
+        StockkeepingUnit := Item.GetSKU("Location Code", "Variant Code");
         if Subcontracting then
             StockkeepingUnit."Replenishment System" := StockkeepingUnit."Replenishment System"::"Prod. Order";
         ValidateReplenishmentSystem(StockkeepingUnit);
@@ -3549,16 +3572,20 @@ table 246 "Requisition Line"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use ReqJnlManagement event OnBeforeOpenJnl.', '19.0')]
     procedure CheckRequisitionLineUserRestriction()
     begin
         // NAVCZ
         OnCheckReqWorksheetTemplateUserRestrictions(GetRangeMax("Worksheet Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use ReqJnlManagement event OnBeforeOpenJnl.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckReqWorksheetTemplateUserRestrictions(WorksheetTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")

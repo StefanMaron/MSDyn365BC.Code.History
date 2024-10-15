@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11762 "Uncertainty Payer List"
 {
     DefaultLayout = RDLC;
@@ -235,3 +236,5 @@ report 11762 "Uncertainty Payer List"
         Text005: Label 'Contains non public bank accounts.';
 }
 
+
+#endif

@@ -518,10 +518,10 @@
                             TestField("Remaining Quantity", Quantity);
                 end else
                     if "Entry Type" <> "Entry Type"::Transfer then // NAVCZ
-                    if InvoicedEntry then
-                        TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
-                    else
-                        TestField("Shipped Qty. Not Returned", Quantity);
+                        if InvoicedEntry then
+                            TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
+                        else
+                            TestField("Shipped Qty. Not Returned", Quantity);
 
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
@@ -627,6 +627,9 @@
     [Scope('OnPrem')]
     procedure PostItemJnlLineAppliedToListTr(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
     var
+#if CLEAN19
+        ItemTrackingSetup: Record "Item Tracking Setup";
+#endif
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NonDistrQuantity: Decimal;
@@ -652,13 +655,20 @@
             if (ItemJnlLine."Serial No." <> '') or
                (ItemJnlLine."Lot No." <> '')
             then begin
+#if CLEAN19
+                ItemTrackingSetup."Serial No." := ItemJnlLine."Serial No.";
+                ItemTrackingSetup."Lot No." := ItemJnlLine."Lot No.";
+#endif
                 ExpDate := ItemTrackingMgt.ExistingExpirationDate(
                     ItemJnlLine."Item No.",
                     ItemJnlLine."Variant Code",
+#if CLEAN19                    
+                    ItemTrackingSetup,
+#else
                     ItemJnlLine."Lot No.",
                     ItemJnlLine."Serial No.",
+#endif
                     false, DummyEntriesExist);
-
                 ItemJnlLine."New Item Expiration Date" := ExpDate;
                 ItemJnlLine."Item Expiration Date" := ExpDate;
             end;

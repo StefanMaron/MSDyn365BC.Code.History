@@ -1,14 +1,23 @@
 table 11707 "Issued Bank Statement Line"
 {
     Caption = 'Issued Bank Statement Line';
+#if not CLEAN19
     DrillDownPageID = "Issued Bank Statement Lines";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Bank Statement No."; Code[20])
         {
             Caption = 'Bank Statement No.';
+#if not CLEAN19
             TableRelation = "Issued Bank Statement Header"."No.";
+#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -27,7 +36,11 @@ table 11707 "Issued Bank Statement Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor
             ELSE
+#if CLEAN17
+            IF (Type = CONST("Bank Account")) "Bank Account"
+#else
             IF (Type = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"))
+#endif
             ELSE
             IF (Type = CONST("G/L Account")) "G/L Account";
         }
@@ -53,7 +66,9 @@ table 11707 "Issued Bank Statement Line"
         field(9; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {

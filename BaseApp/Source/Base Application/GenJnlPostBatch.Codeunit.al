@@ -41,7 +41,9 @@
         Text021: Label 'cannot be specified when using recurring journals.';
         Text022: Label 'The Balance and Reversing Balance recurring methods can be used only for G/L accounts.';
         Text023: Label 'Allocations can only be used with recurring journals.';
+#if not CLEAN19
         Text024: Label '<Month Text>', Locked = true;
+#endif
         Text025: Label 'A maximum of %1 posting number series can be used in each journal.';
         Text026: Label '%5 %2 is out of balance by %1 %7. ';
         Text027: Label 'The lines in %1 are out of balance by %2 %5. ';
@@ -80,10 +82,12 @@
         LastPostedDocNo: Code[20];
         CurrentBalance: Decimal;
         CurrentBalanceReverse: Decimal;
+#if not CLEAN19
         Day: Integer;
         Week: Integer;
         Month: Integer;
         MonthText: Text[30];
+#endif
         NoOfRecords: Integer;
         NoOfReversingRecords: Integer;
         LineCount: Integer;
@@ -159,13 +163,19 @@
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         GenJnlLineVATInfoSource: Record "Gen. Journal Line";
+#if not CLEAN19
         TempSalesAdvanceLetterHeader: Record "Sales Advance Letter Header" temporary;
         TempPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header" temporary;
+#endif
         UpdateAnalysisView: Codeunit "Update Analysis View";
+#if not CLEAN19
         SalesPostAdvances: Codeunit "Sales-Post Advances";
         PurchPostAdvances: Codeunit "Purchase-Post Advances";
+#endif
         ICOutboxExport: Codeunit "IC Outbox Export";
         TypeHelper: Codeunit "Type Helper";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
@@ -197,8 +207,10 @@
                 Window.Update(1, "Journal Batch Name");
             end;
 
+#if not CLEAN19
             GenJnlPostLine.SetPostAdvInvAfterBatch(true); // NAVCZ
 
+#endif
             // Check lines
             LineCount := 0;
             StartLineNo := "Line No.";
@@ -232,11 +244,13 @@
             FindSet(true, false);
             FirstLine := true;
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, PostingLinesMsg);
                 ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine);
                 ProcessICTransaction(LastICTransactionNo, ICTransactionNo);
                 GenJnlLine3 := GenJnlLine;
                 if not PostGenJournalLine(GenJnlLine3, CurrentICPartner, ICTransactionNo) then
                     SkippedLine := true;
+                ErrorMessageMgt.PopContext(ErrorContextElement);
             until Next() = 0;
 
             if LastICTransactionNo > 0 then
@@ -255,12 +269,14 @@
             OnProcessLinesOnBeforeSetGLRegNoToZero(GenJnlLine, GLRegNo, IsHandled, GenJnlPostLine);
             if not IsHandled then
                 if not GLReg.FindLast or (GLReg."No." <> GLRegNo) then
+#if not CLEAN19
                     if Prepayment and ("Prepayment Type" = "Prepayment Type"::Advance) then begin
                         if GLReg."No." < GLRegNo then
                             GLRegNo := 0
                         else
                             GLRegNo := GLReg."No.";
                     end else
+#endif
                         GLRegNo := 0;
 
             Init;
@@ -274,6 +290,10 @@
             end;
 
             // Update/delete lines
+#if CLEAN19
+            if GLRegNo <> 0 then
+                UpdateAndDeleteLines(GenJnlLine);
+#else
             if GLRegNo <> 0 then begin
                 UpdateAndDeleteLines(GenJnlLine);
 
@@ -291,6 +311,7 @@
                     PurchPostAdvances.AutoPostAdvanceInvoices;
                 end;
             end;
+#endif            
 
             if GenJnlBatch."No. Series" <> '' then
                 NoSeriesMgt.SaveNoSeries;
@@ -613,7 +634,9 @@
 
     local procedure UpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line") Updated: Boolean
     var
+#if not CLEAN18
         GLAccount: Record "G/L Account";
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -637,6 +660,7 @@
                         GenJnlAlloc.UpdateAllocationsAddCurr(GenJnlLine2, "Source Currency Amount");
                     end;
                     GLAcc.CalcFields("Net Change");
+#if not CLEAN18
                     if GLSetup."Check Posting Debit/Credit" then begin
                         GLAccount.Get("Account No.");
                         case GLAccount."Debit/Credit" of
@@ -648,7 +672,8 @@
                                 Validate(Amount, -GLAcc."Net Change");
                         end;
                     end else
-                        Validate(Amount, -GLAcc."Net Change");
+#endif
+                    Validate(Amount, -GLAcc."Net Change");
                     exit(true);
                 end;
                 Error(Text022);
@@ -690,6 +715,7 @@
 
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
+#if not CLEAN19
         with GenJnlLine2 do
             if ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then begin
                 Day := Date2DMY("Posting Date", 1);
@@ -713,6 +739,11 @@
                     '>');
                 OnAfterMakeRecurringTexts(GenJnlLine2, AccountingPeriod, Day, Week, Month, MonthText);
             end;
+#else
+        with GenJnlLine2 do
+            if ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
+#endif
     end;
 
     local procedure PostAllocations(var AllocateGenJnlLine: Record "Gen. Journal Line"; Reversing: Boolean)
@@ -735,8 +766,10 @@
                     GenJnlLine2.Init();
                     GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
                     GenJnlLine2."Posting Date" := "Posting Date";
+#if not CLEAN17
                     GenJnlLine2."VAT Date" := "VAT Date";
                     GenJnlLine2."Original Document VAT Date" := "Original Document VAT Date";
+#endif
                     GenJnlLine2."External Document No." := "External Document No.";
                     GenJnlLine2."Document Type" := "Document Type";
                     GenJnlLine2."Document No." := "Document No.";
@@ -749,6 +782,7 @@
                     GenJnlLine2."Recurring Method" := "Recurring Method";
                     if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor] then
                         CopyGenJnlLineBalancingData(GenJnlLine2, AllocateGenJnlLine);
+                    GenJnlLine2."External Document No." := "External Document No.";
                     OnPostAllocationsOnBeforeCopyFromGenJnlAlloc(GenJnlLine2, AllocateGenJnlLine, Reversing);
                     repeat
                         GenJnlLine2.CopyFromGenJnlAllocation(GenJnlAlloc);
@@ -1075,6 +1109,7 @@
             until GenJnlLine4.Next() = 0;
     end;
 
+#if not CLEAN19
     local procedure CheckAdvLetter(var GenJnlLine: Record "Gen. Journal Line")
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -1144,6 +1179,7 @@
         end;
     end;
 
+#endif
     local procedure UpdateGenJnlLineWithVATInfo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineVATInfoSource: Record "Gen. Journal Line"; StartLineNo: Integer; LastLineNo: Integer)
     var
         GenJournalLineCopy: Record "Gen. Journal Line";
@@ -1482,7 +1518,9 @@
 
     local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer): Boolean
     var
+#if not CLEAN18
         GLAccount: Record "G/L Account";
+#endif
         IsPosted: Boolean;
         SavedPostingDate: Date;
     begin
@@ -1517,6 +1555,7 @@
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
+#if not CLEAN18
                 if (TempGenJnlLine4."Account Type" = TempGenJnlLine4."Account Type"::"G/L Account") and
                    GLSetup."Check Posting Debit/Credit"
                 then begin
@@ -1524,6 +1563,7 @@
                     if GLAccount."Debit/Credit" <> GLAccount."Debit/Credit"::Both then
                         TempGenJnlLine4.Correction := not TempGenJnlLine4.Correction;
                 end;
+#endif
                 TempGenJnlLine4.Insert();
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
@@ -1537,6 +1577,8 @@
     local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
     var
         GenJournalLineToUpdate: Record "Gen. Journal Line";
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
         IsModified: Boolean;
     begin
         GenJournalLineToUpdate.Copy(GenJnlLine);
@@ -1549,10 +1591,14 @@
               PostingSetupMgt.ConfirmPostingAfterCurrentCalendarDate(
                 ConfirmPostingAfterCurrentPeriodQst, GenJnlLine5."Posting Date");
         PrepareGenJnlLineAddCurr(GenJnlLine5);
+        ErrorMessageManagement.PushContext(ErrorContextElement, GenJnlLine5.RecordId, 0, '');
         OnCheckLineOnBeforeRunCheck(GenJnlLine5);
         GenJnlCheckLine.RunCheck(GenJnlLine5);
+        ErrorMessageManagement.PopContext(ErrorContextElement);
         CheckRestrictions(GenJnlLine5);
+#if not CLEAN19
         CheckAdvLetter(GenJournalLineToUpdate);
+#endif
         GenJnlLine.Copy(GenJournalLineToUpdate);
         if IsModified then
             GenJnlLine.Modify();
@@ -1995,10 +2041,12 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnAfterMakeRecurringTexts(var GenJournalLine: Record "Gen. Journal Line"; var AccountingPeriod: Record "Accounting Period"; var Day: Integer; var Week: Integer; var Month: Integer; var MonthText: Text[30])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostAllocationsOnBeforeCopyFromGenJnlAlloc(var GenJournalLine: Record "Gen. Journal Line"; var AllocateGenJournalLine: Record "Gen. Journal Line"; var Reversing: Boolean)

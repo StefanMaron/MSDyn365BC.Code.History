@@ -1,4 +1,5 @@
-﻿codeunit 2 "Company-Initialize"
+﻿#if not CLEAN19
+codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
                   TableData "General Ledger Setup" = i,
@@ -23,11 +24,17 @@
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
-                  TableData "Config. Setup" = i,
+#if not CLEAN17
                   TableData "Electronically Govern. Setup" = i,
+#endif
+#if not CLEAN18
                   TableData "Credits Setup" = i,
-                  tabledata "Trial Balance Setup" = i,
+#endif
+#if not CLEAN18
                   TableData "Stat. Reporting Setup" = i,
+#endif
+                  TableData "Trial Balance Setup" = i,
+                  TableData "Config. Setup" = i,
                   TableData "User Group Member" = d;
 
     trigger OnRun()
@@ -38,7 +45,9 @@
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         WorkflowSetup: Codeunit "Workflow Setup";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+#if not CLEAN17
         RegistrationLogMgt: Codeunit "Registration Log Mgt.";
+#endif
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
         UpgradeTag: Codeunit "Upgrade Tag";
         Window: Dialog;
@@ -56,9 +65,13 @@
         InitBankExportImportSetup;
         InitDocExchServiceSetup;
         // NAVCZ
+#if not CLEAN18
         InitCreditRepSelection;
+#endif
+#if not CLEAN17
         InitCashDeskRepSelection;
         RegistrationLogMgt.InitServiceSetup;
+#endif
         BankPmtApplRuleCode.InsertDefaultMatchingRuleCode();
         BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankPmtApplRuleCode.GetDefaultCode();
         // NAVCZ
@@ -203,16 +216,22 @@
         InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
         InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
+#if not CLEAN17
         Text26540: Label 'CASHDESK';
         Text26541: Label 'Cash Desk Evidence';
+#endif
+#if not CLEAN18
         Text11705: Label 'CREDIT';
         Text11706: Label 'Credit';
+#endif
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
+#if not CLEAN17
         VATPDTxt: Label 'VATPD';
         VATSDTxt: Label 'VATSD';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
         SalesVATDelayTxt: Label 'Sales VAT delay';
+#endif
         OPBALANCETxt: Label 'OPBALANCE';
         OpenBalanceSheetTxt: Label 'Open Balance Sheet';
         CLBALANCETxt: Label 'CLBALANCE';
@@ -242,11 +261,17 @@
         DataMigrationSetup: Record "Data Migration Setup";
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         CompanyInfo: Record "Company Information";
+#if not CLEAN18
         CreditsSetup: Record "Credits Setup";
+#endif
+#if not CLEAN17
         ElectronicallyGovernSetup: Record "Electronically Govern. Setup";
+#endif
         TrialBalanceSetup: Record "Trial Balance Setup";
         SocialListeningSetup: Record "Social Listening Setup";
+#if not CLEAN18
         StatReportingSetup: Record "Stat. Reporting Setup";
+#endif
     begin
         with GLSetup do
             if not FindFirst then begin
@@ -393,7 +418,7 @@
                 "Created DateTime" := CurrentDateTime;
                 Insert;
             end;
-
+#if not CLEAN18
         // NAVCZ
         with CreditsSetup do
             if WritePermission then
@@ -401,7 +426,8 @@
                     Init;
                     Insert;
                 end;
-
+#endif
+#if not CLEAN17
         with ElectronicallyGovernSetup do
             if WritePermission then
                 if not FindFirst then begin
@@ -409,6 +435,8 @@
                     Insert;
                 end;
 
+#endif
+#if not CLEAN18
         with StatReportingSetup do
             if WritePermission then
                 if not FindFirst then begin
@@ -416,6 +444,7 @@
                     Insert;
                 end;
         // NAVCZ
+#endif
     end;
 
     local procedure InitSourceCodeSetup()
@@ -500,13 +529,17 @@
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
                 InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
                 InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
+#if not CLEAN18
                 InsertSourceCode(Credit, Text11705, Text11706); // NAVCZ
+#endif
+#if not CLEAN17
                 InsertSourceCode("Cash Desk", Text26540, Text26541); // NAVCZ
                 InsertSourceCode("Purchase VAT Delay", VATPDTxt, PurchaseVATDelayTxt); // NAVCZ
                 InsertSourceCode("Sales VAT Delay", VATSDTxt, SalesVATDelayTxt); // NAVCZ
+#endif
                 InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
                 InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
-                Insert;
+                Insert();
             end;
     end;
 
@@ -771,6 +804,7 @@
         end;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure InitCreditRepSelection()
@@ -799,6 +833,8 @@
         ReportSelections.Insert();
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure InitCashDeskRepSelection()
@@ -808,16 +844,12 @@
         // NAVCZ
         with ReportSelections do
             if WritePermission then
-#if CLEAN17
-                ;
-#else
                 if not FindFirst() then begin
                     InsertCashDeskRepSelection(Usage::"C.Rcpt", '1', REPORT::"Receipt Cash Document");
                     InsertCashDeskRepSelection(Usage::"C.Wdrwl", '1', REPORT::"Withdrawal Cash Document");
                     InsertCashDeskRepSelection(Usage::"P.C.Rcpt", '1', REPORT::"Posted Receipt Cash Doc.");
                     InsertCashDeskRepSelection(Usage::"P.C.Wdrwl", '1', REPORT::"Posted Withdrawal Cash Doc.");
                 end;
-#endif
     end;
 
     local procedure InsertCashDeskRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
@@ -832,6 +864,7 @@
         ReportSelections.Insert();
     end;
 
+#endif
     local procedure InitApplicationAreasForSaaS()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
@@ -899,3 +932,4 @@
     end;
 }
 
+#endif

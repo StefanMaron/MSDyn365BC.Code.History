@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 145020 "Check User Setup Dimensions"
 {
     Subtype = Test;
@@ -266,3 +267,4 @@ codeunit 145020 "Check User Setup Dimensions"
     end;
 }
 
+#endif

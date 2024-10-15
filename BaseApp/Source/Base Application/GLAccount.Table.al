@@ -26,11 +26,9 @@ table 15 "G/L Account"
         {
             Caption = 'Search Name';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
 
             trigger OnValidate()
             var
@@ -645,7 +643,11 @@ table 15 "G/L Account"
             Caption = 'G/L Account Group';
             OptionCaption = ' ,Internal,Sub balance,3,4,5,6,7,8,9,10';
             OptionMembers = " ",Internal,"Sub balance","3","4","5","6","7","8","9","10";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -653,6 +655,7 @@ table 15 "G/L Account"
         {
             Caption = 'Apply Entries';
         }
+#if not CLEAN17
         field(11762; "Net Change (VAT Date)"; Decimal)
         {
             CalcFormula = Sum("G/L Entry".Amount WHERE("G/L Account No." = FIELD("No."),
@@ -749,6 +752,7 @@ table 15 "G/L Account"
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
+#endif
         field(11792; "Full Name"; Text[100])
         {
             Caption = 'Full Name';
@@ -1055,6 +1059,8 @@ table 15 "G/L Account"
 
     procedure CheckGenProdPostingGroup()
     var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1062,10 +1068,16 @@ table 15 "G/L Account"
         if IsHandled then
             exit;
 
-        if "Gen. Prod. Posting Group" = '' then
-            Error(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No.");
+        if "Gen. Prod. Posting Group" = '' then 
+            ErrorMessageManagement.LogContextFieldError(
+                0,
+                StrSubstNo(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No."),
+                Rec,
+                FieldNo("Gen. Prod. Posting Group"),
+                ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckDebitCredit(var GLEntry: Record "G/L Entry")
@@ -1114,6 +1126,7 @@ table 15 "G/L Account"
             end;
     end;
 
+#endif
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;

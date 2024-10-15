@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31016 "Sales Adv. No. Series Setup"
 {
-    Caption = 'Sales Adv. No. Series Setup';
+    Caption = 'Sales Adv. No. Series Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Sales Adv. Payment Template";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -30,7 +34,7 @@ page 31016 "Sales Adv. No. Series Setup"
             action(Setup)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Sales Advanced Paym. Templates';
+                Caption = 'Sales Advanced Paym. Templates (Obsolete)';
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -42,6 +46,7 @@ page 31016 "Sales Adv. No. Series Setup"
         }
     }
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetTemplateCode(TemplateCode: Code[10])
     begin
@@ -50,4 +55,4 @@ page 31016 "Sales Adv. No. Series Setup"
         FilterGroup(0);
     end;
 }
-
+#endif

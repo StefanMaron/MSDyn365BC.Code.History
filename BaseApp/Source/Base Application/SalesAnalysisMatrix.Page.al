@@ -528,7 +528,7 @@ page 9207 "Sales Analysis Matrix"
                         CellValue := 0
                     else
                         CellValue := AnalysisReportMgt.CalcCell(Rec, AnalysisColumn, false);
-                    MatrixData[i] := MatrixMgt.RoundValue(CellValue, AnalysisColumn."Rounding Factor");
+                    MatrixData[i] := MatrixMgt.RoundAmount(CellValue, AnalysisColumn."Rounding Factor");
                     MatrixRounding[i] := AnalysisColumn."Rounding Factor";
                     CachedContainsError[i] := FindError;
                 end;
@@ -592,7 +592,7 @@ page 9207 "Sales Analysis Matrix"
         MatrixColumnCaptions: array[32] of Text[1024];
         i: Integer;
         MatrixData: array[32] of Decimal;
-        MatrixRounding: array[32] of Option;
+        MatrixRounding: array[32] of Enum "Analysis Rounding Factor";
         FirstLineNo: Integer;
         LastLineNo: Integer;
         CachedContainsError: array[32] of Boolean;
@@ -809,7 +809,7 @@ page 9207 "Sales Analysis Matrix"
 
     local procedure FormatStr(ColumnNo: Integer): Text
     begin
-        exit(MatrixMgt.GetFormatString(MatrixRounding[ColumnNo], false));
+        exit(MatrixMgt.FormatRoundingFactor(MatrixRounding[ColumnNo], false));
     end;
 
     local procedure SetStyle(ColumnID: Integer)

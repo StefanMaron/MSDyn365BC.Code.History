@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 110 "Customer Posting Groups"
 {
     ApplicationArea = Basic, Suite;
@@ -70,6 +71,10 @@ page 110 "Customer Posting Groups"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger advance account for the customer posting group.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Service Charge Acc."; "Service Charge Acc.")
                 {
@@ -180,6 +185,10 @@ page 110 "Customer Posting Groups"
     {
         area(navigation)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
+#if not CLEAN18
             group("&Posting Group")
             {
                 Caption = '&Posting Group';
@@ -202,6 +211,7 @@ page 110 "Customer Posting Groups"
                     Visible = false;
                 }
             }
+#endif
         }
     }
 
@@ -237,3 +247,4 @@ page 110 "Customer Posting Groups"
     end;
 }
 
+#endif

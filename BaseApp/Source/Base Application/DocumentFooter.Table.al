@@ -1,8 +1,12 @@
 table 31097 "Document Footer"
 {
     Caption = 'Document Footer';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Document Footers";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 

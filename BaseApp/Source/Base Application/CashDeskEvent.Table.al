@@ -1,8 +1,12 @@
 table 11741 "Cash Desk Event"
 {
     Caption = 'Cash Desk Event';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Cash Desk Events";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -16,6 +20,7 @@ table 11741 "Cash Desk Event"
         field(2; "Cash Desk No."; Code[20])
         {
             Caption = 'Cash Desk No.';
+#if not CLEAN17
 
             trigger OnLookup()
             begin
@@ -32,6 +37,7 @@ table 11741 "Cash Desk Event"
                     BankAccount.TestField(Blocked, false);
                 end;
             end;
+#endif
         }
         field(5; "Cash Document Type"; Option)
         {
@@ -71,7 +77,9 @@ table 11741 "Cash Desk Event"
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
                     Validate("VAT Bus. Posting Group", '');
                     Validate("VAT Prod. Posting Group", '');
+#if not CLEAN18
                     Validate("EET Transaction", false);
+#endif
                 end;
             end;
         }
@@ -88,7 +96,11 @@ table 11741 "Cash Desk Event"
             ELSE
             IF ("Account Type" = CONST(Employee)) Employee
             ELSE
+#if CLEAN17
+            IF ("Account Type" = CONST("Bank Account")) "Bank Account"
+#else
             IF ("Account Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"))
+#endif
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset";
 
@@ -168,24 +180,28 @@ table 11741 "Cash Desk Event"
             CaptionClass = '1,2,1';
             Caption = 'Global Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Global Dimension 1 Code");
                 Modify;
             end;
+#endif
         }
         field(30; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
                 Modify;
             end;
+#endif
         }
         field(72; "Gen. Posting Type"; Option)
         {
@@ -206,16 +222,21 @@ table 11741 "Cash Desk Event"
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "EET Transaction" then
                     if not ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::Customer]) then
                         FieldError("Account Type");
             end;
+#endif
         }
     }
 
@@ -230,6 +251,7 @@ table 11741 "Cash Desk Event"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     trigger OnDelete()
     begin
@@ -241,6 +263,7 @@ table 11741 "Cash Desk Event"
         DimMgt.RenameDefaultDim(DATABASE::"Cash Desk Event", xRec.Code, Code);
     end;
 
+#endif
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -248,6 +271,7 @@ table 11741 "Cash Desk Event"
         BankAccount: Record "Bank Account";
         DimMgt: Codeunit DimensionManagement;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -256,5 +280,6 @@ table 11741 "Cash Desk Event"
         if not IsTemporary then
             DimMgt.SaveDefaultDim(DATABASE::"Cash Desk Event", Code, FieldNumber, ShortcutDimCode);
     end;
+#endif
 }
 

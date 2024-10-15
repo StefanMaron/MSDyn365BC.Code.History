@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 134 "Import Attachment - Inc. Doc."
 {
     TableNo = "Incoming Document Attachment";
@@ -212,7 +213,9 @@ codeunit 134 "Import Attachment - Inc. Doc."
         PurchaseHeader: Record "Purchase Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         DocTableNo: Integer;
         DocType: Enum "Incoming Document Type";
         DocNo: Code[20];
@@ -261,6 +264,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         PurchAdvanceLetterHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
                         PurchAdvanceLetterHeader.Modify();
                     end;
+#if not CLEAN18
                 DATABASE::"Credit Header":
                     begin
                         CreditHeader.Get(DocNo);
@@ -268,6 +272,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         CreditHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
                         CreditHeader.Modify();
                     end;
+#endif
                 // NAVCZ
                 else
                     Error(NotSupportedDocTableErr, DocTableNo);
@@ -382,6 +387,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetUnpostedAdvanceDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
     begin
         // NAVCZ
@@ -390,8 +396,10 @@ codeunit 134 "Import Attachment - Inc. Doc."
                 exit(IncomingDocument."Document Type"::"Sales Advance");
             DATABASE::"Purch. Advance Letter Header":
                 exit(IncomingDocument."Document Type"::"Purchase Advance");
+#if not CLEAN18
             DATABASE::"Credit Header":
                 exit(IncomingDocument."Document Type"::Credit);
+#endif
         end;
         // NAVCZ
     end;
@@ -475,3 +483,4 @@ codeunit 134 "Import Attachment - Inc. Doc."
     end;
 }
 
+#endif

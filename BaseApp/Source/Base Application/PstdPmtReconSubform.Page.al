@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1296 "Pstd. Pmt. Recon. Subform"
 {
     AutoSplitKey = true;
@@ -116,21 +117,37 @@ page 1296 "Pstd. Pmt. Recon. Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Variable Symbol"; "Variable Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the detail information for payment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Constant Symbol"; "Constant Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the additional symbol of bank payments.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("External Document No."; "External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
         }
@@ -141,3 +158,4 @@ page 1296 "Pstd. Pmt. Recon. Subform"
     }
 }
 
+#endif

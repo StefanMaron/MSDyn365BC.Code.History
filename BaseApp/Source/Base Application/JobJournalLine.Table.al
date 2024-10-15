@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -114,7 +114,8 @@
                         "Bin Code" := '';
                         if ("No." <> '') and ("Location Code" <> '') then begin
                             GetLocation("Location Code");
-                            if IsDefaultBin() then
+                            GetItem();
+                            if IsDefaultBin() and Item.IsInventoriableType() then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
                     end;
@@ -151,9 +152,9 @@
 
             trigger OnValidate()
             begin
-                "Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 UpdateAllAmounts;
 
                 if "Job Planning Line No." <> 0 then
@@ -162,12 +163,13 @@
                 CheckItemAvailable;
                 if Item."Item Tracking Code" <> '' then
                     ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
-
+#if not CLEAN18
                 // NAVCZ
                 GetGLSetup;
                 if GLSetup."Mark Neg. Qty as Correction" then
                     Correction := Quantity < 0;
                 // NAVCZ
+#endif
             end;
         }
         field(12; "Direct Unit Cost (LCY)"; Decimal)
@@ -259,6 +261,8 @@
                         begin
                             Item.Get("No.");
                             "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                             OnAfterAssignItemUoM(Rec, Item);
                         end;
                     Type::Resource:
@@ -291,6 +295,24 @@
                     Validate(Quantity);
             end;
         }
+        field(19; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(20; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(21; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
@@ -299,18 +321,19 @@
             trigger OnValidate()
             begin
                 "Bin Code" := '';
-                if "Location Code" <> '' then
-                    if IsNonInventoriableItem then
-                        Item.TestField(Type, Item.Type::Inventory);
                 OnValidateLocationCodeOnBeforeGetLocation(Rec);
                 GetLocation("Location Code");
                 Location.TestField("Directed Put-away and Pick", false);
                 Validate(Quantity);
+#if not CLEAN18
                 xSetGPPGfromSKU; // NAVCZ
+#endif
                 if (Type = Type::Item) and ("Location Code" <> xRec."Location Code") then
-                    if ("Location Code" <> '') and ("No." <> '') then
-                        if IsDefaultBin() then
+                    if ("Location Code" <> '') and ("No." <> '') then begin
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                    end;
             end;
         }
         field(22; Chargeable; Boolean)
@@ -877,11 +900,9 @@
                             "Remaining Qty." := 0;
                     end;
                 end;
-                "Remaining Qty. (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", "Remaining Qty.", "Qty. per Unit of Measure");
+                "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
-                CheckItemAvailable;
+                 CheckItemAvailable;
             end;
         }
         field(1031; "Remaining Qty. (Base)"; Decimal)
@@ -902,7 +923,9 @@
             var
                 IsHandled: Boolean;
             begin
+#if not CLEAN18
                 xSetGPPGfromSKU; // NAVCZ
+#endif
                 if "Variant Code" = '' then begin
                     if Type = Type::Item then begin
                         Item.Get("No.");
@@ -949,6 +972,8 @@
                     Location.TestField("Bin Mandatory");
                 end;
                 TestField(Type, Type::Item);
+                GetItem();
+                Item.TestField(Type, Item.Type::Inventory);
                 CheckItemAvailable;
                 WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
             end;
@@ -1014,7 +1039,11 @@
         field(11763; Correction; Boolean)
         {
             Caption = 'Correction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1039,21 +1068,33 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 if "Tariff No." <> xRec."Tariff No." then
                     "Statistic Indication" := '';
             end;
+#endif
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if not CLEAN17
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1061,7 +1102,11 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1069,7 +1114,11 @@
         {
             Caption = 'Intrastat Transaction';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -1077,7 +1126,11 @@
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Merge to W1';
             ObsoleteTag = '18.0';
         }
@@ -1085,17 +1138,26 @@
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31070; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Whse. Net Change Template";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -1107,6 +1169,7 @@
                     Validate("Gen. Bus. Posting Group", lreWhseNetChangeTemplate."Gen. Bus. Posting Group");
                 end;
             end;
+#endif
         }
     }
 
@@ -1263,15 +1326,20 @@
             GetItemTranslation;
         "Posting Group" := Item."Inventory Posting Group";
         "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+#if not CLEAN18
         xSetGPPGfromSKU; // NAVCZ
+#endif
         Validate("Unit of Measure Code", Item."Base Unit of Measure");
+#if not CLEAN18
         // NAVCZ
         "Tariff No." := Item."Tariff No.";
+#if not CLEAN17
         "Statistic Indication" := Item."Statistic Indication";
+#endif        
         "Net Weight" := Item."Net Weight";
         "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
         // NAVCZ
-
+#endif
         OnAfterAssignItemValues(Rec, Item);
     end;
 
@@ -1361,7 +1429,9 @@
         "Source Code" := JobJnlTemplate."Source Code";
         "Reason Code" := JobJnlBatch."Reason Code";
         "Posting No. Series" := JobJnlBatch."Posting No. Series";
+#if not CLEAN17
         Validate("Whse. Net Change Template", LastJobJnlLine."Whse. Net Change Template"); // NAVCZ
+#endif
         "Price Calculation Method" := Job.GetPriceCalculationMethod();
         "Cost Calculation Method" := Job.GetCostCalculationMethod();
 
@@ -1471,7 +1541,7 @@
             Job.Get("Job No.");
     end;
 
-    local procedure UpdateCurrencyFactor()
+    procedure UpdateCurrencyFactor()
     begin
         if "Currency Code" <> '' then begin
             if "Posting Date" = 0D then
@@ -1856,12 +1926,13 @@
         end;
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
-
+#endif
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -2016,6 +2087,7 @@
         OnAfterUpdateDimensions(Rec, DimensionSetIDArr);
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIntrastat()
@@ -2072,13 +2144,16 @@
         GetItem;
         if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
             Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
+#if not CLEAN17
         if GetSKU then
             if (SKU."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group") and (SKU."Gen. Prod. Posting Group" <> '') then
                 Validate("Gen. Prod. Posting Group", SKU."Gen. Prod. Posting Group");
+#endif
         if "Gen. Bus. Posting Group" <> '' then
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
 
+#endif
     procedure IsOpenedFromBatch(): Boolean
     var
         JobJournalBatch: Record "Job Journal Batch";
@@ -2147,6 +2222,12 @@
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
     end;
 
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGLAccountValues(var JobJournalLine: Record "Job Journal Line"; GLAccount: Record "G/L Account")
     begin
@@ -2202,12 +2283,13 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; LastJobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; JobJournalBatch: Record "Job Journal Batch")
     begin
@@ -2283,16 +2365,20 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use JobJnlManagement event OnBeforeOpenJnl.', '19.0')]
     procedure CheckJobJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckJobJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use JobJnlManagement event OnBeforeOpenJnl.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckJobJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
@@ -2398,7 +2484,7 @@
     local procedure OnAfterCreateDim(var JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin

@@ -89,16 +89,26 @@ page 11797 "User Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the possibillity to allow or not allow posting to closed period.';
                 }
+#if not CLEAN19
                 field("Check Payment Orders"; "Check Payment Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check payment orders allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Check Bank Statements"; "Check Bank Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies check Bank Statemsnts allowed for posting (set in lines) for selected user.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Check Whse. Net Change Temp."; "Check Whse. Net Change Temp.")
                 {
                     ApplicationArea = Basic, Suite;

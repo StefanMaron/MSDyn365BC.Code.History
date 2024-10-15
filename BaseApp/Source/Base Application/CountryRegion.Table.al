@@ -1,3 +1,4 @@
+#if not CLEAN18
 table 9 "Country/Region"
 {
     Caption = 'Country/Region';
@@ -54,12 +55,10 @@ table 9 "Country/Region"
         {
             Caption = 'Intrastat Code';
         }
-        field(8; "Address Format"; Option)
+        field(8; "Address Format"; Enum "Country/Region Address Format")
         {
             Caption = 'Address Format';
             InitValue = "City+Post Code";
-            OptionCaption = 'Post Code+City,City+Post Code,City+County+Post Code,Blank Line+Post Code+City,,,,,,,,,,Custom';
-            OptionMembers = "Post Code+City","City+Post Code","City+County+Post Code","Blank Line+Post Code+City",,,,,,,,,,Custom;
 
             trigger OnValidate()
             begin
@@ -293,3 +292,4 @@ table 9 "Country/Region"
     end;
 }
 
+#endif

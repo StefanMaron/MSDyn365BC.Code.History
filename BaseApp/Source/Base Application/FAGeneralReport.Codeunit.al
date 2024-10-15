@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
@@ -370,3 +371,4 @@ codeunit 5626 "FA General Report"
     end;
 }
 
+#endif

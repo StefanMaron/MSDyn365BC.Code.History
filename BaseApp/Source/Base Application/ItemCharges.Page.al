@@ -46,6 +46,7 @@ page 5800 "Item Charges"
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies text to search for when you do not know the number of the item charge.';
                 }
+#if not CLEAN18
                 field("Incl. in Intrastat Amount"; "Incl. in Intrastat Amount")
                 {
                     ApplicationArea = ItemCharges;
@@ -64,6 +65,7 @@ page 5800 "Item Charges"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)

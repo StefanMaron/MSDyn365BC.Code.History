@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31041 "Depreciation Groups"
 {
     ApplicationArea = Basic, Suite;
@@ -119,4 +120,4 @@ page 31041 "Depreciation Groups"
     {
     }
 }
-
+#endif

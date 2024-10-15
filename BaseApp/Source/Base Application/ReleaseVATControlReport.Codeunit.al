@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 31101 "Release VAT Control Report"
 {
     TableNo = "VAT Control Report Header";
@@ -47,3 +48,5 @@ codeunit 31101 "Release VAT Control Report"
     end;
 }
 
+
+#endif

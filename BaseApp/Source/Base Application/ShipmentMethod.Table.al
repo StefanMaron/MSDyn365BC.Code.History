@@ -30,25 +30,37 @@ table 10 "Shipment Method"
         field(31060; "Include Item Charges (Amount)"; Boolean)
         {
             Caption = 'Include Item Charges (Amount)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31061; "Intrastat Delivery Group Code"; Code[10])
         {
             Caption = 'Intrastat Delivery Group Code';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             TableRelation = "Intrastat Delivery Group".Code;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31062; "Incl. Item Charges (Stat.Val.)"; Boolean)
         {
             Caption = 'Incl. Item Charges (Stat.Val.)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if "Incl. Item Charges (Stat.Val.)" then begin
@@ -56,15 +68,21 @@ table 10 "Shipment Method"
                     CheckIncludeIntrastat;
                 end;
             end;
+#endif
         }
         field(31063; "Adjustment %"; Decimal)
         {
             Caption = 'Adjustment %';
             MaxValue = 100;
             MinValue = -100;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -73,6 +91,7 @@ table 10 "Shipment Method"
                     TestField("Include Item Charges (Amount)", false); // NAVCZ
                 end;
             end;
+#endif
         }
     }
 
@@ -127,6 +146,7 @@ table 10 "Shipment Method"
             ShipmentMethod.Description := ShipmentMethodTranslation.Description;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     procedure CheckIncludeIntrastat()
@@ -138,6 +158,7 @@ table 10 "Shipment Method"
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
 
+#endif    
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;

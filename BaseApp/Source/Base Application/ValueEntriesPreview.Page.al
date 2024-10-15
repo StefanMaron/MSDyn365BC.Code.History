@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5807 "Value Entries Preview"
 {
     Caption = 'Value Entries Preview';
@@ -425,3 +426,4 @@ page 5807 "Value Entries Preview"
     end;
 }
 
+#endif

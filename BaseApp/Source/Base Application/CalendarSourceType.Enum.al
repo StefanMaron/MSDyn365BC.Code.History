@@ -1,3 +1,4 @@
+#if not CLEAN19
 enum 7602 "Calendar Source Type"
 {
     Extensible = true;
@@ -27,8 +28,12 @@ enum 7602 "Calendar Source Type"
     {
         Caption = 'Service';
     }
-    value(6; Bank) 
+    value(6; Bank)
     {
-         Caption = 'Bank'; 
+        Caption = 'Bank';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+        ObsoleteTag = '19.0';
     }
 }
+#endif

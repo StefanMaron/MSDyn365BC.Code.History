@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31030 "Purchase Adv. Paym. Templates"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Purchase Advance Payment Templates';
+    Caption = 'Purchase Advance Payment Templates (Obsolete)';
     PageType = Card;
     SourceTable = "Purchase Adv. Payment Template";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -84,4 +88,4 @@ page 31030 "Purchase Adv. Paym. Templates"
     {
     }
 }
-
+#endif

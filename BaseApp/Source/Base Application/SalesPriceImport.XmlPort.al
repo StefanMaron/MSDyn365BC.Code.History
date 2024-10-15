@@ -1,3 +1,4 @@
+#if not CLEAN19
 xmlport 31072 "Sales Price Import"
 {
     Caption = 'Sales Price Import';
@@ -121,4 +122,4 @@ xmlport 31072 "Sales Price Import"
     var
         greSalesPrice: Record "Sales Price";
 }
-
+#endif

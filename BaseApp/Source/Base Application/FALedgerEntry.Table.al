@@ -1,3 +1,4 @@
+#if not CLEAN17
 table 5601 "FA Ledger Entry"
 {
     Caption = 'FA Ledger Entry';
@@ -605,4 +606,4 @@ table 5601 "FA Ledger Entry"
     begin
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11772 "Turnover report by Glob. Dim."
 {
     DefaultLayout = RDLC;
@@ -451,3 +452,5 @@ report 11772 "Turnover report by Glob. Dim."
     end;
 }
 
+
+#endif

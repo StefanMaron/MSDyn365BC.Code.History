@@ -133,8 +133,12 @@
         field(11763; "Attribute Code"; Code[20])
         {
             Caption = 'Attribute Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "VAT Attribute Code".Code WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -143,7 +147,11 @@
             Caption = 'G/L Amount Type';
             OptionCaption = 'Net Change,Debit,Credit';
             OptionMembers = "Net Change",Debit,Credit;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -151,7 +159,11 @@
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -159,14 +171,22 @@
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11773; "Use Row Date Filter"; Boolean)
         {
             Caption = 'Use Row Date Filter';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '17.0';
         }
@@ -174,7 +194,11 @@
         {
             Caption = 'Date Row Filter';
             FieldClass = FlowFilter;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Unsupported functionality';
             ObsoleteTag = '17.0';
         }
@@ -183,7 +207,11 @@
             Caption = 'Show';
             OptionCaption = ' ,Zero If Negative,Zero If Positive';
             OptionMembers = " ","Zero If Negative","Zero If Positive";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -192,13 +220,24 @@
             Caption = 'Prepayment Type';
             OptionCaption = ' ,Not Prepayment,Prepayment,Advance';
             OptionMembers = " ","Not Prepayment",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31060; "EU-3 Party Trade"; Option)
         {
             Caption = 'EU-3 Party Trade';
             OptionCaption = ' ,Yes,No';
             OptionMembers = " ",Yes,No;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -207,22 +246,34 @@
             Caption = 'EU 3-Party Intermediate Role';
             OptionCaption = ' ,Yes,No';
             OptionMembers = " ",Yes,No;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31100; "VAT Control Rep. Section Code"; Code[20])
         {
             Caption = 'VAT Control Rep. Section Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "VAT Control Report Section";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31101; "Ignore Simpl. Tax Doc. Limit"; Boolean)
         {
             Caption = 'Ignore Simpl. Tax Doc. Limit';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -245,15 +296,19 @@
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use VATStmtManagement event OnBeforeOpenStmt.', '19.0')]
     procedure CheckVATStmtLineUserRestriction()
     begin
         // NAVCZ
         OnCheckVATStmtTemplateUserRestrictions(GetRangeMax("Statement Template Name"));
     end;
 
+    [Obsolete('This Integration Event is discontinued. Use VATStmtManagement event OnBeforeOpenStmt.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckVATStmtTemplateUserRestrictions(StatementTemplateName: Code[10])
     begin
     end;
+#endif
 }
 

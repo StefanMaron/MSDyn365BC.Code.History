@@ -1,7 +1,11 @@
 table 31061 "Intrastat Currency Exch. Rate"
 {
     Caption = 'Intrastat Currency Exch. Rate';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Unsupported functionality';
     ObsoleteTag = '18.0';
 

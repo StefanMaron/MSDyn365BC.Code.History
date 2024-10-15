@@ -203,13 +203,24 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             Caption = 'Vendor Posting Group';
             TableRelation = "Vendor Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31000; Advance; Boolean)
         {
             Caption = 'Advance';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -256,6 +267,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             SumIndexFields = "Amount (LCY)";
         }
+#if not CLEAN18
         key(Key12; "Vendor No.", "Posting Date", "Entry Type", "Document Type", "Vendor Posting Group", Advance)
         {
             SumIndexFields = "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)";
@@ -263,10 +275,16 @@ table 380 "Detailed Vendor Ledg. Entry"
             ObsoleteReason = 'Field "Vendor Posting Group" is removed and cannot be used in an active key.';
             ObsoleteTag = '18.0';
         }
+#endif
+#if not CLEAN19
         key(Key13; "Vendor No.", "Posting Date", "Entry Type", "Currency Code", Advance)
         {
             SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Debit Amount (LCY)", "Credit Amount", "Credit Amount (LCY)";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Advance" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
+#endif
         key(Key14; "Vendor No.", "Initial Entry Due Date", "Posting Date", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Currency Code", "Vendor Posting Group")
         {
             Enabled = false;

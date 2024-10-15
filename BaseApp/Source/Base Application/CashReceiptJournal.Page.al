@@ -45,6 +45,7 @@ page 255 "Cash Receipt Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -54,6 +55,7 @@ page 255 "Cash Receipt Journal"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -83,16 +85,26 @@ page 255 "Cash Receipt Journal"
                             HyperLink(GetIncomingDocumentURL);
                     end;
                 }
+#if not CLEAN19
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if line of general journal is prepayment';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("External Document No."; "External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -267,12 +279,17 @@ page 255 "Cash Receipt Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
+#if not CLEAN19
                 field("Advance VAT Base Amount"; "Advance VAT Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the advance VAT base amount for the general journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -770,14 +787,18 @@ page 255 "Cash Receipt Journal"
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Insert a rounding correction line in the journal. This rounding correction line will balance in LCY when amounts in the foreign currency also balance. You can then post the journal.';
                 }
+#if not CLEAN19
                 separator("-")
                 {
                     Caption = '-';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Ellipsis = true;
                     Image = LinkWithExisting;
                     Promoted = true;
@@ -785,13 +806,21 @@ page 255 "Cash Receipt Journal"
                     PromotedIsBig = true;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -801,15 +830,20 @@ page 255 "Cash Receipt Journal"
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
                         UnLinkWholeLetter; // NAVCZ
                     end;
                 }
+#endif
             }
             group("P&osting")
             {
@@ -858,7 +892,7 @@ page 255 "Cash Receipt Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -871,6 +905,7 @@ page 255 "Cash Receipt Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -893,7 +928,7 @@ page 255 "Cash Receipt Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1232,7 +1267,6 @@ page 255 "Cash Receipt Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
@@ -1262,6 +1296,7 @@ page 255 "Cash Receipt Journal"
         ShowAllLinesEnabled: Boolean;
 
     protected var
+        ApplyEntriesActionEnabled: Boolean;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

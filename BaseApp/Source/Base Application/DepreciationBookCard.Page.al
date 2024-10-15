@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5610 "Depreciation Book Card"
 {
     Caption = 'Depreciation Book Card';
@@ -76,7 +77,6 @@ page 5610 "Depreciation Book Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#endif
                 field("Deprication from 1st Month Day"; "Deprication from 1st Month Day")
                 {
                     ApplicationArea = FixedAssets;
@@ -104,6 +104,7 @@ page 5610 "Depreciation Book Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Allow Identical Document No."; "Allow Identical Document No.")
                 {
                     ApplicationArea = FixedAssets;
@@ -144,6 +145,7 @@ page 5610 "Depreciation Book Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies that when the Calculate Depreciation batch job calculates depreciations, a standardized year of 360 days, where each month has 30 days, is used.';
                 }
+#if not CLEAN18
                 field("Acqui.,Appr.before Depr. Check"; "Acqui.,Appr.before Depr. Check")
                 {
                     ApplicationArea = FixedAssets;
@@ -153,11 +155,17 @@ page 5610 "Depreciation Book Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Mark Errors as Corrections"; "Mark Errors as Corrections")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the correction will be posted on the same side of account (credit, debit).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#if not CLEAN18
                 field("All Acquil. in same Year"; "All Acquil. in same Year")
                 {
                     ApplicationArea = FixedAssets;
@@ -167,6 +175,7 @@ page 5610 "Depreciation Book Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group(Integration)
             {
@@ -390,3 +399,4 @@ page 5610 "Depreciation Book Card"
     }
 }
 
+#endif

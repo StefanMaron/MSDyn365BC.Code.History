@@ -47,7 +47,11 @@ table 1226 "Payment Export Data"
         field(30; "Sender Bank Account Code"; Code[20])
         {
             Caption = 'Sender Bank Account Code';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(31; "Sender Bank Account No."; Text[50])
         {
@@ -448,17 +452,40 @@ table 1226 "Payment Export Data"
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -658,10 +685,12 @@ table 1226 "Payment Export Data"
     procedure SetCreditTransferIDs(MessageID: Code[20])
     begin
         "Message ID" := MessageID;
+#if not CLEAN19
         // NAVCZ
         "Payment Information ID" :=
           StrSubstNo('VS%1/SS%2/KS%3', "Variable Symbol", "Specific Symbol", "Constant Symbol");
         // NAVCZ
+#endif
         "End-to-End ID" := "Payment Information ID";
     end;
 

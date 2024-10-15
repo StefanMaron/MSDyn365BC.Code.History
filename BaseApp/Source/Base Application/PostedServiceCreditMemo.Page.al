@@ -126,6 +126,7 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Service;
@@ -137,6 +138,7 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 group(Control11)
                 {
                     ShowCaption = false;
@@ -180,6 +182,7 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+#if not CLEAN17
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -190,6 +193,7 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             part(ServCrMemoLines; "Posted Serv. Cr. Memo Subform")
             {
@@ -321,6 +325,7 @@ page 5972 "Posted Service Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Service;
@@ -331,6 +336,7 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Service;
@@ -418,6 +424,7 @@ page 5972 "Posted Service Credit Memo"
                     Importance = Promoted;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, where the credit memo was registered.';
                 }
+#if not CLEAN18
                 field("Physical Transfer"; "Physical Transfer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -427,6 +434,7 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group("Foreign Trade")
             {
@@ -479,6 +487,7 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the area where the customer company is located.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -488,11 +497,13 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -511,6 +522,7 @@ page 5972 "Posted Service Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -522,6 +534,7 @@ page 5972 "Posted Service Credit Memo"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -631,6 +644,7 @@ page 5972 "Posted Service Credit Memo"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -772,6 +786,10 @@ page 5972 "Posted Service Credit Memo"
             group("F&unctions")
             {
                 Caption = 'F&unctions';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Merge to W1.';
+                ObsoleteTag = '19.0';
+
                 action(ActivityLog)
                 {
                     ApplicationArea = Service;
@@ -797,8 +815,8 @@ page 5972 "Posted Service Credit Memo"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnFindRecord(Which: Text): Boolean

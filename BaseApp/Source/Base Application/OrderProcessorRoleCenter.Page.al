@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 9006 "Order Processor Role Center"
 {
-    Caption = 'Sales Order Processor', Comment = '{Dependency=Match,"ProfileDescription_ORDERPROCESSOR"}';
+    Caption = 'Sales Order Processor';
     PageType = RoleCenter;
 
     layout
@@ -100,9 +101,12 @@ page 9006 "Order Processor Role Center"
             action("Sales Advance Letters")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Sales Advance Letters';
+                Caption = 'Sales Advance Letters (Obsolete)';
                 RunObject = Page "Sales Advance Letters";
                 ToolTip = 'Specifies sales advance letter';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                ObsoleteTag = '19.0';
             }
             action(Items)
             {
@@ -528,6 +532,9 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Posted Sales Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoces';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action(Action34)
                 {
@@ -544,6 +551,9 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Posted Sales Credit Memos";
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
                     ToolTip = 'Specifies prepayment credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Receipts")
                 {
@@ -599,6 +609,9 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Posted Purchase Invoices";
                     RunPageView = WHERE("Prepayment Invoice" = CONST(true));
                     ToolTip = 'Specifies prepayment invoces';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 action(Action86)
                 {
@@ -656,6 +669,7 @@ page 9006 "Order Processor Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';
@@ -950,3 +964,4 @@ page 9006 "Order Processor Role Center"
     }
 }
 
+#endif

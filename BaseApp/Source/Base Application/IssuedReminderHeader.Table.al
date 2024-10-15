@@ -287,7 +287,11 @@ table 297 "Issued Reminder Header"
         field(11700; "Bank No."; Code[20])
         {
             Caption = 'Bank No.';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
@@ -312,7 +316,10 @@ table 297 "Issued Reminder Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
+
             TableRelation = "Constant Symbol";
+#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -338,14 +345,22 @@ table 297 "Issued Reminder Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }

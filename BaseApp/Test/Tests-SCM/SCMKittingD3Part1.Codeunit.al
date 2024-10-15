@@ -411,7 +411,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure MissingCompPostingGrSetup(CompClearType: Option; CompType: Option)
+    local procedure MissingCompPostingGrSetup(CompClearType: Option; CompType: Enum "BOM Component Type")
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -454,7 +454,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Posting]
         // [SCENARIO] Verify an error when posting Assembly Order if appropriate Inventory Posting Setup does not exist within component Location and Inventory Posting Group.
 
-        MissingCompPostingGrSetup(ClearType::"Location Posting Setup", AssemblyLine.Type::Item);
+        MissingCompPostingGrSetup(ClearType::"Location Posting Setup", "BOM Component Type"::Item);
     end;
 
     [Test]
@@ -465,7 +465,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Posting]
         // [SCENARIO] Verify an error when posting Assembly Order if appropriate General Posting Setup does not exist within component Item.
 
-        MissingCompPostingGrSetup(ClearType::"Posting Group Setup", AssemblyLine.Type::Item);
+        MissingCompPostingGrSetup(ClearType::"Posting Group Setup", "BOM Component Type"::Item);
     end;
 
     [Test]
@@ -502,7 +502,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure MissingCompPostingGroups(Type: Option)
+    local procedure MissingCompPostingGroups(Type: Enum "BOM Component Type")
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -516,7 +516,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
           Item."Replenishment System"::Assembly, '', true);
 
         case Type of
-            AssemblyLine.Type::Item:
+            "BOM Component Type"::Item:
                 begin
                     LibraryInventory.CreateItem(Item);
                     Item.Validate("Inventory Posting Group", '');
@@ -530,7 +530,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
                     Assert.AreEqual(ExpectedError, GetLastErrorText, '');
                     ClearLastError;
                 end;
-            AssemblyLine.Type::Resource:
+            "BOM Component Type"::Resource:
                 begin
                     LibraryAssembly.CreateResource(Resource, true, '');
                     Resource.Validate("Gen. Prod. Posting Group", '');
@@ -555,7 +555,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Posting]
         // [SCENARIO] Verify an error when posting Assembly Order if component Item does not have Gen. Prod. Posting Group.
 
-        MissingCompPostingGroups(AssemblyLine.Type::Item);
+        MissingCompPostingGroups("BOM Component Type"::Item);
     end;
 
     [Test]
@@ -566,7 +566,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [FEATURE] [Posting]
         // [SCENARIO] Verify an error when posting Assembly Order if component Resource does not have Gen. Prod. Posting Group.
 
-        MissingCompPostingGroups(AssemblyLine.Type::Resource);
+        MissingCompPostingGroups("BOM Component Type"::Resource);
     end;
 
     [Test]
@@ -662,7 +662,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateUnitCost: Boolean; HeaderAdjustFactor: Decimal)
+    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; UseBaseUnitOfMeasure: Boolean; UpdateUnitCost: Boolean; HeaderAdjustFactor: Decimal)
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -674,7 +674,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Initialize;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, CostingMethod, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', UpdateUnitCost);
-        if NewComponentType = AssemblyLine.Type::Item then
+        if NewComponentType = "BOM Component Type"::Item then
             NewComponentNo := LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase,
                 AssemblyHeader."Gen. Prod. Posting Group", AssemblyHeader."Inventory Posting Group")
         else
@@ -715,7 +715,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Qty on Items changed and Unit Cost updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true, 1);
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true, 1);
     end;
 
     [Test]
@@ -727,7 +727,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Qty on Resources changed.
 
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true, false,
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true, false,
           1);
     end;
 
@@ -740,7 +740,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Qty on Items changed but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false, false, 1);
+          ChangeType::Edit, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, false, false, 1);
     end;
 
     [Test]
@@ -752,7 +752,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Items changed and Unit Cost is updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Replace, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true, 1);
+          ChangeType::Replace, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true, 1);
     end;
 
     [Test]
@@ -764,7 +764,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Items changed to Resources but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Replace, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Resource, true, false,
+          ChangeType::Replace, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Resource, true, false,
           1);
     end;
 
@@ -777,7 +777,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Item added and Unit Cost cannot be updated in Assembly Order (Costing Method: Standard).
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true, 1);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true, 1);
     end;
 
     [Normal]
@@ -809,7 +809,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         if ExpectedError = '' then begin
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-            AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+            AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
             AssemblyLine.FindLast;
             ExpectedError := AddItemDimension(AssemblyLine."No.", DefaultCompValuePosting);
             if ExpectedError <> '' then
@@ -828,7 +828,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource added (), but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true, false,
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true, false,
           1);
     end;
 
@@ -841,7 +841,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource added (), but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, false,
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, false,
           1);
     end;
 
@@ -854,7 +854,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Item deleted but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Delete, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false, false,
+          ChangeType::Delete, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, false, false,
           1);
     end;
 
@@ -867,7 +867,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource deleted but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Delete, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, false,
+          ChangeType::Delete, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, false,
           1);
     end;
 
@@ -884,7 +884,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Exercise.
         LibraryAssembly.EditAssemblyLines(
-          ChangeType::"Delete all", AssemblyLine.Type::Item, AssemblyLine.Type::Item, '', AssemblyHeader."No.", false);
+          ChangeType::"Delete all", "BOM Component Type"::Item, "BOM Component Type"::Item, '', AssemblyHeader."No.", false);
         AssemblyHeader.Validate(Quantity, AssemblyHeader.Quantity * HeaderAdjFactor);
         AssemblyHeader.Modify(true);
 
@@ -923,7 +923,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource usage is changed (Direct <-> Fixed), but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Usage, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, false,
+          ChangeType::Usage, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, false,
           1);
     end;
 
@@ -936,7 +936,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Item is replaced and Unit Cost is updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Replace, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true, 1);
+          ChangeType::Replace, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true, 1);
     end;
 
     [Test]
@@ -948,7 +948,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Item added and Unit Cost cannot be updated in Assembly Order (Costing Method: Standard).
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true, 1);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true, 1);
     end;
 
     [Test]
@@ -960,7 +960,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource added (), and Unit Cost is updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, true,
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, true,
           1);
     end;
 
@@ -973,7 +973,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if components are edited: Resource added (), and Unit Cost is updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Delete, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, true,
+          ChangeType::Delete, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, true,
           1);
     end;
 
@@ -986,7 +986,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if header Item Quantity reduced and Unit Cost cannot be updated in Assembly Order (Costing Method: Standard).
 
         ModifyAssemblyLines(
-          ChangeType::" ", Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, true,
+          ChangeType::" ", Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, true,
           LibraryRandom.RandDec(1, 2));
     end;
 
@@ -999,7 +999,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if header Item Quantity is reduced, Resource added, but Unit Cost is not updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, false,
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, false,
           LibraryRandom.RandDec(1, 2));
     end;
 
@@ -1012,7 +1012,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries of posted Assembly Order, if header Item Quantity and Unit Cost is updated in Assembly Order.
 
         ModifyAssemblyLines(
-          ChangeType::" ", Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false, true,
+          ChangeType::" ", Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false, true,
           LibraryRandom.RandDec(1, 2));
     end;
 
@@ -1282,8 +1282,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Setup.
         Initialize;
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
-          InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant",
-          InventorySetup."Average Cost Period"::Day);
+          "Average Cost Calculation Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);

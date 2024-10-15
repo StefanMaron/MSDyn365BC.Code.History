@@ -21,11 +21,9 @@ table 376 "G/L Account (Analysis View)"
         {
             Caption = 'Search Name';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
         }
         field(5; "Account Source"; Option)
         {

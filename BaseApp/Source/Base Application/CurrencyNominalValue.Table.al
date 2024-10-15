@@ -1,8 +1,12 @@
 table 11743 "Currency Nominal Value"
 {
     Caption = 'Currency Nominal Value';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Currency Nominal Values";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 

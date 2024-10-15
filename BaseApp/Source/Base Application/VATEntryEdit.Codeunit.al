@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 338 "VAT Entry - Edit"
 {
     Permissions = TableData "VAT Entry" = m;
@@ -30,3 +31,4 @@ codeunit 338 "VAT Entry - Edit"
     end;
 }
 
+#endif

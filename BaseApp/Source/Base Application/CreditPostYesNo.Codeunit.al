@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31051 "Credit - Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
@@ -48,4 +49,4 @@ codeunit 31051 "Credit - Post (Yes/No)"
         Result := CreditPost.Run(CreditHeader);
     end;
 }
-
+#endif

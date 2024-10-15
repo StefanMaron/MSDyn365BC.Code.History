@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 143030 "Library - Fixed Asset CZ"
 {
 
@@ -35,7 +36,6 @@ codeunit 143030 "Library - Fixed Asset CZ"
         FALocation.Insert(true);
     end;
 
-#if not CLEAN18
     [Scope('OnPrem')]
     procedure CreateFAExtendedPostingGroup(var FAExtendedPostingGroup: Record "FA Extended Posting Group"; FAPostingGroupCode: Code[20]; FAPostingType: Option; ReasonCode: Code[10])
     begin
@@ -46,7 +46,6 @@ codeunit 143030 "Library - Fixed Asset CZ"
         FAExtendedPostingGroup.Insert(true);
     end;
 
-#endif
     [Scope('OnPrem')]
     procedure GenerateDeprecationGroupCode(): Text
     var
@@ -82,3 +81,4 @@ codeunit 143030 "Library - Fixed Asset CZ"
     end;
 }
 
+#endif

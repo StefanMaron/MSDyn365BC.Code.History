@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 5880 "Phys. Invt. Order-Finish"
 {
     TableNo = "Phys. Invt. Order Header";
@@ -463,4 +464,4 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
     end;
 }
-
+#endif

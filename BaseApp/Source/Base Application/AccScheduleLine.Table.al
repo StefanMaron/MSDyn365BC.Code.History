@@ -289,14 +289,22 @@ table 85 "Acc. Schedule Line"
             InitValue = Always;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31081; "Row Correction"; Code[10])
         {
             Caption = 'Row Correction';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -305,7 +313,11 @@ table 85 "Acc. Schedule Line"
             Caption = 'Assets/Liabilities Type';
             OptionCaption = ' ,Assets,Liabilities';
             OptionMembers = " ",Assets,Liabilities;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -330,12 +342,14 @@ table 85 "Acc. Schedule Line"
         {
             Clustered = true;
         }
+#if not CLEAN17
         key(Key2; "Schedule Name", "Row Correction")
         {
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.5';
         }
+#endif
     }
 
     fieldgroups

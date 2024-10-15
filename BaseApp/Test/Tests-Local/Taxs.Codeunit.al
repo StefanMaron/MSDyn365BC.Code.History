@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 144200 Taxs
 {
     Subtype = Test;
@@ -493,3 +494,4 @@ codeunit 144200 Taxs
     end;
 }
 
+#endif

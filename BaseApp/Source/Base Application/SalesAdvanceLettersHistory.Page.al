@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31006 "Sales Advance Letters History"
 {
-    Caption = 'Sales Advance Letters History';
+    Caption = 'Sales Advance Letters History (Obsolete)';
     Editable = true;
     PageType = Document;
     SaveValues = true;
     SourceTable = Customer;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -171,4 +175,4 @@ page 31006 "Sales Advance Letters History"
         x5CurrentMenuTypeOptOnPush;
     end;
 }
-
+#endif

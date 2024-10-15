@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9081 "Sales Hist. Bill-to FactBox"
 {
     Caption = 'Bill-to Customer Sales History';
@@ -96,16 +97,22 @@ page 9081 "Sales Hist. Bill-to FactBox"
                 field("Bill-To No. of Out. Adv. L."; "Bill-To No. of Out. Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Outstanding Adv. Letters';
+                    Caption = 'Outstanding Adv. Letters (Obsolete)';
                     DrillDownPageID = "Sales Adv. Letters";
                     ToolTip = 'Specifies how many outstanding advance letters have been registered for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Bill-To No. of Closed Adv. L."; "Bill-To No. of Closed Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Closed Adv. Letters';
+                    Caption = 'Closed Adv. Letters (Obsolete)';
                     DrillDownPageID = "Sales Adv. Letters";
                     ToolTip = 'Specifies how many closed advance letters have been registered for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
             cuegroup(Control23)
@@ -184,16 +191,22 @@ page 9081 "Sales Hist. Bill-to FactBox"
                 field(BillToNoOfOutAdvLettersTile; "Bill-To No. of Out. Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Outstanding Adv. Letters';
+                    Caption = 'Outstanding Adv. Letters (Obsolete)';
                     DrillDownPageID = "Sales Adv. Letters";
                     ToolTip = 'Specifies how many outstanding advance letters have been registered for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(BillToNoOfClosedAdvLettersTile; "Bill-To No. of Closed Adv. L.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Closed Adv. Letters';
+                    Caption = 'Closed Adv. Letters (Obsolete)';
                     DrillDownPageID = "Sales Adv. Letters";
                     ToolTip = 'Specifies how many closed advance letters have been registered for the customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
         }
@@ -218,3 +231,4 @@ page 9081 "Sales Hist. Bill-to FactBox"
     end;
 }
 
+#endif

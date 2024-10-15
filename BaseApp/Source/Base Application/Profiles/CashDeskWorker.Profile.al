@@ -1,3 +1,4 @@
+#if not CLEAN17
 profile "CASH DESK WORKER"
 {
     Caption = 'Cash Desk Worker (Obsolete)';
@@ -7,3 +8,4 @@ profile "CASH DESK WORKER"
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.4';
 }
+#endif

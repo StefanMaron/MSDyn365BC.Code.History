@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31060 "Intrastat Journal Lines"
 {
     Caption = 'Intrastat Journal Lines (Obsolete)';
@@ -149,3 +150,5 @@ page 31060 "Intrastat Journal Lines"
     }
 }
 
+
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
@@ -205,8 +206,6 @@ report 502 "Intrastat - Checklist"
                     end;
 
                     // NAVCZ
-                    // SubTotalWeight := SubTotalWeight + ROUND("Total Weight",1);
-                    // TotalWeight := TotalWeight + ROUND("Total Weight",1);
                     SubTotalWeight := SubTotalWeight + RoundValue("Total Weight");
                     TotalWeight := TotalWeight + RoundValue("Total Weight");
                     // NAVCZ
@@ -322,3 +321,4 @@ report 502 "Intrastat - Checklist"
         NoValuesErr: Label 'There are no values to report as per Intrastat Setup.';
 }
 
+#endif

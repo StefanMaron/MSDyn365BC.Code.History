@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 1283 "Payment Bank Account Card"
 {
     Caption = 'Payment Bank Account Card';
@@ -118,4 +119,4 @@ page 1283 "Payment Bank Account Card"
         }
     }
 }
-
+#endif

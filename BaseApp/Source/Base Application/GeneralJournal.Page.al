@@ -1,4 +1,4 @@
-﻿page 39 "General Journal"
+page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Classic mode (Show more columns action) - When IsSimplePage is set to false. This view supports showing all the traditional columns. All the lines for all
@@ -116,6 +116,7 @@
                     ToolTip = 'Specifies the entry''s posting date.';
                     Visible = NOT IsSimplePage;
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -134,6 +135,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -148,18 +150,26 @@
                     ToolTip = 'Specifies the type of document that the entry on the journal line is.';
                     Visible = NOT IsSimplePage;
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if line of vendor ledger entry is prepayment';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -225,6 +235,7 @@
                         CurrPage.SaveRecord();
                     end;
                 }
+#if not CLEAN18
                 field("Posting Group"; "Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -234,6 +245,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field(AccountName; AccName)
                 {
                     ApplicationArea = Basic, Suite;
@@ -556,6 +568,7 @@
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                     Visible = NOT IsSimplePage;
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -592,6 +605,7 @@
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field(Comment; Comment)
                 {
                     ApplicationArea = Comments;
@@ -604,6 +618,7 @@
                     ToolTip = 'Specifies the identification of the direct-debit mandate that is being used on the journal lines to process a direct debit collection.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Original Document Partner Type"; "Original Document Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -622,6 +637,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -1053,20 +1069,29 @@
                         Message(Text001, StdGenJnl.Code);
                     end;
                 }
+#if not CLEAN19
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Image = LinkWithExisting;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1076,9 +1101,13 @@
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -1090,6 +1119,10 @@
             {
                 Caption = 'P&osting';
                 Image = Post;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Merge to W1.';
+                ObsoleteTag = '19.0';
+#endif
                 action("Test Report")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1116,7 +1149,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if IsSimplePage then
                             if GeneralLedgerSetup."Post with Job Queue" then
@@ -1134,6 +1167,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category9;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1156,7 +1190,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         if GeneralLedgerSetup."Post & Print with Job Queue" then
                             NewDocumentNo()

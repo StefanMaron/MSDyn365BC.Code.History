@@ -24,7 +24,9 @@
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN17
         UserSetup: Record "User Setup";
+#endif
         GenJnlTemplate: Record "Gen. Journal Template";
         CostAccSetup: Record "Cost Accounting Setup";
         TempErrorMessage: Record "Error Message" temporary;
@@ -41,18 +43,26 @@
 #if not CLEAN18
         FromAdjustment: Boolean;
 #endif
+#if not CLEAN17
         VATDateNeeded: Boolean;
         VATRangeErr: Label 'is not within your range of allowed VAT dates';
         VATPeriodNotExistErr: Label 'VAT period for %1 does not exist.', Comment = '%1 = VAT Date';
+#endif
+#if not CLEAN19
         InconsistenAppErr: Label 'You cannot apply these entries because unapplication could create inconsistent entries.';
+#endif
+#if not CLEAN17
         MustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = fieldcaption of VAT Date';
+#endif
         IsBatchMode: Boolean;
         EmployeeBalancingDocTypeErr: Label 'must be empty or set to Payment when Balancing Account Type field is set to Employee';
         EmployeeAccountDocTypeErr: Label 'must be empty or set to Payment when Account Type field is set to Employee';
 
     procedure RunCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
+#if not CLEAN17
         VATPostingSetup: Record "VAT Posting Setup";
+#endif
         ICGLAcount: Record "IC G/L Account";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorContextElement: Codeunit "Error Context Element";
@@ -76,13 +86,16 @@
                 if GenJnlTemplate.Get("Journal Template Name") then;
                 GenJnlTemplateFound := true;
             end;
+#if not CLEAN19
             CheckVAT(GenJnlLine); // NAVCZ
 
+#endif
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
             // NAVCZ
             GLSetup.Get();
+#if not CLEAN17
             if GLSetup."Use VAT Date" then begin
                 VATDateNeeded := false;
                 if "Gen. Posting Type" > 0 then
@@ -111,10 +124,13 @@
                         LogTestField(GenJnlLine, FieldNo("Original Document Partner Type"), "Original Document Partner Type"::Vendor);
                 end;
             end;
+#endif
+#if not CLEAN19
             if not "System-Created Entry" and ("Prepayment Type" <> "Prepayment Type"::" ") then begin
                 LogTestField(GenJnlLine, FieldNo(Prepayment), true);
                 LogTestField(GenJnlLine, FieldNo("Document Type"));
             end;
+#endif
 #if not CLEAN18
             if GLSetup."User Checks Allowed" then
                 if not FromAdjustment then
@@ -144,7 +160,7 @@
                 LogTestField(GenJnlLine, FieldNo("Account No."));
 
             CheckZeroAmount(GenJnlLine);
-
+#if not CLEAN19
             // NAVCZ
             if "Advance Letter Link Code" <> '' then begin
                 LogTestField(GenJnlLine, FieldNo(Prepayment), true);
@@ -156,6 +172,7 @@
             then
                 LogFieldError(GenJnlLine, FieldNo("Document Type"), '');
             // NAVCZ
+#endif
 
             if ((Amount < 0) xor ("Amount (LCY)" < 0)) and (Amount <> 0) and ("Amount (LCY)" <> 0) then
                 LogFieldError(GenJnlLine, FieldNo("Amount (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
@@ -217,16 +234,21 @@
                 LogTestField(GenJnlLine, FieldNo("FA Posting Type"), 0);
             end;
 
+#if CLEAN17
+            if not OverrideDimErr then
+                CheckDimensions(GenJnlLine);
+#else
             if not OverrideDimErr then begin
                 DimMgt.SetCheckDim("Posting Date");  // NAVCZ
                 CheckDimensions(GenJnlLine);
             end;
+#endif
         end;
 
         if CostAccSetup.Get then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
 
-        OnAfterCheckGenJnlLine(GenJnlLine);
+        OnAfterCheckGenJnlLine(GenJnlLine, ErrorMessageMgt);
 
         if LogErrorMode then
             ErrorMessageMgt.GetErrors(TempErrorMessage);
@@ -268,7 +290,7 @@
         SkipFiscalYearCheck := NewValue;
     end;
 
-    local procedure ErrorIfPositiveAmt(GenJnlLine: Record "Gen. Journal Line")
+    procedure ErrorIfPositiveAmt(GenJnlLine: Record "Gen. Journal Line")
     var
         RaiseError: Boolean;
     begin
@@ -278,7 +300,7 @@
             LogFieldError(GenJnlLine, GenJnlLine.FieldNo(Amount), Text008);
     end;
 
-    local procedure ErrorIfNegativeAmt(GenJnlLine: Record "Gen. Journal Line")
+    procedure ErrorIfNegativeAmt(GenJnlLine: Record "Gen. Journal Line")
     var
         RaiseError: Boolean;
     begin
@@ -390,7 +412,11 @@
                             LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
                         CheckJobNoIsEmpty(GenJnlLine);
 
+#if CLEAN18
+                        CheckICPartner("Account Type", "Account No.", "Document Type", Prepayment); // NAVCZ
+#else
                         CheckICPartner("Account Type", "Account No.", "Document Type", Prepayment, Compensation); // NAVCZ
+#endif
                     end;
                 "Account Type"::"Bank Account":
                     begin
@@ -472,7 +498,11 @@
                             LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Sales/Purch. (LCY)"), StrSubstNo(Text009, FieldCaption(Amount)));
                         CheckJobNoIsEmpty(GenJnlLine);
 
+#if CLEAN18
+                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", Prepayment); // NAVCZ
+#else
                         CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", Prepayment, Compensation); // NAVCZ
+#endif
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
@@ -609,7 +639,11 @@
             end;
     end;
 
+#if CLEAN18
+    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Prepayment: Boolean)
+#else
     local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Prepayment: Boolean; Compensation: Boolean)
+#endif
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -624,8 +658,12 @@
         case AccountType of
             AccountType::Customer:
                 if Customer.Get(AccountNo) then begin
+#if CLEAN18
+                    if Customer.Blocked <> Customer.Blocked::Invoice then // NAVCZ
+#else
                     if not Compensation or (Customer.Blocked <> Customer.Blocked::Invoice) then // NAVCZ
-                        Customer.CheckBlockedCustOnJnls(Customer, DocumentType, true);
+#endif
+                    Customer.CheckBlockedCustOnJnls(Customer, DocumentType, true);
                     // NAVCZ
                     if Prepayment then
                         LogTestField(Customer, Customer.FieldNo("Application Method"), Customer."Application Method"::Manual);
@@ -685,6 +723,7 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure IsVATDateNotAllowed(VATDate: Date; var SetupRecordID: RecordID): Boolean
     var
@@ -734,6 +773,8 @@
         else
             LogError(VATPeriod, StrSubstNo(VATPeriodNotExistErr, VATDate));
     end;
+
+#endif    
 #if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
@@ -743,8 +784,9 @@
         FromAdjustment := NewFromAdjustment;
     end;
 #endif
-
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Discontinued check function.', '19.0')]
     procedure CheckVAT(GenJnlLine: Record "Gen. Journal Line")
     begin
         // NAVCZ
@@ -755,6 +797,8 @@
             LogError(GenJnlLine, InconsistenAppErr);
     end;
 
+#endif
+#if not CLEAN17
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure CheckVATDate(GenJournalLine: Record "Gen. Journal Line")
@@ -768,6 +812,7 @@
         end;
     end;
 
+#endif
     local procedure CheckZeroAmount(var GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
@@ -804,7 +849,7 @@
         end;
     end;
 
-    local procedure ThrowGenJnlLineError(GenJournalLine: Record "Gen. Journal Line"; ErrorTemplate: Text; ErrorText: Text)
+    procedure ThrowGenJnlLineError(GenJournalLine: Record "Gen. Journal Line"; ErrorTemplate: Text; ErrorText: Text)
     begin
         if LogErrorMode then
             exit;
@@ -825,7 +870,7 @@
         IsBatchMode := NewBatchMode;
     end;
 
-    local procedure CheckGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine: Record "Gen. Journal Line")
+    procedure CheckGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine: Record "Gen. Journal Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -843,7 +888,7 @@
         end;
     end;
 
-    local procedure CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine: Record "Gen. Journal Line")
+    procedure CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine: Record "Gen. Journal Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -905,7 +950,7 @@
                     GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type"));
     end;
 
-    local procedure LogTestField(SourceVariant: Variant; FieldNo: Integer)
+    procedure LogTestField(SourceVariant: Variant; FieldNo: Integer)
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
@@ -918,7 +963,7 @@
             FldRef.TestField();
     end;
 
-    local procedure LogTestField(SourceVariant: Variant; FieldNo: Integer; ExpectedValue: Variant)
+    procedure LogTestField(SourceVariant: Variant; FieldNo: Integer; ExpectedValue: Variant)
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
@@ -931,7 +976,7 @@
             FldRef.TestField(ExpectedValue);
     end;
 
-    local procedure LogError(SourceVariant: Variant; ErrorMessage: Text)
+    procedure LogError(SourceVariant: Variant; ErrorMessage: Text)
     begin
         if LogErrorMode then
             ErrorMessageMgt.LogErrorMessage(0, ErrorMessage, SourceVariant, 0, '')
@@ -939,7 +984,7 @@
             Error(ErrorMessage);
     end;
 
-    local procedure LogFieldError(SourceVariant: Variant; FieldNo: Integer; ErrorMessage: Text)
+    procedure LogFieldError(SourceVariant: Variant; FieldNo: Integer; ErrorMessage: Text)
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
@@ -971,127 +1016,127 @@
         LogTestField(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."), '');
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCheckBalAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterDateNoAllowed(PostingDate: Date; var DateIsNotAllowed: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDateNotAllowed(GenJnlLine: Record "Gen. Journal Line"; var DateCheckDone: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckAccountNo(var GenJnlLine: Record "Gen. Journal Line"; var CheckDone: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBalAccountNo(var GenJnlLine: Record "Gen. Journal Line"; var CheckDone: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckDimensions(var GenJnlLine: Record "Gen. Journal Line"; var CheckDone: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckDocType(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBalDocType(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Option; var CheckDone: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckPurchDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeErrorIfNegativeAmt(GenJnlLine: Record "Gen. Journal Line"; var RaiseError: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeErrorIfPositiveAmt(GenJnlLine: Record "Gen. Journal Line"; var RaiseError: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeRunCheck(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckPostingDateInFiscalYear(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckAccountType(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBalAccountType(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckAppliesToDocNo(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckZeroAmount(GenJnlLine: Record "Gen. Journal Line"; IsBatchMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckElectronicPaymentFields(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeIsVendorPaymentToCrMemo(GenJnlLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;

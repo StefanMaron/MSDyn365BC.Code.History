@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11739 "Posted Cash Doc. Statistics"
 {
     Caption = 'Posted Cash Doc. Statistics (Obsolete)';
@@ -300,3 +301,5 @@ page 11739 "Posted Cash Doc. Statistics"
     end;
 }
 
+
+#endif

@@ -465,6 +465,7 @@ page 130 "Posted Sales Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the name of the person you regularly contact at the customer to whom you sent the invoice.';
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -515,6 +516,7 @@ page 130 "Posted Sales Shipment"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -739,8 +741,8 @@ page 130 "Posted Sales Shipment"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     var

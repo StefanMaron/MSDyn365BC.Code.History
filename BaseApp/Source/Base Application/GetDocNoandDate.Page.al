@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31107 "Get Doc.No and Date"
 {
     Caption = 'Close Line with Document No.';
@@ -53,4 +54,4 @@ page 31107 "Get Doc.No and Date"
         NewPostingDate := CloseDate;
     end;
 }
-
+#endif

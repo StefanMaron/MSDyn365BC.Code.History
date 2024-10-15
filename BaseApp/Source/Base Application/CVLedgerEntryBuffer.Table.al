@@ -411,11 +411,25 @@ table 382 "CV Ledger Entry Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31002; "Open For Advance Letter"; Boolean)
         {
             Caption = 'Open For Advance Letter';
             DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -510,10 +524,13 @@ table 382 "CV Ledger Entry Buffer"
         "Pmt. Tolerance (LCY)" := VendLedgEntry."Pmt. Tolerance (LCY)";
         "Amount to Apply" := VendLedgEntry."Amount to Apply";
         Prepayment := VendLedgEntry.Prepayment;
+
+#if not CLEAN19
         // NAVCZ
         "Prepayment Type" := VendLedgEntry."Prepayment Type";
         "Open For Advance Letter" := VendLedgEntry."Open For Advance Letter";
         // NAVCZ
+#endif
 
         OnAfterCopyFromVendLedgerEntry(Rec, VendLedgEntry);
     end;

@@ -83,6 +83,7 @@ codeunit 130511 "Library - Resource"
         ResourceGroup.Insert(true);
     end;
 
+#if not CLEAN19
     procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; Type: Option; "Code": Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         ResourcePrice.Init();
@@ -92,7 +93,7 @@ codeunit 130511 "Library - Resource"
         ResourcePrice.Validate("Currency Code", CurrencyCode);
         ResourcePrice.Insert(true);
     end;
-
+#endif
     procedure CreateResJournalLine(var ResJournalLine: Record "Res. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         RecRef: RecordRef;

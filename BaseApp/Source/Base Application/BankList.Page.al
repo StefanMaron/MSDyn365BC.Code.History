@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 11727 "Bank List"
 {
     ApplicationArea = Basic, Suite;
@@ -8,7 +9,14 @@ page 11727 "Bank List"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service';
     SourceTable = "Bank Account";
+#if not CLEAN17
     SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
+#endif
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Discontinued, use standard page Bank Account List instead.';
+    ObsoleteTag = '19.0';
+
+
     UsageCategory = Lists;
 
     layout
@@ -82,6 +90,7 @@ page 11727 "Bank List"
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = Basic, Suite;
@@ -91,6 +100,7 @@ page 11727 "Bank List"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Our Contact Code"; "Our Contact Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -471,3 +481,4 @@ page 11727 "Bank List"
     end;
 }
 
+#endif

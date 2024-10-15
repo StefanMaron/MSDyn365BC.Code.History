@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 145014 "Identification Numbers"
 {
     // // [FEATURE] [Registration No.] [Tax Registration No.]
@@ -369,3 +370,4 @@ codeunit 145014 "Identification Numbers"
     end;
 }
 
+#endif

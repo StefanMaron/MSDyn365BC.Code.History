@@ -1958,7 +1958,7 @@ codeunit 136145 "Service Contracts II"
         exit(ServiceContractAccountGroup."Non-Prepaid Contract Acc.");
     end;
 
-    local procedure GetServiceLedgerEntryPosAmount(ContractNo: Code[20]; EntryType: Option): Decimal
+    local procedure GetServiceLedgerEntryPosAmount(ContractNo: Code[20]; EntryType: Enum "Service Ledger Entry Entry Type"): Decimal
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
@@ -1971,7 +1971,7 @@ codeunit 136145 "Service Contracts II"
         end;
     end;
 
-    local procedure GetServiceLedgerEntryNegAmount(ContractNo: Code[20]; EntryType: Option): Decimal
+    local procedure GetServiceLedgerEntryNegAmount(ContractNo: Code[20]; EntryType: Enum "Service Ledger Entry Entry Type"): Decimal
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin

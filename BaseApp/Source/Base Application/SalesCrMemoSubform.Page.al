@@ -1,4 +1,5 @@
-﻿page 96 "Sales Cr. Memo Subform"
+﻿#if not CLEAN18
+page 96 "Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -95,7 +96,7 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -182,6 +183,13 @@
                         UpdateTypeText();
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -379,6 +387,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#if not CLEAN17
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -397,6 +406,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -497,7 +507,6 @@
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN18
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -507,7 +516,6 @@
                     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
                     ObsoleteTag = '15.3';
                 }
-#endif
                 field("Deferral Code"; "Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -628,6 +636,25 @@
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
                 }
             }
             group(Control39)
@@ -1000,6 +1027,8 @@
 
     trigger OnOpenPage()
     begin
+        SetOpenPage();
+
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
     end;
@@ -1041,6 +1070,11 @@
         ItemReferenceVisible: Boolean;
         VATAmount: Decimal;
 
+    local procedure SetOpenPage()
+    begin
+        OnBeforeSetOpenPage();
+    end;
+
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
@@ -1062,10 +1096,8 @@
         if IsHandled then
             exit;
 
-        // Set default type Item
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     procedure CalcInvDisc()
@@ -1158,7 +1190,7 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable();
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1248,6 +1280,8 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -1291,5 +1325,16 @@
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
+    begin
+    end;
 }
 
+#endif

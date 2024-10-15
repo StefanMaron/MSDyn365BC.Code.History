@@ -317,9 +317,14 @@ codeunit 392 "Reminder-Make"
             FilterCustLedgEntries(ReminderLevel);
             if CustLedgEntry.FindSet then
                 repeat
+#if CLEAN18
+                    if (CustLedgEntry."On Hold" = '') then
+#else
                     CustLedgEntry.CalcFields("Amount on Credit (LCY)");
                     OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(CustLedgEntry, ReminderHeaderReq);
                     if (CustLedgEntry."On Hold" = '') and (CustLedgEntry."Amount on Credit (LCY)" = 0) then 
+#endif
+
                         MarkReminderCandidate(CustLedgEntry, ReminderLevel, CustAmount, MakeDoc, MaxReminderLevel, MaxLineLevel)
                     else // The customer ledger entry is on hold
                         if IncludeEntriesOnHold then begin
@@ -414,7 +419,7 @@ codeunit 392 "Reminder-Make"
         exit(Amount);
     end;
 
-    local procedure FilterCustLedgEntries(var ReminderLevel2: Record "Reminder Level")
+    procedure FilterCustLedgEntries(var ReminderLevel2: Record "Reminder Level")
     var
         ReminderLevel3: Record "Reminder Level";
         LastLevel: Boolean;
@@ -476,14 +481,14 @@ codeunit 392 "Reminder-Make"
         OnAfterFilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, ReminderTerms, Cust);
     end;
 
-    local procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
+    procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
     begin
         if CustLedgEntry."Last Issued Reminder Level" > 0 then begin
             ReminderEntry.SetCurrentKey("Customer Entry No.", Type);
             ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
             ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
             ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
-            if ReminderEntry.FindLast then begin
+            if ReminderEntry.FindLast() then begin
                 ReminderDueDate2 := ReminderEntry."Due Date";
                 LineLevel2 := ReminderEntry."Reminder Level" + 1;
                 exit;

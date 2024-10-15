@@ -355,6 +355,7 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Service;
@@ -364,6 +365,7 @@ page 5900 "Service Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -438,6 +440,7 @@ page 5900 "Service Order"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+#if not CLEAN18
                 field(IntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -449,6 +452,7 @@ page 5900 "Service Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -722,6 +726,7 @@ page 5900 "Service Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -731,6 +736,8 @@ page 5900 "Service Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -740,11 +747,13 @@ page 5900 "Service Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -763,6 +772,7 @@ page 5900 "Service Order"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -774,6 +784,7 @@ page 5900 "Service Order"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -875,6 +886,7 @@ page 5900 "Service Order"
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -1263,12 +1275,9 @@ page 5900 "Service Order"
 
                     trigger OnAction()
                     var
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                         InstructionMgt: Codeunit "Instruction Mgt.";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostYesNo.PostDocument(ServHeader);
-                        DocumentIsPosted := not ServHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage;
                         CurrPage.Update(false);
@@ -1281,6 +1290,7 @@ page 5900 "Service Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category7;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1305,12 +1315,8 @@ page 5900 "Service Order"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostPrint.PostDocument(ServHeader);
-                        DocumentIsPosted := not ServHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action(PostBatch)
@@ -1370,21 +1376,18 @@ page 5900 "Service Order"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        if BillToContact.Get("Bill-to Contact No.") then;
-        if SellToContact.Get("Contact No.") then;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear("Contact No.");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1467,7 +1470,7 @@ page 5900 "Service Order"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         if not OrderServiceHeader.Get("Document Type", "No.") then begin
-            ServiceInvoiceHeader.SetRange("No.", ServHeader."Last Posting No.");
+            ServiceInvoiceHeader.SetRange("No.", "Last Posting No.");
             if ServiceInvoiceHeader.FindFirst then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceOrderQst, ServiceInvoiceHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)

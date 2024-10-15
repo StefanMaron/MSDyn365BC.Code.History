@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -52,11 +53,19 @@ page 29 "Vendor Ledger Entries"
                     ApplicationArea = Prepayments;
                     Editable = false;
                     ToolTip = 'Specifies if line of payment journal is prepayment';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the prepayment type for the vendor ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Vendor No."; "Vendor No.")
                 {
@@ -76,6 +85,7 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -86,6 +96,7 @@ page 29 "Vendor Ledger Entries"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -209,6 +220,10 @@ page 29 "Vendor Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount that you want to link to the vendor ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Remaining Amount to Link (LCY)"; "Remaining Amount to Link (LCY)")
                 {
@@ -216,12 +231,18 @@ page 29 "Vendor Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount that you want to link to the vendor ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount on payment order.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Bal. Account Type"; "Bal. Account Type")
                 {
@@ -278,6 +299,10 @@ page 29 "Vendor Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to open the advance letter for the vendor ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("On Hold"; "On Hold")
                 {
@@ -312,6 +337,7 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Bank Account Code"; "Bank Account Code")
                 {
                     ApplicationArea = Suite;
@@ -400,6 +426,7 @@ page 29 "Vendor Ledger Entries"
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field(Reversed; Reversed)
                 {
                     ApplicationArea = Basic, Suite;
@@ -441,6 +468,7 @@ page 29 "Vendor Ledger Entries"
                             Error('');
                     end;
                 }
+#if not CLEAN18
                 field(Compensation; Compensation)
                 {
                     ApplicationArea = Basic, Suite;
@@ -451,6 +479,7 @@ page 29 "Vendor Ledger Entries"
                     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
@@ -670,9 +699,12 @@ page 29 "Vendor Ledger Entries"
                 action("Link Advances")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advances';
+                    Caption = 'Link Advances (Obsolete)';
                     Image = LinkWithExisting;
                     ToolTip = 'Allow to link advance payment with advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -684,9 +716,12 @@ page 29 "Vendor Ledger Entries"
                 action("U&nlink Advances")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'U&nlink Advances';
+                    Caption = 'U&nlink Advances (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Specifies links to advance letter page';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -913,3 +948,4 @@ page 29 "Vendor Ledger Entries"
     end;
 }
 
+#endif

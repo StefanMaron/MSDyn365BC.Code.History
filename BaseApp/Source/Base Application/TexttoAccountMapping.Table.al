@@ -54,7 +54,11 @@ table 1251 "Text-to-Account Mapping"
             ELSE
             IF ("Bal. Source Type" = CONST(Vendor)) Vendor
             ELSE
+#if CLEAN17
+            IF ("Bal. Source Type" = CONST("Bank Account")) "Bank Account";
+#else
             IF ("Bal. Source Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
         }
         field(7; "Vendor No."; Code[20])
         {
@@ -64,41 +68,98 @@ table 1251 "Text-to-Account Mapping"
         field(11700; "Text-to-Account Mapping Code"; Code[10])
         {
             Caption = 'Text-to-Account Mapping Code';
+#if not CLEAN19
             TableRelation = "Text-to-Account Mapping Code";
+#endif
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; Description; Text[50])
         {
             Caption = 'Description';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11705; Priority; Integer)
         {
             Caption = 'Priority';
             MaxValue = 1000;
             MinValue = 0;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11710; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11711; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11712; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11715; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11716; IBAN; Code[50])
         {
             Caption = 'IBAN';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -106,16 +167,31 @@ table 1251 "Text-to-Account Mapping"
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11717; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11720; "Bank Transaction Type"; Option)
         {
             Caption = 'Bank Transaction Type';
             OptionCaption = 'Both,+,-';
             OptionMembers = Both,"+","-";
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -124,6 +200,9 @@ table 1251 "Text-to-Account Mapping"
         key(Key1; "Text-to-Account Mapping Code", "Line No.")
         {
             Clustered = true;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merge to W1.';
+            ObsoleteTag = '19.0';
         }
         key(Key2; "Mapping Text", "Vendor No.")
         {
@@ -131,6 +210,9 @@ table 1251 "Text-to-Account Mapping"
         }
         key(Key3; Priority)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -199,23 +281,36 @@ table 1251 "Text-to-Account Mapping"
         LastLineNo: Integer;
     begin
         if RecordMatchMgt.Trim(BankAccReconciliationLine."Transaction Text") <> '' then begin
+#if CLEAN19
+            TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
+#else
             // NAVCZ
             TextToAccMapping.FilterTextToAccountMapping(BankAccReconciliationLine);
             TextToAccMapping.ExtendedFilterTextToAccountMapping(BankAccReconciliationLine);
             // NAVCZ
+#endif
             TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + RecordMatchMgt.Trim(BankAccReconciliationLine."Transaction Text"));
             if TextToAccMapping.FindFirst then
                 Copy(TextToAccMapping)
             else begin
                 TextToAccMapping.Reset();
+#if CLEAN19
+                TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
+#else
                 TextToAccMapping.FilterTextToAccountMapping(BankAccReconciliationLine); // NAVCZ
+#endif                
                 if TextToAccMapping.FindLast then
                     LastLineNo := TextToAccMapping."Line No.";
 
                 Init;
+#if CLEAN19
+                "Text-to-Account Mapping Code" := ''; // NAVCZ
+#else
                 "Text-to-Account Mapping Code" := BankAccReconciliationLine.GetTextToAccountMappingCode; // NAVCZ
+#endif
                 "Line No." := LastLineNo + 10000;
                 Validate("Mapping Text", BankAccReconciliationLine."Transaction Text");
+#if not CLEAN19
                 // NAVCZ
                 "Variable Symbol" := BankAccReconciliationLine."Variable Symbol";
                 "Specific Symbol" := BankAccReconciliationLine."Specific Symbol";
@@ -225,6 +320,7 @@ table 1251 "Text-to-Account Mapping"
                 "SWIFT Code" := BankAccReconciliationLine."SWIFT Code";
                 "Bank Transaction Type" := GetBankTransactionType(BankAccReconciliationLine."Statement Amount");
                 // NAVCZ
+#endif
 
                 SetSourceTypeFromReconcLine(BankAccReconciliationLine);
                 case "Bal. Source Type" of
@@ -238,6 +334,9 @@ table 1251 "Text-to-Account Mapping"
                         end;
                 end;
 
+#if CLEAN19
+                if "Mapping Text" <> '' then
+#else
                 // NAVCZ
                 if ("Mapping Text" <> '') or ("Variable Symbol" <> '') or
                    ("Specific Symbol" <> '') or ("Constant Symbol" <> '') or
@@ -245,6 +344,7 @@ table 1251 "Text-to-Account Mapping"
                    ("SWIFT Code" <> '')
                 then
                     // NAVCZ
+#endif
                     Insert;
             end;
 
@@ -253,7 +353,11 @@ table 1251 "Text-to-Account Mapping"
             Commit();
         end;
 
+#if CLEAN19
+        SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
+#else
         SetRange("Text-to-Account Mapping Code", BankAccReconciliationLine.GetTextToAccountMappingCode); // NAVCZ
+#endif
         PAGE.RunModal(PAGE::"Text-to-Account Mapping", Rec);
     end;
 
@@ -324,11 +428,13 @@ table 1251 "Text-to-Account Mapping"
     var
         TextToAccMapping: Record "Text-to-Account Mapping";
     begin
+#if not CLEAN19
         // NAVCZ
         if DisabledCheckMappingText then
             exit;
         // NAVCZ
 
+#endif
         TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + "Mapping Text");
         TextToAccMapping.SetRange("Vendor No.", "Vendor No.");
         TextToAccMapping.SetFilter("Line No.", '<>%1', "Line No.");
@@ -381,7 +487,9 @@ table 1251 "Text-to-Account Mapping"
         end;
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetBankTransactionType(Amount: Decimal): Integer
     begin
         // NAVCZ
@@ -394,6 +502,7 @@ table 1251 "Text-to-Account Mapping"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure FilterTextToAccountMapping(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
@@ -402,6 +511,7 @@ table 1251 "Text-to-Account Mapping"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ExtendedFilterTextToAccountMapping(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         // NAVCZ
@@ -416,6 +526,7 @@ table 1251 "Text-to-Account Mapping"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure ExtendedMatching(BankAccReconLine: Record "Bank Acc. Reconciliation Line"): Boolean
     begin
         // NAVCZ
@@ -446,6 +557,7 @@ table 1251 "Text-to-Account Mapping"
         exit(true);
     end;
 
+#endif
     procedure SearchEnteriesInText(var TextToAccountMapping: Record "Text-to-Account Mapping"; LineDescription: Text; VendorNo: Code[20]): Integer
     var
         TempTextToAccountMapping: Record "Text-to-Account Mapping" temporary;

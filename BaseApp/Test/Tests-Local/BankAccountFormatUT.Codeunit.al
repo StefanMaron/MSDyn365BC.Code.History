@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 144001 "Bank Account Format UT"
 {
     Subtype = Test;
@@ -216,3 +217,4 @@ codeunit 144001 "Bank Account Format UT"
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 enum 43 "Purchase Comment Document Type"
 {
     Extensible = true;
@@ -13,5 +14,12 @@ enum 43 "Purchase Comment Document Type"
     value(7; "Posted Invoice") { Caption = 'Posted Invoice'; }
     value(8; "Posted Credit Memo") { Caption = 'Posted Credit Memo'; }
     value(9; "Posted Return Shipment") { Caption = 'Posted Return Shipment'; }
-    value(21; "Advance Letter") { Caption = 'Advance Letter'; }
+    value(21; "Advance Letter")
+    { 
+        Caption = 'Advance Letter';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+        ObsoleteTag = '19.0';
+    }
 }
+#endif

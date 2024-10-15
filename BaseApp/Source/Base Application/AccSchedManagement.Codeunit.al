@@ -1,4 +1,5 @@
-﻿codeunit 8 AccSchedManagement
+#if not CLEAN19
+codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
 
@@ -25,9 +26,7 @@
         GLSetup: Record "General Ledger Setup";
         AddRepCurrency: Record Currency;
         AnalysisView: Record "Analysis View";
-#if not CLEAN19
         AccScheduleResultsHeader: Record "Acc. Schedule Result Header";
-#endif
         MatrixMgt: Codeunit "Matrix Management";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         AnalysisViewRead: Boolean;
@@ -51,7 +50,6 @@
         Text023: Label 'Formulas ending with a percent sign require %2 %1 on a line before it.';
         Text024: Label 'The %1 %3 on the %2 must equal the %4 %6 on the %5 when any Dimension Totaling is used in any Column.';
         ColumnFormulaMsg: Label 'Column formula: %1.';
-#if not CLEAN19
         SaveResults: Boolean;
         Text26570: Label 'You must specify acc. schedule name.';
         Text26571: Label 'You must specify column layout name.';
@@ -60,7 +58,6 @@
         Text006: Label 'Q';
         Text007: Label 'Y';
         AccSchedExtensionManagement: Codeunit AccSchedExtensionManagement;
-#endif
         RowFormulaMsg: Label 'Row formula: %1.';
         ColumnFormulaErrorMsg: Label 'Column formula: %1. \Error: %2.';
         Recalculate: Boolean;
@@ -338,9 +335,7 @@
 
     procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
     var
-#if not CLEAN19
         AccScheduleResult: Record "Acc. Schedule Result Value";
-#endif
         Result: Decimal;
     begin
         OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr);
@@ -378,7 +373,6 @@
         FormatCellResult(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
 
         OnBeforeCalcCellExit(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
-#if not CLEAN19
         // NAVCZ
         if SaveResults then begin
             AccScheduleResult."Result Code" := AccScheduleResultsHeader."Result Code";
@@ -388,7 +382,6 @@
             AccScheduleResult.Insert();
         end;
         // NAVCZ
-#endif
         exit(Result);
     end;
 
@@ -438,11 +431,8 @@
 
         if AccSchedLine.Totaling = '' then
             exit(Result);
-#if not CLEAN19
+
         if AccSchedCellValue.Get(AccSchedLine."Schedule Name", AccSchedLine."Line No.", ColumnLayout."Line No.") then begin // NAVCZ
-#else
-        if AccSchedCellValue.Get(AccSchedLine."Line No.", ColumnLayout."Line No.") then begin
-#endif
             Result := AccSchedCellValue.Value;
             DivisionError := DivisionError or AccSchedCellValue."Has Error";
             PeriodError := PeriodError or AccSchedCellValue."Period Error";
@@ -533,7 +523,6 @@
                                                 Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
                                             until CFAccount.Next() = 0;
                                 end;
-#if not CLEAN19
                             // NAVCZ
                             AccSchedLine."Totaling Type"::Constant:
                                 if not Evaluate(Result, AccSchedLine.Totaling) then
@@ -544,7 +533,6 @@
                                     Result := AccSchedExtensionManagement.CalcCustomFunc(AccSchedLine, ColumnLayout, StartDate, EndDate);
                                 end;
                         // NAVCZ
-#endif
                         end;
 
             OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
@@ -554,9 +542,7 @@
             AccSchedCellValue.Value := Result;
             AccSchedCellValue."Has Error" := DivisionError;
             AccSchedCellValue."Period Error" := PeriodError;
-#if not CLEAN19
             AccSchedCellValue."Schedule Name" := AccSchedLine."Schedule Name"; // NAVCZ
-#endif
             AccSchedCellValue.Insert();
         end;
 
@@ -838,7 +824,6 @@
                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
                 end;
             until AccSchedLine.Next() = 0
-#if not CLEAN19
         else begin
             GetGLSetup();
             AccSchedLine.SetRange("Schedule Name", GLSetup."Shared Account Schedule");
@@ -852,7 +837,6 @@
                     else
                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
                 until AccSchedLine.Next() = 0
-#endif
             else begin
                 IsHandled := false;
             OnCalcCellValueInAccSchedLinesOnBeforeShowError(
@@ -862,9 +846,7 @@
                     if IsFilter or (not Evaluate(Result, Expression)) then
                         ShowError(Text012, SourceAccSchedLine, ColumnLayout);
             end;
-#if not CLEAN19
         end;
-#endif
     end;
 
     local procedure CalcCellValueInColumnLayouts(SourceColumnLayout: Record "Column Layout"; AccSchedLine: Record "Acc. Schedule Line"; Expression: Text; CalcAddCurr: Boolean; IsFilter: Boolean) Result: Decimal
@@ -977,7 +959,11 @@
             else
                 SetFilter("G/L Account No.", GLAcc.Totaling);
             GLAcc.CopyFilter("Date Filter", Date);
-            AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
+
+            if ColumnLayout."Budget Name" <> '' then
+                GLBudgetEntry.SetRange("Budget Name", ColumnLayout."Budget Name")
+            else
+                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
             AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
             AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
             AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
@@ -1003,7 +989,10 @@
                 SetFilter("G/L Account No.", GLAcc.Totaling);
             SetRange("Analysis View Code", AccSchedName."Analysis View Name");
             GLAcc.CopyFilter("Date Filter", "Posting Date");
-            AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
+            if ColumnLayout."Budget Name" <> '' then
+                SetRange("Budget Name", ColumnLayout."Budget Name")
+            else
+                AccSchedLine.CopyFilter("G/L Budget Filter", "Budget Name");
             AccSchedLine.CopyFilter("Business Unit Filter", "Business Unit Code");
             CopyDimFilters(AccSchedLine);
             FilterGroup(2);
@@ -1378,11 +1367,7 @@
                         AccSchedLine, ColumnLayout, CalcAddCurr)
                 else begin
                     IsFilter := IsExpressionFilter(Expression);
-#if not CLEAN19
                     if (StrLen(Expression) > MaxStrLen(AccSchedLine."Row No.")) and (not IsFilter) then // NAVCZ
-#else
-                    if (StrLen(Expression) > 10) and (not IsFilter) then
-#endif
                         Evaluate(Result, Expression)
                     else
                         Result := CalcCellValueInEvaluateExpression(IsAccSchedLineExpression, AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter);
@@ -1410,7 +1395,7 @@
 
     procedure FormatCellAsText(var ColumnLayout2: Record "Column Layout"; Value: Decimal; CalcAddCurr: Boolean) ValueAsText: Text[30]
     begin
-        ValueAsText := MatrixMgt.FormatValue(Value, ColumnLayout2."Rounding Factor", CalcAddCurr);
+        ValueAsText := MatrixMgt.FormatAmount(Value, ColumnLayout2."Rounding Factor", CalcAddCurr);
 
         if (ValueAsText <> '') and
            (ColumnLayout2."Column Type" = ColumnLayout2."Column Type"::Formula) and
@@ -2018,6 +2003,12 @@
         EndDate := NewEndDate;
     end;
 
+    procedure GetStartDateEndDate(var OutputStartDate: Date; var OutputEndDate: Date)
+    begin
+        OutputStartDate := StartDate;
+        OutputEndDate := EndDate;
+    end;
+
     local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
@@ -2060,7 +2051,6 @@
 
             if Totaling = '' then
                 exit;
-#if not CLEAN19
             // NAVCZ
             if "Totaling Type" = "Totaling Type"::Custom then begin
                 AccSchedExtensionManagement.DrillDownAmount(
@@ -2072,7 +2062,6 @@
                 exit;
             end;
             // NAVCZ
-#endif
 
             if "Totaling Type" in ["Totaling Type"::"Cash Flow Entry Accounts", "Totaling Type"::"Cash Flow Total Accounts"] then
                 DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine)
@@ -2226,19 +2215,19 @@
         end;
     end;
 
-    procedure FindPeriod(var AccScheduleLine: Record "Acc. Schedule Line"; SearchText: Text[3]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    procedure FindPeriod(var AccScheduleLine: Record "Acc. Schedule Line"; SearchText: Text[3]; PeriodType: Enum "Analysis Period Type")
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         with AccScheduleLine do begin
             if GetFilter("Date Filter") <> '' then begin
                 Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-                if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                    PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+                if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                    PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
                 Calendar.SetRange("Period Start");
             end;
-            PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+            PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
             SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
                 SetRange("Date Filter", GetRangeMin("Date Filter"));
@@ -2264,7 +2253,6 @@
         AccSchedCellValue.SetRange("Column No.");
     end;
 
-#if not CLEAN19
     [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure ValidateFormula(AccScheduleLine: Record "Acc. Schedule Line")
@@ -2618,7 +2606,8 @@
             end;
         end;
     end;
-#endif
+
+#if not CLEAN17
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
     [Scope('OnPrem')]
     procedure CalcCorrectionCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
@@ -2651,7 +2640,7 @@
         exit(not NonZero);
     end;
 
-#if not CLEAN19
+#endif
     [Obsolete('This procedure will be removed.', '19.0')]
     [Scope('OnPrem')]
     procedure LineFilter(var Line: Record "Acc. Schedule Line"; Column: Record "Column Layout"; Show: Option " ","Non Zero",Zero)
@@ -2692,7 +2681,7 @@
             Line.ClearMarks;
         end;
     end;
-#endif
+
     procedure ForceRecalculate(NewRecalculate: Boolean)
     begin
         Recalculate := NewRecalculate;
@@ -2924,3 +2913,4 @@
     end;
 }
 
+#endif

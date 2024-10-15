@@ -20,6 +20,7 @@ codeunit 139020 "Test Job Queue SNAP"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
 
     [Test]
@@ -223,7 +224,6 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure T030_NotScheduledJobByQueueEnqueueSetsJobOnHold()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         ExpectedEarliestStartDateTime: DateTime;
     begin
         // [FEATURE] [Job Queue - Enqueue]
@@ -243,6 +243,8 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.TestField("User Session Started", 0DT);
         // [THEN] "Earliest Start Date/Time" is not changed.
         JobQueueEntry.TestField("Earliest Start Date/Time", ExpectedEarliestStartDateTime);
+
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -250,7 +252,6 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure T031_ScheduledJobByQueueEnqueueSetsJobAsReady()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         CurrDateTime: DateTime;
         ActualDelay: Integer;
     begin
@@ -273,6 +274,8 @@ codeunit 139020 "Test Job Queue SNAP"
         ActualDelay := JobQueueEntry."Earliest Start Date/Time" - CurrDateTime;
         if not (ActualDelay in [1000 .. 1500]) then
             Assert.Fail(StrSubstNo(StartDateTimeDelayErr, ActualDelay));
+
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -301,7 +304,6 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure T041_RestartBlanksNoOAttemptsToRun()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         BindSubscription(LibraryJobQueue);
         // [GIVEN] "Maximum No. of Attempts to Run" is 2, "No. of Attempts to Run" is 2, Status is Error.
@@ -316,6 +318,7 @@ codeunit 139020 "Test Job Queue SNAP"
         // [THEN] "No. of Attempts to Run" is 0, Status is Ready
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
         JobQueueEntry.TestField("No. of Attempts to Run", 0);
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -327,6 +330,7 @@ codeunit 139020 "Test Job Queue SNAP"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        BindSubscription(LibraryJobQueue);
 
         // [GIVEN] "Maximum No. of Attempts to Run" is equal to "No. of Attempts to Run"
         JobQueueEntry.Init();
@@ -335,12 +339,15 @@ codeunit 139020 "Test Job Queue SNAP"
         // [WHEN] run FinalizeRun() while Status is Error
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
         JobQueueEntry.FinalizeRun;
+        LibraryJobQueue.RunSendNotification(JobQueueEntry);
 
         // [THEN] Job Status is Error
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
         // [THEN] Job has sent Notification with RecId
         RecordLink.SetRange("Record ID", JobQueueEntry.RecordId);
         Assert.RecordIsNotEmpty(RecordLink);
+
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -348,7 +355,6 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure T051_HandleExecutionErrorMultipleTimes()
     var
         JobQueueEntry: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         LastEarliestStartDateTime: DateTime;
     begin
         BindSubscription(LibraryJobQueue);
@@ -395,6 +401,8 @@ codeunit 139020 "Test Job Queue SNAP"
         Assert.AreEqual(
           Format(LastEarliestStartDateTime, 0, 9),
           Format(JobQueueEntry."Earliest Start Date/Time", 0, 9), 'Earliest Start Date/Time');
+
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1115,6 +1123,8 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntries: TestPage "Job Queue Entries";
     begin
         CreateFailingJobQueueEntry(JobQueueEntry);
+        // The message does not matter, it is replaced when JQE page is opened
+        // Replaced to "The job terminated for an unknown reason." and status becomes error'd
         JobQueueEntry."Error Message" := 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4';
         JobQueueEntry.Modify(true);
 
@@ -1144,13 +1154,16 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        BindSubscription(LibraryJobQueue);
         CreateFailingJobQueueEntry(JobQueueEntry);
 
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+        LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
 
         Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::Error, 'Job did not fail after first attempt');
 
         JobQueueEntry.Delete();
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1178,6 +1191,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         // [SCENARIO 194949] Job Queue Dispatcher should be able to execute a target codeunit, that calls 'IF CODEUNIT.RUN() THEN'
         // [GIVEN] Email Logging is enabled
+        BindSubscription(LibraryJobQueue);
         If not MarketingSetup.Get() then begin
             MarketingSetup."Email Logging Enabled" := true;
             MarketingSetup.Insert();
@@ -1194,13 +1208,15 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Insert(true);
 
         // [WHEN] Run Job Queue Dispatcher
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+        LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
 
         // [THEN] Job Queue Entry, where Status::Error, "Error message" = 'The queue or storage folder has not been initialized.'
         // [THEN] instead of 'The following C/AL functions are limited during write transactions'
         JobQueueEntry.Find;
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
         Assert.ExpectedMessage('The queue or storage folder has not been initialized.', JobQueueEntry."Error Message");
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1228,7 +1244,6 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
         TempJobQueueEntry: Record "Job Queue Entry" temporary;
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         StartDate: Date;
     begin
         // [SCENARIO 208294] "Job Queue Dispatcher" calculates next starting time for recurrent job queue entry once when "No. of Minutes between Runs" = 0
@@ -1253,12 +1268,14 @@ codeunit 139020 "Test Job Queue SNAP"
 
         JobQueueEntry.SetRecFilter;
         // [WHEN] "Job Queue Dispatcher" codeunit processes "J"
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
 
         // [GIVEN] "J"."Earliest Start Date/Time" = "23/02/2017 11:00" (day incremented once)
         LibraryJobQueue.GetCollectedJobQueueEntries(TempJobQueueEntry);
         VerifyJobQueueEntryWithStatusExists(TempJobQueueEntry, JobQueueEntry.Status::"In Process");
         JobQueueEntry.TestField("Earliest Start Date/Time", CreateDateTime(StartDate + 1, JobQueueEntry."Starting Time"));
+
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1267,7 +1284,6 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueEntryOther: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [SCENARIO 222564] Recurring job queue entries pointing to the same object are not deleted when run "Job Queue - Enqueue" codeunit failed
         BindSubscription(LibraryJobQueue);
@@ -1289,11 +1305,12 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntryOther.Insert();
 
         // [GIVEN] When run "Job Queue - Enqueue"
-        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
 
         // [THEN] "B" remained unchanged
         JobQueueEntryOther.Find;
         JobQueueEntryOther.TestField(Status, JobQueueEntryOther.Status::Error);
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1411,7 +1428,6 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueCategory: Record "Job Queue Category";
         JobQueueEntryA: Record "Job Queue Entry";
         JobQueueEntryB: Record "Job Queue Entry";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
     begin
         // [FEATURE] [UT] [Job Queue Category]
@@ -1426,218 +1442,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueDispatcher.Run(JobQueueEntryB);
 
         JobQueueEntryB.TestField(Status, JobQueueEntryB.Status::Ready);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T220_JobQueueEntryUserIsNotChangedOnModifyNonSecurityFields()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 273276] User ID is not changed on modify Job Queue Entry non security fields (description, recurrence, ...).
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application.
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-
-        // [GIVEN] Job Queue Entry with User ID = "U".
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Modify Job Queue Entry non security fields (description, recurrence, ...) via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        JobQueueEntryCard.Description.SetValue(LibraryUtility.GenerateRandomXMLText(50));
-        JobQueueEntryCard."Run on Tuesdays".SetValue(true);
-        JobQueueEntryCard."Job Queue Category Code".SetValue('');
-        JobQueueEntryCard."Maximum No. of Attempts to Run".SetValue(1);
-        JobQueueEntryCard."Inactivity Timeout Period".SetValue(5);
-        JobQueueEntryCard."Earliest Start Date/Time".SetValue(Today);
-        JobQueueEntryCard."Expiration Date/Time".SetValue(Today + 1);
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is not changed for other fields
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", CustomUserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T221_JobQueueEntryUserIsChangedOnModifyObjectTypeToRun()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is changed on modify Job Queue Entry "Object Type to Run" field
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Modify Job Queue Entry "Object Type to Run" field via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        JobQueueEntryCard."Object Type to Run".SetValue(JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T222_JobQueueEntryUserIsChangedOnModifyObjectIDToRun()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is changed on modify Job Queue Entry "Object ID to Run" field
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Modify Job Queue Entry "Object ID to Run" field via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        JobQueueEntryCard."Object ID to Run".SetValue(REPORT::"Sales - Invoice");
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T223_JobQueueEntryUserIsChangedOnModifyParameterString()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is changed on modify Job Queue Entry "Parameter String" field
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Modify Job Queue Entry "Parameter String" field via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        JobQueueEntryCard."Parameter String".SetValue(LibraryUtility.GenerateRandomXMLText(50));
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T224_JobQueueEntryUserIsChangedOnClearReportRequestPageOptions()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is changed on clear Job Queue Entry "Report Request Page Options" checkbox
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Clear Job Queue Entry "Report Request Page Options" checkbox via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        JobQueueEntryCard."Report Request Page Options".SetValue(false);
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T225_JobQueueEntryUserIsChangedOnModifyReportRequestPage()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is changed on modify Job Queue Entry report request page
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Modify Job Queue Entry report request page via UI
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        LibraryVariableStorage.Enqueue(true); // Report option "LogInteraction" = TRUE
-        JobQueueEntryCard.ReportRequestPage.Invoke;
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", UserId);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T226_JobQueueEntryUserIsNotChangedOnNotChangingReportRequestPage()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueEntryCard: TestPage "Job Queue Entry Card";
-        CustomUserId: Text[20];
-    begin
-        // [FEATURE] [User] [UI]
-        // [SCENARIO 275866] User ID is not changed on Job Queue Entry report request page without modification
-
-        // [GIVEN] User ID "U" not equal to the ID of User running the application
-        CustomUserId := CopyStr(LibraryUtility.GenerateRandomXMLText(20), 1, 20);
-        // [GIVEN] Job Queue Entry with User ID = "U"
-        MockJobQueueEntryWithReportOption(JobQueueEntry, CustomUserId);
-
-        // [WHEN] Open/close Job Queue Entry report request page without modification
-        JobQueueEntryCard.OpenEdit;
-        JobQueueEntryCard.GotoRecord(JobQueueEntry);
-        LibraryVariableStorage.Enqueue(false); // Report option "LogInteraction" = FALSE
-        JobQueueEntryCard.ReportRequestPage.Invoke;
-        JobQueueEntryCard.Close;
-
-        // [THEN] Job Queue Entry User ID is changed
-        JobQueueEntry.Find;
-        JobQueueEntry.TestField("User ID", CustomUserId);
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -1697,18 +1502,23 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure CanShowErrorMessageHandler(Message: Text)
     begin
         Assert.IsTrue(Message <> 'There is no error message.', 'Expected error message but found ''' + Message + '''');
-        Assert.IsTrue(Message = 'Part 1Part 2Part 3Part 4', 'Expected concatinated error message but found: ''' + Message + '''');
+        Assert.IsTrue(Message = 'The job terminated for an unknown reason.', 'Expected concatinated error message but found: ''' + Message + '''');
     end;
 
     [Normal]
     local procedure CreateSucceedingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        SystemTaskId: Guid;
     begin
+        SystemTaskId := TaskScheduler.CreateTask(0, 0);
+
         JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132450;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         JobQueueEntry."User Session ID" := SessionId;
+        JobQueueEntry."System Task ID" := SystemTaskId;
         JobQueueEntry.Insert(true);
     end;
 
@@ -1743,29 +1553,6 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueCategory.Insert(true);
     end;
 
-    local procedure MockJobQueueEntryWithReportOption(var JobQueueEntry: Record "Job Queue Entry"; NewUserID: Text[65])
-    var
-        JobQueueCategory: Record "Job Queue Category";
-    begin
-        CreateJobQueueCategory(JobQueueCategory);
-
-        JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
-        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
-        JobQueueEntry."Object ID to Run" := REPORT::"Order Confirmation";
-        JobQueueEntry."Parameter String" := LibraryUtility.GenerateGUID;
-        JobQueueEntry.Description := LibraryUtility.GenerateGUID;
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry."Job Queue Category Code" := JobQueueCategory.Code;
-        JobQueueEntry."User ID" := NewUserID;
-        JobQueueEntry.Insert();
-
-        LibraryVariableStorage.Enqueue(false); // Report option "LogInteraction" = FALSE
-        JobQueueEntry."Report Request Page Options" := true;
-        JobQueueEntry.SetReportParameters(REPORT.RunRequestPage(JobQueueEntry."Object ID to Run", ''));
-        JobQueueEntry.Modify();
-    end;
-
     local procedure CalcAndVerifyNextRuntimes(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; NextDate: Date; NextTime: Time; InitialDate: Date; InitialTime: Time)
     var
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
@@ -1796,14 +1583,6 @@ codeunit 139020 "Test Job Queue SNAP"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean);
-        OrderConfirmation.OK.Invoke;
     end;
 }
 

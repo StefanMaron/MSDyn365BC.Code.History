@@ -17,16 +17,24 @@ table 260 "Tariff Number"
         }
         field(3; "Supplementary Units"; Boolean)
         {
+#if not CLEAN18
             CalcFormula = Exist("Unit of Measure" WHERE(Code = FIELD("Supplem. Unit of Measure Code")));
+#endif
             Caption = 'Supplementary Units';
+#if not CLEAN18
             Editable = false;
             FieldClass = FlowField;
+#endif
         }
         field(11760; "Statement Code"; Code[10])
         {
             Caption = 'Statement Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = Commodity.Code;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -34,22 +42,34 @@ table 260 "Tariff Number"
         {
             Caption = 'VAT Stat. Unit of Measure Code';
             TableRelation = "Unit of Measure";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11762; "Allow Empty Unit of Meas.Code"; Boolean)
         {
             Caption = 'Allow Empty Unit of Meas.Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(11763; "Statement Limit Code"; Code[10])
         {
             Caption = 'Statement Limit Code';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = Commodity.Code;
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -71,7 +91,11 @@ table 260 "Tariff Number"
         {
             Caption = 'Supplem. Unit of Measure Code';
             TableRelation = "Unit of Measure";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -88,6 +112,7 @@ table 260 "Tariff Number"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     trigger OnDelete()
     begin
@@ -99,5 +124,6 @@ table 260 "Tariff Number"
 
     var
         StatisticIndication: Record "Statistic Indication";
+#endif
 }
 

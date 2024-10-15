@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31032 "Purch. Adv. Letter Link. Card"
 {
-    Caption = 'Purch. Adv. Letter Link. Card';
+    Caption = 'Purch. Adv. Letter Link. Card (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Adv. Letter Line Rel. Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -414,4 +418,4 @@ page 31032 "Purch. Adv. Letter Link. Card"
         UpdateSubform;
     end;
 }
-
+#endif

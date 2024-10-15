@@ -1,9 +1,13 @@
 table 31051 "Credit Line"
 {
     Caption = 'Credit Line';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Credit Lines";
     LookupPageID = "Credit Lines";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 
@@ -12,7 +16,9 @@ table 31051 "Credit Line"
         field(5; "Credit No."; Code[20])
         {
             Caption = 'Credit No.';
+#if not CLEAN18
             TableRelation = "Credit Header";
+#endif
         }
         field(10; "Line No."; Integer)
         {
@@ -43,6 +49,7 @@ table 31051 "Credit Line"
             TableRelation = IF ("Source Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Vendor Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -51,6 +58,7 @@ table 31051 "Credit Line"
                 if CurrFieldNo = FieldNo("Posting Group") then
                     PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
             end;
+#endif
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
@@ -99,6 +107,7 @@ table 31051 "Credit Line"
                         end;
                 end;
             end;
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -165,6 +174,7 @@ table 31051 "Credit Line"
                     GetCurrencyFactor;
                 end;
             end;
+#endif
         }
         field(30; "Posting Date"; Date)
         {
@@ -222,6 +232,7 @@ table 31051 "Credit Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -236,12 +247,14 @@ table 31051 "Credit Line"
                 "Remaining Amount" := "Ledg. Entry Remaining Amount" - Amount;
                 ConvertLCYAmounts;
             end;
+#endif
         }
         field(88; "Remaining Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -255,6 +268,7 @@ table 31051 "Credit Line"
                 Amount := "Ledg. Entry Remaining Amount" - "Remaining Amount";
                 ConvertLCYAmounts;
             end;
+#endif
         }
         field(90; "Ledg. Entry Original Amt.(LCY)"; Decimal)
         {
@@ -271,7 +285,7 @@ table 31051 "Credit Line"
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 TestField("Amount (LCY)");
@@ -285,11 +299,13 @@ table 31051 "Credit Line"
                 ConvertAmounts;
                 Validate(Amount);
             end;
+#endif
         }
         field(98; "Remaining Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Remaining Amount (LCY)';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -303,6 +319,7 @@ table 31051 "Credit Line"
                 ConvertAmounts;
                 Validate("Remaining Amount");
             end;
+#endif
         }
         field(100; "Manual Change Only"; Boolean)
         {
@@ -313,6 +330,7 @@ table 31051 "Credit Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN18
 
             trigger OnLookup()
             begin
@@ -323,6 +341,7 @@ table 31051 "Credit Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
             end;
+#endif
         }
     }
 
@@ -345,6 +364,7 @@ table 31051 "Credit Line"
     fieldgroups
     {
     }
+#if not CLEAN18
 
     trigger OnDelete()
     begin
@@ -531,5 +551,6 @@ table 31051 "Credit Line"
             if CreditHeader."Posting Date" < "Posting Date" then
                 FieldError("Posting Date", StrSubstNo(MustBeLessOrEqualErr, CreditHeader."Posting Date"));
     end;
+#endif
 }
 

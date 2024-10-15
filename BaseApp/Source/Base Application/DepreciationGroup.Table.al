@@ -1,8 +1,12 @@
 table 31041 "Depreciation Group"
 {
     Caption = 'Depreciation Group';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Depreciation Groups";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
     ObsoleteTag = '18.0';
 

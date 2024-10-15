@@ -1,7 +1,11 @@
 table 11765 "Excel Template"
 {
     Caption = 'Excel Template';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -23,6 +27,7 @@ table 11765 "Excel Template"
         field(4; Sheet; Text[250])
         {
             Caption = 'Sheet';
+#if not CLEAN19
 
             trigger OnLookup()
             var
@@ -41,6 +46,7 @@ table 11765 "Excel Template"
                     if Erase(FileName) then;
                 end;
             end;
+#endif
         }
         field(10; Blocked; Boolean)
         {
@@ -59,7 +65,7 @@ table 11765 "Excel Template"
     fieldgroups
     {
     }
-
+#if not CLEAN19
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
@@ -71,7 +77,8 @@ table 11765 "Excel Template"
         DefaultTxt: Label 'Default';
         ExtensionTxt: Label 'xlsx', Comment = 'xlsx';
         NotSupportedErr: Label 'Function not supported in the Web Client. Please use the Windows Client.';
-
+    
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ExportToServerFile(): Text[250]
     begin
@@ -85,6 +92,7 @@ table 11765 "Excel Template"
         exit(FileName);
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ShowFile(IsTemporary: Boolean)
 #if not CLEAN17
@@ -108,6 +116,7 @@ table 11765 "Excel Template"
     end;
 #endif
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ExportToClientFile(var ExportToFile: Text): Boolean
     var
@@ -126,6 +135,7 @@ table 11765 "Excel Template"
         end;
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ImportFile(ImportFromFile: Text; IsTemporary: Boolean): Boolean
     var
@@ -157,6 +167,7 @@ table 11765 "Excel Template"
         exit(true);
     end;
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure RemoveTemplate(Prompt: Boolean) DeleteOK: Boolean
     var
@@ -179,6 +190,7 @@ table 11765 "Excel Template"
     end;
 
 #if not CLEAN17
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure DeleteFile(FileName: Text): Boolean
     var
@@ -197,6 +209,7 @@ table 11765 "Excel Template"
         exit(not FileMgt.ClientFileExists(FileName));
     end;
 #else
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure DeleteFile(FileName: Text): Boolean
     begin
@@ -207,6 +220,7 @@ table 11765 "Excel Template"
     end;
 #endif
 
+    [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ConstFilename() FileName: Text
     begin
@@ -216,4 +230,5 @@ table 11765 "Excel Template"
         FileName := FileMgt.CreateFileNameWithExtension(Format(CreateGuid()), ExtensionTxt);
 #endif
     end;
+#endif
 }

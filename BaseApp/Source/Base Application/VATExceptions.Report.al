@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31 "VAT Exceptions"
 {
     DefaultLayout = RDLC;
@@ -225,4 +226,4 @@ report 31 "VAT Exceptions"
         MinVATDifference := Abs(Round(NewMinVATDifference));
     end;
 }
-
+#endif

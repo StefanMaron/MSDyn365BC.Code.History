@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11767 CustVendManagement
 {
     ObsoleteState = Pending;
@@ -122,4 +123,4 @@ codeunit 11767 CustVendManagement
             TotalAmount := Customer."Net Change" - Vendor."Net Change";
     end;
 }
-
+#endif

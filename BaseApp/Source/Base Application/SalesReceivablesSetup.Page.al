@@ -171,6 +171,7 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies how often the job must run that automatically updates the status of orders that are pending prepayment.';
                 }
+#if not CLEAN18
                 field("Archive Quotes and Orders"; '')
                 {
                     ApplicationArea = Advanced;
@@ -192,63 +193,23 @@ page 459 "Sales & Receivables Setup"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN19
                 field("Automatic Adv. Invoice Posting"; "Automatic Adv. Invoice Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this option for automatic advance invoice posting';
-                }
-#if not CLEAN16
-                field("G/L Entry as Doc. Lines (Acc.)"; "G/L Entry as Doc. Lines (Acc.)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies copying description on line to the G/L entries.';
-                    Visible = false;
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '16.0';
-                }
-                field("G/L Entry as Doc. Lines (Item)"; "G/L Entry as Doc. Lines (Item)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '16.0';
-                }
-                field("G/L Entry as Doc. Lines (FA)"; "G/L Entry as Doc. Lines (FA)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies copying description on line to the G/L entries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '16.0';
-                }
-                field("G/L Entry as Doc. Lines (Res.)"; "G/L Entry as Doc. Lines (Res.)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies copying description on line to the G/L entries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '16.0';
-                }
-                field("G/L Entry as Doc. Lines (Char)"; "G/L Entry as Doc. Lines (Char)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies copying description on line to the G/L entries.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-                    ObsoleteTag = '16.0';
                 }
 #endif
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when posted sales documents can be deleted. If you enter a date, posted sales documents with a posting date on or after this date cannot be deleted.';
+                    ToolTip = 'Specifies if and when posted sales invoices and credit memos can be deleted. If you enter a date, posted sales documents with a posting date on or after this date cannot be deleted.';
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {
@@ -271,6 +232,18 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
+                }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of sales invoices.';
+                    Visible = false;
+                }
+                field("Document Default Line Type"; "Document Default Line Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the default value for the Type field on the first line in new sales documents. If needed, you can change the value on the line.';
                 }
             }
             group(Prices)
@@ -407,23 +380,38 @@ page 459 "Sales & Receivables Setup"
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to posted sales prepayment credit memos.';
                     Visible = false;
                 }
+#if not CLEAN19
                 field("Advance Letter Nos."; "Advance Letter Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to advance letter.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Advance Invoice Nos."; "Advance Invoice Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to advance sales invoice.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Advance Credit Memo Nos."; "Advance Credit Memo Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to credit memo.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Direct Debit Mandate Nos."; "Direct Debit Mandate Nos.")
                 {
+                 
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to direct-debit mandates.';
                 }
@@ -463,6 +451,7 @@ page 459 "Sales & Receivables Setup"
                     ToolTip = 'Specifies the output of the report that will be scheduled with a job queue entry when the Post and Print with Job Queue check box is selected.';
                 }
             }
+#if not CLEAN17
             group(VAT)
             {
                 Caption = 'VAT';
@@ -481,6 +470,7 @@ page 459 "Sales & Receivables Setup"
                     Visible = false;
                 }
             }
+#endif
             group(Archiving)
             {
                 Caption = 'Archiving';
@@ -660,7 +650,6 @@ page 459 "Sales & Receivables Setup"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Rec.Reset;
         if not Rec.Get then begin
@@ -668,7 +657,6 @@ page 459 "Sales & Receivables Setup"
             Rec.Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        PriceUXManagement.InitSmartListDesigner();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
@@ -676,4 +664,3 @@ page 459 "Sales & Receivables Setup"
         ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
 }
-

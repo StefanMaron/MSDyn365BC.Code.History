@@ -1,4 +1,4 @@
-﻿codeunit 395 "FinChrgMemo-Issue"
+codeunit 395 "FinChrgMemo-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Reminder/Fin. Charge Entry" = rimd,
@@ -122,6 +122,7 @@
                 GenJnlLine.Insert();
                 OnRunOnAfterInterestGenJnlLineInsert(GenJnlLine);
             end;
+#if not CLEAN18
             // NAVCZ
             if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then
                 "Variable Symbol" := BankOperationsFunctions.CreateVariableSymbol(DocNo)
@@ -135,6 +136,7 @@
             GenJnlLine.IBAN := IBAN;
             GenJnlLine."SWIFT Code" := "SWIFT Code";
             // NAVCZ
+#endif
 
             if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
@@ -263,15 +265,19 @@
     begin
         with FinChrgMemoHeader do begin
             GenJnlLine.Init();
+#if not CLEAN18
             GenJnlLine.DisableVATCoef(true); // NAVCZ
+#endif
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::"Finance Charge Memo";
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
+#if not CLEAN17
             // NAVCZ
             GenJnlLine."VAT Date" := "Posting Date";
             // NAVCZ
+#endif
             GenJnlLine."Account Type" := AccType;
             GenJnlLine."Account No." := AccNo;
             GenJnlLine.Validate("Account No.");
@@ -288,6 +294,7 @@
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
                 GenJnlLine."Due Date" := "Due Date";
+#if not CLEAN18
                 // NAVCZ
                 GenJnlLine."Bank Account Code" := "Bank No.";
                 GenJnlLine."Bank Account No." := "Bank Account No.";
@@ -298,6 +305,7 @@
                 GenJnlLine.IBAN := IBAN;
                 GenJnlLine."SWIFT Code" := "SWIFT Code";
                 // NAVCZ
+#endif
             end;
             GenJnlLine.Description := "Posting Description";
             GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;

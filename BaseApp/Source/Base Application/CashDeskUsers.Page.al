@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11740 "Cash Desk Users"
 {
     Caption = 'Cash Desk Users (Obsolete)';
@@ -77,4 +78,4 @@ page 11740 "Cash Desk Users"
     {
     }
 }
-
+#endif

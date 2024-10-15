@@ -60,7 +60,7 @@ page 5230 "Qualification Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -75,7 +75,7 @@ page 5230 "Qualification Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -83,7 +83,7 @@ page 5230 "Qualification Overview"
 
     trigger OnOpenPage()
     begin
-        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -93,9 +93,8 @@ page 5230 "Qualification Overview"
         PKFirstRecInCurrSet: Text;
         MATRIX_CaptionRange: Text;
         MatrixCaptions: Integer;
-        SetWanted: Option Initial,Previous,Same,Next;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -107,8 +106,9 @@ page 5230 "Qualification Overview"
         RecRef.GetTable(MatrixRecord);
         RecRef.SetTable(MatrixRecord);
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
-          MATRIX_CaptionSet, MATRIX_CaptionRange, MatrixCaptions);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 1, PKFirstRecInCurrSet,
+            MATRIX_CaptionSet, MATRIX_CaptionRange, MatrixCaptions);
         if MatrixCaptions > 0 then begin
             MatrixRecord.SetPosition(PKFirstRecInCurrSet);
             MatrixRecord.Find;

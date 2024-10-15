@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11772 "VAT Statement Comment List"
 {
     Caption = 'VAT Statement Comment List (Obsolete)';
@@ -41,3 +42,5 @@ page 11772 "VAT Statement Comment List"
     }
 }
 
+
+#endif

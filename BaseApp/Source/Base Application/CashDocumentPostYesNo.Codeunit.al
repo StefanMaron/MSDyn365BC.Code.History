@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11733 "Cash Document-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
@@ -48,4 +49,4 @@ codeunit 11733 "Cash Document-Post (Yes/No)"
         Result := CashDocumentPost.Run(CashDocumentHeader);
     end;
 }
-
+#endif

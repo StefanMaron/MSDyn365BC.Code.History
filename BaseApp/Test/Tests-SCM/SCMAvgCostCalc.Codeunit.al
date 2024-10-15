@@ -685,7 +685,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Avg. Cost Calc.");
     end;
 
-    local procedure InvtSetup(AverageCostPeriod: Integer; AverageCostCalcType: Integer)
+    local procedure InvtSetup(AverageCostPeriod: Integer; AverageCostCalcType: Enum "Average Cost Calculation Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11773 "VAT Statement Attachment List"
 {
     Caption = 'VAT Statement Attachment List (Obsolete)';
@@ -47,3 +48,5 @@ page 11773 "VAT Statement Attachment List"
     }
 }
 
+
+#endif

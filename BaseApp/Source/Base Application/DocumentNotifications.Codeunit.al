@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1390 "Document Notifications"
 {
 
@@ -307,6 +308,7 @@ codeunit 1390 "Document Notifications"
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure CopyBillToCustomerAddressFieldsFromSalesAdvDocument(ModifyCustomerAddressNotification: Notification)
     var
         Customer: Record Customer;
@@ -332,6 +334,7 @@ codeunit 1390 "Document Notifications"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetSalesAdvHeaderFullBillToAddress(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Text
     var
         AddressArray: array[7] of Text;
@@ -348,6 +351,7 @@ codeunit 1390 "Document Notifications"
         exit(FormatAddress(AddressArray));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure CopyPayToVendorAddressFieldsFromPurchAdvDocument(ModifyCustomerAddressNotification: Notification)
     var
         Vendor: Record Vendor;
@@ -373,6 +377,7 @@ codeunit 1390 "Document Notifications"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure GetPurchAdvHeaderFullPaylToAddress(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Text
     var
         AddressArray: array[7] of Text;
@@ -410,3 +415,4 @@ codeunit 1390 "Document Notifications"
     end;
 }
 
+#endif

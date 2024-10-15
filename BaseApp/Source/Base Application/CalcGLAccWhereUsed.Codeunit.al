@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 100 "Calc. G/L Acc. Where-Used"
 {
 
@@ -155,8 +156,10 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                         BankAccount."No." := CopyStr("Key 1", 1, MaxStrLen(BankAccount."No."));
                         PAGE.Run(0, BankAccount);
                     end;
+#if not CLEAN18
                 DATABASE::"Credits Setup":
                     PAGE.Run(PAGE::"Credits Setup");
+#endif
                 // NAVCZ
                 else
                     OnShowExtensionPage(GLAccWhereUsed);
@@ -335,7 +338,9 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         AddTable(TableBuffer, DATABASE::"FA Extended Posting Group");
 #endif
         AddTable(TableBuffer, DATABASE::"Bank Account");
+#if not CLEAN18
         AddTable(TableBuffer, DATABASE::"Credits Setup");
+#endif
     end;
 
     local procedure CheckTable(GLAccNo: Code[20]; TableID: Integer)
@@ -404,3 +409,4 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     end;
 }
 
+#endif

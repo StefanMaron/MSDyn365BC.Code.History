@@ -18,7 +18,9 @@ codeunit 6620 "Copy Document Mgt."
         TempAsmHeader: Record "Assembly Header" temporary;
         TempAsmLine: Record "Assembly Line" temporary;
         TempSalesInvLine: Record "Sales Invoice Line" temporary;
+#if not CLEAN18
         ShipmentMethod: Record "Shipment Method";
+#endif
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         GLSetup: Record "General Ledger Setup";
         TranslationHelper: Codeunit "Translation Helper";
@@ -33,7 +35,9 @@ codeunit 6620 "Copy Document Mgt."
         WindowUpdateDateTime: DateTime;
         InsertCancellationLine: Boolean;
         ServDocType: Option Quote,Contract;
+#if not CLEAN17
         CashDocType: Option "Cash Document","Posted Cash Document";
+#endif
         QtyToAsmToOrder: Decimal;
         QtyToAsmToOrderBase: Decimal;
         IncludeHeader: Boolean;
@@ -86,7 +90,9 @@ codeunit 6620 "Copy Document Mgt."
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
         SalesErrorContextMsg: Label 'Copying sales document %1', Comment = '%1 - document no.';
         PurchErrorContextMsg: Label 'Copying purchase document %1', Comment = '%1 - document no.';
+#if not CLEAN17
         CashErrorContextMsg: Label 'Copy cash document %1', Comment = '%1 - document no.';
+#endif
 
     procedure SetProperties(NewIncludeHeader: Boolean; NewRecalculateLines: Boolean; NewMoveNegLines: Boolean; NewCreateToHeader: Boolean; NewHideDialog: Boolean; NewExactCostRevMandatory: Boolean; NewApplyFully: Boolean)
     begin
@@ -362,9 +368,10 @@ codeunit 6620 "Copy Document Mgt."
                     ReleaseSalesDocument.Reopen(ToSalesHeader);
                 end;
 
-        if ShowWarningNotification(ToSalesHeader, MissingExCostRevLink) then
-            ErrorMessageHandler.NotifyAboutErrors;
-
+        if ShowWarningNotification(ToSalesHeader, MissingExCostRevLink) then begin
+            ErrorMessageHandler.NotifyAboutErrors();
+            ErrorMessageMgt.PopContext(ErrorContextElement);
+        end;
         OnAfterCopySalesDocument(
           FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
@@ -537,9 +544,6 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CopySalesDocUpdateHeader(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShptHeader: Record "Sales Shipment Header"; FromSalesInvHeader: Record "Sales Invoice Header"; FromReturnRcptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; var ReleaseDocument: Boolean);
     var
         OldSalesHeader: Record "Sales Header";
-#if not CLEAN18
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-#endif
         OldVATCountry: Code[10];
         OldVATBusPostingGroup: Code[20];
     begin
@@ -594,28 +598,19 @@ codeunit 6620 "Copy Document Mgt."
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader);
             if RecalculateLines then
-#if not CLEAN18
-                if not CustomerTemplMgt.IsEnabled() then
-                    CreateDim(
-                        DATABASE::"Responsibility Center", "Responsibility Center",
-                        DATABASE::Customer, "Bill-to Customer No.",
-                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                        DATABASE::Campaign, "Campaign No.",
-                        DATABASE::"Customer Template", "Bill-to Customer Template Code")
-                else
-#endif
-                    CreateDim(
-                        DATABASE::"Responsibility Center", "Responsibility Center",
-                        DATABASE::Customer, "Bill-to Customer No.",
-                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                        DATABASE::Campaign, "Campaign No.",
-                        DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                CreateDim(
+                    DATABASE::"Responsibility Center", "Responsibility Center",
+                    DATABASE::Customer, "Bill-to Customer No.",
+                    DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                    DATABASE::Campaign, "Campaign No.",
+                    DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
             "Applies-to ID" := '';
             // NAVCZ
             "VAT Bus. Posting Group" := OldVATBusPostingGroup;
+#if not CLEAN18
             if (not ("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"])) and
                 (FromDocType in ["Sales Document Type From"::"Return Order",
                                  "Sales Document Type From"::"Credit Memo",
@@ -644,10 +639,12 @@ codeunit 6620 "Copy Document Mgt."
                 IBAN := '';
                 "SWIFT Code" := '';
             end;
+#endif
             // NAVCZ
 
             "Opportunity No." := '';
             "Quote No." := '';
+#if not CLEAN19
             // NAVCZ
             if ("Document Type" = "Document Type"::"Credit Memo") or ("Document Type" = "Document Type"::"Return Order") then begin
                 "Prepayment Type" := "Prepayment Type"::" ";
@@ -656,12 +653,15 @@ codeunit 6620 "Copy Document Mgt."
                 "Prepmt. Cr. Memo No. Series" := '';
                 "Prepayment %" := 0;
             end;
+#if not CLEAN17
 
             if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
                 "Credit Memo Type" := OldSalesHeader."Credit Memo Type"
             else
                 Clear("Credit Memo Type");
+#endif
             // NAVCZ
+#endif
 
             OnCopySalesDocUpdateHeaderOnBeforeUpdateCustLedgerEntry(ToSalesHeader, FromDocType.AsInteger(), FromDocNo);
 
@@ -947,8 +947,10 @@ codeunit 6620 "Copy Document Mgt."
                     ReleasePurchaseDocument.Reopen(ToPurchHeader);
                 end;
 
-        if ShowWarningNotification(ToPurchHeader, MissingExCostRevLink) then
-            ErrorMessageHandler.NotifyAboutErrors;
+        if ShowWarningNotification(ToPurchHeader, MissingExCostRevLink) then begin
+            ErrorMessageHandler.NotifyAboutErrors();
+            ErrorMessageMgt.PopContext(ErrorContextElement);
+        end;
 
         OnAfterCopyPurchaseDocument(
           FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
@@ -1153,6 +1155,7 @@ codeunit 6620 "Copy Document Mgt."
             "Quote No." := '';
             // NAVCZ
             "VAT Bus. Posting Group" := OldVATBusPostingGroup;
+#if not CLEAN18
             if (not ("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"])) and
                 (FromDocType in ["Sales Document Type From"::"Return Order",
                                  "Sales Document Type From"::"Credit Memo",
@@ -1182,6 +1185,8 @@ codeunit 6620 "Copy Document Mgt."
                 "SWIFT Code" := '';
             end;
 
+#endif
+#if not CLEAN19
             if ("Document Type" = "Document Type"::"Credit Memo") or ("Document Type" = "Document Type"::"Return Order") then begin
                 "Prepayment Type" := "Prepayment Type"::" ";
                 "Advance Letter No. Series" := '';
@@ -1189,6 +1194,7 @@ codeunit 6620 "Copy Document Mgt."
                 "Prepmt. Cr. Memo No. Series" := '';
                 "Prepayment %" := 0;
             end;
+#endif
             // NAVCZ
 
             OnCopyPurchDocUpdateHeaderOnBeforeUpdateVendLedgerEntry(ToPurchHeader, FromDocType.AsInteger(), FromDocNo);
@@ -1413,11 +1419,13 @@ codeunit 6620 "Copy Document Mgt."
                 "Dimension Set ID" :=
                   DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#if not CLEAN17
             // NAVCZ
             "Tariff No." := FromSalesLine."Tariff No.";
             "Country/Region of Origin Code" := FromSalesLine."Country/Region of Origin Code";
             "Net Weight" := FromSalesLine."Net Weight";
             // NAVCZ
+#endif
         end;
 
         OnAfterTransfldsFromSalesToPurchLine(FromSalesLine, ToPurchLine);
@@ -1667,6 +1675,10 @@ codeunit 6620 "Copy Document Mgt."
         ClearSalesLastNoSFields(SalesHeader);
         with SalesHeader do begin
             Status := Status::Open;
+#if CLEAN19
+            if "Document Type" <> "Document Type"::Order then
+                "Prepayment %" := 0;
+#else
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then begin // NAVCZ
                 "Prepayment %" := 0;
                 // NAVCZ
@@ -1676,6 +1688,7 @@ codeunit 6620 "Copy Document Mgt."
                 "Prepmt. Cr. Memo No. Series" := '';
                 // NAVCZ
             end;
+#endif
             if FromDocType = "Sales Document Type From"::"Return Order" then begin
                 CopySellToAddressToShipToAddress;
                 OnUpdateSalesHeaderWhenCopyFromSalesHeaderOnBeforeValidateShipToCode(SalesHeader);
@@ -1834,7 +1847,7 @@ codeunit 6620 "Copy Document Mgt."
         OnAfterRecalculateSalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, CopyThisLine);
     end;
 
-    local procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
+    procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
     var
         Item: Record Item;
     begin
@@ -2035,6 +2048,10 @@ codeunit 6620 "Copy Document Mgt."
             Receive := false;
             Status := Status::Open;
             "IC Status" := "IC Status"::New;
+#if CLEAN19
+            if "Document Type" <> "Document Type"::Order then
+                "Prepayment %" := 0;
+#else
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then begin // NAVCZ
                 "Prepayment %" := 0;
                 // NAVCZ
@@ -2045,6 +2062,7 @@ codeunit 6620 "Copy Document Mgt."
                 // NAVCZ
             end;
 
+#endif
             if FromDocType in ["Purchase Document Type From"::Quote, "Purchase Document Type From"::"Blanket Order"] then
                 if OriginalPurchaseHeader."Posting Date" = 0D then
                     "Posting Date" := WorkDate
@@ -2098,7 +2116,11 @@ codeunit 6620 "Copy Document Mgt."
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchDocType.AsInteger()) then
                 ToPurchLine.Validate("Deferral Code", FromPurchLine."Deferral Code");
         end else begin
+#if CLEAN18
+            SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference");
+#else
             SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference", FromPurchLine."VAT Difference (LCY)");
+#endif            
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchDocType.AsInteger()) then
                 if IsDeferralPosted("Deferral Document Type"::Purchase, FromPurchDocType.AsInteger()) then
                     CopyPostedDeferral := true
@@ -2187,10 +2209,12 @@ codeunit 6620 "Copy Document Mgt."
             exit;
         if not FromPurchLine."System-Created Entry" then
             exit;
+#if not CLEAN19
         // NAVCZ
         if FromPurchLine."Prepayment Line" then
             exit;
         // NAVCZ
+#endif
 
         PurchSetup.Get();
         if PurchSetup."Invoice Rounding" then begin
@@ -2210,10 +2234,12 @@ codeunit 6620 "Copy Document Mgt."
             exit;
         if not FromSalesLine."System-Created Entry" then
             exit;
+#if not CLEAN19
         // NAVCZ
         if FromSalesLine."Prepayment Line" then
             exit;
         // NAVCZ
+#endif
 
         SalesSetup.Get();
         if SalesSetup."Invoice Rounding" then begin
@@ -2229,16 +2255,20 @@ codeunit 6620 "Copy Document Mgt."
     var
         FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         ToItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
+#if not CLEAN18
         SalesHeader: Record "Sales Header";
+#endif
         ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
         IsHandled: Boolean;
     begin
+#if not CLEAN18
         // NAVCZ
         if not SalesHeader.Get(FromDocType, FromDocNo) then
             SalesHeader.Get(ToSalesLine."Document Type", ToSalesLine."Document No.");
         if SalesHeader."Shipment Method Code" <> '' then
             ShipmentMethod.Get(SalesHeader."Shipment Method Code");
         // NAVCZ
+#endif
         FromItemChargeAssgntSales.Reset();
         FromItemChargeAssgntSales.SetRange("Document Type", FromDocType);
         FromItemChargeAssgntSales.SetRange("Document No.", FromDocNo);
@@ -2257,8 +2287,12 @@ codeunit 6620 "Copy Document Mgt."
                     ItemChargeAssgntSales.InsertItemChargeAssignment(
                       ToItemChargeAssgntSales, ToItemChargeAssgntSales."Applies-to Doc. Type",
                       ToItemChargeAssgntSales."Applies-to Doc. No.", ToItemChargeAssgntSales."Applies-to Doc. Line No.",
+#if CLEAN18
+                      ToItemChargeAssgntSales."Item No.", ToItemChargeAssgntSales.Description, ItemChargeAssgntNextLineNo);
+#else
                       ToItemChargeAssgntSales."Item No.", ToItemChargeAssgntSales.Description, ItemChargeAssgntNextLineNo,
                       ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+#endif                      
             until FromItemChargeAssgntSales.Next() = 0;
 
         OnAfterCopyFromSalesDocAssgntToLine(ToSalesLine, RecalculateLines);
@@ -2268,16 +2302,20 @@ codeunit 6620 "Copy Document Mgt."
     var
         FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         ToItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
+#if not CLEAN18
         PurchHeader: Record "Purchase Header";
+#endif
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
         IsHandled: Boolean;
     begin
+#if not CLEAN18
         // NAVCZ
         if not PurchHeader.Get(FromDocType, FromDocNo) then
             PurchHeader.Get(ToPurchLine."Document Type", ToPurchLine."Document No.");
         if PurchHeader."Shipment Method Code" <> '' then
             ShipmentMethod.Get(PurchHeader."Shipment Method Code");
         // NAVCZ
+#endif
         FromItemChargeAssgntPurch.Reset();
         FromItemChargeAssgntPurch.SetRange("Document Type", FromDocType);
         FromItemChargeAssgntPurch.SetRange("Document No.", FromDocNo);
@@ -2296,8 +2334,12 @@ codeunit 6620 "Copy Document Mgt."
                     ItemChargeAssgntPurch.InsertItemChargeAssignment(
                       ToItemChargeAssgntPurch, ToItemChargeAssgntPurch."Applies-to Doc. Type",
                       ToItemChargeAssgntPurch."Applies-to Doc. No.", ToItemChargeAssgntPurch."Applies-to Doc. Line No.",
+#if CLEAN18
+                      ToItemChargeAssgntPurch."Item No.", ToItemChargeAssgntPurch.Description, ItemChargeAssgntNextLineNo);
+#else
                       ToItemChargeAssgntPurch."Item No.", ToItemChargeAssgntPurch.Description, ItemChargeAssgntNextLineNo,
                       ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+#endif
             until FromItemChargeAssgntPurch.Next() = 0;
 
         OnAfterCopyFromPurchDocAssgntToLine(ToPurchLine, RecalculateLines);
@@ -2332,10 +2374,12 @@ codeunit 6620 "Copy Document Mgt."
         ToItemChargeAssignmentPurch."Unit Cost" := FromPurchLine."Unit Cost";
 
         if ValueEntry.FindSet() then begin
+#if not CLEAN18
             // NAVCZ
             if FromPurchHeader."Shipment Method Code" <> '' then
                 ShipmentMethod.Get(FromPurchHeader."Shipment Method Code");
             // NAVCZ
+#endif
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then begin
@@ -2357,8 +2401,12 @@ codeunit 6620 "Copy Document Mgt."
                         ItemChargeAssgntPurch.InsertItemChargeAssignmentWithValuesTo(
                             ToItemChargeAssignmentPurch, ToItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
                             ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
+#if CLEAN18
+                            QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentPurch);
+#else
                             QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentPurch,
                             ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+#endif
                     end;
                 OnCopyFromPurchLineItemChargeAssignOnAfterValueEntryLoop(
                     FromPurchHeader, ToPurchLine, ValueEntry, TempToItemChargeAssignmentPurch, ToItemChargeAssignmentPurch,
@@ -2414,10 +2462,12 @@ codeunit 6620 "Copy Document Mgt."
         ToItemChargeAssignmentSales."Unit Cost" := FromSalesLine."Unit Price";
 
         if ValueEntry.FindSet then begin
+#if not CLEAN18
             // NAVCZ
             if FromSalesHeader."Shipment Method Code" <> '' then
                 ShipmentMethod.Get(FromSalesHeader."Shipment Method Code");
             // NAVCZ
+#endif
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
@@ -2436,8 +2486,12 @@ codeunit 6620 "Copy Document Mgt."
                         ItemChargeAssgntSales.InsertItemChargeAssignmentWithValuesTo(
                           ToItemChargeAssignmentSales, ToItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
                           ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
+#if CLEAN18
+                          QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentSales);
+#else
                           QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentSales,
                           ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)"); // NAVCZ
+#endif
                     end;
                 OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(
                     FromSalesHeader, ToSalesLine, ValueEntry, TempToItemChargeAssignmentSales, ToItemChargeAssignmentSales,
@@ -4882,6 +4936,7 @@ codeunit 6620 "Copy Document Mgt."
         exit(0);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure GetLastToCashDocLineNo(ToCashDocHeader: Record "Cash Document Header"): Decimal
     var
@@ -4896,6 +4951,7 @@ codeunit 6620 "Copy Document Mgt."
         exit(0);
     end;
 
+#endif
     local procedure InsertOldSalesDocNoLine(ToSalesHeader: Record "Sales Header"; OldDocNo: Code[20]; OldDocType: Integer; var NextLineNo: Integer)
     var
         ToSalesLine2: Record "Sales Line";
@@ -5008,6 +5064,7 @@ codeunit 6620 "Copy Document Mgt."
         ToPurchLine2.Insert();
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure InsertOldCashDocNoLine(ToCashDocHeader: Record "Cash Document Header"; OldDocNo: Code[20]; OldCashDeskNo: Code[20]; var NextLineNo: Integer)
     var
@@ -5026,6 +5083,7 @@ codeunit 6620 "Copy Document Mgt."
         ToCashDocLine2.Insert();
     end;
 
+#endif
     procedure IsSalesFillExactCostRevLink(ToSalesHeader: Record "Sales Header"; FromDocType: Option "Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo"; CurrencyCode: Code[10]) Result: Boolean
     var
         IsHandled: Boolean;
@@ -6275,17 +6333,24 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
+#if CLEAN18
+    local procedure SetDefaultValuesToPurchLine(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; VATDifference: Decimal)
+#else
     local procedure SetDefaultValuesToPurchLine(var ToPurchLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; VATDifference: Decimal; VATDifferenceLCY: Decimal)
+#endif
     begin
         InitPurchLineFields(ToPurchLine);
 
         ClearPurchaseBlanketOrderFields(ToPurchLine, ToPurchHeader);
+
+#if not CLEAN18
 
         // NAVCZ
         ToPurchLine."Receipt No." := '';
         ToPurchLine."Receipt Line No." := 0;
         // NAVCZ
 
+#endif
         ToPurchLine.InitOutstanding;
         if ToPurchLine."Document Type" in
            [ToPurchLine."Document Type"::"Return Order", ToPurchLine."Document Type"::"Credit Memo"]
@@ -6294,7 +6359,9 @@ codeunit 6620 "Copy Document Mgt."
         else
             ToPurchLine.InitQtyToReceive;
         ToPurchLine."VAT Difference" := VATDifference;
+#if not CLEAN18
         ToPurchLine."VAT Difference (LCY)" := VATDifferenceLCY; // NAVCZ
+#endif
         ToPurchLine."Receipt No." := '';
         ToPurchLine."Receipt Line No." := 0;
         if not CreateToHeader then
@@ -6397,7 +6464,9 @@ codeunit 6620 "Copy Document Mgt."
             "Prepmt. Cr. Memo No. Series" := OldSalesHeader."Prepmt. Cr. Memo No. Series";
             "Prepmt. Cr. Memo No." := OldSalesHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldSalesHeader."Prepmt. Posting Description";
+#if not CLEAN19
             "Prepayment Type" := OldSalesHeader."Prepayment Type"; // NAVCZ
+#endif
             SetSalespersonPurchaserCode("Salesperson Code");
         end
     end;
@@ -6421,13 +6490,16 @@ codeunit 6620 "Copy Document Mgt."
             "Prepmt. Cr. Memo No. Series" := OldPurchHeader."Prepmt. Cr. Memo No. Series";
             "Prepmt. Cr. Memo No." := OldPurchHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldPurchHeader."Prepmt. Posting Description";
+#if not CLEAN19
             "Prepayment Type" := OldPurchHeader."Prepayment Type"; // NAVCZ
+#endif
             SetSalespersonPurchaserCode("Purchaser Code");
         end;
 
         OnAfterCopyFieldsFromOldPurchHeaderProcedure(ToPurchHeader, OldPurchHeader);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CopyFieldsFromOldCashDocHeader(var ToCashDocHeader: Record "Cash Document Header"; OldCashDocHeader: Record "Cash Document Header")
     begin
@@ -6440,6 +6512,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
+#endif
     local procedure CheckFromSalesHeader(SalesHeaderFrom: Record "Sales Header"; SalesHeaderTo: Record "Sales Header")
     var
         IsHandled: Boolean;
@@ -6582,6 +6655,7 @@ codeunit 6620 "Copy Document Mgt."
         OnAfterCheckFromPurchaseCrMemoHeader(PurchCrMemoHdrFrom, PurchaseHeaderTo);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CheckFromCashDocumentHeader(FromCashDocHeader: Record "Cash Document Header"; ToCashDocHeader: Record "Cash Document Header")
     begin
@@ -6602,6 +6676,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
+#endif
     local procedure CopyDeferrals(DeferralDocType: Enum "Deferral Document Type"; FromDocType: Integer; FromDocNo: Code[20]; FromLineNo: Integer; ToDocType: Integer; ToDocNo: Code[20]; ToLineNo: Integer) StartDate: Date
     var
         FromDeferralHeader: Record "Deferral Header";
@@ -7012,6 +7087,7 @@ codeunit 6620 "Copy Document Mgt."
             Error(Text001, ToPurchHeader."Document Type", ToPurchHeader."No.");
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     local procedure CheckCashdDocItselfCopy(FromCashDocHeader: Record "Cash Document Header"; ToCashDocHeader: Record "Cash Document Header")
     begin
@@ -7022,6 +7098,7 @@ codeunit 6620 "Copy Document Mgt."
             Error(Text001, ToCashDocHeader."Cash Desk No.", ToCashDocHeader."No.");
     end;
 
+#endif
     procedure UpdateCustLedgerEntry(var ToSalesHeader: Record "Sales Header"; FromDocType: Enum "Gen. Journal Document Type"; FromDocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -7223,6 +7300,7 @@ codeunit 6620 "Copy Document Mgt."
                 FirstLineText := true;
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CopyCashDoc(FromDocType: Option; FromCashDeskNo: Code[20]; FromDocNo: Code[20]; var ToCashDocHeader: Record "Cash Document Header")
@@ -7486,6 +7564,7 @@ codeunit 6620 "Copy Document Mgt."
         Window.Close;
     end;
 
+#endif
     procedure InitAndCheckSalesDocuments(FromDocType: Option; FromDocNo: Code[20]; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesShipmentHeader: Record "Sales Shipment Header"; var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var FromReturnReceiptHeader: Record "Return Receipt Header"; var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var FromSalesHeaderArchive: Record "Sales Header Archive") Result: Boolean
     var
         FromDocType2: Enum "Sales Document Type From";

@@ -7,7 +7,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         Item: Record Item;
         SourceCodeSetup: Record "Source Code Setup";
-        InvtSetup: Record "Inventory Setup";
         InvtCommentLine: Record "Inventory Comment Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
@@ -42,11 +41,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
             GetLocation("Transfer-from Code");
             if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
                 WhsePosting := true;
+#if not CLEAN18
             // NAVCZ
             IntrastatTransaction := IsIntrastatTransaction;
             if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then
                 CheckTransHeaderMandatoryFields(TransHeader);
             // NAVCZ
+#endif
 
             if GuiAllowed then begin
                 Window.Open(
@@ -105,6 +106,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
                         Item.Get(TransLine."Item No.");
                         Item.TestField(Blocked, false);
                     end;
+
+#if not CLEAN18
                     // NAVCZ
                     if IntrastatTransaction then begin
                         if StatReportingSetup."Tariff No. Mandatory" then
@@ -115,18 +118,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
                             TransLine.TestField("Country/Region of Origin Code");
                     end;
                     // NAVCZ
-
+#endif
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine);
 
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next() = 0;
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-                OnAfterInvtAdjmt(TransHeader, TransShptHeader);
-            end;
+            MakeInventoryAdjustment();
 
             if WhseShip then
                 WhseShptLine.LockTable();
@@ -160,7 +158,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             end;
 
             "Last Shipment No." := TransShptHeader."No.";
-            Modify;
+            Modify();
 
             FinalizePosting(TransHeader, TransLine);
 
@@ -171,10 +169,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
             Clear(WhsePostShpt);
-            Clear(InvtAdjmt);
 
-            if GuiAllowed then
-                Window.Close;
+            if GuiAllowed() then
+                Window.Close();
         end;
 
         Rec := TransHeader;
@@ -190,6 +187,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text005: Label 'The combination of dimensions used in transfer order %1 is blocked. %2';
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
+        InvtSetup: Record "Inventory Setup";
         TransShptHeader: Record "Transfer Shipment Header";
         TransShptLine: Record "Transfer Shipment Line";
         TransHeader: Record "Transfer Header";
@@ -210,7 +208,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhseShip: Boolean;
@@ -222,12 +219,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text008: Label 'This order must be a complete shipment.';
         Text009: Label 'Item %1 is not in inventory.';
         SuppressCommit: Boolean;
-        IntrastatTransaction: Boolean;
-        StatReportingSetup: Record "Stat. Reporting Setup";
-
-    protected var
         TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
+#if not CLEAN18
+        IntrastatTransaction: Boolean;
+        StatReportingSetup: Record "Stat. Reporting Setup";
+#endif
 
     local procedure PostItem(var TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     var
@@ -287,10 +284,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
             "Applies-to Entry" := TransferLine."Appl.-to Item Entry";
             "Shpt. Method Code" := TransShptHeader2."Shipment Method Code";
             "Direct Transfer" := TransferLine."Direct Transfer";
-            // NAVCZ
 #if not CLEAN18
+            // NAVCZ
             Validate("Gen. Bus. Posting Group", TransShptLine2."Gen. Bus. Post. Group Ship");
-#endif
             "Tariff No." := TransferLine."Tariff No.";
             "Statistic Indication" := TransferLine."Statistic Indication";
             "Net Weight" := TransferLine."Net Weight";
@@ -301,6 +297,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 if TransferLine."Qty. per Unit of Measure" <> 0 then
                     "Net Weight" := Round("Net Weight" / TransferLine."Qty. per Unit of Measure", 0.00001);
             // NAVCZ
+#endif
         end;
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
@@ -743,6 +740,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
     end;
 
+#if not CLEAN18
     local procedure CheckTransHeaderMandatoryFields(TransHeader: Record "Transfer Header")
     begin
         StatReportingSetup.Get();
@@ -754,6 +752,18 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransHeader.TestField("Transport Method");
         if StatReportingSetup."Shipment Method Mandatory" then
             TransHeader.TestField("Shipment Method Code");
+    end;
+#endif
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then begin
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+            OnAfterInvtAdjmt(TransHeader, TransShptHeader);
+        end;
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)

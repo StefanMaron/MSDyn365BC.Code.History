@@ -54,6 +54,7 @@ codeunit 134421 "Report Selections Tests"
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
 
         // Exercise
+        Commit();
         PostedSalesInvoice.Print.Invoke();
 
         // Verify
@@ -863,64 +864,6 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler,StandardSalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestBatchPrintWithMixedLayout()
-    var
-        SalesInvoiceHeader: array[3] of Record "Sales Invoice Header";
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        // [FEATURE] [Sales] [Invoice] [Report] [Print]
-        // [SCENARIO 263088] System prints multiple documents with different layout setup.
-
-        Initialize();
-
-        // [GIVEN] Report selection where Usage = "S.Invoice" and "Report ID" = 1306 ("Standard Sales - Invoice")
-        SetupReportSelections(false, false);
-
-        // [GIVEN] Customers "A", "B" and "C"
-        // [GIVEN] Posted sales invoice "InvoiceA" for "A"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[1]);
-        // [GIVEN] Posted sales invoice "InvoiceB" for "B"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[2]);
-        // [GIVEN] Posted sales invoice "InvoiceC" for "C"
-        CreateAndPostSalesInvoice(SalesInvoiceHeader[3]);
-
-        // [GIVEN] Custom Report Selection where Usage = "Inv1" and "Report ID" = 124 ("Sales Invoice Nos."), "Source No." = "B"
-        InsertCustomReportSelectionCustomer(
-          CustomReportSelection, SalesInvoiceHeader[2]."Sell-to Customer No.",
-          GetSalesInvoiceNosReportID, false, false, '', '', CustomReportSelection.Usage::Inv1);
-        // [GIVEN] Custom Report Selection where Usage = "S.Invoice" and "Report ID" = 206 ("Sales - Invoice"), "Source No." = "A"
-        InsertCustomReportSelectionCustomer(
-          CustomReportSelection, SalesInvoiceHeader[1]."Sell-to Customer No.",
-          GetSalesInvoiceReportID, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
-        Commit();
-
-        // [WHEN] Send to print "InvoiceA", "InvoiceB" and "InvoiceC" within single selection
-        SalesInvoiceHeader[1].SetFilter(
-          "No.", '%1|%2|%3', SalesInvoiceHeader[1]."No.", SalesInvoiceHeader[2]."No.", SalesInvoiceHeader[3]."No.");
-        SalesInvoiceHeader[1].PrintRecords(true);
-
-        // [THEN] "Sales - Invoice" report prints "InvoiceA" only
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(NoSalesInvHdrTok, SalesInvoiceHeader[1]."No.");
-        LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[2]."No.");
-        LibraryReportDataset.AssertElementWithValueNotExist(NoSalesInvHdrTok, SalesInvoiceHeader[3]."No.");
-
-        // [THEN] "Standard Sales - Invoice" report prints "InvoiceB" and "InvoiceC"
-        Clear(LibraryReportDataset);
-        LibraryReportDataset.SetFileName(LibraryVariableStorage.DequeueText());
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueNotExist(DocumentNoTok, SalesInvoiceHeader[1]."No.");
-        LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, SalesInvoiceHeader[2]."No.");
-        LibraryReportDataset.AssertElementWithValueExists(DocumentNoTok, SalesInvoiceHeader[3]."No.");
-
-        // [THEN] "Sales Invoice Nos." is not printed at all
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure UT_RestrictEmptyReportID_OnInsert()
     var
@@ -1311,7 +1254,7 @@ codeunit 134421 "Report Selections Tests"
         // [GIVEN] Customer "C"
         CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Custom report selection "CR" for "C"
-        InsertCustomReportSelectionCustomer(CustomReportSelection, CustomerNo, 204, false, false, '', '', CustomReportSelection.Usage::"S.Quote");
+        InsertCustomReportSelectionCustomer(CustomReportSelection, CustomerNo, 1306, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
         // [WHEN] Copy Report Selections to Custom Report Selection
         CustomReportSelection.CopyFromReportSelections(ReportSelections, Database::Customer, CustomerNo);
         // [THEN] Custom Report Selection contains 4 records with "R1", "R2", "R3", "CR" reports for "C"
@@ -2367,11 +2310,6 @@ codeunit 134421 "Report Selections Tests"
         exit(REPORT::"Standard Sales - Invoice");
     end;
 
-    local procedure GetSalesInvoiceReportID(): Integer
-    begin
-        exit(REPORT::"Sales - Invoice");
-    end;
-
     local procedure GetSalesInvoiceNosReportID(): Integer
     begin
         exit(REPORT::"Sales Invoice Nos.");
@@ -2630,17 +2568,6 @@ codeunit 134421 "Report Selections Tests"
         FileName := LibraryReportDataset.GetFileName;
         LibraryVariableStorage.Enqueue(FileName);
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        FileName: Text;
-    begin
-        FileName := LibraryReportDataset.GetFileName;
-        LibraryVariableStorage.Enqueue(FileName);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 
     [RequestPageHandler]

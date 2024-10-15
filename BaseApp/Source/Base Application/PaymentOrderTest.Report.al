@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 11710 "Payment Order - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PaymentOrderTest.rdlc';
-    Caption = 'Payment Order - Test';
+    Caption = 'Payment Order - Test (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -212,3 +216,4 @@ report 11710 "Payment Order - Test"
     end;
 }
 
+#endif

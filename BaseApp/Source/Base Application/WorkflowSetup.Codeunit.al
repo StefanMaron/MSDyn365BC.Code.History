@@ -1,4 +1,5 @@
-﻿codeunit 1502 "Workflow Setup"
+﻿#if not CLEAN19
+codeunit 1502 "Workflow Setup"
 {
 
     trigger OnRun()
@@ -110,19 +111,23 @@
         FinCategoryDescTxt: Label 'Finance';
         CustomTemplateToken: Code[3];
         PaymentOrderApprWorkflowCodeTxt: Label 'PMTORDAPW', Locked = true;
-        PaymentOrderApprWorkflowDescTxt: Label 'Payment Order Approval Workflow';
+        PaymentOrderApprWorkflowDescTxt: Label 'Payment Order Approval Workflow (Obsolete)';
         PaymentOrderHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Payment Order Header">%1</DataItem><DataItem name="Payment Order Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
+#if not CLEAN17
         CashDocApprWorkflowCodeTxt: Label 'CDAPW', Locked = true;
         CashDocApprWorkflowDescTxt: Label 'Cash Document Approval Workflow (Obsolete)';
         CashDocHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Cash Document Header">%1</DataItem><DataItem name="Cash Document Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
+#endif
+#if not CLEAN18
         CreditDocApprWorkflowCodeTxt: Label 'CRAPW', Locked = true;
         CreditDocApprWorkflowDescTxt: Label 'Credit Approval Workflow (Obsolete)';
         CreditHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Credit Header">%1</DataItem><DataItem name="Credit Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
+#endif
         SalesAdvanceLetterApprWorkflowCodeTxt: Label 'SALAPW', Locked = true;
-        SalesAdvanceLetterApprWorkflowDescTxt: Label 'Sales Advance Letter Approval Workflow';
+        SalesAdvanceLetterApprWorkflowDescTxt: Label 'Sales Advance Letter Approval Workflow (Obsolete)';
         SalesAdvanceLetterHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Advance Letter Header">%1</DataItem><DataItem name="Sales Advance Letter Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
         PurchAdvanceLetterApprWorkflowCodeTxt: Label 'PALAPW', Locked = true;
-        PurchAdvanceLetterApprWorkflowDescTxt: Label 'Pruchase Advance Letter Approval Workflow';
+        PurchAdvanceLetterApprWorkflowDescTxt: Label 'Pruchase Advance Letter Approval Workflow (Obsolete)';
         PurchAdvanceLetterHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purch. Advance Letter Header">%1</DataItem><DataItem name="Purch. Advance Letter Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
 
     procedure InitWorkflow()
@@ -189,8 +194,12 @@
 
         // NAVCZ
         InsertPaymentOrderApprovalWorkflowTemplate();
+#if not CLEAN17
         InsertCashDocApprovalWorkflowTemplate();
+#endif
+#if not CLEAN18
         InsertCreditDocApprovalWorkflowTemplate();
+#endif
         InsertSalesAdvanceLetterApprovalWorkflowTemplate();
         InsertPurchaseAdvanceLetterApprovalWorkflowTemplate();
         // NAVCZ
@@ -1228,6 +1237,7 @@
           false, false);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     local procedure InsertPaymentOrderApprovalWorkflowTemplate()
     var
         Workflow: Record Workflow;
@@ -1238,6 +1248,7 @@
         MarkWorkflowAsTemplate(Workflow);
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     local procedure InsertPaymentOrderApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
         PmtOrdHdr: Record "Payment Order Header";
@@ -1257,6 +1268,7 @@
           WorkflowStepArgument, true);
     end;
 
+#if not CLEAN17
     local procedure InsertCashDocApprovalWorkflowTemplate()
     var
         Workflow: Record Workflow;
@@ -1318,6 +1330,8 @@
         InsertResponseStep(Workflow, WorkflowResponseHandlingCZ.SetStatusToApprovedCode, WorkflowStep.ID);
     end;
 
+#endif
+#if not CLEAN18
     local procedure InsertCreditDocApprovalWorkflowTemplate()
     var
         Workflow: Record Workflow;
@@ -1363,6 +1377,8 @@
         InsertResponseStep(Workflow, WorkflowResponseHandlingCZ.SetStatusToApprovedCode, WorkflowStep.ID);
     end;
 
+#endif
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure InsertSalesAdvanceLetterApprovalWorkflowTemplate()
     var
         Workflow: Record Workflow;
@@ -1374,6 +1390,7 @@
         MarkWorkflowAsTemplate(Workflow);
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure InsertSalesAdvanceLetterApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -1392,6 +1409,7 @@
           WorkflowStepArgument, true);
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure InsertPurchaseAdvanceLetterApprovalWorkflowTemplate()
     var
         Workflow: Record Workflow;
@@ -1403,6 +1421,7 @@
         MarkWorkflowAsTemplate(Workflow);
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     local procedure InsertPurchaseAdvanceLetterApprovalWorkflowDetails(var Workflow: Record Workflow)
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -2393,6 +2412,7 @@
         exit(StrSubstNo(SalesHeaderTypeCondnTxt, Encode(SalesHeader.GetView(false)), Encode(SalesLine.GetView(false))));
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure BuildPaymentOrderHeaderTypeConditions(Status: Option): Text
     var
         PmtOrdHdr: Record "Payment Order Header";
@@ -2403,17 +2423,24 @@
         exit(StrSubstNo(PaymentOrderHeaderTypeCondnTxt, Encode(PmtOrdHdr.GetView(false)), Encode(PmtOrdLn.GetView(false))));
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
     procedure BuildCashDocHeaderTypeConditions(Status: Option): Text
+#if not CLEAN17
     var
         CashDocHdr: Record "Cash Document Header";
         CashDocLn: Record "Cash Document Line";
+#endif
     begin
+#if not CLEAN17
         // NAVCZ
         CashDocHdr.SetRange(Status, Status);
         exit(StrSubstNo(CashDocHeaderTypeCondnTxt, Encode(CashDocHdr.GetView(false)), Encode(CashDocLn.GetView(false))));
+#endif
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure BuildCreditHeaderTypeConditions(Status: Option): Text
     var
@@ -2425,6 +2452,8 @@
         exit(StrSubstNo(CreditHeaderTypeCondnTxt, Encode(CreditHdr.GetView(false)), Encode(CreditLn.GetView(false))));
     end;
 
+#endif
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     procedure BuildSalesAdvanceLetterHeaderTypeConditions(Status: Option): Text
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -2437,6 +2466,7 @@
             Encode(SalesAdvanceLetterLine.GetView(false))));
     end;
 
+    [Obsolete('Replaced by Advanced Payments Localization for Czech.', '19.0')]
     procedure BuildPurchAdvanceLetterHeaderTypeConditions(Status: Option): Text
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -2545,3 +2575,4 @@
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31065 "Intrastat Declaration Export"
 {
     Caption = 'Intrastat Declaration Export (Obsolete)';
@@ -228,4 +229,4 @@ report 31065 "Intrastat Declaration Export"
         Result := CopyStr(Result, 2);
     end;
 }
-
+#endif

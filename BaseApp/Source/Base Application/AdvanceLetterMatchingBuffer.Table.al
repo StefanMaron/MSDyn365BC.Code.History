@@ -1,6 +1,13 @@
 table 31035 "Advance Letter Matching Buffer"
 {
     Caption = 'Advance Letter Matching Buffer';
+#if not CLEAN19
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -79,6 +86,7 @@ table 31035 "Advance Letter Matching Buffer"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     [Scope('OnPrem')]
     procedure InsertFromSalesAdvanceLetterHeader(SalesAdvanceLetterHdr: Record "Sales Advance Letter Header"; UseLCYAmounts: Boolean)
@@ -143,5 +151,6 @@ table 31035 "Advance Letter Matching Buffer"
         SetRange("Remaining Amount");
         exit(NoOfEntreis);
     end;
+#endif
 }
 

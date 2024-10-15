@@ -1,8 +1,12 @@
 table 11701 "Constant Symbol"
 {
     Caption = 'Constant Symbol';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Constant Symbols";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 

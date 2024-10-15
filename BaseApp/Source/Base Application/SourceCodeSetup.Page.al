@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 279 "Source Code Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -34,11 +35,19 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for close balance sheet.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Open Balance Sheet"; "Open Balance Sheet")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code for open balance sheet.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("VAT Settlement"; "VAT Settlement")
                 {
@@ -100,6 +109,7 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code assigned to entries that are posted from the cash flow worksheet.';
                 }
+#if not CLEAN17
                 field("Cash Desk"; "Cash Desk")
                 {
                     ApplicationArea = Basic, Suite;
@@ -109,6 +119,7 @@ page 279 "Source Code Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Payment Reconciliation Journal"; "Payment Reconciliation Journal")
                 {
                     ApplicationArea = Basic, Suite;
@@ -163,6 +174,7 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted using the Date Compress Customer Ledger batch job.';
                 }
+#if not CLEAN17
                 field("Sales VAT Delay"; "Sales VAT Delay")
                 {
                     ApplicationArea = Basic, Suite;
@@ -172,6 +184,8 @@ page 279 "Source Code Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field(Credit; Credit)
                 {
                     ApplicationArea = Basic, Suite;
@@ -181,6 +195,8 @@ page 279 "Source Code Setup"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+
+#endif
             }
             group(Purchases)
             {
@@ -228,6 +244,7 @@ page 279 "Source Code Setup"
                     Visible = false;
                 }
 #endif
+#if not CLEAN17
                 field("Purchase VAT Delay"; "Purchase VAT Delay")
                 {
                     ApplicationArea = Basic, Suite;
@@ -237,6 +254,7 @@ page 279 "Source Code Setup"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Employees)
             {
@@ -524,3 +542,4 @@ page 279 "Source Code Setup"
     end;
 }
 
+#endif

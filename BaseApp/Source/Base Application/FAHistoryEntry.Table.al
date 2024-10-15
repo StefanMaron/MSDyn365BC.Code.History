@@ -1,9 +1,13 @@
 table 31044 "FA History Entry"
 {
     Caption = 'FA History Entry';
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "FA History Entries";
     Permissions = TableData "FA History Entry" = rimd;
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
     ObsoleteTag = '18.0';
 
@@ -97,6 +101,7 @@ table 31044 "FA History Entry"
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Fixed Asset Localization for Czech.', '18.0')]
@@ -175,5 +180,6 @@ table 31044 "FA History Entry"
             end;
         end;
     end;
+#endif
 }
 

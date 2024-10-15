@@ -300,7 +300,7 @@ table 80 "Gen. Journal Template"
             ObsoleteState = Removed;
 #else
             ObsoleteState = Pending;
-#endif            
+#endif        
             ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
             ObsoleteTag = '18.0';
 #if not CLEAN18

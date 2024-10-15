@@ -1,4 +1,5 @@
-﻿page 311 "Intrastat Journal"
+﻿#if not CLEAN19
+page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
@@ -72,6 +73,7 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s tariff number.';
                 }
+#if not CLEAN18
                 field("Statistic Indication"; "Statistic Indication")
                 {
                     ApplicationArea = BasicEU;
@@ -90,6 +92,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Item Description"; "Item Description")
                 {
                     ApplicationArea = BasicEU;
@@ -150,6 +153,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
                 }
+#if not CLEAN18
                 field("Supplem. UoM Code"; "Supplem. UoM Code")
                 {
                     ApplicationArea = BasicEU;
@@ -186,6 +190,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field(Quantity; Quantity)
                 {
                     ApplicationArea = BasicEU;
@@ -238,6 +243,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
                 }
+#if not CLEAN18
                 field("Prev. Declaration No."; "Prev. Declaration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -274,6 +280,7 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -363,7 +370,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;
@@ -377,6 +384,10 @@
         }
         area(reporting)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merged to W1.';
+            ObsoleteTag = '19.0';
+#if not CLEAN18
             action("Test Report")
             {
                 ApplicationArea = BasicEU;
@@ -398,7 +409,9 @@
                     TestReport.RunModal;
                     // NAVCZ
                 end;
+
             }
+#endif
             action(ChecklistReport)
             {
                 ApplicationArea = BasicEU;
@@ -414,7 +427,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         CurrPage.Update();
@@ -457,7 +470,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                        (VATReportsConfiguration."Content Codeunit ID" <> 0)
                     then begin
@@ -481,6 +494,7 @@
                     REPORT.Run(REPORT::"Intrastat - Make Disk Tax Auth", true, false, IntrastatJnlLine);
                 end;
             }
+#if not CLEAN18
             action(Export)
             {
                 ApplicationArea = BasicEU;
@@ -547,6 +561,7 @@
                     // NAVCZ
                 end;
             }
+#endif
             action(Form)
             {
                 ApplicationArea = BasicEU;
@@ -690,7 +705,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateErrors(IsHandled);
+        OnBeforeUpdateErrors(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -700,8 +715,9 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeUpdateErrors(var IsHandled: boolean)
+    local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
 }
 
+#endif

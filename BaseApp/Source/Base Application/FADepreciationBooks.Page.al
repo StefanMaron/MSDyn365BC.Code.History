@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5619 "FA Depreciation Books"
 {
     Caption = 'FA Depreciation Books';
@@ -327,3 +328,4 @@ page 5619 "FA Depreciation Books"
     end;
 }
 
+#endif

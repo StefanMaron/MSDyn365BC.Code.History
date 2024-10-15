@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 5882 "Phys. Invt. Order-Reopen"
 {
     TableNo = "Phys. Invt. Order Header";
@@ -78,4 +79,4 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
     begin
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5159 "Sales Order Archive"
 {
     Caption = 'Sales Order Archive';
@@ -128,6 +129,7 @@ page 5159 "Sales Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Suite;
@@ -137,6 +139,7 @@ page 5159 "Sales Order Archive"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#endif
                 field("Requested Delivery Date"; "Requested Delivery Date")
                 {
                     ApplicationArea = Suite;
@@ -482,6 +485,7 @@ page 5159 "Sales Order Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -491,6 +495,7 @@ page 5159 "Sales Order Archive"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Version)
             {
@@ -716,8 +721,8 @@ page 5159 "Sales Order Archive"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     var
@@ -730,3 +735,4 @@ page 5159 "Sales Order Archive"
         IsShipToCountyVisible: Boolean;
 }
 
+#endif

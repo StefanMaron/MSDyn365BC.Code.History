@@ -924,6 +924,7 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."Qty. per Unit of Measure" := QtyPerUOM;
+        Rec."Qty. Rounding Precision (Base)" := QtyRoundingPerBase;
     end;
 
     trigger OnOpenPage()
@@ -965,12 +966,11 @@
 
     var
         xTempTrackingSpecification: Record "Tracking Specification" temporary;
-        TotalTrackingSpecification: Record "Tracking Specification";
         TempReservEntry: Record "Reservation Entry" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        QtyPerUOM: Decimal;
+        QtyRoundingPerBase: Decimal;
         QtyToAddAsBlank: Decimal;
         Text002: Label 'Quantity must be %1.';
         Text003: Label 'negative';
@@ -984,7 +984,6 @@
         Text006: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         Text007: Label 'Another user has modified the item tracking data since it was retrieved from the database.\Start again.';
         CurrentEntryStatus: Enum "Reservation Status";
-        InsertIsBlocked: Boolean;
         Text008: Label 'The quantity to create must be an integer.';
         Text009: Label 'The quantity to create must be positive.';
         Text011: Label 'Tracking specification with Serial No. %1 and Lot No. %2 and Package %3 already exists.', Comment = '%1 - serial no, %2 - lot no, %3 - package no.';
@@ -1003,7 +1002,6 @@
         Text016: Label 'purchase order line';
         Text017: Label 'sales order line';
         Text018: Label 'Saving item tracking line changes';
-        ForBinCode: Code[20];
         AvailabilityWarningsQst: Label 'You do not have enough inventory to meet the demand for items in one or more lines.\This is indicated by No in the Availability fields.\Do you want to continue?';
         Text020: Label 'Placeholder';
         ExcludePostedEntries: Boolean;
@@ -1020,9 +1018,13 @@
         TempItemTrackLineModify: Record "Tracking Specification" temporary;
         TempItemTrackLineDelete: Record "Tracking Specification" temporary;
         TempItemTrackLineReserv: Record "Tracking Specification" temporary;
+        TotalTrackingSpecification: Record "Tracking Specification";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
         CurrentRunMode: Enum "Item Tracking Run Mode";
         CurrentSignFactor: Integer;
+        ForBinCode: Code[20];
+        InsertIsBlocked: Boolean;
+        QtyPerUOM: Decimal;
         UndefinedQtyArray: array[3] of Decimal;
         SourceQuantityArray: array[5] of Decimal;
         CurrentSourceType: Integer;
@@ -1124,10 +1126,13 @@
             end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetRynMode().', '19.0')]
     procedure SetFormRunMode(Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
     begin
         CurrentRunMode := "Item Tracking Run Mode".FromInteger(Mode);
     end;
+#endif
 
     procedure SetRunMode(RunMode: Enum "Item Tracking Run Mode")
     begin
@@ -1139,10 +1144,13 @@
         exit(CurrentRunMode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by GetRunMode().', '19.0')]
     procedure GetFormRunMode(var Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
     begin
         Mode := CurrentRunMode.AsInteger();
     end;
+#endif
 
     protected procedure UpdateTrackingData()
     var
@@ -1241,6 +1249,7 @@
 
         FillSourceQuantityArray(TrackingSpecification);
         QtyPerUOM := TrackingSpecification."Qty. per Unit of Measure";
+        QtyRoundingPerBase := TrackingSpecification."Qty. Rounding Precision (Base)";
 
         ReservEntry.SetSourceFilter(
           TrackingSpecification."Source Type", TrackingSpecification."Source Subtype",
@@ -1251,7 +1260,7 @@
         // Transfer Receipt gets special treatment:
         SetSourceSpecForTransferReceipt(TrackingSpecification, ReservEntry, TempTrackingSpecification2);
 
-        AddReservEntriesToTempRecSet(ReservEntry, TempTrackingSpecification, false, 0);
+        AddReservEntriesToTempRecSet(ReservEntry, TempTrackingSpecification, false, 0, QtyRoundingPerBase);
 
         TempReservEntry.CopyFilters(ReservEntry);
 
@@ -1368,6 +1377,11 @@
     end;
 
     protected procedure AddReservEntriesToTempRecSet(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SwapSign: Boolean; Color: Integer)
+    begin
+        AddReservEntriesToTempRecSet(ReservEntry, TempTrackingSpecification, SwapSign, Color, 0);
+    end;
+
+    protected procedure AddReservEntriesToTempRecSet(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SwapSign: Boolean; Color: Integer; SrcQtyRoundingPrecision: Decimal)
     var
         FromReservEntry: Record "Reservation Entry";
         AddTracking: Boolean;
@@ -1388,6 +1402,7 @@
 
                     if AddTracking then begin
                         TempTrackingSpecification.TransferFields(ReservEntry);
+                        TempTrackingSpecification."Qty. Rounding Precision (Base)" := SrcQtyRoundingPrecision;
                         OnAddReservEntriesToTempRecSetOnAfterTempTrackingSpecificationTransferFields(TempTrackingSpecification, ReservEntry);
                         // Ensure uniqueness of Entry No. by making it negative:
                         TempTrackingSpecification."Entry No." *= -1;
@@ -1412,8 +1427,9 @@
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        TempTrackingSpecification.SetCurrentKey("Lot No.", "Serial No.");
+        TempTrackingSpecification.SetTrackingKey();
         OnAddToGlobalRecordSetOnAfterTrackingSpecificationSetCurrentKey(TempTrackingSpecification);
+
         if TempTrackingSpecification.Find('-') then
             repeat
                 TempTrackingSpecification.SetTrackingFilterFromSpec(TempTrackingSpecification);
@@ -1458,6 +1474,16 @@
                 TempTrackingSpecification.ClearTrackingFilter();
             until TempTrackingSpecification.Next() = 0;
     end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by SetPageControls().', '19.0')]
+    protected procedure SetControls(Controls: Option Handle,Invoice,Quantity,Reclass,Tracking; SetAccess: Boolean)
+    begin
+        SetPageControls("Item Tracking Lines Controls".FromInteger(Controls), SetAccess);
+
+        OnAfterSetControls(ItemTrackingCode, Controls, SetAccess);
+    end;
+#endif
 
     protected procedure SetPageControls(Controls: Enum "Item Tracking Lines Controls"; SetAccess: Boolean)
     begin
@@ -1510,8 +1536,6 @@
                     InsertIsBlocked := SetAccess;
                 end;
         end;
-
-        OnAfterSetControls(ItemTrackingCode, Controls, SetAccess);
 
         OnAfterSetPageControls(ItemTrackingCode, Controls, SetAccess);
     end;
@@ -1714,7 +1738,7 @@
         exit(LastEntryNo);
     end;
 
-    protected procedure WriteToDatabase()
+    procedure WriteToDatabase()
     var
         Window: Dialog;
         ChangeType: Option Insert,Modify,Delete;
@@ -2443,6 +2467,7 @@
         AssignNewLotNo();
         OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."));
         Rec."Qty. per Unit of Measure" := QtyPerUOM;
+        Rec."Qty. Rounding Precision (Base)" := QtyRoundingPerBase;
         Rec.Validate("Quantity (Base)", QtyToCreate);
         Rec."Entry No." := NextEntryNo;
         TestTempSpecificationExists();
@@ -2630,7 +2655,7 @@
             exit(false);
 
         TrackingSpecification.Copy(Rec);
-        Rec.SetCurrentKey("Lot No.", "Serial No.");
+        Rec.SetTrackingKey();
         Rec.SetRange("Serial No.", Rec."Serial No.");
         if Rec."Serial No." = '' then
             Rec.SetNonSerialTrackingFilterFromSpec(Rec);
@@ -2667,7 +2692,7 @@
         ExcludePostedEntries := true;
         SetSourceSpec(SourceTrackingSpecification, AvailabilityDate);
         Rec.Reset();
-        Rec.SetCurrentKey("Lot No.", "Serial No.");
+        Rec.SetTrackingKey();
 
         repeat
             SetTrackingFilterFromSpec(TempTrackingSpecification);
@@ -3269,10 +3294,12 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterSetControls(ItemTrackingCode: Record "Item Tracking Code"; var Controls: Option Handle,Invoice,Quantity,Reclass,Tracking; var SetAccess: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterSetPageControls(ItemTrackingCode: Record "Item Tracking Code"; Controls: Enum "Item Tracking Lines Controls"; SetAccess: Boolean)

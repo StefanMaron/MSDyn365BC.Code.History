@@ -22,11 +22,9 @@ table 911 "Posted Assembly Line"
         {
             Caption = 'Order Line No.';
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "BOM Component Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource';
-            OptionMembers = " ",Item,Resource;
         }
         field(11; "No."; Code[20])
         {
@@ -166,7 +164,11 @@ table 911 "Posted Assembly Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

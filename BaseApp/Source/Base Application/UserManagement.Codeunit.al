@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 418 "User Management"
 {
     Permissions = TableData "G/L Entry" = rm,
@@ -93,14 +94,16 @@ codeunit 418 "User Management"
                   Tabledata "Manufacturing User Template" = m,
                   TableData "Issued Bank Statement Header" = rm,
                   TableData "Issued Payment Order Header" = rm,
+#if not CLEAN17
                   TableData "Posted Cash Document Header" = rm,
-#if not CLEAN19
-                  TableData "Detailed G/L Entry" = rm,
 #endif
+                  TableData "Detailed G/L Entry" = rm,
                   TableData "Sales Advance Letter Entry" = rm,
                   TableData "Purch. Advance Letter Entry" = rm,
+#if not CLEAN18
                   TableData "FA History Entry" = rm,
                   TableData "Posted Credit Header" = rm,
+#endif
                   Tabledata "Field Monitoring Setup" = m;
 
     trigger OnRun()
@@ -112,7 +115,7 @@ codeunit 418 "User Management"
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
-        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated in Business Central online. Please use OAuth.';
+        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated on Business Central online. Please use OAuth.';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
@@ -202,7 +205,9 @@ codeunit 418 "User Management"
         UserTimeRegister: Record "User Time Register";
         PrinterSelection: Record "Printer Selection";
         SelectedDimension: Record "Selected Dimension";
+#if not CLEAN19
         OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
+#endif
         FAJournalSetup: Record "FA Journal Setup";
         AnalysisSelectedDimension: Record "Analysis Selected Dimension";
         WarehouseEmployee: Record "Warehouse Employee";
@@ -238,12 +243,14 @@ codeunit 418 "User Management"
                         SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
                           SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
                     end;
+#if not CLEAN19
                 DATABASE::"Outlook Synch. User Setup":
                     begin
                         OutlookSynchUserSetup.ChangeCompany(Company);
                         RecRef.SetTable(OutlookSynchUserSetup);
                         OutlookSynchUserSetup.Rename(UserName, OutlookSynchUserSetup."Synch. Entity Code");
                     end;
+#endif
                 DATABASE::"FA Journal Setup":
                     begin
                         FAJournalSetup.ChangeCompany(Company);
@@ -484,3 +491,4 @@ codeunit 418 "User Management"
     end;
 }
 
+#endif

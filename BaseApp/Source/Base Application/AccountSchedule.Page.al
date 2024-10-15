@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 104 "Account Schedule"
 {
     AutoSplitKey = true;
@@ -40,6 +41,7 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
+#if not CLEAN17
                 field("Row Correction"; "Row Correction")
                 {
                     ApplicationArea = Basic, Suite;
@@ -63,6 +65,7 @@ page 104 "Account Schedule"
                         // NAVCZ
                     end;
                 }
+#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -75,7 +78,6 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the totaling type for the account schedule line. The type determines which accounts within the totaling interval you specify in the Totaling field will be totaled. ';
                 }
-#if not CLEAN19
                 field("Source Table"; "Source Table")
                 {
                     ApplicationArea = Basic, Suite;
@@ -85,12 +87,11 @@ page 104 "Account Schedule"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#endif
                 field(Totaling; Totaling)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
-#if not CLEAN19
+
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         GLAccList: Page "G/L Account List";
@@ -126,7 +127,6 @@ page 104 "Account Schedule"
                         exit(false);
                         // NAVCZ
                     end;
-#endif
                 }
                 field("Row Type"; "Row Type")
                 {
@@ -192,6 +192,7 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
                 }
+#if not CLEAN17
                 field(Calc; Calc)
                 {
                     ApplicationArea = Basic, Suite;
@@ -201,6 +202,7 @@ page 104 "Account Schedule"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field(Bold; Bold)
                 {
                     ApplicationArea = Basic, Suite;
@@ -227,6 +229,7 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
                 }
+#if not CLEAN17
                 field("Assets/Liabilities Type"; "Assets/Liabilities Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -236,6 +239,7 @@ page 104 "Account Schedule"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#endif
             }
         }
         area(factboxes)
@@ -403,7 +407,9 @@ page 104 "Account Schedule"
             group("O&ther")
             {
                 Caption = 'O&ther';
-#if not CLEAN19
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
                 action("Set up Custom Functions")
                 {
                     ApplicationArea = Basic, Suite;
@@ -417,7 +423,7 @@ page 104 "Account Schedule"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#endif
+#if not CLEAN17
                 action("File Mapping")
                 {
                     ApplicationArea = Basic, Suite;
@@ -439,8 +445,8 @@ page 104 "Account Schedule"
                         // NAVCZ
                     end;
                 }
+#endif
             }
-#if not CLEAN19
             group("&Results")
             {
                 Caption = '&Results (Obsolete)';
@@ -479,7 +485,6 @@ page 104 "Account Schedule"
                     Visible = false;
                 }
             }
-#endif
         }
         area(reporting)
         {
@@ -579,5 +584,11 @@ page 104 "Account Schedule"
             end;
         end;
     end;
+
+    procedure GetAccSchedName(): Code[10]
+    begin
+        exit(CurrentSchedName);
+    end;
 }
 
+#endif

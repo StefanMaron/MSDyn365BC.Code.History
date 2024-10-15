@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 31066 "VIES Declaration Export"
 {
     Caption = 'VIES Declaration Export (Obsolete)';
@@ -81,3 +82,5 @@ report 31066 "VIES Declaration Export"
     end;
 }
 
+
+#endif

@@ -1,7 +1,11 @@
+#if not CLEAN19
 report 11702 "Copy Payment Order"
 {
-    Caption = 'Copy Payment Order';
+    Caption = 'Copy Payment Order (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -96,4 +100,4 @@ report 11702 "Copy Payment Order"
     begin
     end;
 }
-
+#endif

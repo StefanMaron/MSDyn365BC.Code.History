@@ -241,6 +241,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         {
             Caption = 'Advance';
             DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -461,11 +468,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             InitFromGenJnlLine(GenJnlLine);
             CopyFromCVLedgEntryBuf(CVLedgEntryBuf);
             "Entry Type" := EntryType;
+#if not CLEAN19
             // NAVCZ
             if "Entry Type" in ["Entry Type"::"Realized Loss", "Entry Type"::"Realized Gain", "Entry Type"::Application] then
                 Advance :=
                   CVLedgEntryBuf.Prepayment and (CVLedgEntryBuf."Prepayment Type" = CVLedgEntryBuf."Prepayment Type"::Advance);
             // NAVCZ
+#endif
             Amount := AmountFCY;
             "Amount (LCY)" := AmountLCY;
             "Additional-Currency Amount" := AmountAddCurr;

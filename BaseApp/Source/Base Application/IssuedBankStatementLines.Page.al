@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 11713 "Issued Bank Statement Lines"
 {
-    Caption = 'Issued Bank Statement Lines';
+    Caption = 'Issued Bank Statement Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Issued Bank Statement Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -91,4 +95,4 @@ page 11713 "Issued Bank Statement Lines"
     {
     }
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31120 "EET Service Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -185,4 +186,4 @@ page 31120 "EET Service Setup"
         end;
     end;
 }
-
+#endif

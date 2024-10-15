@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 11721 "Issued Payment Order"
 {
-    Caption = 'Issued Payment Order';
+    Caption = 'Issued Payment Order (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Issued Payment Order Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -347,4 +351,4 @@ page 11721 "Issued Payment Order"
         IssuedPmtOrdHdr.PrintForeignPmtOrd(true);
     end;
 }
-
+#endif

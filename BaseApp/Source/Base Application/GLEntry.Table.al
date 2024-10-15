@@ -379,6 +379,10 @@ table 17 "G/L Entry"
             ELSE
             IF ("FA Entry Type" = CONST(Maintenance)) "Maintenance Ledger Entry";
         }
+        field(5618; Comment; Text[250])
+        {
+            Caption = 'Comment';
+        }
         field(8001; "Account Id"; Guid)
         {
             CalcFormula = Lookup("G/L Account".SystemId WHERE("No." = FIELD("G/L Account No.")));
@@ -400,7 +404,11 @@ table 17 "G/L Entry"
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -408,7 +416,11 @@ table 17 "G/L Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -535,6 +547,7 @@ table 17 "G/L Entry"
             Enabled = false;
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
         }
+#if not CLEAN17
         key(Key5; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Date")
         {
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
@@ -542,6 +555,7 @@ table 17 "G/L Entry"
             ObsoleteReason = 'This key is discontinued due to obsolete fields.';
             ObsoleteTag = '17.5';
         }
+#endif
         key(Key6; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
         {
             Enabled = false;
@@ -571,12 +585,20 @@ table 17 "G/L Entry"
         key(Key13; "VAT Bus. Posting Group", "VAT Prod. Posting Group")
         {
         }
+#if not CLEAN19
         key(Key14; "G/L Account No.", Closed, "Posting Date")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Closed" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
         key(Key15; "G/L Account No.", "Applies-to ID")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Applies-to ID" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
+#endif
         key(Key16; "Dimension Set ID")
         {
         }
@@ -698,6 +720,7 @@ table 17 "G/L Entry"
         "Document No." := GenJnlLine."Document No.";
         "External Document No." := GenJnlLine."External Document No.";
         Description := GenJnlLine.Description;
+        Comment := GenJnlLine.Comment;
         "Business Unit Code" := GenJnlLine."Business Unit Code";
         "Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
@@ -728,8 +751,12 @@ table 17 "G/L Entry"
         "No. Series" := GenJnlLine."Posting No. Series";
         "IC Partner Code" := GenJnlLine."IC Partner Code";
         // NAVCZ
+#if not CLEAN17
         "VAT Date" := GenJnlLine."VAT Date";
+#endif
+#if not CLEAN18
         "Variable Symbol" := GenJnlLine."Variable Symbol";
+#endif
         // NAVCZ
 
         OnAfterCopyGLEntryFromGenJnlLine(Rec, GenJnlLine);

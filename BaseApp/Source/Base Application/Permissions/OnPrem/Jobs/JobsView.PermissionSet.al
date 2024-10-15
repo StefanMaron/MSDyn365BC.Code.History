@@ -35,6 +35,8 @@ permissionset 5679 "Jobs - View"
                   tabledata "Job WIP G/L Entry" = Rimd,
                   tabledata "Source Code Setup" = R,
                   tabledata "VAT Entry" = RI,
+#if not CLEAN17
                   tabledata "VAT Period" = R,
+#endif
                   tabledata "VAT Rate Change Log Entry" = Ri;
 }

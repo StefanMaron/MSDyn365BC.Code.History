@@ -1,13 +1,21 @@
 table 11705 "Bank Statement Line"
 {
     Caption = 'Bank Statement Line';
+#if not CLEAN19
     DrillDownPageID = "Bank Statement Lines";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Bank Statement No."; Code[20])
         {
             Caption = 'Bank Statement No.';
+#if not CLEAN19
             TableRelation = "Bank Statement Header"."No.";
 
             trigger OnValidate()
@@ -23,6 +31,7 @@ table 11705 "Bank Statement Line"
                     "Specific Symbol" := BankAccount."Default Specific Symbol";
                 end;
             end;
+#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -47,7 +56,11 @@ table 11705 "Bank Statement Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor."No."
             ELSE
+#if CLEAN17
+            IF (Type = CONST("Bank Account")) "Bank Account"."No.";
+#else
             IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
+#endif
 
             trigger OnValidate()
             var
@@ -62,7 +75,9 @@ table 11705 "Bank Statement Line"
                         begin
                             if not BankAcc.Get("No.") then
                                 BankAcc.Init();
+#if not CLEAN17
                             BankAcc.TestField("Account Type", BankAcc."Account Type"::"Bank Account");
+#endif
                             "Account No." := BankAcc."Bank Account No.";
                             Name := BankAcc.Name;
                         end;
@@ -120,23 +135,28 @@ table 11705 "Bank Statement Line"
         field(7; "Account No."; Text[30])
         {
             Caption = 'Account No.';
+#if not CLEAN19
 
             trigger OnValidate()
             var
+#if not CLEAN17
                 CompanyInfo: Record "Company Information";
+#endif
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
                 BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
 
+#if not CLEAN17
                 CompanyInfo.Get();
                 CompanyInfo.CheckCzBankAccountNo("Account No.");
-
+#endif
                 if "Account No." <> xRec."Account No." then begin
                     Type := Type::" ";
                     "No." := '';
                     "Cust./Vendor Bank Account Code" := '';
                 end;
             end;
+#endif
         }
         field(8; "Variable Symbol"; Code[10])
         {
@@ -149,7 +169,9 @@ table 11705 "Bank Statement Line"
             Caption = 'Constant Symbol';
             CharAllowed = '09';
             Numeric = true;
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
         }
         field(10; "Specific Symbol"; Code[10])
         {
@@ -162,6 +184,7 @@ table 11705 "Bank Statement Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -185,11 +208,13 @@ table 11705 "Bank Statement Line"
 
                 Positive := Amount > 0;
             end;
+#endif
         }
         field(12; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -214,6 +239,7 @@ table 11705 "Bank Statement Line"
 
                 Positive := "Amount (LCY)" > 0;
             end;
+#endif
         }
         field(17; Positive; Boolean)
         {
@@ -234,6 +260,7 @@ table 11705 "Bank Statement Line"
         {
             Caption = 'Bank Statement Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -248,12 +275,14 @@ table 11705 "Bank Statement Line"
 
                 Validate("Amount (LCY)");
             end;
+#endif
         }
         field(26; "Amount (Bank Stat. Currency)"; Decimal)
         {
             AutoFormatExpression = "Bank Statement Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount (Bank Stat. Currency)';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -278,18 +307,21 @@ table 11705 "Bank Statement Line"
 
                 Positive := "Amount (Bank Stat. Currency)" > 0;
             end;
+#endif
         }
         field(27; "Bank Statement Currency Factor"; Decimal)
         {
             Caption = 'Bank Statement Currency Factor';
             DecimalPlaces = 0 : 15;
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if "Bank Statement Currency Code" <> '' then
                     Validate("Amount (Bank Stat. Currency)");
             end;
+#endif
         }
         field(40; IBAN; Code[50])
         {
@@ -329,6 +361,7 @@ table 11705 "Bank Statement Line"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     var
         BankStmtHeader: Record "Bank Statement Header";
@@ -337,6 +370,7 @@ table 11705 "Bank Statement Line"
         CurrExchRate: Record "Currency Exchange Rate";
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetBankStmt()
     begin
         if "Bank Statement No." <> BankStmtHeader."No." then begin
@@ -352,6 +386,7 @@ table 11705 "Bank Statement Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure GetOrderCurrency()
     begin
         if "Bank Statement Currency Code" <> Currency2.Code then
@@ -365,6 +400,7 @@ table 11705 "Bank Statement Line"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure CopyFromBankAccReconLine(BankAccReconLn: Record "Bank Acc. Reconciliation Line")
     begin
         Validate(Amount, BankAccReconLn."Statement Amount");
@@ -374,5 +410,6 @@ table 11705 "Bank Statement Line"
         "Constant Symbol" := BankAccReconLn."Constant Symbol";
         "Specific Symbol" := BankAccReconLn."Specific Symbol";
     end;
+#endif
 }
 

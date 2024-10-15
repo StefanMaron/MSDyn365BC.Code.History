@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5740 "Transfer Order"
 {
     Caption = 'Transfer Order';
@@ -59,7 +60,6 @@ page 5740 "Transfer Order"
                     Enabled = (NOT "Direct Transfer") AND (Status = Status::Open);
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
-#if not CLEAN18                
                 field("Gen. Bus. Post. Group Ship"; "Gen. Bus. Post. Group Ship")
                 {
                     ApplicationArea = Location;
@@ -88,7 +88,6 @@ page 5740 "Transfer Order"
                         GenBusPostGroupReceiveOnAfterV; // NAVCZ
                     end;
                 }
-#endif
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Location;
@@ -806,7 +805,6 @@ page 5740 "Transfer Order"
         CurrPage.TransferLines.PAGE.UpdateForm(true);
     end;
 
-#if not CLEAN18
     local procedure GenBusPostGroupReceiveOnAfterV()
     begin
         CurrPage.TransferLines.PAGE.UpdateForm(false); // NAVCZ
@@ -817,7 +815,6 @@ page 5740 "Transfer Order"
         CurrPage.TransferLines.PAGE.UpdateForm(false); // NAVCZ
     end;
 
-#endif
     local procedure ShipmentDateOnAfterValidate()
     begin
         CurrPage.TransferLines.PAGE.UpdateForm(false);
@@ -870,3 +867,4 @@ page 5740 "Transfer Order"
     end;
 }
 
+#endif

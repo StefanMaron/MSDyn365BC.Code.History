@@ -77,7 +77,11 @@ table 331 "Adjust Exchange Rate Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,Advance';
             OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,Advance;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -85,7 +89,11 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Document No.';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -93,7 +101,11 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Field Entry No. will be removed and this field should not be used.';
             ObsoleteTag = '18.0';
         }
@@ -101,6 +113,13 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Advance';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -109,6 +128,9 @@ table 331 "Adjust Exchange Rate Buffer"
         key(Key1; "Currency Code", "Posting Group", "Dimension Entry No.", "Posting Date", "IC Partner Code", Advance, "Initial G/L Account No.")
         {
             Clustered = true;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Field "Advance" is removed and cannot be used in an active key.';
+            ObsoleteTag = '19.0';
         }
     }
 

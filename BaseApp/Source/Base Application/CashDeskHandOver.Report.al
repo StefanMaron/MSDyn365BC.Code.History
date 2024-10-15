@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11743 "Cash Desk Hand Over"
 {
     DefaultLayout = RDLC;
@@ -232,4 +233,4 @@ report 11743 "Cash Desk Hand Over"
         Balance := CashDesk.CalcBalance;
     end;
 }
-
+#endif

@@ -2,8 +2,15 @@ table 31000 "Sales Advance Letter Header"
 {
     Caption = 'Sales Advance Letter Header';
     DataCaptionFields = "No.", "Bill-to Name";
+#if not CLEAN19
     DrillDownPageID = "Sales Adv. Letters";
     LookupPageID = "Sales Adv. Letters";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -15,8 +22,15 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Bill-to Customer No.';
             TableRelation = Customer;
+#if not CLEAN19
 
             trigger OnValidate()
+#if CLEAN17
+            var
+                FieldValueDictionary: Dictionary of [Text[30], Text];
+                RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
+                TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
+#endif
             begin
                 if "No." = '' then
                     InitRecord;
@@ -79,8 +93,16 @@ table 31000 "Sales Advance Letter Header"
                 "Payment Terms Code" := Cust."Payment Terms Code";
                 "Payment Method Code" := Cust."Payment Method Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
+#if CLEAN17
+                FieldValueDictionary.Add(RegistrationNoFldTok, '');
+                FieldValueDictionary.Add(TaxRegistrationNoFldTok, '');
+                ExtensionFieldsManagement.GetRecordExtensionFields(Cust.RecordId, FieldValueDictionary);
+                "Registration No." := CopyStr(FieldValueDictionary.Get(RegistrationNoFldTok), 1, MaxStrlen("Registration No."));
+                "Tax Registration No." := CopyStr(FieldValueDictionary.Get(TaxRegistrationNoFldTok), 1, MaxStrlen("Registration No."));
+#else
                 "Registration No." := Cust."Registration No.";
                 "Tax Registration No." := Cust."Tax Registration No.";
+#endif
 
                 Validate("VAT Country/Region Code");
                 CreateDim(
@@ -88,7 +110,11 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center",
+#if CLEAN18
+                  DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
+#else
                   DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#endif
 
                 Validate("Currency Code");
                 Validate("Payment Terms Code");
@@ -96,22 +122,24 @@ table 31000 "Sales Advance Letter Header"
                 if (xRec."Bill-to Customer No." <> '') AND (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
             end;
+#endif
         }
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
                 id: Codeunit "Identity Management";
             begin
-                if not EnvInfoProxy.IsInvoicing and ShouldLookForCustomerByName("Bill-to Customer No.") then
+                if ShouldLookForCustomerByName("Bill-to Customer No.") then
                     Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
+#endif
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
@@ -120,26 +148,31 @@ table 31000 "Sales Advance Letter Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -152,15 +185,18 @@ table 31000 "Sales Advance Letter Header"
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(11; "Your Reference"; Text[35])
         {
@@ -169,6 +205,7 @@ table 31000 "Sales Advance Letter Header"
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -176,6 +213,7 @@ table 31000 "Sales Advance Letter Header"
                 if SalesSetup."Default VAT Date" = SalesSetup."Default VAT Date"::"Posting Date" then
                     Validate("VAT Date", "Posting Date");
             end;
+#endif
         }
         field(22; "Posting Description"; Text[100])
         {
@@ -185,6 +223,7 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -194,34 +233,40 @@ table 31000 "Sales Advance Letter Header"
                 end else
                     Validate("Advance Due Date", "Document Date");
             end;
+#endif
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(30; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(31; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';
             Editable = false;
             TableRelation = "Customer Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -230,11 +275,13 @@ table 31000 "Sales Advance Letter Header"
                 if CurrFieldNo = FieldNo("Customer Posting Group") then
                     PostingGroupManagement.CheckPostingGroupChange("Customer Posting Group", xRec."Customer Posting Group", Rec);
             end;
+#endif
         }
         field(32; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -256,6 +303,7 @@ table 31000 "Sales Advance Letter Header"
                         end;
                 end;
             end;
+#endif
         }
         field(33; "Currency Factor"; Decimal)
         {
@@ -273,6 +321,7 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -281,14 +330,20 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center",
+#if CLEAN18
+                  DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
+#else
                   DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#endif
             end;
+#endif
         }
         field(44; "Order No."; Code[20])
         {
             Caption = 'Order No.';
             TableRelation = "Sales Header"."No." WHERE("Document Type" = CONST(Order));
         }
+#if not CLEAN19
         field(46; Comment; Boolean)
         {
             CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
@@ -298,10 +353,12 @@ table 31000 "Sales Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(47; "No. Printed"; Integer)
         {
             Caption = 'No. Printed';
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -309,11 +366,13 @@ table 31000 "Sales Advance Letter Header"
                 if Status = Status::Open then
                     Release;
             end;
+#endif
         }
         field(51; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
         }
+#if not CLEAN19
         field(61; "Amount Including VAT"; Decimal)
         {
             CalcFormula = Sum("Sales Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
@@ -321,9 +380,11 @@ table 31000 "Sales Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -361,6 +422,7 @@ table 31000 "Sales Advance Letter Header"
                 end else
                     Message(InvalidVatRegNoMsg);
             end;
+#endif
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -376,6 +438,7 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'VAT Country/Region Code';
             TableRelation = "Country/Region";
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -393,12 +456,14 @@ table 31000 "Sales Advance Letter Header"
                 end;
                 "VAT Registration No." := NewVATRegNo;
             end;
+#endif
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -411,30 +476,36 @@ table 31000 "Sales Advance Letter Header"
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(86; "Bill-to County"; Text[30])
         {
             Caption = 'Bill-to County';
             CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
             TableRelation = "Country/Region";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
             end;
+#endif
         }
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -444,6 +515,7 @@ table 31000 "Sales Advance Letter Header"
                 if SalesSetup."Default VAT Date" = SalesSetup."Default VAT Date"::"Document Date" then
                     Validate("VAT Date", "Document Date");
             end;
+#endif
         }
         field(100; "External Document No."; Code[35])
         {
@@ -464,13 +536,16 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then
                     RecreateLines(FieldCaption("VAT Bus. Posting Group"));
             end;
+#endif
         }
+#if not CLEAN19
         field(120; Status; Option)
         {
             CalcFormula = Min("Sales Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
@@ -481,9 +556,11 @@ table 31000 "Sales Advance Letter Header"
             OptionCaption = 'Open,Pending Payment,Pending Invoice,Pending Final Invoice,Closed,Pending Approval';
             OptionMembers = Open,"Pending Payment","Pending Invoice","Pending Final Invoice",Closed,"Pending Approval";
         }
+#endif
         field(133; "Advance Due Date"; Date)
         {
             Caption = 'Advance Due Date';
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -494,11 +571,13 @@ table 31000 "Sales Advance Letter Header"
                     SalesAdvanceLetterLine.ModifyAll("Advance Due Date", "Advance Due Date");
                 end;
             end;
+#endif
         }
         field(165; "Incoming Document Entry No."; Integer)
         {
             Caption = 'Incoming Document Entry No.';
             TableRelation = "Incoming Document";
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -511,12 +590,14 @@ table 31000 "Sales Advance Letter Header"
                 else
                     IncomingDocument.SetSalesAdvLetterDoc(Rec);
             end;
+#endif
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN19
 
             trigger OnLookup()
             begin
@@ -527,11 +608,13 @@ table 31000 "Sales Advance Letter Header"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
             TableRelation = Campaign;
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -540,28 +623,44 @@ table 31000 "Sales Advance Letter Header"
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::"Responsibility Center", "Responsibility Center",
+#if CLEAN18
+                  DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
+#else
                   DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#endif
             end;
+#endif
         }
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code';
+#if CLEAN18
+            TableRelation = "Customer Templ.";
+#else
             TableRelation = "Customer Template";
+#endif
+#if not CLEAN19
 
             trigger OnValidate()
             begin
                 CreateDim(
+#if CLEAN18
+                  DATABASE::"Customer Templ.", "Bill-to Customer Template Code",
+#else
                   DATABASE::"Customer Template", "Bill-to Customer Template Code",
+#endif
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::Campaign, "Campaign No.",
                   DATABASE::"Responsibility Center", "Responsibility Center");
             end;
+#endif
         }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -570,6 +669,9 @@ table 31000 "Sales Advance Letter Header"
                       RespCenterErr,
                       RespCenter.TableCaption, UserSetupMgt.GetSalesFilter);
 
+#if CLEAN18
+                GetBankInfoFromRespCenter();
+#else
                 if RespCenter.Get("Responsibility Center") then begin
                     "Bank Account Code" := RespCenter."Bank Account Code";
                     "Bank Account No." := RespCenter."Bank Account No.";
@@ -579,19 +681,30 @@ table 31000 "Sales Advance Letter Header"
                     IBAN := RespCenter.IBAN;
                     "SWIFT Code" := RespCenter."SWIFT Code";
                 end;
+#endif
 
                 CreateDim(
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::Customer, "Bill-to Customer No.",
                   DATABASE::"Salesperson/Purchaser", "Salesperson Code",
                   DATABASE::Campaign, "Campaign No.",
+#if CLEAN18
+                  DATABASE::"Customer Templ.", "Bill-to Customer Template Code");
+#else
                   DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#endif
             end;
+#endif
         }
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
+#if CLEAN17
+            TableRelation = "Bank Account";
+#else
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+#endif
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -613,11 +726,14 @@ table 31000 "Sales Advance Letter Header"
                 "Bank Account No." := BankAcc."Bank Account No.";
                 "Bank Branch No." := BankAcc."Bank Branch No.";
                 "Bank Name" := BankAcc.Name;
+#if not CLEAN18
                 "Specific Symbol" := BankAcc."Specific Symbol";
+#endif
                 "Transit No." := BankAcc."Transit No.";
                 IBAN := BankAcc.IBAN;
                 "SWIFT Code" := BankAcc."SWIFT Code";
             end;
+#endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
@@ -642,7 +758,9 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+#if not CLEAN18
             TableRelation = "Constant Symbol";
+#endif
         }
         field(11706; "Transit No."; Text[20])
         {
@@ -653,6 +771,7 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'IBAN';
             Editable = false;
+#if not CLEAN19
 
             trigger OnValidate()
             var
@@ -660,6 +779,7 @@ table 31000 "Sales Advance Letter Header"
             begin
                 CompanyInfo.CheckIBAN(IBAN);
             end;
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
@@ -673,6 +793,7 @@ table 31000 "Sales Advance Letter Header"
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -680,6 +801,7 @@ table 31000 "Sales Advance Letter Header"
                 if not GLSetup."Use VAT Date" then
                     TestField("VAT Date", "Posting Date");
             end;
+#endif
         }
         field(11790; "Registration No."; Text[20])
         {
@@ -704,6 +826,7 @@ table 31000 "Sales Advance Letter Header"
         field(31010; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
+#if not CLEAN19
 
             trigger OnValidate()
             begin
@@ -714,13 +837,17 @@ table 31000 "Sales Advance Letter Header"
                         Error(Text006Err, FieldCaption("Amounts Including VAT"));
                 end;
             end;
+#endif
         }
         field(31012; "Template Code"; Code[10])
         {
             Caption = 'Template Code';
             Editable = false;
+#if not CLEAN19
             TableRelation = "Sales Adv. Payment Template";
+#endif
         }
+#if not CLEAN19
         field(31013; "Amount To Link"; Decimal)
         {
             CalcFormula = Sum("Sales Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
@@ -805,6 +932,7 @@ table 31000 "Sales Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(31025; "Post Advance VAT Option"; Option)
         {
             Caption = 'Post Advance VAT Option';
@@ -851,6 +979,7 @@ table 31000 "Sales Advance Letter Header"
     fieldgroups
     {
     }
+#if not CLEAN19
 
     trigger OnDelete()
     var
@@ -944,6 +1073,9 @@ table 31000 "Sales Advance Letter Header"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
+#if CLEAN17
+        ExtensionFieldsManagement: Codeunit "Extension Fields Management";
+#endif
         HideValidationDialog: Boolean;
         Confirmed: Boolean;
         CurrencyDate: Date;
@@ -1098,6 +1230,7 @@ table 31000 "Sales Advance Letter Header"
         "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
 
         UpdateBankInfo;
+        OnAfterInitRecord(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -1199,6 +1332,7 @@ table 31000 "Sales Advance Letter Header"
             "Variable Symbol" := BankOperationsFunctions.CreateVariableSymbol("No.");
             Modify;
         end;
+
         TestField("Post Advance VAT Option");
         SalesAdvanceLetterLine.RecalcVATOnLines(Rec);
 
@@ -1292,7 +1426,6 @@ table 31000 "Sales Advance Letter Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemAmount() RemAmount: Decimal
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -1305,7 +1438,6 @@ table 31000 "Sales Advance Letter Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemAmountLCY(): Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -1453,6 +1585,9 @@ table 31000 "Sales Advance Letter Header"
     [Scope('OnPrem')]
     procedure UpdateBankInfo()
     begin
+#if CLEAN18
+        if GetBankInfoFromRespCenter() then begin
+#else
         if RespCenter.Get("Responsibility Center") then begin
             "Bank Account Code" := RespCenter."Bank Account Code";
             "Bank Account No." := RespCenter."Bank Account No.";
@@ -1461,6 +1596,7 @@ table 31000 "Sales Advance Letter Header"
             "Transit No." := RespCenter."Transit No.";
             IBAN := RespCenter.IBAN;
             "SWIFT Code" := RespCenter."SWIFT Code";
+#endif
         end else begin
             CompanyInfo.Get();
             "Bank Account Code" := CompanyInfo."Default Bank Account Code";
@@ -1472,6 +1608,34 @@ table 31000 "Sales Advance Letter Header"
         end;
     end;
 
+#if CLEAN18
+    local procedure GetBankInfoFromRespCenter(): Boolean
+    var
+        BankAcc: Record "Bank Account";
+        FieldValueDictionary: Dictionary of [Text[30], Text];
+        DefaultBankAccountCodeFldTok: Label 'Default Bank Account Code CZL', Locked = true;
+        DefaultBankAccountCode: Code[20];
+    begin
+        if not RespCenter.Get("Responsibility Center") then
+            exit(false);
+        FieldValueDictionary.Add(DefaultBankAccountCodeFldTok, '');
+        ExtensionFieldsManagement.GetRecordExtensionFields(Cust.RecordId, FieldValueDictionary);
+        DefaultBankAccountCode := CopyStr(FieldValueDictionary.Get(DefaultBankAccountCodeFldTok), 1, MaxStrlen(DefaultBankAccountCode));
+        if DefaultBankAccountCode = '' then
+            exit(false);
+        if not BankAcc.Get(DefaultBankAccountCode) then
+            exit(false);
+        "Bank Account Code" := BankAcc."No.";
+        "Bank Account No." := BankAcc."Bank Account No.";
+        "Bank Branch No." := BankAcc."Bank Branch No.";
+        "Bank Name" := BankAcc.Name;
+        "Transit No." := BankAcc."Transit No.";
+        IBAN := BankAcc.IBAN;
+        "SWIFT Code" := BankAcc."SWIFT Code";
+        exit(true);
+    end;
+
+#endif
     [Scope('OnPrem')]
     procedure CancelAllRelations()
     var
@@ -1630,5 +1794,11 @@ table 31000 "Sales Advance Letter Header"
     local procedure OnAfterReopenSalesAdvanceLetter(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
+    begin
+    end;
+#endif
 }
 

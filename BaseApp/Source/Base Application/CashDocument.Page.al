@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11730 "Cash Document"
 {
     Caption = 'Cash Document (Obsolete)';
@@ -436,10 +437,14 @@ page 11730 "Cash Document"
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Enabled = LinkAdvLettersEnabled;
                     Image = LinkWithExisting;
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -449,9 +454,13 @@ page 11730 "Cash Document"
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -461,9 +470,13 @@ page 11730 "Cash Document"
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -598,6 +611,7 @@ page 11730 "Cash Document"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the result of the posting lines before the actual posting.';
 
                     trigger OnAction()
@@ -853,4 +867,4 @@ page 11730 "Cash Document"
         PAGE.Run(PAGE::"Cash Document", CashDocumentHeader);
     end;
 }
-
+#endif

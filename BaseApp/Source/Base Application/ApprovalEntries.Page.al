@@ -303,16 +303,24 @@ page 658 "Approval Entries"
         DelegateEnable: Boolean;
         ShowRecCommentsEnabled: Boolean;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetRecordFilters()', '19.0')]
     procedure Setfilters(TableId: Integer; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocumentNo: Code[20])
     begin
+        SetRecordFilters(TableId, "Approval Document Type".FromInteger(DocumentType), DocumentNo);
+    end;
+#endif
+
+    procedure SetRecordFilters(TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
+    begin
         if TableId <> 0 then begin
-            FilterGroup(2);
-            SetCurrentKey("Table ID", "Document Type", "Document No.", "Date-Time Sent for Approval");
-            SetRange("Table ID", TableId);
-            SetRange("Document Type", DocumentType);
+            Rec.FilterGroup(2);
+            Rec.SetCurrentKey("Table ID", "Document Type", "Document No.", "Date-Time Sent for Approval");
+            Rec.SetRange("Table ID", TableId);
+            Rec.SetRange("Document Type", DocumentType);
             if DocumentNo <> '' then
-                SetRange("Document No.", DocumentNo);
-            FilterGroup(0);
+                Rec.SetRange("Document No.", DocumentNo);
+            Rec.FilterGroup(0);
         end;
     end;
 

@@ -1990,7 +1990,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure ApplyPartiallyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyPartiallyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -2774,7 +2774,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         end;
     end;
 
-    local procedure VerifyTempCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyTempCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         TempCustLedgerEntry.SetRange("Customer No.", CustomerNo);
         TempCustLedgerEntry.SetRange("Document Type", DocumentType);

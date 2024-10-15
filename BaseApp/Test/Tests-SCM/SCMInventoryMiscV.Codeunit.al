@@ -12,6 +12,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -27,11 +28,13 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         PickRequestLocationCode: Code[10];
         PickRequestDocumentNo: Code[20];
         PickWorkSheetQtyError: Label '%1 in Pick Worksheet line did not match quantity in Prod. Order for Component %2.';
+        ChangingRoundingPrecisionError: Label 'You cannot modify Item Unit of Measure';
 
     [Test]
     [HandlerFunctions('PickSelectionPageHandler,ConfirmHandler')]
@@ -260,43 +263,6 @@ codeunit 137297 "SCM Inventory Misc. V"
         ProdOrderRoutingLine.TestField("Starting Date-Time", CreateDateTime(ProdOrderLine."Starting Date", CalculatedTime2));
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReqLineDescIsEqToItemDescWhenItCrossRefDescIsBlank()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        RequisitionLine: Record "Requisition Line";
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 233518] When Item Cross Reference Description is blank then Requisition Line Description is populated from Item Description.
-        Initialize(false);
-
-        // [GIVEN] Item "I" with Vendor = "V" and Description
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", Vendor."No.");
-        Item.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Item.Description), 0));
-        Item.Modify(true);
-
-        // [GIVEN] Item Cross Reference for "I" and "V", the field Description is blank
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-        ItemCrossReference.Validate("Item No.", Item."No.");
-        ItemCrossReference.Validate("Unit of Measure", Item."Base Unit of Measure");
-
-        // [WHEN] Validate the fields "No." and "Vendor No." of "Requisition Line" "RL" table by "I" and "V"
-        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
-        RequisitionLine.Validate("No.", Item."No.");
-        RequisitionLine.Validate("Vendor No.", Vendor."No.");
-
-        // [THEN] Description in the requisition line is copied from the item card
-        RequisitionLine.TestField(Description, Item.Description);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ReqLineDescIsEqToItemDescWhenItItemRefDescIsBlank()
@@ -436,35 +402,6 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [THEN] The fields "Qty. per Unit of Measure" in created purchase receipt line and in "UOM" are equal
         FindPurchRcptLine(PurchRcptLine, Item."No.");
         PurchRcptLine.TestField("Qty. per Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateItemCrossReferenceDescriptionEmpty()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemVendor: Record "Item Vendor";
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        // [FEATURE] [Item Cross Reference]
-        // [SCENARIO 263347] Description field in Item Cross Reference must stay empty when record is created
-
-        Initialize(false);
-
-        // [GIVEN] Create an Item
-        LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Create a Vendor
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [WHEN] Create ItemVendor
-        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
-
-        // [THEN] Item Cross Reference with empty Description must be created
-        ItemCrossReference.SetRange("Item No.", Item."No.");
-        ItemCrossReference.FindFirst;
-        ItemCrossReference.TestField(Description, '');
     end;
 
     [Test]
@@ -609,8 +546,8 @@ codeunit 137297 "SCM Inventory Misc. V"
     [Test]
     procedure SetGetItemOnItemAvailbyLocationLinePage()
     var
-        Item: Record "Item";
-        NewItem: Record "Item";
+        Item: Record Item;
+        NewItem: Record Item;
         ItemAvailbyLocationLinesPage: Page "Item Avail. by Location Lines";
         NewAmountType: Option "Net Change","Balance at Date";
     begin
@@ -623,7 +560,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item.SetFilter("Date Filter", '%1..%1', WorkDate());
 
         // [WHEN] Invoke SetItem(...) and GetItem(...)
-        ItemAvailbyLocationLinesPage.SetItem(Item, NewAmountType::"Balance at Date");
+        ItemAvailbyLocationLinesPage.SetLines(Item, NewAmountType::"Balance at Date");
         ItemAvailbyLocationLinesPage.GetItem(NewItem);
 
         // [THEN] Returned Item has No = "Item01"
@@ -631,24 +568,679 @@ codeunit 137297 "SCM Inventory Misc. V"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure SpecifyRoundingPrecisionOnItemBaseUoM()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemCard: TestPage "Item Card";
+        UoMPage: TestPage "Item Units of Measure";
+    begin
+        // [SCENARIO] User should be able to set rounding precision for base UoM, which will then be used when 
+        // translating non-base UoM to base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [WHEN] Opening item card, accessing UoMs and setting rounding precision to 1.
+        UoMPage.Trap();
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+        ItemCard."&Units of Measure".Invoke();
+
+        UoMPage.ItemBaseUOMQtyPrecision.SetValue(1);
+        UoMPage.Close();
+
+        // [THEN] When creating a PO with the non-base UoM, the qty. is rounded using the specified rounding precision.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine,
+            PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', 0D);
+        PurchaseLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+
+        // Base Qty = (5 / 7) * 6 = 4.28571429;
+        PurchaseLine.Validate(Quantity, 5 / 7);
+
+        Assert.AreEqual(4, PurchaseLine."Quantity (Base)", 'Expected quantity to be round down.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemIsInWarehouseEntryScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        WarehouseEntry2: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a warehouse entry
+        // that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] An existing warehouse entry for item with base UoM.
+        WarehouseEntry2.FindLast();
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry."Unit of Measure Code" := ItemUoM.Code;
+        WarehouseEntry.Quantity := 1;
+        WarehouseEntry.Insert();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemIsInWarehouseEntryScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        WarehouseEntry2: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a warehouse entry
+        // that uses a non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] An existing warehouse entry for item with non-base UoM.
+        WarehouseEntry2.FindLast();
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry."Unit of Measure Code" := ItemNonBaseUoM.Code;
+        WarehouseEntry.Quantity := 1;
+        WarehouseEntry.Insert();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInPurchaseOrderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a purchase line
+        // that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A purchase order for the item with base UoM used.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine,
+            PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', 0D);
+        PurchaseLine.Validate("Unit of Measure Code", ItemUoM.Code);
+        PurchaseLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInPurchaseOrderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a purchase line
+        // that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A purchase order for the item with non-base UoM used.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine,
+            PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', 0D);
+        PurchaseLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        PurchaseLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInSalesOrderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a sales line
+        // that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A sales order for the item with base UoM used.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
+            SalesHeader."Document Type"::Order, '', Item."No.", 1, '', 0D);
+        SalesLine.Validate("Unit of Measure Code", ItemUoM.Code);
+        SalesLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInSalesOrderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a sales line
+        // that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A sales order for the item with non-base UoM used.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
+           SalesHeader."Document Type"::Order, '', Item."No.", 1, '', 0D);
+        SalesLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        SalesLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInTransferOrderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        LocationA: Record Location;
+        LocationTransit: Record Location;
+        LocationB: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a transfer line
+        // that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A transfer order for the item with base UoM used.
+        LibraryWarehouse.CreateLocation(LocationA);
+        LibraryWarehouse.CreateInTransitLocation(LocationTransit);
+        LibraryWarehouse.CreateLocation(LocationB);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationA.Code, LocationB.Code, LocationTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        TransferLine.Validate("Unit of Measure Code", ItemUoM.Code);
+        TransferLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInTransferOrderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        LocationA: Record Location;
+        LocationTransit: Record Location;
+        LocationB: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a transfer line
+        // that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A transfer order for the item with non-base UoM used.
+        LibraryWarehouse.CreateLocation(LocationA);
+        LibraryWarehouse.CreateInTransitLocation(LocationTransit);
+        LibraryWarehouse.CreateLocation(LocationB);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationA.Code, LocationB.Code, LocationTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        TransferLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        TransferLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInProdOrderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a prod order line
+        // that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A prod order for the item with base UoM used.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", Item."No.", '', '', 1);
+        ProdOrderLine.Validate("Unit of Measure Code", ItemUoM.Code);
+        ProdOrderLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInProdOrderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a prod order line
+        // that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A prod order for the item with non-base UoM used.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", Item."No.", '', '', 1);
+        ProdOrderLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        ProdOrderLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInProdOrderComponentScenario1()
+    var
+        Item: Record Item;
+        ProdOrderItem: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a 
+        // prod order component that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+        LibraryInventory.CreateItem(ProdOrderItem);
+
+        // [GIVEN] A prod order with the item as a component with base UoM used.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", ProdOrderItem."No.", '', '', 1);
+        LibraryManufacturing.CreateProductionOrderComponent(
+            ProdOrderComponent, ProdOrderComponent.Status::Released, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemUoM.Code);
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInProdOrderComponentScenario2()
+    var
+        Item: Record Item;
+        ProdOrderItem: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a
+        // prod order component that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+        LibraryInventory.CreateItem(ProdOrderItem);
+
+        // [GIVEN] A prod order with the item as a component with non-base UoM used.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(
+            ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.", ProdOrderItem."No.", '', '', 1);
+        LibraryManufacturing.CreateProductionOrderComponent(
+            ProdOrderComponent, ProdOrderComponent.Status::Released, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInServiceOrderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a 
+        // service order that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A service order for the item with base UoM used.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Unit of Measure Code", ItemUoM.Code);
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInServiceOrderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a
+        // service order that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] A service order for the item with non-base UoM used.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInAssemblyHeaderScenario1()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a 
+        // assembly header that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] An assembly header for the item with base UoM used.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', 1, '');
+        AssemblyHeader.Validate("Unit of Measure Code", ItemUoM.Code);
+        AssemblyHeader.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInAssemblyHeaderScenario2()
+    var
+        Item: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a
+        // assembly header that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+
+        // [GIVEN] An assembly header for the item with non-base UoM used.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', 1, '');
+        AssemblyHeader.Validate("Unit of Measure Code", ItemNonBaseUoM.Code);
+        AssemblyHeader.Modify();
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInAssemblyLineScenario1()
+    var
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a 
+        // assembly line that uses the base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+        LibraryInventory.CreateItem(AssemblyItem);
+
+        // [GIVEN] An assembly header with an assembly line for the item with base UoM used.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AssemblyItem."No.", '', 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", ItemUoM.Code, 1, 1, '');
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingRoundingPrecisionOnItemBaseUoMNotAllowedIfItemHasBeenUsedInAssemblyLineScenario2()
+    var
+        Item: Record Item;
+        AssemblyItem: Record Item;
+        ItemUoM: Record "Item Unit of Measure";
+        ItemNonBaseUoM: Record "Item Unit of Measure";
+        UoM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO] User should not be able to set rounding precision for base UoM when item is in a
+        // assembly line that uses the non-base UoM.
+
+        // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
+        Initialize(false);
+        SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
+        LibraryInventory.CreateItem(AssemblyItem);
+
+        // [GIVEN] An assembly header with an assembly line for the item with non-base UoM used.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), AssemblyItem."No.", '', 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", ItemNonBaseUoM.Code, 1, 1, '');
+
+        // [WHEN] When changing the rounding precision.
+        asserterror ItemNonBaseUoM.Validate("Qty. Rounding Precision", 0.1);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(ChangingRoundingPrecisionError);
+    end;
+
+    [Test]
     [HandlerFunctions('NoSeriesListPageHandler')]
+    [Scope('OnPrem')]
     procedure CreatingItemFromNoSeriesLookupTakesDefaultCostingMethod()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        InventorySetup: Record "Inventory Setup";
+        ItemTempl: Record "Item Templ.";
         ItemCard: TestPage "Item Card";
+        CostingMethod: Enum "Costing Method";
     begin
         // [SCENARIO 401851] Changing Item No. from No Series lookup takes default Costing Method from setup
         Initialize(false);
 
         // [GIVEN] Default costing method in inventory setup is Standard
-        InventorySetup.Get();
-        InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Standard);
-        InventorySetup.Modify(true);
+        SetDefaultCostingMethod(CostingMethod::Standard);
 
         // [GIVEN] No item templates exist
-        ConfigTemplateHeader.SetRange("Table ID", Database::Item);
-        ConfigTemplateHeader.DeleteAll(true);
+        ItemTempl.DeleteAll(true);
 
         // [GIVEN] Open new item card 
         ItemCard.OpenNew();
@@ -658,7 +1250,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Selection handled by NoSeriesListPageHandler
 
         // [THEN] Costing method on this Item is changed to Standard
-        ItemCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Standard);
+        ItemCard."Costing Method".AssertEquals(CostingMethod::Standard);
     end;
 
     local procedure Initialize(Enable: Boolean)
@@ -1234,6 +1826,15 @@ codeunit 137297 "SCM Inventory Misc. V"
         ProdOrderComponent.ModifyAll("Bin Code", Bin.Code);
     end;
 
+    local procedure SetDefaultCostingMethod(CostingMethod: Enum "Costing Method")
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Costing Method", CostingMethod::Standard);
+        InventorySetup.Modify(true);
+    end;
+
     local procedure UpdateItem(var Item: Record Item; ProductionBOMNo: Code[20])
     begin
         Item.Validate("Production BOM No.", ProductionBOMNo);
@@ -1259,6 +1860,23 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         ItemJournalLine.Validate("Variant Code", '');
         ItemJournalLine.Modify(true);
+    end;
+
+    local procedure SetupUoMTest(
+        var Item: Record Item;
+        var UoM: Record "Unit of Measure";
+        var NonBaseUoM: Record "Unit of Measure";
+        var ItemUoM: Record "Item Unit of Measure";
+        var ItemNonBaseUoM: Record "Item Unit of Measure"
+    )
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(Uom);
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUoM, Item."No.", Uom.Code, 1);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemNonBaseUoM, Item."No.", NonBaseUOM.Code, 6);
+        Item.Validate("Base Unit of Measure", ItemUoM.Code);
+        Item.Modify();
     end;
 
     [ConfirmHandler]
@@ -1299,6 +1917,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     end;
 
     [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series List")
     begin
         NoSeriesList.OK().Invoke();

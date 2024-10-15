@@ -9,8 +9,8 @@ permissionset 7568 "Fixed Assets - Admin"
 #else
     Permissions = tabledata "Classification Code" = RIMD,
                   tabledata "Depreciation Book" = RIMD,
-#endif
                   tabledata "Depreciation Group" = RIMD,
+#endif
                   tabledata "FA Allocation" = RIMD,
                   tabledata "FA Depreciation Book" = RIMD,
 #if not CLEAN18

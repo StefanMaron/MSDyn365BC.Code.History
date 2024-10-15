@@ -1,4 +1,5 @@
-﻿report 20 "Calc. and Post VAT Settlement"
+﻿#if not CLEAN17
+report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CalcandPostVATSettlement.rdlc';
@@ -703,7 +704,6 @@
         AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
-        GLAccSettle: Record "G/L Account";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -746,6 +746,9 @@
         CountrySubtotalCaptionLbl: Label 'Total for Country/Region %1', Comment = '%1="Country/Region Code"';
         VATEntryDocumentNo: Code[20];
         VATEntryDocumentType: Text;
+
+    protected var
+        GLAccSettle: Record "G/L Account";
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
@@ -1011,4 +1014,4 @@
     begin
     end;
 }
-
+#endif

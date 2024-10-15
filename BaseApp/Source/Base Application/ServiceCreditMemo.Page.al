@@ -1,4 +1,5 @@
-﻿page 5935 "Service Credit Memo"
+#if not CLEAN19
+page 5935 "Service Credit Memo"
 {
     Caption = 'Service Credit Memo';
     PageType = Document;
@@ -136,12 +137,17 @@
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service document should be posted.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Service;
@@ -151,6 +157,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Service;
@@ -181,6 +188,7 @@
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
+#if not CLEAN17
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -191,6 +199,7 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             part(ServLines; "Service Credit Memo Subform")
             {
@@ -386,6 +395,7 @@
                         PricesIncludingVATOnAfterValid;
                     end;
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Service;
@@ -395,10 +405,15 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
             group(Shipping)
@@ -475,6 +490,7 @@
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
+#if not CLEAN18
                 field("Physical Transfer"; "Physical Transfer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -484,10 +500,12 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
+#if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -498,8 +516,8 @@
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
-
                 }
+#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
@@ -525,6 +543,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = Basic, Suite;
@@ -534,6 +553,8 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = Basic, Suite;
@@ -543,11 +564,17 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -566,15 +593,24 @@
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
             group(Application)
@@ -596,6 +632,7 @@
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -697,6 +734,7 @@
                     Visible = false;
                 }
             }
+#endif
         }
         area(factboxes)
         {
@@ -906,15 +944,12 @@
 
                     trigger OnAction()
                     var
-                        ServiceHeader: Record "Service Header";
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                         InstructionMgt: Codeunit "Instruction Mgt.";
                         PreAssignedNo: Code[20];
                     begin
                         PreAssignedNo := "No.";
-                        ServPostYesNo.PostDocument(Rec);
 
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage(PreAssignedNo);
@@ -925,6 +960,7 @@
                     ApplicationArea = Service;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -948,11 +984,8 @@
                     ToolTip = 'Finalize and prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Service-Post and Send", Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -967,12 +1000,8 @@
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServiceHeader: Record "Service Header";
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServPostPrint.PostDocument(Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -1020,8 +1049,8 @@
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnOpenPage()
@@ -1119,3 +1148,4 @@
     end;
 }
 
+#endif

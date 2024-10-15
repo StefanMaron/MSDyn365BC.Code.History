@@ -672,10 +672,16 @@ table 5405 "Production Order"
 
         InitRecord;
 
-        "Starting Time" := MfgSetup."Normal Starting Time";
-        "Ending Time" := MfgSetup."Normal Ending Time";
+        if MfgSetup."Normal Starting Time" <> 0T then
+            Rec."Starting Time" := MfgSetup."Normal Starting Time";
+        if MfgSetup."Normal Ending Time" <> 0T then
+            Rec."Ending Time" := MfgSetup."Normal Ending Time";
         "Creation Date" := Today;
         UpdateDatetime;
+        if MfgSetup."Normal Starting Time" = 0T then
+            Rec."Starting Time" := DT2Time("Starting Date-Time");
+        if MfgSetup."Normal Ending Time" = 0T then
+            Rec."Ending Time" := DT2Time("Ending Date-Time");
     end;
 
     trigger OnModify()
@@ -729,10 +735,12 @@ table 5405 "Production Order"
         "Starting Date" := "Ending Date";
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
+#if not CLEAN18
         // NAVCZ
         MfgSetup.Get();
         "Gen. Bus. Posting Group" := MfgSetup."Default Gen.Bus. Posting Group";
         // NAVCZ
+#endif
 
         OnAfterInitRecord(Rec);
     end;
@@ -941,15 +949,17 @@ table 5405 "Production Order"
 
     procedure UpdateDatetime()
     begin
-        if ("Starting Date" <> 0D) and ("Starting Time" <> 0T) then
-            "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time")
-        else
-            "Starting Date-Time" := 0DT;
+        if (Rec."Starting Date" <> 0D) and (Rec."Starting Time" <> 0T) then
+            Rec."Starting Date-Time" := CreateDateTime(Rec."Starting Date", Rec."Starting Time")
+        else 
+            if Rec."Starting Date" = 0D then
+                Rec."Starting Date-Time" := 0DT;
 
-        if ("Ending Date" <> 0D) and ("Ending Time" <> 0T) then
-            "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time")
-        else
-            "Ending Date-Time" := 0DT;
+        if (Rec."Ending Date" <> 0D) and (Rec."Ending Time" <> 0T) then
+            Rec."Ending Date-Time" := CreateDateTime(Rec."Ending Date", Rec."Ending Time")
+        else 
+            if "Ending Date" = 0D then
+                Rec."Ending Date-Time" := 0DT;
 
         OnAfterUpdateDateTime(Rec, xRec, CurrFieldNo);
     end;
@@ -1002,7 +1012,6 @@ table 5405 "Production Order"
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
     var
         ProdOrderCompLine: Record "Prod. Order Component";
-        WhseWkshLine: Record "Whse. Worksheet Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         ProdOrderCompLine.Reset();
@@ -1010,8 +1019,8 @@ table 5405 "Production Order"
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
         if ProdOrderCompLine.Find('-') then
             repeat
-                ItemTrackingMgt.InitItemTrkgForTempWkshLine(
-                  WhseWkshLine."Whse. Document Type"::Production, ProdOrderCompLine."Prod. Order No.",
+                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+                  "Warehouse Worksheet Document Type"::Production, ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", DATABASE::"Prod. Order Component",
                   ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.");
@@ -1335,7 +1344,7 @@ table 5405 "Production Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowErrorOnRename(IsHandled);
+        OnBeforeShowErrorOnRename(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1448,7 +1457,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowErrorOnRename(var IsHandled: Boolean)
+    local procedure OnBeforeShowErrorOnRename(var IsHandled: Boolean; var ProductionOrder: Record "Production Order")
     begin
     end;
 

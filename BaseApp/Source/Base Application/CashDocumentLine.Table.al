@@ -1,8 +1,12 @@
 table 11731 "Cash Document Line"
 {
     Caption = 'Cash Document Line';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Cash Document Lines";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -11,12 +15,16 @@ table 11731 "Cash Document Line"
         field(1; "Cash Desk No."; Code[20])
         {
             Caption = 'Cash Desk No.';
+#if not CLEAN17
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+#endif
         }
         field(2; "Cash Document No."; Code[20])
         {
             Caption = 'Cash Document No.';
+#if not CLEAN17
             TableRelation = "Cash Document Header"."No." WHERE("Cash Desk No." = FIELD("Cash Desk No."));
+#endif
         }
         field(3; "Line No."; Integer)
         {
@@ -34,6 +42,7 @@ table 11731 "Cash Document Line"
             Caption = 'Account Type';
             OptionCaption = ' ,G/L Account,Customer,Vendor,Bank Account,Fixed Asset,Employee';
             OptionMembers = " ","G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",Employee;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -52,6 +61,7 @@ table 11731 "Cash Document Line"
                 UpdateAmounts;
                 UpdateDocumentType;
             end;
+#endif
         }
         field(6; "Account No."; Code[20])
         {
@@ -66,9 +76,14 @@ table 11731 "Cash Document Line"
             ELSE
             IF ("Account Type" = CONST(Employee)) Employee
             ELSE
+#if CLEAN17
+            IF ("Account Type" = CONST("Bank Account")) "Bank Account"
+#else
             IF ("Account Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"))
+#endif
             ELSE
             IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset";
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -195,6 +210,7 @@ table 11731 "Cash Document Line"
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Cash Desk Event", "Cash Desk Event");
             end;
+#endif
         }
         field(7; "External Document No."; Code[35])
         {
@@ -210,6 +226,7 @@ table 11731 "Cash Document Line"
             IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group";
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -218,6 +235,7 @@ table 11731 "Cash Document Line"
                 if CurrFieldNo = FieldNo("Posting Group") then
                     PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
             end;
+#endif            
         }
         field(14; "Applies-To Doc. Type"; Enum "Gen. Journal Document Type")
         {
@@ -232,6 +250,7 @@ table 11731 "Cash Document Line"
         field(15; "Applies-To Doc. No."; Code[20])
         {
             Caption = 'Applies-To Doc. No.';
+#if not CLEAN17
 
             trigger OnLookup()
             var
@@ -393,6 +412,7 @@ table 11731 "Cash Document Line"
                     PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine);
                 end;
             end;
+#endif
         }
         field(16; Description; Text[100])
         {
@@ -401,7 +421,7 @@ table 11731 "Cash Document Line"
         field(17; Amount; Decimal)
         {
             Caption = 'Amount';
-
+#if not CLEAN17
             trigger OnValidate()
             begin
                 TestField("Account Type");
@@ -409,10 +429,12 @@ table 11731 "Cash Document Line"
 
                 UpdateAmounts;
             end;
+#endif
         }
         field(18; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -426,6 +448,7 @@ table 11731 "Cash Document Line"
                     Validate(Amount, Round(CurrExchRate.ExchangeAmtLCYToFCY(CashDocHeader."Posting Date", CashDocHeader."Currency Code",
                           "Amount (LCY)", CashDocHeader."Currency Factor"), Currency."Amount Rounding Precision"));
             end;
+#endif
         }
         field(20; "Description 2"; Text[50])
         {
@@ -440,22 +463,26 @@ table 11731 "Cash Document Line"
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(26; "Cash Document Type"; Option)
         {
@@ -471,6 +498,7 @@ table 11731 "Cash Document Line"
         field(29; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -482,6 +510,7 @@ table 11731 "Cash Document Line"
                     "Prepayment Type" := "Prepayment Type"::" ";
                 Validate("Prepayment Type");
             end;
+#endif
         }
         field(30; "Prepayment Type"; Option)
         {
@@ -507,6 +536,7 @@ table 11731 "Cash Document Line"
         field(40; "Cash Desk Event"; Code[10])
         {
             Caption = 'Cash Desk Event';
+#if not CLEAN17            
             TableRelation = "Cash Desk Event";
 
             trigger OnLookup()
@@ -565,11 +595,13 @@ table 11731 "Cash Document Line"
                           DATABASE::"Cash Desk Event", "Cash Desk Event");
                     end;
             end;
+#endif
         }
         field(42; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
             TableRelation = "Salesperson/Purchaser";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -579,6 +611,7 @@ table 11731 "Cash Document Line"
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Cash Desk Event", "Cash Desk Event");
             end;
+#endif
         }
         field(43; "Reason Code"; Code[10])
         {
@@ -591,6 +624,7 @@ table 11731 "Cash Document Line"
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -622,6 +656,7 @@ table 11731 "Cash Document Line"
                 "VAT Difference" := 0;
                 "VAT Difference (LCY)" := 0;
             end;
+#endif
         }
         field(52; "Amount Including VAT"; Decimal)
         {
@@ -629,6 +664,7 @@ table 11731 "Cash Document Line"
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
             Editable = false;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -657,12 +693,14 @@ table 11731 "Cash Document Line"
                 "VAT Difference" := 0;
                 "VAT Difference (LCY)" := 0;
             end;
+#endif
         }
         field(53; "VAT Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -723,6 +761,7 @@ table 11731 "Cash Document Line"
                     if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                         Error(MustNotBeMoreThanErr, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
             end;
+#endif
         }
         field(55; "VAT Base Amount (LCY)"; Decimal)
         {
@@ -794,6 +833,7 @@ table 11731 "Cash Document Line"
         {
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -820,6 +860,7 @@ table 11731 "Cash Document Line"
 
                 Validate(Amount);
             end;
+#endif
         }
         field(75; "Use Tax"; Boolean)
         {
@@ -876,6 +917,7 @@ table 11731 "Cash Document Line"
             Caption = 'Responsibility Center';
             Editable = false;
             TableRelation = "Responsibility Center";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -885,12 +927,14 @@ table 11731 "Cash Document Line"
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DATABASE::"Cash Desk Event", "Cash Desk Event");
             end;
+#endif
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN17
 
             trigger OnLookup()
             begin
@@ -901,6 +945,7 @@ table 11731 "Cash Document Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(602; "VAT % (Non Deductible)"; Decimal)
         {
@@ -932,17 +977,30 @@ table 11731 "Cash Document Line"
         field(31001; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 UpdateEETTransaction;
             end;
+#endif
         }
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -964,7 +1022,7 @@ table 11731 "Cash Document Line"
     fieldgroups
     {
     }
-
+#if not CLEAN17
     trigger OnDelete()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -1016,8 +1074,8 @@ table 11731 "Cash Document Line"
         DimMgt: Codeunit DimensionManagement;
         HideValidationDialog: Boolean;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure InitRecord()
     begin
         GetDocHeader;
@@ -1025,8 +1083,8 @@ table 11731 "Cash Document Line"
         "Cash Document Type" := CashDocHeader."Cash Document Type";
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -1034,8 +1092,8 @@ table 11731 "Cash Document Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1062,30 +1120,30 @@ table 11731 "Cash Document Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure GetDocHeader()
     begin
         TestField("Cash Desk No.");
@@ -1104,8 +1162,8 @@ table 11731 "Cash Document Line"
         CashDocHeader.SetHideValidationDialog(HideValidationDialog);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure UpdateAmounts()
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -1139,8 +1197,8 @@ table 11731 "Cash Document Line"
         end;
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure UpdateDocumentType()
     begin
         "Document Type" := "Document Type"::" ";
@@ -1158,8 +1216,8 @@ table 11731 "Cash Document Line"
             "Document Type" := "Document Type"::Refund;
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure SignAmount(): Integer
     begin
         if "Cash Document Type" = "Cash Document Type"::Receipt then
@@ -1167,8 +1225,8 @@ table 11731 "Cash Document Line"
         exit(1);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ApplyEntries()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -1459,8 +1517,8 @@ table 11731 "Cash Document Line"
         Clear(ApplyEmplEntries);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure TypeToTableID(Type: Option " ","G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",Employee): Integer
     begin
         case Type of
@@ -1487,9 +1545,7 @@ table 11731 "Cash Document Line"
         FAPostingGr: Record "FA Posting Group";
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
-#if not CLEAN18
         FAExtPostingGr: Record "FA Extended Posting Group";
-#endif
     begin
         if ("Account Type" <> "Account Type"::"Fixed Asset") or ("Account No." = '') then
             exit;
@@ -1523,13 +1579,11 @@ table 11731 "Cash Document Line"
             if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then begin
                 FAPostingGr.TestField("Acquisition Cost Account");
                 LocalGLAcc.Get(FAPostingGr."Acquisition Cost Account");
-#if not CLEAN18
             end else
                 if not FAPostingGr.UseStandardMaintenance() then begin
                     FAExtPostingGr.Get(FADeprBook."FA Posting Group", 2, "Maintenance Code");
                     FAExtPostingGr.TestField("Maintenance Expense Account");
                     LocalGLAcc.Get(FAExtPostingGr."Maintenance Expense Account");
-#endif
                 end else begin
                     FAPostingGr.TestField("Maintenance Expense Account");
                     LocalGLAcc.Get(FAPostingGr."Maintenance Expense Account");
@@ -1542,8 +1596,8 @@ table 11731 "Cash Document Line"
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure ExtStatistics()
     var
         CashDocLine: Record "Cash Document Line";
@@ -1563,8 +1617,8 @@ table 11731 "Cash Document Line"
         PAGE.RunModal(PAGE::"Cash Document Statistics", CashDocLine);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure LinkToAdvLetter()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -1609,8 +1663,8 @@ table 11731 "Cash Document Line"
         end;
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure LinkWholeLetter()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -1618,8 +1672,8 @@ table 11731 "Cash Document Line"
         PrepmtLinksMgt.LinkCashDocLine(Rec);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure UnLinkWholeLetter()
     var
         PrepmtLinksMgt: Codeunit "Prepayment Links Management";
@@ -1627,8 +1681,8 @@ table 11731 "Cash Document Line"
         PrepmtLinksMgt.UnLinkCashDocLine(Rec);
     end;
 
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     [Scope('OnPrem')]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
@@ -1682,5 +1736,6 @@ table 11731 "Cash Document Line"
         if "Cash Desk Event" <> CashDeskEvent.Code then
             CashDeskEvent.Get("Cash Desk Event");
     end;
+#endif    
 }
 

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 122 "G/L Entries Preview"
 {
     Caption = 'G/L Entries Preview';
@@ -20,6 +21,7 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -29,6 +31,7 @@ page 122 "G/L Entries Preview"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -104,6 +107,10 @@ page 122 "G/L Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the entry is closed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Debit Amount"; "Debit Amount")
                 {
@@ -197,6 +204,9 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
@@ -325,3 +335,4 @@ page 122 "G/L Entries Preview"
     end;
 }
 
+#endif

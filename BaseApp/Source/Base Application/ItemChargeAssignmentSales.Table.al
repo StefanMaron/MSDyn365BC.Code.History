@@ -134,26 +134,38 @@ table 5809 "Item Charge Assignment (Sales)"
         field(31060; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 CheckIncludeIntrastat;
             end;
+#endif
         }
         field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 CheckIncludeIntrastat;
             end;
+#endif
         }
     }
 
@@ -192,8 +204,10 @@ table 5809 "Item Charge Assignment (Sales)"
         SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
         exit(SalesLine.Quantity = SalesLine."Quantity Invoiced");
     end;
+#if not CLEAN19
 
     [Scope('OnPrem')]
+    [Obsolete('Unused function discontinued.', '19.0')]
     procedure SetIncludeAmount(): Boolean
     var
         SalesHeader: Record "Sales Header";
@@ -239,6 +253,8 @@ table 5809 "Item Charge Assignment (Sales)"
 
         exit(CustomerNo);
     end;
+#endif
+#if not CLEAN18
 
     [Scope('OnPrem')]
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
@@ -250,5 +266,6 @@ table 5809 "Item Charge Assignment (Sales)"
         StatReportingSetup.Get();
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
+#endif
 }
 

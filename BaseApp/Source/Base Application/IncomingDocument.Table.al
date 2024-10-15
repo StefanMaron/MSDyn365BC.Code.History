@@ -1,4 +1,5 @@
-﻿table 130 "Incoming Document"
+﻿#if not CLEAN19
+table 130 "Incoming Document"
 {
     Caption = 'Incoming Document';
     DataCaptionFields = "Vendor Name", "Vendor Invoice No.", Description;
@@ -293,7 +294,7 @@
         field(58; "Related Record ID"; RecordID)
         {
             Caption = 'Related Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(160; "Job Queue Status"; Option)
         {
@@ -426,7 +427,9 @@
         AdvanceTxt: Label 'Advance';
         SalesAdvanceTxt: Label 'Sales Advance';
         PurchAdvanceTxt: Label 'Purchase Advance';
+#if not CLEAN18
         CreditTxt: Label 'Credit';
+#endif
         GeneralLedgerEntriesTxt: Label 'General Ledger Entries';
         CannotReplaceMainAttachmentErr: Label 'Cannot replace the main attachment because the document has already been sent to OCR.';
 
@@ -585,13 +588,18 @@
         if GetRecord(RelatedRecord) then
             Error(DocAlreadyCreatedErr);
 
-        // NAVCZ
         DocumentTypeOption :=
             StrMenu(
+#if CLEAN18
+                StrSubstNo(
+                    '%1,%2,%3,%4,%5', JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt), 1);
+#else
+        // NAVCZ
                 StrSubstNo('%1,%2,%3,%4,%5,%6,%7,%8',
                     JournalTxt, SalesInvoiceTxt, SalesCreditMemoTxt, PurchaseInvoiceTxt, PurchaseCreditMemoTxt,
                     SalesAdvanceTxt, PurchAdvanceTxt, CreditTxt), 1);
         // NAVCZ
+#endif
 
         if DocumentTypeOption < 1 then
             exit;
@@ -615,8 +623,10 @@
                 CreateSalesAdvLetter();
             "Document Type"::"Purchase Advance".AsInteger():
                 CreatePurchAdvLetter();
+#if not CLEAN18
             "Document Type"::Credit.AsInteger():
                 CreateCredit();
+#endif
         // NAVCZ
         end;
 
@@ -740,6 +750,7 @@
         CreateGeneralJournalLineWithDataExchange
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CreateSalesAdvLetter()
     var
@@ -769,6 +780,7 @@
         ShowRecord;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CreatePurchAdvLetter()
     var
@@ -798,6 +810,7 @@
         ShowRecord;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.0')]
     procedure CreateCredit()
@@ -828,6 +841,7 @@
         ShowRecord;
     end;
 
+#endif
     procedure RemoveReferenceToWorkingDocument(EntryNo: Integer)
     begin
         if EntryNo = 0 then
@@ -902,7 +916,9 @@
         PurchaseHeader: Record "Purchase Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
     begin
         case "Document Type" of
             "Document Type"::Journal:
@@ -936,12 +952,14 @@
                     if PurchAdvanceLetterHeader.FindFirst then
                         Error(AlreadyUsedInDocHdrErr, AdvanceTxt, PurchAdvanceLetterHeader."No.", PurchAdvanceLetterHeader.TableCaption);
                 end;
+#if not CLEAN18
             "Document Type"::Credit:
                 begin
                     CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     if CreditHeader.FindFirst then
                         Error(AlreadyUsedInDocHdrErr, '', CreditHeader."No.", CreditHeader.TableCaption);
                 end;
+#endif
         // NAVCZ
         end;
     end;
@@ -986,7 +1004,9 @@
         GLEntry: Record "G/L Entry";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         PostedCreditHeader: Record "Posted Credit Header";
+#endif
     begin
         IsPosted := true;
         case true of
@@ -1011,9 +1031,11 @@
             PurchAdvanceLetterHeader.Get(DocNo):
                 if PurchAdvanceLetterHeader."Posting Date" = PostingDate then
                     exit("Document Type"::"Purchase Advance");
+#if not CLEAN18
             PostedCreditHeader.Get(DocNo):
                 if PostedCreditHeader."Posting Date" = PostingDate then
                     exit("Document Type"::Credit);
+#endif
             // NAVCZ
             else
                 GLEntry.SetRange("Posting Date", PostingDate);
@@ -1109,7 +1131,9 @@
         PurchaseHeader: Record "Purchase Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
     begin
         case "Document Type" of
             "Document Type"::Journal:
@@ -1138,11 +1162,13 @@
                     PurchAdvanceLetterHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     PurchAdvanceLetterHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
+#if not CLEAN18
             "Document Type"::Credit:
                 begin
                     CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
                     CreditHeader.ModifyAll("Incoming Document Entry No.", 0, true);
                 end;
+#endif
         // NAVCZ
         end;
     end;
@@ -1268,6 +1294,7 @@
             PurchaseHeader.AddLink(GetURL, Description);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetSalesAdvLetterDoc(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
@@ -1283,6 +1310,7 @@
             SalesAdvanceLetterHeader.AddLink(GetURL, Description);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetPurchAdvLetterDoc(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
@@ -1298,6 +1326,7 @@
             PurchAdvanceLetterHeader.AddLink(GetURL, Description);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure SetCreditDoc(var CreditHeader: Record "Credit Header")
@@ -1314,6 +1343,7 @@
             CreditHeader.AddLink(GetURL, Description);
     end;
 
+#endif
     local procedure DocLinkExists(RecVar: Variant): Boolean
     var
         RecordLink: Record "Record Link";
@@ -1476,7 +1506,9 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         DocExists: Boolean;
     begin
         // If purchase
@@ -1533,6 +1565,7 @@
             exit;
         end;
 
+#if not CLEAN18
         // If credit
         CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
         if CreditHeader.FindFirst then begin
@@ -1540,8 +1573,8 @@
             "Document No." := CreditHeader."No.";
             exit;
         end;
+#endif
         // NAVCZ
-
         DocExists := false;
         OnAfterUpdateDocumentFields(Rec, DocExists);
         if not DocExists then
@@ -1779,7 +1812,9 @@
         GLEntry: Record "G/L Entry";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         PostedCreditHeader: Record "Posted Credit Header";
+#endif
         RecordFound: Boolean;
     begin
         case "Document Type" of
@@ -1824,11 +1859,13 @@
                     RelatedRecord := PurchAdvanceLetterHeader;
                     exit(true);
                 end;
+#if not CLEAN18
             "Document Type"::Credit:
                 if PostedCreditHeader.Get("Document No.") then begin
                     RelatedRecord := PostedCreditHeader;
                     exit(true);
                 end;
+#endif
         // NAVCZ
         end;
         RecordFound := false;
@@ -1854,7 +1891,9 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         RecordFound: Boolean;
     begin
         case "Document Type" of
@@ -1903,6 +1942,7 @@
                         exit(true);
                     end;
                 end;
+#if not CLEAN18
             "Document Type"::Credit:
                 begin
                     CreditHeader.SetRange("Incoming Document Entry No.", "Entry No.");
@@ -1911,6 +1951,7 @@
                         exit(true);
                     end;
                 end;
+#endif
         // NAVCZ
         end;
         RecordFound := false;
@@ -1967,7 +2008,7 @@
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         IncomingDocument: Record "Incoming Document";
     begin
-        if IncomingDocumentAttachment.Import then begin
+        if IncomingDocumentAttachment.Import(true) then begin
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             PAGE.Run(PAGE::"Incoming Document", IncomingDocument);
         end;
@@ -2039,8 +2080,10 @@
                 RecCaption := StrSubstNo('%1 - %2', SalesAdvanceTxt, GetRecordCaption(RelatedRecordRef));
             DATABASE::"Purch. Advance Letter Header":
                 RecCaption := StrSubstNo('%1 - %2', PurchAdvanceTxt, GetRecordCaption(RelatedRecordRef));
+#if not CLEAN18
             DATABASE::"Credit Header":
                 RecCaption := StrSubstNo('%1 - %2', CreditTxt, GetRecordCaption(RelatedRecordRef));
+#endif
             // NAVCZ
             else
                 RecCaption := StrSubstNo('%1 - %2', RelatedRecordRef.Caption, GetRecordCaption(RelatedRecordRef));
@@ -2205,7 +2248,7 @@
         if not Evaluate(PostingDate, PostingDateText) then
             exit(false);
 
-        IncomingDocument.SetRange("Document No.", DocumentNo);
+        IncomingDocument.SetFilter("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
 
         exit(IncomingDocument.FindFirst);
@@ -2419,3 +2462,4 @@
     end;
 }
 
+#endif

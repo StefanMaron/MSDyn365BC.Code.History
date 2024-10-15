@@ -2,9 +2,13 @@ table 11730 "Cash Document Header"
 {
     Caption = 'Cash Document Header';
     DataCaptionFields = "Cash Desk No.", "Cash Document Type", "No.", "Pay-to/Receive-from Name";
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "Cash Document List";
     LookupPageID = "Cash Document List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '17.0';
 
@@ -14,6 +18,7 @@ table 11730 "Cash Document Header"
         {
             Caption = 'Cash Desk No.';
             Editable = false;
+#if not CLEAN17            
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
 
             trigger OnLookup()
@@ -30,10 +35,12 @@ table 11730 "Cash Document Header"
                 BankAccount.Get("Cash Desk No.");
                 BankAccount.TestField(Blocked, false);
             end;
+#endif        
         }
         field(2; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -46,6 +53,7 @@ table 11730 "Cash Document Header"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(3; "Pay-to/Receive-from Name"; Text[100])
         {
@@ -58,6 +66,7 @@ table 11730 "Cash Document Header"
         field(5; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -70,7 +79,9 @@ table 11730 "Cash Document Header"
                 "Document Date" := "Posting Date";
                 "VAT Date" := "Posting Date";
             end;
+#endif
         }
+#if not CLEAN17
         field(7; Amount; Decimal)
         {
             CalcFormula = Sum("Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
@@ -85,6 +96,7 @@ table 11730 "Cash Document Header"
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
         }
+#endif
         field(14; Status; Option)
         {
             Caption = 'Status';
@@ -134,6 +146,7 @@ table 11730 "Cash Document Header"
             Caption = 'Currency Code';
             Editable = false;
             TableRelation = Currency;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -150,37 +163,44 @@ table 11730 "Cash Document Header"
                                 ConfirmUpdateCurrencyFactor;
                         end;
             end;
+#endif
         }
         field(23; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
+#endif
         }
         field(24; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
+#endif
         }
         field(25; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 UpdateDocLines(FieldCaption("Currency Factor"), false);
             end;
+#endif
         }
         field(30; "Document Date"; Date)
         {
@@ -202,6 +222,7 @@ table 11730 "Cash Document Header"
         {
             Caption = 'Salespers./Purch. Code';
             TableRelation = "Salesperson/Purchaser";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -212,21 +233,25 @@ table 11730 "Cash Document Header"
                   DATABASE::"Bank Account", "Cash Desk No.",
                   GetPartnerTab, "Partner No.");
             end;
+#endif
         }
         field(45; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 UpdateDocLines(FieldCaption("Amounts Including VAT"), true);
             end;
+#endif
         }
         field(50; "Released Amount"; Decimal)
         {
             Caption = 'Released Amount';
             Editable = false;
         }
+#if not CLEAN17
         field(51; "VAT Base Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -263,6 +288,7 @@ table 11730 "Cash Document Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(60; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -276,6 +302,7 @@ table 11730 "Cash Document Header"
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -289,6 +316,7 @@ table 11730 "Cash Document Header"
                   DATABASE::"Bank Account", "Cash Desk No.",
                   GetPartnerTab, "Partner No.");
             end;
+#endif
         }
         field(65; "Payment Purpose"; Text[100])
         {
@@ -370,6 +398,7 @@ table 11730 "Cash Document Header"
             IF ("Partner Type" = CONST("Salesperson/Purchaser")) "Salesperson/Purchaser"
             ELSE
             IF ("Partner Type" = CONST(Employee)) Employee;
+#if not CLEAN17
 
             trigger OnLookup()
             begin
@@ -495,6 +524,7 @@ table 11730 "Cash Document Header"
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::"Bank Account", "Cash Desk No.");
             end;
+#endif
         }
         field(98; "Canceled Document"; Boolean)
         {
@@ -506,6 +536,7 @@ table 11730 "Cash Document Header"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+#if not CLEAN17
 
             trigger OnLookup()
             begin
@@ -516,7 +547,9 @@ table 11730 "Cash Document Header"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+#endif
         }
+#if not CLEAN17
         field(31120; "EET Cash Register"; Boolean)
         {
             CalcFormula = Exist("EET Cash Register" WHERE("Register Type" = CONST("Cash Desk"),
@@ -540,6 +573,7 @@ table 11730 "Cash Document Header"
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
             ObsoleteTag = '18.0';
         }
+#endif
     }
 
     keys
@@ -569,6 +603,7 @@ table 11730 "Cash Document Header"
     fieldgroups
     {
     }
+#if not CLEAN17
 
     var
         PaymentTxt: Label 'Payment %1', Comment = '%1=Document No.';
@@ -1272,5 +1307,6 @@ table 11730 "Cash Document Header"
     local procedure OnAfterCopyCashDocHeaderFromServiceCrMemoHeader(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var CashDocHeader: Record "Cash Document Header")
     begin
     end;
+#endif    
 }
 

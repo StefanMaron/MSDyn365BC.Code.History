@@ -311,7 +311,11 @@ table 5832 "Capacity Ledger Entry"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

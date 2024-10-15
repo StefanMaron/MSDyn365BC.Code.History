@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5666 "FA Depreciation Books Subform"
 {
     Caption = 'Lines';
@@ -42,6 +43,7 @@ page 5666 "FA Depreciation Books Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies which posting group is used for the depreciation book when posting fixed asset transactions.';
                 }
+#if not CLEAN18
                 field("Depreciation Group Code"; "Depreciation Group Code")
                 {
                     ApplicationArea = FixedAssets;
@@ -51,10 +53,15 @@ page 5666 "FA Depreciation Books Subform"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Default FA Depreciation Book"; "Default FA Depreciation Book")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the default fixed asset depreciation book.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field("Depreciation Method"; "Depreciation Method")
                 {
@@ -88,6 +95,7 @@ page 5666 "FA Depreciation Books Subform"
                     ToolTip = 'Specifies the percentage to depreciate the fixed asset by the straight-line principle, but with a fixed yearly percentage.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Depreciation Interupt"; "Depreciation Interupt")
                 {
                     ApplicationArea = FixedAssets;
@@ -106,6 +114,7 @@ page 5666 "FA Depreciation Books Subform"
                     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Fixed Depr. Amount"; "Fixed Depr. Amount")
                 {
                     ApplicationArea = FixedAssets;
@@ -256,6 +265,7 @@ page 5666 "FA Depreciation Books Subform"
                     ToolTip = 'Specifies a temporary fixed depreciation amount.';
                     Visible = false;
                 }
+#if not CLEAN18
                 field("Keep Depr. Ending Date"; "Keep Depr. Ending Date")
                 {
                     ApplicationArea = FixedAssets;
@@ -283,6 +293,7 @@ page 5666 "FA Depreciation Books Subform"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -440,3 +451,4 @@ page 5666 "FA Depreciation Books Subform"
     end;
 }
 
+#endif

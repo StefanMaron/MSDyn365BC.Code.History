@@ -713,9 +713,6 @@ table 5108 "Sales Line Archive"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
-#if not CLEAN16
-            AccessByPermission = TableData "Item Cross Reference" = R;
-#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
 #if not CLEAN18
@@ -730,16 +727,40 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(5707; "Cross-Reference Type"; Option)
         {
             Caption = 'Cross-Reference Type';
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -964,7 +985,11 @@ table 5108 "Sales Line Archive"
         field(31060; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

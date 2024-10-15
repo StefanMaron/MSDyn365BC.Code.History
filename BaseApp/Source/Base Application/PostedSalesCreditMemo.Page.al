@@ -155,6 +155,7 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the date on which you created the sales document.';
                 }
+#if not CLEAN17
                 field("VAT Date"; "VAT Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -166,12 +167,23 @@ page 134 "Posted Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN19
+#if CLEAN17
+                field("Original Document VAT Date"; '')
+#else
                 field("Original Document VAT Date"; "Original Document VAT Date")
+#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT date of the original document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field(Correction; Correction)
                 {
                     ApplicationArea = Basic, Suite;
@@ -356,6 +368,7 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
+#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -366,12 +379,14 @@ page 134 "Posted Sales Credit Memo"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
                 }
+#if not CLEAN17
                 field("Credit Memo Type"; "Credit Memo Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -382,6 +397,7 @@ page 134 "Posted Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
@@ -418,6 +434,7 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the credit memo.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -428,12 +445,14 @@ page 134 "Posted Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                 }
+#if not CLEAN17
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -454,6 +473,7 @@ page 134 "Posted Sales Credit Memo"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -467,6 +487,7 @@ page 134 "Posted Sales Credit Memo"
                     ToolTip = 'Specifies the VAT country/region code of customer.';
                 }
             }
+#if not CLEAN18
             group(Payments)
             {
                 Caption = 'Payments';
@@ -576,6 +597,7 @@ page 134 "Posted Sales Credit Memo"
                     Visible = false;
                 }
             }
+#endif
             group("Shipping and Billing")
             {
                 Caption = 'Shipping and Billing';
@@ -1161,8 +1183,8 @@ page 134 "Posted Sales Credit Memo"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnOpenPage()

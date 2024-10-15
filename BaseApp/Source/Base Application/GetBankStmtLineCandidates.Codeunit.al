@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 1295 "Get Bank Stmt. Line Candidates"
 {
     TableNo = "Payment Application Proposal";
@@ -88,6 +89,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Banking Documents Localization for Czech.', '19.0')]
     procedure SetAddParamToAddApply(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var MatchBankPayments: Codeunit "Match Bank Payments")
     var
         BankAccount: Record "Bank Account";
@@ -130,6 +132,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by Banking Documents Localization for Czech.', '19.0')]
     procedure SetWithSetup(WithSetupNew: Boolean)
     begin
         // NAVCZ
@@ -143,3 +146,4 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
     end;
 }
 
+#endif

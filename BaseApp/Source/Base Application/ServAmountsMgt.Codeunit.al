@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 5986 "Serv-Amounts Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
@@ -42,9 +43,25 @@ codeunit 5986 "Serv-Amounts Mgt."
         IsInitialized := false;
     end;
 
-    procedure FillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+#if not CLEAN19
+    [Obsolete('Replaced by FillInvoicePostBuffer().', '19.0')]
+    procedure FillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer" temporary; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFillInvPostingBuffer(InvPostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        FillInvoicePostBuffer(InvPostingBuffer[2], ServiceLine, ServiceLineACY, ServiceHeader);
+    end;
+#endif
+
+    procedure FillInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
     var
         GenPostingSetup: Record "General Posting Setup";
+        InvoicePostBuffer: Record "Invoice Post. Buffer";
         ServCost: Record "Service Cost";
         TotalVAT: Decimal;
         TotalVATACY: Decimal;
@@ -55,7 +72,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFillInvPostingBuffer(InvPostingBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        OnBeforeFillInvoicePostBuffer(TempInvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
         if IsHandled then
             exit;
 
@@ -65,7 +82,8 @@ codeunit 5986 "Serv-Amounts Mgt."
             then
                 GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
 
-        InvPostingBuffer[1].PrepareService(ServiceLine);
+        InvoicePostBuffer.PrepareService(ServiceLine);
+
         TotalVAT := ServiceLine."Amount Including VAT" - ServiceLine.Amount;
         TotalVATACY := ServiceLineACY."Amount Including VAT" - ServiceLineACY.Amount;
         TotalAmount := ServiceLine.Amount;
@@ -76,57 +94,57 @@ codeunit 5986 "Serv-Amounts Mgt."
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Invoice Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            InvPostingBufferCalcInvoiceDiscountAmount(InvPostingBuffer[1], ServiceLine, ServiceLineACY, ServiceHeader);
-            if (InvPostingBuffer[1].Amount <> 0) or (InvPostingBuffer[1]."Amount (ACY)" <> 0) then begin
-                InvPostingBuffer[1].SetAccount(
+            InvPostingBufferCalcInvoiceDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
+            if (InvoicePostBuffer.Amount <> 0) or (InvoicePostBuffer."Amount (ACY)" <> 0) then begin
+                InvoicePostBuffer.SetAccount(
                   GenPostingSetup.GetSalesInvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
-                InvPostingBuffer[1].UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                 if ServiceLine."Line Discount %" = 100 then begin
-                    InvPostingBuffer[1]."VAT Base Amount" := 0;
-                    InvPostingBuffer[1]."VAT Base Amount (ACY)" := 0;
-                    InvPostingBuffer[1]."VAT Amount" := 0;
-                    InvPostingBuffer[1]."VAT Amount (ACY)" := 0;
+                    InvoicePostBuffer."VAT Base Amount" := 0;
+                    InvoicePostBuffer."VAT Base Amount (ACY)" := 0;
+                    InvoicePostBuffer."VAT Amount" := 0;
+                    InvoicePostBuffer."VAT Amount (ACY)" := 0;
                 end;
-                UpdInvPostingBuffer(InvPostingBuffer, ServiceLine);
+                UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, ServiceLine);
             end;
         end;
 
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Line Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            InvPostingBufferCalcLineDiscountAmount(InvPostingBuffer[1], ServiceLine, ServiceLineACY, ServiceHeader);
-            if (InvPostingBuffer[1].Amount <> 0) or (InvPostingBuffer[1]."Amount (ACY)" <> 0) then begin
-                InvPostingBuffer[1].SetAccount(
+            InvPostingBufferCalcLineDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader);
+            if (InvoicePostBuffer.Amount <> 0) or (InvoicePostBuffer."Amount (ACY)" <> 0) then begin
+                InvoicePostBuffer.SetAccount(
                   GenPostingSetup.GetSalesLineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
-                InvPostingBuffer[1].UpdateVATBase(TotalVATBase, TotalVATBaseACY);
-                UpdInvPostingBuffer(InvPostingBuffer, ServiceLine);
+                InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, ServiceLine);
             end;
         end;
 
-        InvPostingBuffer[1].SetAmounts(
+        InvoicePostBuffer.SetAmounts(
           TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, ServiceLine."VAT Difference", TotalVATBase, TotalVATBaseACY);
 
         case ServiceLine.Type of
             ServiceLine.Type::"G/L Account":
-                InvPostingBuffer[1].SetAccount(ServiceLine."No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                InvoicePostBuffer.SetAccount(ServiceLine."No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
             ServiceLine.Type::Cost:
                 begin
                     ServCost.Get(ServiceLine."No.");
-                    InvPostingBuffer[1].SetAccount(ServCost."Account No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                    InvoicePostBuffer.SetAccount(ServCost."Account No.", TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                 end
             else
                 if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
-                    InvPostingBuffer[1].SetAccount(
+                    InvoicePostBuffer.SetAccount(
                       GenPostingSetup.GetSalesCrMemoAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY)
                 else
-                    InvPostingBuffer[1].SetAccount(
+                    InvoicePostBuffer.SetAccount(
                       GenPostingSetup.GetSalesAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         end;
-        InvPostingBuffer[1].UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+        InvoicePostBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
-        OnAfterFillInvoicePostBuffer(InvPostingBuffer[1], ServiceLine, InvPostingBuffer[2], SuppressCommit, ServiceLineACY);
+        OnAfterFillInvoicePostBuffer(InvoicePostBuffer, ServiceLine, TempInvoicePostBuffer, SuppressCommit, ServiceLineACY);
 
-        UpdInvPostingBuffer(InvPostingBuffer, ServiceLine);
+        UpdateInvoicePostBuffer(TempInvoicePostBuffer, InvoicePostBuffer, ServiceLine);
     end;
 
     local procedure InvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -163,43 +181,19 @@ codeunit 5986 "Serv-Amounts Mgt."
               ServiceHeader."Prices Including VAT", -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount");
     end;
 
-    local procedure UpdInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line")
+    local procedure UpdateInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line")
     begin
-        InvPostingBuffer[1]."Dimension Set ID" := ServiceLine."Dimension Set ID";
-        if InvPostingBuffer[1].Type = InvPostingBuffer[1].Type::"Fixed Asset" then begin
+        InvoicePostBuffer."Dimension Set ID" := ServiceLine."Dimension Set ID";
+        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::"Fixed Asset" then begin
             FALineNo := FALineNo + 1;
-            InvPostingBuffer[1]."Fixed Asset Line No." := FALineNo;
+            InvoicePostBuffer."Fixed Asset Line No." := FALineNo;
         end;
 
-        OnBeforeUpdateInvPostBuffer(InvPostingBuffer[1]);
+        OnBeforeUpdateInvPostBuffer(InvoicePostBuffer);
 
-        InvPostingBuffer[2] := InvPostingBuffer[1];
-        if InvPostingBuffer[2].Find then begin
-            InvPostingBuffer[2].Amount := InvPostingBuffer[2].Amount + InvPostingBuffer[1].Amount;
-            InvPostingBuffer[2]."VAT Amount" :=
-              InvPostingBuffer[2]."VAT Amount" + InvPostingBuffer[1]."VAT Amount";
-            InvPostingBuffer[2]."VAT Base Amount" :=
-              InvPostingBuffer[2]."VAT Base Amount" + InvPostingBuffer[1]."VAT Base Amount";
-            InvPostingBuffer[2]."Amount (ACY)" :=
-              InvPostingBuffer[2]."Amount (ACY)" + InvPostingBuffer[1]."Amount (ACY)";
-            InvPostingBuffer[2]."VAT Amount (ACY)" :=
-              InvPostingBuffer[2]."VAT Amount (ACY)" + InvPostingBuffer[1]."VAT Amount (ACY)";
-            InvPostingBuffer[2]."VAT Difference" :=
-              InvPostingBuffer[2]."VAT Difference" + InvPostingBuffer[1]."VAT Difference";
-            InvPostingBuffer[2]."VAT Difference (LCY)" :=
-              InvPostingBuffer[2]."VAT Difference (LCY)" + InvPostingBuffer[1]."VAT Difference (LCY)"; // NAVCZ
-            InvPostingBuffer[2]."VAT Base Amount (ACY)" :=
-              InvPostingBuffer[2]."VAT Base Amount (ACY)" +
-              InvPostingBuffer[1]."VAT Base Amount (ACY)";
-            InvPostingBuffer[2].Quantity :=
-              InvPostingBuffer[2].Quantity + InvPostingBuffer[1].Quantity;
-            if not InvPostingBuffer[1]."System-Created Entry" then
-                InvPostingBuffer[2]."System-Created Entry" := false;
-            InvPostingBuffer[2].Modify();
-        end else
-            InvPostingBuffer[1].Insert();
+        TempInvoicePostBuffer.Update(InvoicePostBuffer);
 
-        OnAfterUpdateInvPostBuffer(InvPostingBuffer[1]);
+        OnAfterUpdateInvPostBuffer(InvoicePostBuffer);
     end;
 
     procedure DivideAmount(QtyType: Option General,Invoicing,Shipping; ServLineQty: Decimal; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line")
@@ -223,7 +217,6 @@ codeunit 5986 "Serv-Amounts Mgt."
                 "Amount Including VAT" := 0;
             end else begin
                 if TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0) then;
-
                 if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
                     "VAT %" := TempVATAmountLine."VAT %";
                 TempVATAmountLineRemainder := TempVATAmountLine;
@@ -797,8 +790,16 @@ codeunit 5986 "Serv-Amounts Mgt."
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeFillInvoicePostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -843,3 +844,4 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 }
 
+#endif

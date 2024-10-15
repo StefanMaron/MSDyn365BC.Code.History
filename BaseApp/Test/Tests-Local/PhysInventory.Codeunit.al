@@ -1,3 +1,4 @@
+ #if not CLEAN17
 codeunit 145013 "Phys. Inventory"
 {
     Subtype = Test;
@@ -207,3 +208,4 @@ codeunit 145013 "Phys. Inventory"
     end;
 }
 
+#endif

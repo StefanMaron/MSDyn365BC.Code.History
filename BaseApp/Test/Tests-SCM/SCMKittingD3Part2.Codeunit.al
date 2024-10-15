@@ -435,7 +435,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
 
         // Tear down.
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
-          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+          "Average Cost Calculation Type"::Item, InventorySetup."Average Cost Period"::Day);
     end;
 
     [Test]
@@ -610,7 +610,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
           LibraryUtility.GetGlobalNoSeriesCode);
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
-          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+          "Average Cost Calculation Type"::Item, InventorySetup."Average Cost Period"::Day);
     end;
 
     [Test]
@@ -683,8 +683,8 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
             LibraryInventory.CreateVariant(ItemVariant, Item);
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate2, Item."No.", '', LibraryRandom.RandDec(10, 2), ItemVariant.Code);
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AssemblyHeader."Item No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, AssemblyHeader."Item No.", true),
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, AssemblyHeader."Item No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, AssemblyHeader."Item No.", true),
           LibraryRandom.RandDec(10, 2), 0, '');
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate2, 0);
 

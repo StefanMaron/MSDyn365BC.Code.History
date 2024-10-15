@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11760 "Unc. Payer Mgt."
 {
     ObsoleteState = Pending;
@@ -511,3 +512,5 @@ codeunit 11760 "Unc. Payer Mgt."
     end;
 }
 
+
+#endif

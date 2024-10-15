@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31069 "VIES Declaration Lines"
 {
     Caption = 'VIES Declaration Lines (Obsolete)';
@@ -117,3 +118,5 @@ page 31069 "VIES Declaration Lines"
     end;
 }
 
+
+#endif

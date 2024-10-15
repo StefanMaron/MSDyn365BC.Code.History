@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11748 "Cash Desk FactBox"
 {
     Caption = 'Cash Desk (Obsolete)';
@@ -76,4 +77,4 @@ page 11748 "Cash Desk FactBox"
     {
     }
 }
-
+#endif

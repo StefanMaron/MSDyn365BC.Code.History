@@ -338,19 +338,19 @@ page 569 "Chart of Accs. (Analysis View)"
     begin
         if CFAccount.Find('-') then
             repeat
-                Init;
-                "No." := CFAccount."No.";
-                Name := CFAccount.Name;
-                "Account Type" := CFAccount."Account Type";
-                Blocked := CFAccount.Blocked;
-                "New Page" := CFAccount."New Page";
-                "No. of Blank Lines" := CFAccount."No. of Blank Lines";
-                Validate(Indentation, CFAccount.Indentation);
-                "Last Date Modified" := CFAccount."Last Date Modified";
-                Totaling := CFAccount.Totaling;
-                Comment := CFAccount.Comment;
-                "Account Source" := "Account Source"::"Cash Flow Account";
-                Insert;
+                Rec.Init();
+                Rec."No." := CFAccount."No.";
+                Rec.Name := CFAccount.Name;
+                Rec."Account Type" := CFAccount."Account Type";
+                Rec.Blocked := CFAccount.Blocked;
+                Rec."New Page" := CFAccount."New Page";
+                Rec."No. of Blank Lines" := CFAccount."No. of Blank Lines";
+                Rec.Validate(Indentation, CFAccount.Indentation);
+                Rec."Last Date Modified" := CFAccount."Last Date Modified";
+                Rec.Totaling := CFAccount.Totaling;
+                Rec.Comment := CFAccount.Comment;
+                Rec."Account Source" := "Account Source"::"Cash Flow Account";
+                Rec.Insert();
             until CFAccount.Next() = 0;
     end;
 

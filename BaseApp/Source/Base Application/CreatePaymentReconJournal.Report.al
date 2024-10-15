@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 11701 "Create Payment Recon. Journal"
 {
-    Caption = 'Create Payment Recon. Journal';
+    Caption = 'Create Payment Recon. Journal (Obsolete)';
     Permissions = TableData "Issued Bank Statement Header" = m;
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -222,4 +226,4 @@ report 11701 "Create Payment Recon. Journal"
     begin
     end;
 }
-
+#endif

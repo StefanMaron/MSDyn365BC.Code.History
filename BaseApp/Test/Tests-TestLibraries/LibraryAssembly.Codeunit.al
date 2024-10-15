@@ -206,7 +206,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure AddEntityDimensions(Type: Option; No: Code[20])
+    procedure AddEntityDimensions(Type: Enum "BOM Component Type"; No: Code[20])
     var
         TempDimension: Record Dimension temporary;
         TempDimensionValue: Record "Dimension Value" temporary;
@@ -550,7 +550,7 @@ codeunit 132207 "Library - Assembly"
             AssemblyHeader, DueDate, ParentItemNo, LocationCode, Quantity, AssemblyHeader."Document Type"::Quote, VariantCode));
     end;
 
-    procedure CreateAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Option; No: Code[20]; UOMCode: Code[10]; Quantity: Decimal; QtyPer: Decimal; Desc: Text[100])
+    procedure CreateAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Type: Enum "BOM Component Type"; No: Code[20]; UOMCode: Code[10]; Quantity: Decimal; QtyPer: Decimal; Desc: Text[100])
     var
         RecRef: RecordRef;
     begin
@@ -585,14 +585,14 @@ codeunit 132207 "Library - Assembly"
 
         if TempItem.FindSet then
             repeat
-                CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, TempItem."No.",
-                  GetUnitOfMeasureCode(AssemblyLine.Type::Item, TempItem."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
+                CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, TempItem."No.",
+                  GetUnitOfMeasureCode("BOM Component Type"::Item, TempItem."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
             until TempItem.Next = 0;
 
         if TempResource.FindSet then
             repeat
-                CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, TempResource."No.",
-                  GetUnitOfMeasureCode(AssemblyLine.Type::Resource, TempResource."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
+                CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, TempResource."No.",
+                  GetUnitOfMeasureCode("BOM Component Type"::Resource, TempResource."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
             until TempResource.Next = 0;
     end;
 
@@ -631,7 +631,7 @@ codeunit 132207 "Library - Assembly"
         Commit();
     end;
 
-    procedure CreateAssemblyListComponent(ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
+    procedure CreateAssemblyListComponent(ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
     var
         BOMComponent: Record "BOM Component";
     begin
@@ -981,7 +981,7 @@ codeunit 132207 "Library - Assembly"
             AdjSource::"Order Lines":
                 begin
                     ResourceNo := CreateResource(Resource, true, Item."Gen. Prod. Posting Group");
-                    EditAssemblyLines(ChangeType::Add, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, ResourceNo,
+                    EditAssemblyLines(ChangeType::Add, "BOM Component Type"::Resource, "BOM Component Type"::Resource, ResourceNo,
                       AssemblyHeader."No.", true);
                 end;
             AdjSource::Resource:
@@ -1074,7 +1074,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure DeleteAssemblyLine(ComponentType: Option; AssemblyHeaderNo: Code[20])
+    procedure DeleteAssemblyLine(ComponentType: Enum "BOM Component Type"; AssemblyHeaderNo: Code[20])
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -1097,7 +1097,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.DeleteAll();
     end;
 
-    procedure DeleteAssemblyListComponent(ComponentType: Option; ParentItemNo: Code[20])
+    procedure DeleteAssemblyListComponent(ComponentType: Enum "BOM Component Type"; ParentItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
     begin
@@ -1117,7 +1117,7 @@ codeunit 132207 "Library - Assembly"
         BOMComponent.DeleteAll();
     end;
 
-    procedure EditAssemblyListComponent(ComponentType: Option; NewComponentType: Option; NewComponentNo: Code[20]; ParentItemNo: Code[20]; ResourceUsage: Option; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
+    procedure EditAssemblyListComponent(ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; ParentItemNo: Code[20]; ResourceUsage: Option; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
     var
         BOMComponent: Record "BOM Component";
     begin
@@ -1141,7 +1141,7 @@ codeunit 132207 "Library - Assembly"
         BOMComponent.Modify(true);
     end;
 
-    procedure EditAssemblyList(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Option; NewComponentType: Option; NewComponentNo: Code[20]; ParentItemNo: Code[20])
+    procedure EditAssemblyList(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; ParentItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
     begin
@@ -1168,7 +1168,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure EditAssemblyLine(ComponentType: Option; NewComponentType: Option; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
+    procedure EditAssemblyLine(ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; Qty: Decimal; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -1198,7 +1198,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure EditAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; ComponentType: Option; NewComponentType: Option; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; UseBaseUnitOfMeasure: Boolean)
+    procedure EditAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; NewComponentNo: Code[20]; AssemblyHeaderNo: Code[20]; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -1337,7 +1337,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure GetCostInformation(var UnitCost: Decimal; var Overhead: Decimal; var IndirectCost: Decimal; Type: Option; No: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Boolean
+    procedure GetCostInformation(var UnitCost: Decimal; var Overhead: Decimal; var IndirectCost: Decimal; Type: Enum "BOM Component Type"; No: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Boolean
     var
         Resource: Record Resource;
         Item: Record Item;
@@ -1345,7 +1345,7 @@ codeunit 132207 "Library - Assembly"
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         case Type of
-            AssemblyLine.Type::Item:
+            "BOM Component Type"::Item:
                 begin
                     Item.Get(No);
                     StockkeepingUnit.SetCurrentKey("Location Code", "Item No.", "Variant Code");
@@ -1357,7 +1357,7 @@ codeunit 132207 "Library - Assembly"
                     IndirectCost := Item."Indirect Cost %";
                     exit(Item."Cost is Adjusted");
                 end;
-            AssemblyLine.Type::Resource:
+            "BOM Component Type"::Resource:
                 begin
                     Resource.Get(No);
                     UnitCost := Resource."Unit Cost";
@@ -1368,7 +1368,7 @@ codeunit 132207 "Library - Assembly"
         end;
     end;
 
-    procedure GetUnitOfMeasureCode(ComponentType: Option; ComponentNo: Code[20]; UseBaseUnitOfMeasure: Boolean): Code[10]
+    procedure GetUnitOfMeasureCode(ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; UseBaseUnitOfMeasure: Boolean): Code[10]
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -1899,7 +1899,7 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Option; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
     begin
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
@@ -2296,7 +2296,7 @@ codeunit 132207 "Library - Assembly"
     begin
         // Check header item SKU cost.
         Item.Get(AssemblyHeader."Item No.");
-        GetCostInformation(UnitCost, Overhead, IndirectCost, TempAssemblyLine.Type::Item, AssemblyHeader."Item No.",
+        GetCostInformation(UnitCost, Overhead, IndirectCost, "BOM Component Type"::Item, AssemblyHeader."Item No.",
           AssemblyHeader."Variant Code", AssemblyHeader."Location Code");
         if Item."Costing Method" = Item."Costing Method"::Standard then
             AssemblyHeader.TestField("Unit Cost", UnitCost);
@@ -2305,7 +2305,7 @@ codeunit 132207 "Library - Assembly"
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
         if TempAssemblyLine.FindSet then
             repeat
-                GetCostInformation(UnitCost, Overhead, IndirectCost, TempAssemblyLine.Type::Item, TempAssemblyLine."No.",
+                GetCostInformation(UnitCost, Overhead, IndirectCost, "BOM Component Type"::Item, TempAssemblyLine."No.",
                   TempAssemblyLine."Variant Code", TempAssemblyLine."Location Code");
                 TempAssemblyLine.TestField("Unit Cost", UnitCost);
             until TempAssemblyLine.Next = 0
@@ -2979,7 +2979,7 @@ codeunit 132207 "Library - Assembly"
         AdjUnitCost: Decimal;
     begin
         Item.Get(PostedAssemblyLine."No.");
-        GetCostInformation(UnitCost, Overhead, IndirectCost, PostedAssemblyLine.Type::Item,
+        GetCostInformation(UnitCost, Overhead, IndirectCost, "BOM Component Type"::Item,
           PostedAssemblyLine."No.", PostedAssemblyLine."Variant Code", PostedAssemblyLine."Location Code");
         FindLineValueEntries(ValueEntry, PostedAssemblyLine, ValueEntry."Entry Type"::"Direct Cost",
           ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");

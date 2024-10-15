@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 11723 "Issued Payment Order Lines"
 {
-    Caption = 'Issued Payment Order Lines';
+    Caption = 'Issued Payment Order Lines (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Issued Payment Order Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -88,6 +92,7 @@ page 11723 "Issued Payment Order Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Issued Payment Order. The field is either filled automatically from a defined number series.';
                 }
+#if not CLEAN17
                 field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -115,6 +120,7 @@ page 11723 "Issued Payment Order Lines"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#endif
             }
         }
     }
@@ -158,4 +164,4 @@ page 11723 "Issued Payment Order Lines"
         }
     }
 }
-
+#endif

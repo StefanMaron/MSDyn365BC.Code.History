@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31031 "Purchase Adv. Paym. Selection"
 {
-    Caption = 'Purchase Adv. Paym. Selection';
+    Caption = 'Purchase Adv. Paym. Selection (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Purchase Adv. Payment Template";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -33,4 +37,4 @@ page 31031 "Purchase Adv. Paym. Selection"
     {
     }
 }
-
+#endif

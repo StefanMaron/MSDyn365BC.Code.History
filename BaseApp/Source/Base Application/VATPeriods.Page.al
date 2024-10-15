@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11780 "VAT Periods"
 {
     ApplicationArea = Basic, Suite;
@@ -150,3 +151,5 @@ page 11780 "VAT Periods"
     }
 }
 
+
+#endif

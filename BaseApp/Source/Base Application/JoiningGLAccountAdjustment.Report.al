@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11774 "Joining G/L Account Adjustment"
 {
     DefaultLayout = RDLC;
@@ -280,3 +281,5 @@ report 11774 "Joining G/L Account Adjustment"
         ProcessingEntriesMsg: Label 'Processing Entries @1@@@@@@@@@@@@';
 }
 
+
+#endif

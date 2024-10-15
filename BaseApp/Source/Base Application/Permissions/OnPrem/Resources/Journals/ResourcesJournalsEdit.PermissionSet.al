@@ -26,9 +26,13 @@ permissionset 386 "Resources Journals - Edit"
                   tabledata "Res. Journal Line" = RIMD,
                   tabledata "Res. Journal Template" = RI,
                   tabledata Resource = R,
+#if not CLEAN19
                   tabledata "Resource Cost" = R,
+#endif
                   tabledata "Resource Group" = R,
+#if not CLEAN19
                   tabledata "Resource Price" = R,
+#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Time Sheet Chart Setup" = R,
@@ -38,6 +42,8 @@ permissionset 386 "Resources Journals - Edit"
                   tabledata "Time Sheet Line" = R,
                   tabledata "Time Sheet Posting Entry" = R,
                   tabledata "Unit of Measure" = R,
+#if not CLEAN17
                   tabledata "VAT Period" = R,
+#endif
                   tabledata "Work Type" = R;
 }

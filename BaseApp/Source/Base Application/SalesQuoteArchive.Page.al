@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5162 "Sales Quote Archive"
 {
     Caption = 'Sales Quote Archive';
@@ -448,6 +449,7 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
+#if not CLEAN17
                 field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
                 {
                     ApplicationArea = BasicEU;
@@ -457,6 +459,7 @@ page 5162 "Sales Quote Archive"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
             group(Version)
             {
@@ -682,8 +685,8 @@ page 5162 "Sales Quote Archive"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     var
@@ -696,3 +699,4 @@ page 5162 "Sales Quote Archive"
         IsBillToCountyVisible: Boolean;
 }
 
+#endif

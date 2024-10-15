@@ -173,7 +173,9 @@ report 5692 "Calculate Depreciation"
                             LineNo := LineNo + 1;
                             Window.Update(3, LineNo);
                             "Posting Date" := PostingDate;
+#if not CLEAN17
                             "VAT Date" := PostingDate; // NAVCZ
+#endif
                             "FA Posting Date" := DeprUntilDate;
                             if "Posting Date" = "FA Posting Date" then
                                 "FA Posting Date" := 0D;
@@ -327,6 +329,10 @@ report 5692 "Calculate Depreciation"
         ConfirmMgt: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
+        if ErrorMessageHandler.HasErrors() then
+            if ErrorMessageHandler.ShowErrors() then
+                Error('');
+
         Window.Close;
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
@@ -362,6 +368,8 @@ report 5692 "Calculate Depreciation"
 
     trigger OnPreReport()
     begin
+        ActivateErrorMessageHandling("Fixed Asset");
+
         DeprBook.Get(DeprBookCode);
         if DeprUntilDate = 0D then
             Error(Text000, FAJnlLine.FieldCaption("FA Posting Date"));
@@ -405,6 +413,9 @@ report 5692 "Calculate Depreciation"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CalculateDepr: Codeunit "Calculate Depreciation";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
         Window: Dialog;
         DeprAmount: Decimal;
         Custom1Amount: Decimal;
@@ -446,6 +457,19 @@ report 5692 "Calculate Depreciation"
         BalAccount := BalAccountFrom;
     end;
 
+    local procedure ActivateErrorMessageHandling(var FixedAsset: Record "Fixed Asset")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeActivateErrorMessageHandling(FixedAsset, ErrorMessageMgt, ErrorMessageHandler, ErrorContextElement, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed then
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)
     begin
@@ -463,6 +487,11 @@ report 5692 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivateErrorMessageHandling(varFixedAsset: Record "Fixed Asset"; var ErrorMessageMgt: Codeunit "Error Message Management"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorContextElement: Codeunit "Error Context Element"; var IsHandled: Boolean)
     begin
     end;
 

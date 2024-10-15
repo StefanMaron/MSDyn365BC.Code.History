@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31050 "Credit Card"
 {
     Caption = 'Credit Card (Obsolete)';
@@ -416,6 +417,7 @@ page 31050 "Credit Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the result of the posting lines before the actual posting.';
 
                     trigger OnAction()
@@ -559,4 +561,4 @@ page 31050 "Credit Card"
                 PAGE.Run(PAGE::"Posted Credit Card", PostedCreditHeader);
     end;
 }
-
+#endif

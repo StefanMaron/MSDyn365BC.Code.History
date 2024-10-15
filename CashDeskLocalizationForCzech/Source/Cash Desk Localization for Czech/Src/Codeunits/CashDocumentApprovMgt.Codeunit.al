@@ -70,6 +70,7 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
         end;
     end;
 
+#if not CLEAN19
     [Obsolete('The function is replaced by the SetCashDocumentStatusToApproved subscriber.', '19.0')]
     procedure SetStatusToApproved(var Variant: Variant)
     var
@@ -110,7 +111,7 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
         ApprovalsMgmt.DeleteApprovalEntries(RecordRef.RecordId);
         ApprovalsMgmt.DeleteApprovalCommentLines(RecordRef.RecordId);
     end;
-
+#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
     local procedure ApprovalsMgmtOnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry")
     begin

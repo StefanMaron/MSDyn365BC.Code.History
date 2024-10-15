@@ -15,11 +15,9 @@ table 7328 "Whse. Worksheet Template"
         {
             Caption = 'Description';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Warehouse Worksheet Template Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Put-away,Pick,Movement';
-            OptionMembers = "Put-away",Pick,Movement;
 
             trigger OnValidate()
             begin
@@ -46,7 +44,7 @@ table 7328 "Whse. Worksheet Template"
         }
         field(5; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;

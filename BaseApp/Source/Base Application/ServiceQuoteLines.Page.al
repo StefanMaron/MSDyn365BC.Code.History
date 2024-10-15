@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5966 "Service Quote Lines"
 {
     AutoSplitKey = true;
@@ -394,6 +395,7 @@ page 5966 "Service Quote Lines"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("Tariff No."; "Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -412,6 +414,7 @@ page 5966 "Service Quote Lines"
                     ObsoleteTag = '17.0';
                     Visible = false;
                 }
+#endif
             }
         }
         area(factboxes)
@@ -841,3 +844,4 @@ page 5966 "Service Quote Lines"
     end;
 }
 
+#endif

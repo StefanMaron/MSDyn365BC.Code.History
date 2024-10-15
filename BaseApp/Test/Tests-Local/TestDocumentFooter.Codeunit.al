@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 145003 "Test Document Footer"
 {
     Subtype = Test;
@@ -189,3 +190,4 @@ codeunit 145003 "Test Document Footer"
     end;
 }
 
+#endif

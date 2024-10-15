@@ -25,6 +25,9 @@ report 790 "Calculate Inventory"
                     if not GetLocation("Location Code") then
                         CurrReport.Skip();
 
+                    if ("Location Code" <> '') and Location."Use As In-Transit" then
+                        CurrReport.Skip();
+
                     if ColumnDim <> '' then
                         TransferDim("Dimension Set ID");
 

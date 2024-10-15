@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
@@ -86,7 +87,6 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
                     Importance = Promoted;
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -130,8 +130,12 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         DimValue: Record "Dimension Value";
+                        Result: Boolean;
                     begin
-                        exit(DimValue.LookUpDimFilter(AnalysisView."Dimension 1 Code", Text));
+                        Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 1 Code", Text);
+                        SetDimFilters(1, Text);
+                        Dim1Filter := text;
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -152,8 +156,12 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         DimValue: Record "Dimension Value";
+                        Result: Boolean;
                     begin
-                        exit(DimValue.LookUpDimFilter(AnalysisView."Dimension 2 Code", Text));
+                        Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 2 Code", Text);
+                        SetDimFilters(2, Text);
+                        Dim2Filter := text;
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -174,8 +182,12 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         DimValue: Record "Dimension Value";
+                        Result: Boolean;
                     begin
-                        exit(DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text));
+                        Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text);
+                        SetDimFilters(3, Text);
+                        Dim1Filter := text;
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -196,8 +208,12 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         DimValue: Record "Dimension Value";
+                        Result: Boolean;
                     begin
-                        exit(DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text));
+                        Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text);
+                        SetDimFilters(4, Text);
+                        Dim1Filter := text;
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -215,8 +231,17 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         CostCenter: Record "Cost Center";
+                        Result: Boolean;
                     begin
-                        exit(CostCenter.LookupCostCenterFilter(Text));
+                        Result := CostCenter.LookupCostCenterFilter(Text);
+                        CostCenterFilter := Text;
+                        if CostCenterFilter = '' then
+                            SetRange("Cost Center Filter")
+                        else
+                            SetFilter("Cost Center Filter", CostCenterFilter);
+
+                        OnAfterValidateCostCenterFilter(Rec, CostCenterFilter, Dim1Filter);
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -240,8 +265,17 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         CostObject: Record "Cost Object";
+                        Result: Boolean;
                     begin
-                        exit(CostObject.LookupCostObjectFilter(Text));
+                        Result := CostObject.LookupCostObjectFilter(Text);
+                        CostObjectFilter := Text;
+                        if CostObjectFilter = '' then
+                            SetRange("Cost Object Filter")
+                        else
+                            SetFilter("Cost Object Filter", CostObjectFilter);
+
+                        OnAfterValidateCostObjectFilter(Rec, CostObjectFilter, Dim2Filter);
+                        Exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -265,8 +299,15 @@ page 490 "Acc. Schedule Overview"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         CashFlowForecast: Record "Cash Flow Forecast";
+                        Result: Boolean;
                     begin
-                        exit(CashFlowForecast.LookupCashFlowFilter(Text));
+                        Result := CashFlowForecast.LookupCashFlowFilter(Text);
+                        CashFlowFilter := Text;
+                        if CashFlowFilter = '' then
+                            SetRange("Cash Flow Forecast Filter")
+                        else
+                            SetFilter("Cash Flow Forecast Filter", CashFlowFilter);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -290,6 +331,7 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupGLBudgetFilter(Text);
+                        GLBudgetFilter := Text;
                         if Result then begin
                             SetFilter("G/L Budget Filter", Text);
                             Text := GetFilter("G/L Budget Filter");
@@ -318,6 +360,7 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupCostBudgetFilter(Text);
+                        CostBudgetFilter := Text;
                         if Result then begin
                             SetFilter("Cost Budget Filter", Text);
                             Text := GetFilter("Cost Budget Filter");
@@ -564,9 +607,11 @@ page 490 "Acc. Schedule Overview"
                     BusUnitFilter: Text;
                     CostBudgetFilter2: Text;
                     IsHandled: Boolean;
+#if not CLEAN17
                     AccScheduleName: Record "Acc. Schedule Name";
                     BalSheet: Report "Balance Sheet";
                     IncomeStat: Report "Income Statement";
+#endif
                 begin
                     IsHandled := false;
                     OnBeforePrint(Rec, CurrentColumnName, IsHandled);
@@ -579,6 +624,7 @@ page 490 "Acc. Schedule Overview"
                     GLBudgetFilter2 := GetFilter("G/L Budget Filter");
                     CostBudgetFilter2 := GetFilter("Cost Budget Filter");
                     BusUnitFilter := GetFilter("Business Unit Filter");
+#if not CLEAN17
                     // NAVCZ
                     AccScheduleName.Get(CurrentSchedName);
                     case AccScheduleName."Acc. Schedule Type" of
@@ -602,12 +648,15 @@ page 490 "Acc. Schedule Overview"
                             end
                         else begin
                                 // NAVCZ
-                                AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
-                                AccSched.Run;
+#endif
+                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
+                    AccSched.Run;
+#if not CLEAN17
                                 // NAVCZ
                             end;
                     end;
                     // NAVCZ
+#endif
                 end;
             }
             action(PreviousColumn)
@@ -674,7 +723,6 @@ page 490 "Acc. Schedule Overview"
                     AdjustColumnOffset(1);
                 end;
             }
-#if not CLEAN19
             group("&Results")
             {
                 Caption = '&Results (Obsolete)';
@@ -714,7 +762,6 @@ page 490 "Acc. Schedule Overview"
                     Visible = false;
                 }
             }
-#endif
             action(Recalculate)
             {
                 ApplicationArea = Basic, Suite;
@@ -788,8 +835,8 @@ page 490 "Acc. Schedule Overview"
             ColumnNo := ColumnNo + 1;
             if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnValues)) then begin
                 ColumnValues[ColumnNo - ColumnOffset] :=
-                  RoundNone(
-                    MatrixMgt.RoundValue(
+                  RoundIfNotNone(
+                    MatrixMgt.RoundAmount(
                       AccSchedManagement.CalcCell(Rec, TempColumnLayout, UseAmtsInAddCurr),
                       TempColumnLayout."Rounding Factor"),
                     TempColumnLayout."Rounding Factor");
@@ -874,7 +921,7 @@ page 490 "Acc. Schedule Overview"
         NewCurrentColumnName: Code[10];
         ColumnValues: array[12] of Decimal;
         ColumnCaptions: array[12] of Text[80];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         UseAmtsInAddCurrVisible: Boolean;
         UseAmtsInAddCurr: Boolean;
         Dim1Filter: Text;
@@ -897,7 +944,7 @@ page 490 "Acc. Schedule Overview"
         GLBudgetFilter: Text;
         CostBudgetFilter: Text;
         DateFilter: Text;
-        ModifiedPeriodType: Option;
+        ModifiedPeriodType: Enum "Analysis Period Type";
         NewPeriodTypeSet: Boolean;
         [InDataSet]
         ColumnStyle1: Text;
@@ -939,7 +986,7 @@ page 490 "Acc. Schedule Overview"
 
     procedure SetPeriodType(NewPeriodType: Option)
     begin
-        ModifiedPeriodType := NewPeriodType;
+        ModifiedPeriodType := "Analysis Period Type".FromInteger(NewPeriodType);
         NewPeriodTypeSet := true;
     end;
 
@@ -1021,7 +1068,7 @@ page 490 "Acc. Schedule Overview"
     local procedure DrillDown(ColumnNo: Integer)
     begin
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
-        AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, PeriodType);
+        AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, PeriodType.AsInteger());
         OnAfterDrillDown(ColumnNo, TempColumnLayout, PeriodType);
     end;
 
@@ -1146,10 +1193,18 @@ page 490 "Acc. Schedule Overview"
 
     procedure FormatStr(ColumnNo: Integer): Text
     begin
-        exit(MatrixMgt.GetFormatString(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
+        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by RoundIfNotNone().', '19.0')]
     procedure RoundNone(Value: Decimal; RoundingFactor: Option "None","1","1000","1000000"): Decimal
+    begin
+        RoundIfNotNone(Value, "Analysis Rounding Factor".FromInteger(RoundingFactor));
+    end;
+#endif
+
+    procedure RoundIfNotNone(Value: Decimal; RoundingFactor: Enum "Analysis Rounding Factor"): Decimal
     begin
         if RoundingFactor <> RoundingFactor::None then
             exit(Value);
@@ -1262,3 +1317,4 @@ page 490 "Acc. Schedule Overview"
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11759 "Unc. Payer WS Connector"
 {
     ObsoleteState = Pending;
@@ -119,3 +120,5 @@ codeunit 11759 "Unc. Payer WS Connector"
     end;
 }
 
+
+#endif

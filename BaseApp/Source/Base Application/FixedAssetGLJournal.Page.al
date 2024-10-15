@@ -410,18 +410,26 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of a posted FA ledger entry to mark as an error entry.';
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the general journal line prepayment type.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies if line of acc. schedule extensions is prepayment';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -785,24 +793,36 @@ page 5628 "Fixed Asset G/L Journal"
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Specifies amounts in LCY if you enter foreign currency amounts in a general journal. However, even if all the journal lines balance in the foreign currency, when each journal line is converted and rounded to LCY, their LCY sum may not balance. This means that a balanced transaction in foreign currency may not balance in LCY, and can therefore not be posted.';
                 }
+#if not CLEAN19
                 separator("-")
                 {
                     Caption = '-';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Merge to W1.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Link Advance Letters")
                 {
                     ApplicationArea = FixedAssets;
-                    Caption = 'Link Advance Letters';
+                    Caption = 'Link Advance Letters (Obsolete)';
                     Image = LinkWithExisting;
                     RunObject = Codeunit "Gen. Jnl.-Link Letters";
                     ToolTip = 'Allow to link partial payment of advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 action("Link Whole Advance Letter")
                 {
                     ApplicationArea = FixedAssets;
-                    Caption = 'Link Whole Advance Letter';
+                    Caption = 'Link Whole Advance Letter (Obsolete)';
                     Image = LinkAccount;
                     ToolTip = 'Allow to link whole advance letters.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -812,15 +832,20 @@ page 5628 "Fixed Asset G/L Journal"
                 action("UnLink Linked Advance Letters")
                 {
                     ApplicationArea = FixedAssets;
-                    Caption = 'UnLink Linked Advance Letters';
+                    Caption = 'UnLink Linked Advance Letters (Obsolete)';
                     Image = UnLinkAccount;
                     ToolTip = 'Unlinks linked advance letters';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
                         UnLinkWholeLetter; // NAVCZ
                     end;
                 }
+#endif
             }
             group("P&osting")
             {
@@ -866,7 +891,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
@@ -876,6 +901,7 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -898,7 +924,7 @@ page 5628 "Fixed Asset G/L Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;

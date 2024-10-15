@@ -1,9 +1,10 @@
-﻿codeunit 570 "G/L Account Category Mgt."
+#if not CLEAN19
+codeunit 570 "G/L Account Category Mgt."
 {
 
     trigger OnRun()
     begin
-        InitializeLocalizedAccountCategories();
+        InitializeAccountCategories;
     end;
 
     var
@@ -375,6 +376,7 @@
         OnAfterInitializeAccountCategories();
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure InitializeLocalizedAccountCategories()
     var
         GLAccountCategory: Record "G/L Account Category";
@@ -1148,7 +1150,7 @@
 
         OnBeforeInitializeCompany;
 
-        InitializeLocalizedAccountCategories();
+        InitializeAccountCategories;
         CODEUNIT.Run(CODEUNIT::"Categ. Generate Acc. Schedules");
 
         OnAfterInitializeCompany;
@@ -1354,425 +1356,494 @@
         exit(JobSalesContraTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI21Software(): Text
     begin
         // NAVCZ
         exit(BI21_SoftwareTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBII12Buildings(): Text
     begin
         // NAVCZ
         exit(BII12_BuildingsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBII2FixedMovablesAndtheCollectionsOfFixedMovables(): Text
     begin
         // NAVCZ
         exit(BII2_FixedMovablesandtheCollectionsofFixedMovablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI52IntangibleFixedAssestsInProgress(): Text
     begin
         // NAVCZ
         exit(BI52_IntangibleFixedAssestsinProgressTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBII52TangibleFixedAssetsInProgress(): Text
     begin
         // NAVCZ
         exit(BII52_TangibleFixedAssetsinProgressTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI1Material(): Text
     begin
         // NAVCZ
         exit(CI1_MaterialTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI2WorkinProgressAndSemiFinishedGoods(): Text
     begin
         // NAVCZ
         exit(CI2_WorkinProgressandSemiFinishedGoodsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI31FinishedProducts(): Text
     begin
         // NAVCZ
         exit(CI31_FinishedProductsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI32Goods(): Text
     begin
         // NAVCZ
         exit(CI32_GoodsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCIV1Cash(): Text
     begin
         // NAVCZ
         exit(CIV1_CashTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCIV2BankAccounts(): Text
     begin
         // NAVCZ
         exit(CIV2_BankAccountsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII2PayablesToCreditInstitutions(): Text
     begin
         // NAVCZ
         exit(CII2_PayablestoCreditInstitutionsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCIII2OtherShorttermFinancialAssets(): Text
     begin
         // NAVCZ
         exit(CIII2_OtherShorttermFinancialAssetsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII21TradeReceivables(): Text
     begin
         // NAVCZ
         exit(CII21_TradeReceivablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII244ShorttermAdvancedPayments(): Text
     begin
         // NAVCZ
         exit(CII244_ShorttermAdvancedPaymentsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII4TradePayables(): Text
     begin
         // NAVCZ
         exit(CII4_TradePayablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII3ShorttermAdvancePaymentsReceived(): Text
     begin
         // NAVCZ
         exit(CII3_ShorttermAdvancePaymentsReceivedTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII83PayrollPayables(): Text
     begin
         // NAVCZ
         exit(CII83_PayrollPayablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII84PayablesSocialSecurityAndHealthInsurance(): Text
     begin
         // NAVCZ
         exit(CII84_PayablesSocialSecurityandHealthInsuranceTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII85StateTaxLiabilitiesAndGrants(): Text
     begin
         // NAVCZ
         exit(CII85_StateTaxLiabilitiesAndGrantsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII245EstimatedReceivables(): Text
     begin
         // NAVCZ
         exit(CII245_EstimatedReceivablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII86EstimatedPayables(): Text
     begin
         // NAVCZ
         exit(CII86_EstimatedPayables);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCII246OtherReceivables(): Text
     begin
         // NAVCZ
         exit(CII246_OtherReceivablesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetAI1RegisteredCapital(): Text
     begin
         // NAVCZ
         exit(AI1_RegisteredCapitalTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetAIII1OtherReserveFunds(): Text
     begin
         // NAVCZ
         exit(AIII1_OtherReserveFundsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetAIV1RetainedEarningsFromPreviousYears(): Text
     begin
         // NAVCZ
         exit(AIV1_RetainedEarningsfromPreviousYearsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI2PayablesToCreditInstitutions(): Text
     begin
         // NAVCZ
         exit(CI2_PayablestoCreditInstitutionsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetA2MaterialAndEnergyConsumption(): Text
     begin
         // NAVCZ
         exit(A2_MaterialAndEnergyConsumptionTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetA1CostsOfGoodsSold(): Text
     begin
         // NAVCZ
         exit(A1_CostsofGoodsSoldTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetA3Services(): Text
     begin
         // NAVCZ
         exit(A3_ServicesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD1WagesAndSalaries(): Text
     begin
         // NAVCZ
         exit(D1_WagesandSalariesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD21SocialSecurityandHealthInsurance(): Text
     begin
         // NAVCZ
         exit(D21_SocialSecurityandHealthInsuranceTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD22OtherCosts(): Text
     begin
         // NAVCZ
         exit(D22_OtherCostsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetF3TaxesAndFeesInOperatingPart(): Text
     begin
         // NAVCZ
         exit(F3_TaxesandFeesinOperatingPartTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetF1NetBookValueOfFixedAssetsSold(): Text
     begin
         // NAVCZ
         exit(F1_NetBookValueOfFixedAssetsSoldTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetF2NetBookValueofMaterialSold(): Text
     begin
         // NAVCZ
         exit(F2_NetBookValueofMaterialSoldTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetF5OtherOperatingCosts(): Text
     begin
         // NAVCZ
         exit(F5_OtherOperatingCostsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetE11IntangibleandTangibleFixedAssetsAdjustmentsPermanent(): Text
     begin
         // NAVCZ
         exit(E11_IntangibleandTangibleFixedAssetsAdjustmentsPermanentTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetF4ProvisionsinOperatingPartandComplexPrepaidExpenses(): Text
     begin
         // NAVCZ
         exit(F4_ProvisionsinOperatingPartandComplexPrepaidExpensesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetE3ReceivablesAdjustments(): Text
     begin
         // NAVCZ
         exit(E3_ReceivablesAdjustmentsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetE12IntangibleAndTangibleFixedAssetsAdjustmentsTemporary(): Text
     begin
         // NAVCZ
         exit(E12_IntangibleandTangibleFixedAssetsAdjustmentsTemporaryTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetJ2OtherInterestCostsAndSimilarCosts(): Text
     begin
         // NAVCZ
         exit(J2_OtherInterestCostsandSimilarCostsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetKOtherFinancialCosts(): Text
     begin
         // NAVCZ
         exit(K_OtherFinancialCostsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIAdjustmentsandProvisionsInFinancialPart(): Text
     begin
         // NAVCZ
         exit(I_AdjustmentsandProvisionsinFinancialPartTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBChangesInInventoryOfOwnProducts(): Text
     begin
         // NAVCZ
         exit(B_ChangesinInventoryofOwnProductsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCCapitalization(): Text
     begin
         // NAVCZ
         exit(C_CapitalizationTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetL1IncomeTaxDue(): Text
     begin
         // NAVCZ
         exit(L1_IncomeTaxDueTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetL2IncomeTaxDeferred(): Text
     begin
         // NAVCZ
         exit(L2_IncomeTaxDeferredTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIRevenuesFromOwnProductsAndServices(): Text
     begin
         // NAVCZ
         exit(I_RevenuesfromOwnProductsandServicesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIIRevenuesFromMerchandise(): Text
     begin
         // NAVCZ
         exit(II_RevenuesfromMerchandiseTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIII1RevenuesFromSalesOfFixedAssets(): Text
     begin
         // NAVCZ
         exit(III1_RevenuesfromSalesofFixedAssetsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIII2RevenuesOfMaterialSold(): Text
     begin
         // NAVCZ
         exit(III2_RevenuesfromSalesofMaterialTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetIII3AnotherOperatingRevenues(): Text
     begin
         // NAVCZ
         exit(III3_AnotherOperatingRevenuesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetVI2OtherInterestRevenuesAndSimilarRevenues(): Text
     begin
         // NAVCZ
         exit(VI2_OtherInterestRevenuesandSimilarRevenuesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetVIIOtherFinancialRevenues(): Text
     begin
         // NAVCZ
         exit(VII_OtherFinancialRevenuesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetV1RevenuesFromOtherLongtermFinancialAssetsControlledOrControlling(): Text
     begin
         // NAVCZ
         exit(V1_RevenuesfromOtherLongtermFinancialAssetsControlledorControllingTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD1PrepaidExpenses(): Text
     begin
         // NAVCZ
-        exit(D1_PrepaidExpensesTxt); 
+        exit(D1_PrepaidExpensesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD2ComplexPrepaidExpenses(): Text
     begin
         // NAVCZ
-        exit(D2_ComplexPrepaidExpensesTxt); 
+        exit(D2_ComplexPrepaidExpensesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD3AccruedIncomes(): Text
     begin
         // NAVCZ
-        exit(D3_AccruedIncomesTxt); 
+        exit(D3_AccruedIncomesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD1AccruedExpenses(): Text
     begin
         // NAVCZ
-        exit(D1_AccruedExpensesTxt); 
+        exit(D1_AccruedExpensesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetD2DeferredRevenues(): Text
     begin
         // NAVCZ
-        exit(D2_DeferredRevenuesTxt); 
+        exit(D2_DeferredRevenuesTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI1IntangibleResultsofResearchandDevelopment(): Text
     begin
         // NAVCZ
-        exit(BI1_IntangibleResultsofResearchandDevelopmentTxt); 
+        exit(BI1_IntangibleResultsofResearchandDevelopmentTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI22OtherValuableRights(): Text
     begin
         // NAVCZ
-        exit(BI22_OtherValuableRightsTxt); 
+        exit(BI22_OtherValuableRightsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI3Goodwill(): Text
     begin
         // NAVCZ
-        exit(BI3_GoodwillTxt); 
+        exit(BI3_GoodwillTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBI4OtherIntangibleFixedAssets(): Text
     begin
         // NAVCZ
-        exit(BI4_OtherIntangibleFixedAssetsTxt); 
+        exit(BI4_OtherIntangibleFixedAssetsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetBII11Lands(): Text
     begin
         // NAVCZ
-        exit(BII11_LandsTxt); 
+        exit(BII11_LandsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetB2IncomeTaxProvision(): Text
     begin
         // NAVCZ
-        exit(B2_IncomeTaxProvisionTxt); 
+        exit(B2_IncomeTaxProvisionTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetB4OtherProvisions(): Text
     begin
         // NAVCZ
-        exit(B4_OtherProvisionsTxt); 
+        exit(B4_OtherProvisionsTxt);
     end;
 
+    [Obsolete('The function is moved to Core Localization Pack.', '19.0')]
     procedure GetCI3LongtermAdvancePaymentsReceived(): Text
     begin
         // NAVCZ
-        exit(CI3_LongtermAdvancePaymentsReceivedTxt); 
+        exit(CI3_LongtermAdvancePaymentsReceivedTxt);
     end;
 
     procedure GetAccountCategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option): Boolean
     begin
         GLAccountCategory.SetRange("Account Category", Category);
         GLAccountCategory.SetRange("Parent Entry No.", 0);
-        exit(GLAccountCategory.FindFirst); // NAVCZ
+        exit(GLAccountCategory.FindFirst());
     end;
 
     procedure GetAccountSubcategory(var GLAccountCategory: Record "G/L Account Category"; Category: Option; Description: Text): Boolean
@@ -1780,7 +1851,7 @@
         GLAccountCategory.SetRange("Account Category", Category);
         GLAccountCategory.SetFilter("Parent Entry No.", '<>%1', 0);
         GLAccountCategory.SetRange(Description, Description);
-        exit(GLAccountCategory.FindFirst); // NAVCZ
+        exit(GLAccountCategory.FindFirst());
     end;
 
     procedure GetSubcategoryEntryNo(Category: Option; SubcategoryDescription: Text): Integer
@@ -1794,9 +1865,20 @@
     end;
 
     procedure CheckGLAccount(AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
+    begin
+        CheckGLAccount(0, 0, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory);
+    end;
+
+    procedure CheckGLAccount(TableNo: Integer; FieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; AccountCategory: Option; AccountSubcategory: Text)
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckGLAccount(TableNo, FieldNo, AccNo, CheckProdPostingGroup, CheckDirectPosting, AccountCategory, AccountSubcategory, IsHandled);
+        if IsHandled then
+            exit;
+
         if AccNo = '' then
             exit;
 
@@ -1823,12 +1905,23 @@
     end;
 
     procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
+    begin
+        LookupGLAccount(0, 0, AccountNo, AccountCategory, AccountSubcategoryFilter);
+    end;
+
+    procedure LookupGLAccount(TableNo: Integer; FieldNo: Integer; var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
     var
         GLAccount: Record "G/L Account";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountList: Page "G/L Account List";
         EntryNoFilter: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupGLAccount(TableNo, FieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAccount.Reset();
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountCategory.SetRange("Account Category", AccountCategory);
@@ -1897,8 +1990,19 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccount(TableNo: Integer; FieldNo: Integer; AccNo: Code[20]; CheckProdPostingGroup: Boolean; CheckDirectPosting: Boolean; var AccountCategory: Option; var AccountSubcategory: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupGLAccount(TableNo: Integer; FieldNo: Integer; var AccountNo: Code[20]; var AccountCategory: Option; var AccountSubcategoryFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitializeAccountCategories()
     begin
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 11732 "Cash Document-Release + Print"
 {
     TableNo = "Cash Document Header";
@@ -50,4 +51,4 @@ codeunit 11732 "Cash Document-Release + Print"
         CashDocumentHeader.PrintRecords(false);
     end;
 }
-
+#endif

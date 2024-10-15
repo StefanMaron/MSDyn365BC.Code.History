@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 1235 "XML Buffer Writer"
 {
 
@@ -509,3 +510,4 @@ codeunit 1235 "XML Buffer Writer"
     end;
 }
 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 11717 "Payment Order Subform"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 11717 "Payment Order Subform"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Payment Order Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -285,6 +289,7 @@ page 11717 "Payment Order Subform"
                     ToolTip = 'Specifies letter line number.';
                     Visible = false;
                 }
+#if not CLEAN17
                 field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
                 {
                     ApplicationArea = Basic, Suite;
@@ -312,6 +317,7 @@ page 11717 "Payment Order Subform"
                     ObsoleteTag = '17.5';
                     Visible = false;
                 }
+#endif
                 field("Payment Method Code"; "Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -426,4 +432,4 @@ page 11717 "Payment Order Subform"
         AccountNoMissing := "Account No." = '';
     end;
 }
-
+#endif

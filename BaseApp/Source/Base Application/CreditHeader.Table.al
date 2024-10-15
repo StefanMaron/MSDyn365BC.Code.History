@@ -2,8 +2,12 @@ table 31050 "Credit Header"
 {
     Caption = 'Credit Header';
     DataCaptionFields = "No.", Description;
+#if CLEAN18
+    ObsoleteState = Removed;
+#else
     LookupPageID = "Credits List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
     ObsoleteTag = '18.0';
 
@@ -12,6 +16,7 @@ table 31050 "Credit Header"
         field(5; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -24,6 +29,7 @@ table 31050 "Credit Header"
                     "No. Series" := '';
                 end;
             end;
+#endif
         }
         field(10; Description; Text[100])
         {
@@ -37,6 +43,7 @@ table 31050 "Credit Header"
             IF (Type = CONST(Vendor)) Vendor
             ELSE
             IF (Type = CONST(Contact)) Contact."No." WHERE(Type = CONST(Company));
+#if not CLEAN18
 
             trigger OnValidate()
             var
@@ -96,6 +103,7 @@ table 31050 "Credit Header"
                         end;
                 end;
             end;
+#endif
         }
         field(20; "Company Name"; Text[100])
         {
@@ -118,12 +126,14 @@ table 31050 "Credit Header"
             Caption = 'Company City';
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 PostCode.ValidateCity(
                   "Company City", "Company Post Code", "Company County", "Company Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(45; "Company Contact"; Text[100])
         {
@@ -144,12 +154,14 @@ table 31050 "Credit Header"
             Caption = 'Company Post Code';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 PostCode.ValidatePostCode(
                   "Company City", "Company Post Code", "Company County", "Company Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+#endif
         }
         field(55; "User ID"; Code[50])
         {
@@ -194,6 +206,7 @@ table 31050 "Credit Header"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
+#if not CLEAN18
         field(90; "Balance (LCY)"; Decimal)
         {
             CalcFormula = Sum("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
@@ -208,6 +221,7 @@ table 31050 "Credit Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#endif
         field(100; Type; Option)
         {
             Caption = 'Type';
@@ -225,7 +239,7 @@ table 31050 "Credit Header"
         {
             Caption = 'Incoming Document Entry No.';
             TableRelation = "Incoming Document";
-
+#if not CLEAN18
             trigger OnValidate()
             var
                 IncomingDocument: Record "Incoming Document";
@@ -237,6 +251,7 @@ table 31050 "Credit Header"
                 else
                     IncomingDocument.SetCreditDoc(Rec);
             end;
+#endif
         }
     }
 
@@ -251,6 +266,7 @@ table 31050 "Credit Header"
     fieldgroups
     {
     }
+#if not CLEAN18
 
     trigger OnDelete()
     var
@@ -393,5 +409,6 @@ table 31050 "Credit Header"
     procedure OnCheckCreditPrintRestrictions()
     begin
     end;
+#endif
 }
 

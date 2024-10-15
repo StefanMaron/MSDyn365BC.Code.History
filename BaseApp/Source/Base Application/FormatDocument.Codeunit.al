@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 368 "Format Document"
 {
 
@@ -282,6 +283,13 @@ codeunit 368 "Format Document"
     begin
     end;
 
+#if CLEAN17
+    [Obsolete('Merge to W1.', '19.0')]
+    internal procedure GetDocumentFooterText(LanguageCode: Code[10]) DocumentFooterText: Text[250]
+    begin
+        OnGetDocumentFooterText(LanguageCode, DocumentFooterText);
+    end;
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure GetDocumentFooterText(LanguageCode: Code[10]): Text[250]
     var
@@ -294,6 +302,14 @@ codeunit 368 "Format Document"
         exit('');
     end;
 
+#endif
+#if CLEAN17
+    [Obsolete('Merge to W1.', '19.0')]
+    internal procedure SetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
+    begin
+        OnSetPaymentSymbols(PaymentSymbol, PaymentSymbolLabel, VariableSymbol, VariableSymbolCaption, ConstantSymbol, ConstantSymbolCaption, SpecificSymbol, SpecificSymbolCaption)
+    end;
+#else
     [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
     procedure SetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
     var
@@ -333,6 +349,7 @@ codeunit 368 "Format Document"
         CopyArray(PaymentSymbolLabel, TempPaymentSymbolLabel, 1, 2);
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLine(var SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
     begin
@@ -367,5 +384,20 @@ codeunit 368 "Format Document"
     local procedure OnBeforeSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line");
     begin
     end;
+#if CLEAN17
+    
+    [Obsolete('Merge to W1.', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentFooterText(LanguageCode: Code[10]; var DocumentFooterText: Text[250]);
+    begin
+    end;
+
+    [Obsolete('Merge to W1.', '19.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
+    begin
+    end;
+#endif
 }
 
+#endif

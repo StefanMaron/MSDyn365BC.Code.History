@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 5685 "Copy Fixed Asset"
 {
     Caption = 'Copy Fixed Asset';
@@ -173,3 +174,4 @@ report 5685 "Copy Fixed Asset"
     end;
 }
 
+#endif

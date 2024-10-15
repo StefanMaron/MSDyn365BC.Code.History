@@ -59,7 +59,9 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = Ri,
+#if not CLEAN17
                   tabledata "VAT Period" = r,
+#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

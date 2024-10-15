@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 11769 "Change Dimension Management"
 {
     Permissions = TableData "Dimension Value" = rim,
@@ -149,3 +150,4 @@ codeunit 11769 "Change Dimension Management"
     end;
 }
 
+#endif

@@ -211,7 +211,9 @@ report 31107 "Intrastat Declaration Exp. CZL"
         TariffNumber: Record "Tariff Number";
     begin
         TariffNumber.Get(IntrastatJnlLine."Tariff No.");
+#if not CLEAN18
         TariffNumber.CalcFields("Supplementary Units");
+#endif
         if not TariffNumber."Supplementary Units" then
             exit(Format(0.0, 0, PrecisionFormat()));
         FormattedValue := Format(IntrastatJnlLine."Supplem. UoM Quantity CZL", 0, PrecisionFormat());

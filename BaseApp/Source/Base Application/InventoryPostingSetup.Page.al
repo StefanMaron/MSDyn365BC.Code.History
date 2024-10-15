@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5826 "Inventory Posting Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -51,7 +52,6 @@ page 5826 "Inventory Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post transactions for items in WIP inventory in this combination.';
                 }
-#if not CLEAN18
                 field("Consumption Account"; "Consumption Account")
                 {
                     ApplicationArea = Basic, Suite;
@@ -79,7 +79,6 @@ page 5826 "Inventory Posting Setup"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
-#endif
                 field("Material Variance Account"; "Material Variance Account")
                 {
                     ApplicationArea = Basic, Suite;
@@ -135,7 +134,7 @@ page 5826 "Inventory Posting Setup"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Set Default Accounts';
+                ToolTip = 'Set accounts based on most used accounts for same posting group in other locations.';
 
                 trigger OnAction()
                 begin
@@ -146,3 +145,4 @@ page 5826 "Inventory Posting Setup"
     }
 }
 
+#endif

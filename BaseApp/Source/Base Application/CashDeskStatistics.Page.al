@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11747 "Cash Desk Statistics"
 {
     Caption = 'Cash Desk Statistics (Obsolete)';
@@ -152,4 +153,4 @@ page 11747 "Cash Desk Statistics"
         PostWithdrawal: Decimal;
         BalanceTotal: Decimal;
 }
-
+#endif

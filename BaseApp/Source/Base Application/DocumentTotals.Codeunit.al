@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 57 "Document Totals"
 {
 
@@ -740,6 +741,7 @@ codeunit 57 "Document Totals"
         exit(GetCaptionClassWithCurrencyCode(TotalAmountExclVATLbl, CurrencyCode));
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetTotalCaption(CurrencyCode: Code[10]): Text
     begin
@@ -869,6 +871,7 @@ codeunit 57 "Document Totals"
         exit(PurchaseLine.Count <= 100);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SalesAdvanceUpdateTotalsControls(CurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalSalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var TotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
@@ -880,6 +883,7 @@ codeunit 57 "Document Totals"
         SalesAdvanceUpdateTotals(TotalSalesAdvanceLetterHeader, CurrentSalesAdvanceLetterLine, TotalSalesAdvanceLetterLine);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure SalesAdvanceUpdateTotals(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; CurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
         // NAVCZ
@@ -897,6 +901,7 @@ codeunit 57 "Document Totals"
         SalesAdvanceCalculateTotals(CurrentSalesAdvanceLetterLine, TotalSalesAdvanceLetterLine);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure SalesAdvanceCalculateTotals(var TempCurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line" temporary; var TempTotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line" temporary)
     var
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
@@ -918,6 +923,7 @@ codeunit 57 "Document Totals"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SalesAdvanceCheckNumberOfLinesLimit(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Boolean
     var
@@ -929,6 +935,7 @@ codeunit 57 "Document Totals"
         exit(SalesAdvanceLetterLine.Count <= 100);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PurchaseAdvanceUpdateTotalsControls(CurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var TotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
@@ -940,6 +947,7 @@ codeunit 57 "Document Totals"
         PurchaseAdvanceUpdateTotals(TotalPurchAdvanceLetterHeader, CurrentPurchAdvanceLetterLine, TotalPurchAdvanceLetterLine);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure PurchaseAdvanceUpdateTotals(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; CurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
         // NAVCZ
@@ -957,6 +965,7 @@ codeunit 57 "Document Totals"
         PurchaseAdvanceCalculateTotals(CurrentPurchAdvanceLetterLine, TotalPurchAdvanceLetterLine);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     local procedure PurchaseAdvanceCalculateTotals(var TempCurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary; var TempTotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary)
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -978,6 +987,7 @@ codeunit 57 "Document Totals"
         end;
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PurchaseAdvanceCheckNumberOfLinesLimit(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Boolean
     var
@@ -989,6 +999,7 @@ codeunit 57 "Document Totals"
         exit(PurchAdvanceLetterLine.Count <= 100);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CalculateCashDocumentTotals(var CashDocumentHeader: Record "Cash Document Header"; var VATAmount: Decimal; CashDocumentLine: Record "Cash Document Line")
@@ -1011,6 +1022,8 @@ codeunit 57 "Document Totals"
         end;
     end;
 
+#endif
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalculatePaymentOrderTotals(var PaymentOrderHeader: Record "Payment Order Header"; PaymentOrderLine: Record "Payment Order Line")
     begin
@@ -1201,3 +1214,4 @@ codeunit 57 "Document Totals"
     end;
 }
 
+#endif

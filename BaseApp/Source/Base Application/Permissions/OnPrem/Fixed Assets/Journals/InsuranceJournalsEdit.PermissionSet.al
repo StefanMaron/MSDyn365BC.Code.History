@@ -8,12 +8,14 @@ permissionset 5577 "Insurance Journals - Edit"
                   tabledata "Comment Line" = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
+#if not CLEAN18
                   tabledata "Depreciation Group" = R,
+#endif
                   tabledata "FA Class" = R,
 #if not CLEAN18
                   tabledata "FA Extended Posting Group" = R,
-#endif
                   tabledata "FA History Entry" = Rim,
+#endif
                   tabledata "FA Journal Setup" = R,
                   tabledata "FA Location" = R,
                   tabledata "FA Subclass" = R,

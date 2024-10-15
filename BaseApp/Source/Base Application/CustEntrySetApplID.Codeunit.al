@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 101 "Cust. Entry-SetAppl.ID"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd;
@@ -93,3 +94,4 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     end;
 }
 
+#endif

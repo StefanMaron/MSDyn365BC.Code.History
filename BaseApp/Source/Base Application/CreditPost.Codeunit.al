@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 31052 "Credit - Post"
 {
     Permissions = TableData "Posted Credit Header" = i,
@@ -183,4 +184,4 @@ codeunit 31052 "Credit - Post"
     begin
     end;
 }
-
+#endif

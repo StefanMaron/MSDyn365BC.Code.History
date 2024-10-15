@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5846 "Inventory Report Entry"
 {
     Caption = 'Inventory Report Entry';
@@ -57,7 +58,6 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownWIPInventory(Rec);
                     end;
                 }
-#if not CLEAN18
                 field(Consumption; Consumption)
                 {
                     ApplicationArea = Manufacturing;
@@ -100,7 +100,6 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownChInvProd(Rec);
                     end;
                 }
-#endif
                 field("Direct Cost Applied Actual"; "Direct Cost Applied Actual")
                 {
                     ApplicationArea = Basic, Suite;
@@ -281,7 +280,6 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownOverheadApplied(Rec);
                     end;
                 }
-#if not CLEAN18
                 field("Inv. Rounding Adj."; "Inv. Rounding Adj.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -296,7 +294,6 @@ page 5846 "Inventory Report Entry"
                         GetInvtReport.DrillDownInvAdjmtRnd(Rec);
                     end;
                 }
-#endif
             }
         }
         area(factboxes)
@@ -322,3 +319,4 @@ page 5846 "Inventory Report Entry"
         GetInvtReport: Codeunit "Get Inventory Report";
 }
 
+#endif

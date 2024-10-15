@@ -1,4 +1,5 @@
-﻿codeunit 5805 "Item Charge Assgnt. (Purch.)"
+﻿#if not CLEAN18
+codeunit 5805 "Item Charge Assgnt. (Purch.)"
 {
     Permissions = TableData "Purchase Header" = r,
                   TableData "Purchase Line" = r,
@@ -233,8 +234,8 @@
                 InsertItemChargeAssignment(
                     ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Transfer Receipt",
                     FromTransRcptLine."Document No.", FromTransRcptLine."Line No.",
-                    FromTransRcptLine."Item No.", FromTransRcptLine.Description, NextLine,
-                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+                FromTransRcptLine."Item No.", FromTransRcptLine.Description, NextLine,
+                ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
         until FromTransRcptLine.Next() = 0;
     end;
 
@@ -267,8 +268,8 @@
                 InsertItemChargeAssignment(
                     ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Shipment",
                     FromReturnShptLine."Document No.", FromReturnShptLine."Line No.",
-                    FromReturnShptLine."No.", FromReturnShptLine.Description, NextLine,
-                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+                FromReturnShptLine."No.", FromReturnShptLine.Description, NextLine,
+                ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
         until FromReturnShptLine.Next() = 0;
     end;
 
@@ -301,8 +302,8 @@
                 InsertItemChargeAssignment(
                     ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Sales Shipment",
                     FromSalesShptLine."Document No.", FromSalesShptLine."Line No.",
-                    FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine,
-                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+                FromSalesShptLine."No.", FromSalesShptLine.Description, NextLine,
+                ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
         until FromSalesShptLine.Next() = 0;
     end;
 
@@ -335,8 +336,8 @@
                 InsertItemChargeAssignment(
                     ItemChargeAssgntPurch, ItemChargeAssgntPurch2."Applies-to Doc. Type"::"Return Receipt",
                     FromReturnRcptLine."Document No.", FromReturnRcptLine."Line No.",
-                    FromReturnRcptLine."No.", FromReturnRcptLine.Description, NextLine,
-                    ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
+                FromReturnRcptLine."No.", FromReturnRcptLine.Description, NextLine,
+                ShipmentMethod."Incl. Item Charges (Stat.Val.)", ShipmentMethod."Include Item Charges (Amount)");
         until FromReturnRcptLine.Next() = 0;
     end;
 
@@ -465,7 +466,6 @@
         exit(ByVolumeTok)
     end;
 
-#if not CLEAN18
     [Obsolete('Merge to W1.', '18.2')]
     [Scope('OnPrem')]
     procedure CreateItemEntryChargeAssgnt(var FromItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -493,7 +493,7 @@
             if not ItemChargeAssgntPurch2.FindFirst then
                 // test Entry and Purch.Line "Item Charge No." match;
 
-                InsertItemChargeAssgnt(ItemChargeAssgntPurch, 15,
+                InsertItemChargeAssignment(ItemChargeAssgntPurch, 15,
               FromItemLedgerEntry."Document No.", FromItemLedgerEntry."Entry No.",
               FromItemLedgerEntry."Item No.", FromItemLedgerEntry.Description, NextLine,
               ShipmentMethod."Incl. Item Charges (Stat.Val.)",
@@ -503,7 +503,6 @@
         // NAVCZ
     end;
 
-#endif
     local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
@@ -1060,3 +1059,4 @@
     end;
 }
 
+#endif

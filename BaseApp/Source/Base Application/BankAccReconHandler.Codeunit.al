@@ -1,5 +1,10 @@
+#if not CLEAN19
 codeunit 11773 "Bank Acc. Recon. Handler"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Merge to W1.';
+    ObsoleteTag = '19.0';
+
     [EventSubscriber(ObjectType::Table, Database::"Bank Acc. Reconciliation", 'OnBeforeInsertEvent', '', false, false)]
     local procedure OnBeforeInsertBankAccReconciliation(var Rec: Record "Bank Acc. Reconciliation"; RunTrigger: Boolean)
     var
@@ -28,3 +33,4 @@ codeunit 11773 "Bank Acc. Recon. Handler"
         end;
     end;
 }
+#endif

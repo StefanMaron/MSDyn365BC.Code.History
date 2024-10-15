@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5237 "Employee Ledger Entries"
 {
     ApplicationArea = BasicHR;
@@ -147,6 +148,7 @@ page 5237 "Employee Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                 }
+#if not CLEAN18
                 field("Specific Symbol"; "Specific Symbol")
                 {
                     ApplicationArea = BasicHR;
@@ -171,10 +173,14 @@ page 5237 "Employee Ledger Entries"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Amount on Payment Order (LCY)"; "Amount on Payment Order (LCY)")
                 {
                     ApplicationArea = BasicHR;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Global Dimension 1 Code"; "Global Dimension 1 Code")
                 {
@@ -459,3 +465,4 @@ page 5237 "Employee Ledger Entries"
     end;
 }
 
+#endif

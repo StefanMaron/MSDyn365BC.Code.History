@@ -1467,12 +1467,15 @@ codeunit 134391 "ERM Sales Batch Posting"
     local procedure FindAndRunJobQueueEntryByRecord(var SalesHeader: Record "Sales Header")
     var
         JobQueueEntry: Record "Job Queue Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         JobQueueEntry.Get(SalesHeader."Job Queue Entry ID");
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Modify();
-        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        Commit();
+        if not Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry) then
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
     end;
 
     local procedure VerifyPostedSalesInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

@@ -29,18 +29,25 @@
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
-                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Item No."));
-                    if ("Location Code" <> '') and ("Item No." <> '') then begin
+                    if CurrFieldNo <> 0 then begin
+                        GetItem();
+                        if Item.IsInventoriableType() then
+                            WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Item No."));
+                    end;
+                    if ("Location Code" <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     SetNewBinCodeForSameLocationTransfer();
                 end;
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                    if "Item No." <> '' then
+                        GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
                 if "Item No." = '' then begin
                     CreateDim(
@@ -62,14 +69,18 @@
                 Description := Item.Description;
                 "Inventory Posting Group" := Item."Inventory Posting Group";
                 "Item Category Code" := Item."Item Category Code";
+#if not CLEAN18
                 // NAVCZ
                 if "Item No." <> xRec."Item No." then begin
                     "Tariff No." := Item."Tariff No.";
+#if not CLEAN17
                     "Statistic Indication" := Item."Statistic Indication";
+#endif
                     "Net Weight" := Item."Net Weight";
                     "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
                 end;
                 // NAVCZ
+#endif
                 if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
                    ("Item Charge No." <> '')
                 then begin
@@ -99,7 +110,9 @@
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then begin
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+#if not CLEAN18
                     xSetGPPGfromSKU; // NAVCZ
+#endif
                 end;
 
                 case "Entry Type" of
@@ -142,6 +155,7 @@
                                    (CurrFieldNo <> 0)
                                 then
                                     Error(Text031, "Item No.", "Order No.");
+
                             if ProdOrderLine.Count = 1 then begin
                                 CopyFromProdOrderLine(ProdOrderLine);
                                 // NAVCZ
@@ -150,7 +164,14 @@
                                 "Unit Amount" := UnitCost;
                                 // NAVCZ
                             end else
-                                "Unit of Measure Code" := Item."Base Unit of Measure";
+                                if "Order Line No." <> 0 then begin
+                                    ProdOrderLine.SetRange("Line No.", "Order Line No.");
+                                    if ProdOrderLine.FindFirst() then
+                                        CopyFromProdOrderLine(ProdOrderLine)
+                                    else
+                                        "Unit of Measure Code" := Item."Base Unit of Measure";
+                                end else
+                                    "Unit of Measure Code" := Item."Base Unit of Measure";
                         end;
                     "Entry Type"::Consumption:
                         if FindProdOrderComponent(ProdOrderComp) then
@@ -206,6 +227,7 @@
             begin
                 if not ("Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."]) then
                     TestField("Phys. Inventory", false);
+#if not CLEAN17
                 // NAVCZ
                 if ("Whse. Net Change Template" <> '') and
                    (CurrFieldNo = FieldNo("Entry Type"))
@@ -213,8 +235,12 @@
                     TestField("Whse. Net Change Template", '');
                 // NAVCZ
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Entry Type"));
+#endif
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Entry Type"));
+                end;
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
@@ -289,22 +315,25 @@
                 if "Entry Type".AsInteger() <= "Entry Type"::Transfer.AsInteger() then
                     TestField("Item No.");
 
-                // Location code in allowed only for inventoriable items
-                if "Location Code" <> '' then
-                    Item.TestField(Type, Item.Type::Inventory);
-
                 ValidateItemDirectCostUnitAmount();
 
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
                 if "Location Code" <> xRec."Location Code" then begin
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
-                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Location Code"));
+                    if CurrFieldNo <> 0 then begin
+                        GetItem();
+                        if Item.IsInventoriableType() then
+                            WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Location Code"));
+                    end;
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code");
                     end;
                     if "Entry Type" = "Entry Type"::Transfer then begin
@@ -315,6 +344,7 @@
 
                 Validate("Unit of Measure Code");
 
+#if not CLEAN18
                 // NAVCZ
                 if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
                    ("Entry Type" <> "Entry Type"::Output) or
@@ -323,6 +353,7 @@
                     xSetGPPGfromSKU;
                 // NAVCZ
 
+#endif
                 ItemJnlLineReserve.VerifyChange(Rec, xRec);
             end;
         }
@@ -362,25 +393,26 @@
                   ("Entry Type" = "Entry Type"::Consumption) or
                   ("Entry Type" = "Entry Type"::Output) and
                   LastOutputOperation(Rec);
-                if CallWhseCheck then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if CallWhseCheck then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption(Quantity));
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption(Quantity));
+                end;
 
-                "Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
-
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 if ("Entry Type" = "Entry Type"::Output) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
-                "Invoiced Qty. (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Invoiced Quantity", "Qty. per Unit of Measure");
+                "Invoiced Qty. (Base)" := CalcBaseQty("Invoiced Quantity", FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
                 OnValidateQuantityOnBeforeGetUnitAmount(Rec, xRec, CurrFieldNo);
 
@@ -388,11 +420,13 @@
                 UpdateAmount;
 
                 CheckItemAvailable(FieldNo(Quantity));
+#if not CLEAN18
                 // NAVCZ
                 ReadGLSetup;
                 if GLSetup."Mark Neg. Qty as Correction" then
                     "G/L Correction" := (Quantity < 0) or ("Invoiced Quantity" < 0);
                 // NAVCZ
+#endif
                 if "Entry Type" = "Entry Type"::Transfer then begin
                     "Qty. (Calculated)" := 0;
                     "Qty. (Phys. Inventory)" := 0;
@@ -755,7 +789,8 @@
                     "New Bin Code" := '';
                     if ("New Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("New Location Code");
-                        if IsDefaultBin() then
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "New Location Code", "New Bin Code")
                     end;
                 end;
@@ -806,20 +841,28 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+#if not CLEAN17
             var
                 InventorySetup: Record "Inventory Setup";
                 WhseTemplate: Record "Whse. Net Change Template";
+#endif
             begin
                 TestField("Phys. Inventory", true);
 
-                if CurrFieldNo <> 0 then
-                    WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Qty. (Phys. Inventory)"));
+                if CurrFieldNo <> 0 then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Qty. (Phys. Inventory)"));
+                end;
+
+                "Qty. (Phys. Inventory)" := UOMMgt.RoundAndValidateQty("Qty. (Phys. Inventory)", "Qty. Rounding Precision (Base)", FieldCaption("Qty. (Phys. Inventory)"));
 
                 PhysInvtEntered := true;
                 Quantity := 0;
                 if "Qty. (Phys. Inventory)" >= "Qty. (Calculated)" then begin
                     Validate("Entry Type", "Entry Type"::"Positive Adjmt.");
                     Validate(Quantity, "Qty. (Phys. Inventory)" - "Qty. (Calculated)");
+#if not CLEAN17
                     // NAVCZ
                     InventorySetup.Get();
                     if InventorySetup."Def.Template for Phys.Pos.Adj" <> '' then begin
@@ -828,9 +871,11 @@
                         Validate("Whse. Net Change Template", WhseTemplate.Name);
                     end;
                     // NAVCZ
+#endif
                 end else begin
                     Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
                     Validate(Quantity, "Qty. (Calculated)" - "Qty. (Phys. Inventory)");
+#if not CLEAN17
                     // NAVCZ
                     InventorySetup.Get();
                     if InventorySetup."Def.Template for Phys.Neg.Adj" <> '' then begin
@@ -839,6 +884,7 @@
                         Validate("Whse. Net Change Template", WhseTemplate.Name);
                     end;
                     // NAVCZ
+#endif
                 end;
                 PhysInvtEntered := false;
             end;
@@ -860,6 +906,7 @@
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -870,6 +917,7 @@
                     TestField("Whse. Net Change Template", '');
                 // NAVCZ
             end;
+#endif            
         }
         field(58; "Gen. Prod. Posting Group"; Code[20])
         {
@@ -1135,16 +1183,17 @@
 
             trigger OnValidate()
             begin
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
+                GetItem();
+                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
                     "Bin Code" := '';
-                    if CurrFieldNo <> 0 then
+                    if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if IsDefaultBin() then
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     SetNewBinCodeForSameLocationTransfer();
@@ -1159,6 +1208,7 @@
                     ItemJnlLineReserve.VerifyChange(Rec, xRec);
                 end;
 
+#if not CLEAN18
                 // NAVCZ
                 if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
                    ("Entry Type" <> "Entry Type"::Output) or
@@ -1166,6 +1216,7 @@
                 then
                     xSetGPPGfromSKU;
                 // NAVCZ
+#endif
                 if "Variant Code" <> '' then begin
                     ItemVariant.Get("Item No.", "Variant Code");
                     Description := ItemVariant.Description;
@@ -1206,6 +1257,8 @@
                 if "Bin Code" <> xRec."Bin Code" then begin
                     TestField("Location Code");
                     if "Bin Code" <> '' then begin
+                        GetItem();
+                        Item.TestField(Type, Item.Type::Inventory);
                         GetBin("Location Code", "Bin Code");
                         GetLocation("Location Code");
                         Location.TestField("Bin Mandatory");
@@ -1257,6 +1310,8 @@
                 if "New Bin Code" <> xRec."New Bin Code" then begin
                     TestField("New Location Code");
                     if "New Bin Code" <> '' then begin
+                        GetItem();
+                        Item.TestField(Type, Item.Type::Inventory);
                         GetBin("New Location Code", "New Bin Code");
                         GetLocation("New Location Code");
                         Location.TestField("Bin Mandatory");
@@ -1289,12 +1344,14 @@
 
                 GetItem;
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 OnValidateUnitOfMeasureCodeOnBeforeWhseValidateSourceLine(Rec, xRec);
-                if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
+                if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and Item.IsInventoriableType() then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
-                if CurrFieldNo <> 0 then
+                if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                     WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Unit of Measure Code"));
 
                 GetUnitAmount(FieldNo("Unit of Measure Code"));
@@ -1331,6 +1388,24 @@
         field(5408; "Derived from Blanket Order"; Boolean)
         {
             Caption = 'Derived from Blanket Order';
+            Editable = false;
+        }
+        field(5410; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5411; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
             Editable = false;
         }
         field(5413; "Quantity (Base)"; Decimal)
@@ -1384,7 +1459,11 @@
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN19
             ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
             ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
@@ -1794,14 +1873,16 @@
 
                 CheckConfirmOutputOnFinishedOperation;
 
-                if LastOutputOperation(Rec) then
-                    WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                if LastOutputOperation(Rec) then begin
+                    GetItem();
+                    if Item.IsInventoriableType() then
+                        WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
+                end;
 
-                "Output Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Output Quantity", "Qty. per Unit of Measure");
+                "Output Quantity (Base)" := CalcBaseQty("Output Quantity", FieldCaption("Output Quantity"), FieldCaption("Output Quantity (Base)"));
 
                 Validate(Quantity, "Output Quantity");
+                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
             end;
         }
         field(5847; "Scrap Quantity"; Decimal)
@@ -1813,9 +1894,7 @@
             trigger OnValidate()
             begin
                 TestField("Entry Type", "Entry Type"::Output);
-                "Scrap Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Scrap Quantity", "Qty. per Unit of Measure");
+                "Scrap Quantity (Base)" := CalcBaseQty("Scrap Quantity", FieldCaption("Scrap Quantity"), FieldCaption("Scrap Quantity (Base)"));
             end;
         }
         field(5849; "Concurrent Capacity"; Decimal)
@@ -2139,7 +2218,11 @@
         field(11763; "G/L Correction"; Boolean)
         {
             Caption = 'G/L Correction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2159,7 +2242,11 @@
             TableRelation = IF ("Source Type" = CONST(Customer)) "Ship-to Address".Code WHERE("Customer No." = FIELD("Source No."))
             ELSE
             IF ("Source Type" = CONST(Vendor)) "Order Address".Code WHERE("Vendor No." = FIELD("Source No."));
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2190,20 +2277,30 @@
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
                 if "Tariff No." <> xRec."Tariff No." then
                     "Statistic Indication" := '';
             end;
+#endif
         }
         field(31063; "Physical Transfer"; Boolean)
         {
             Caption = 'Physical Transfer';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2218,14 +2315,22 @@
         field(31066; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31069; "Incl. in Intrastat Stat. Value"; Boolean)
         {
             Caption = 'Incl. in Intrastat Stat. Value';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
 
@@ -2237,7 +2342,11 @@
         field(31070; "Incl. in Intrastat Amount"; Boolean)
         {
             Caption = 'Incl. in Intrastat Amount';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
 
@@ -2250,15 +2359,25 @@
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31072; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if not CLEAN17
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
+#endif
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -2266,31 +2385,48 @@
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31075; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31076; "Intrastat Transaction"; Boolean)
         {
             Caption = 'Intrastat Transaction';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Whse. Net Change Template";
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -2311,6 +2447,7 @@
                     Validate("Gen. Bus. Posting Group", WhseNetChangeTemplate."Gen. Bus. Posting Group");
                 end;
             end;
+#endif
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
@@ -2449,7 +2586,6 @@
         Text006: Label 'You must not enter %1 in a revaluation sum line.';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
-        ItemJnlLine: Record "Item Journal Line";
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         GLSetup: Record "General Ledger Setup";
@@ -2458,7 +2594,9 @@
         MachineCenter: Record "Machine Center";
         Location: Record Location;
         Bin: Record Bin;
+#if not CLEAN18
         StatReportingSetup: Record "Stat. Reporting Setup";
+#endif
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2469,7 +2607,6 @@
         CostCalcMgt: Codeunit "Cost Calculation Management";
         WMSManagement: Codeunit "WMS Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
-        PhysInvtEntered: Boolean;
         GLSetupRead: Boolean;
         MfgSetupRead: Boolean;
         UnitCost: Decimal;
@@ -2490,6 +2627,10 @@
         BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
+
+    protected var
+        ItemJnlLine: Record "Item Journal Line";
+        PhysInvtEntered: Boolean;
 
     procedure EmptyLine(): Boolean
     begin
@@ -2717,7 +2858,9 @@
             "Entry Type"::Output:
                 Clear(DimMgt);
         end;
+#if not CLEAN17
         Validate("Whse. Net Change Template", LastItemJnlLine."Whse. Net Change Template"); // NAVCZ
+#endif
 
         if Location.Get("Location Code") then
             if Location."Directed Put-away and Pick" then
@@ -2749,7 +2892,9 @@
         end;
     end;
 
-    procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; PostingNos: Code[20])
+    procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
+                                     ExtDocNo: Text[35];
+                                     PostingNos: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -3142,7 +3287,10 @@
         OnAfterInitRevalJnlLine(Rec, ItemLedgEntry2);
     end;
 
-    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
+                                              ExtDocNo: Text[35];
+                                              SourceCode: Code[10];
+                                              NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -3163,12 +3311,14 @@
         "Source Currency Code" := SalesHeader."Currency Code";
         "Shpt. Method Code" := SalesHeader."Shipment Method Code";
         "Price Calculation Method" := SalesHeader."Price Calculation Method";
+#if not CLEAN18
         // NAVCZ
         "Source No. 3" := SalesHeader."Ship-to Code";
         "Currency Code" := SalesHeader."Currency Code";
         "Currency Factor" := SalesHeader."Currency Factor";
         "Physical Transfer" := SalesHeader."Physical Transfer";
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromSalesHeader(Rec, SalesHeader);
     end;
@@ -3195,10 +3345,9 @@
         "Entry Type" := "Entry Type"::Sale;
         "Unit of Measure Code" := SalesLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := SalesLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := SalesLine."Qty. Rounding Precision (Base)";
         "Derived from Blanket Order" := SalesLine."Blanket Order No." <> '';
-#if not CLEAN16        
-        "Cross-Reference No." := SalesLine."Cross-Reference No.";
-#endif        
         "Item Reference No." := SalesLine."Item Reference No.";
         "Originally Ordered No." := SalesLine."Originally Ordered No.";
         "Originally Ordered Var. Code" := SalesLine."Originally Ordered Var. Code";
@@ -3216,9 +3365,12 @@
         "Source No." := SalesLine."Sell-to Customer No.";
         "Price Calculation Method" := SalesLine."Price Calculation Method";
         "Invoice-to Source No." := SalesLine."Bill-to Customer No.";
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := SalesLine."Tariff No.";
         "Statistic Indication" := SalesLine."Statistic Indication";
+#endif
         "Net Weight" := SalesLine."Net Weight";
         "Physical Transfer" := SalesLine."Physical Transfer";
         "Country/Region of Origin Code" := SalesLine."Country/Region of Origin Code";
@@ -3226,6 +3378,7 @@
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromSalesLine(Rec, SalesLine);
     end;
@@ -3240,11 +3393,13 @@
         "Reason Code" := PurchHeader."Reason Code";
         "Source Currency Code" := PurchHeader."Currency Code";
         "Shpt. Method Code" := PurchHeader."Shipment Method Code";
+#if not CLEAN18
         // NAVCZ
         "Source No. 3" := PurchHeader."Order Address Code";
         "Currency Code" := PurchHeader."Currency Code";
         "Physical Transfer" := PurchHeader."Physical Transfer";
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromPurchHeader(Rec, PurchHeader);
     end;
@@ -3282,9 +3437,8 @@
         end;
         "Unit of Measure Code" := PurchLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := PurchLine."Qty. per Unit of Measure";
-#if not CLEAN16        
-        "Cross-Reference No." := PurchLine."Cross-Reference No.";
-#endif        
+        "Qty. Rounding Precision" := PurchLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := PurchLine."Qty. Rounding Precision (Base)";
         "Item Reference No." := PurchLine."Item Reference No.";
         "Document Line No." := PurchLine."Line No.";
         "Unit Cost" := PurchLine."Unit Cost (LCY)";
@@ -3298,16 +3452,20 @@
         "Indirect Cost %" := PurchLine."Indirect Cost %";
         "Overhead Rate" := PurchLine."Overhead Rate";
         "Return Reason Code" := PurchLine."Return Reason Code";
+#if not CLEAN18
         // NAVCZ
         "Country/Region of Origin Code" := PurchLine."Country/Region of Origin Code";
+#if not CLEAN17
         "Tariff No." := PurchLine."Tariff No.";
         "Statistic Indication" := PurchLine."Statistic Indication";
+#endif
         "Net Weight" := PurchLine."Net Weight";
         "Physical Transfer" := PurchLine."Physical Transfer";
         if "Net Weight" <> 0 then
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromPurchLine(Rec, PurchLine);
     end;
@@ -3332,6 +3490,7 @@
             else
                 "Country/Region Code" := ServiceHeader."Country/Region Code";
 
+#if not CLEAN18
         // NAVCZ
         "Source No. 3" := ServiceHeader."Ship-to Code";
         "Currency Code" := ServiceHeader."Currency Code";
@@ -3340,6 +3499,7 @@
         "Intrastat Transaction" := ServiceHeader.IsIntrastatTransaction;
         // NAVCZ
 
+#endif
         OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
     end;
 
@@ -3366,6 +3526,8 @@
         "Entry Type" := "Entry Type"::Sale;
         "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
         "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := ServiceLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := ServiceLine."Qty. Rounding Precision (Base)";
         "Derived from Blanket Order" := false;
         "Item Category Code" := ServiceLine."Item Category Code";
         Nonstock := ServiceLine.Nonstock;
@@ -3377,9 +3539,12 @@
         "Job Task No." := ServiceLine."Job Task No.";
         "Price Calculation Method" := ServiceLine."Price Calculation Method";
         "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := ServiceLine."Tariff No.";
         "Statistic Indication" := ServiceLine."Statistic Indication";
+#endif
         "Net Weight" := ServiceLine."Net Weight";
         "Physical Transfer" := ServiceLine."Physical Transfer";
         "Country/Region of Origin Code" := ServiceLine."Country/Region of Origin Code";
@@ -3387,6 +3552,7 @@
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
     end;
@@ -3399,10 +3565,12 @@
         "Source Posting Group" := ServShptHeader."Customer Posting Group";
         "Salespers./Purch. Code" := ServShptHeader."Salesperson Code";
         "Reason Code" := ServShptHeader."Reason Code";
+#if not CLEAN18
         // NAVCZ
         "Currency Code" := ServShptHeader."Currency Code";
         "Currency Factor" := ServShptHeader."Currency Factor";
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromServShptHeader(Rec, ServShptHeader);
     end;
@@ -3432,14 +3600,18 @@
         "Item Category Code" := ServShptLine."Item Category Code";
         Nonstock := ServShptLine.Nonstock;
         "Return Reason Code" := ServShptLine."Return Reason Code";
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := ServShptLine."Tariff No.";
         "Statistic Indication" := ServShptLine."Statistic Indication";
+#endif
         "Net Weight" := ServShptLine."Net Weight";
         if "Net Weight" <> 0 then
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromServShptLine(Rec, ServShptLine);
     end;
@@ -3474,14 +3646,18 @@
         "Item Category Code" := ServShptLine."Item Category Code";
         Nonstock := ServShptLine.Nonstock;
         "Return Reason Code" := ServShptLine."Return Reason Code";
+#if not CLEAN18
         // NAVCZ
+#if not CLEAN17
         "Tariff No." := ServShptLine."Tariff No.";
         "Statistic Indication" := ServShptLine."Statistic Indication";
+#endif
         "Net Weight" := ServShptLine."Net Weight";
         if "Net Weight" <> 0 then
             if "Qty. per Unit of Measure" <> 0 then
                 "Net Weight" := Round("Net Weight" / "Qty. per Unit of Measure", 0.00001);
         // NAVCZ
+#endif
 
         OnAfterCopyItemJnlLineFromServShptLineUndo(Rec, ServShptLine);
     end;
@@ -3522,6 +3698,8 @@
         Quantity := JobJnlLine.Quantity;
         "Quantity (Base)" := JobJnlLine."Quantity (Base)";
         "Qty. per Unit of Measure" := JobJnlLine."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := JobJnlLine."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := JobJnlLine."Qty. Rounding Precision (Base)";
         "Unit Cost" := JobJnlLine."Unit Cost (LCY)";
         "Unit Cost (ACY)" := JobJnlLine."Unit Cost";
         Amount := JobJnlLine."Total Cost (LCY)";
@@ -4083,6 +4261,7 @@
         exit(ValueEntry.IsEmpty);
     end;
 
+#if not CLEAN18
     [Obsolete('Moved to Core Localization Pack for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure CheckIntrastat()
@@ -4116,7 +4295,9 @@
     var
         GenPostingSetup: Record "General Posting Setup";
         InvtSetup: Record "Inventory Setup";
+#if not CLEAN17
         StockkeepingUnit: Record "Stockkeeping Unit";
+#endif
     begin
         // NAVCZ
         InvtSetup.Get();
@@ -4126,15 +4307,18 @@
         GetItem;
         if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
             Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
+#if not CLEAN17
         if StockkeepingUnit.Get("Location Code", "Item No.", "Variant Code") then
             if (StockkeepingUnit."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group") and
                (StockkeepingUnit."Gen. Prod. Posting Group" <> '')
             then
                 Validate("Gen. Prod. Posting Group", StockkeepingUnit."Gen. Prod. Posting Group");
+#endif
         if "Gen. Bus. Posting Group" <> '' then
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
 
+#endif
     procedure ClearTracking()
     begin
         "Serial No." := '';
@@ -4278,11 +4462,14 @@
         OnCheckItemJournalLinePostRestrictions;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued. Use ItemJnlManagement event OnBeforeOpenJnl.', '19.0')]
     procedure CheckItemJournalLineUserRestriction()
     begin
         // NAVCZ
         OnCheckItemJournalTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
     end;
+#endif
 
     procedure CheckTrackingIsEmpty()
     begin
@@ -4377,6 +4564,12 @@
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
 
         OnAfterIsDefaultBin(Location, Result);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
@@ -4712,10 +4905,13 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('This Integration Event is discontinued. Use ItemJnlManagement event OnBeforeOpenJnl.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAssemblyDimOnAfterCreateDimSetIDArr(var ItemJournalLine: Record "Item Journal Line"; var DimSetIDArr: array[10] of Integer; var i: Integer)
@@ -4947,4 +5143,3 @@
     begin
     end;
 }
-

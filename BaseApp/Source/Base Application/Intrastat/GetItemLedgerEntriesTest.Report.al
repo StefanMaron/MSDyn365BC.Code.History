@@ -1,3 +1,4 @@
+#if not CLEAN18
 report 31059 "Get Item Ledger Entries - Test"
 {
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
@@ -210,4 +211,4 @@ report 31059 "Get Item Ledger Entries - Test"
         IntrastatJnlLine := NewIntrastatJnlLine;
     end;
 }
-
+#endif

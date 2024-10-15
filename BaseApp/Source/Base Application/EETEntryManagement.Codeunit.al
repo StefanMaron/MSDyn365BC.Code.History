@@ -1,8 +1,14 @@
+#if not CLEAN18
 codeunit 31121 "EET Entry Management"
 {
+#if CLEAN17
+    Permissions = TableData "EET Entry" = rimd,
+                  TableData "EET Entry Status" = rimd;
+#else
     Permissions = TableData "Posted Cash Document Header" = rm,
                   TableData "EET Entry" = rimd,
                   TableData "EET Entry Status" = rimd;
+#endif    
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
     ObsoleteTag = '18.0';
@@ -28,6 +34,7 @@ codeunit 31121 "EET Entry Management"
         exit(EETServiceSetup.Get and EETServiceSetup.Enabled);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure IsEETTransaction(CashDocHeader: Record "Cash Document Header"; CashDocLine: Record "Cash Document Line"): Boolean
@@ -101,6 +108,7 @@ codeunit 31121 "EET Entry Management"
                 exit(SalesCrMemoHeader."Prepayment Credit Memo");
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure IsEETCashRegister(CashDeskNo: Code[20]): Boolean
     var
@@ -112,6 +120,7 @@ codeunit 31121 "EET Entry Management"
         exit(EETCashRegister);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDocument(var CashDocHeader: Record "Cash Document Header")
@@ -333,12 +342,14 @@ codeunit 31121 "EET Entry Management"
         exit(EETEntry."Entry No.");
     end;
 
+#endif
     local procedure CalculateOriginalAmtLCY(CustLedgerEntry: Record "Cust. Ledger Entry"): Decimal
     begin
         CustLedgerEntry.CalcFields("Original Amt. (LCY)");
         exit(Abs(CustLedgerEntry."Original Amt. (LCY)"));
     end;
 
+#if not CLEAN17
     local procedure CalculateAmountsFromVATEntry(VATEntry: Record "VAT Entry"; var EETEntry: Record "EET Entry")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -394,6 +405,7 @@ codeunit 31121 "EET Entry Management"
         end;
     end;
 
+#endif
     local procedure GetVATBaseFromVATEntry(VATEntry: Record "VAT Entry"): Decimal
     begin
         with VATEntry do begin
@@ -443,6 +455,7 @@ codeunit 31121 "EET Entry Management"
         exit(EETCashReg.FindFirst);
     end;
 
+#if not CLEAN17
     local procedure FindCustLedgerEntryForAppliesDocument(CashDocLine: Record "Cash Document Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     begin
         SetFilterCustLedgerEntryForAppliesDocument(CashDocLine, CustLedgerEntry);
@@ -472,6 +485,7 @@ codeunit 31121 "EET Entry Management"
         CustLedgerEntry.SetRange("Currency Code", CashDocLine."Currency Code");
     end;
 
+#endif
     local procedure SetFilterVATEntry(DocumentNo: Code[20]; PostingDate: Date; var VATEntry: Record "VAT Entry")
     begin
         VATEntry.SetCurrentKey("Document No.", "Posting Date");
@@ -731,6 +745,7 @@ codeunit 31121 "EET Entry Management"
         exit(DelChr(LowerCase(Format(CreateGuid)), '=', '{}'));
     end;
 
+#if not CLEAN17
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Post", 'OnBeforePostCashDoc', '', false, false)]
     local procedure CheckCashDocumentOnBeforePostCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
@@ -782,6 +797,7 @@ codeunit 31121 "EET Entry Management"
         SendEntryToService(EETEntry, true);
     end;
 
+#endif
     [Scope('OnPrem')]
     procedure CreateCancelEETEntry(EETEntryNo: Integer; Send: Boolean; WithConfirmation: Boolean): Integer
     var
@@ -921,3 +937,4 @@ codeunit 31121 "EET Entry Management"
     begin
     end;
 }
+#endif

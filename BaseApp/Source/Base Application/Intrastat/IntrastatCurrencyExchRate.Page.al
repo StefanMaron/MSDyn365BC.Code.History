@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 31061 "Intrastat Currency Exch. Rate"
 {
     ApplicationArea = Basic, Suite;
@@ -52,4 +53,4 @@ page 31061 "Intrastat Currency Exch. Rate"
     {
     }
 }
-
+#endif

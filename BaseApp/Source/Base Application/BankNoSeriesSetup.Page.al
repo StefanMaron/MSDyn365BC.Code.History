@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 11726 "Bank No. Series Setup"
 {
-    Caption = 'Bank No. Series Setup';
+    Caption = 'Bank No. Series Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Bank Account";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -54,6 +58,7 @@ page 11726 "Bank No. Series Setup"
         BankStatementNosVisible: Boolean;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetFieldsVisibility(DocType: Option "Bank Statement","Payment Order")
     begin
         PaymentOrderNosVisible := (DocType = DocType::"Payment Order");
@@ -61,6 +66,7 @@ page 11726 "Bank No. Series Setup"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     procedure SetBankAccountNo(BankAccNo: Code[20])
     begin
         FilterGroup(2);
@@ -69,3 +75,4 @@ page 11726 "Bank No. Series Setup"
     end;
 }
 
+#endif

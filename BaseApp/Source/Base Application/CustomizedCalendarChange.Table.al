@@ -1,3 +1,4 @@
+#if not CLEAN19
 table 7602 "Customized Calendar Change"
 {
     Caption = 'Customized Calendar Change';
@@ -268,3 +269,4 @@ table 7602 "Customized Calendar Change"
     end;
 }
 
+#endif

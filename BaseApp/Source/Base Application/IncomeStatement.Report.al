@@ -1,3 +1,4 @@
+#if not CLEAN17
 report 11783 "Income Statement"
 {
     DefaultLayout = RDLC;
@@ -931,4 +932,4 @@ report 11783 "Income Statement"
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
     end;
 }
-
+#endif

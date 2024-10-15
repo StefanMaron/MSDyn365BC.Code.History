@@ -2,7 +2,7 @@
     "id":  "9e737fc0-589a-436f-8b2f-0f27da2d2afd",
     "name":  "Spanish language (Mexico)",
     "publisher":  "Microsoft",
-    "version":  "18.5.29545.0",
+    "version":  "19.0.29894.30693",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "18.5.0.0"
+    "application":  "19.0.0.0"
 }

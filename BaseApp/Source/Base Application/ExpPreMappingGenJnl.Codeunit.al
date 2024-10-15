@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
 {
     Permissions = TableData "Payment Export Data" = rimd;
@@ -128,3 +129,4 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
     end;
 }
 
+#endif

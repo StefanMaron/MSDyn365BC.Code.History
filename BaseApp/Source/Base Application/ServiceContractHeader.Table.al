@@ -20,11 +20,9 @@ table 5965 "Service Contract Header"
                 end;
             end;
         }
-        field(2; "Contract Type"; Option)
+        field(2; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(3; Description; Text[100])
         {
@@ -1339,12 +1337,10 @@ table 5965 "Service Contract Header"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(140; "Type Filter"; Option)
+        field(140; "Type Filter"; Enum "Service Ledger Entry Type")
         {
             Caption = 'Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Resource,Item,Service Cost,Service Contract,G/L Account';
-            OptionMembers = " ",Resource,Item,"Service Cost","Service Contract","G/L Account";
         }
         field(141; "Reason Code Filter"; Code[10])
         {
@@ -1679,14 +1675,17 @@ table 5965 "Service Contract Header"
             if (Status <> xRec.Status) and
                (Status = Status::Canceled)
             then
-                ContractGainLossEntry.AddEntry(3, "Contract Type", "Contract No.", -"Annual Amount", "Cancel Reason Code");
+                ContractGainLossEntry.CreateEntry(
+                    "Service Contract Change Type"::"Contract Canceled", "Contract Type", "Contract No.",
+                     -"Annual Amount", "Cancel Reason Code");
         end;
 
         if (Status = Status::Signed) and
            ("Annual Amount" <> xRec."Annual Amount")
         then
-            ContractGainLossEntry.AddEntry(4, "Contract Type",
-              "Contract No.", "Annual Amount" - xRec."Annual Amount", '');
+            ContractGainLossEntry.CreateEntry(
+                "Service Contract Change Type"::"Manual Update", "Contract Type", "Contract No.",
+                "Annual Amount" - xRec."Annual Amount", '');
     end;
 
     trigger OnRename()
@@ -2048,7 +2047,7 @@ table 5965 "Service Contract Header"
         OnAfterReturnNoOfPer(InvoicePeriod, RetPer);
     end;
 
-    local procedure CalculateEndPeriodDate(Prepaid: Boolean; NextInvDate: Date): Date
+    procedure CalculateEndPeriodDate(Prepaid: Boolean; NextInvDate: Date): Date
     var
         TempDate2: Date;
         IsHandled: Boolean;
@@ -2104,7 +2103,7 @@ table 5965 "Service Contract Header"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeCheckExpirationDate(IsHandled);
+        OnBeforeCheckExpirationDate(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -2713,7 +2712,7 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckExpirationDate(var IsHandled: Boolean)
+    local procedure OnBeforeCheckExpirationDate(var IsHandled: Boolean; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

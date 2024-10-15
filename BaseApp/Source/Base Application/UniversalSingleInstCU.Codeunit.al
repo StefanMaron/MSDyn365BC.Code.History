@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 11792 "Universal Single Inst. CU"
 {
     SingleInstance = true;
@@ -32,6 +33,7 @@ codeunit 11792 "Universal Single Inst. CU"
         IntrastatTemplate := '';
         IntrastatBatch := '';
     end;
+#if not CLEAN17
 
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
@@ -47,5 +49,6 @@ codeunit 11792 "Universal Single Inst. CU"
     begin
         exit(CashDeskNo);
     end;
+#endif
 }
-
+#endif

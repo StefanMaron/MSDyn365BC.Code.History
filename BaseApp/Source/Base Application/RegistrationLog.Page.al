@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 11758 "Registration Log"
 {
     Caption = 'Registration Log (Obsolete)';
@@ -147,3 +148,5 @@ page 11758 "Registration Log"
     end;
 }
 
+
+#endif

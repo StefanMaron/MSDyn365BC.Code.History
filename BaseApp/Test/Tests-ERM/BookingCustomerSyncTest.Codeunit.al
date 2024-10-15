@@ -334,7 +334,9 @@ codeunit 133781 "Booking Customer Sync Test"
         Contact.Validate(Type, Contact.Type::Company);
         Contact.Insert(true);
         Contact.SetHideValidationDialog(true);
+#if not CLEAN18
         Contact.CreateCustomer(BookingSync."Customer Template Code");
+#endif
         Commit();
     end;
 }

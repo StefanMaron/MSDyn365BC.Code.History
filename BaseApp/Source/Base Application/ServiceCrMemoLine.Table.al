@@ -535,15 +535,23 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
         }
@@ -551,7 +559,11 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Country/Region of Origin Code';
             TableRelation = "Country/Region";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -627,6 +639,7 @@ table 5995 "Service Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServCrMemoLine(Rec);
+#if not CLEAN18
                 // NAVCZ
                 TempVATAmountLine."Currency Code" := ServCrMemoHeader."Currency Code";
                 if ServCrMemoHeader."Currency Code" <> '' then
@@ -636,6 +649,7 @@ table 5995 "Service Cr.Memo Line"
                 TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
                 TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
                 // NAVCZ
+#endif
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
             until Next() = 0;

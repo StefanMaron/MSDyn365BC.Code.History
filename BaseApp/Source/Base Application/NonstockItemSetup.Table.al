@@ -19,7 +19,11 @@ table 5719 "Nonstock Item Setup"
         field(31070; "No. From No. Series"; Boolean)
         {
             Caption = 'No. From No. Series';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }

@@ -28,6 +28,7 @@ table 290 "VAT Amount Line"
                 if "VAT Amount" / "VAT Base" < 0 then
                     Error(Text002, FieldCaption("VAT Amount"));
                 "VAT Difference" := "VAT Amount" - "Calculated VAT Amount";
+#if not CLEAN18
 
                 // NAVCZ
                 if "Currency Code" = '' then begin
@@ -43,6 +44,7 @@ table 290 "VAT Amount Line"
                     "Ext. VAT Difference (LCY)" := 0;
                 end;
                 // NAVCZ
+#endif
             end;
         }
         field(4; "Amount Including VAT"; Decimal)
@@ -81,10 +83,12 @@ table 290 "VAT Amount Line"
                       InvoiceDiscAmtIsGreaterThanBaseAmtErr,
                       FieldCaption("Invoice Discount Amount"), "Inv. Disc. Base Amount");
                 "VAT Base" := CalcLineAmount;
+#if not CLEAN18
                 // NAVCZ
                 if "Currency Code" = '' then
                     "VAT Base (LCY)" := "VAT Base";
                 // NAVCZ
+#endif
             end;
         }
         field(9; "VAT Calculation Type"; Enum "Tax Calculation Type")
@@ -152,8 +156,12 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
@@ -187,17 +195,26 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'Ext. VAT Base (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11771; "Ext. VAT Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext. VAT Amount (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -210,14 +227,19 @@ table 290 "VAT Amount Line"
                 "Letter VAT Difference (LCY)" := "Ext. VAT Amount (LCY)" - "Letter VAT Amount (LCY)";
                 // NAVCZ
             end;
+#endif
         }
         field(11772; "Ext.Amount Including VAT (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Ext.Amount Including VAT (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11773; "Ext. VAT Difference (LCY)"; Decimal)
@@ -225,8 +247,12 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'Ext. VAT Difference (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11774; "Ext. Calc. VAT Amount (LCY)"; Decimal)
@@ -234,8 +260,12 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'Ext. Calc. VAT Amount (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11775; "VAT Base (LCY)"; Decimal)
@@ -243,7 +273,11 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'VAT Base (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -251,9 +285,14 @@ table 290 "VAT Amount Line"
         {
             AutoFormatType = 1;
             Caption = 'VAT Amount (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '18.0';
+#if not CLEAN18
 
             trigger OnValidate()
             begin
@@ -264,14 +303,19 @@ table 290 "VAT Amount Line"
                 "VAT Difference (LCY)" := "VAT Amount (LCY)" - "Calculated VAT Amount (LCY)";
                 "Letter VAT Difference (LCY)" := "VAT Amount (LCY)" - "Letter VAT Amount (LCY)"; // NAVCZ
             end;
+#endif
         }
         field(11777; "Amount Including VAT (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount Including VAT (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11778; "Calculated VAT Amount (LCY)"; Decimal)
@@ -279,15 +323,23 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'Calculated VAT Amount (LCY)';
             Editable = false;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11780; "Modified (LCY)"; Boolean)
         {
             Caption = 'Modified (LCY)';
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(11781; "Currency Code"; Code[10])
@@ -295,8 +347,12 @@ table 290 "VAT Amount Line"
             Caption = 'Currency Code';
             Editable = false;
             TableRelation = Currency.Code;
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
+#endif
+            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
             ObsoleteTag = '18.0';
         }
         field(31000; "Letter VAT Amount (LCY)"; Decimal)
@@ -304,12 +360,26 @@ table 290 "VAT Amount Line"
             AutoFormatType = 1;
             Caption = 'Letter VAT Amount (LCY)';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Letter VAT Difference (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Letter VAT Difference (LCY)';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -332,10 +402,15 @@ table 290 "VAT Amount Line"
         InvoiceDiscAmtIsGreaterThanBaseAmtErr: Label 'The maximum %1 that you can apply is %2.', Comment = '1 Invoice Discount Amount that should be set 2 Maximum Amount that you can assign';
         Text004: Label '%1 for %2 must not exceed %3 = %4.';
         Currency: Record Currency;
+#if CLEAN18        
+        CurrExchRate: Record "Currency Exchange Rate";
+#endif        
         AllowVATDifference: Boolean;
         GlobalsInitialized: Boolean;
         Text005: Label '%1 must not exceed %2 = %3.';
+#if not CLEAN18
         Text11700: Label 'Changing VAT Amount will change VAT Amount in LCY. Continue ?';
+#endif
         InsertLineWithoutVAT: Boolean;
 
     procedure CheckVATDifference(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
@@ -359,6 +434,7 @@ table 290 "VAT Amount Line"
             end;
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '18.0')]
     procedure CheckVATDifferenceLCY(NewAllowVATDifference: Boolean)
@@ -376,6 +452,7 @@ table 290 "VAT Amount Line"
         // NAVCZ
     end;
 
+#endif
     local procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
     begin
         if GlobalsInitialized then
@@ -406,6 +483,15 @@ table 290 "VAT Amount Line"
             "Inv. Disc. Base Amount" += VATAmountLine."Inv. Disc. Base Amount";
             "Invoice Discount Amount" += VATAmountLine."Invoice Discount Amount";
             Quantity += VATAmountLine.Quantity;
+#if CLEAN18
+            "Amount Including VAT" += VATAmountLine."Amount Including VAT";
+            if not InsertLineWithoutVAT then begin // NAVCZ
+                "VAT Base" += VATAmountLine."VAT Base";
+                "VAT Difference" += VATAmountLine."VAT Difference";
+                "VAT Amount" := "Amount Including VAT" - "VAT Base";
+                "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
+            end; // NAVCZ
+#else
             // NAVCZ
             "Amount Including VAT" += VATAmountLine."Amount Including VAT";
             "Amount Including VAT (LCY)" += VATAmountLine."Amount Including VAT (LCY)";
@@ -422,10 +508,12 @@ table 290 "VAT Amount Line"
                     "VAT Amount (LCY)" += "VAT Difference (LCY)";
             end;
             // NAVCZ
+#endif
             OnInsertLineOnBeforeModify(Rec, VATAmountLine);
             Modify;
         end else begin
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
+#if not CLEAN18
             // NAVCZ
             "VAT Amount (LCY)" := "Amount Including VAT (LCY)" - "VAT Base (LCY)";
             if "Currency Code" <> '' then
@@ -441,6 +529,7 @@ table 290 "VAT Amount Line"
                 "VAT Difference (LCY)" := 0;
             end;
             // NAVCZ
+#endif
             OnInsertLineOnBeforeInsert(Rec, VATAmountLine);
             Insert;
         end;
@@ -524,7 +613,6 @@ table 290 "VAT Amount Line"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := false;
         OnBeforeGetTotalVATAmount(Rec, VATAmount, IsHandled);
         if IsHandled then
             exit(VATAmount);
@@ -944,6 +1032,7 @@ table 290 "VAT Amount Line"
             TempVATAmountLine.Copy(Rec, true);
     end;
 
+#if not CLEAN18
     [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '18.0')]
     procedure UpdateLinesWithVATCorrection(Currency: Record Currency; PricesIncludingVAT: Boolean; AllowVATDifference: Boolean; VATCorrection: Boolean)
     begin
@@ -974,6 +1063,7 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
+#endif
     procedure CopyFromPurchInvLine(PurchInvLine: Record "Purch. Inv. Line")
     begin
         "VAT Identifier" := PurchInvLine."VAT Identifier";
@@ -992,9 +1082,11 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" :=
           PurchInvLine."Amount Including VAT" - PurchInvLine.Amount - PurchInvLine."VAT Difference";
         "VAT Difference" := PurchInvLine."VAT Difference";
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := PurchInvLine."VAT Difference (LCY)";
         // NAVCZ
+#endif
 
         OnAfterCopyFromPurchInvLine(Rec, PurchInvLine);
     end;
@@ -1017,10 +1109,11 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" :=
           PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount - PurchCrMemoLine."VAT Difference";
         "VAT Difference" := PurchCrMemoLine."VAT Difference";
+#if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := PurchCrMemoLine."VAT Difference (LCY)";
         // NAVCZ
-
+#endif
         OnAfterCopyFromPurchCrMemoLine(Rec, PurchCrMemoLine);
     end;
 
@@ -1043,7 +1136,9 @@ table 290 "VAT Amount Line"
         "VAT Difference" := SalesInvLine."VAT Difference";
         // NAVCZ
         "VAT Clause Code" := SalesInvLine."VAT Clause Code";
+#if not CLEAN18
         "VAT Difference (LCY)" := SalesInvLine."VAT Difference (LCY)";
+#endif
         // NAVCZ
 
         OnAfterCopyFromSalesInvLine(Rec, SalesInvLine);
@@ -1067,7 +1162,9 @@ table 290 "VAT Amount Line"
         "VAT Difference" := SalesCrMemoLine."VAT Difference";
         // NAVCZ
         "VAT Clause Code" := SalesCrMemoLine."VAT Clause Code";
+#if not CLEAN18
         "VAT Difference (LCY)" := SalesCrMemoLine."VAT Difference (LCY)";
+#endif
         // NAVCZ
 
         OnAfterCopyFromSalesCrMemoLine(Rec, SalesCrMemoLine);
@@ -1092,7 +1189,9 @@ table 290 "VAT Amount Line"
         "VAT Difference" := ServInvLine."VAT Difference";
         // NAVCZ
         "VAT Clause Code" := ServInvLine."VAT Clause Code";
+#if not CLEAN18
         "VAT Difference (LCY)" := ServInvLine."VAT Difference (LCY)";
+#endif
         // NAVCZ
 
         OnAfterCopyFromServInvLine(Rec, ServInvLine);
@@ -1117,12 +1216,51 @@ table 290 "VAT Amount Line"
         "VAT Difference" := ServCrMemoLine."VAT Difference";
         // NAVCZ
         "VAT Clause Code" := ServCrMemoLine."VAT Clause Code";
+#if not CLEAN18
         "VAT Difference (LCY)" := ServCrMemoLine."VAT Difference (LCY)";
+#endif
         // NAVCZ
 
         OnAfterCopyFromServCrMemoLine(Rec, ServCrMemoLine);
     end;
 
+#if CLEAN18
+    internal procedure GetVATBaseLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
+    begin
+        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Base", Factor));
+    end;
+
+    internal procedure GetVATAmountLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
+    begin
+        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Amount", Factor));
+    end;
+
+    internal procedure GetAmountIncludingVATLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
+    begin
+        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "Amount Including VAT", Factor));
+    end;
+
+    internal procedure GetCalculatedVATAmountLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
+    begin
+        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "Calculated VAT Amount", Factor));
+    end;
+
+    internal procedure GetVATDifferenceLCY(Date: Date; CurrencyCode: Code[10]; Factor: Decimal): Decimal
+    begin
+        exit(ExchangeAmtFCYToLCY(Date, CurrencyCode, "VAT Difference", Factor));
+    end;
+
+    local procedure ExchangeAmtFCYToLCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        if CurrencyCode = '' then
+            exit(Amount);
+        GLSetup.Get();
+        exit(Round(CurrExchRate.ExchangeAmtFCYToLCY(Date, CurrencyCode, Amount, Factor), GLSetup."Amount Rounding Precision"))
+    end;
+
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLineAmount(var VATAmountLine: Record "VAT Amount Line"; var LineAmount: Decimal)
     begin

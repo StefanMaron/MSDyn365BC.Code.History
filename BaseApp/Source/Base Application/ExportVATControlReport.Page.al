@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31106 "Export VAT Control Report"
 {
     Caption = 'Export VAT Control Report';
@@ -311,4 +312,4 @@ page 31106 "Export VAT Control Report"
         exit(ClientFileName);
     end;
 }
-
+#endif

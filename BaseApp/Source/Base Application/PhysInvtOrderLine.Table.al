@@ -341,14 +341,19 @@ table 5876 "Phys. Invt. Order Line"
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
+#if CLEAN17
+            ObsoleteState = Removed;
+#else
             TableRelation = IF ("Entry Type" = CONST(" ")) "Whse. Net Change Template"
             ELSE
             IF ("Entry Type" = CONST("Positive Adjmt.")) "Whse. Net Change Template" WHERE("Entry Type" = CONST("Positive Adjmt."))
             ELSE
             IF ("Entry Type" = CONST("Negative Adjmt.")) "Whse. Net Change Template" WHERE("Entry Type" = CONST("Negative Adjmt."));
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '17.0';
+#if not CLEAN17
 
             trigger OnValidate()
             var
@@ -365,6 +370,7 @@ table 5876 "Phys. Invt. Order Line"
                     Validate("Gen. Bus. Posting Group", WhseNetChangeTemplate."Gen. Bus. Posting Group");
                 end;
             end;
+#endif
         }
     }
 

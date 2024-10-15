@@ -1,4 +1,4 @@
-﻿table 901 "Assembly Line"
+table 901 "Assembly Line"
 {
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
@@ -30,11 +30,9 @@
             Caption = 'Line No.';
             Editable = false;
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "BOM Component Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource';
-            OptionMembers = " ",Item,Resource;
 
             trigger OnValidate()
             begin
@@ -80,7 +78,9 @@
                 else begin
                     GetHeader;
                     "Due Date" := AssemblyHeader."Starting Date";
+#if not CLEAN18
                     "Gen. Bus. Posting Group" := AssemblyHeader."Gen. Bus. Posting Group"; // NAVCZ
+#endif
                     case Type of
                         Type::Item:
                             CopyFromItem;
@@ -172,9 +172,6 @@
                 TestField(Type, Type::Item);
 
                 Item.Get("No.");
-                // Location code in allowed only for inventoriable items
-                if "Location Code" <> '' then
-                    Item.TestField(Type, Item.Type::Inventory);
 
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 CheckItemAvailable(FieldNo("Location Code"));
@@ -240,6 +237,8 @@
                 TestField(Type, Type::Item);
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
+                    Item.Get("No.");
+                    Item.TestField(Type, Item.Type::Inventory);
                     WMSManagement.FindBin("Location Code", "Bin Code", '');
                     WhseIntegrationMgt.CheckBinTypeCode(DATABASE::"Assembly Line",
                       FieldCaption("Bin Code"),
@@ -307,11 +306,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                UOMMgt: Codeunit "Unit of Measure Management";
             begin
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
 
-                RoundQty(Quantity);
-                "Quantity (Base)" := CalcBaseQty(Quantity);
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec, CurrFieldNo);
                 InitRemainingQty;
                 InitQtyToConsume;
@@ -366,15 +368,22 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                UOMMgt: Codeunit "Unit of Measure Management";
             begin
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
-                RoundQty("Quantity to Consume");
+
+                "Quantity to Consume" := UOMMgt.RoundAndValidateQty("Quantity to Consume", "Qty. Rounding Precision", FieldCaption("Quantity to Consume"));
+
                 RoundQty("Remaining Quantity");
                 if "Quantity to Consume" > "Remaining Quantity" then
                     Error(Text003,
                       FieldCaption("Quantity to Consume"), FieldCaption("Remaining Quantity"), "Remaining Quantity");
 
-                Validate("Quantity to Consume (Base)", CalcBaseQty("Quantity to Consume"));
+                Validate(
+                    "Quantity to Consume (Base)",
+                    CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)"))
+                );
             end;
         }
         field(47; "Quantity to Consume (Base)"; Decimal)
@@ -550,7 +559,11 @@
                 GetItemResource;
                 case Type of
                     Type::Item:
-                        "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                        begin
+                            "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+                        end;
                     Type::Resource:
                         "Qty. per Unit of Measure" := UOMMgt.GetResQtyPerUnitOfMeasure(Resource, "Unit of Measure Code");
                     else
@@ -561,6 +574,24 @@
                 "Unit Cost" := GetUnitCost;
                 Validate(Quantity);
             end;
+        }
+        field(82; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(83; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -622,7 +653,7 @@
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" := CalcBaseQty("Qty. Picked");
+                "Qty. Picked (Base)" := CalcBaseQty("Qty. Picked", FieldCaption("Qty. Picked"), FieldCaption("Qty. Picked (Base)"));
             end;
         }
         field(7304; "Qty. Picked (Base)"; Decimal)
@@ -635,7 +666,11 @@
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
             ObsoleteState = Pending;
+#endif
             ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
             ObsoleteTag = '18.0';
         }
@@ -736,10 +771,11 @@
         GetHeader;
         "Quantity to Consume" :=
           MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
+        RoundQty("Quantity to Consume");
         "Quantity to Consume (Base)" :=
           MinValue(
             MaxQtyToConsumeBase,
-            CalcBaseQty(CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble (Base)")));
+            CalcBaseQty(CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble (Base)"), FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
 
         OnAfterInitQtyToConsume(Rec, xRec, CurrFieldNo);
     end;
@@ -754,18 +790,20 @@
         exit("Remaining Quantity (Base)");
     end;
 
-    local procedure GetSKU() Result: Boolean
+    local procedure GetSKU()
+    var
+        SKU: Record "Stockkeeping Unit";
+        Result: Boolean;
     begin
         if Type = Type::Item then
             if (StockkeepingUnit."Location Code" = "Location Code") and
                (StockkeepingUnit."Item No." = "No.") and
                (StockkeepingUnit."Variant Code" = "Variant Code")
             then
-                exit(true);
-        if StockkeepingUnit.Get("Location Code", "No.", "Variant Code") then
-            exit(true);
-
-        Result := false;
+                exit;
+        GetItemResource();
+        StockkeepingUnit := Item.GetSKU("Location Code", "Variant Code");
+        Result := SKU.Get("Location Code", "No.", "Variant Code");
         OnAfterGetSKU(Rec, Result);
     end;
 
@@ -777,10 +815,10 @@
 
         case Type of
             Type::Item:
-                if GetSKU then
-                    UnitCost := StockkeepingUnit."Unit Cost" * "Qty. per Unit of Measure"
-                else
-                    UnitCost := Item."Unit Cost" * "Qty. per Unit of Measure";
+                begin
+                    GetSKU();
+                    UnitCost := StockkeepingUnit."Unit Cost" * "Qty. per Unit of Measure";
+                end;
             Type::Resource:
                 UnitCost := Resource."Unit Cost" * "Qty. per Unit of Measure";
         end;
@@ -941,13 +979,12 @@
         ItemAvailabilityCheck.RunModal();
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal): Decimal
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(
-          UOMMgt.CalcBaseQty(
-            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure"));
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     local procedure CalcQtyFromBase(QtyBase: Decimal): Decimal
@@ -1233,17 +1270,27 @@
         exit(Qty / AssemblyHeader.Quantity);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by CalcBOMQuantity().', '19.0')]
     procedure CalcQuantityFromBOM(LineType: Option; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option): Decimal
+    begin
+        CalcBOMQuantity("BOM Component Type".FromInteger(LineType), QtyPer, HeaderQty, HeaderQtyPerUOM, LineResourceUsageType);
+    end;
+#endif
+
+    procedure CalcBOMQuantity(LineType: Enum "BOM Component Type"; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option): Decimal
     begin
         if FixedUsage(LineType, LineResourceUsageType) then
             exit(QtyPer);
 
+        if "Qty. Rounding Precision" <> 0 then
+            exit(Round(QtyPer * HeaderQty * HeaderQtyPerUOM, "Qty. Rounding Precision"));
         exit(QtyPer * HeaderQty * HeaderQtyPerUOM);
     end;
 
     local procedure CalcQuantity(LineQtyPer: Decimal; HeaderQty: Decimal): Decimal
     begin
-        exit(CalcQuantityFromBOM(Type, LineQtyPer, HeaderQty, 1, "Resource Usage Type"));
+        exit(CalcBOMQuantity(Type, LineQtyPer, HeaderQty, 1, "Resource Usage Type"));
     end;
 
     procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
@@ -1463,11 +1510,11 @@
         exit(Value2);
     end;
 
-    local procedure RoundQty(var Qty: Decimal)
+    procedure RoundQty(var Qty: Decimal)
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        Qty := UOMMgt.RoundQty(Qty);
+        Qty := UOMMgt.RoundQty(Qty, "Qty. Rounding Precision");
     end;
 
     procedure FixedUsage(): Boolean
@@ -1475,7 +1522,7 @@
         exit(FixedUsage(Type, "Resource Usage Type"));
     end;
 
-    local procedure FixedUsage(LineType: Option; LineResourceUsageType: Option): Boolean
+    local procedure FixedUsage(LineType: Enum "BOM Component Type"; LineResourceUsageType: Option): Boolean
     begin
         if (LineType = Type::Resource) and (LineResourceUsageType = "Resource Usage Type"::Fixed) then
             exit(true);
@@ -1542,8 +1589,10 @@
            ("Variant Code" = xRec."Variant Code")
         then
             exit;
-
-        Validate("Bin Code", FindBin);
+        if Item."No." <> "No." then
+            Item.Get("No.");
+        if Item.IsInventoriableType() then
+            Validate("Bin Code", FindBin);
     end;
 
     procedure FindBin() NewBinCode: Code[20]

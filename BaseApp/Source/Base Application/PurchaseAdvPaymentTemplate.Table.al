@@ -1,7 +1,14 @@
 table 31030 "Purchase Adv. Payment Template"
 {
     Caption = 'Purchase Adv. Payment Template';
+#if not CLEAN19
     LookupPageID = "Purchase Adv. Paym. Selection";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {

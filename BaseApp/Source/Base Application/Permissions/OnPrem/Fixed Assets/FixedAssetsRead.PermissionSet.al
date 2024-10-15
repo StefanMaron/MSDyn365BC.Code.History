@@ -10,15 +10,17 @@ permissionset 7052 "Fixed Assets - Read"
 #endif
                   tabledata "Comment Line" = R,
                   tabledata "Default Dimension" = R,
+#if not CLEAN18
                   tabledata "Depreciation Group" = R,
+#endif
                   tabledata "Depreciation Table Header" = R,
                   tabledata "Depreciation Table Line" = R,
                   tabledata "FA Class" = R,
                   tabledata "FA Depreciation Book" = R,
 #if not CLEAN18
                   tabledata "FA Extended Posting Group" = R,
-#endif
                   tabledata "FA History Entry" = Rim,
+#endif
                   tabledata "FA Ledger Entry" = R,
                   tabledata "FA Location" = R,
                   tabledata "FA Posting Type Setup" = R,

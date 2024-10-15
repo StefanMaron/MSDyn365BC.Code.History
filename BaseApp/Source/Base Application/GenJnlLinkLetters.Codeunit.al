@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 31033 "Gen. Jnl.-Link Letters"
 {
     TableNo = "Gen. Journal Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -51,4 +55,4 @@ codeunit 31033 "Gen. Jnl.-Link Letters"
         Text007Err: Label 'must be positive';
         Text008Err: Label 'must be negative';
 }
-
+#endif

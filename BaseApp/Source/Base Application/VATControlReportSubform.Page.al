@@ -1,3 +1,4 @@
+#if not CLEAN17
 page 31103 "VAT Control Report Subform"
 {
     AutoSplitKey = true;
@@ -193,4 +194,4 @@ page 31103 "VAT Control Report Subform"
         }
     }
 }
-
+#endif

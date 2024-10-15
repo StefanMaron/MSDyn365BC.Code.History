@@ -188,10 +188,12 @@ report 118 "Finance Charge Memo"
                 column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl)
                 {
                 }
+#if not CLEAN17
                 column(RNo_IssuFinChrgMemoHr; "Issued Fin. Charge Memo Header"."Registration No.")
                 {
                     IncludeCaption = true;
                 }
+#endif
                 column(CompanyInfoRegNo; CompanyInfo."Registration No.")
                 {
                 }

@@ -1,4 +1,5 @@
-﻿codeunit 1535 "Approvals Mgmt."
+#if not CLEAN19
+codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -43,11 +44,13 @@
         PendingJournalBatchApprovalExistsErr: Label 'An approval request already exists.', Comment = '%1 is the Document No. of the journal line';
         ApporvalChainIsUnsupportedMsg: Label 'Only Direct Approver is supported as Approver Limit Type option for %1. The approval request will be approved automatically.', Comment = 'Only Direct Approver is supported as Approver Limit Type option for Gen. Journal Batch DEFAULT, CASH. The approval request will be approved automatically.';
         RecHasBeenApprovedMsg: Label '%1 has been approved.', Comment = '%1 = Record Id';
+#if not CLEAN19
         PreIssueCheckCashDocErr: Label 'Payment Order %1 must be approved before you can perform this action.', Comment = '%1=document no., e.g. Payment Order 321 must be approved...';
         PrePostCheckCashDocErr: Label 'Cash Document %1 of type %2 must be approved and released before you can perform this action.', Comment = '%1=document no., %2=document type, e.g. Cash Document 321 of type Receipt must be approved...';
         PrePostCheckCreditErr: Label 'Credit %1 must be approved and released before you can perform this action.', Comment = '%1=document no., e.g. Credit 321 must be approved...';
         PrePostCheckSalesAdvanceLetterErr: Label 'Sales advance letter %1 must be approved and released before you can perform this action.', Comment = '%1=document no., e.g. Sales advance letter 321 must be approved...';
         PrePostCheckPurchaseAdvanceLetterErr: Label 'Purchase advance letter %1 must be approved and released before you can perform this action.', Comment = '%1=document no., e.g. Purchase advance letter 321 must be approved...';
+#endif
         NoPermissionToDelegateErr: Label 'You do not have permission to delegate one or more of the selected approval requests.';
         NothingToApproveErr: Label 'There is nothing to approve.';
         ApproverChainErr: Label 'No sufficient approver was found in the approver chain.';
@@ -132,18 +135,23 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnSendPaymentOrderForApproval(var PaymentOrderHeader: Record "Payment Order Header")
     begin
     end;
 
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnCancelPaymentOrderApprovalRequest(var PaymentOrderHeader: Record "Payment Order Header")
     begin
     end;
 
+#endif
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
@@ -158,6 +166,8 @@
     begin
     end;
 
+#endif
+#if not CLEAN18
     [IntegrationEvent(false, false)]
     [Obsolete('Moved to Compensation Localization for Czech.', '18.2')]
     [Scope('OnPrem')]
@@ -172,30 +182,37 @@
     begin
     end;
 
+#endif
+#if not CLEAN19
+    [Obsolete('Repaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnSendSalesAdvanceLetterForApproval(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
     end;
 
+    [Obsolete('Repaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnCancelSalesAdvanceLetterApprovalRequest(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
     end;
 
+    [Obsolete('Repaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnSendPurchaseAdvanceLetterForApproval(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
     end;
 
+    [Obsolete('Repaced by Advance Payments Localization for Czech.', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnCancelPurchaseAdvanceLetterApprovalRequest(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
     end;
 
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
@@ -795,12 +812,12 @@
         OnAfterCreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
     end;
 
-    local procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, false);
     end;
 
-    local procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, true);
     end;
@@ -1036,6 +1053,8 @@
         ApprovalAmountLCY := TotalSalesLineLCY.Amount;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcPaymentOrderAmount(PmtOrdHdr: Record "Payment Order Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
     begin
@@ -1045,6 +1064,7 @@
         ApprovalAmountLCY := PmtOrdHdr."Amount (LCY)";
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CalcCashDocAmount(CashDocHdr: Record "Cash Document Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
@@ -1055,6 +1075,8 @@
         ApprovalAmountLCY := CashDocHdr."Amount (LCY)";
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcSalesAdvanceLetterAmount(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
     var
@@ -1070,6 +1092,7 @@
           SalesAdvanceLetterHeader."Currency Factor");
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcPurchaseAdvanceLetterAmount(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
     var
@@ -1085,6 +1108,7 @@
           PurchAdvanceLetterHeader."Currency Factor");
     end;
 
+#endif
     local procedure PopulateApprovalEntryArgument(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry")
     var
         Customer: Record Customer;
@@ -1093,11 +1117,17 @@
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         IncomingDocument: Record "Incoming Document";
+#if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
+#if not CLEAN17
         CashDocHeader: Record "Cash Document Header";
+#endif
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#endif
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
@@ -1167,6 +1197,7 @@
                     RecRef.SetTable(IncomingDocument);
                     ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
                 end;
+#if not CLEAN19
             // NAVCZ
             DATABASE::"Payment Order Header":
                 begin
@@ -1178,6 +1209,7 @@
                     ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
                     ApprovalEntryArgument."Currency Code" := PaymentOrderHeader."Currency Code";
                 end;
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 begin
                     RecRef.SetTable(CashDocHeader);
@@ -1189,6 +1221,8 @@
                     ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
                     ApprovalEntryArgument."Currency Code" := CashDocHeader."Currency Code";
                 end;
+#endif
+#if not CLEAN18
             DATABASE::"Credit Header":
                 begin
                     RecRef.SetTable(CreditHeader);
@@ -1196,6 +1230,7 @@
                     ApprovalEntryArgument."Document No." := CreditHeader."No.";
                     ApprovalEntryArgument."Salespers./Purch. Code" := CreditHeader."Salesperson Code";
                 end;
+#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     RecRef.SetTable(SalesAdvanceLetterHeader);
@@ -1219,6 +1254,7 @@
                     ApprovalEntryArgument."Currency Code" := PurchAdvanceLetterHeader."Currency Code";
                 end;
             // NAVCZ
+#endif
             else
                 OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
         end;
@@ -1369,6 +1405,7 @@
         exit(true);
     end;
 
+#if not CLEAN19
     local procedure IsSufficientBankApprover(UserSetup: Record "User Setup"; ApprovalAmountLCY: Decimal): Boolean
     begin
         // NAVCZ
@@ -1383,6 +1420,8 @@
         exit(false);
     end;
 
+#endif
+#if not CLEAN17
     local procedure IsSufficientCashDeskApprover(UserSetup: Record "User Setup"; ApprovalAmountLCY: Decimal): Boolean
     begin
         // NAVCZ
@@ -1397,6 +1436,7 @@
         exit(false);
     end;
 
+#endif
     procedure IsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean
     var
         IsSufficient: Boolean;
@@ -1412,10 +1452,13 @@
             DATABASE::"Gen. Journal Line":
                 IsSufficient := IsSufficientGenJournalLineApprover(UserSetup, ApprovalEntryArgument);
             // NAVCZ
+#if not CLEAN19
             DATABASE::"Payment Order Header":
                 IsSufficient := IsSufficientBankApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)");
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 IsSufficient := IsSufficientCashDeskApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)");
+#endif
             DATABASE::"Sales Advance Letter Header":
                 IsSufficient := IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)");
             DATABASE::"Purch. Advance Letter Header":
@@ -1424,6 +1467,7 @@
                     IsSufficient := IsSufficientPurchApprover(UserSetup, DocType, ApprovalEntryArgument."Amount (LCY)");
                 end;
         // NAVCZ
+#endif
         end;
 
         IsHandled := false;
@@ -1470,6 +1514,8 @@
         exit(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PreIssueApprovalCheckPaymentOrder(var PaymentOrderHeader: Record "Payment Order Header"): Boolean
     begin
@@ -1482,6 +1528,7 @@
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure PrePostApprovalCheckCashDoc(var CashDocHdr: Record "Cash Document Header"): Boolean
@@ -1493,6 +1540,8 @@
         exit(true);
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure PrePostApprovalCheckCredit(var CreditHdr: Record "Credit Header"): Boolean
@@ -1504,6 +1553,8 @@
         exit(true);
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PrePostApprovalCheckSalesAdvanceLetter(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Boolean
     begin
@@ -1516,6 +1567,7 @@
         exit(true);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure PrePostApprovalCheckPurchaseAdvanceLetter(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Boolean
     begin
@@ -1528,6 +1580,7 @@
         exit(true);
     end;
 
+#endif
     procedure IsIncomingDocApprovalsWorkflowEnabled(var IncomingDocument: Record "Incoming Document"): Boolean
     begin
         exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode()));
@@ -1581,6 +1634,8 @@
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode));
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IsPaymentOrderApprovalsWorkflowEnabled(var PmtOrdHdr: Record "Payment Order Header"): Boolean
     begin
@@ -1589,6 +1644,7 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode));
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure IsCashDocApprovalsWorkflowEnabled(var CashDocHdr: Record "Cash Document Header"): Boolean
@@ -1598,6 +1654,8 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode));
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
     procedure IsCreditApprovalsWorkflowEnabled(var CreditHdr: Record "Credit Header"): Boolean
@@ -1607,6 +1665,8 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendCreditDocForApprovalCode));
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IsSalesAdvanceLetterApprovalsWorkflowEnabled(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Boolean
     begin
@@ -1615,6 +1675,7 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendSalesAdvanceLetterForApprovalCode));
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IsPurchaseAdvanceLetterApprovalsWorkflowEnabled(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Boolean
     begin
@@ -1623,6 +1684,7 @@
           WorkflowEventHandlingCZ.RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode));
     end;
 
+#endif
     procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header") Result: Boolean
     var
         IsHandled: Boolean;
@@ -1716,6 +1778,8 @@
         exit(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CheckPaymentOrderApprovalsWorkflowEnabled(var PmtOrdHdr: Record "Payment Order Header"): Boolean
     begin
@@ -1726,6 +1790,7 @@
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
     [Scope('OnPrem')]
     procedure CheckCashDocApprovalsWorkflowEnabled(var CashDocHdr: Record "Cash Document Header"): Boolean
@@ -1737,6 +1802,8 @@
         exit(true);
     end;
 
+#endif
+#if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.2')]
     [Scope('OnPrem')]
     procedure CheckCreditApprovalsWorkflowEnabled(var CreditHdr: Record "Credit Header"): Boolean
@@ -1748,6 +1815,8 @@
         exit(true);
     end;
 
+#endif
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CheckSalesAdvanceLetterApprovalsWorkflowEnabled(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Boolean
     begin
@@ -1758,6 +1827,7 @@
         exit(true);
     end;
 
+    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CheckPurchaseAdvanceLetterApprovalsWorkflowEnabled(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Boolean
     begin
@@ -1768,6 +1838,7 @@
         exit(true);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure DeleteApprovalEntryForRecord(Variant: Variant)
     var
@@ -1779,6 +1850,7 @@
         DeleteApprovalEntries(RecRef.RecordId);
         DeleteApprovalCommentLines(RecRef.RecordId);
     end;
+#endif
 
     procedure DeleteApprovalEntry(Variant: Variant)
     var
@@ -1924,11 +1996,17 @@
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         IncomingDocument: Record "Incoming Document";
+#if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
+#if not CLEAN17
         CashDocHeader: Record "Cash Document Header";
+#endif
+#if not CLEAN18
         CreditHeader: Record "Credit Header";
+#endif
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+#endif
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -1957,6 +2035,7 @@
                     IncomingDocument.Modify(true);
                     Variant := IncomingDocument;
                 end;
+#if not CLEAN19
             // NAVCZ
             DATABASE::"Payment Order Header":
                 begin
@@ -1965,6 +2044,7 @@
                     PaymentOrderHeader.Modify(true);
                     Variant := PaymentOrderHeader;
                 end;
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 begin
                     RecRef.SetTable(CashDocHeader);
@@ -1972,6 +2052,8 @@
                     CashDocHeader.Modify(true);
                     Variant := CashDocHeader;
                 end;
+#endif
+#if not CLEAN18
             DATABASE::"Credit Header":
                 begin
                     RecRef.SetTable(CreditHeader);
@@ -1979,6 +2061,7 @@
                     CreditHeader.Modify(true);
                     Variant := CreditHeader;
                 end;
+#endif
             DATABASE::"Sales Advance Letter Header":
                 begin
                     RecRef.SetTable(SalesAdvanceLetterHeader);
@@ -1992,6 +2075,7 @@
                     Variant := PurchAdvanceLetterHeader;
                 end;
             // NAVCZ
+#endif
             else begin
                     IsHandled := false;
                     OnSetStatusToPendingApproval(RecRef, Variant, IsHandled);
@@ -2001,12 +2085,18 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Cash Desk/Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure SetStatusToApproved(var Variant: Variant)
     var
         ApprovalEntry: Record "Approval Entry";
+#if not CLEAN17
         CashDocumentHeader: Record "Cash Document Header";
+#endif
+#if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
+#endif
         TargetRecRef: RecordRef;
         RecRef: RecordRef;
     begin
@@ -2021,6 +2111,7 @@
                     Variant := TargetRecRef;
                     SetStatusToApproved(Variant);
                 end;
+#if not CLEAN19
             DATABASE::"Payment Order Header":
                 begin
                     RecRef.SetTable(PaymentOrderHeader);
@@ -2028,6 +2119,8 @@
                     PaymentOrderHeader.Modify();
                     Variant := PaymentOrderHeader;
                 end;
+#endif
+#if not CLEAN17
             DATABASE::"Cash Document Header":
                 begin
                     RecRef.SetTable(CashDocumentHeader);
@@ -2035,8 +2128,10 @@
                     CashDocumentHeader.Modify();
                     Variant := CashDocumentHeader;
                 end;
+#endif
         end;
     end;
+#endif
 
     procedure InformUserOnStatusChange(Variant: Variant; WorkflowInstanceId: Guid)
     var
@@ -2426,6 +2521,57 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecId);
         ApprovalEntry.SetRange("Related to Change", false);
         PAGE.RunModal(PAGE::"Approval Entries", ApprovalEntry);
+    end;
+
+    procedure OpenApprovalsSales(SalesHeader: Record "Sales Header")
+    begin
+        RunWorkflowEntriesPage(
+            SalesHeader.RecordId(), DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.");
+    end;
+
+    procedure OpenApprovalsPurchase(PurchHeader: Record "Purchase Header")
+    begin
+        RunWorkflowEntriesPage(
+            PurchHeader.RecordId(), DATABASE::"Purchase Header", PurchHeader."Document Type", PurchHeader."No.");
+    end;
+
+    procedure RunWorkflowEntriesPage(RecordIDInput: RecordID; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
+    var
+        ApprovalEntry: Record "Approval Entry";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        Approvals: Page Approvals;
+        WorkflowWebhookEntries: Page "Workflow Webhook Entries";
+        ApprovalEntries: Page "Approval Entries";
+    begin
+        // if we are looking at a particular record, we want to see only record related workflow entries
+        if DocumentNo <> '' then begin
+            ApprovalEntry.SetRange("Record ID to Approve", RecordIDInput);
+            WorkflowWebhookEntry.SetRange("Record ID", RecordIDInput);
+            // if we have flows created by multiple applications, start generic page filtered for this RecordID
+            if not ApprovalEntry.IsEmpty() and not WorkflowWebhookEntry.IsEmpty() then begin
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end else begin
+                // otherwise, open the page filtered for this record that corresponds to the type of the flow
+                if not WorkflowWebhookEntry.IsEmpty() then begin
+                    WorkflowWebhookEntries.Setfilters(RecordIDInput);
+                    WorkflowWebhookEntries.Run();
+                    exit;
+                end;
+
+                if not ApprovalEntry.IsEmpty() then begin
+                    ApprovalEntries.SetRecordFilters(TableId, DocumentType, DocumentNo);
+                    ApprovalEntries.Run();
+                    exit;
+                end;
+
+                // if no workflow exist, show (empty) joint workflows page
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end
+        end else
+            // otherwise, open the page with all workflow entries
+            Approvals.Run();
     end;
 
     procedure CanCancelApprovalForRecord(RecID: RecordID) Result: Boolean
@@ -2826,3 +2972,4 @@
     end;
 }
 
+#endif

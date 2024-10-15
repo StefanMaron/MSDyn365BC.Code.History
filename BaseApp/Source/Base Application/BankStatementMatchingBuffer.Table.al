@@ -61,21 +61,49 @@
         {
             Caption = 'No. of Match to Doc. No.';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11701; "No. of Match to V. Symbol"; Integer)
         {
             Caption = 'No. of Match to V. Symbol';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11702; "No. of Match to S. Symbol"; Integer)
         {
             Caption = 'No. of Match to S. Symbol';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11703; "No. of Match to C. Symbol"; Integer)
         {
             Caption = 'No. of Match to C. Symbol';
             DataClassification = SystemMetadata;
+#if not CLEAN19
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(30000; "Letter Type"; Option)
         {
@@ -83,11 +111,25 @@
             DataClassification = SystemMetadata;
             OptionCaption = 'Sales,Purchase';
             OptionMembers = Sales,Purchase;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31001; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
             DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -125,6 +167,8 @@
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Merge to W1.', '19.0')]
     procedure AddMatchCandidateForAdvanceLetter(LineNo: Integer; Quality2: Integer; Type: Option; AccountNo: Code[20]; LetterNo: Code[20])
     var
         EntryNo: Integer;
@@ -151,7 +195,13 @@
         Modify;
     end;
 
+#endif
+#if CLEAN19
+    procedure InsertOrUpdateOneToManyRule(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; RelatedPartyMatched: Option; AccountType: Enum "Gen. Journal Account Type"; RemainingAmount: Decimal)
+#else
+    [Obsolete('Merge to W1.', '19.0')]
     procedure InsertOrUpdateOneToManyRule(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; RelatedPartyMatched: Option; AccountType: Enum "Gen. Journal Account Type"; RemainingAmount: Decimal; BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
+#endif
     begin
         Init;
         SetRange("Line No.", LineNo);
@@ -168,17 +218,26 @@
             "One to Many Match" := true;
             "No. of Entries" := 1;
             "Related Party Matched" := RelatedPartyMatched;
+#if not CLEAN19
             UpdateMatchCounters(BankPmtApplRule); // NAVCZ
+#endif
             Insert;
+#if CLEAN19
+        end else
+            "No. of Entries" += 1;
+#else
         end else begin // NAVCZ
             "No. of Entries" += 1;
             UpdateMatchCounters(BankPmtApplRule); // NAVCZ
         end; // NAVCZ
+#endif
 
         "Total Remaining Amount" += RemainingAmount;
         Modify(true);
     end;
+#if not CLEAN19
 
+    [Obsolete('Merge to W1.', '19.0')]
     procedure InsertOrUpdateOneToManyRuleForAdvanceLetter(TempAdvanceLetterMatchingBuffer: Record "Advance Letter Matching Buffer" temporary; BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; LineNo: Integer; AccountType: Option; RemainingAmount: Decimal)
     var
         TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
@@ -190,6 +249,7 @@
           AccountType, RemainingAmount, BankPmtApplRule);
     end;
 
+    [Obsolete('Merge to W1.', '19.0')]
     procedure AdvanceLetterOffset(): Integer
     begin
         // NAVCZ
@@ -208,5 +268,6 @@
         if BankPmtApplRule."Constant Symbol Matched" = BankPmtApplRule."Constant Symbol Matched"::Yes then
             "No. of Match to C. Symbol" += 1;
     end;
+#endif
 }
 

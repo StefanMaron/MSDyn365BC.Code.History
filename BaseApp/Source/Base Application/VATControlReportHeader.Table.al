@@ -1,9 +1,13 @@
 table 31100 "VAT Control Report Header"
 {
     Caption = 'VAT Control Report Header';
+#if CLEAN17
+    ObsoleteState = Removed;
+#else
     DrillDownPageID = "VAT Control Report List";
     LookupPageID = "VAT Control Report List";
     ObsoleteState = Pending;
+#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '17.0';
 
@@ -12,6 +16,7 @@ table 31100 "VAT Control Report Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -20,33 +25,39 @@ table 31100 "VAT Control Report Header"
                     "No. Series" := '';
                 end;
             end;
+#endif            
         }
         field(2; Description; Text[50])
         {
             Caption = 'Description';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestModifyAllowed;
             end;
+#endif
         }
         field(3; "Report Period"; Option)
         {
             Caption = 'Report Period';
             OptionCaption = 'Month,Quarter';
             OptionMembers = Month,Quarter;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
                 TestModifyAllowed;
                 CheckPeriodNo;
             end;
+#endif
         }
         field(4; "Period No."; Integer)
         {
             Caption = 'Period No.';
             MaxValue = 12;
             MinValue = 1;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -57,11 +68,13 @@ table 31100 "VAT Control Report Header"
                     SetPeriod;
                 end;
             end;
+#endif
         }
         field(5; Year; Integer)
         {
             Caption = 'Year';
             MinValue = 0;
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -72,10 +85,12 @@ table 31100 "VAT Control Report Header"
                     SetPeriod;
                 end;
             end;
+#endif
         }
         field(6; "Start Date"; Date)
         {
             Caption = 'Start Date';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -85,10 +100,12 @@ table 31100 "VAT Control Report Header"
                     if LineExists then
                         Error(ChangeNotPosibleLineExistErr, FieldCaption("Start Date"));
             end;
+#endif
         }
         field(7; "End Date"; Date)
         {
             Caption = 'End Date';
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -98,6 +115,7 @@ table 31100 "VAT Control Report Header"
                     if LineExists then
                         Error(ChangeNotPosibleLineExistErr, FieldCaption("End Date"));
             end;
+#endif
         }
         field(8; "Created Date"; Date)
         {
@@ -121,6 +139,7 @@ table 31100 "VAT Control Report Header"
         {
             Caption = 'VAT Statement Template Name';
             TableRelation = "VAT Statement Template";
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -132,11 +151,13 @@ table 31100 "VAT Control Report Header"
                         Error(ChangeNotPosibleLineExistErr, FieldCaption("VAT Statement Template Name"));
                 end;
             end;
+#endif
         }
         field(21; "VAT Statement Name"; Code[10])
         {
             Caption = 'VAT Statement Name';
             TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("VAT Statement Template Name"));
+#if not CLEAN17
 
             trigger OnValidate()
             begin
@@ -146,6 +167,7 @@ table 31100 "VAT Control Report Header"
                     if LineExists then
                         Error(ChangeNotPosibleLineExistErr, FieldCaption("VAT Statement Name"));
             end;
+#endif
         }
         field(51; "No. Series"; Code[20])
         {
@@ -172,6 +194,7 @@ table 31100 "VAT Control Report Header"
     {
     }
 
+#if not CLEAN17
     trigger OnDelete()
     begin
         TestModifyAllowed;
@@ -342,5 +365,6 @@ table 31100 "VAT Control Report Header"
         GetVATEntries.RunModal;
         Clear(GetVATEntries);
     end;
+#endif
 }
 

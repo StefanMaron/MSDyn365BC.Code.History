@@ -1,3 +1,4 @@
+#if not CLEAN17
 codeunit 1242 "Set Up Curr Exch Rate Service"
 {
 
@@ -286,4 +287,4 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit(DummyCurrExchRate.FieldNo("Starting Date"));
     end;
 }
-
+#endif
