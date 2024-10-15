@@ -619,6 +619,12 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s bank account that will be used by default when you process refunds to the customer and direct debit collections.';
                 }
+                field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the customer must be excluded from Payment Practices calculations.';
+                }
             }
             group(Shipping)
             {

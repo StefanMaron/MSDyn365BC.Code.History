@@ -134,6 +134,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Comment Line" = RIMD,
                   tabledata "Communication Method" = RIMD,
                   tabledata "Company Information" = RIMD,
+                  tabledata "Company Size" = RIMD,
                   tabledata "Confidential Information" = RIMD,
                   tabledata "Config. Field Map" = RIMD,
                   tabledata "Config. Line" = RIMD,

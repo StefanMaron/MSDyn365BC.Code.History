@@ -136,6 +136,11 @@ page 392 "Phys. Inventory Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity on hand of the item as determined from a physical count.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(Quantity; Rec.Quantity)
                 {

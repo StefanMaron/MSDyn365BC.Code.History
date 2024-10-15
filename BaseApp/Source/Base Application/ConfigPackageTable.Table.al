@@ -586,12 +586,13 @@ table 8613 "Config. Package Table"
             Commit();
 
         if "Dimensions as Columns" then
-            if not DimensionPackageDataExist then begin
-                if DimensionFieldsCount > 0 then
-                    DeleteDimensionFields;
-                InitDimensionFields;
-                Commit();
-            end;
+            if not DimensionPackageDataExist then
+                if DimensionFieldsNotExist() then begin
+                    if DimensionFieldsCount > 0 then
+                        DeleteDimensionFields;
+                    InitDimensionFields;
+                    Commit();
+                end;
 
         SetFiltersAndRunConfigPackageFields(FilterValue);
     end;
@@ -776,6 +777,16 @@ table 8613 "Config. Package Table"
             childrenFound += 1;
         end;
         exit(childrenFound);
+    end;
+
+    local procedure DimensionFieldsNotExist(): Boolean
+    var
+        ConfigPackageField: Record "Config. Package Field";
+    begin
+        ConfigPackageField.SetRange("Package Code", "Package Code");
+        ConfigPackageField.SetRange("Table ID", "Table ID");
+        ConfigPackageField.SetRange("Processing Order", ConfigMgt.DimensionFieldID(), ConfigMgt.DimensionFieldID() + 999);
+        exit(ConfigPackageField.IsEmpty);
     end;
 
     [IntegrationEvent(false, false)]
