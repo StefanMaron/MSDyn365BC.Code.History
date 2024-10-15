@@ -1052,15 +1052,21 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine2: Record "Sales Line";
         ItemJournalLine: Record "Item Journal Line";
         ReservationEntry: Record "Reservation Entry";
+        LotNos: array[2] of Code[20];
+        Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO] Reservation entry with Surplus status should be created after reserving non-specific on Sales Order.
+        Initialize(false);
+        Qty := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Create Tracked Item, Post Item Journal and create Sales Order and Reserved with Lot No.
         Initialize(false);
         LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true));
         CreateAndPostItemJournalLineWithLot(
-          ItemJournalLine, Item."No.", TrackingOption::AssignLotNo, '', LibraryRandom.RandDec(10, 2));  // Use Random Value for Quantity.
+          ItemJournalLine, Item."No.", TrackingOption::AssignLotNo, '', Qty);
+        LotNos[1] := FindLotNo(Item."No.", '');
+
         CreateSalesOrderWithITAndReserve(SalesLine, Item."No.", '', ItemJournalLine.Quantity / 2);  // Required partial quantity.
 
         // [GIVEN] another Sales Order with non-specific Reservation and Post Item Journal Line with more quantity and Lot No.
@@ -1068,10 +1074,16 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.Enqueue(ReservationOption::ReserveFromCurrentLine);  // Enqueue value for ReservationPageHandler.
         SalesLine2.ShowReservation();
         CreateAndPostItemJournalLineWithLot(
-          ItemJournalLine, Item."No.", TrackingOption::AssignLotNo, '', LibraryRandom.RandDec(10, 2));  // Use Random Value for Quantity.
+          ItemJournalLine, Item."No.", TrackingOption::AssignLotNo, '', Qty);
+        LotNos[2] := FindLotNo(Item."No.", '');
 
         // Exercise.
-        CreateSalesOrderWithITAndReserve(SalesLine, Item."No.", '', ItemJournalLine.Quantity);
+        CreateSalesDocument(SalesLine, Item."No.", '', ItemJournalLine.Quantity);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNos[1], Qty / 2);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNos[2], Qty / 2);
+        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText());
+        LibraryVariableStorage.Enqueue(ReservationOption::ReserveFromCurrentLine);
+        SalesLine.ShowReservation();
 
         // [THEN] Verify Reservation Entry with Surplus stauts.
         FindReservationEntry(ReservationEntry, SalesLine."No.", DATABASE::"Sales Line", ReservationEntry."Reservation Status"::Surplus);
@@ -3576,7 +3588,7 @@ codeunit 137271 "SCM Reservation IV"
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindLast();
     end;
 
     local procedure FindLotNo(ItemNo: Code[20]; LocationCode: Code[10]): Code[10]

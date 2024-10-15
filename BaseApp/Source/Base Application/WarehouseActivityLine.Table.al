@@ -2579,6 +2579,18 @@
         OnAfterTestTrackingIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
+    procedure HasRequiredTracking(WhseItemTrackingSetup: Record "Item Tracking Setup") Result: Boolean
+    begin
+        Result := true;
+
+        if WhseItemTrackingSetup."Serial No. Required" <> ("Serial No." <> '') then
+            Result := false;
+        if WhseItemTrackingSetup."Lot No. Required" <> ("Lot No." <> '') then
+            Result := false;
+
+        OnAfterHasRequiredTracking(Rec, WhseItemTrackingSetup, Result);
+    end;
+
     local procedure ReNumberWhseActivityLines(var NewWhseActivityLine: Record "Warehouse Activity Line"; var WhseActivLine: Record "Warehouse Activity Line"; var NewLineNo: Integer; var LineSpacing: Integer)
     var
         IsHandled: Boolean;
@@ -2821,6 +2833,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestTrackingIfRequired(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasRequiredTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var Result: Boolean)
     begin
     end;
 

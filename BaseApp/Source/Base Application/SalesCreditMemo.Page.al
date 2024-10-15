@@ -1519,6 +1519,7 @@ page 44 "Sales Credit Memo"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

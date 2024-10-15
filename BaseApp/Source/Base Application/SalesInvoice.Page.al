@@ -359,6 +359,7 @@ page 43 "Sales Invoice"
 
                     trigger OnValidate()
                     begin
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         CurrPage.Update();
                     end;
                 }

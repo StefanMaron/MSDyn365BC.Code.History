@@ -771,7 +771,7 @@
                     GetLocation(LocationCode);
                     if Location."Bin Mandatory" then
                         WhseWkshLine.SetCurrentKey(
-                          "Worksheet Template Name", Name, "Location Code", "To Bin Code")
+                          "Worksheet Template Name", Name, "Location Code", "To Bin Code", "Shelf No.")
                     else
                         WhseWkshLine.SetCurrentKey(
                           "Worksheet Template Name", Name, "Location Code", "Shelf No.");

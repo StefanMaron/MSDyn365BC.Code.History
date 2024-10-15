@@ -466,8 +466,10 @@
                     AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
                 if BinCodeFilterText <> '' then
                     SetFilter("Bin Code", BinCodeFilterText);
-                if WhseItemTrkgExists then
-                    SetTrackingFilterFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+                if WhseItemTrkgExists then begin
+                    WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+                    SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup);
+                end;
             end;
 
             IsHandled := false;
@@ -636,9 +638,6 @@
         GetBin(LocationCode, ToBinCode);
         GetLocation(LocationCode);
 
-        WhseItemTrackingSetup."Serial No. Required" := true;
-        WhseItemTrackingSetup."Lot No. Required" := true;
-        WhseItemTrackingSetup."CD No. Required" := false;
         WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
 
         if FromBinContent.GetBinContent(
