@@ -928,7 +928,7 @@
         if GetSKU() then
             UnitCost := SKU."Unit Cost"
         else
-            UnitCost := Item."Unit Cost";
+            UnitCost := Item."Unit Cost" * "Qty. per Unit of Measure";
 
         if Item."Costing Method" <> Item."Costing Method"::Standard then
             UnitCost := Round(UnitCost, GLSetup."Unit-Amount Rounding Precision");

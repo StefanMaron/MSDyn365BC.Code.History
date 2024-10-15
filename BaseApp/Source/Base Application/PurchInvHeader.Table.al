@@ -489,7 +489,6 @@ table 122 "Purch. Inv. Header"
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(480; "Dimension Set ID"; Integer)
         {
