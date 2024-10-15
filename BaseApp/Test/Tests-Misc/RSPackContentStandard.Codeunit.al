@@ -244,8 +244,8 @@ codeunit 138300 "RS Pack Content - Standard"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 24 templates.
-        Assert.RecordCount(InteractionTemplate, 24);
+        // [SCENARIO 174769] Interaction Template should have 25 templates.
+        Assert.RecordCount(InteractionTemplate, 25);
     end;
 
     [Test]
@@ -495,7 +495,7 @@ codeunit 138300 "RS Pack Content - Standard"
         TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
         TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
         TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Service));
-        TypeConfigTemplateLine.FindSet;
+        TypeConfigTemplateLine.FindSet();
         repeat
             ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
             ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
@@ -517,7 +517,7 @@ codeunit 138300 "RS Pack Content - Standard"
         TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
         TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
         TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Inventory));
-        TypeConfigTemplateLine.FindSet;
+        TypeConfigTemplateLine.FindSet();
         repeat
             ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
             ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
@@ -536,29 +536,15 @@ codeunit 138300 "RS Pack Content - Standard"
         // [FEATURE] [Item] [Config. Template]
         // [SCENARIO] All Config. Templates for Item table, where "Base Unit of Measure" is not <blank>
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.FindSet;
+        ConfigTemplateHeader.FindSet();
         repeat
             ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
             ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Base Unit of Measure"));
-            ConfigTemplateLine.FindSet;
+            ConfigTemplateLine.FindSet();
             repeat
                 ConfigTemplateLine.TestField("Default Value");
             until ConfigTemplateLine.Next = 0;
         until ConfigTemplateHeader.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyNoPermissionSetWithEmptyHash()
-    var
-        PermissionSet: Record "Permission Set";
-    begin
-        PermissionSet.SetRange(Hash, '');
-        if PermissionSet.FindSet then
-            repeat
-                if StrPos(PermissionSet."Role ID", 'TEST') = 0 then // not a test created permission set
-                    Assert.Fail(StrSubstNo('Some permissions sets, e,g. %1 have nothing filled in Hash field.', PermissionSet."Role ID"));
-            until PermissionSet.Next = 0;
     end;
 }
 

@@ -17,6 +17,24 @@ report 122 "Reminder - Test"
             column(ShowMIRLines; ShowMIRLines)
             {
             }
+            column(ContactPhoneNoLbl; ContactPhoneNoLbl)
+            {
+            }
+            column(ContactMobilePhoneNoLbl; ContactMobilePhoneNoLbl)
+            {
+            }
+            column(ContactEmailLbl; ContactEmailLbl)
+            {
+            }
+            column(ContactPhoneNo; PrimaryContact."Phone No.")
+            {
+            }
+            column(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+            {
+            }
+            column(ContactEmail; PrimaryContact."E-mail")
+            {
+            }
             dataitem(PageCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
@@ -172,7 +190,7 @@ report 122 "Reminder - Test"
                                 DimText := OldDimText;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -677,6 +695,7 @@ report 122 "Reminder - Test"
 
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                     AddError(DimMgt.GetDimCombErr);
+                Cust.GetPrimaryContact("Customer No.", PrimaryContact);
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Customer No.";
@@ -769,6 +788,7 @@ report 122 "Reminder - Test"
         Text005: Label 'Total %1';
         Text006: Label 'Total %1 Incl. VAT';
         Text008: Label 'Reminder: %1';
+        PrimaryContact: Record Contact;
         GLSetup: Record "General Ledger Setup";
         Cust: Record Customer;
         VATAmountLine: Record "VAT Amount Line" temporary;
@@ -842,6 +862,9 @@ report 122 "Reminder - Test"
         VALVATBaseLCY_Control115CaptionLbl: Label 'VAT Base';
         VATAmountLine__VAT____Control116CaptionLbl: Label 'VAT %';
         VALVATBaseLCY_Control122CaptionLbl: Label 'Total';
+        ContactPhoneNoLbl: Label 'Contact Phone No.';
+        ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
+        ContactEmailLbl: Label 'Contact E-Mail';
         ShowMIRLines: Boolean;
 
     local procedure AddError(Text: Text[250])

@@ -144,7 +144,7 @@ report 10005 "Export GIFI Info. to Excel"
                 GLAccount.CalcFields("Balance at Date", "Add.-Currency Balance at Date");
                 BalanceAtDate += GLAccount."Balance at Date";
                 AdditionalCurrencyBalanceAtDate += GLAccount."Add.-Currency Balance at Date";
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
 
         if IncludeZero or
            (BalanceAtDate <> 0) or

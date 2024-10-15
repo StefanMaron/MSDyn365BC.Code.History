@@ -383,8 +383,6 @@ codeunit 137010 "SCM Revaluation"
         AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever;
@@ -627,7 +625,7 @@ codeunit 137010 "SCM Revaluation"
         if FilterOnEntryType then
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             CostPostedGL += ValueEntry."Cost Posted to G/L";
         until ValueEntry.Next = 0;
@@ -642,7 +640,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             Inventory += ItemLedgerEntry.Quantity
         until ItemLedgerEntry.Next = 0;

@@ -182,18 +182,24 @@ page 118 "General Ledger Setup"
                 field("VAT in Use"; "VAT in Use")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip='Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
+                    ToolTip = 'Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
                 }
+#if not CLEAN18
                 field("Use Legacy G/L Entry Locking"; "Use Legacy G/L Entry Locking")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+                    Visible = false;
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies when the G/L Entry table should be locked during sales, purchase, and service posting to improve performance in multiuser environments. Consider this setting if: You encounter deadlock situations because your solution relies on G/L Entry table locking. You have selected the Automatic Cost Posting check box in the Inventory Setup window.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Bank Recon. with Auto. Match"; "Bank Recon. with Auto. Match")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you perform bank account reconciliation with functionality that includes import of bank statement files and automatic matching with bank ledger entries.';
+                    ToolTip = 'Specifies the feature to use for reconciling bank accounts. If you turn on this toggle, you will use the Payment Reconciliation Journals page, which supports the import of bank statement files. If it is turned off, you will use the Bank Rec. Worksheet page, which is better for checks and deposits but does not offer the import of bank statement files.';
                 }
                 field("Show Amounts"; "Show Amounts")
                 {

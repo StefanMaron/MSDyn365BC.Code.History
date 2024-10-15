@@ -26,7 +26,7 @@ codeunit 10334 "Exp. Mapping Det EFT RB"
                       RecordRef);
                     LineNo := LineNo + 1;
                 end;
-            until ACHRBDetail.Next = 0;
+            until ACHRBDetail.Next() = 0;
         ACHRBDetail.DeleteAll();
     end;
 

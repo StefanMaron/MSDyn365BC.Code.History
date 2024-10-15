@@ -167,7 +167,7 @@ page 5189 "Create Rating"
                     trigger OnDrillDown()
                     begin
                         ShowAnswers;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

@@ -193,7 +193,7 @@ codeunit 134013 "ERM BAT Test for Application"
         CustLedgerEntry2.Reset();
         CustLedgerEntry2.SetRange("Document No.", DocumentNo);
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");

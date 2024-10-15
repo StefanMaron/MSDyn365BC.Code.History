@@ -66,7 +66,7 @@ page 730 "Job Act to Bud Cost Chart"
 
                         trigger OnAction()
                         begin
-                            UpdateChart(ChartType::Column);
+                            UpdateChart("Business Chart Type"::Column);
                         end;
                     }
                     action(Line)
@@ -77,7 +77,7 @@ page 730 "Job Act to Bud Cost Chart"
 
                         trigger OnAction()
                         begin
-                            UpdateChart(ChartType::Line);
+                            UpdateChart("Business Chart Type"::Line);
                         end;
                     }
                     action("Stacked Column")
@@ -88,7 +88,7 @@ page 730 "Job Act to Bud Cost Chart"
 
                         trigger OnAction()
                         begin
-                            UpdateChart(ChartType::StackedColumn);
+                            UpdateChart("Business Chart Type"::StackedColumn);
                         end;
                     }
                     action("Stacked Area")
@@ -99,7 +99,7 @@ page 730 "Job Act to Bud Cost Chart"
 
                         trigger OnAction()
                         begin
-                            UpdateChart(ChartType::StackedArea);
+                            UpdateChart("Business Chart Type"::StackedArea);
                         end;
                     }
                 }
@@ -112,23 +112,21 @@ page 730 "Job Act to Bud Cost Chart"
         TempJob: Record Job temporary;
         JobChartMgt: Codeunit "Job Chart Mgt";
         ChartIsReady: Boolean;
-        ChartType: Option Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,"Area",,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel;
-        JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price";
-        CurrentChartType: Option;
+        CurrentChartType: Enum "Business Chart Type";
 
-    local procedure UpdateChart(NewChartType: Option Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,"Area",,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel)
+    local procedure UpdateChart(NewChartType: Enum "Business Chart Type")
     begin
         if not ChartIsReady then
             exit;
 
-        JobChartMgt.CreateJobChart(BusChartBuf, TempJob, NewChartType, JobChartType::"Actual to Budget Cost");
+        JobChartMgt.CreateChart(BusChartBuf, TempJob, NewChartType, "Job Chart Type"::"Actual to Budget Cost");
         BusChartBuf.Update(CurrPage.Chart);
         CurrentChartType := NewChartType;
     end;
 
-    local procedure DefaultChartType(): Integer
+    local procedure DefaultChartType(): Enum "Business Chart Type"
     begin
-        exit(ChartType::Column);
+        exit("Business Chart Type"::Column);
     end;
 }
 

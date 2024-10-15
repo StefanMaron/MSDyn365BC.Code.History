@@ -702,7 +702,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
     begin
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType, DocumentNo, false, ReCalculateLines);
+        CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, false, ReCalculateLines);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.RunModal;
     end;

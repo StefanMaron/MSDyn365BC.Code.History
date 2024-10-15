@@ -1,4 +1,4 @@
-﻿table 5625 "Maintenance Ledger Entry"
+table 5625 "Maintenance Ledger Entry"
 {
     Caption = 'Maintenance Ledger Entry';
     DrillDownPageID = "Maintenance Ledger Entries";

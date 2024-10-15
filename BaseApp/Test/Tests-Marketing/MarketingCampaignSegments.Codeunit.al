@@ -1465,7 +1465,7 @@ codeunit 136200 "Marketing Campaign Segments"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindSalespersonPurchaser(): Code[20]
@@ -1480,7 +1480,11 @@ codeunit 136200 "Marketing Campaign Segments"
     begin
         TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
-        TempSegmentLine.LogPhoneCall;
+#if CLEAN17
+        TempSegmentLine.LogSegLinePhoneCall()
+#else
+        TempSegmentLine.LogPhoneCall();
+#endif
     end;
 
     local procedure ModifyCampaignTargetLines(SegmentHeaderNo: Code[20])
@@ -1488,7 +1492,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine: Record "Segment Line";
     begin
         SegmentLine.SetRange("Segment No.", SegmentHeaderNo);
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             SegmentLine.Validate("Campaign Target", true);
             SegmentLine.Modify(true);
@@ -1644,7 +1648,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine: Record "Segment Line";
     begin
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             SegmentLine.TestField("Interaction Template Code", SegmentHeader."Interaction Template Code");
         until SegmentLine.Next = 0;
@@ -1719,7 +1723,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine: Record "Segment Line";
     begin
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             SegmentLine.TestField("Salesperson Code", SegmentHeader."Salesperson Code");
             SegmentLine.TestField("Campaign No.", SegmentHeader."Campaign No.");
@@ -1732,7 +1736,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SegmentLine2: Record "Segment Line";
     begin
         SegmentLine.SetRange("Segment No.", SegmentHeaderNo);
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             SegmentLine2.Get(SegmentHeaderNo3, SegmentLine."Line No.");  // Line Nos. are same for both set of Segment Lines.
             SegmentLine2.TestField("Interaction Template Code", SegmentLine."Interaction Template Code");
@@ -1863,7 +1867,11 @@ codeunit 136200 "Marketing Campaign Segments"
         TempSegmentLine.Validate("Interaction Template Code", InteractionTemplateCode);
         TempSegmentLine.Validate(Description, InteractionTemplateCode);
         TempSegmentLine.Validate("Campaign No.", CampaignNo2);
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(true);
+#else
         TempSegmentLine.FinishWizard(true);
+#endif
     end;
 
     [ModalPageHandler]
@@ -1927,7 +1935,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SavedSegmentCriteria.Insert(true);
 
         SegmentCriteriaLine.SetRange("Segment No.", SegmentHeaderNo2);
-        SegmentCriteriaLine.FindSet;
+        SegmentCriteriaLine.FindSet();
         repeat
             SavedSegmentCriteriaLine.Init();
             SavedSegmentCriteriaLine.Validate("Segment Criteria Code", SavedSegmentCriteria.Code);

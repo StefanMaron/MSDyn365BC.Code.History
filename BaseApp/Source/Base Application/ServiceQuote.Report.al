@@ -175,7 +175,7 @@ report 5902 "Service Quote"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -490,7 +490,7 @@ report 5902 "Service Quote"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -686,7 +686,7 @@ report 5902 "Service Quote"
                     else
                         SegManagement.LogDocument(25, "Service Header"."No.", 0, 0, DATABASE::Customer, "Service Header"."Customer No.",
                           "Service Header"."Salesperson Code", '', '', '');
-                until "Service Header".Next = 0;
+                until "Service Header".Next() = 0;
     end;
 
     var

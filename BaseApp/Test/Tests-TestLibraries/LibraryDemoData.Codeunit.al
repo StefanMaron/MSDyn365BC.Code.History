@@ -10,7 +10,7 @@ codeunit 130300 "Library - Demo Data"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             if GeneralPostingSetup."Gen. Bus. Posting Group" = '' then begin
                 GeneralPostingSetup.TestField("Sales Account", '');

@@ -98,7 +98,7 @@ page 600 "IC Dimensions"
                         if ICDimension.Find('-') and ConfirmManagement.GetResponseOrDefault(Text000, true) then
                             repeat
                                 ICMapping.MapIncomingICDimensions(ICDimension);
-                            until ICDimension.Next = 0;
+                            until ICDimension.Next() = 0;
                     end;
                 }
                 action(CopyFromDimensions)
@@ -211,8 +211,8 @@ page 600 "IC Dimensions"
                         PrevIndentation := ICDimVal.Indentation;
                         if DimVal."Dimension Value Type" = DimVal."Dimension Value Type"::"Begin-Total" then
                             PrevIndentation := PrevIndentation + 1;
-                    until DimVal.Next = 0;
-            until Dim.Next = 0;
+                    until DimVal.Next() = 0;
+            until Dim.Next() = 0;
     end;
 
     local procedure ImportFromXML()

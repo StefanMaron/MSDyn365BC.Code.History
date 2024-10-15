@@ -72,7 +72,7 @@ codeunit 10120 "Bank Rec.-Post"
                     PostedBankRecCommentLine.TransferFields(BankRecCommentLine, true);
                     PostedBankRecCommentLine."Table Name" := PostedBankRecCommentLine."Table Name"::"Posted Bank Rec.";
                     PostedBankRecCommentLine.Insert();
-                until BankRecCommentLine.Next = 0;
+                until BankRecCommentLine.Next() = 0;
             BankRecCommentLine.DeleteAll();
 
             BankRecLine.Reset();
@@ -101,7 +101,7 @@ codeunit 10120 "Bank Rec.-Post"
                     PostedBankRecLine.Init();
                     PostedBankRecLine.TransferFields(BankRecLine, true);
                     PostedBankRecLine.Insert();
-                until BankRecLine.Next = 0;
+                until BankRecLine.Next() = 0;
             BankRecLine.DeleteAll();
             BankRecSubLine.Reset();
             BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
@@ -197,7 +197,7 @@ codeunit 10120 "Bank Rec.-Post"
                             repeat
                                 BankLedgerEntry."Remaining Amount" :=
                                   BankLedgerEntry."Remaining Amount" - CheckLedgerEntry2.Amount;
-                            until CheckLedgerEntry2.Next = 0;
+                            until CheckLedgerEntry2.Next() = 0;
                             BankLedgerEntry.Modify();
                         end;
                     end else
@@ -215,7 +215,7 @@ codeunit 10120 "Bank Rec.-Post"
                     UpdateBankLedger(
                       BankRecSubLine."Bank Ledger Entry No.", UseStatus,
                       BankRecLine3."Statement No.", BankRecLine3."Line No.");
-                until BankRecSubLine.Next = 0;
+                until BankRecSubLine.Next() = 0;
         end;
     end;
 

@@ -130,7 +130,7 @@ page 1799 "Data Migration Overview"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Update;
+                    CurrPage.Update();
                     ShowNotifications;
                 end;
             }
@@ -258,7 +258,7 @@ page 1799 "Data Migration Overview"
         DataMigrationError.SetRange("Destination Table ID", "Destination Table ID");
         if DataMigrationError.FindFirst then begin
             PAGE.RunModal(PAGE::"Data Migration Error", DataMigrationError);
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 
@@ -275,7 +275,7 @@ page 1799 "Data Migration Overview"
         DataMigrationStatus: Record "Data Migration Status";
         DashboardEmptyNotification: Notification;
     begin
-        if not DataMigrationStatus.IsEmpty then
+        if not DataMigrationStatus.IsEmpty() then
             exit;
 
         DashboardEmptyNotification.Message(DashboardEmptyNotificationMsg);

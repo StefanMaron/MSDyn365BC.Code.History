@@ -75,10 +75,10 @@ codeunit 212 "Res. Jnl.-Post Line"
             OnBeforeCheckResourceBlocked(Res, IsHandled);
             if not IsHandled then
                 Res.TestField(Blocked, false);
-
+#if not CLEAN17
             IsHandled := false;
             OnBeforeGenPostingSetupGet(ResJnlLine, IsHandled);
-
+#endif
             "Resource Group No." := Res."Resource Group No.";
 
             ResLedgEntry.Init();
@@ -139,7 +139,7 @@ codeunit 212 "Res. Jnl.-Post Line"
                 TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
                 TimeSheetDetail.SetRange("Time Sheet Line No.", "Time Sheet Line No.");
                 TimeSheetDetail.SetRange(Posted, false);
-                if TimeSheetDetail.IsEmpty then begin
+                if TimeSheetDetail.IsEmpty() then begin
                     TimeSheetLine.Posted := true;
                     TimeSheetLine.Modify();
                 end;
@@ -172,11 +172,13 @@ codeunit 212 "Res. Jnl.-Post Line"
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('The event was introduced to bypass dead code that imposed strict setup. Dead code is now removed', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenPostingSetupGet(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResLedgEntryInsert(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")

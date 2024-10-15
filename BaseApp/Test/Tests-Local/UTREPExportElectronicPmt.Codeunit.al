@@ -488,7 +488,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
           CopyStr(LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Transaction Code"), DATABASE::"Gen. Journal Line"), 1, 3);
         GenJournalLine."Transaction Type Code" := GenJournalLine."Transaction Type Code"::BUS;
         GenJournalLine."Company Entry Description" :=
-          LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Company Entry Description"), DATABASE::"Gen. Journal Line");
+        LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Company Entry Description"), DATABASE::"Gen. Journal Line");
         GenJournalLine."Recipient Bank Account" := RecipientBankAccount;
         GenJournalLine.Insert();
     end;
@@ -615,7 +615,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
           Vendor.FieldName("No."), false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 8800, 'OnIsTestMode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnIsTestMode(var TestMode: Boolean)
     begin
         TestMode := true

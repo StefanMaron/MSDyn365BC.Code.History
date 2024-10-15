@@ -16,6 +16,8 @@ codeunit 134919 "ERM Batch Job II"
         LibraryJob: Codeunit "Library - Job";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryInventory: Codeunit "Library - Inventory";
         GLAccountNo: Code[20];
         Amount: Decimal;
         BudgetNameErrorMessage: Label 'You must specify a budget name to copy from.';
@@ -24,6 +26,7 @@ codeunit 134919 "ERM Batch Job II"
         BudgetName: Code[10];
         BudgetError: Label 'G/L Budget: %1 must not exist.', Comment = '%1=G/L Budget Name';
         JobsCopyMsg: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status Planning.';
+        TestFieldCodeErr: Label 'TestField';
 
     [Test]
     [Scope('OnPrem')]
@@ -315,6 +318,46 @@ codeunit 134919 "ERM Batch Job II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationCodeNotAllowedOnJobLineForNonInventoryItems()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        Location: Record Location;
+    begin
+        // [GIVEN] Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Created Job.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Item of type Non-inventory for job planning line.
+        LibraryInventory.CreateItem(Item);
+        Item.Type := Item.Type::"Non-Inventory";
+        Item.Modify();
+
+        // [GIVEN] Created Job Planning Line with "Both Budget and Billable" type for the item.
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", JobTask."Job No.");
+        JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        JobPlanningLine.Insert(true);
+
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::"Both Budget and Billable");
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+
+        // [WHEN] Setting the location code on the job planning line.
+        asserterror JobPlanningLine.Validate("Location Code", Location.Code);
+
+        // [THEN] A validation error is thrown.
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Batch Job II");
@@ -402,12 +445,14 @@ codeunit 134919 "ERM Batch Job II"
 
     local procedure RunCopyGLBudget(FromSource: Option; FromGLBudgetName: Code[10]; FromGLAccount: Code[20]; DateInterval: Text[30]; ToGlBudgetName: Code[10]; AdjustmentFactor: Decimal; RoundingMethodCode: Code[10])
     var
+        SelectedDim: Record "Selected Dimension";
         CopyGLBudget: Report "Copy G/L Budget";
         ToDateCompression: Option "None",Day,Week,Month,Quarter,Year,Period;
         FromClosingEntryFilter: Option Include,Exclude;
         DateChangeFormula: DateFormula;
     begin
         Clear(CopyGLBudget);
+        SelectedDim.DeleteAll();
         Evaluate(DateChangeFormula, '');  // Evaluating blank value in Date Formula variable.
         CopyGLBudget.InitializeRequest(
           FromSource, FromGLBudgetName, FromGLAccount, DateInterval, FromClosingEntryFilter::Include, '', ToGlBudgetName, '', AdjustmentFactor,
@@ -426,7 +471,7 @@ codeunit 134919 "ERM Batch Job II"
         JobPlanningLineInvoice.SetRange("Job Task No.", JobTask."Job Task No.");
         Assert.RecordCount(JobPlanningLineInvoice, 3);
         JobPlanningLineInvoice2.CopyFilters(JobPlanningLineInvoice);
-        JobPlanningLineInvoice.FindSet;
+        JobPlanningLineInvoice.FindSet();
         repeat
             JobPlanningLineInvoice.TestField("Job Ledger Entry No.");
             JobPlanningLineInvoice2.SetRange("Job Ledger Entry No.", JobPlanningLineInvoice."Job Ledger Entry No.");

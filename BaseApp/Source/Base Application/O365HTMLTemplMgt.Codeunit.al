@@ -237,7 +237,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         repeat
             if MediaResources.Get(O365SocialNetwork."Media Resources Ref") then
                 HTMLText += GetSocialsRowHTMLPart(O365SocialNetwork, SocialNetworkRowSectionHTMLText);
-        until O365SocialNetwork.Next = 0;
+        until O365SocialNetwork.Next() = 0;
     end;
 
     local procedure GetSocialsRowHTMLPart(O365SocialNetwork: Record "O365 Social Network"; SocialNetworkRowSectionHTMLText: Text) RowHTMLText: Text
@@ -360,7 +360,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
 
             repeat
                 PaymentServicesRowsHTMLText += FillPaymentServiceRowPart(TempPaymentReportingArgument, PaymentServiceRowHTMLText);
-            until TempPaymentReportingArgument.Next = 0;
+            until TempPaymentReportingArgument.Next() = 0;
 
             FillParameterValue(PaymentServicesHTMLText, 'PaymentServicesRows', PaymentServicesRowsHTMLText);
             FillParameterValue(HTMLText, 'PaymentSevices', PaymentServicesHTMLText);

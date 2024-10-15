@@ -24,7 +24,7 @@ page 10026 "Sales Order Shipment"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -683,7 +683,7 @@ page 10026 "Sales Order Shipment"
 
     local procedure SelltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AfterGetCurrentRecord()

@@ -23,7 +23,7 @@ page 21 "Customer Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)
@@ -243,6 +243,42 @@ page 21 "Customer Card"
                         end;
                     }
                 }
+                field("Phone No."; "Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s telephone number.';
+                }
+                field(MobilePhoneNo; "Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the customer''s mobile telephone number.';
+                }
+                field("E-Mail"; "E-Mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the customer''s email address.';
+                }
+                field("Fax No."; "Fax No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s fax number.';
+                }
+                field("Home Page"; "Home Page")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s home page address.';
+                }
+                field("Language Code"; "Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the language to be used on printouts for this customer.';
+                }
                 group(ContactDetails)
                 {
                     Caption = 'Contact';
@@ -265,42 +301,6 @@ page 21 "Customer Card"
                         begin
                             ContactOnAfterValidate;
                         end;
-                    }
-                    field("Phone No."; "Phone No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the customer''s telephone number.';
-                    }
-                    field(MobilePhoneNo; "Mobile Phone No.")
-                    {
-                        Caption = 'Mobile Phone No.';
-                        ApplicationArea = Basic, Suite;
-                        ExtendedDatatype = PhoneNo;
-                        ToolTip = 'Specifies the customer''s mobile telephone number.';
-                    }
-                    field("E-Mail"; "E-Mail")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ExtendedDatatype = EMail;
-                        Importance = Promoted;
-                        ToolTip = 'Specifies the customer''s email address.';
-                    }
-                    field("Fax No."; "Fax No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Importance = Additional;
-                        ToolTip = 'Specifies the customer''s fax number.';
-                    }
-                    field("Home Page"; "Home Page")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the customer''s home page address.';
-                    }
-                    field("Language Code"; "Language Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Importance = Additional;
-                        ToolTip = 'Specifies the language to be used on printouts for this customer.';
                     }
                 }
             }
@@ -1018,6 +1018,7 @@ page 21 "Customer Card"
                         ShowContact;
                     end;
                 }
+#if not CLEAN16
                 action("Cross Re&ferences")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1031,6 +1032,7 @@ page 21 "Customer Card"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif                
                 action("Item References")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1168,7 +1170,7 @@ page 21 "Customer Card"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse row.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -1189,7 +1191,7 @@ page 21 "Customer Card"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -1342,6 +1344,49 @@ page 21 "Customer Card"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1361,6 +1406,8 @@ page 21 "Customer Card"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
+#endif
+#if not CLEAN17
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1429,6 +1476,7 @@ page 21 "Customer Card"
                         SalesPriceAndLineDiscounts.RunModal;
                     end;
                 }
+#endif
             }
             group(Action82)
             {
@@ -1956,11 +2004,11 @@ page 21 "Customer Card"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category6;
@@ -1980,7 +2028,7 @@ page 21 "Customer Card"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category6;
@@ -2134,6 +2182,25 @@ page 21 "Customer Card"
                 RunPageLink = "Source No." = FIELD("No.");
                 ToolTip = 'Process your customer payments by matching amounts received on your bank account with the related unpaid sales invoices, and then post the payments.';
             }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTip = 'Apply a Word template on the selected records.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category9;
+
+                trigger OnAction()
+                var
+                    Customer: Record Customer;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Customer);
+                    WordTemplateSelectionWizard.SetData(Customer);
+                    WordTemplateSelectionWizard.RunModal();
+                end;
+            }
         }
         area(reporting)
         {
@@ -2271,16 +2338,21 @@ page 21 "Customer Card"
 
                 trigger OnAction()
                 var
-                    ReportSelections: Record "Report Selections";
                     Customer: Record Customer;
+                    CustomReportSelection: Record "Custom Report Selection";
                     CustomLayoutReporting: Codeunit "Custom Layout Reporting";
                     RecRef: RecordRef;
                 begin
-                    RecRef.Open(DATABASE::Customer);
+                    RecRef.Open(Database::Customer);
                     CustomLayoutReporting.SetOutputFileBaseName(StatementFileNameTxt);
-                    CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", "No.");
-                    CustomLayoutReporting.ProcessReportData(ReportSelections.Usage::"C.Statement", RecRef, Customer.FieldName("No."),
-                      DATABASE::Customer, Customer.FieldName("No."), true);
+                    CustomReportSelection.SetRange(Usage, "Report Selection Usage"::"C.Statement");
+                    if CustomReportSelection.FindFirst() then
+                        CustomLayoutReporting.SetTableFilterForReportID(CustomReportSelection."Report ID", "No.")
+                    else
+                        CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", "No.");
+                    CustomLayoutReporting.ProcessReportData(
+                        "Report Selection Usage"::"C.Statement", RecRef, Customer.FieldName("No."),
+                        Database::Customer, Customer.FieldName("No."), true);
                 end;
             }
             action(BackgroundStatement)
@@ -2657,7 +2729,7 @@ page 21 "Customer Card"
         if CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then begin
             VerifyVatRegNo(Customer);
             Copy(Customer);
-            CurrPage.Update;
+            CurrPage.Update();
         end else
             if CustomerTemplMgt.TemplatesAreNotEmpty() then
                 CurrPage.Close;

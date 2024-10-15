@@ -507,7 +507,7 @@ report 10315 "Data Dictionary"
                         if DataDictionary.FindSet then
                             repeat
                                 TotalKey := TotalKey + DataDictionary.Value;
-                            until (DataDictionary.Next = 0)
+                            until (DataDictionary.Next() = 0)
                     end;
                     TotalKey4 := (ShowKeys and (StrLen(TotalKey) <= MaxStrLen(Value)));
                     TotalKey2 := (ShowKeys and
@@ -1463,7 +1463,7 @@ report 10315 "Data Dictionary"
                 then
                     BuildPermission(PermissionRange, 'TableData for Table Object ' + Format(CurrentTableNo),
                       ICount);
-            until (PermissionRange.Next = 0);
+            until (PermissionRange.Next() = 0);
 
         PermissionRange.SetRange("Object Type", PermissionRange."Object Type"::Table);
         if PermissionRange.Find('-') then
@@ -1472,7 +1472,7 @@ report 10315 "Data Dictionary"
                    (CurrentTableNo <= PermissionRange."To")
                 then
                     InsertPermission := (PermissionRange."Insert Permission" <> PermissionRange."Insert Permission"::" ");
-            until ((PermissionRange.Next = 0) or InsertPermission);
+            until ((PermissionRange.Next() = 0) or InsertPermission);
 
         ICount := 1;
 
@@ -1487,7 +1487,7 @@ report 10315 "Data Dictionary"
                     BuildPermission(PermissionRange, 'Fields From ' + Format(PermissionRange.From) +
                       ' - To ' + Format(PermissionRange."To"), ICount);
                     ICount := ICount + 1;
-                until (PermissionRange.Next = 0);
+                until (PermissionRange.Next() = 0);
         end;
     end;
 

@@ -256,7 +256,7 @@ table 2850 "Native - API Tax Setup"
             Clear(Rec);
             LoadFromTaxGroup(TempTaxGroupBuffer);
             Insert;
-        until TempTaxGroupBuffer.Next = 0;
+        until TempTaxGroupBuffer.Next() = 0;
     end;
 
     local procedure LoadFromTaxGroup(var TempTaxGroupBuffer: Record "Tax Group Buffer" temporary)
@@ -341,7 +341,7 @@ table 2850 "Native - API Tax Setup"
                 repeat
                     SalesLine.Validate("VAT Prod. Posting Group");
                     SalesLine.Modify(true);
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
         end;
     end;
 

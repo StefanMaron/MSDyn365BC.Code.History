@@ -136,7 +136,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                 if VendorFiltered.FindSet then
                     repeat
                         ProcessVendorInvoices(VendorFiltered."No.", PeriodDate);
-                    until VendorFiltered.Next = 0;
+                    until VendorFiltered.Next() = 0;
 
                 AnyRecs[FormType] := MagMediaManagement.AnyAmount(FormType, EndLine);
                 MagMediaManagement.AmtCodes(CodeNos, FormType, EndLine);
@@ -598,7 +598,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                             TempIRS1099Adjustment.Insert();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

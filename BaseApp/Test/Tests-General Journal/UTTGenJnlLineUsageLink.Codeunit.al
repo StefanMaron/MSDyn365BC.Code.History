@@ -113,7 +113,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
         GenJournalLine.Validate("Job Line Type", 0);
         GenJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        Assert.AreEqual(JobPlanningLine."Line Type", GenJournalLine."Job Line Type" - 1,
+        Assert.AreEqual(JobPlanningLine."Line Type".AsInteger(), GenJournalLine."Job Line Type".AsInteger() - 1,
           'Line type is not set correctly when Job Planning Line No. is defined.');
 
         // Verify that "Line Type" can't be changed if a "Job Planning Line No." is defined.

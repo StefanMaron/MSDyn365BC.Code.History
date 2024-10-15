@@ -514,7 +514,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         InvoiceDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Invoice has been posted
-        VerifySalesPostedPrepmtAndInvAmounts(PrepmtDocNo, InvoiceDocNo, 2008.68, 5101.55, 6025.88);
+        VerifySalesPostedPrepmtAndInvAmounts(PrepmtDocNo, InvoiceDocNo, 2008.69, 5101.55, 6025.88);
     end;
 
     [Test]
@@ -1241,6 +1241,432 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VerifyVATEntry(Vendor."No.", PurchaseHeader.Amount, 0);
     end;
 
+    [Test]
+    procedure SalesIncrDecrPrepmtInvAndCrMemo100PctExclTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Exclude Tax]
+        // [SCENARIO 388513] Sales order with 100% prepayment excl. Tax, increase\decrease prepayment invoice and credit memo
+        Initialize();
+
+        // [GIVEN] Sales order with 5% Tax, 100% prepayment excl. Tax, one line with 1 Qty and Unit Price = 1000
+        CreateSalesOrder_Tax5Pct_OneLine(SalesHeader, 100, false, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 1000);
+        // [GIVEN] Posted prepayment invoice has Amount = 1000, Amount Incl. VAT = 1000
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1000, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 1000);
+        // [GIVEN] Reopen and update Quantity = 2
+        ReopenAndUpdateQty(SalesHeader, 2);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted 2nd prepayment invoice has Amount = 1000, Amount Incl. VAT = 1000
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1000, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted invoice (1 quantity) has Amount = 0, Amount Incl. VAT = 50
+        UpdateQtyToShip(SalesHeader, 1, '');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 0, 50);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted prepayment creit memo has Amount = 1000, Amount Incl. VAT = 1000
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 1000, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Reopen and update Quantity = 3
+        ReopenAndUpdateQty(SalesHeader, 3);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 3rd prepayment invoice has Amount = 2000, Amount Incl. VAT = 2000
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 2000, 2000);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 2nd prepayment creit memo has Amount = 2000, Amount Incl. VAT = 2000
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 2000, 2000);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 4th prepayment invoice has Amount = 2000, Amount Incl. VAT = 2000
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 2000, 2000);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [WHEN] Posted final invoice
+        // [THEN] Posted final invoice has Amount = 0, Amount Incl. VAT = 100
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 0, 100);
+    end;
+
+    [Test]
+    procedure SalesIncrDecrPrepmtInvAndCrMemo100PctInclTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 388513] Sales order with 100% prepayment incl. Tax, increase\decrease prepayment invoice and credit memo
+        Initialize();
+
+        // [GIVEN] Sales order with 5% Tax, 100% prepayment incl. Tax, one line with 1 Qty and Unit Price = 1000
+        CreateSalesOrder_Tax5Pct_OneLine(SalesHeader, 100, true, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 1000);
+        // [GIVEN] Posted prepayment invoice has Amount = 1050, Amount Incl. VAT = 1050
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1050, 1050);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 1000);
+        // [GIVEN] Reopen and update Quantity = 2
+        ReopenAndUpdateQty(SalesHeader, 2);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted 2nd prepayment invoice has Amount = 1050, Amount Incl. VAT = 1050
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1050, 1050);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted invoice (1 quantity) has Amount = -50, Amount Incl. VAT = 0
+        UpdateQtyToShip(SalesHeader, 1, '');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -50, 0);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Posted prepayment creit memo has Amount = 1050, Amount Incl. VAT = 1050
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 1050, 1050);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 2000);
+        // [GIVEN] Reopen and update Quantity = 3
+        ReopenAndUpdateQty(SalesHeader, 3);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 3rd prepayment invoice has Amount = 2100, Amount Incl. VAT = 2100
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 2100, 2100);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 2nd prepayment creit memo has Amount = 2100, Amount Incl. VAT = 2100
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 2100, 2100);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [GIVEN] Posted 4th prepayment invoice has Amount = 2100, Amount Incl. VAT = 2100
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 2100, 2100);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 3000);
+        // [WHEN] Posted final invoice
+        // [THEN] Posted final invoice has Amount = -100, Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -100, 0);
+    end;
+
+    [Test]
+    procedure SalesIncrDecrPrepmtInvAndCrMemo80PctExclTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Exclude Tax]
+        // [SCENARIO 388513] Sales order with 80% prepayment excl. Tax, increase\decrease prepayment invoice and credit memo
+        Initialize();
+
+        // [GIVEN] Sales order with 5% Tax, 80% prepayment excl. Tax, one line with 1 Qty and Unit Price = 1000
+        CreateSalesOrder_Tax5Pct_OneLine(SalesHeader, 80, false, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 800);
+        // [GIVEN] Posted prepayment invoice has Amount = 800, Amount Incl. VAT = 800
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 800, 800);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 800);
+        // [GIVEN] Reopen and update Quantity = 2
+        ReopenAndUpdateQty(SalesHeader, 2);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted 2nd prepayment invoice has Amount = 800, Amount Incl. VAT = 800
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 800, 800);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted invoice (1 quantity) has Amount = 200, Amount Incl. VAT = 250
+        UpdateQtyToShip(SalesHeader, 1, '');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 200, 250);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted prepayment creit memo has Amount = 800, Amount Incl. VAT = 800
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 800, 800);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Reopen and update Quantity = 3
+        ReopenAndUpdateQty(SalesHeader, 3);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 3rd prepayment invoice has Amount = 1600, Amount Incl. VAT = 1600
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1600, 1600);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 2nd prepayment creit memo has Amount = 1600, Amount Incl. VAT = 1600
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 1600, 1600);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 4th prepayment invoice has Amount = 1600, Amount Incl. VAT = 1600
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1600, 1600);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [WHEN] Posted final invoice
+        // [THEN] Posted final invoice has Amount = 400, Amount Incl. VAT = 500
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 400, 500);
+    end;
+
+    [Test]
+    procedure SalesIncrDecrPrepmtInvAndCrMemo80PctInclTax()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 388513] Sales order with 80% prepayment incl. Tax, increase\decrease prepayment invoice and credit memo
+        Initialize();
+
+        // [GIVEN] Sales order with 5% Tax, 80% prepayment incl. Tax, one line with 1 Qty and Unit Price = 1000
+        CreateSalesOrder_Tax5Pct_OneLine(SalesHeader, 80, true, 1000);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 800);
+        // [GIVEN] Posted prepayment invoice has Amount = 840, Amount Incl. VAT = 840
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 840, 840);
+        VerifySalesHeaderTotals(SalesHeader, 1000, 1050, 0, 800);
+        // [GIVEN] Reopen and update Quantity = 2
+        ReopenAndUpdateQty(SalesHeader, 2);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted 2nd prepayment invoice has Amount = 840, Amount Incl. VAT = 840
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 840, 840);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted invoice (1 quantity) has Amount = 160, Amount Incl. VAT = 210
+        UpdateQtyToShip(SalesHeader, 1, '');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 160, 210);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Posted prepayment creit memo has Amount = 840, Amount Incl. VAT = 840
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 840, 840);
+        VerifySalesHeaderTotals(SalesHeader, 2000, 2100, 0, 1600);
+        // [GIVEN] Reopen and update Quantity = 3
+        ReopenAndUpdateQty(SalesHeader, 3);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 3rd prepayment invoice has Amount = 1680, Amount Incl. VAT = 1680
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1680, 1680);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 2nd prepayment creit memo has Amount = 1680, Amount Incl. VAT = 1680
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 1680, 1680);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [GIVEN] Posted 4th prepayment invoice has Amount = 1680, Amount Incl. VAT = 1680
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 1680, 1680);
+        VerifySalesHeaderTotals(SalesHeader, 3000, 3150, 0, 2400);
+        // [WHEN] Posted final invoice
+        // [THEN] Posted final invoice has Amount = 320, Amount Incl. VAT = 420
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 320, 420);
+    end;
+
+    [Test]
+    procedure SalesPartialShipReopenDelLine100PctPrepmtInclTax_TFS391586()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        ChicagoILTaxAreaCode: Code[20];
+        FurnitureTaxGroupCode: Code[20];
+        SuppliesTaxGroupCode: Code[20];
+        NonTaxableTaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 391586] Sales order with 100% Prepayment Incl. Tax, several lines, partial ship, reopen and deletion of line
+        Initialize();
+
+        // [GIVEN] Sales order with 100% Prepayment Incl. Tax, several lines
+        CreateTaxSetup_CHICAGO_IL(ChicagoILTaxAreaCode, FurnitureTaxGroupCode, SuppliesTaxGroupCode, NonTaxableTaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, ChicagoILTaxAreaCode, 100, true);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        VerifySalesHeaderTotals(SalesHeader, 300, 315, 0, 300);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 315, 315);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 6, '10000');
+        UpdateQtyToShip(SalesHeader, 0, '20000');
+        UpdateQtyToShip(SalesHeader, 6, '30000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -6, 0);
+
+        // [GIVEN] Post prepayment credit memo
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 189, 189);
+
+        // [GIVEN] Reopen the order and delete a line
+        DeleteSalesOrderLine(SalesHeader, 20000);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 84, 84);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -4, 0);
+    end;
+
+    [Test]
+    procedure SalesPartialShipReopenAddLine100PctPrepmtInclTax_TFS391572()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        ChicagoILTaxAreaCode: Code[20];
+        FurnitureTaxGroupCode: Code[20];
+        SuppliesTaxGroupCode: Code[20];
+        NonTaxableTaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 391572] Sales order with Prepayment Incl. Tax, several lines, partial ship, reopen and add a line
+        Initialize();
+
+        // [GIVEN] Sales order with Prepayment Incl. Tax, several lines with custom prepayment
+        CreateTaxSetup_CHICAGO_IL(ChicagoILTaxAreaCode, FurnitureTaxGroupCode, SuppliesTaxGroupCode, NonTaxableTaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, ChicagoILTaxAreaCode, 0, true);
+        CreateSalesLineGLQtyPrepmtPct(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10, 100);
+        CreateSalesLineGLQtyPrepmtPct(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10, 0);
+        CreateSalesLineGLQtyPrepmtPct(SalesHeader, GLAccountNo, NonTaxableTaxGroupCode, 10, 10, 100);
+        VerifySalesHeaderTotals(SalesHeader, 300, 310, 0, 200);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 205, 205);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 0, '20000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -5, 0);
+
+        // [GIVEN] Reopen the order and add a line with 100% prepayment
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        CreateSalesLineGLQtyPrepmtPct(SalesHeader, GLAccountNo, NonTaxableTaxGroupCode, 10, 10, 100);
+        VerifySalesHeaderTotals(SalesHeader, 400, 410, 0, 300);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 100, 100);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 105
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 100, 105);
+    end;
+
+    [Test]
+    procedure SalesPartialShipReopenDelLine100PctPrepmtInclTax_TFS391577()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        ChicagoILTaxAreaCode: Code[20];
+        FurnitureTaxGroupCode: Code[20];
+        SuppliesTaxGroupCode: Code[20];
+        NonTaxableTaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 391577] Sales order with 100% Prepayment Incl. Tax, several lines, partial ship, reopen and delete a line (case 391577)
+        Initialize();
+
+        // [GIVEN] Sales order with 100% Prepayment Incl. Tax, several lines
+        CreateTaxSetup_CHICAGO_IL(ChicagoILTaxAreaCode, FurnitureTaxGroupCode, SuppliesTaxGroupCode, NonTaxableTaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, ChicagoILTaxAreaCode, 100, true);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 10);
+        VerifySalesHeaderTotals(SalesHeader, 300, 315, 0, 300);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 315, 315);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 0, '10000');
+        UpdateQtyToShip(SalesHeader, 0, '20000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -5, 0);
+
+        // [GIVEN] Post prepayment credit memo
+        VerifySalesPostedCrMemoAmounts(LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader), 210, 210);
+
+        // [GIVEN] Reopen the order and delete a line
+        DeleteSalesOrderLine(SalesHeader, 10000);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 105, 105);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -5, 0);
+    end;
+
+    [Test]
+    procedure SalesPartialShipCustomAmounts100PctPrepmtInclTax_TFS391587()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        ChicagoILTaxAreaCode: Code[20];
+        FurnitureTaxGroupCode: Code[20];
+        SuppliesTaxGroupCode: Code[20];
+        NonTaxableTaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 391587] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts and partial ship (case 391587)
+        Initialize();
+
+        // [GIVEN] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts
+        CreateTaxSetup_CHICAGO_IL(ChicagoILTaxAreaCode, FurnitureTaxGroupCode, SuppliesTaxGroupCode, NonTaxableTaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, ChicagoILTaxAreaCode, 100, true);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 10, 1.68);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, FurnitureTaxGroupCode, 5, 1.68);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, NonTaxableTaxGroupCode, 5, 1.5);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, SuppliesTaxGroupCode, 1, 29.48);
+        VerifySalesHeaderTotals(SalesHeader, 62.18, 64.62, 0, 62.18);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 64.62, 64.62);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 1, '20000');
+        UpdateQtyToShip(SalesHeader, 1, '30000');
+        UpdateQtyToShip(SalesHeader, 1, '40000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -2.1, 0);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -0.34, 0);
+    end;
+
+    [Test]
+    procedure SalesPartialShipCustomAmounts100PctPrepmtInclTax_TFS389998()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax]
+        // [SCENARIO 389998] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts, partial ship (case 389998)
+        Initialize();
+
+        // [GIVEN] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts
+        CreateCustomTaxSetup_TFS389998(TaxAreaCode, TaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, TaxAreaCode, 100, true);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, 2, 127.66);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, 5, 644.27);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, 1, 167);
+        VerifySalesHeaderTotals(SalesHeader, 3643.67, 3998.93, 0, 3643.67);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 3998.93, 3998.93);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 1, '10000');
+        UpdateQtyToShip(SalesHeader, 4, '20000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -279.99, 0);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -75.27, 0);
+    end;
+
+    [Test]
+    procedure SalesPartialShipCustomAmountsLineDisc100PctPrepmtInclTax_TFS389998()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Prepayment] [Sales] [Prepmt. Include Tax] [Line Discount]
+        // [SCENARIO 389998] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts, line discount and partial ship
+        Initialize();
+
+        // [GIVEN] Sales order with 100% Prepayment Incl. Tax, several lines with custom amounts and line discount
+        CreateCustomTaxSetup_TFS389998(TaxAreaCode, TaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, TaxAreaCode, 100, true);
+        CreateSalesLineGLQtyLineDisc(SalesHeader, GLAccountNo, TaxGroupCode, 2, 127.66, 15);
+        CreateSalesLineGLQtyLineDisc(SalesHeader, GLAccountNo, TaxGroupCode, 5, 644.27, 20);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, 1, 167);
+        VerifySalesHeaderTotals(SalesHeader, 2961.1, 3249.81, 0, 2961.1);
+
+        // [GIVEN] Post prepayment invoice
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader), 3249.81, 3249.81);
+
+        // [GIVEN] Partially ship lines
+        UpdateQtyToShip(SalesHeader, 1, '10000');
+        UpdateQtyToShip(SalesHeader, 4, '20000');
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -227.87, 0);
+
+        // [WHEN] Post final invoice
+        // [THEN] Posted final invoice has Amount Incl. VAT = 0
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -60.84, 0);
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";
@@ -1329,6 +1755,23 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VATAmount := 31.02;
     end;
 
+    local procedure CreateCustomTaxSetup_5Pct(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20])
+    var
+        TaxDetail: Record "Tax Detail";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxJurisdictionCode: array[2] of Code[10];
+        i: Integer;
+    begin
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        for i := 1 to ArrayLen(TaxJurisdictionCode) do begin
+            TaxJurisdictionCode[i] := LibraryERMTax.CreateTaxJurisdiction_US();
+            LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode[i]);
+        end;
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode[1], TaxGroupCode, 2);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode[2], TaxGroupCode, 3);
+    end;
+
     local procedure CreateCustomTaxSetup_TFS210430(var TaxAreaCode: Code[20]; var TaxGroupCode: array[2] of Code[20]; TaxCountry: Option)
     var
         TaxDetail: Record "Tax Detail";
@@ -1351,6 +1794,60 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         UpdateTaxDetailExpenseCapitalize(TaxJurisdictionCode[2], '', TaxDetail."Tax Type"::"Sales and Use Tax", true);
         UpdateTaxDetailExpenseCapitalize(TaxJurisdictionCode[2], TaxGroupCode[1], TaxDetail."Tax Type"::"Sales and Use Tax", true);
         UpdateTaxDetailExpenseCapitalize(TaxJurisdictionCode[2], TaxGroupCode[2], TaxDetail."Tax Type"::"Sales and Use Tax", true);
+    end;
+
+    local procedure CreateCustomTaxSetup_TFS389998(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20])
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdictionCode: array[3] of Code[10];
+        i: Integer;
+    begin
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+
+        for i := 1 to ARRAYLEN(TaxJurisdictionCode) do begin
+            TaxJurisdictionCode[i] := LibraryERMTax.CreateTaxJurisdiction_US();
+            LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode[i]);
+        end;
+
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode[1], TaxGroupCode, 2);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode[2], TaxGroupCode, 0);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode[3], TaxGroupCode, 7.75);
+    end;
+
+    local procedure CreateTaxSetup_CHICAGO_IL(var TaxAreaCode: Code[20]; var FurnitureTaxGroupCode: Code[20]; var SuppliesTaxGroupCode: Code[20]; var NonTaxableTaxGroupCode: Code[20])
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdictionCode_IL: Code[10];
+        TaxJurisdictionCode_ILCHICAGO: Code[10];
+        TaxJurisdictionCode_ILCOOK: Code[10];
+    begin
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+
+        TaxJurisdictionCode_IL := LibraryERMTax.CreateTaxJurisdiction_US();
+        TaxJurisdictionCode_ILCHICAGO := LibraryERMTax.CreateTaxJurisdiction_US();
+        TaxJurisdictionCode_ILCOOK := LibraryERMTax.CreateTaxJurisdiction_US();
+
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode_IL);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode_ILCHICAGO);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode_ILCOOK);
+
+        FurnitureTaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        SuppliesTaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        NonTaxableTaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_IL, FurnitureTaxGroupCode, 3);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_IL, SuppliesTaxGroupCode, 2);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_IL, NonTaxableTaxGroupCode, 0);
+
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_ILCHICAGO, '', 1);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_ILCHICAGO, NonTaxableTaxGroupCode, 0);
+
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_ILCOOK, '', 1);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode_ILCOOK, NonTaxableTaxGroupCode, 0);
     end;
 
     local procedure CreateTaxForTaxGroup(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; CountryRegion: Option; TaxPercent: Decimal; ExpenseCapitalize: Boolean)
@@ -1546,6 +2043,19 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         CreateSalesLineGL(SalesHeader, GLAccountNo, TaxGroupCode, UnitPrices[2]);
     end;
 
+    local procedure CreateSalesOrder_Tax5Pct_OneLine(var SalesHeader: Record "Sales Header"; PrepmtPct: Decimal; PrepmtInclTax: Boolean; UnitPrice: Decimal)
+    var
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        CreateCustomTaxSetup_5Pct(TaxAreaCode, TaxGroupCode);
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, TaxAreaCode, PrepmtPct, PrepmtInclTax);
+        CreateSalesLineGL(SalesHeader, GLAccountNo, TaxGroupCode, UnitPrice);
+    end;
+
     local procedure CreatePurchaseOrder_TFS262985(var PurchaseHeader: Record "Purchase Header")
     var
         VendorNo: Code[20];
@@ -1652,6 +2162,32 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, NewQuantity);
             Validate("Unit Price", UnitPrice);
             Validate("Tax Group Code", TaxGroupCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateSalesLineGLQtyLineDisc(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; TaxGroupCode: Code[20]; NewQuantity: Decimal; UnitPrice: Decimal; LineDiscountPct: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, NewQuantity);
+            Validate("Unit Price", UnitPrice);
+            Validate("Tax Group Code", TaxGroupCode);
+            Validate("Line Discount %", LineDiscountPct);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateSalesLineGLQtyPrepmtPct(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; TaxGroupCode: Code[20]; NewQuantity: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, NewQuantity);
+            Validate("Unit Price", UnitPrice);
+            Validate("Tax Group Code", TaxGroupCode);
+            Validate("Prepayment %", PrepmtPct);
             Modify(true);
         end;
     end;
@@ -1985,7 +2521,8 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         end;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; LineType: Option)
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20];
+                                                                                        LineType: Enum "Sales Line Type")
     begin
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
@@ -2019,9 +2556,10 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
-            "Posted Prepmt. Inv. Nos." := LibraryERM.CreateNoSeriesCode;
-            Modify;
+            Get();
+            "Posted Prepmt. Inv. Nos." := LibraryERM.CreateNoSeriesCode();
+            "Posted Prepmt. Cr. Memo Nos." := LibraryERM.CreateNoSeriesCode();
+            Modify();
         end;
     end;
 
@@ -2045,6 +2583,37 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
             Validate("Expense/Capitalize", NewValue);
             Modify(true);
         end;
+    end;
+
+    local procedure UpdateQtyToShip(SalesHeader: Record "Sales Header"; NewQtyToShip: Decimal; LineNoFilter: Text)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        if LineNoFilter <> '' then
+            SalesLine.SetFilter("Line No.", LineNoFilter);
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::"G/L Account");
+        SalesLine.Validate("Qty. to Ship", NewQtyToShip);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure ReopenAndUpdateQty(SalesHeader: Record "Sales Header"; NewQty: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::"G/L Account");
+        SalesLine.Validate(Quantity, NewQty);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure DeleteSalesOrderLine(SalesHeader: Record "Sales Header"; LineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.SetRange("Line No.", LineNo);
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::"G/L Account");
+        SalesLine.Delete(true);
     end;
 
     local procedure ValidatePurchaseOrderTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -2139,6 +2708,16 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         end;
     end;
 
+    local procedure VerifyPostedSalesCrMemoTotals(SalesCrMemoHeader: Record 114; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
+    begin
+        with SalesCrMemoHeader do begin
+            CalcFields(Amount, "Amount Including VAT", "Remaining Amount");
+            TestField(Amount, ExpectedAmount);
+            TestField("Amount Including VAT", ExpectedAmountInclVAT);
+            TestField("Remaining Amount", -ExpectedAmountInclVAT);
+        end;
+    end;
+
     local procedure VerifyPostedPurchaseInvoiceTotals(PurchInvHeader: Record "Purch. Inv. Header"; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         with PurchInvHeader do begin
@@ -2159,13 +2738,25 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
     end;
 
     local procedure VerifySalesPostedPrepmtAndInvAmounts(PrepmtDocNo: Code[20]; InvoiceDocNo: Code[20]; PrepmtAmount: Decimal; InvoiceAmount: Decimal; InvoiceAmountInclVAT: Decimal)
+    begin
+        VerifySalesPostedInvAmounts(PrepmtDocNo, PrepmtAmount, PrepmtAmount);
+        VerifySalesPostedInvAmounts(InvoiceDocNo, InvoiceAmount, InvoiceAmountInclVAT);
+    end;
+
+    local procedure VerifySalesPostedInvAmounts(PostedDocNo: Code[20]; Amount: Decimal; AmountInclVAT: Decimal)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader.Get(PrepmtDocNo);
-        VerifyPostedSalesInvoiceTotals(SalesInvoiceHeader, PrepmtAmount, PrepmtAmount);
-        SalesInvoiceHeader.Get(InvoiceDocNo);
-        VerifyPostedSalesInvoiceTotals(SalesInvoiceHeader, InvoiceAmount, InvoiceAmountInclVAT);
+        SalesInvoiceHeader.Get(PostedDocNo);
+        VerifyPostedSalesInvoiceTotals(SalesInvoiceHeader, Amount, AmountInclVAT);
+    end;
+
+    local procedure VerifySalesPostedCrMemoAmounts(PostedDocNo: Code[20]; Amount: Decimal; AmountInclVAT: Decimal)
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        SalesCrMemoHeader.Get(PostedDocNo);
+        VerifyPostedSalesCrMemoTotals(SalesCrMemoHeader, Amount, AmountInclVAT);
     end;
 
     local procedure VerifyPurchasePostedPrepmtAndInvAmounts(PrepmtDocNo: Code[20]; InvoiceDocNo: Code[20]; PrepmtAmount: Decimal; InvoiceAmount: Decimal; InvoiceAmountInclVAT: Decimal)

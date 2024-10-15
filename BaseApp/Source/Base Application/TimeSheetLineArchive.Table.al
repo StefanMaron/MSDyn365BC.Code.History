@@ -18,11 +18,9 @@ table 955 "Time Sheet Line Archive"
             Caption = 'Time Sheet Starting Date';
             Editable = false;
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Time Sheet Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
-            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
         }
         field(6; "Job No."; Code[20])
         {
@@ -66,7 +64,7 @@ table 955 "Time Sheet Line Archive"
         }
         field(15; "Total Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Time Sheet Detail Archive".Quantity WHERE("Time Sheet No." = FIELD("Time Sheet No."),
+            CalcFormula = Sum("Time Sheet Detail Archive".Quantity WHERE("Time Sheet No." = FIELD("Time Sheet No."),
                                                                           "Time Sheet Line No." = FIELD("Line No.")));
             Caption = 'Total Quantity';
             Editable = false;
@@ -110,7 +108,7 @@ table 955 "Time Sheet Line Archive"
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Comment Line" WHERE("No." = FIELD("Time Sheet No."),
+            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("Time Sheet No."),
                                                                  "Time Sheet Line No." = FIELD("Line No.")));
             Caption = 'Comment';
             Editable = false;

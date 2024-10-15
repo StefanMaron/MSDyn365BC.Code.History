@@ -224,7 +224,7 @@ page 10044 "Sales Credit Memo Stats."
                         TaxPercentage := SalesCrMemoLine."VAT %"
                     else
                         TaxPercentage := -1;
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
         TaxAmount := AmountInclTax - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -291,7 +291,7 @@ page 10044 "Sales Credit Memo Stats."
                             BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
         CurrPage.Subform.PAGE.SetTempTaxAmountLine(TempSalesTaxLine);
         CurrPage.Subform.PAGE.InitGlobals("Currency Code", false, false, false, false, "VAT Base Discount %");

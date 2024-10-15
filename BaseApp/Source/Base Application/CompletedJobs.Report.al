@@ -168,7 +168,7 @@ report 10212 "Completed Jobs"
                                     ContractPrice := ContractPrice + JobPlanningLine."Total Price (LCY)";
                                 end;
                         end;
-                    until JobPlanningLine.Next = 0;
+                    until JobPlanningLine.Next() = 0;
 
                 JobLedgerEntry.Reset();
                 JobLedgerEntry.SetCurrentKey("Job No.", "Posting Date");
@@ -182,7 +182,7 @@ report 10212 "Completed Jobs"
                             JobLedgerEntry."Entry Type"::Sale:
                                 InvoicedPrice := InvoicedPrice - JobLedgerEntry."Total Price (LCY)";
                         end;
-                    until JobLedgerEntry.Next = 0;
+                    until JobLedgerEntry.Next() = 0;
 
                 Profit := InvoicedPrice - UsageCost;
             end;

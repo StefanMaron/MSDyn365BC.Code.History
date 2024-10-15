@@ -212,7 +212,7 @@ report 416 "Archived Purchase Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -457,7 +457,7 @@ report 416 "Archived Purchase Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -1024,7 +1024,7 @@ report 416 "Archived Purchase Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until PrepmtDimSetEntry.Next = 0;
+                                until PrepmtDimSetEntry.Next() = 0;
                             end;
                         }
 
@@ -1034,7 +1034,7 @@ report 416 "Archived Purchase Order"
                                 if not PrepmtInvBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next = 0 then
+                                if PrepmtInvBuf.Next() = 0 then
                                     CurrReport.Break();
 
                             if ShowInternalInfo then
@@ -1203,7 +1203,7 @@ report 416 "Archived Purchase Order"
                             PurchLineArch.Insert();
                             TempPurchLine.TransferFields(PurchLineArchive);
                             TempPurchLine.Insert();
-                        until PurchLineArchive.Next = 0;
+                        until PurchLineArchive.Next() = 0;
 
                     VATAmountLine.DeleteAll();
 

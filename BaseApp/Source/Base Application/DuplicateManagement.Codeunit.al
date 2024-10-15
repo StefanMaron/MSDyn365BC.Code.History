@@ -28,7 +28,7 @@ codeunit 5060 DuplicateManagement
         if DuplSearchStringSetup.Find('-') then
             repeat
                 InsDuplContIndex(Cont, DuplSearchStringSetup);
-            until DuplSearchStringSetup.Next = 0;
+            until DuplSearchStringSetup.Next() = 0;
 
         InsDuplCont(Cont, RMSetup."Search Hit %");
     end;
@@ -128,8 +128,8 @@ codeunit 5060 DuplicateManagement
                             DuplCont."No. of Matching Strings" := 1;
                             DuplCont.Insert();
                         end;
-                    until DuplContSearchString2.Next = 0;
-            until DuplContSearchString.Next = 0;
+                    until DuplContSearchString2.Next() = 0;
+            until DuplContSearchString.Next() = 0;
 
         DuplCont.SetFilter("No. of Matching Strings", '>=%1', Round(DuplSearchStringSetup.Count * HitRatio / 100, 1, '>'));
         OnInsDuplContOnAfterDuplContSetFilters(DuplCont, DuplContSearchString);
@@ -140,7 +140,7 @@ codeunit 5060 DuplicateManagement
                    not DuplCont2.Get(DuplCont."Duplicate Contact No.", DuplCont."Contact No.")
                 then
                     DuplCont2.Insert(true);
-            until DuplCont.Next = 0;
+            until DuplCont.Next() = 0;
             DuplCont.DeleteAll();
         end;
     end;

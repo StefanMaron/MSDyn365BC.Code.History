@@ -166,7 +166,7 @@ report 10214 "Customer Jobs (Price)"
                             InvoicedPrice := InvoicedPrice - JobLedgerEntry."Total Price (LCY)"
                         else
                             UsagePrice := UsagePrice + JobLedgerEntry."Total Price (LCY)";
-                    until JobLedgerEntry.Next = 0;
+                    until JobLedgerEntry.Next() = 0;
                 if not Customer.Get("Bill-to Customer No.") then
                     Customer.Init();
             end;

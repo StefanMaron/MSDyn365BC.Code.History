@@ -527,7 +527,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.AreEqual(true, GLEntry.Reversed, ReverseSignErr);
         until GLEntry.Next = 0;
@@ -549,7 +549,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.SetRange("Document Type", BankAccountLedgerEntry."Document Type"::" ");
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, BankAccountLedgerEntry.Reversed, ReverseSignErr);
         until BankAccountLedgerEntry.Next = 0;
@@ -562,7 +562,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::" ");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             Assert.AreEqual(true, VATEntry.Reversed, ReverseSignErr);
         until VATEntry.Next = 0;
@@ -585,7 +585,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Assert: Codeunit Assert;
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, CustLedgerEntry.Reversed, ReverseSignErr);
         until CustLedgerEntry.Next = 0;
@@ -608,7 +608,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         Assert: Codeunit Assert;
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(true, VendorLedgerEntry.Reversed, ReverseSignErr);
         until VendorLedgerEntry.Next = 0;

@@ -125,7 +125,7 @@ page 481 "Dimension Set ID Filter"
             repeat
                 Code := TempDimensionSetIDFilterLine."Dimension Code";
                 Insert;
-            until TempDimensionSetIDFilterLine.Next = 0;
+            until TempDimensionSetIDFilterLine.Next() = 0;
     end;
 
     var
@@ -146,7 +146,7 @@ page 481 "Dimension Set ID Filter"
         DimSetIDFilterPage.RunModal;
         DimSetIDFilterPage.GetTempDimensionSetIDFilterLine(TempDimensionSetIDFilterLine);
         TempDimensionSetIDFilterLine.Reset();
-        if not TempDimensionSetIDFilterLine.IsEmpty then begin
+        if not TempDimensionSetIDFilterLine.IsEmpty() then begin
             GetDimSetIDsForFilter(DimensionMgt);
             DimFilter := DimensionMgt.GetDimSetFilter;
             if DimFilter = '' then
@@ -166,7 +166,7 @@ page 481 "Dimension Set ID Filter"
                 DimensionMgt.GetDimSetIDsForFilter(TempDimensionSetIDFilterLine."Dimension Code",
                   TempDimensionSetIDFilterLine.GetDimensionValueFilter(
                     TempDimensionSetIDFilterLine.Code, TempDimensionSetIDFilterLine."Dimension Code"));
-            until TempDimensionSetIDFilterLine.Next = 0;
+            until TempDimensionSetIDFilterLine.Next() = 0;
     end;
 
     procedure GetTempDimensionSetIDFilterLine(var NewTempDimensionSetIDFilterLine: Record "Dimension Set ID Filter Line" temporary)
@@ -191,7 +191,7 @@ page 481 "Dimension Set ID Filter"
                 repeat
                     MessageTxt += StrSubstNo(', %1: %2', TempDimensionSetIDFilterLine."Dimension Code",
                         TempDimensionSetIDFilterLine.GetDimensionValueFilter('', TempDimensionSetIDFilterLine."Dimension Code"));
-                until TempDimensionSetIDFilterLine.Next = 0;
+                until TempDimensionSetIDFilterLine.Next() = 0;
         end;
     end;
 

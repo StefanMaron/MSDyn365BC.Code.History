@@ -130,7 +130,7 @@ table 322 "Tax Detail"
                 TaxDetailTemp.Init();
                 TaxDetailTemp := TaxDetail;
                 TaxDetailTemp.Insert();
-            until TaxDetail.Next = 0;
+            until TaxDetail.Next() = 0;
     end;
 
     local procedure ApplyCommonFilters(TaxJurisdictionCode: Code[20]; TaxGroupCode: Code[20]; TaxType: Option; EffectiveDate: Date)
@@ -178,7 +178,7 @@ table 322 "Tax Detail"
         if TaxAreaLine.FindSet then
             repeat
                 TotalTaxRate += GetTaxRate(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales and Use Tax", EffectiveDate);
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
         exit(TotalTaxRate);
     end;
 
@@ -214,7 +214,7 @@ table 322 "Tax Detail"
                         if TaxJurisdiction.Code <> TaxJurisdiction."Report-to Jurisdiction" then
                             TaxJurisdiction2 := TaxJurisdiction;
                 end;
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
         if TaxJurisdiction2.Code = '' then
             exit; // missing setup
         TotalTaxRate -= GetTaxRate(TaxJurisdiction2.Code, TaxGroupCode, "Tax Type"::"Sales and Use Tax", EffectiveDate);
@@ -241,7 +241,7 @@ table 322 "Tax Detail"
                     if i <= 3 then
                         TaxJurisDictionCodes[i] := TaxJurisdiction.Code;
                 end;
-            until (TaxAreaLine.Next = 0) or (i = 3);
+            until (TaxAreaLine.Next() = 0) or (i = 3);
         if i = 0 then
             exit;
         if i < 3 then begin

@@ -90,7 +90,7 @@ table 5075 "Logged Segment"
                 MasterCanceledCheckmark := not Canceled;
                 repeat
                     SetCanceledCheckmark(MasterCanceledCheckmark);
-                until Next = 0
+                until Next() = 0
             end;
         end
     end;

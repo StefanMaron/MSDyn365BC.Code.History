@@ -248,7 +248,7 @@ report 10072 "Customer Statements"
                         if TempAppliedCustLedgEntry.Find('-') then
                             repeat
                                 InsertTemp(TempAppliedCustLedgEntry);
-                            until TempAppliedCustLedgEntry.Next = 0;
+                            until TempAppliedCustLedgEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()

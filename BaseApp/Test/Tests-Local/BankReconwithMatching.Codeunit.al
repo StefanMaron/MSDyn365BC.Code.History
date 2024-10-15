@@ -16,7 +16,7 @@ codeunit 141050 "Bank Recon. with Matching"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        AutoSelectReportTxt: Label 'An incompatible report was selected for %1. Based on the current setup of %2, a compatible report has been selected.', Comment = '%1=OptionValue,%2=FieldCaption';
+        AutoSelectReportTxt: Label 'We have chosen the following report layouts: %1 for %2.';
         ReportIsSelectedTxt: Label 'No report was selected for %1. Based on the current setup of %2, a compatible report has been selected.', Comment = '%1=OptionValue,%2=FieldCaption';
         TooManyReportsAreSelectedTxt: Label 'One or more reports selected for bank reconciliation may not be compatible with the current setup of %1. Make sure the report %2 is selected for %3.', Comment = '%1=FieldCaption,%2=ReportNumber,%3=OptionValue';
         PageNotRefreshedErr: Label '%1 was not refreshed.', Comment = '%1=PageName';
@@ -859,7 +859,7 @@ codeunit 141050 "Bank Recon. with Matching"
         ReportSelections.DeleteAll(true);
     end;
 
-    local procedure AddReconciliationReport(Usage: Option; Sequence: Integer; ReportID: Integer)
+    local procedure AddReconciliationReport(Usage: Enum "Report Selection Usage"; Sequence: Integer; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -1000,7 +1000,7 @@ codeunit 141050 "Bank Recon. with Matching"
         Assert.AreNotEqual(0, StrPos(Message, BankReconTestLine), StrSubstNo(UnexpectedMessageErr, BankReconTestLine, Message));
     end;
 
-    local procedure CheckSelectedReport(Usage: Option; ReportID: Integer)
+    local procedure CheckSelectedReport(Usage: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -1008,6 +1008,15 @@ codeunit 141050 "Bank Recon. with Matching"
         ReportSelections.SetRange(Sequence, '1');
         ReportSelections.SetRange("Report ID", ReportID);
         Assert.IsFalse(ReportSelections.IsEmpty, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+    end;
+
+    local procedure GetSelectedReport(Usage: Enum "Report Selection Usage"; ReportID: Integer; var ReportSelections: Record "Report Selections"): Boolean
+    begin
+        ReportSelections.SetRange(Usage, Usage);
+        ReportSelections.SetRange(Sequence, '1');
+        ReportSelections.SetRange("Report ID", ReportID);
+        ReportSelections.SetAutoCalcFields("Report Caption");
+        exit(ReportSelections.FindFirst());
     end;
 
     [Test]
@@ -1053,6 +1062,7 @@ codeunit 141050 "Bank Recon. with Matching"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         ReportSelections: Record "Report Selections";
+        AutoMatchingEnabled: Boolean;
     begin
         // [FEATURE] Enable W1 Bank Reconciliation Pages in NA
         // [SCENARIO 19] Activate W1 Pages without Printing Report Selection
@@ -1070,6 +1080,8 @@ codeunit 141050 "Bank Recon. with Matching"
         DeselectReconciliationReports;
         AddReconciliationReport(ReportSelections.Usage::"B.Stmt", 1, REPORT::"Bank Reconciliation");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 1, REPORT::"Bank Rec. Test Report");
+        AutoMatchingEnabled := true;
+        LibraryVariableStorage.Enqueue(AutoMatchingEnabled);
 
         // Exercise
         LibraryLowerPermissions.SetBanking;
@@ -1092,13 +1104,27 @@ codeunit 141050 "Bank Recon. with Matching"
         ReportSelections: Record "Report Selections";
         BankStmtLine: Text;
         BankReconTestLine: Text;
+        AutoMatchingEnabled: Boolean;
     begin
-        BankStmtLine := StrSubstNo(AutoSelectReportTxt,
-            Format(ReportSelections.Usage::"B.Stmt"), GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"));
+        AutoMatchingEnabled := LibraryVariableStorage.DequeueBoolean();
+
+        if AutoMatchingEnabled then
+            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Stmt", REPORT::"Bank Account Statement", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Stmt")))
+        else
+            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Stmt", REPORT::"Bank Reconciliation", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Stmt")));
+
+        BankStmtLine := StrSubstNo(AutoSelectReportTxt, ReportSelections."Report Caption",
+             Format(ReportSelections.Usage::"B.Stmt"));
+
         Assert.AreNotEqual(0, StrPos(Message, BankStmtLine), StrSubstNo(UnexpectedMessageErr, BankStmtLine, Message));
 
-        BankReconTestLine := StrSubstNo(AutoSelectReportTxt,
-            Format(ReportSelections.Usage::"B.Recon.Test"), GeneralLedgerSetup.FieldCaption("Bank Recon. with Auto. Match"));
+        if AutoMatchingEnabled then
+            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Recon.Test", REPORT::"Bank Acc. Recon. - Test", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Recon.Test")))
+        else
+            Assert.IsTrue(GetSelectedReport(ReportSelections.Usage::"B.Recon.Test", REPORT::"Bank Rec. Test Report", ReportSelections), StrSubstNo('Report selection was not updated for %1,', Format(ReportSelections.Usage::"B.Recon.Test")));
+
+        BankReconTestLine := StrSubstNo(AutoSelectReportTxt, ReportSelections."Report Caption",
+            Format(ReportSelections.Usage::"B.Recon.Test"));
         Assert.AreNotEqual(0, StrPos(Message, BankReconTestLine), StrSubstNo(UnexpectedMessageErr, BankReconTestLine, Message));
     end;
 
@@ -1109,6 +1135,7 @@ codeunit 141050 "Bank Recon. with Matching"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         ReportSelections: Record "Report Selections";
+        AutoMatchingEnabled: Boolean;
     begin
         // [FEATURE] Enable W1 Bank Reconciliation Pages in NA
         // [SCENARIO 20] Activate Local Pages without Printing Report Selection
@@ -1126,6 +1153,8 @@ codeunit 141050 "Bank Recon. with Matching"
         DeselectReconciliationReports;
         AddReconciliationReport(ReportSelections.Usage::"B.Stmt", 1, REPORT::"Bank Account Statement");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 1, REPORT::"Bank Acc. Recon. - Test");
+        AutoMatchingEnabled := false;
+        LibraryVariableStorage.Enqueue(AutoMatchingEnabled);
 
         // Exercise
         LibraryLowerPermissions.SetBanking;

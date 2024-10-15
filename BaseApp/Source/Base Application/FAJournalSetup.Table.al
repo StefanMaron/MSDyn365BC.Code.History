@@ -290,7 +290,7 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup."FA Jnl. Batch Name" := IncStr(FAJnlSetup."FA Jnl. Batch Name");
                     FAJnlSetup.Modify();
                 end;
-            until FAJnlSetup.Next = 0;
+            until FAJnlSetup.Next() = 0;
     end;
 
     procedure IncGenJnlBatchName(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -305,7 +305,7 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup."Gen. Jnl. Batch Name" := IncStr(FAJnlSetup."Gen. Jnl. Batch Name");
                     FAJnlSetup.Modify();
                 end;
-            until FAJnlSetup.Next = 0;
+            until FAJnlSetup.Next() = 0;
     end;
 
     procedure IncInsuranceJnlBatchName(var InsuranceJnlBatch: Record "Insurance Journal Batch")
@@ -320,7 +320,7 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup."Insurance Jnl. Batch Name" := IncStr(FAJnlSetup."Insurance Jnl. Batch Name");
                     FAJnlSetup.Modify();
                 end;
-            until FAJnlSetup.Next = 0;
+            until FAJnlSetup.Next() = 0;
     end;
 }
 

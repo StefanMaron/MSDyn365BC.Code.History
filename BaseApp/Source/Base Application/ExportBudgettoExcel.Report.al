@@ -1,4 +1,4 @@
-﻿report 82 "Export Budget to Excel"
+report 82 "Export Budget to Excel"
 {
     Caption = 'Export Budget to Excel';
     ProcessingOnly = true;
@@ -100,7 +100,7 @@
                         EnterCell(
                           HeaderRowNo, ColNo, CopyStr(TypeHelper.FormatDateWithCurrentCulture(TempPeriod."Period Start"), 1, 250),
                           false, true, '', ExcelBuf."Cell Type"::Date);
-                    until TempPeriod.Next = 0;
+                    until TempPeriod.Next() = 0;
 
                 CopyFilter("G/L Account No.", GLAcc."No.");
                 OnAfterCopyFilterGLAccount(GLAcc);
@@ -135,7 +135,7 @@
                                       GLAcc."Account Type" <> GLAcc."Account Type"::Posting,
                                       false, '', ExcelBuf."Cell Type"::Number);
                                     TempPeriod.Next;
-                                until TempBudgetBuf2.Next = 0;
+                                until TempBudgetBuf2.Next() = 0;
                             end else begin
                                 Clear(TempBudgetBuf2);
                                 EnterDimValues;
@@ -150,9 +150,9 @@
                                       GLAcc."Account Type" <> GLAcc."Account Type"::Posting,
                                       false,
                                       '#,##0.00');
-                                until TempPeriod.Next = 0;
+                                until TempPeriod.Next() = 0;
                             end;
-                    until GLAcc.Next = 0;
+                    until GLAcc.Next() = 0;
                 if IncludeTotalingFormulas then
                     HasFormulaError := ExcelBuf.ExportBudgetFilterToFormula(ExcelBuf);
                 Window.Close;
@@ -176,7 +176,7 @@
                         ExcelBuf.SetCurrent(LastBudgetRowNo, NoOfDimensions + 2 + TempPeriod."Period No.");
                         ExcelBuf.EndRange;
                         ExcelBuf.CreateRange(ExcelBuf.GetExcelReference(9) + '_' + Format(TempPeriod."Period No."));
-                    until TempPeriod.Next = 0;
+                    until TempPeriod.Next() = 0;
                 end;
 
                 for i := 1 to NoOfDimensions do begin
@@ -232,13 +232,13 @@
                 if SelectedDim.Find('-') then
                     repeat
                         DimensionValue.SetRange("Dimension Code", SelectedDim."Dimension Code");
-                        if not DimensionValue.IsEmpty then begin
+                        if not DimensionValue.IsEmpty() then begin
                             i := i + 1;
                             if i > ArrayLen(ColumnDimCode) then
                                 Error(Text003, ArrayLen(ColumnDimCode));
                             ColumnDimCode[i] := SelectedDim."Dimension Code";
                         end;
-                    until (SelectedDim.Next = 0) or (i = 8);
+                    until (SelectedDim.Next() = 0) or (i = 8);
                 NoOfDimensions := i;
 
                 InsertTempPeriods();
@@ -573,7 +573,7 @@
                 FieldRef := RecRef.Field(FieldID);
                 EnterCell(RowNo, 1, Format(FieldRef.Value), false, false, '', ExcelBuf."Cell Type"::Text);
                 RowNo := RowNo + 1;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
             DimensionRange[2, i] := RowNo - 1;
         end;
     end;

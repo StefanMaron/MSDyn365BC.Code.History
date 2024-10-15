@@ -8,6 +8,9 @@ page 5513 "Time Registration Entity"
     PageType = API;
     SourceTable = "Employee Time Reg Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

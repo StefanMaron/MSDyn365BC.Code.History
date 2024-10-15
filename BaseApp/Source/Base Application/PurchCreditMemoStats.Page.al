@@ -188,7 +188,7 @@ page 10046 "Purch. Credit Memo Stats."
                         TaxPercentage := PurchCrMemoLine."VAT %"
                     else
                         TaxPercentage := -1;
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
         TaxAmount := AmountInclVAT - VendAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -238,7 +238,7 @@ page 10046 "Purch. Credit Memo Stats."
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     TaxAmount := TaxAmount + "Tax Amount";
-                until Next = 0;
+                until Next() = 0;
                 AmountInclVAT := AmountInclVAT + TaxAmount;
             end;
         end;

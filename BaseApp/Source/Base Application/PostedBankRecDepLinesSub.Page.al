@@ -188,13 +188,13 @@ page 10127 "Posted Bank Rec. Dep Lines Sub"
 
     local procedure ClearedOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 
     local procedure ClearedAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetupTotals;
     end;
 

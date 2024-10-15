@@ -382,11 +382,9 @@ table 123 "Purch. Inv. Line"
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
         }
-        field(1002; "Job Line Type"; Option)
+        field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1003; "Job Unit Price"; Decimal)
         {
@@ -715,7 +713,7 @@ table 123 "Purch. Inv. Line"
         PurchDocLineComments.SetRange("Document Type", PurchDocLineComments."Document Type"::"Posted Invoice");
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not PurchDocLineComments.IsEmpty then
+        if not PurchDocLineComments.IsEmpty() then
             PurchDocLineComments.DeleteAll();
 
         PostedDeferralHeader.DeleteHeader(
@@ -760,7 +758,7 @@ table 123 "Purch. Inv. Line"
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchInvLine(Rec);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -814,7 +812,7 @@ table 123 "Purch. Inv. Line"
                         TempPurchRcptLine := PurchRcptLine;
                         if TempPurchRcptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure CalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -841,7 +839,7 @@ table 123 "Purch. Inv. Line"
                       TotalCostLCY + TempItemLedgEntry."Cost Amount (Expected)" + TempItemLedgEntry."Cost Amount (Actual)";
                     TotalQtyBase := TotalQtyBase + TempItemLedgEntry.Quantity;
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
 
         if ExactCostReverse and (RemainingQty <> 0) and (TotalQtyBase <> 0) then
             RevUnitCostLCY :=
@@ -889,7 +887,7 @@ table 123 "Purch. Inv. Line"
                 end;
                 OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert() then;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")

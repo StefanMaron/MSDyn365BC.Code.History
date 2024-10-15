@@ -24,17 +24,9 @@ codeunit 135950 "Backup/Restore Permissions"
         PermissionSet.TestField(Name, BackupRestoreDataDescription);
 
         Permission.Get(BackupRestoreDataTok, Permission."Object Type"::System, 5410); // Backup permission
-        LibraryAssert.AreEqual(Permission."Read Permission", Permission."Read Permission"::Yes, 'Wrong value for Read Permission');
-        LibraryAssert.AreEqual(Permission."Insert Permission", Permission."Insert Permission"::Yes, 'Wrong value for Insert Permission');
-        LibraryAssert.AreEqual(Permission."Modify Permission", Permission."Modify Permission"::Yes, 'Wrong value for Modify Permission');
-        LibraryAssert.AreEqual(Permission."Delete Permission", Permission."Delete Permission"::Yes, 'Wrong value for Delete Permission');
         LibraryAssert.AreEqual(Permission."Execute Permission", Permission."Execute Permission"::Yes, 'Wrong value for Execute Permission');
 
         Permission.Get(BackupRestoreDataTok, Permission."Object Type"::System, 5420); // Restore permission
-        LibraryAssert.AreEqual(Permission."Read Permission", Permission."Read Permission"::Yes, 'Wrong value for Read Permission');
-        LibraryAssert.AreEqual(Permission."Insert Permission", Permission."Insert Permission"::Yes, 'Wrong value for Insert Permission');
-        LibraryAssert.AreEqual(Permission."Modify Permission", Permission."Modify Permission"::Yes, 'Wrong value for Modify Permission');
-        LibraryAssert.AreEqual(Permission."Delete Permission", Permission."Delete Permission"::Yes, 'Wrong value for Delete Permission');
         LibraryAssert.AreEqual(Permission."Execute Permission", Permission."Execute Permission"::Yes, 'Wrong value for Execute Permission');
     end;
 

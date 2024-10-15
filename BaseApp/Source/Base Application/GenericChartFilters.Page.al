@@ -59,7 +59,7 @@ page 9181 "Generic Chart Filters"
             repeat
                 Rec := TempGenericChartFilter2;
                 Insert;
-            until TempGenericChartFilter2.Next = 0;
+            until TempGenericChartFilter2.Next() = 0;
     end;
 
     procedure GetFilters(var TempGenericChartFilter2: Record "Generic Chart Filter" temporary)
@@ -69,7 +69,7 @@ page 9181 "Generic Chart Filters"
             repeat
                 TempGenericChartFilter2 := Rec;
                 TempGenericChartFilter2.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure SetTempGenericChart(GenericChartSetup2: Record "Generic Chart Setup")

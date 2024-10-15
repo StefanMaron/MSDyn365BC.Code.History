@@ -56,9 +56,9 @@ xmlport 130400 "CAL Test Suite"
                                     CALTestLine := "<CAL Test Line>";
                             end else begin
                                 if "<CAL Test Line>".Run then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                                 if not CALTestLine.Run and (CALTestLine."Test Codeunit" = "<CAL Test Line>"."Test Codeunit") then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         end;
 
@@ -91,7 +91,7 @@ xmlport 130400 "CAL Test Suite"
                             end else begin
                                 CALTestLine.SetRange("Function", "<CAL Test Line>"."Function");
                                 if not CALTestLine.FindFirst then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                                 CALTestLine.Delete();
                                 "<CAL Test Line>"."Line No." := CALTestLine."Line No.";
 

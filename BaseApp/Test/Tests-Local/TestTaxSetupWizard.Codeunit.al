@@ -154,7 +154,7 @@ codeunit 142095 "Test Tax Setup Wizard"
         TaxArea.Get(AreaCode);
         TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
         Assert.AreEqual(3, TaxAreaLine.Count, 'Wrong number of Tax Area Lines');
-        TaxAreaLine.FindSet;
+        TaxAreaLine.FindSet();
         TotalSalesTaxRate := 0;
         repeat
             TaxDetail.SetRange("Tax Group Code", SalesTaxSetupWizard.GetDefaultTaxGroupCode);

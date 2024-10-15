@@ -128,7 +128,7 @@ table 99000763 "Routing Header"
         RtngVersion.DeleteAll();
 
         Item.SetRange("Routing No.", "No.");
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(Text000);
     end;
 

@@ -327,7 +327,7 @@ table 232 "Gen. Journal Batch"
                         GenJnlLine.Validate("Posting No. Series", "Posting No. Series");
                 end;
                 GenJnlLine.Modify(true);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
     end;
 
     procedure LinesExist(): Boolean

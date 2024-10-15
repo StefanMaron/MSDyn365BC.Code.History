@@ -752,14 +752,13 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         SalesLine: Record "Sales Line";
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             // The deferral schedule was created
-            ValidateDeferralSchedule(DeferralHeader, DeferralLine, DeferralUtilities.GetSalesDeferralDocType,
+            ValidateDeferralSchedule(DeferralHeader, DeferralLine, "Deferral Document Type"::Sales,
               SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
               SalesLine."Deferral Code", SalesHeader."Posting Date",
               SalesLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
@@ -771,20 +770,19 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         PurchLine: Record "Purchase Line";
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.FindSet;
+        PurchLine.FindSet();
         repeat
             // The deferral schedule was created
-            ValidateDeferralSchedule(DeferralHeader, DeferralLine, DeferralUtilities.GetPurchDeferralDocType,
+            ValidateDeferralSchedule(DeferralHeader, DeferralLine, "Deferral Document Type"::Purchase,
               PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.",
               PurchLine."Deferral Code", PurchHeader."Posting Date", PurchLine.GetDeferralAmount, NoOfPeriods, DeferralPercent);
         until PurchLine.Next = 0;
     end;
 
-    local procedure ValidateDeferralSchedule(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer; DeferralPercent: Decimal)
+    local procedure ValidateDeferralSchedule(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer; DeferralPercent: Decimal)
     var
         Period: Integer;
         DeferralAmount: Decimal;
@@ -815,7 +813,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralHeader.TestField("Amount to Defer", DeferralAmount);
     end;
 
-    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType);
         DeferralLine.SetRange("Gen. Jnl. Template Name", '');

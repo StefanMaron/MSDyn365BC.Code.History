@@ -451,6 +451,7 @@ report 1307 "Standard Sales - Credit Memo"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+#if not CLEAN16
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -463,6 +464,7 @@ report 1307 "Standard Sales - Credit Memo"
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -1056,7 +1058,7 @@ report 1307 "Standard Sales - Credit Memo"
                         SegManagement.LogDocument(
                           6, Header."No.", 0, 0, DATABASE::Customer, Header."Bill-to Customer No.", Header."Salesperson Code",
                           Header."Campaign No.", Header."Posting Description", '');
-                until Header.Next = 0;
+                until Header.Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -1208,7 +1210,7 @@ report 1307 "Standard Sales - Credit Memo"
         if ShipmentLine.Find('-') then begin
             SalesShipmentBuffer2 := ShipmentLine;
             if not DisplayShipmentInformation then
-                if ShipmentLine.Next = 0 then begin
+                if ShipmentLine.Next() = 0 then begin
                     ShipmentLine.Get(
                       SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
                     ShipmentLine.Delete();
@@ -1285,7 +1287,7 @@ report 1307 "Standard Sales - Credit Memo"
             if TempSalesTaxAmountLine.FindSet then
                 repeat
                     ReportTotalsLine.Add(TempSalesTaxAmountLine."Print Description", TempSalesTaxAmountLine."Tax Amount", false, true, false);
-                until TempSalesTaxAmountLine.Next = 0;
+                until TempSalesTaxAmountLine.Next() = 0;
         end;
     end;
 

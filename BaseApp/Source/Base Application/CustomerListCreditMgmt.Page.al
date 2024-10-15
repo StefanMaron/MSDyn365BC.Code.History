@@ -415,7 +415,7 @@ page 36630 "Customer List - Credit Mgmt."
                 LastCust := FirstCust;
                 More := (CustCount > 0);
                 while More do
-                    if Cust.Next = 0 then
+                    if Cust.Next() = 0 then
                         More := false
                     else
                         if not Cust.Mark then

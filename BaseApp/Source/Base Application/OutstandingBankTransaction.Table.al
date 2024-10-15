@@ -120,7 +120,7 @@
                         TempOutstandingBankTransaction.Type := TempOutstandingBankTransaction.Type::"Bank Account Ledger Entry";
                     TempOutstandingBankTransaction.Insert();
                 end;
-            until BankAccountLedgerEntry.Next = 0;
+            until BankAccountLedgerEntry.Next() = 0;
         end;
     end;
 
@@ -208,7 +208,7 @@
         if AppliedPaymentEntry.FindSet then begin
             repeat
                 AppliedAmt += AppliedPaymentEntry."Applied Amount";
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
         end;
 
         exit(AppliedAmt);

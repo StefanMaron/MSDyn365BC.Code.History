@@ -1,4 +1,4 @@
-﻿codeunit 142083 "ERM Electronic Funds Transfer"
+codeunit 142083 "ERM Electronic Funds Transfer"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -1904,6 +1904,7 @@
         LibrarySales.CreateCustomer(Customer);
         if CustomerBankAccount2.FindFirst() then
             CustomerBankAccount2.Validate("Use for Electronic Payments", true);
+
         CustomerBankAccount.Init();
         CustomerBankAccount.Validate("Customer No.", Customer."No.");
         CustomerBankAccount.Validate(
@@ -2139,7 +2140,7 @@
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         Assert.RecordCount(EFTExport, ArrayLen(VendorBankAccount));
-        EFTExport.FindSet;
+        EFTExport.FindSet();
         repeat
             EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(TempEFTExportWorkset.Description));
             TempEFTExportWorkset.TransferFields(EFTExport);
@@ -2535,7 +2536,7 @@
         DataExchDef.Insert;
 
         DataExchLineDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
-        DataExchLineDefSource.FindSet;
+        DataExchLineDefSource.FindSet();
         repeat
             DataExchLineDefTarget := DataExchLineDefSource;
             DataExchLineDefTarget."Data Exch. Def Code" := DataExchDef.Code;
@@ -2544,7 +2545,7 @@
 
             DataExchColumnDefSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
             DataExchColumnDefSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
-            DataExchColumnDefSource.FindSet;
+            DataExchColumnDefSource.FindSet();
             repeat
                 DataExchColumnDefTarget := DataExchColumnDefSource;
                 DataExchColumnDefTarget."Data Exch. Def Code" := DataExchDef.Code;
@@ -2554,7 +2555,7 @@
 
             DataExchMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
             DataExchMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
-            DataExchMappingSource.FindSet;
+            DataExchMappingSource.FindSet();
             repeat
                 DataExchMappingTarget := DataExchMappingSource;
                 DataExchMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
@@ -2564,7 +2565,7 @@
                 DataExchFieldMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
                 DataExchFieldMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
                 DataExchFieldMappingSource.SetRange("Table ID", DataExchMappingSource."Table ID");
-                DataExchFieldMappingSource.FindSet;
+                DataExchFieldMappingSource.FindSet();
                 repeat
                     DataExchFieldMappingTarget := DataExchFieldMappingSource;
                     DataExchFieldMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
@@ -3130,13 +3131,13 @@
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 8800, 'OnIsTestMode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnCustomReportLayout(var TestMode: Boolean)
     begin
         TestMode := true
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 10098, 'OnIsTestMode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate EFT", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnGenerateEFT(var TestMode: Boolean)
     begin
         TestMode := true

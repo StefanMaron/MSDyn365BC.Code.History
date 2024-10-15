@@ -37,7 +37,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         Vendor: array[2] of Record "Vendor";
         TempErrorMessage: Record "Error Message" temporary;
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Export Electronic Payments" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -76,7 +76,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Export Electronic Payments" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
@@ -117,7 +117,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Export Electronic Payments" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -336,7 +336,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         Vendor: array[2] of Record "Vendor";
         TempErrorMessage: Record "Error Message" temporary;
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -375,7 +375,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
@@ -416,7 +416,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -635,7 +635,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         Customer: array[2] of Record "Customer";
         TempErrorMessage: Record "Error Message" temporary;
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -677,7 +677,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
@@ -720,7 +720,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         TempErrorMessage: Record "Error Message" temporary;
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
-        ErrorMessages: TestPage 700;
+        ErrorMessages: TestPage "Error Messages";
         ReportID: Integer;
     begin
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
@@ -1048,7 +1048,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateBankAccount(var BankAccount: Record 270; TransitNo: Code[20]; ExportFormat: Option);
+    local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; TransitNo: Code[20]; ExportFormat: Option);
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
@@ -1064,7 +1064,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         BankAccount.Modify(true);
     end;
 
-    local procedure CreateBankAccWithBankStatementSetup(var BankAccount: Record 270; DataExchDefCode: Code[20]);
+    local procedure CreateBankAccWithBankStatementSetup(var BankAccount: Record "Bank Account"; DataExchDefCode: Code[20]);
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
@@ -1142,7 +1142,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         Commit();
     end;
 
-    local procedure ExportPaymentJournal(var PaymentJournal: TestPage 256; var GenJournalLine: Record 81);
+    local procedure ExportPaymentJournal(var PaymentJournal: TestPage "Payment Journal"; var GenJournalLine: Record 81);
     begin
         Commit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");

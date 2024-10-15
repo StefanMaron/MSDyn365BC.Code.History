@@ -1145,7 +1145,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,SalesOrderPageHandler,MessageHandler,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('ConfirmHandler,SalesOrderPageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAfterPostSalesOrderUsingMakeOrderWithInvDisc()
     var
@@ -2848,7 +2848,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
           GenJnlLine."Document No.", FindVendUnapplicationTransactionNo(GenJnlLine."Document Type", GenJnlLine."Document No."),
           TaxJurisdiction."Unreal. Rev. Charge (Purch.)");
     end;
-    
+
     [Test]
     [HandlerFunctions('SalesOrderStatisticsChangePrepaymentPageHandler')]
     [Scope('OnPrem')]
@@ -4131,7 +4131,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', true, true)]
     local procedure DisableTaskOnBeforeJobQueueScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;

@@ -1,4 +1,4 @@
-﻿page 1160 "Sales Documents"
+page 1160 "Sales Documents"
 {
     Caption = 'Sales Documents';
     DeleteAllowed = false;
@@ -106,7 +106,7 @@
         SetFilter("Remaining Amt. (LCY)", '<>0');
         SetCurrentKey("Remaining Amt. (LCY)");
         Ascending := false;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure SetFilterForSalesDocsDueToday()
@@ -116,7 +116,7 @@
         SetFilter("Due Date", '<=%1', WorkDate);
         SetRange(Open, true);
         Ascending := false;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure SetFilterForSalesDocsDueNextWeek()
@@ -126,7 +126,7 @@
         SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
         SetRange(Open, true);
         Ascending := false;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     [IntegrationEvent(false, false)]

@@ -149,7 +149,7 @@ table 10012 "Sales Tax Amount Difference"
                 ToTaxAmountDifference."Tax Difference" := FromTaxAmountDifference."Tax Difference";
                 ToTaxAmountDifference.Positive := FromTaxAmountDifference.Positive;
                 ToTaxAmountDifference.Insert();
-            until FromTaxAmountDifference.Next = 0;
+            until FromTaxAmountDifference.Next() = 0;
         end;
     end;
 }

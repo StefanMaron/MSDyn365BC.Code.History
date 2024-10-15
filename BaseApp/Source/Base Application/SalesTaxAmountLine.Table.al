@@ -215,7 +215,7 @@ table 10011 "Sales Tax Amount Line"
                     TaxAmountLine2 := Rec;
                 end;
                 TaxPercent := TaxPercent + "Tax %";
-            until Next = 0;
+            until Next() = 0;
         end;
         if TaxPercent <> 0 then
             exit(StrSubstNo(Text000, TaxPercent / TaxAreaCount));
@@ -238,7 +238,7 @@ table 10011 "Sales Tax Amount Line"
                       LineAmount + Round("Line Amount" / (1 + "Tax %" / 100), Currency."Amount Rounding Precision")
                 else
                     LineAmount := LineAmount + "Line Amount";
-            until Next = 0;
+            until Next() = 0;
 
         exit(LineAmount);
     end;
@@ -257,7 +257,7 @@ table 10011 "Sales Tax Amount Line"
                     PrevJurisdiction := "Tax Jurisdiction Code";
                 end;
                 TaxAmount := TaxAmount + "Tax Amount";
-            until Next = 0;
+            until Next() = 0;
         exit(TaxAmount);
     end;
 
@@ -277,7 +277,7 @@ table 10011 "Sales Tax Amount Line"
                     TaxAmount := TaxAmount + "Tax Amount"
                 else
                     TaxAmount := TaxAmount + ("Tax Base Amount FCY" * "Tax %" / 100);
-            until Next = 0;
+            until Next() = 0;
         exit(TaxAmount);
     end;
 
@@ -290,7 +290,7 @@ table 10011 "Sales Tax Amount Line"
         if Find('-') then
             repeat
                 TaxBase := TaxBase + "Tax Base Amount";
-            until Next = 0;
+            until Next() = 0;
         exit(TaxBase);
     end;
 
@@ -303,7 +303,7 @@ table 10011 "Sales Tax Amount Line"
         if Find('-') then
             repeat
                 AmountInclTax := AmountInclTax + "Amount Including Tax";
-            until Next = 0;
+            until Next() = 0;
         exit(AmountInclTax);
     end;
 
@@ -313,7 +313,7 @@ table 10011 "Sales Tax Amount Line"
             repeat
                 if Modified then
                     exit(true);
-            until Next = 0;
+            until Next() = 0;
         exit(false);
     end;
 
@@ -346,7 +346,7 @@ table 10011 "Sales Tax Amount Line"
                     Modified := true;
                     Modify;
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetTotalInvDiscBaseAmount(SubtractVAT: Boolean; CurrencyCode: Code[10]): Decimal
@@ -366,7 +366,7 @@ table 10011 "Sales Tax Amount Line"
                       Round("Inv. Disc. Base Amount" / (1 + "Tax %" / 100), Currency."Amount Rounding Precision")
                 else
                     InvDiscBaseAmount := InvDiscBaseAmount + "Inv. Disc. Base Amount";
-            until Next = 0;
+            until Next() = 0;
         exit(InvDiscBaseAmount);
     end;
 
@@ -392,7 +392,7 @@ table 10011 "Sales Tax Amount Line"
                 NewRemainder := NewRemainder - "Invoice Discount Amount";
                 Modify;
             end;
-        until Next = 0;
+        until Next() = 0;
     end;
 }
 

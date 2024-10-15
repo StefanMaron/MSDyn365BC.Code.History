@@ -1684,7 +1684,7 @@ codeunit 136149 "Chart Configuration Tool"
         Step: Integer;
     begin
         Field.SetRange(TableNo, DATABASE::"Sales Header");
-        Field.FindSet;
+        Field.FindSet();
         Step := LibraryRandom.RandInt(Field.Count);
         if Step = Field.Count then
             Step := Field.Count - 1;
@@ -1919,7 +1919,7 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartFilter.DeleteAll();
         GenericChartFilters.GetFilters(TempGenericChartFilter);
         Assert.AreEqual(j, TempGenericChartFilter.Count, 'Number of TempGenericChart filter records retrieved.');
-        TempGenericChartFilter.FindSet;
+        TempGenericChartFilter.FindSet();
         i := 0;
         repeat
             i += 1;
@@ -2544,7 +2544,7 @@ codeunit 136149 "Chart Configuration Tool"
         end;
         Field.SetFilter(Class, '<>%1', Field.Class::FlowFilter);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        Field.FindSet;
+        Field.FindSet();
     end;
 
     local procedure GetFieldColumnNoName(SourceType: Option " ","Table","Query"; SourceNo: Integer; var FieldColNo: Integer; var FieldColName: Text)
@@ -2813,7 +2813,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         Field.SetRange(TableNo, DATABASE::"Sales Header");
         Field.SetRange(Type, Field.Type::Decimal);
-        Field.FindSet;
+        Field.FindSet();
         TempGenericChartYAxis.DeleteAll();
         repeat
             LineNo += 10000;

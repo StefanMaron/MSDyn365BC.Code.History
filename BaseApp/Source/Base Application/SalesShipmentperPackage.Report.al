@@ -416,7 +416,7 @@ report 10080 "Sales Shipment per Package"
                                     TempPackageNo."Line No." := NextLineNo;
                                     TempPackageNo.Insert();
                                 end;
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                     TempPackageNo.Reset();
                     SetRange(Number, 1, TempPackageNo.Count);

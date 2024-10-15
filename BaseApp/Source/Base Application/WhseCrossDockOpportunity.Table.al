@@ -314,7 +314,7 @@ table 5768 "Whse. Cross-Dock Opportunity"
                               CalcQty(QtyToHandleBase - "Qty. Cross-Docked (Base)", "To-Src. Qty. per Unit of Meas."));
                             Modify;
                         end;
-                until Next = 0;
+                until Next() = 0;
             end;
     end;
 

@@ -382,7 +382,7 @@ report 10026 "Trial Balance, Spread Periods"
         repeat
             PriorFromDate := FromDate;
             if PeriodCalc = '' then begin
-                if AccountingPeriod.Next = 0 then
+                if AccountingPeriod.Next() = 0 then
                     FromDate := CalcDate('<M>', PriorFromDate)
                 else
                     FromDate := AccountingPeriod."Starting Date"

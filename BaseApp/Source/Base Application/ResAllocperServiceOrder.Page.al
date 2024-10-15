@@ -164,12 +164,12 @@ page 6008 "Res. Alloc. per Service Order"
 
     local procedure PeriodTypeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -396,11 +396,17 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
         if isInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
+
+        LibraryERMCountryData.CreateVATData();
+
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Cond. Eval. Tests");
     end;

@@ -593,7 +593,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GeneralLedgerSetup.Get();
 
         AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
-        AccScheduleLine.FindSet;
+        AccScheduleLine.FindSet();
         AccScheduleLine.Next;
         AccScheduleLineArray[1] := AccScheduleLine;
         AccScheduleLine.Next;

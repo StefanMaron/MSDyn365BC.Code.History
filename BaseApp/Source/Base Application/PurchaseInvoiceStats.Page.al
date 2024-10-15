@@ -188,7 +188,7 @@ page 10045 "Purchase Invoice Stats."
                         TaxPercentage := PurchInvLine."VAT %"
                     else
                         TaxPercentage := -1;
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
         TaxAmount := AmountInclVAT - VendAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -237,7 +237,7 @@ page 10045 "Purchase Invoice Stats."
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     TaxAmount := TaxAmount + "Tax Amount";
-                until Next = 0;
+                until Next() = 0;
                 AmountInclVAT := AmountInclVAT + TaxAmount;
             end;
         end;

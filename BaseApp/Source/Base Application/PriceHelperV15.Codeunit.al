@@ -89,12 +89,12 @@ codeunit 7019 "Price Helper - V15"
     begin
         PurchPrice.SetCurrentKey("Vendor No.");
         PurchPrice.SetRange("Vendor No.", VendorNo);
-        if not PurchPrice.IsEmpty then
+        if not PurchPrice.IsEmpty() then
             PurchPrice.DeleteAll(true);
 
         PurchLineDiscount.SetCurrentKey("Vendor No.");
         PurchLineDiscount.SetRange("Vendor No.", VendorNo);
-        if not PurchLineDiscount.IsEmpty then
+        if not PurchLineDiscount.IsEmpty() then
             PurchLineDiscount.DeleteAll(true);
     end;
 
@@ -106,13 +106,13 @@ codeunit 7019 "Price Helper - V15"
         PurchPrice.SetRange("Item No.", ItemNo);
         if VariantCode <> '' then
             PurchPrice.SetRange("Variant Code", VariantCode);
-        if not PurchPrice.IsEmpty then
+        if not PurchPrice.IsEmpty() then
             PurchPrice.DeleteAll(true);
 
         PurchLineDiscount.SetRange("Item No.", ItemNo);
         if VariantCode <> '' then
             PurchLineDiscount.SetRange("Variant Code", VariantCode);
-        if not PurchLineDiscount.IsEmpty then
+        if not PurchLineDiscount.IsEmpty() then
             PurchLineDiscount.DeleteAll(true);
     end;
 

@@ -2629,7 +2629,7 @@ codeunit 142060 "ERM Misc. Report"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             Amount += PurchaseLine.Amount;
         until PurchaseLine.Next = 0;

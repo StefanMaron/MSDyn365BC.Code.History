@@ -141,6 +141,10 @@ table 405 "Change Log Entry"
         {
             DataClassification = SystemMetadata;
         }
+        field(29; "Notification Message Id"; Guid)
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

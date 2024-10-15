@@ -36,8 +36,12 @@ codeunit 8891 "Email Scenario Mapping"
                 exit(EmailScenario::"Service Invoice");
             ReportSelectionUsage::"SM.Credit Memo":
                 exit(EmailScenario::"Service Credit Memo");
+            ReportSelectionUsage::"P.V.Remit.":
+                exit(EmailScenario::"Posted Vendor Remittance");
             ReportSelectionUsage::"C.Statement":
                 exit(EmailScenario::"Customer Statement");
+            ReportSelectionUsage::"V.Remittance":
+                exit(EmailScenario::"Vendor Remittance");
             else begin
                     EmailScenario := EmailScenario::Default;
                     OnAfterFromReportSelectionUsage(ReportSelectionUsage, EmailScenario);

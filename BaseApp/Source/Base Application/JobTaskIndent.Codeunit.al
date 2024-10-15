@@ -32,7 +32,8 @@ codeunit 1003 "Job Task-Indent"
 
     procedure Indent(JobNo: Code[20])
     var
-        JobTaskNo: array[10] of Code[20];
+        SelectionFilterManagement: Codeunit "SelectionFilterManagement";
+        JobTaskNo: array[10] of Text;
     begin
         Window.Open(Text004);
         JobTask.SetRange("Job No.", JobNo);
@@ -46,7 +47,8 @@ codeunit 1003 "Job Task-Indent"
                             Error(
                               Text005,
                               "Job Task No.");
-                        Totaling := JobTaskNo[i] + '..' + "Job Task No.";
+
+                        Totaling := JobTaskNo[i] + '..' + SelectionFilterManagement.AddQuotes("Job Task No.");
                         i := i - 1;
                     end;
 
@@ -58,9 +60,9 @@ codeunit 1003 "Job Task-Indent"
                         i := i + 1;
                         if i > ArrayLen(JobTaskNo) then
                             Error(ArrayExceededErr, ArrayLen(JobTaskNo));
-                        JobTaskNo[i] := "Job Task No.";
+                        JobTaskNo[i] := SelectionFilterManagement.AddQuotes("Job Task No.");
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;

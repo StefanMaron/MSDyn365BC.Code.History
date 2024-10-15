@@ -683,8 +683,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 10500, 'OnBeforeUpgradeFormBoxes', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SetCanCreateTaskOnBeforeUpgradeFormBoxes(var Handled: Boolean; var CreateTask: Boolean)
+    local procedure SetCanCreateTaskOnBeforeUpgradeFormBoxes(var Handled: Boolean; var CreateTask: Boolean)
     begin
         CreateTask := true;
         Handled := true;

@@ -71,7 +71,7 @@ codeunit 5900 ServOrderManagement
                        (ServItemLine2."Response Time" < NewResponseTime)
                     then
                         NewResponseTime := ServItemLine2."Response Time";
-            until ServItemLine2.Next = 0;
+            until ServItemLine2.Next() = 0;
         end;
 
         if (ServHeader."Response Date" <> NewResponseDate) or
@@ -86,12 +86,6 @@ codeunit 5900 ServOrderManagement
     procedure CreateNewCustomer(var ServHeader: Record "Service Header")
     var
         Cust: Record Customer;
-        DefaultDim: Record "Default Dimension";
-        DefaultDim2: Record "Default Dimension";
-        CustTempl: Record "Customer Template";
-        FromCustInvDisc: Record "Cust. Invoice Disc.";
-        ToCustInvDisc: Record "Cust. Invoice Disc.";
-        CustContUpdate: Codeunit "CustCont-Update";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         with ServHeader do begin
@@ -116,64 +110,8 @@ codeunit 5900 ServOrderManagement
                     Validate("Customer No.", Cust."No.");
                     exit;
                 end;
-            CustTempl.Reset();
-            if not CustTempl.FindFirst then
-                Error(Text004);
-            if PAGE.RunModal(PAGE::"Customer Template List", CustTempl) = ACTION::LookupOK then begin
-                Cust."No." := '';
-                Cust.Validate(Name, Name);
-                Cust."Name 2" := "Name 2";
-                Cust.Address := Address;
-                Cust."Address 2" := "Address 2";
-                Cust.City := City;
-                Cust."Post Code" := "Post Code";
-                Cust.Contact := "Contact Name";
-                Cust."Phone No." := "Phone No.";
-                Cust."E-Mail" := "E-Mail";
-                Cust.Blocked := Cust.Blocked::" ";
-                Cust.CopyFromCustomerTemplate(CustTempl);
-                Cust."Tax Area Code" := CustTempl."Tax Area Code";
-                Cust."Tax Liable" := CustTempl."Tax Liable";
-                if CustTempl.State <> '' then
-                    Cust.County := CustTempl.State
-                else
-                    Cust.County := County;
-                Cust."Credit Limit (LCY)" := CustTempl."Credit Limit (LCY)";
-                Cust.Insert(true);
-
-                if "Contact Name" <> '' then begin
-                    CustContUpdate.InsertNewContactPerson(Cust, false);
-                    Cust.Modify();
-                end;
-
-                DefaultDim.Reset();
-                DefaultDim.SetRange("Table ID", DATABASE::"Customer Template");
-                DefaultDim.SetRange("No.", CustTempl.Code);
-                if DefaultDim.Find('-') then
-                    repeat
-                        DefaultDim2 := DefaultDim;
-                        DefaultDim2."Table ID" := DATABASE::Customer;
-                        DefaultDim2."No." := Cust."No.";
-                        DefaultDim2.Insert(true);
-                    until DefaultDim.Next = 0;
-
-                if CustTempl."Invoice Disc. Code" <> '' then begin
-                    FromCustInvDisc.Reset();
-                    FromCustInvDisc.SetRange(Code, CustTempl."Invoice Disc. Code");
-                    if FromCustInvDisc.Find('-') then
-                        repeat
-                            ToCustInvDisc.Init();
-                            ToCustInvDisc.Code := Cust."No.";
-                            ToCustInvDisc."Currency Code" := FromCustInvDisc."Currency Code";
-                            ToCustInvDisc."Minimum Amount" := FromCustInvDisc."Minimum Amount";
-                            ToCustInvDisc."Discount %" := FromCustInvDisc."Discount %";
-                            ToCustInvDisc."Service Charge" := FromCustInvDisc."Service Charge";
-                            OnBeforeToCustInvDiscInsert(ToCustInvDisc, FromCustInvDisc);
-                            ToCustInvDisc.Insert();
-                        until FromCustInvDisc.Next = 0;
-                end;
+            if CreateCustFromTemplate(Cust, ServHeader) then
                 Validate("Customer No.", Cust."No.");
-            end;
         end;
     end;
 
@@ -370,7 +308,7 @@ codeunit 5900 ServOrderManagement
                         ContJobResp.SetRange("Contact No.", Cont."No.");
                         ContJobResp.SetRange("Job Responsibility Code", ServMgtSetup."Serv. Job Responsibility Code");
                         ContactFound := ContJobResp.FindFirst;
-                    until (Cont.Next = 0) or ContactFound;
+                    until (Cont.Next() = 0) or ContactFound;
             end;
             if ContactFound then begin
                 Cont.Get(ContJobResp."Contact No.");
@@ -416,7 +354,7 @@ codeunit 5900 ServOrderManagement
             ServHour.SetRange("Service Contract No.", '');
         end;
 
-        if ServHour.IsEmpty then
+        if ServHour.IsEmpty() then
             exit(
               Round(
                 ((FinishingDate - StartingDate) * MiliSecPerDay +
@@ -530,7 +468,7 @@ codeunit 5900 ServOrderManagement
             repeat
                 if ServItemLine2.Priority > NewPriority then
                     NewPriority := ServItemLine2.Priority;
-            until ServItemLine2.Next = 0;
+            until ServItemLine2.Next() = 0;
 
         if ServHeader.Priority <> NewPriority then begin
             ServHeader.Priority := NewPriority;
@@ -555,7 +493,7 @@ codeunit 5900 ServOrderManagement
                 if not CopySerialNo then
                     ServItemComponent."Serial No." := '';
                 ServItemComponent.Insert();
-            until OldSIComponent.Next = 0;
+            until OldSIComponent.Next() = 0;
         end else
             Error(
               Text011,
@@ -626,7 +564,7 @@ codeunit 5900 ServOrderManagement
                 ServCommentLine2."Table Subtype" := 0;
                 ServCommentLine2."No." := ToNo;
                 ServCommentLine2.Insert();
-            until ServCommentLine.Next = 0;
+            until ServCommentLine.Next() = 0;
     end;
 
     procedure CalcContractDates(var ServHeader: Record "Service Header"; var ServItemLine: Record "Service Item Line")
@@ -669,6 +607,124 @@ codeunit 5900 ServOrderManagement
             ServItem.Modify();
         end;
     end;
+
+    local procedure CopyCustFromServiceHeader(var Cust: Record Customer; ServiceHeader: Record "Service Header")
+    begin
+        Cust."No." := '';
+        Cust.Validate(Name, ServiceHeader.Name);
+        Cust."Name 2" := ServiceHeader."Name 2";
+        Cust.Address := ServiceHeader.Address;
+        Cust."Address 2" := ServiceHeader."Address 2";
+        Cust.City := ServiceHeader.City;
+        Cust."Post Code" := ServiceHeader."Post Code";
+        Cust.Contact := ServiceHeader."Contact Name";
+        Cust."Phone No." := ServiceHeader."Phone No.";
+        Cust."E-Mail" := ServiceHeader."E-Mail";
+        Cust.Blocked := Cust.Blocked::" ";
+    end;
+
+    local procedure CreateCustDefaultDimFromTemplate(TableId: Integer; No: Code[20]; CustNo: Code[20])
+    var
+        DefaultDim: Record "Default Dimension";
+        DefaultDim2: Record "Default Dimension";
+    begin
+        DefaultDim.Reset();
+        DefaultDim.SetRange("Table ID", TableId);
+        DefaultDim.SetRange("No.", No);
+        if DefaultDim.FindSet() then
+            repeat
+                DefaultDim2 := DefaultDim;
+                DefaultDim2."Table ID" := Database::Customer;
+                DefaultDim2."No." := CustNo;
+                DefaultDim2.Insert(true);
+            until DefaultDim.Next() = 0;
+    end;
+
+    local procedure CreateCustInvoiceDiscFromTemplate(InvoiceDiscCode: Code[20]; CustNo: Code[20])
+    var
+        FromCustInvDisc: Record "Cust. Invoice Disc.";
+        ToCustInvDisc: Record "Cust. Invoice Disc.";
+    begin
+        if InvoiceDiscCode <> '' then begin
+            FromCustInvDisc.Reset();
+            FromCustInvDisc.SetRange(Code, InvoiceDiscCode);
+            if FromCustInvDisc.FindSet() then
+                repeat
+                    ToCustInvDisc.Init();
+                    ToCustInvDisc.Code := CustNo;
+                    ToCustInvDisc."Currency Code" := FromCustInvDisc."Currency Code";
+                    ToCustInvDisc."Minimum Amount" := FromCustInvDisc."Minimum Amount";
+                    ToCustInvDisc."Discount %" := FromCustInvDisc."Discount %";
+                    ToCustInvDisc."Service Charge" := FromCustInvDisc."Service Charge";
+                    OnBeforeToCustInvDiscInsert(ToCustInvDisc, FromCustInvDisc);
+                    ToCustInvDisc.Insert();
+                until FromCustInvDisc.Next() = 0;
+        end;
+    end;
+
+    local procedure CreateCustFromTemplate(var Cust: Record Customer; ServHeader: Record "Service Header"): Boolean
+    var
+        CustTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustContUpdate: Codeunit "CustCont-Update";
+    begin
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then
+            exit(CreateCustFromOldTemplate(Cust, ServHeader));
+#endif
+        CustTempl.Reset();
+        if not CustTempl.FindFirst() then
+            Error(Text004);
+        if CustomerTemplMgt.SelectCustomerTemplate(CustTempl) then begin
+            CopyCustFromServiceHeader(Cust, ServHeader);
+            Cust.CopyFromNewCustomerTemplate(CustTempl);
+            Cust.Insert(true);
+
+            if ServHeader."Contact Name" <> '' then begin
+                CustContUpdate.InsertNewContactPerson(Cust, false);
+                Cust.Modify();
+            end;
+            CreateCustDefaultDimFromTemplate(Database::"Customer Templ.", CustTempl.Code, Cust."No.");
+            CreateCustInvoiceDiscFromTemplate(CustTempl."Invoice Disc. Code", Cust."No.");
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
+#if not CLEAN18
+    local procedure CreateCustFromOldTemplate(var Cust: Record Customer; ServHeader: Record "Service Header"): Boolean
+    var
+        CustTempl: Record "Customer Template";
+        CustContUpdate: Codeunit "CustCont-Update";
+    begin
+        CustTempl.Reset();
+        if not CustTempl.FindFirst() then
+            Error(Text004);
+        if PAGE.RunModal(PAGE::"Customer Template List", CustTempl) = ACTION::LookupOK then begin
+            CopyCustFromServiceHeader(Cust, ServHeader);
+            Cust.CopyFromCustomerTemplate(CustTempl);
+            Cust."Tax Area Code" := CustTempl."Tax Area Code";
+            Cust."Tax Liable" := CustTempl."Tax Liable";
+            if CustTempl.State <> '' then
+                Cust.County := CustTempl.State
+            else
+                Cust.County := ServHeader.County;
+            Cust."Credit Limit (LCY)" := CustTempl."Credit Limit (LCY)";
+            Cust.Insert(true);
+
+            if ServHeader."Contact Name" <> '' then begin
+                CustContUpdate.InsertNewContactPerson(Cust, false);
+                Cust.Modify();
+            end;
+            CreateCustDefaultDimFromTemplate(Database::"Customer Template", CustTempl.Code, Cust."No.");
+            CreateCustInvoiceDiscFromTemplate(CustTempl."Invoice Disc. Code", Cust."No.");
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcContractDates(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)

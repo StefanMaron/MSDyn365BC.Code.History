@@ -71,7 +71,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
             repeat
                 if not TimeSheetDetail.Get(TimeSheetHeaderNo, TimeSheetLine."Line No.", TimeSheetDetailDate) then
                     exit;
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
 
         TimeSheetLine.Reset();
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeaderNo);
@@ -113,7 +113,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
         TimeSheetDetail.Insert(true);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateIntegrationRecords(OnlyTimeSheetDetailsWithoutId: Boolean)
     var
@@ -126,7 +126,7 @@ codeunit 5513 "Graph Mgt - Time Registration"
           TimeSheetDetailRecordRef, DummyTimeSheetDetail.FieldNo(Id), OnlyTimeSheetDetailsWithoutId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);

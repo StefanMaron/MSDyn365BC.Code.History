@@ -299,7 +299,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         if TempWhseJnlLine2.Find('-') then
             repeat
                 WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-            until TempWhseJnlLine2.Next = 0;
+            until TempWhseJnlLine2.Next() = 0;
     end;
 
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35]; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; TaxOption: Option ,VAT,SalesTax; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax; var TotalServiceLineLCY: Record "Service Line")
@@ -565,7 +565,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 PassedValueEntryRelation := TempValueEntryRelation;
                 PassedValueEntryRelation."Source RowId" := RowId;
                 PassedValueEntryRelation.Insert();
-            until TempValueEntryRelation.Next = 0;
+            until TempValueEntryRelation.Next() = 0;
 
         TempValueEntryRelation.DeleteAll();
     end;
@@ -808,9 +808,10 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                         TotalServiceLineLCY."Amount Including VAT" :=
                           TotalServiceLineLCY."Amount Including VAT" + GenJnlLine."VAT Amount (LCY)";
 
+                    OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, ServiceHeader, TempSalesTaxAmtLine);
                     GenJnlPostLine.RunWithCheck(GenJnlLine);
                 end;
-            until TempSalesTaxAmtLine.Next = 0;
+            until TempSalesTaxAmtLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -865,6 +866,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPostJobJnlLineOnBeforeValidateNo(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
     begin
     end;
 }

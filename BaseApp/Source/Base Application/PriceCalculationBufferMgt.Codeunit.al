@@ -1,4 +1,4 @@
-﻿codeunit 7008 "Price Calculation Buffer Mgt."
+codeunit 7008 "Price Calculation Buffer Mgt."
 {
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";

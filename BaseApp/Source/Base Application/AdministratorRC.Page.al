@@ -129,9 +129,9 @@ page 8900 "Administrator Main Role Center"
                     action("Business Setup")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Business Setup';
-                        RunObject = page "Manual Setup";
-                        AccessByPermission = tabledata 1875 = R;
+                        Caption = 'Manual Setup';
+                        RunObject = Page "Manual Setup";
+                        ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
                     }
                     action("Image Analysis Setup")
                     {
@@ -208,7 +208,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Settings';
                         RunObject = page "Report Settings";
-                        AccessByPermission = tabledata 2000000196 = IMD;
+                        AccessByPermission = TableData "Object Options" = IMD;
                     }
                     action("Report Inbox")
                     {
@@ -383,7 +383,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = All;
                         Caption = 'Data Classification Worksheet';
                         RunObject = page "Data Classification Worksheet";
-                        AccessByPermission = tabledata 2000000159 = R;
+                        AccessByPermission = TableData "Data Sensitivity" = R;
                     }
                     action("XML Schemas")
                     {
@@ -418,7 +418,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Data Migration Settings';
                         RunObject = page "Data Migration Settings";
-                        AccessByPermission = tabledata 1806 = R;
+                        AccessByPermission = TableData "Data Migration Setup" = R;
                     }
                 }
                 group("Group12")
@@ -554,7 +554,7 @@ page 8900 "Administrator Main Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Security Status';
                     RunObject = page "User Security Status List";
-                    AccessByPermission = tabledata 2000000120 = R;
+                    AccessByPermission = TableData "User" = R;
                 }
                 action("User Tasks")
                 {
@@ -710,11 +710,11 @@ page 8900 "Administrator Main Role Center"
                 }
                 group("Group25")
                 {
-                    Caption = 'Microsoft Power Automate';
+                    Caption = 'Power Automate';
                     action("Workflows1")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Manage Flows';
+                        Caption = 'Manage flows';
                         RunObject = page "Flow Selector";
                     }
                     action("Workflows2")
@@ -755,7 +755,7 @@ page 8900 "Administrator Main Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Microsoft Dynamics 365 Connection Setup';
                     RunObject = page "CRM Connection Setup";
-                    AccessByPermission = tabledata 5330 = IM;
+                    AccessByPermission = TableData "CRM Connection Setup" = IM;
                 }
                 action("Social Listening Setup")
                 {

@@ -64,7 +64,7 @@ codeunit 87 "Blanket Sales Order to Order"
                                     (SalesLine."Shipment No." = ''))
                                 then
                                     QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
 
                     CheckBlanketOrderLineQuantity();
 
@@ -122,7 +122,7 @@ codeunit 87 "Blanket Sales Order to Order"
                             AutoReserve(SalesOrderLine, TempSalesLine);
                         end;
                 end;
-            until BlanketOrderSalesLine.Next = 0;
+            until BlanketOrderSalesLine.Next() = 0;
         end;
 
         OnAfterInsertAllSalesOrderLines(Rec, SalesOrderHeader);
@@ -156,7 +156,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         Reservation.SetReservSource(TempSalesLine);
                         Reservation.RunModal();
                         Find;
-                    until TempSalesLine.Next = 0;
+                    until TempSalesLine.Next() = 0;
 
         Clear(CustCheckCreditLimit);
         Clear(ItemCheckAvail);
@@ -337,7 +337,7 @@ codeunit 87 "Blanket Sales Order to Order"
                                 if ItemCheckAvail.SalesLineCheck(SalesLine) then
                                     ItemCheckAvail.RaiseUpdateInterruptedError;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

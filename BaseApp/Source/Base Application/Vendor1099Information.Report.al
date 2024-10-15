@@ -225,7 +225,7 @@ report 10110 "Vendor 1099 Information"
             if FindSet then
                 repeat
                     Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

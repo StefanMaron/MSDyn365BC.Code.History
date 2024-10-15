@@ -54,7 +54,7 @@ codeunit 10012 "Ship-Post + Print"
                 ReportSelection.Usage::"S.Ret.Rcpt.":
                     REPORT.Run(ReportSelection."Report ID", false, false, ReturnRcptHeader);
             end;
-        until ReportSelection.Next = 0;
+        until ReportSelection.Next() = 0;
     end;
 }
 

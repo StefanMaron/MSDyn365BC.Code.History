@@ -686,7 +686,7 @@ codeunit 142059 "Payment Rec Deposits"
         i := 1;
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             EntryNoArray[i] += BankAccLedgEntry."Entry No.";
             i := i + 1;
@@ -956,7 +956,7 @@ codeunit 142059 "Payment Rec Deposits"
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open);
         BankAccLedgEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet;
+        BankAccLedgEntry.FindSet();
         repeat
             AmountArray[i] += BankAccLedgEntry.Amount;
             i += 1;

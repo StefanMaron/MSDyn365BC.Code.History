@@ -26,8 +26,9 @@ page 428 "Shipping Agents"
                 }
                 field("Internet Address"; "Internet Address")
                 {
+                    Caption = 'Package Tracking URL';
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies an Internet address for the shipping agent.';
+                    ToolTip = 'Specifies the URL for the shipping agent''s package tracking system. To let users track specific packages, add %1 to the URL. When users track a package, the tracking number will replace %1. Example, http://www.providername.com/track?awb=%1.';
                 }
                 field("Account No."; "Account No.")
                 {

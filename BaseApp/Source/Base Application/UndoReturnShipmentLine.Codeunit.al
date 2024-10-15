@@ -64,22 +64,22 @@ codeunit 5814 "Undo Return Shipment Line"
             Clear(ItemJnlPostLine);
             SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
-            if IsEmpty then
+            if IsEmpty() then
                 Error(AlreadyReversedErr);
             FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
                 CheckReturnShptLine(ReturnShptLine);
-            until Next = 0;
+            until Next() = 0;
 
             Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -116,7 +116,7 @@ codeunit 5814 "Undo Return Shipment Line"
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -301,7 +301,7 @@ codeunit 5814 "Undo Return Shipment Line"
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsReturnShptLine(NewReturnShptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

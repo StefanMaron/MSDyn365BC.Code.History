@@ -638,7 +638,7 @@ page 9215 "Res. All. per Service  Matrix"
             if MatrixRec.Find('-') then
                 repeat
                     MatrixCellQuantity := MatrixCellQuantity + MatrixRec."Allocated Hours";
-                until MatrixRec.Next = 0;
+                until MatrixRec.Next() = 0;
 
             if MatrixCellQuantity <> 0 then
                 MatrixCellData[I] := Format(MatrixCellQuantity)

@@ -252,7 +252,7 @@
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         WhsePurchRelease: Codeunit "Whse.-Purch. Release";
         SalesPost: Codeunit "Sales-Post";
@@ -398,7 +398,7 @@
     procedure FillTempLines(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     begin
         TempPurchLine.Reset();
-        if TempPurchLine.IsEmpty then
+        if TempPurchLine.IsEmpty() then
             CopyToTempLines(PurchHeader, TempPurchLine);
     end;
 
@@ -731,7 +731,7 @@
                     OnPostPurchLineOnTypeCaseElse(PurchHeader, PurchLine, PurchInvHeader, PurchCrMemoHeader, SrcCode);
             end;
 
-            OnPostPurchLineOnAfterPostByType(PurchHeader, PurchLine, GenJnlPostLine);
+            OnPostPurchLineOnAfterPostByType(PurchHeader, PurchLine, GenJnlPostLine, GenJnlLineDocNo, GenJnlLineExtDocNo, GenJnlLineDocType, SrcCode);
 
             if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
@@ -1049,7 +1049,7 @@
                 TrackingSpecificationExists := false
             else
                 TrackingSpecificationExists :=
-                  ReservePurchLine.RetrieveInvoiceSpecification(PurchLine, TempTrackingSpecification);
+                  PurchLineReserve.RetrieveInvoiceSpecification(PurchLine, TempTrackingSpecification);
 
         PostItemTracking(PurchHeader, PurchLine, TempTrackingSpecification, TrackingSpecificationExists);
 
@@ -1160,10 +1160,10 @@
 
             if QtyToBeReceivedBase <> 0 then begin
                 if PurchLine.IsCreditDocType then
-                    ReservePurchLine.TransferPurchLineToItemJnlLine(
+                    PurchLineReserve.TransferPurchLineToItemJnlLine(
                       PurchLine, ItemJnlLine, -QtyToBeReceivedBase, CheckApplToItemEntry)
                 else
-                    ReservePurchLine.TransferPurchLineToItemJnlLine(
+                    PurchLineReserve.TransferPurchLineToItemJnlLine(
                       PurchLine, ItemJnlLine, QtyToBeReceivedBase, CheckApplToItemEntry);
 
                 if CheckApplToItemEntry and PurchLine.IsInventoriableItem then
@@ -1501,10 +1501,10 @@
             SetRange("Source Type", DATABASE::"Purchase Line");
             SetRange("Source ID", TempItemChargeAssgntPurch."Applies-to Doc. No.");
             SetRange("Source Ref. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
-            if IsEmpty then
+            if IsEmpty() then
                 RunItemJnlPostLine(ItemJnlLine2)
             else begin
-                FindSet;
+                FindSet();
                 NonDistrItemJnlLine := ItemJnlLine2;
                 OriginalAmt := NonDistrItemJnlLine.Amount;
                 OriginalAmtACY := NonDistrItemJnlLine."Amount (ACY)";
@@ -2168,7 +2168,7 @@
         SalesSetup: Record "Sales & Receivables Setup";
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2177,7 +2177,7 @@
             exit;
 
         TempDropShptPostBuffer.Reset();
-        if TempDropShptPostBuffer.IsEmpty then
+        if TempDropShptPostBuffer.IsEmpty() then
             exit;
         SalesSetup.Get();
         if TempDropShptPostBuffer.FindSet() then begin
@@ -2189,7 +2189,7 @@
                 SalesOrderHeader."Shipping No." := '';
                 SalesOrderHeader.Modify();
                 OnUpdateAssocOrderOnAfterSalesOrderHeaderModify(SalesOrderHeader, SalesSetup);
-                ReserveSalesLine.UpdateItemTrackingAfterPosting(SalesOrderHeader);
+                SalesLineReserve.UpdateItemTrackingAfterPosting(SalesOrderHeader);
                 TempDropShptPostBuffer.SetRange("Order No.", TempDropShptPostBuffer."Order No.");
                 repeat
                     SalesOrderLine.Get(
@@ -2472,7 +2472,7 @@
                 DeleteLinks;
             Delete;
 
-            ReservePurchLine.DeleteInvoiceSpecFromHeader(PurchHeader);
+            PurchLineReserve.DeleteInvoiceSpecFromHeader(PurchHeader);
             ResetTempLines(TempPurchLine);
             if TempPurchLine.FindFirst() then
                 repeat
@@ -3593,16 +3593,16 @@
                 PurchaseLineToFind.CopyFilters(PurchaseLine);
                 PurchaseLineToFind.SetRange("No.", PurchaseLine."No.");
                 PurchaseLineToFind.SetRange("Depr. until FA Posting Date", not PurchaseLine."Depr. until FA Posting Date");
-                if not PurchaseLineToFind.IsEmpty then
+                if not PurchaseLineToFind.IsEmpty() then
                     Error(MixedDerpFAUntilPostingDateErr, PurchaseLine."No.");
 
                 if PurchaseLine."Depr. until FA Posting Date" then begin
                     PurchaseLineToFind.SetRange("Depr. until FA Posting Date", true);
                     PurchaseLineToFind.SetFilter("Line No.", '<>%1', PurchaseLine."Line No.");
-                    if not PurchaseLineToFind.IsEmpty then begin
+                    if not PurchaseLineToFind.IsEmpty() then begin
                         HasBookValue := false;
                         FADepreciationBook.SetRange("FA No.", PurchaseLine."No.");
-                        FADepreciationBook.FindSet;
+                        FADepreciationBook.FindSet();
                         repeat
                             FADepreciationBook.CalcFields("Book Value");
                             HasBookValue := HasBookValue or (FADepreciationBook."Book Value" <> 0);
@@ -3620,7 +3620,7 @@
     begin
         ItemChargeAssgntPurch.SetRange("Document Type", PurchHeader."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchHeader."No.");
-        if not ItemChargeAssgntPurch.IsEmpty then
+        if not ItemChargeAssgntPurch.IsEmpty() then
             ItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -3794,7 +3794,7 @@
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
             SetFilter("Line Discount %", '<>100');
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             CopyItemChargeForPurchLine(TempItemChargeAssgntPurch, TempPurchLine);
@@ -3825,7 +3825,7 @@
                                   (Quantity = "Qty. to Invoice" + "Quantity Invoiced") and
                                   ("Qty. to Invoice" =
                                    "Qty. Rcd. Not Invoiced" + "Return Qty. Shipped Not Invd.");
-                        until (Next = 0) or (not InvoiceEverything);
+                        until (Next() = 0) or (not InvoiceEverything);
                 end;
 
             if InvoiceEverything and AssignError then
@@ -3941,7 +3941,7 @@
         TempItemChargeAssignmentPurch.Reset();
         TempItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
         TempItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
-        if not TempItemChargeAssignmentPurch.IsEmpty then
+        if not TempItemChargeAssignmentPurch.IsEmpty() then
             TempItemChargeAssignmentPurch.DeleteAll();
 
         ItemChargeAssgntPurch.Reset();
@@ -4281,7 +4281,7 @@
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
                         ItemTrackingManagement.GetItemTrackingSetup(
-                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase.AsInteger(), Inbound, ItemTrackingSetup);
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase, Inbound, ItemTrackingSetup);
                         CheckPurchLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckPurchLine then
                             CheckPurchLine := CheckTrackingExists(TempItemPurchLine);
@@ -4354,9 +4354,9 @@
             exit;
 
         TempTrackingSpecification.Reset();
-        if not TempTrackingSpecification.IsEmpty then begin
+        if not TempTrackingSpecification.IsEmpty() then begin
             TempTrackingSpecification.InsertSpecification;
-            ReservePurchLine.UpdateItemTrackingAfterPosting(PurchHeader);
+            PurchLineReserve.UpdateItemTrackingAfterPosting(PurchHeader);
         end;
     end;
 
@@ -4469,7 +4469,7 @@
 
     local procedure TransferReservToItemJnlLine(var SalesOrderLine: Record "Sales Line"; var ItemJnlLine: Record "Item Journal Line"; PurchLine: Record "Purchase Line"; QtyToBeShippedBase: Decimal; ApplySpecificItemTracking: Boolean)
     var
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         RemainingQuantity: Decimal;
         CheckApplFromItemEntry: Boolean;
     begin
@@ -4478,27 +4478,27 @@
             exit;
 
         if not ApplySpecificItemTracking then
-            ReserveSalesLine.TransferSalesLineToItemJnlLine(
+            SalesLineReserve.TransferSalesLineToItemJnlLine(
               SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
         else begin
-            ReserveSalesLine.SetApplySpecificItemTracking(true);
+            SalesLineReserve.SetApplySpecificItemTracking(true);
             TempTrackingSpecification.Reset();
             TempTrackingSpecification.SetSourceFilter(
               DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", false);
             TempTrackingSpecification.SetSourceFilter('', 0);
-            if TempTrackingSpecification.IsEmpty then
-                ReserveSalesLine.TransferSalesLineToItemJnlLine(
+            if TempTrackingSpecification.IsEmpty() then
+                SalesLineReserve.TransferSalesLineToItemJnlLine(
                   SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
             else begin
-                ReserveSalesLine.SetOverruleItemTracking(true);
-                TempTrackingSpecification.FindSet;
+                SalesLineReserve.SetOverruleItemTracking(true);
+                TempTrackingSpecification.FindSet();
                 if TempTrackingSpecification."Quantity (Base)" / QtyToBeShippedBase < 0 then
                     Error(ItemTrackingWrongSignErr);
                 repeat
                     ItemJnlLine.CopyTrackingFromSpec(TempTrackingSpecification);
                     ItemJnlLine."Applies-to Entry" := TempTrackingSpecification."Item Ledger Entry No.";
                     RemainingQuantity :=
-                      ReserveSalesLine.TransferSalesLineToItemJnlLine(
+                      SalesLineReserve.TransferSalesLineToItemJnlLine(
                         SalesOrderLine, ItemJnlLine, TempTrackingSpecification."Quantity (Base)", CheckApplFromItemEntry, false);
                     if RemainingQuantity <> 0 then
                         Error(ItemTrackingMismatchErr);
@@ -4601,7 +4601,7 @@
                             TempPrepmtPurchLine.SetRange("Job No.", "Job No.");
                             TempPrepmtPurchLine.SetRange("Dimension Set ID", "Dimension Set ID");
                             OnCreatePrepmtLinesOnAfterTempPrepmtPurchLineSetFilters(TempPrepmtPurchLine);
-                            TempLineFound := TempPrepmtPurchLine.FindFirst;
+                            TempLineFound := TempPrepmtPurchLine.FindFirst();
                         end;
                         if TempLineFound then begin
                             PrepmtAmtToDeduct :=
@@ -4678,7 +4678,7 @@
                                 until TempExtTextLine.Next() = 0;
                         end;
                     end;
-                until Next = 0
+                until Next() = 0
             end;
         end;
         DividePrepmtAmountLCY(TempPrepmtPurchLine, PurchHeader);
@@ -4997,7 +4997,7 @@
 
     local procedure Is100PctPrepmtInvoice(var TempPurchLine: Record "Purchase Line" temporary) Result: Boolean
     begin
-        if TempPurchLine.IsEmpty then
+        if TempPurchLine.IsEmpty() then
             exit(false);
         TempPurchLine.SetFilter("Prepayment %", '<100');
         Result := TempPurchLine.IsEmpty;
@@ -5168,7 +5168,7 @@
             SetFilter("Qty. to Invoice", '>0');
             SetFilter("Receipt No.", '<>%1', '');
             SetFilter("Prepmt Amt to Deduct", '<>0');
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             SetRange("Prepmt Amt to Deduct");
@@ -5451,13 +5451,13 @@
     var
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
+        InvSetup: Record "Inventory Setup";
     begin
         OnBeforeLockTables(PurchHeader, PreviewMode, SuppressCommit);
 
         PurchLine.LockTable();
         SalesLine.LockTable();
-        GetGLSetup();
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.FindLast then;
         end;
@@ -5716,7 +5716,7 @@
                     OnPostSalesTaxToGLOnBeforeGenJnlPostLine(GenJnlLine, PurchHeader, TempSalesTaxAmtLine);
                     GenJnlPostLine.RunWithCheck(GenJnlLine);
                 end;
-            until TempSalesTaxAmtLine.Next = 0;
+            until TempSalesTaxAmtLine.Next() = 0;
 
             // Sales Tax rounding adjustment for Invoice with 100% Prepayment
             if PurchHeader.Invoice and PurchHeader."Prepmt. Include Tax" and (TotalPurchLineLCY."Prepayment %" = 100) and
@@ -5798,14 +5798,14 @@
                     TempPurchLineForProvSalesTax.Insert();
                     SalesTaxCalculate.AddPurchLine(TempPurchLineForProvSalesTax);
                 end;
-            until TempPurchLineForSalesTax.Next = 0;
+            until TempPurchLineForSalesTax.Next() = 0;
         end;
         TempPurchLineForSalesTax.Reset();
         if TempPurchLineForProvSalesTax.FindFirst then begin
             SalesTaxCalculate.EndSalesTaxCalculation(PurchHeader."Posting Date");
             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempProvSalesTaxAmtLine);
             SalesTaxCalculate.DistTaxOverPurchLines(TempPurchLineForProvSalesTax);
-            TempPurchLineForProvSalesTax.FindSet;
+            TempPurchLineForProvSalesTax.FindSet();
             repeat
                 if TempPurchLineForProvSalesTax."Tax To Be Expensed" <> 0 then begin
                     TempPurchLineForSalesTax.Get(
@@ -5818,7 +5818,7 @@
                       TempPurchLineForProvSalesTax."Tax To Be Expensed";
                     TempPurchLineForSalesTax.Modify();
                 end;
-            until TempPurchLineForProvSalesTax.Next = 0;
+            until TempPurchLineForProvSalesTax.Next() = 0;
         end;
     end;
 
@@ -5946,7 +5946,7 @@
                         GenJnlPostLine.RunWithCheck(GenJnlLine);
                     end;
                 end;
-            until TempProvSalesTaxAmtLine.Next = 0;
+            until TempProvSalesTaxAmtLine.Next() = 0;
     end;
 
     local procedure UpdateIncomingDocument(IncomingDocNo: Integer; PostingDate: Date; GenJnlLineDocNo: Code[20])
@@ -6032,8 +6032,8 @@
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        // Skip UoM validation for partially received documents and lines fetch through "Get Receipts Lines"
-        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) and (PurchLine."Receipt No." = '') then
+        // Skip UoM validation for partially received/shipped documents and lines fetch through "Get Receipts Lines"
+        if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."No." <> '') and (PurchLine."Qty. Received (Base)" = 0) and (PurchLine."Receipt No." = '') and (PurchLine."Return Qty. Shipped (Base)" = 0) and (PurchLine."Return Shipment No." = '') then
             PurchLine.TestField("Unit of Measure Code");
 
         if PurchLine."Qty. per Unit of Measure" = 0 then
@@ -6513,7 +6513,7 @@
 
             if PurchHeader."Document Type" = PurchHeader."Document Type"::Invoice then
                 PurchInvHeader."Draft Invoice SystemId" := PurchHeader.SystemId;
-            
+
             PurchInvHeader.Insert(true);
             OnAfterPurchInvHeaderInsert(PurchInvHeader, PurchHeader);
 
@@ -6851,9 +6851,9 @@
             if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
                 SetFilter("Qty. to Receive", '<>0');
             SetRange("Receipt No.", '');
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -6875,9 +6875,9 @@
             SetFilter(Quantity, '<>0');
             SetFilter("Return Qty. to Ship", '<>0');
             SetRange("Return Shipment No.", '');
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -6996,7 +6996,7 @@
         if GLSetup."VAT in Use" then
             GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group")
         else
-            if (PurchLine.Type >= PurchLine.Type::"G/L Account") and
+            if (PurchLine.Type.AsInteger() >= PurchLine.Type::"G/L Account".AsInteger()) and
                ((PurchLine."Qty. to Invoice" <> 0) or (PurchLine."Qty. to Receive" <> 0))
             then
                 if PurchLine.Type in [PurchLine.Type::"G/L Account", PurchLine.Type::"Fixed Asset"] then
@@ -7274,7 +7274,7 @@
         GetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDeferACY, DeferralAccount);
     end;
 
-    local procedure CalcInvoiceDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcInvoiceDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         case PurchLine."VAT Calculation Type" of
             PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
@@ -7292,7 +7292,7 @@
         OnAfterCalcInvoiceDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostBuffer);
     end;
 
-    local procedure CalcLineDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcLineDiscountPosting(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
         case PurchLine."VAT Calculation Type" of
             PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
@@ -7757,7 +7757,7 @@
                         "Return Qty. Shipped (Base)" += "Return Qty. to Ship (Base)";
                     end;
                     if PurchHeader.Invoice then begin
-                        if "Document Type" = "Document Type"::Order then 
+                        if "Document Type" = "Document Type"::Order then
                             UpdateQtyToInvoiceForOrder(PurchHeader, TempPurchLine)
                         else
                             UpdateQtyToInvoiceForReturnOrder(PurchHeader, TempPurchLine);
@@ -8010,7 +8010,7 @@
                             if TaxOption = TaxOption::SalesTax then
                                 Error(EveryLineMustHaveSameErr, PurchLine.FieldCaption("VAT Calculation Type"), TaxOption);
                     end;
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
             PurchLine.SetRange("Qty. to Invoice");
             PurchLine.SetRange("Prepayment Line");
         end;
@@ -8208,7 +8208,7 @@
         OverReceiptPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         OverReceiptPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         OverReceiptPurchaseLine.SetRange("Over-Receipt Approval Status", OverReceiptPurchaseLine."Over-Receipt Approval Status"::Pending);
-        if not OverReceiptPurchaseLine.IsEmpty then
+        if not OverReceiptPurchaseLine.IsEmpty() then
             Error(OverReceiptApprovalErr);
     end;
 
@@ -9681,7 +9681,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostPurchLineOnAfterPostByType(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnPostPurchLineOnAfterPostByType(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocType: Enum "Gen. Journal Document Type"; SrcCode: Code[10])
     begin
     end;
 

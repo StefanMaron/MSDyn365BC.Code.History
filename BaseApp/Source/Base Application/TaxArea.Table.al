@@ -41,7 +41,7 @@ table 318 "Tax Area"
                     repeat
                         TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
                         TestField("Country/Region", TaxJurisdiction."Country/Region");
-                    until TaxAreaLine.Next = 0;
+                    until TaxAreaLine.Next() = 0;
                 end;
             end;
         }
@@ -150,15 +150,15 @@ table 318 "Tax Area"
         Customer: Record Customer;
     begin
         Customer.SetRange("Tax Area Code", Code);
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             exit(true);
 
         SalesHeader.SetRange("Tax Area Code", Code);
-        if not SalesHeader.IsEmpty then
+        if not SalesHeader.IsEmpty() then
             exit(true);
 
         SalesInvoiceHeader.SetRange("Tax Area Code", Code);
-        if not SalesInvoiceHeader.IsEmpty then
+        if not SalesInvoiceHeader.IsEmpty() then
             exit(true);
 
         exit(false);

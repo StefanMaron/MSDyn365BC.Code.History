@@ -23,7 +23,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         AppliedQuantityUndoError: Label 'Remaining Quantity must be equal to ''1''  in Item Ledger Entry: Entry No.=%1. Current value is ''0''.';
-        AvailabilityWarning: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         DeletionError: Label 'Order must be deleted.';
         ItemFilter: Label '%1|%2';
         InvoicedChargeItemError: Label 'You cannot undo line %1 because an item charge has already been invoiced.';
@@ -1488,7 +1488,7 @@ codeunit 137288 "SCM Inventory Costing III"
     local procedure EnqueueValuesForPostedItemTrackingLines(var TempReservationEntry: Record "Reservation Entry" temporary; Message: Text[1024]; SignFactor: Integer)
     begin
         LibraryVariableStorage.Enqueue(Message);  // Enqueue value for ConfirmHandler.
-        TempReservationEntry.FindSet;
+        TempReservationEntry.FindSet();
         repeat
             LibraryVariableStorage.Enqueue(TempReservationEntry."Serial No.");
             LibraryVariableStorage.Enqueue(SignFactor * -TempReservationEntry.Quantity);
@@ -1561,7 +1561,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             TempReservationEntry := ReservationEntry;
             TempReservationEntry.Insert();
@@ -1875,7 +1875,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ValueEntry: Record "Value Entry";
     begin
         FindValueEntry(ValueEntry, ItemNo, DocumentType, DocumentLineNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valued Quantity", ValuedQuantity);
         until ValueEntry.Next = 0;

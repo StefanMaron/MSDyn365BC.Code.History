@@ -92,7 +92,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
             if not IsNullGuid("Job Queue Entry ID") then
                 JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
             JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty then
+            if not JobQueueEntry.IsEmpty() then
                 JobQueueEntry.DeleteAll(true);
             "Job Queue Status" := "Job Queue Status"::" ";
             Modify;

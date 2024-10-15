@@ -150,8 +150,8 @@ page 10060 "Sales Tax Lines Serv. Subform"
             repeat
                 TempSalesTaxLine.Copy(NewSalesTaxLine);
                 TempSalesTaxLine.Insert();
-            until NewSalesTaxLine.Next = 0;
-        CurrPage.Update;
+            until NewSalesTaxLine.Next() = 0;
+        CurrPage.Update();
     end;
 
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
@@ -161,7 +161,7 @@ page 10060 "Sales Tax Lines Serv. Subform"
             repeat
                 NewSalesTaxLine.Copy(TempSalesTaxLine);
                 NewSalesTaxLine.Insert();
-            until TempSalesTaxLine.Next = 0;
+            until TempSalesTaxLine.Next() = 0;
     end;
 
     procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
@@ -177,7 +177,7 @@ page 10060 "Sales Tax Lines Serv. Subform"
             Currency.InitRoundingPrecision
         else
             Currency.Get(CurrencyCode);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure FormCheckVATDifference()
@@ -191,7 +191,7 @@ page 10060 "Sales Tax Lines Serv. Subform"
         if TempSalesTaxLine.Find('-') then
             repeat
                 TotalVATDifference := TotalVATDifference + Abs(TempSalesTaxLine."Tax Difference");
-            until TempSalesTaxLine.Next = 0;
+            until TempSalesTaxLine.Next() = 0;
         TempSalesTaxLine := TaxAmountLine2;
         if TotalVATDifference > Currency."Max. VAT Difference Allowed" then
             Error(

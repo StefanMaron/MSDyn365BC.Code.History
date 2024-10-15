@@ -1,12 +1,19 @@
 table 5105 "Customer Template"
 {
     Caption = 'Customer Template';
+#if not CLEAN18
     DrillDownPageID = "Customer Template List";
     LookupPageID = "Customer Template List";
+#endif
     ReplicateData = true;
-    ObsoleteState = Pending;
     ObsoleteReason = 'Deprecate mini and customer templates. Use table "Customer Templ." instead and for extensions.';
+#if not CLEAN18
+    ObsoleteState = Pending;
     ObsoleteTag = '18.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -29,22 +36,24 @@ table 5105 "Customer Template"
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Global Dimension 1 Code");
             end;
+#endif
         }
         field(17; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
+#endif
         }
         field(21; "Customer Posting Group"; Code[20])
         {
@@ -110,13 +119,14 @@ table 5105 "Customer Template"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-
+#if not CLEAN18
             trigger OnValidate()
             begin
                 if xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
                     if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
+#endif
         }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
@@ -166,6 +176,7 @@ table 5105 "Customer Template"
         }
     }
 
+#if not CLEAN18
     trigger OnDelete()
     begin
         DimMgt.DeleteDefaultDim(DATABASE::"Customer Template", Code);
@@ -189,6 +200,7 @@ table 5105 "Customer Template"
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         DimMgt: Codeunit DimensionManagement;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -202,6 +214,7 @@ table 5105 "Customer Template"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [Scope('OnPrem')]
     procedure CopyTemplate(var SourceCustomerTemplate: Record "Customer Template")
     begin
@@ -209,14 +222,17 @@ table 5105 "Customer Template"
         Modify(true);
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var CustomerTemplate: Record "Customer Template"; var xCustomerTemplate: Record "Customer Template"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CustomerTemplate: Record "Customer Template"; var xCustomerTemplate: Record "Customer Template"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
+#endif
 }
 

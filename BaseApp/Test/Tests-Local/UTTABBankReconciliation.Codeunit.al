@@ -17,6 +17,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         ValueMustNotExistMsg: Label '%1 must not exist.';
         ValueMustExistMsg: Label '%1 must exist.';
         DialogErr: Label 'Dialog';
+        UnsupportedTypeNotificationMsg: Label '%1 is not supported account type. You can enter and post the adjustment entry in a General Journal instead.', Comment = '%1=account type';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
@@ -592,7 +593,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
 
         // [THEN] Bank Account Ledger Entries has "Statement Status" = "Bank Acc. Entry Applied" and "Statement No." = "S"
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         VerifyBankAccLedgerEntry(BankAccountLedgerEntry, BankRecHeader."Statement No.");
         BankAccountLedgerEntry.Next;
         VerifyBankAccLedgerEntry(BankAccountLedgerEntry, BankRecHeader."Statement No.");
@@ -768,7 +769,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
     procedure CollapseLinesBankRecLineWithClearedTrue()
     var
         BankRecHeader: Record "Bank Rec. Header";
-        BankRecLine: array [2] of Record "Bank Rec. Line";
+        BankRecLine: array[2] of Record "Bank Rec. Line";
         TotalAmount: Integer;
     begin
         // [SCENARIO ] Collapse of two Expanded Bank Rec. Lines with "Cleared" = "TRUE" produces new Collapsed Bank Rec. Line with "Cleared" = "TRUE"
@@ -777,9 +778,9 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [GIVEN] "Document Type" = "A1"/"A2" "Document No." = "B1"/"B2", "External Document No." = "C", "Cleared" = "TRUE", "Amount" = "D1"/"D2"
         CreateBankReconciliationHeader(BankRecHeader);
         MockExpandedDepositBankRecLineWithClearedAndAmount(
-          BankRecLine[1],BankRecHeader."Bank Account No.",BankRecHeader."Statement No.",LibraryRandom.RandInt(100),true);
+          BankRecLine[1], BankRecHeader."Bank Account No.", BankRecHeader."Statement No.", LibraryRandom.RandInt(100), true);
         MockExpandedDepositBankRecLineWithClearedAndAmount(
-          BankRecLine[2],BankRecHeader."Bank Account No.",BankRecHeader."Statement No.",LibraryRandom.RandInt(100),true);
+          BankRecLine[2], BankRecHeader."Bank Account No.", BankRecHeader."Statement No.", LibraryRandom.RandInt(100), true);
         BankRecLine[2]."External Document No." := BankRecLine[1]."External Document No.";
         BankRecLine[2].Modify(true);
         TotalAmount := BankRecLine[1].Amount + BankRecLine[2].Amount;
@@ -790,8 +791,8 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [THEN] New Bank Rec. Line is created with following details:
         // [THEN] "Document Type" = "", "Document No." = "", "External Document No." = "C", "Collapse Status" = "Collapsed Deposit", "Cleared" = "TRUE", "Cleared Amount" = "D1 + D2"
         VerifyBankRecLineValues(
-          BankRecLine[1],10000,BankRecLine[1]."Document Type"::" ",'',
-          BankRecLine[1]."External Document No.",BankRecLine[1]."Collapse Status"::"Collapsed Deposit",true,TotalAmount);
+          BankRecLine[1], 10000, BankRecLine[1]."Document Type"::" ", '',
+          BankRecLine[1]."External Document No.", BankRecLine[1]."Collapse Status"::"Collapsed Deposit", true, TotalAmount);
     end;
 
     [Test]
@@ -799,7 +800,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
     procedure CollapseLinesBankRecLineWithClearedTrueAndFalse()
     var
         BankRecHeader: Record "Bank Rec. Header";
-        BankRecLine: array [2] of Record "Bank Rec. Line";
+        BankRecLine: array[2] of Record "Bank Rec. Line";
     begin
         // [SCENARIO ] Collapse of two Expanded Bank Rec. Lines with "Cleared" = "TRUE"/"FALSE" produces new Collapsed Bank Rec. Line with "Cleared" = "FALSE"
 
@@ -807,9 +808,9 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [GIVEN] "Document Type" = "A1"/"A2" "Document No." = "B1"/"B2", "External Document No." = "C", "Cleared" = "TRUE"/"FALSE", "Amount" = "D1"/"D2"
         CreateBankReconciliationHeader(BankRecHeader);
         MockExpandedDepositBankRecLineWithClearedAndAmount(
-          BankRecLine[1],BankRecHeader."Bank Account No.",BankRecHeader."Statement No.",LibraryRandom.RandInt(100),true);
+          BankRecLine[1], BankRecHeader."Bank Account No.", BankRecHeader."Statement No.", LibraryRandom.RandInt(100), true);
         MockExpandedDepositBankRecLineWithClearedAndAmount(
-          BankRecLine[2],BankRecHeader."Bank Account No.",BankRecHeader."Statement No.",LibraryRandom.RandInt(100),false);
+          BankRecLine[2], BankRecHeader."Bank Account No.", BankRecHeader."Statement No.", LibraryRandom.RandInt(100), false);
         BankRecLine[2]."External Document No." := BankRecLine[1]."External Document No.";
         BankRecLine[2].Modify(true);
 
@@ -819,20 +820,93 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [THEN] New Bank Rec. Line is created with following details:
         // [THEN] "Document Type" = "", "Document No." = "", "External Document No." = "C", "Collapse Status" = "Collapsed Deposit", "Cleared" = "TRUE", "Cleared Amount" = "0"
         VerifyBankRecLineValues(
-          BankRecLine[1],10000,BankRecLine[1]."Document Type"::" ",'',
-          BankRecLine[1]."External Document No.",BankRecLine[1]."Collapse Status"::"Collapsed Deposit",false,0);
+          BankRecLine[1], 10000, BankRecLine[1]."Document Type"::" ", '',
+          BankRecLine[1]."External Document No.", BankRecLine[1]."Collapse Status"::"Collapsed Deposit", false, 0);
     end;
+
+    [Test]
+    [HandlerFunctions('UnsupportedTypeSendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure AccountTypeICPartner()
+    var
+        BankRecLine: Record "Bank Rec. Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [SCENARIO 381948] User gets notification when use account type "IC Partner"
+
+        // [WHEN] Account Type changed to "IC Partner"
+        BankRecLine.Validate("Account Type", BankRecLine."Account Type"::"IC Partner");
+
+        // [THEN] Notification "IC Partner is not supported account type..."
+        Assert.ExpectedMessage(StrSubstNo(UnsupportedTypeNotificationMsg, BankRecLine."Account Type"), LibraryVariableStorage.DequeueText);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('UnsupportedTypeSendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure AccountTypeEmployee()
+    var
+        BankRecLine: Record "Bank Rec. Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [SCENARIO 381948] User gets notification when use account type Employee
+
+        // [WHEN] Account Type changed to Employee
+        BankRecLine.Validate("Account Type", BankRecLine."Account Type"::Employee);
+
+        // [THEN] Notification "Employee is not supported account type..."
+        Assert.ExpectedMessage(StrSubstNo(UnsupportedTypeNotificationMsg, BankRecLine."Account Type"), LibraryVariableStorage.DequeueText);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('UnsupportedTypeSendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure BalAccountTypeICPartner()
+    var
+        BankRecLine: Record "Bank Rec. Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [SCENARIO 381948] User gets notification when use bal. account type "IC Partner"
+
+        // [WHEN] Bal. Account Type changed to "IC Partner"
+        BankRecLine.Validate("Bal. Account Type", BankRecLine."Bal. Account Type"::"IC Partner");
+
+        // [THEN] Notification "IC Partner is not supported account type..."
+        Assert.ExpectedMessage(StrSubstNo(UnsupportedTypeNotificationMsg, BankRecLine."Bal. Account Type"), LibraryVariableStorage.DequeueText);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('UnsupportedTypeSendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure BalAccountTypeEmployee()
+    var
+        BankRecLine: Record "Bank Rec. Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [SCENARIO 381948] User gets notification when use bal. account type Employee
+
+        // [WHEN] Bal. Account Type changed to Employee
+        BankRecLine.Validate("Bal. Account Type", BankRecLine."Bal. Account Type"::Employee);
+
+        // [THEN] Notification "Employee is not supported account type..."
+        Assert.ExpectedMessage(StrSubstNo(UnsupportedTypeNotificationMsg, BankRecLine."Bal. Account Type"), LibraryVariableStorage.DequeueText);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
 
     local procedure MockExpandedDepositBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
         MockBankRecLine(BankRecLine, BankAccountNo, StatementNo, BankRecLine."Collapse Status"::"Expanded Deposit Line");
     end;
 
-    local procedure MockExpandedDepositBankRecLineWithClearedAndAmount(var BankRecLine: Record "Bank Rec. Line";BankAccountNo: Code[20];StatementNo: Code[20];Amount: Integer;Cleared: Boolean)
+    local procedure MockExpandedDepositBankRecLineWithClearedAndAmount(var BankRecLine: Record "Bank Rec. Line"; BankAccountNo: Code[20]; StatementNo: Code[20]; Amount: Integer; Cleared: Boolean)
     begin
-        MockBankRecLine(BankRecLine,BankAccountNo,StatementNo,BankRecLine."Collapse Status"::"Expanded Deposit Line");
-        BankRecLine.Validate(Amount,Amount);
-        BankRecLine.Validate(Cleared,Cleared);
+        MockBankRecLine(BankRecLine, BankAccountNo, StatementNo, BankRecLine."Collapse Status"::"Expanded Deposit Line");
+        BankRecLine.Validate(Amount, Amount);
+        BankRecLine.Validate(Cleared, Cleared);
         BankRecLine.Modify(true);
     end;
 
@@ -1117,6 +1191,13 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecProcessLines.RecordTypeToProcess.SetValue(RecordTypeToProcess::Both);
         BankRecProcessLines."Bank Rec. Line".SetFilter("Posting Date", Format(LibraryVariableStorage.DequeueDate));
         BankRecProcessLines.OK.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure UnsupportedTypeSendNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 

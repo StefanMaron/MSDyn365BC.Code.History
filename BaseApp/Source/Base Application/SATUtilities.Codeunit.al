@@ -248,7 +248,7 @@ codeunit 27030 "SAT Utilities"
                         CountryRegion."SAT Country Code" := 'ZZZ';
                 end;
                 CountryRegion.Modify();
-            until CountryRegion.Next = 0;
+            until CountryRegion.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -275,7 +275,7 @@ codeunit 27030 "SAT Utilities"
                         UnitOfMeasure."SAT UofM Classification" := 'EA';
                 end;
                 UnitOfMeasure.Modify();
-            until UnitOfMeasure.Next = 0;
+            until UnitOfMeasure.Next() = 0;
     end;
 
     [Scope('OnPrem')]

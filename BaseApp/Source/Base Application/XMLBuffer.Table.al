@@ -48,8 +48,8 @@ table 1235 "XML Buffer"
             Caption = 'Is Parent';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anomore';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(9; "Data Type"; Option)
         {
@@ -63,16 +63,16 @@ table 1235 "XML Buffer"
             Caption = 'Code';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(11; "Node Name"; Text[250])
         {
             Caption = 'Node Name';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(12; "Has Attributes"; Boolean)
         {
@@ -80,8 +80,8 @@ table 1235 "XML Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
             ObsoleteReason = 'Is not used anymore';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(13; "Node Number"; Integer)
         {
@@ -242,7 +242,7 @@ table 1235 "XML Buffer"
             repeat
                 "Node Number" += 1;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         Get("Parent Entry No.");
         XMLBufferWriter.InsertElement(Rec, Rec, ElementNo, Depth + 1, ElementNameWithNamespace, '');
         SetView(CurrentView);
@@ -288,7 +288,7 @@ table 1235 "XML Buffer"
                 repeat
                     Rec := XMLBuffer;
                     Insert;
-                until XMLBuffer.Next = 0;
+                until XMLBuffer.Next() = 0;
             SetView(TempXMLBuffer.GetView);
         end;
     end;

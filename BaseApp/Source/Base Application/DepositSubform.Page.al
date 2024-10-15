@@ -83,7 +83,7 @@ page 10141 "Deposit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Credit Amount"; "Credit Amount")
@@ -93,7 +93,7 @@ page 10141 "Deposit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(Amount; Amount)
@@ -104,7 +104,7 @@ page 10141 "Deposit Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

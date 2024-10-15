@@ -2,7 +2,6 @@ report 99000757 "Where-Used (Top Level)"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './WhereUsedTopLevel.rdlc';
-    AccessByPermission = TableData "Production Order" = R;
     ApplicationArea = Manufacturing;
     Caption = 'Where-Used (Top Level)';
     UsageCategory = ReportsAndAnalysis;

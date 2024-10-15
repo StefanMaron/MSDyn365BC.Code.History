@@ -411,13 +411,13 @@ page 126 "Cust. Ledg. Entries Preview"
             repeat
                 Rec := TempCustLedgerEntry;
                 Insert;
-            until TempCustLedgerEntry.Next = 0;
+            until TempCustLedgerEntry.Next() = 0;
 
         if TempDetailedCustLedgEntry2.Find('-') then
             repeat
                 TempDetailedCustLedgEntry := TempDetailedCustLedgEntry2;
                 TempDetailedCustLedgEntry.Insert();
-            until TempDetailedCustLedgEntry2.Next = 0;
+            until TempDetailedCustLedgEntry2.Next() = 0;
     end;
 
     procedure CalcAmounts()
@@ -444,7 +444,7 @@ page 126 "Cust. Ledg. Entries Preview"
                 end;
                 RemainingAmountFCY += TempDetailedCustLedgEntry.Amount;
                 RemainingAmountLCY += TempDetailedCustLedgEntry."Amount (LCY)";
-            until TempDetailedCustLedgEntry.Next = 0;
+            until TempDetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure DrilldownAmounts(AmountType: Option Amount,"Remaining Amount","Original Amount")

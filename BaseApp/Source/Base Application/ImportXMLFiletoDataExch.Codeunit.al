@@ -56,7 +56,7 @@ codeunit 1203 "Import XML File to Data Exch."
                   XmlNodeList.ItemOf(I - 1), NodeID, '', CurrentLineNo, DataExchLineDef, DataExch."Entry No.", XmlNamespaceManager);
                 CurrentLineNo += 1;
             end;
-        until DataExchLineDef.Next = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 
     local procedure ParseParentChildLine(CurrentXmlNode: DotNet XmlNode; NodeID: Text[250]; ParentNodeID: Text[250]; CurrentLineNo: Integer; CurrentDataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer; XmlNamespaceManager: DotNet XmlNamespaceManager)
@@ -97,7 +97,7 @@ codeunit 1203 "Import XML File to Data Exch."
                       DataExchColumnDef.Path, CurrentLineNo, CurrentNodeID, ParentNodeID, XmlNodeList.ItemOf(I - 1).Name,
                       XmlNodeList.ItemOf(I - 1).InnerText, CurrentDataExchLineDef, EntryNo);
                 end;
-            until DataExchColumnDef.Next = 0;
+            until DataExchColumnDef.Next() = 0;
 
         // insert Constant values
         DataExchColumnDef.SetFilter(Path, '%1', '');
@@ -108,7 +108,7 @@ codeunit 1203 "Import XML File to Data Exch."
                 CurrentIndex += 1;
                 DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, CurrentLineNo, DataExchColumnDef."Column No.",
                   CurrentNodeID, ParentNodeID, DataExchColumnDef.Constant, CurrentDataExchLineDef.Code);
-            until DataExchColumnDef.Next = 0;
+            until DataExchColumnDef.Next() = 0;
 
         // Insert Children
         DataExchLineDef.SetRange("Data Exch. Def Code", CurrentDataExchLineDef."Data Exch. Def Code");
@@ -136,7 +136,7 @@ codeunit 1203 "Import XML File to Data Exch."
                     CurrentIndex += 1;
                     LastLineNo += 1;
                 end;
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
     end;
 
     local procedure InsertColumn(Path: Text; LineNo: Integer; NodeId: Text[250]; ParentNodeId: Text[250]; Name: Text; Value: Text; var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer)
@@ -158,7 +158,7 @@ codeunit 1203 "Import XML File to Data Exch."
                 else
                     DataExchField.InsertRecXMLFieldWithParentNodeID(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, ParentNodeId, Value,
                       DataExchLineDef.Code);
-            until DataExchColumnDef.Next = 0;
+            until DataExchColumnDef.Next() = 0;
     end;
 
     local procedure GetRelativePath(ChildPath: Text[250]; ParentPath: Text[250]): Text

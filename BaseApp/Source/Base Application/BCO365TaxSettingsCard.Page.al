@@ -309,7 +309,7 @@ page 10350 "BC O365 Tax Settings Card"
                         PST := GetProvince(PSTCode);
                         PSTrate := O365TaxSettingsManagement.GetTaxRate(PSTCode)
                     end;
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
         GSTorHSTVisible := GSTorHST <> '';
         PSTVisible := PST <> '';
     end;
@@ -364,7 +364,7 @@ page 10350 "BC O365 Tax Settings Card"
             exit;
         TempSalesTaxSetupWizard.SetTaxArea(TaxArea);
         TaxAreaLine.SetRange("Tax Area", TempSalesTaxSetupWizard."Tax Area Code");
-        if not TaxAreaLine.IsEmpty then
+        if not TaxAreaLine.IsEmpty() then
             TaxAreaLine.DeleteAll();
         if GSTorHSTCode <> '' then begin
             TempSalesTaxSetupWizard.SetTaxJurisdiction(GSTorHSTCode, GSTorHST, CATxt);

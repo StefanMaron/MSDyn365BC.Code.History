@@ -343,6 +343,7 @@ table 272 "Check Ledger Entry"
             until Next() = 0;
     end;
 
+
     [IntegrationEvent(false, false)]
     procedure OnAfterCopyFromBankAccLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin

@@ -341,7 +341,7 @@ codeunit 144023 "ERM VAT O365"
     begin
         GLRegister.FindLast;
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         Assert.AreNearlyEqual(
           VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption));

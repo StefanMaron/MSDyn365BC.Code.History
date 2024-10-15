@@ -251,7 +251,7 @@ report 6641 "Return Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -440,7 +440,7 @@ report 6641 "Return Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()
@@ -799,7 +799,7 @@ report 6641 "Return Order"
                         SegManagement.LogDocument(22, "Purchase Header"."No.", 0, 0, DATABASE::Vendor,
                           "Purchase Header"."Buy-from Vendor No.", "Purchase Header"."Purchaser Code", '',
                           "Purchase Header"."Posting Description", '')
-                until "Purchase Header".Next = 0;
+                until "Purchase Header".Next() = 0;
     end;
 
     trigger OnPreReport()

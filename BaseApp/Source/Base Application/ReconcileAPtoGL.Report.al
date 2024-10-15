@@ -354,7 +354,7 @@ report 10101 "Reconcile AP to GL"
                         GLAccNo := FAPostingGroup."Maintenance Expense Account";
                     exit;
                 end;
-            until FADepBook.Next = 0;
+            until FADepBook.Next() = 0;
     end;
 }
 
