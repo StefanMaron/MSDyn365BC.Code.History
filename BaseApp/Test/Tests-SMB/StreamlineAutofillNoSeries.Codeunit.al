@@ -1356,6 +1356,56 @@ codeunit 138100 "Streamline. Autofill No Series"
         PurchaseHeader.TestField("Payment Terms Code", Vendor."Payment Terms Code");
     end;
 
+    [Test]
+    procedure DocNoForDifferentSalesTypes()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        Result: Boolean;
+        NoSeriesCode: Code[20];
+        HiddenNoSeriesCode: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 418416] Visibility for field "No." must be agreed for different types of sales document
+        Initialize();
+
+        HiddenNoSeriesCode := CreateNonVisibleNoSeries(true);
+        UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Quote, HiddenNoSeriesCode);
+
+        NoSeriesCode := CreateNonVisibleNoSeries(true);
+        SetNoSeriesManualNos(NoSeriesCode, true);
+        UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Order, NoSeriesCode);
+
+        Assert.IsFalse(DocumentNoVisibility.SalesDocumentNoIsVisible(SalesSetupDocType::Quote, ''), 'Must be hidden.');
+        Assert.IsTrue(DocumentNoVisibility.SalesDocumentNoIsVisible(SalesSetupDocType::Order, ''), 'Must be visible.');
+        DocumentNoVisibility.ClearState();
+    end;
+
+    [Test]
+    procedure DocNoForDifferentPurchTypes()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        Result: Boolean;
+        NoSeriesCode: Code[20];
+        HiddenNoSeriesCode: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 418416] Visibility for field "No." must be agreed for different types of purchase document
+        Initialize();
+
+        HiddenNoSeriesCode := CreateNonVisibleNoSeries(true);
+        CurrentPurchSetupDocType := PurchSetupDocType::Quote;
+        UpdateNoSeriesOnPurchSetup(HiddenNoSeriesCode);
+
+        NoSeriesCode := CreateNonVisibleNoSeries(true);
+        SetNoSeriesManualNos(NoSeriesCode, true);
+        CurrentPurchSetupDocType := PurchSetupDocType::Order;
+        UpdateNoSeriesOnPurchSetup(NoSeriesCode);
+
+        Assert.IsFalse(DocumentNoVisibility.PurchaseDocumentNoIsVisible(PurchSetupDocType::Quote, ''), 'Must be hidden.');
+        Assert.IsTrue(DocumentNoVisibility.PurchaseDocumentNoIsVisible(PurchSetupDocType::Order, ''), 'Must be visible.');
+        DocumentNoVisibility.ClearState();
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";

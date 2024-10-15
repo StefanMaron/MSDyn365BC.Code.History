@@ -701,9 +701,8 @@ codeunit 144001 "Payment Discount"
         FindSalesLine(SalesLine, SalesHeader);
         repeat
             GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            GeneralPostingSetup.Validate(
-              "Sales Prepayments Account",
-              CreatePrepaymentAccount(GeneralPostingSetup, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group"));
+            GeneralPostingSetup."Sales Prepayments Account" :=
+                CreatePrepaymentAccount(GeneralPostingSetup, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
             GeneralPostingSetup.Modify(true);
         until SalesLine.Next = 0;
     end;
@@ -716,9 +715,8 @@ codeunit 144001 "Payment Discount"
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         repeat
             GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-            GeneralPostingSetup.Validate(
-              "Purch. Prepayments Account",
-              CreatePrepaymentAccount(GeneralPostingSetup, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group"));
+            GeneralPostingSetup."Purch. Prepayments Account" :=
+                CreatePrepaymentAccount(GeneralPostingSetup, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
             GeneralPostingSetup.Modify(true);
         until PurchaseLine.Next = 0;
     end;

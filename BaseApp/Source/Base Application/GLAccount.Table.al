@@ -392,6 +392,7 @@ table 15 "G/L Account"
             var
                 GenProdPostingGrp: Record "Gen. Product Posting Group";
             begin
+                CheckOrdersPrepmtToDeduct(FieldCaption("Gen. Prod. Posting Group"));
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
@@ -489,6 +490,11 @@ table 15 "G/L Account"
         {
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
+
+            trigger OnValidate()
+            begin
+                CheckOrdersPrepmtToDeduct(FieldCaption("VAT Prod. Posting Group"));
+            end;
         }
         field(59; "VAT Amt."; Decimal)
         {
@@ -793,6 +799,7 @@ table 15 "G/L Account"
         Text002: Label 'There is another %1: %2; which refers to the same %3, but with a different %4: %5.';
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
+        CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
     begin
@@ -965,6 +972,21 @@ table 15 "G/L Account"
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
+    end;
+
+    local procedure CheckOrdersPrepmtToDeduct(FldCaption: Text)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.SetLoadFields("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+        GeneralPostingSetup.FilterGroup(-1);
+        GeneralPostingSetup.SetRange("Sales Prepayments Account", "No.");
+        GeneralPostingSetup.SetRange("Purch. Prepayments Account", "No.");
+        if GeneralPostingSetup.Find('-') then
+            repeat
+                GeneralPostingSetup.CheckOrdersPrepmtToDeduct(
+                    StrSubstNo(CannotChangeSetupOnPrepmtAccErr, '%1', FldCaption, "No."));
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     procedure IsTotaling(): Boolean

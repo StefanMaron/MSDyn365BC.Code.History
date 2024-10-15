@@ -1342,6 +1342,50 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ConcurrentCapacityFilledInCapacityLedgEntryOnFlushing()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        // [FEATURE] [Flushing]
+        // [SCENARIO 415018] Concurrent Capacity is filled in Capacity Ledger Entry on flushing production order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Routing with backword flushed work center.
+        // [GIVEN] Manufacturing item with the routing.
+        CreateRoutingWithBackwardFlushedWorkCenter(RoutingHeader);
+        CreateItemWithRouting(Item, RoutingHeader."No.");
+
+        // [GIVEN] Released production order, refresh.
+        // [GIVEN] Verify that "Concurrent Capacities" on the prod. order routing line is not 0.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine.FindFirst();
+        ProdOrderRoutingLine.TestField("Concurrent Capacities");
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] "Concurrent Capacity" in Capacity Ledger Entry is the same as in the prod. order routing line.
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.SetRange("Routing No.", RoutingHeader."No.");
+        CapacityLedgerEntry.SetRange("Item No.", Item."No.");
+        CapacityLedgerEntry.FindFirst();
+        CapacityLedgerEntry.TestField("Concurrent Capacity", ProdOrderRoutingLine."Concurrent Capacities");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");

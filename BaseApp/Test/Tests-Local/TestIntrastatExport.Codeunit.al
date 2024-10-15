@@ -1103,12 +1103,10 @@ codeunit 144052 "Test Intrastat Export"
     local procedure CreateFile(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; KBONumber: Text[30]; NihilDeclaration: Boolean; Counterparty: Boolean)
     var
         IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-        FileManagement: Codeunit "File Management";
+        FileTempBlob: Codeunit "Temp Blob";
+        FileOutStream: OutStream;
         Namespace: Text;
-        FileName: Text;
     begin
-        FileName := FileManagement.ServerTempFileName('XML');
-
         IntrastatJnlBatch.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlBatch.SetRange(Name, IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
@@ -1118,12 +1116,13 @@ codeunit 144052 "Test Intrastat Export"
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
 
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileName, KBONumber, NihilDeclaration, Counterparty);
+        FileTempBlob.CreateOutStream(FileOutStream);
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, KBONumber, NihilDeclaration, Counterparty);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
         IntrastatMakeDiskTaxAuth.Run;
 
         Namespace := 'http://www.onegate.eu/2010-01-01';
-        LibraryXPathXMLReader.Initialize(FileName, Namespace);
+        LibraryXPathXMLReader.InitializeWithBlob(FileTempBlob, Namespace);
     end;
 
     local procedure CreateTariffNumber(): Code[20]

@@ -458,6 +458,8 @@
                 then
                     PriceMessageIfPurchLinesExist(FieldCaption("Posting Date"));
 
+                ResetInvoiceDiscountValue();
+
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
                     if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
@@ -642,6 +644,9 @@
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen();
+
+                ResetInvoiceDiscountValue();
+
                 if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then
                     UpdateCurrencyFactor
                 else
@@ -667,6 +672,8 @@
 
             trigger OnValidate()
             begin
+                ResetInvoiceDiscountValue();
+
                 if "Currency Factor" <> xRec."Currency Factor" then
                     UpdatePurchLinesByFieldNo(FieldNo("Currency Factor"), CurrFieldNo <> 0);
             end;
@@ -2886,6 +2893,15 @@
         exit(not PurchLine.IsEmpty);
     end;
 
+    local procedure ResetInvoiceDiscountValue()
+    begin
+        if "Invoice Discount Value" <> 0 then begin
+            CalcFields("Invoice Discount Amount");
+            if "Invoice Discount Amount" = 0 then
+                "Invoice Discount Value" := 0;
+        end;
+    end;
+
     procedure RecreatePurchLines(ChangedFieldName: Text[100])
     var
         TempPurchLine: Record "Purchase Line" temporary;
@@ -2952,8 +2968,8 @@
                         PurchLine.Validate(Type, TempPurchLine.Type);
                         OnRecreatePurchLinesOnAfterValidateType(PurchLine, TempPurchLine);
                         if TempPurchLine."No." = '' then begin
-                            PurchLine.Validate(Description, TempPurchLine.Description);
-                            PurchLine.Validate("Description 2", TempPurchLine."Description 2");
+                            PurchLine.Description := TempPurchLine.Description;
+                            PurchLine."Description 2" := TempPurchLine."Description 2";
                         end else begin
                             PurchLine.Validate("No.", TempPurchLine."No.");
                             IsHandled := false;

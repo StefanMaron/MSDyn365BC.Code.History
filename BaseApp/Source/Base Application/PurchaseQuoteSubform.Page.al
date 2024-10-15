@@ -147,6 +147,7 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                         NoOnAfterValidate();
                     end;
