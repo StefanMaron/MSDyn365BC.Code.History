@@ -655,6 +655,7 @@ codeunit 9178 "Application Area Mgmt."
         OnBeforeLookupExperienceTier(TempExperienceTierBuffer);
         if page.RunModal(0, TempExperienceTierBuffer, TempExperienceTierBuffer."Experience Tier") = action::LookupOK then begin
             NewExperienceTier := TempExperienceTierBuffer."Experience Tier";
+            OnLookupExperienceTierOnAfterGetNewExperienceTier(NewExperienceTier);
             exit(true);
         end;
     end;
@@ -951,6 +952,11 @@ codeunit 9178 "Application Area Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnIsBasicCountryEnabled(CountryCode: Code[10]; var IsEnabled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupExperienceTierOnAfterGetNewExperienceTier(NewExperienceTier: Text)
     begin
     end;
 

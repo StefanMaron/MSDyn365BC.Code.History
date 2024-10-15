@@ -257,6 +257,7 @@ codeunit 141021 "ERM Electronic - Banking"
         AmountTxt: Text;
         Amount: Decimal;
         PaymentJournalAmount: Decimal;
+        WHTAmount: Decimal;
         MaxPaymentToleranceAmount: Decimal;
         BankAccountNo: Code[20];
     begin
@@ -276,9 +277,9 @@ codeunit 141021 "ERM Electronic - Banking"
         PaymentJournalAmount := UpdateGenJournalLineAmount(Vendor."No.", MaxPaymentToleranceAmount);
 
         // Calculation of Partial Amount without WHT on Payment journal.
-        Amount :=
-          PaymentJournalAmount - CalculateWHTAmount(
+        WHTAmount := CalculateWHTAmount(
             WHTPostingSetup."WHT Business Posting Group", WHTPostingSetup."WHT Product Posting Group", PaymentJournalAmount);
+        Amount := PaymentJournalAmount - WHTAmount;
         AmountTxt := ConvertWHTPrepaidAmountInText(Amount);
 
         // Exercise: Create EFT File.
@@ -511,8 +512,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] EFT File is being created
         FilePath := EFTPaymentCreateFile(GenJournalLine);
 
-        // [THEN] EFT file contains line with payment Document No.
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] EFT file contains line with Payment Reference (TFS 391963)
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -862,8 +863,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] File is being exported from EFT register
         FilePath := EFTPaymentCreateFileFromEFTRegister(EFTRegister);
 
-        // [THEN] EFT file contains line with payment Document No.
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] EFT file contains line with Payment Reference (TFS 391963)
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -907,8 +908,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] File is being exported from EFT register
         FilePath := EFTPaymentCreateFileFromEFTRegister(EFTRegister);
 
-        // [THEN] EFT file contains line with payment Document No.
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] EFT file contains line with Payment Reference (TFS 391963)
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -983,6 +984,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created for suggested Vendor Payment
+        // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
         Initialize;
 
         // [GIVEN] Create and post Invoice for a created Vendor
@@ -997,8 +999,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] Run EFT export for the created Payment
         FilePath := EFTPaymentCreateFile(GenJournalLine);
 
-        // [THEN] "Document No." is not blank in generated EFT File and is the same as in the Payment Journal Line
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] "Payment Reference" is not blank in generated EFT File and is the same as in the Payment Journal Line
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -1013,6 +1015,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created with Payment applied to ID
+        // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
         Initialize;
 
         // [GIVEN] Create and post Invoice for a created Vendor
@@ -1027,8 +1030,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] Run EFT export for the created Payment
         FilePath := EFTPaymentCreateFile(GenJournalLine);
 
-        // [THEN] "Document No." is not blank in generated EFT File and is the same as in the Payment Journal Line
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] "Payment Reference" is not blank in generated EFT File and is the same as in the Payment Journal Line
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -1044,6 +1047,7 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         // [FEATURE] [EFT Payment]
         // [SCENARIO 286433] "Document No." is filled in EFT File Created for Payment Journal Line
+        // [SCENARIO 391963] "Payment Reference" replaces "Document No." in the export
         Initialize;
 
         // [GIVEN] Payment journal line without applying to invoice
@@ -1056,8 +1060,8 @@ codeunit 141021 "ERM Electronic - Banking"
         // [WHEN] Run EFT export for the created Payment
         FilePath := EFTPaymentCreateFile(GenJournalLine);
 
-        // [THEN] "Document No." is not blank in generated EFT File and is the same as in the Payment Journal Line
-        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Document No.");
+        // [THEN] "Payment Reference" is not blank in generated EFT File and is the same as in the Payment Journal Line
+        VerifyDocumentNoEFTFile(FilePath, GenJournalLine."Payment Reference");
     end;
 
     [Test]
@@ -1133,16 +1137,19 @@ codeunit 141021 "ERM Electronic - Banking"
     [Test]
     [HandlerFunctions('CreateEFTFileRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure EFTFileAmountTransferredFromCustomPaymentLineWithAppliedDoc()
+    procedure EFTFileAmountTransferredFromCustomPaymentLineWithAppliedDoc_PartialPayment()
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
+        WHTManagement: Codeunit WHTManagement;
         InvoiceNo: Code[20];
         PaymentNo: Code[20];
+        WHTAmount: Decimal;
         FilePath: Text;
         AmountTxt: Text;
     begin
@@ -1161,19 +1168,85 @@ codeunit 141021 "ERM Electronic - Banking"
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
         PaymentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalLine."Document No."));
 
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+
         // [GIVEN] Gen. Journal Line is created with custom amount
         CreateCustomAmountPaymentJournalLineAppliedToInvoice(
-          GenJournalBatch, Vendor, PaymentNo, InvoiceNo, LibraryRandom.RandDecInRange(1, 1000, 2));
+          GenJournalBatch, Vendor, PaymentNo, InvoiceNo, VendorLedgerEntry."Remaining Amount" - 1);
 
         // [GIVEN] Create balancing bank account journal line
-        CreateBalancingJournalLine(GenJournalBatch, PaymentNo, LibraryRandom.RandDecInRange(1, 1000, 2));
+        CreateBalancingJournalLine(GenJournalBatch, PaymentNo, VendorLedgerEntry."Remaining Amount" - 1);
 
         // [WHEN] EFT File is being created
         FindFirstGenJournalLineFromBatch(GenJournalBatch, GenJournalLine);
+        WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
+        AmountTxt := ConvertWHTPrepaidAmountInText(Abs(GenJournalLine.Amount) - WHTAmount);
+
         FilePath := EFTPaymentCreateFile(GenJournalLine);
 
         // [THEN] EFT file Amount is transferred from Gen. Journal Line
-        AmountTxt := ConvertWHTPrepaidAmountInText(GenJournalLine.Amount);
+        Assert.IsTrue(
+          LibraryTextFileValidation.FindLineWithValue(
+            FilePath, 31 - StrLen(AmountTxt), StrLen(AmountTxt), AmountTxt) > '', ValueMustExistMsg);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateEFTFileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EFTFileAmountTransferredFromCustomPaymentLineWithAppliedDoc_OverPayment()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        WHTManagement: Codeunit WHTManagement;
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        WHTAmount: Decimal;
+        FilePath: Text;
+        AmountTxt: Text;
+    begin
+        // [FEATURE] [EFT Payment]
+        // [SCENARIO 314855] EFT file Amount is transferred from Gen. Journal Line not applied documents
+        Initialize;
+
+        // [GIVEN] Create and post invoice for vendor
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        FindWHTPostingSetup(WHTPostingSetup);
+        CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        InvoiceNo :=
+          CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+
+        // [GIVEN] Create payment line applied to invoice without balance account
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        PaymentNo := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalLine."Document No."));
+
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+
+        // [GIVEN] Gen. Journal Line is created with custom amount
+        CreateCustomAmountPaymentJournalLineAppliedToInvoice(
+          GenJournalBatch, Vendor, PaymentNo, InvoiceNo, VendorLedgerEntry."Remaining Amount" + 1);
+
+        // [GIVEN] Create balancing bank account journal line
+        CreateBalancingJournalLine(GenJournalBatch, PaymentNo, VendorLedgerEntry."Remaining Amount" + 1);
+
+        // [WHEN] EFT File is being created\
+        FindFirstGenJournalLineFromBatch(GenJournalBatch, GenJournalLine);
+        WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
+        AmountTxt := ConvertWHTPrepaidAmountInText(Abs(GenJournalLine.Amount) - WHTAmount);
+
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        // [THEN] EFT file Amount is transferred from Gen. Journal Line
         Assert.IsTrue(
           LibraryTextFileValidation.FindLineWithValue(
             FilePath, 31 - StrLen(AmountTxt), StrLen(AmountTxt), AmountTxt) > '', ValueMustExistMsg);
@@ -1218,6 +1291,100 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [THEN] Exported file contains line with Amount = X
         VerifyPaymentFileLineAmountAndWHTAmount(TextLine, GenJnlLineAmount, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler')]
+    procedure PostPaymentWithAllowedPaymentTolerance()
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLEntry: Record "G/L Entry";
+        TotalInvoiceAmount: Decimal;
+        TotalWHTAmount: Decimal;
+    begin
+        // [FEATURE] [Payment Tolerance] [EFT] [Suggest Vendor Payments]
+        // [SCENARO 390056] System does not involve Max. Payment Tolerance amount without EFT export
+        Initialize;
+
+        UpdateGLSetupPaymentToleranceWarning(true, LibraryRandom.RandDecInRange(1, 5, 2));
+
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        CreateVendor(Vendor, '', VATPostingSetup."VAT Bus. Posting Group");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        CreateAndPostMultiplePurchaseOrdersForVendor(
+          Vendor."No.", TotalInvoiceAmount, TotalWHTAmount);
+
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        SuggestVendorPayments(GenJournalLine, GenJournalBatch, Vendor."No.", true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payment Tolerance Credit Acc.");
+        Assert.RecordIsEmpty(GLEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CreateEFTFileRequestPageHandler')]
+    procedure PostExportedEFTPaymentWithAllowedPaymentTolerance()
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: array[2] of Code[20];
+        InvoiceAmount: array[2] of Decimal;
+        WHTAmount: array[2] of Decimal;
+        FilePath: Text;
+        TextLine: Text;
+        Index: Integer;
+    begin
+        // [FEATURE] [Payment Tolerance] [EFT] [Suggest Vendor Payments]
+        // [SCENARO 390056] System does not involve Max. Payment Tolerance amount on EFT export.
+        Initialize;
+
+        UpdateGLSetupPaymentToleranceWarning(true, LibraryRandom.RandDecInRange(1, 5, 2));
+
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        CreateVendor(Vendor, '', VATPostingSetup."VAT Bus. Posting Group");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        CreateGLAccount(GLAccount, '');
+        for Index := 1 to ArrayLen(InvoiceNo) do begin
+            InvoiceNo[Index] := CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::"G/L Account", GLAccount."No.", false);
+            CalculateInvoiceAndWHTAmount(Vendor."No.", InvoiceNo[Index], InvoiceAmount[Index], WHTAmount[Index]);
+        end;
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        for Index := 1 to ArrayLen(InvoiceNo) do begin
+            VendorLedgerEntry.SetRange("Document No.", InvoiceNo[Index]);
+            VendorLedgerEntry.FindFirst();
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.TestField("Amount to Apply", 0);
+            VendorLedgerEntry.TestField("Remaining Amount", -InvoiceAmount[Index]);
+        end;
+
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        SuggestVendorPayments(GenJournalLine, GenJournalBatch, Vendor."No.", true);
+
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payment Tolerance Credit Acc.");
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure Initialize()
@@ -1279,6 +1446,7 @@ codeunit 141021 "ERM Electronic - Banking"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         PurchaseHeader.Validate("Posting Date", CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'D>', WorkDate));
         PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
+        PurchaseHeader.Validate("Payment Reference", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));  // Random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(100, 1000, 2));
@@ -1476,6 +1644,7 @@ codeunit 141021 "ERM Electronic - Banking"
           LibraryUtility.GenerateRandomCode20(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("EFT Bank Account No.", Vendor."EFT Bank Account No.");
         GenJournalLine.Validate("EFT Payment", true);
+        GenJournalLine.Validate("Payment Reference", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
     end;
 
@@ -1605,11 +1774,17 @@ codeunit 141021 "ERM Electronic - Banking"
     end;
 
     local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean)
+    begin
+        SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorNoFilter, SummarizePerVendor, false);
+    end;
+
+    local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean; EFTPayment: Boolean)
     var
         SuggestVendorPayments: Report "Suggest Vendor Payments";
     begin
         LibraryVariableStorage.Enqueue(VendorNoFilter);
         LibraryVariableStorage.Enqueue(SummarizePerVendor);
+        LibraryVariableStorage.Enqueue(EFTPayment);
         GenJnlLine.Init();
         GenJnlLine.Validate("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.Validate("Journal Batch Name", GenJnlBatch.Name);
@@ -1740,11 +1915,12 @@ codeunit 141021 "ERM Electronic - Banking"
         Assert.AreEqual(ExpectedWHTAmount, WHTAmount, 'Invalid WHT Amount value');
     end;
 
-    local procedure VerifyDocumentNoEFTFile(FilePath: Text; DocumentNo: Code[20])
+    local procedure VerifyDocumentNoEFTFile(FilePath: Text; PaymentReference: Code[50])
     var
         LodgementReference: Text[18];
     begin
-        LodgementReference := PadStr(DocumentNo, MaxStrLen(LodgementReference));
+        Assert.IsTrue(PaymentReference <> '', 'Expected non blanked payment reference');
+        LodgementReference := PadStr(PaymentReference, MaxStrLen(LodgementReference));
         Assert.AreEqual(
           LodgementReference,
           CopyStr(

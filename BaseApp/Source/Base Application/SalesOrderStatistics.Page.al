@@ -711,8 +711,6 @@ page 402 "Sales Order Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because a customer invoice discount with the code %1 exists.';
-        TotalSalesLine: array[3] of Record "Sales Line";
-        TotalSalesLineLCY: array[3] of Record "Sales Line";
         Cust: Record Customer;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
@@ -749,6 +747,8 @@ page 402 "Sales Order Statistics"
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     protected var
+        TotalSalesLine: array[3] of Record "Sales Line";
+        TotalSalesLineLCY: array[3] of Record "Sales Line";
         TotalAmount1: array[3] of Decimal;
         TotalAmount2: array[3] of Decimal;
         VATAmount: array[3] of Decimal;
@@ -832,7 +832,7 @@ page 402 "Sales Order Statistics"
             end;
         end;
 
-        OnAfterCalculateTotalAmounts();
+        OnAfterCalculateTotalAmounts(TempSalesLine);
 
         TempSalesLine.DeleteAll();
         Clear(TempSalesLine);
@@ -893,6 +893,7 @@ page 402 "Sales Order Statistics"
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
+        OnUpdateHeaderInfoOnBeforeSetAmount(IndexNo);
         if "Prices Including VAT" then
             TotalSalesLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
         else
@@ -1140,7 +1141,7 @@ page 402 "Sales Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCalculateTotalAmounts()
+    local procedure OnAfterCalculateTotalAmounts(var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -1161,6 +1162,11 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnRefreshOnAfterGetRecordOnAfterGetSalesLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateHeaderInfoOnBeforeSetAmount(IndexNo: Integer)
     begin
     end;
 }

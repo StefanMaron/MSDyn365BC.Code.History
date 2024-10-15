@@ -330,7 +330,13 @@ codeunit 1001 "Job Post-Line"
         JT: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
         Txt: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestSalesLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Job Contract Entry No." = 0 then
             exit;
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
@@ -536,6 +542,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line"; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean; var TempPurchaseLineJob: Record "Purchase Line"; var TempJobJournalLine: Record "Job Journal Line"; var Sourcecode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSalesLine(var SalesLine: Record "Sales Line"; var Handled: Boolean)
     begin
     end;
 

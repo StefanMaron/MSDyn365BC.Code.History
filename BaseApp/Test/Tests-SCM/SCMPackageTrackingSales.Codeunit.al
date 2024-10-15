@@ -19,6 +19,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         EntryType: Option " ",Sales,Purchase,Receipt;
         DocType: Option " ","Order","Credit Memo";
@@ -1835,10 +1836,12 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Package Tracking Sales");
 
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Sales");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
@@ -1849,6 +1852,7 @@ codeunit 137264 "SCM Package Tracking Sales"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Sales");
     end;
 
     local procedure SetupInvtDocNosInInvSetup()

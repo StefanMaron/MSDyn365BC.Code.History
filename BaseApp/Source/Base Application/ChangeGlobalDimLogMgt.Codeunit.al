@@ -47,10 +47,15 @@ codeunit 484 "Change Global Dim. Log Mgt."
     var
         TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary;
     begin
+        if FindChildTables(ParentTableID, TempChildChangeGlobalDimLogEntry) then
+            exit(TempChildChangeGlobalDimLogEntry."Table ID");
+    end;
+
+    procedure FindChildTables(ParentTableID: Integer; var TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary): Boolean;
+    begin
         TempChildChangeGlobalDimLogEntry.Copy(TempChangeGlobalDimLogEntry, true);
         TempChildChangeGlobalDimLogEntry.SetRange("Parent Table ID", ParentTableID);
-        if TempChildChangeGlobalDimLogEntry.FindFirst then
-            exit(TempChildChangeGlobalDimLogEntry."Table ID");
+        exit(TempChildChangeGlobalDimLogEntry.FindSet());
     end;
 
     procedure FillBuffer(): Boolean

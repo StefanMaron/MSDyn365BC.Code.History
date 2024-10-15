@@ -398,7 +398,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled);
+        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled, NotificationId);
         if IsHandled then
             exit(Result);
 
@@ -432,6 +432,11 @@ page 343 "Check Credit Limit"
                 ExitValue := ExitValue + 2;
             OnShowWarningOnAfterCalcDueBalanceExitValue(Rec, ExitValue);
         end;
+
+        IsHandled := false;
+        OnShowWarningOnBeforeExitValue(Rec, ExitValue, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if ExitValue > 0 then begin
             case ExitValue of
@@ -596,7 +601,7 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid);
     begin
     end;
 
@@ -612,6 +617,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowWarningOnAfterCalcDueBalanceExitValue(var Customer: Record Customer; var ExitValue: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

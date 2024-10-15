@@ -66,6 +66,7 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Prod. Order Component" = Rm,
                   tabledata "Prod. Order Line" = Rm,
                   tabledata "Purch. Comment Line" = RIMD,

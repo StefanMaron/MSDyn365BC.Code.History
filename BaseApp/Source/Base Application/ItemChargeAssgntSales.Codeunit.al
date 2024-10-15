@@ -455,7 +455,7 @@
                 TotalGrossWeight := TotalGrossWeight + (LineArray[2] * LineArray[1]);
             end;
         until ItemChargeAssignmentSales.Next() = 0;
-        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssignmentSales, TotalGrossWeight);
+        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssignmentSales, TotalGrossWeight, Currency);
 
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
@@ -675,7 +675,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; TotalGrossWeight: Decimal)
+    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; TotalGrossWeight: Decimal; Currency: Record Currency)
     begin
     end;
 

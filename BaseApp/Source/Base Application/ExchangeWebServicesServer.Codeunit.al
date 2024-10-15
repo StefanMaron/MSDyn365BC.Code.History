@@ -14,6 +14,7 @@ codeunit 5321 "Exchange Web Services Server"
         InvalidCredentialsTxt: Label 'Invalid credentials.', Locked = true;
         InitializedTxt: Label 'Service has been initialized.', Locked = true;
         NotInitializedTxt: Label 'Service has not been initialized.', Locked = true;
+        ServiceLastErrorTxt: Label 'Service last error: %1.', Locked = true;
 
     local procedure InitializeForVersion(AutodiscoveryEmail: Text[250]; var ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean; ExchangeVersion: DotNet ExchangeVersion; Impersonation: Boolean) Result: Boolean
     var
@@ -40,8 +41,10 @@ codeunit 5321 "Exchange Web Services Server"
             Result := true;
         if Result then
             Session.LogMessage('0000D8V', InitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-        else
+        else begin
             Session.LogMessage('0000D8W', NotInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastError();
+        end;
     end;
 
 
@@ -122,6 +125,7 @@ codeunit 5321 "Exchange Web Services Server"
         if AzureADAuthFlow.CanHandle then
             if not Service.ValidateCredentials then begin
                 Session.LogMessage('0000D8X', InvalidCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+                LogLastError();
                 Error('');
             end;
     end;
@@ -324,6 +328,15 @@ codeunit 5321 "Exchange Web Services Server"
     procedure GetCurrentUserTimeZone(): Text
     begin
         exit(Service.GetExchangeUserTimeZone());
+    end;
+
+    local procedure LogLastError()
+    var
+        LastError: Text;
+    begin
+        LastError := Service.LastError();
+        if LastError <> '' then
+            Session.LogMessage('0000F63', StrSubstNo(ServiceLastErrorTxt, LastError), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 
     [IntegrationEvent(false, false)]

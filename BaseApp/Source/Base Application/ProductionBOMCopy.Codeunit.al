@@ -86,6 +86,8 @@ codeunit 99000768 "Production BOM-Copy"
                 ToProdBOMCompComment."Version Code" := ToVersionCode;
                 ToProdBOMCompComment.Insert();
             until FromProdBOMCompComment.Next() = 0;
+
+        OnAfterCopyBOM(BOMHeaderNo, CurrentBOMHeader);
     end;
 
     procedure CopyFromVersion(var ProdBOMVersionList2: Record "Production BOM Version")
@@ -110,6 +112,11 @@ codeunit 99000768 "Production BOM-Copy"
         end;
 
         ProdBOMVersionList2 := OldProdBOMVersionList;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyBOM(BOMHeaderNo: Code[20]; CurrentBOMHeader: Record "Production BOM Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
