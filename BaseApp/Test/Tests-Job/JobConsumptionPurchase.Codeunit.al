@@ -3194,6 +3194,48 @@ codeunit 136302 "Job Consumption Purchase"
         Assert.AreEqual(JobPlanningLine.Quantity, Quantity, JobPlanningLineQuantityErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyTotalCostOnJobLedgerEntriesAfterPostingPurchaseInvoice()
+    var
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+        TotalCost: Decimal;
+    begin
+        // [SCENARIO 467052] Total Cost (LCY) in Job Ledger Entries doesn't take into account the rounding amount defined in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] Create Job, Job Task, and attach Currency on Job
+        CreateJobWithJobTask(JobTask);
+        UpdateCurrencyOnJob(JobTask."Job No.", FindFCY);
+
+        // [GIVEN] Create Purchase Invoice with Job
+        CreatePurchaseDocumentWithJobTask(
+            PurchaseHeader,
+            JobTask,
+            PurchaseHeader."Document Type"::Invoice,
+            PurchaseLine.Type::Item,
+            CreateItem);
+
+        // [THEN] Update Purchase Line Item Direct Unit Cost and calculate Total Cost expected
+        UpdatePurchaseLineDirectUnitCost(PurchaseHeader);
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        TotalCost := Round(PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity);
+
+        // [WHEN] Post the Purchase Invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [VERIFY] Verify: "Total Cost (LCY)" in Job Ledger Entries.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobTask."Job No.");
+        Assert.AreEqual(
+            TotalCost,
+            JobLedgerEntry."Total Cost (LCY)",
+            StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost (LCY)"), TotalCost));
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN21
@@ -5337,6 +5379,15 @@ codeunit 136302 "Job Consumption Purchase"
         GLEntry.Next();
         JobLedgerEntry.TestField("Ledger Entry No.", GLEntry."Entry No.");
         JobLedgerEntry.TestField("Dimension Set ID", GLEntry."Dimension Set ID");
+    end;
+
+    local procedure UpdatePurchaseLineDirectUnitCost(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
     end;
 
     [ConfirmHandler]

@@ -744,9 +744,9 @@ codeunit 132590 "Type Helper Unit Tests"
         Assert.AreEqual('$ <Precision,0:0><Standard Format,0>', TypeHelper.GetAmountFormat(2064, '$'), 'Invalid amount format for it-ch'); // it-ch
         Assert.AreEqual('$ <Precision,0:0><Standard Format,0>', TypeHelper.GetAmountFormat(1043, '$'), 'Invalid amount format for nl-nl'); // nl-nl
         Assert.AreEqual('$ <Precision,0:0><Standard Format,0>', TypeHelper.GetAmountFormat(3079, '$'), 'Invalid amount format for de-at'); // de-at
+        Assert.AreEqual('$ <Precision,0:0><Standard Format,0>', TypeHelper.GetAmountFormat(2067, '$'), 'Invalid amount format for nl-be'); // nl-be
 
-        // n $ formats
-        Assert.AreEqual('<Precision,0:0><Standard Format,0> $', TypeHelper.GetAmountFormat(2067, '$'), 'Invalid amount format for nl-be'); // nl-be
+        // n $ formats        
         Assert.AreEqual('<Precision,0:0><Standard Format,0> $', TypeHelper.GetAmountFormat(2060, '$'), 'Invalid amount format for fr-be'); // fr-be
         Assert.AreEqual('<Precision,0:0><Standard Format,0> $', TypeHelper.GetAmountFormat(1040, '$'), 'Invalid amount format for it-it'); // it-it
         Assert.AreEqual('<Precision,0:0><Standard Format,0> $', TypeHelper.GetAmountFormat(1035, '$'), 'Invalid amount format for fi'); // fi

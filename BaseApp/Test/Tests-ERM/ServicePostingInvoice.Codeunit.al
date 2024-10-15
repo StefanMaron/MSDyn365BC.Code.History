@@ -3685,5 +3685,98 @@ codeunit 136108 "Service Posting - Invoice"
         end;
     end;
 
-}
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ModalEmailEditorHandler,ModalEmailRelationPickerHandler,CancelMailSendingStrMenuHandler')]
+    procedure PostServiceInvoiceAndSendViaMail()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 466584] When Posted Service Invoice is sent via mail in EMail Related Records system should store data about Customer
+        Initialize();
 
+        // [WHEN] A connector is installed and an account is added
+        InstallConnectorAndAddAccount();
+
+        // [GIVEN] Create Service Invoice with Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+        CreateServiceInvoiceWithResource(ServiceHeader, ResourceNo);
+
+        // [GIVEN] Post Service Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        ServiceInvoiceHeader.Get(ServiceHeader."Last Posting No.");
+
+        // [WHEN] Posted Service Invoice is sent to a customer (discarded mail)
+        CustomReportSelectionPrint(ServiceInvoiceHeader, Enum::"Report Selection Usage"::"SM.Invoice", true, 2);
+
+        // [THEN] 
+        CheckCustomerAddedToMailRelation(ServiceInvoiceHeader."Customer No.");
+
+        LibraryVariableStorage.Clear();
+    end;
+
+    local procedure InstallConnectorAndAddAccount()
+    var
+        ConnectorMock: Codeunit "Connector Mock";
+        TempAccount: Record "Email Account" temporary;
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+    begin
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
+    end;
+
+    local procedure CustomReportSelectionPrint(Document: Variant; ReportUsage: Enum "Report Selection Usage"; ShowRequestPage: Boolean; CustomerNoFieldNo: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+        TempReportSelections: Record "Report Selections" temporary;
+        ServicePostingInvoice: Codeunit "Service Posting - Invoice";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        CustomerNo: Code[20];
+    begin
+        RecRef.GetTable(Document);
+        FieldRef := RecRef.Field(CustomerNoFieldNo);
+        CustomerNo := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(CustomerNo));
+
+        RecRef.SetRecFilter();
+        RecRef.SetTable(Document);
+
+        ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
+        ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), Document, '', '', true, CustomerNo);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        EmailEditor.ShowSourceRecord.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalEmailRelationPickerHandler(var EmailRelationPicker: TestPage "Email Relation Picker")
+    begin
+        LibraryVariableStorage.Enqueue(EmailRelationPicker."Source Name".Value); //first line is customer related
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CancelMailSendingStrMenuHandler(Options: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Choice := 1; //Save as Draft //Discard email	
+    end;
+
+    local procedure CheckCustomerAddedToMailRelation(CustomerNo: Code[20])
+    var
+        CustomerNoForCompare: Code[20];
+        DequeuedText: Text;
+    begin
+        DequeuedText := LibraryVariableStorage.DequeueText();
+        CustomerNoForCompare := CopyStr(DequeuedText, StrPos(DequeuedText, ': ') + 2);
+        Assert.AreEqual(CustomerNo, CustomerNoForCompare, UnknownError);
+    end;
+}

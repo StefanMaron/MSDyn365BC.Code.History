@@ -37,6 +37,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         PurchaseHeaderExistError: Label 'The Purchase Header does not exist.';
         ReservEntryError: Label 'There is no Reservation Entry within the filter.';
         RequisitionLineError: Label 'There is no Requisition Line within the filter.';
+        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
         SerialNoError: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         VariantMessage: Label 'Variant  cannot be fully applied.';
         CancelReservMessage: Label 'Do you want to cancel all reservations in the';
@@ -2081,7 +2082,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [THEN] The posting fails with "Cannot match item tracking" error message.
         // [THEN] This is because lot no. "L1" is assigned to all quantity on the sales line and there is no room for the new lot no. "L2".
-        Assert.ExpectedError('Cannot match item tracking.');
+        Assert.ExpectedError(StrSubstNo(CannotMatchItemTrackingErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."No.", SalesLine.Description));
     end;
 
     local procedure Initialize()

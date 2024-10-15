@@ -1740,5 +1740,32 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
         CertOfSupply.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CertificatesOfSupplyPageHandler')]
+    procedure CheckOpeningEmptyCertificateOfSupplyListWithDocumentTypeFilter()
+    var
+        CertificateOfSupply: Record "Certificate of Supply";
+    begin
+        // [SCENARIO 463274] Opening empty 'Certificates of Supply' page with saved filters should not cause a error 
+        // [FEATURE] [Certificate of Supply] [Supply] [Shipment]
+        Initialize();
+
+        // [GIVEN] //there is no entries in "Certificate of Supply" table
+        if not CertificateOfSupply.IsEmpty then
+            CertificateOfSupply.DeleteAll();
+
+        // [WHEN] // "Document Type" filter is set on record and assigned to a page
+        CertificateOfSupply.SetRange("Document Type", LibraryRandom.RandInt(3) - 1);
+
+        // [THEN] // opening page should not cause a error
+        Page.Run(Page::"Certificates of Supply", CertificateOfSupply);
+    end;
+
+    [PageHandler]
+    procedure CertificatesOfSupplyPageHandler(var CertificatesOfSupply: TestPage "Certificates of Supply")
+    begin
+    end;
 }
 
