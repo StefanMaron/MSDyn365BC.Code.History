@@ -25,7 +25,7 @@ page 11000001 "Telebank Proposal"
 
                     trigger OnValidate()
                     begin
-                        BankAccFilterOnAfterValidate;
+                        BankAccFilterOnAfterValidate();
                     end;
                 }
                 field("Bnk.""Currency Code"""; Bnk."Currency Code")
@@ -62,7 +62,7 @@ page 11000001 "Telebank Proposal"
 
                     trigger OnValidate()
                     begin
-                        ProcessOnAfterValidate;
+                        ProcessOnAfterValidate();
                     end;
                 }
                 field(Docket; Docket)
@@ -484,8 +484,8 @@ page 11000001 "Telebank Proposal"
 
                     trigger OnAction()
                     begin
-                        ShowHeaderDimensions;
-                        CurrPage.SaveRecord;
+                        ShowHeaderDimensions();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 separator(Action1000002)
@@ -565,7 +565,7 @@ page 11000001 "Telebank Proposal"
                         BankAcc.Get("Our Bank No.");
                         "Bank Account List".SetRecord(BankAcc);
                         "Bank Account List".LookupMode(true);
-                        if "Bank Account List".RunModal = ACTION::LookupOK then begin
+                        if "Bank Account List".RunModal() = ACTION::LookupOK then begin
                             "Bank Account List".GetRecord(BankAcc);
                             if BankAcc."No." <> "Our Bank No." then begin
                                 BankAcc.TestField("Currency Code", "Currency Code");
@@ -619,7 +619,7 @@ page 11000001 "Telebank Proposal"
                         trigger OnAction()
                         begin
                             ShowDimensions();
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
                 }
@@ -643,7 +643,7 @@ page 11000001 "Telebank Proposal"
                         BankAcc.Get("Our Bank No.");
                         "Bank Account List".SetRecord(BankAcc);
                         "Bank Account List".LookupMode(true);
-                        if "Bank Account List".RunModal = ACTION::LookupOK then begin
+                        if "Bank Account List".RunModal() = ACTION::LookupOK then begin
                             "Bank Account List".GetRecord(BankAcc);
                             if BankAcc."No." <> "Our Bank No." then begin
                                 BankAcc.TestField("Currency Code", "Currency Code");
@@ -789,7 +789,7 @@ page 11000001 "Telebank Proposal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        BankAccFilterOnFormat;
+        BankAccFilterOnFormat();
     end;
 
     trigger OnAfterGetRecord()
@@ -841,7 +841,7 @@ page 11000001 "Telebank Proposal"
             BankAccFilter := Bnk."No."
         end;
 
-        BankAccFilterOnFormat;
+        BankAccFilterOnFormat();
     end;
 
     var

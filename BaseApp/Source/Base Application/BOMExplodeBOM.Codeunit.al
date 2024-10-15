@@ -39,6 +39,7 @@ codeunit 51 "BOM-Explode BOM"
             ToBOMComp.Position := StrSubstNo(Position, FromBOMComp.Position);
             ToBOMComp."Installed in Line No." := "Installed in Line No.";
             ToBOMComp."Installed in Item No." := "Installed in Item No.";
+            OnRunOnBeforeToBOMCompInsert(ToBOMComp, FromBOMComp);
             ToBOMComp.Insert();
         until FromBOMComp.Next() = 0;
 
@@ -57,5 +58,10 @@ codeunit 51 "BOM-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
         QtyPerUnitOfMeasure: Decimal;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeToBOMCompInsert(var ToBOMComp: Record "BOM Component"; FromBOMComp: Record "BOM Component")
+    begin
+    end;
 }
 

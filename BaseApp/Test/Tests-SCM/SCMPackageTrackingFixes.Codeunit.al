@@ -17,6 +17,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         PackageNumberIsRequired: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -208,9 +209,11 @@ codeunit 137268 "SCM Package Tracking Fixes"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Package Tracking Fixes");
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Fixes");
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
@@ -220,6 +223,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Fixes");
     end;
 
     local procedure AssignTrackingReclassification(var ItemJournalLine: Record "Item Journal Line"; PackageNo: Code[50]; NewPackageNo: Code[50])

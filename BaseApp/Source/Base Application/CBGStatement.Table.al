@@ -433,19 +433,16 @@ table 11400 "CBG Statement"
         GenJournalTemplate.Get("Journal Template Name");
         GenJournalTemplate.TestField("Source Code");
 
-        if CBGStatementLine.Find('-') then
+        if CBGStatementLine.Find('-') then begin
+            Counter := CBGStatementLine."Line No.";
             repeat
-                Counter := CBGStatementLine."Line No.";
                 AmountVV := CBGStatementLine."Debit Incl. VAT" - CBGStatementLine."Credit Incl. VAT";
                 GenJnlLine.Init();
-                GenJnlLine.SetSuppressCommit(true);
                 CBGStatementLine.CreateGenJournalLine(GenJnlLine);
                 AmountLV := GenJnlLine."Amount (LCY)";
                 GenJnlLine."Line No." := Counter;
-                Counter := Counter + 10000;
                 GenJnlLine."Source Code" := GenJournalTemplate."Source Code";
                 GenJnlLine."Reason Code" := GenJournalTemplate."Reason Code";
-
                 if CBGStatementLine."Account Type" = CBGStatementLine."Account Type"::Employee then
                     GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
 
@@ -457,6 +454,7 @@ table 11400 "CBG Statement"
                     if CBGStatementLine."Dimension Set ID" <> 0 then
                         GenJnlLine."Dimension Set ID" := CBGStatementLine."Dimension Set ID";
                     GenJnlLine.Insert();
+                    Counter := Counter + 10000;
                     OnAfterInsertGenJnlLine(Rec, CBGStatementLine, GenJnlLine);
                 end;
                 if CBGStatementLine.Identification <> '' then begin
@@ -485,15 +483,14 @@ table 11400 "CBG Statement"
                     GenJnlLine."Dimension Set ID" := "Dimension Set ID";
                 GenJnlLine.Insert();
                 OnProcessStatementASGenJournalOnAfterGenJnlLineInsert(GenJnlLine, CBGStatementLine, Rec);
-
-                if GenJnlLine.Find('-') then begin
-                    NumberOfLines := GenJnlLine.Count();
-                    repeat
-                        GenJnlPostLine.RunWithCheck(GenJnlLine);
-                    until GenJnlLine.Next() = 0;
-                    GenJnlLine.DeleteAll(true);
-                end;
+                Counter := Counter + 10000;
             until CBGStatementLine.Next() = 0;
+            if GenJnlLine.Find('-') then
+                repeat
+                    GenJnlPostLine.RunWithCheck(GenJnlLine);
+                until GenJnlLine.Next() = 0;
+            GenJnlLine.DeleteAll(true);
+        end;
 
         if "Account Type" = "Account Type"::"Bank Account" then
             if BankAcct.Get("Account No.") then begin

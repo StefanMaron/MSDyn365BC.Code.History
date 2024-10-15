@@ -1,7 +1,7 @@
 page 11412 "Elec. Tax Declaration List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Eletronic Tax Declarations';
+    Caption = 'Electronic Tax Declarations';
     CardPageID = "Elec. Tax Declaration Card";
     Editable = false;
     PageType = List;

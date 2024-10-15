@@ -309,6 +309,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyEmailMessage();
         ClassifyEmailRecipient();
         ClassifyEmailMessageAttachment();
+        ClassifyEmailRelatedAttachments();
         ClassifyPostedGenJournalLine();
         ClassifyWordTemplate();
     end;
@@ -1050,6 +1051,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Price List Line");
         SetTableFieldsToNormal(DATABASE::"Price Asset");
         SetTableFieldsToNormal(DATABASE::"Price Source");
+        SetTableFieldsToNormal(DATABASE::"Price Worksheet Line");
         SetTableFieldsToNormal(DATABASE::"Sales Price");
         SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
         SetTableFieldsToNormal(DATABASE::"Purchase Price");
@@ -3451,12 +3453,19 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         SetFieldToPersonal(8904, 3); // Attachment
         SetFieldToPersonal(8904, 4); // Attachment Name
+        SetFieldToPersonal(8904, 9); // Media Attachment
     end;
 
     local procedure ClassifyWordTemplate()
     begin
+        SetFieldToPersonal(9988, 1); // Code
         SetFieldToPersonal(9988, 2); // Name
         SetFieldToPersonal(9988, 4); // Template
+    end;
+
+    local procedure ClassifyEmailRelatedAttachments()
+    begin
+        SetFieldToPersonal(8910, 2); // Attachment Name
     end;
 
     local procedure ClassifyTermsAndConditionsState()

@@ -122,7 +122,7 @@ page 2591 "Dimension Correction Draft"
             {
                 Editable = EditAllowed;
                 ApplicationArea = All;
-                Caption = 'Dimesion Correction Changes';
+                Caption = 'Dimension Correction Changes';
                 UpdatePropagation = SubPart;
                 SubPageLink = "Dimension Correction Entry No." = field("Entry No.");
             }

@@ -1498,6 +1498,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         UnbindSubscription(TestSepaCtV03);
     end;
+
     local procedure CheckSEPAISO20022_Scenario(GLSetupLocalCurrency: Option; CurrencyEuro: Code[10]; ProposalLineCurrency: Code[10])
     var
         DummyProposalLine: Record "Proposal Line";
@@ -1588,6 +1589,42 @@ codeunit 144101 "Test SEPA CT v03"
         XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 1);
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
+    procedure GenericSEPAExportsIBANWhenBankAccountIsBlanked()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        DummyGLSetup: Record 98;
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+        TotalAmount: Decimal;
+        FileName: Text;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO 396808] Generic payment SEPA exports creditor's IBAN in case of blanked bank account No.
+        Initialize();
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Generic payment SEPA export protocol setup
+        // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
+        // [GIVEN] Vendor bank account with currency code = "USD", "Account Holder Address" = "X", IBAN = "Y", blanked "Bank Account No."
+        // [GIVEN] Posted purchase invoice with a default currency code = ""
+        PrepareGenericSEPAScenario(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, '');
+        VendorBankAccount."Bank Account No." := '';
+        VendorBankAccount.Modify();
+
+        // [WHEN] Export payment for the generated proposal for the given vendor
+        FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
+
+        // [THEN] Vendor Bank Account's IBAN is exported into CdtrAcct/Id/IBAN
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.VerifyNodeValueByXPath(
+          '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:CdtrAcct/ns:Id/ns:IBAN', FormatIBAN(VendorBankAccount.IBAN));
     end;
 
     local procedure Initialize()

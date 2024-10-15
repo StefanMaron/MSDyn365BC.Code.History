@@ -14,6 +14,7 @@ permissionset 460 "D365PREM SMG, VIEW"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Serv. Price Adjustment Detail" = RM,
                   tabledata "Serv. Price Group Setup" = RM,
                   tabledata "Service Comment Line" = RM,

@@ -524,7 +524,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ');
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
     end;
 
     [Test]
@@ -539,6 +539,9 @@
     begin
         // [FEATURE] [Intrastat] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = true
+        // [SCENARIO 391946] Transaction Type is exported blanked
+        // [SCENARIO 394821] Transaction Specification and Partner VAT ID values are exported
+        // [SCENARIO 394821] Country/Region of Origin code is taken from non-blanked CountryRegion."Intrastat Code"
         Initialize();
 
         // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
@@ -559,7 +562,7 @@
         VerifyTransactionAndPatnerIDInDeclarationFile(
           Filename, IntrastatJnlLine."Transaction Specification",
           PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-          CountryRegion."Intrastat Code");
+        CountryRegion."Intrastat Code", ' ');
     end;
 
     [Test]
@@ -575,6 +578,8 @@
     begin
         // [FEATURE] [Intrastat] [Export] [Shipment]
         // [SCENARIO 386323] "Country/Region of Origin" aligned left in exported file
+        // [SCENARIO 394821] Country/Region of Origin code is taken from journal "Country/Region of Origin Code"
+        // [SCENARIO 394821] in case of blanked "Intrastat Code" value
         Initialize();
 
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
@@ -587,6 +592,10 @@
         IntrastatJnlLine.Validate("Country/Region of Origin Code", Item."Country/Region of Origin Code");
         IntrastatJnlLine.Modify(true);
 
+        CountryRegion.Get(Item."Country/Region of Origin Code");
+        CountryRegion."Intrastat Code" := ''; // TFS 394821
+        CountryRegion.Modify();
+
         Commit();
         LibraryVariableStorage.Enqueue(true);
 
@@ -594,10 +603,13 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         LineContent := LibraryTextFileValidation.ReadLine(Filename, 2);
-        CountryRegion.Get(Item."Country/Region of Origin Code");
         Assert.ExpectedMessage(
           StrSubstNo('%1 %2', CountryRegion."Intrastat Code", IntrastatJnlLine."Country/Region Code"),
           LineContent);
+        VerifyTransactionAndPatnerIDInDeclarationFile(
+          Filename, IntrastatJnlLine."Transaction Specification",
+          PadStr('', 17 - STRLEN(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          IntrastatJnlLine."Country/Region of Origin Code", ' ');
     end;
 
     [Test]
@@ -611,6 +623,7 @@
     begin
         // [FEATURE] [Intrastat] [Export] [Receipt]
         // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = false
+        // [SCENARIO 391946] Transaction Type value is exported
         Initialize();
 
         // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
@@ -626,7 +639,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ');
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
     end;
 
     [Test]
@@ -641,6 +654,8 @@
     begin
         // [FEATURE] [Intrastat] [Export] [Receipt]
         // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = true
+        // [SCENARIO 391946] Transaction Type value is exported
+        // [SCENARIO 394821] Transaction Specification and Partner VAT ID values are not exported (blanked)
         Initialize();
 
         // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
@@ -656,12 +671,70 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
-        // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
+        // [THEN] Blanked Intrastat Code is exported as Country of Origin (TFS 391822)
         CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
-          Filename, IntrastatJnlLine."Transaction Specification",
-          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-          CountryRegion."Intrastat Code");
+          Filename, '  ',
+          PadStr('', 17, ' '),
+          '  ', IntrastatJnlLine."Transaction Type");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure TransactionSpecificationIsCheckedForShipmentIntrastatFileCounterpartyTrue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [SCENARIO 391946] "Transaction Specification" is checked for shipment Intrastat Jnl. Line when Counterparty = true
+        Initialize();
+
+        // [GIVEN] Prepare shipment Intrastat Journal Line with blanked Transaction Specification
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        IntrastatJnlLine."Transaction Specification" := '';
+        IntrastatJnlLine.Modify();
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'));
+
+        // [THEN] Testfield error occurs: "Transaction Specification must have a value"
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Transaction Specification');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure TransactionTypeIsCheckedForShipmentIntrastatFileCounterpartyTrue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [SCENARIO 391946] "Transaction Type" is checked for receipt Intrastat Jnl. Line when Counterparty = true
+        Initialize();
+
+        // [GIVEN] Prepare receipt Intrastat Journal Line with blanked Transaction Type
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'));
+
+        // [THEN] Testfield error occurs: "Transaction Type must have a value"
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Transaction Type');
     end;
 
     local procedure Initialize()
@@ -1165,7 +1238,7 @@
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;
 
-    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text)
+    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedTransactionType: Text)
     var
         DeclFile: File;
         DeclarationString: Text[256];
@@ -1177,6 +1250,7 @@
         Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), StrSubstNo(WrongValueErr, 'Transaction'));
         Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), StrSubstNo(WrongValueErr, 'Partner ID'));
         Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), StrSubstNo(WrongValueErr, 'Country of Origin'));
+        Assert.AreEqual(ExpectedTransactionType, COPYSTR(DeclarationString, 37, 1), STRSUBSTNO(WrongValueErr, 'Transaction Type'));
         DeclFile.Close();
     end;
 

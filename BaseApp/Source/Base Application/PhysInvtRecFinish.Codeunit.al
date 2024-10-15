@@ -72,7 +72,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                         PhysInvtRecordLine.TestField(Recorded, true);
                         if PhysInvtRecordLine."Location Code" <> '' then begin
                             Location.Get(PhysInvtRecordLine."Location Code");
-                            Location.TestField("Directed Put-away and Pick", false);
+                            CheckLocationDirectedPutAwayAndPick();
                             if Location."Bin Mandatory" then
                                 PhysInvtRecordLine.TestField("Bin Code")
                             else
@@ -126,8 +126,25 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
         end;
     end;
 
+    local procedure CheckLocationDirectedPutAwayAndPick()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLocationDirectedPutAwayAndPick(PhysInvtRecordLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        Location.TestField("Directed Put-away and Pick", false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLocationDirectedPutAwayAndPick(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -5,7 +5,13 @@ codeunit 1254 "Match Bank Pmt. Appl."
     trigger OnRun()
     var
         MatchBankPayments: Codeunit "Match Bank Payments";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         BankAccReconciliationLine.FilterBankRecLines(Rec);
         if BankAccReconciliationLine.FindFirst() then begin
             MatchBankPayments.SetApplyEntries(true);
@@ -19,6 +25,11 @@ codeunit 1254 "Match Bank Pmt. Appl."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMatchBankPayments(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
     begin
     end;
 

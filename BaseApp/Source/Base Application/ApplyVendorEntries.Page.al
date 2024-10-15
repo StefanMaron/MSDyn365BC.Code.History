@@ -1267,7 +1267,13 @@ page 233 "Apply Vendor Entries"
         ApplicationDate: Date;
         NewApplicationDate: Date;
         NewDocumentNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
         if CalcType = CalcType::Direct then begin
             if ApplyingVendLedgEntry."Entry No." <> 0 then begin
                 Rec := ApplyingVendLedgEntry;
@@ -1441,6 +1447,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var RaiseError: Boolean; CalcType: Option; PmtDiscAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDirectApplication(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -405,6 +405,21 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Allow Editing Active Price';
             DataClassification = SystemMetadata;
         }
+        field(7003; "Default Price List Code"; Code[20])
+        {
+            Caption = 'Default Price List Code';
+            TableRelation = "Price List Header" where("Price Type" = Const(Purchase), "Source Group" = Const(Vendor), "Allow Updating Defaults" = const(true));
+            DataClassification = CustomerContent;
+            trigger OnLookup()
+            var
+                PriceListHeader: Record "Price List Header";
+            begin
+                if Page.RunModal(Page::"Purchase Price Lists", PriceListHeader) = Action::LookupOK then begin
+                    PriceListHeader.TestField("Allow Updating Defaults");
+                    Validate("Default Price List Code", PriceListHeader.Code);
+                end;
+            end;
+        }
         field(11312; "Show Totals on Purch. Inv./CM."; Boolean)
         {
             Caption = 'Show Totals on Purch. Inv./CM.';
