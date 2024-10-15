@@ -1,4 +1,4 @@
-codeunit 448 "Job Queue Dispatcher"
+﻿codeunit 448 "Job Queue Dispatcher"
 {
     Permissions = TableData "Job Queue Entry" = rimd;
     TableNo = "Job Queue Entry";
@@ -119,11 +119,13 @@ codeunit 448 "Job Queue Dispatcher"
                 if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
                     exit(true)
                 else // stale job queue entry with status in process but no system task behind it.
-                    if (JobQueueEntry."User ID" = UserId()) and JobQueueEntryCheck.Get(JobQueueEntry.ID) then
-                        Reschedule(JobQueueEntry)
-                    else
-                        if not DoesSystemTaskExist(JobQueueEntry."Recovery Task Id") then
-                            JobQueueEntry.ScheduleRecoveryJob();
+                    if JobQueueEntryCheck.Get(JobQueueEntry.ID) then // Validate that the JQE is still there
+                        if (JobQueueEntry."User ID" = UserId()) then
+                            Reschedule(JobQueueEntryCheck)
+                        else
+                            if not DoesSystemTaskExist(JobQueueEntryCheck."Recovery Task Id") then
+                                JobQueueEntryCheck.ScheduleRecoveryJob();
+                    
             until JobQueueEntry.Next() = 0;
     end;
 
@@ -215,9 +217,8 @@ codeunit 448 "Job Queue Dispatcher"
         exit(EarliestPossibleRunTime);
     end;
 
-    local procedure CalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime): DateTime
+    local procedure CalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime) NewRunDateTime: DateTime
     var
-        NewRunDateTime: DateTime;
         RunOnDate: array[7] of Boolean;
         StartingWeekDay: Integer;
         NoOfExtraDays: Integer;
@@ -261,7 +262,8 @@ codeunit 448 "Job Queue Dispatcher"
             if Found then
                 NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime) + NoOfDays, DT2Time(NewRunDateTime));
         end;
-        exit(NewRunDateTime);
+
+        OnAfterCalcRunTimeForRecurringJob(JobQueueEntry, Found, StartingDateTime, NewRunDateTime);
     end;
 
     local procedure IsNextRecurringRunTimeCalculated(JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; var NewRunDateTime: DateTime) IsHandled: Boolean
@@ -277,6 +279,11 @@ codeunit 448 "Job Queue Dispatcher"
         MillisecondsToAdd := NoOfMinutes;
         MillisecondsToAdd := MillisecondsToAdd * 60000;
         NewDateTime := SourceDateTime + MillisecondsToAdd;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; Found: Boolean; StartingDateTime: DateTime; var NewRunDateTime: DateTime)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

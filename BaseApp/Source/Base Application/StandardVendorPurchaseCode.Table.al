@@ -186,6 +186,7 @@ table 175 "Standard Vendor Purchase Code"
             until StdPurchLine.Next() = 0;
             PurchLine.CalcSalesTaxLines(PurchHeader, PurchLine);
         end;
+        OnAfterApplyStdCodesToPurchaseLines(Rec, StdPurchLine, PurchLine, PurchHeader, StdPurchCode);
     end;
 
     local procedure CombineDimensions(var PurchaseLine: Record "Purchase Line"; StdPurchaseLine: Record "Standard Purchase Line")
@@ -279,6 +280,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyStdCodesToPurchaseLines(var PurchLine: Record "Purchase Line"; StdPurchLine: Record "Standard Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyStdCodesToPurchaseLines(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; StandardPurchaseCode: Record "Standard Purchase Code")
     begin
     end;
 

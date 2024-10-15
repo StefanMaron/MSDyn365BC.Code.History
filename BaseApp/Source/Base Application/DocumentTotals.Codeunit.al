@@ -898,7 +898,7 @@ codeunit 57 "Document Totals"
         VATAmount := TempTotalSalesLine."Amount Including VAT" - TempTotalSalesLine.Amount;
     end;
 
-    local procedure PurchaseCalculateTotalsNoRounding(var TempCurrentPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line"; var TaxAreaCode: Code[20])
+    procedure PurchaseCalculateTotalsNoRounding(var TempCurrentPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line"; var TaxAreaCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin

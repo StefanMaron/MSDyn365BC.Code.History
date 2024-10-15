@@ -68,6 +68,7 @@
         CheckLedgEntry."Entry No." := NextCheckEntryNo;
         CheckLedgEntry."Record ID to Print" := RecordIdToPrint;
         CheckLedgEntry.Insert();
+        OnInsertCheckOnAfterCheckLedgEntryInsert(CheckLedgEntry);
         NextCheckEntryNo := NextCheckEntryNo + 1;
     end;
 
@@ -976,6 +977,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidPostGLAccountOnBeforeGLEntryLoop(var GLEntry: Record "G/L Entry"; var CheckLedgerEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCheckOnAfterCheckLedgEntryInsert(var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 

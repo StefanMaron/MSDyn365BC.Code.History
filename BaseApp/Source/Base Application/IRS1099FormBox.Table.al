@@ -86,6 +86,8 @@ table 10010 "IRS 1099 Form-Box"
                 InsertIRS1099('DIV-02-B', 'Unrecap. Sec. 1250 gain', 10.0);
                 InsertIRS1099('DIV-02-C', 'Section 1202 gain', 0.0);
                 InsertIRS1099('DIV-02-D', 'Collectibles (28%) gain', 0.0);
+                InsertIRS1099('DIV-02-E', 'Section 897 ordinary dividends', 0.0);
+                InsertIRS1099('DIV-02-F', 'Section 897 capital gain', 0.0);
                 InsertIRS1099('DIV-03', 'Nondividend distributions', 10.0);
                 InsertIRS1099('DIV-04', 'Federal income tax withheld', -1.0);
                 InsertIRS1099('DIV-05', 'Section 199A dividends', 10.0);
@@ -119,11 +121,14 @@ table 10010 "IRS 1099 Form-Box"
                 InsertIRS1099('MISC-08', 'Substitute payments in lieu of dividends or interest', 10.0);
                 InsertIRS1099('MISC-09', 'Crop insurance proceeds', 1.0);
                 InsertIRS1099('MISC-10', 'Gross proceeds paid to an attorney', 0.0);
+                InsertIRS1099('MISC-11', 'Fish purchased for resale', 600.0);
                 InsertIRS1099('MISC-12', 'Section 409A deferrals', 600.0);
                 InsertIRS1099('MISC-13', 'Excess golden parachute payments', 0.0);
                 InsertIRS1099('MISC-14', 'Nonqualified deferred compensation', 0.0);
                 InsertIRS1099('MISC-15', 'State tax withheld', 0.0);
                 InsertIRS1099('NEC-01', 'Nonemployee compensation', 600.0);
+                InsertIRS1099(
+                  'NEC-02', 'Payer made direct sales totaling $5,000 or more of consumer products to recipient for resale', 5000.0);
                 InsertIRS1099('NEC-04', 'Federal income tax withheld', 0.0);
                 InsertIRS1099('R', 'Pensions/Ann./Retirement/Profit-Shar.Plans/IRAs...', 0.0);
                 InsertIRS1099('R-01', 'Gross distribution', 0.0);

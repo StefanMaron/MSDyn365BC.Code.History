@@ -16,6 +16,7 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[1, 8] := 'MISC-08';
         Codes[1, 9] := 'MISC-09';
         Codes[1, 10] := 'MISC-10';
+        Codes[1, 11] := 'MISC-11';
         Codes[1, 12] := 'MISC-12';
         Codes[1, 13] := 'MISC-13';
         Codes[1, 14] := 'MISC-14';
@@ -36,6 +37,8 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[2, 14] := 'DIV-10';
         Codes[2, 15] := 'DIV-11';
         Codes[2, 16] := 'DIV-12';
+        Codes[2, 17] := 'DIV-02-E';
+        Codes[2, 18] := 'DIV-02-F';
 
         Codes[3, 1] := 'INT-01';
         Codes[3, 2] := 'INT-02';
@@ -206,6 +209,8 @@ codeunit 10085 "A/P Magnetic Media Management"
                                 IncrCodeNos(CodeNos, ActualCodePos, 'A', 10); // Crop Insurance Proceeds
                             10:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'C', 12); // gross legal proceeds
+                            11:
+                                IncrCodeNos(CodeNos, ActualCodePos, 'F', 15); // fish purchased for resale
                             12:
                                 IncrCodeNos(CodeNos, ActualCodePos, 'D', 13); // 409A deferral
                             13:
@@ -252,6 +257,10 @@ codeunit 10085 "A/P Magnetic Media Management"
                         CodeNos := InsStr(CodeNos, 'F', j); // Exempt-interest dividends
                     16:
                         CodeNos := InsStr(CodeNos, 'G', j); // Specified private activity bond interest dividends
+                    17:
+                        CodeNos := CopyStr(InsStr(CodeNos, 'H', j), 1, MaxStrLen(CodeNos)); // Section 897 ordinary dividends
+                    18:
+                        CodeNos := CopyStr(InsStr(CodeNos, 'J', j), 1, MaxStrLen(CodeNos));  // Section 897 capital gain
                     else
                         CodeNos := InsStr(CodeNos, Format(j), j);
                 end;

@@ -131,7 +131,14 @@
         AnalysisView: Record "Analysis View";
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCaptionClass(Rec, AnalysisViewDimType, AnalysisView, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if AnalysisView.Code <> "Analysis View Code" then
             AnalysisView.Get("Analysis View Code");
         case AnalysisViewDimType of
@@ -219,6 +226,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDrillDown(var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaptionClass(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisViewDimType: Integer; var AnalysisView: Record "Analysis View"; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

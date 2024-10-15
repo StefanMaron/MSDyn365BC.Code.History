@@ -593,6 +593,48 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         Assert.AreEqual(PaddedAmount, GetAmountTextFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentExportDataVendorEmailBankCountyPostCode()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        BankAccount: Record "Bank Account";
+        PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
+    begin
+        // [SCENARIO 413133] PreparePaymentExportDataJnl function in Cod1206 populates "Recipient Email Address", "Recipient Bank County", "Recipient Bank Post Code"
+
+        // [GIVEN] Vendor "V" with "Email" = "Em" and Vendor Bank Account "VBA"
+        LibraryPaymentExport.CreateVendorWithBankAccount(Vendor);
+        Vendor.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        Vendor.Modify();
+
+        // [GIVEN] Vendor Bank Account "VBA" County = "C", 'Post Code' = "PC"
+        VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
+        VendorBankAccount.Validate(County, LibraryUtility.GenerateGUID);
+        VendorBankAccount.Validate("Post Code", LibraryUtility.GenerateGUID);
+        VendorBankAccount.Modify();
+
+        // [GIVEN] Payment journal line for Vendor "V", "Bal. Account No." = Bank with Name "BN"
+        LibraryPaymentExport.CreatePaymentExportBatch(GenJournalBatch, '');
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine,
+          GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(100, 2));
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        // [WHEN] Invoke "PreparePaymentExportDataJnl" function in Codeunit 1206.
+        PmtExportMgtGenJnlLine.PreparePaymentExportDataJnl(TempPaymentExportData, GenJournalLine, 0, 0);
+
+        // [THEN] Payment Export Data record is filled with "Recipient Email Address" = "Em", "Recipient Bank County" = "C", "Recipient Bank Post Code" = "PC"
+        // "Sender Bank Name" = "BN"
+        TempPaymentExportData.TestField("Recipient Email Address", Vendor."E-Mail");
+        TempPaymentExportData.TestField("Recipient Bank County", VendorBankAccount.County);
+        TempPaymentExportData.TestField("Recipient Bank Post Code", VendorBankAccount."Post Code");
+        TempPaymentExportData.TestField("Sender Bank Name", BankAccount.Name);
+    end;
+
     local procedure CreateVendorWithBankAccountAndCountryRegion(var Vendor: Record Vendor; PaymentType: Code[20]; CountryRegionCode: Code[10])
     var
         PaymentMethod: Record "Payment Method";
@@ -708,7 +750,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         DataExchLineDef.Modify(true);
     end;
 
-    local procedure UpdateDataExchColumnDefToUsePadding(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; DataType: Option; DataFormat: Text;ColumnLength: Integer; PadCharacter: Text[1]; PadJustification: Option)
+    local procedure UpdateDataExchColumnDefToUsePadding(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; DataType: Option; DataFormat: Text; ColumnLength: Integer; PadCharacter: Text[1]; PadJustification: Option)
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
