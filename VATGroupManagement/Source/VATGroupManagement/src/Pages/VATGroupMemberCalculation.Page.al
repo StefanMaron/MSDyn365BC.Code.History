@@ -49,7 +49,7 @@ page 4704 "VAT Group Member Calculation"
             }
             group(Totals)
             {
-                field(Total; TotalAmount)
+                field(Total; Total)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -62,10 +62,10 @@ page 4704 "VAT Group Member Calculation"
     }
 
     var
-        TotalAmount: Decimal;
+        Total: Decimal;
 
     trigger OnOpenPage()
     begin
-        TotalAmount := Rec.GetTotal();
+        Total := Rec.GetTotal();
     end;
 }

@@ -12,7 +12,7 @@ tableextension 4701 "VAT Report Setup Extension" extends "VAT Report Setup"
         {
             Caption = 'Approved Members';
             FieldClass = FlowField;
-            CalcFormula = count("VAT Group Approved Member");
+            CalcFormula = count ("VAT Group Approved Member");
         }
         field(4702; "Group Member ID"; Guid)
         {
@@ -78,7 +78,34 @@ tableextension 4701 "VAT Report Setup Extension" extends "VAT Report Setup"
             Caption = 'OAuth 2.0 Redirect URL';
             ExtendedDatatype = URL;
         }
-
+        field(4714; "Group Settlement Account"; Code[20])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Group Settlement Account';
+            TableRelation = "G/L Account"."No.";
+        }
+        field(4715; "VAT Settlement Account"; Code[20])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'VAT Settlement Account';
+            TableRelation = "G/L Account"."No.";
+        }
+        field(4716; "VAT Due Box No."; Text[30])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'VAT Due Box No.';
+        }
+        field(4717; "Group Settle. Gen. Jnl. Templ."; Code[10])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Group Settlement General Journal Template';
+            TableRelation = "Gen. Journal Template".Name;
+        }
+        field(4718; "VAT Group BC Version"; Enum "VAT Group BC Version")
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Group Representative Product Version';
+        }
     }
 
     [Scope('OnPrem')]

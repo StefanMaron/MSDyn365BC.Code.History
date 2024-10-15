@@ -5,7 +5,6 @@ codeunit 4701 "VAT Group Helper Functions"
         NoVATReportSetupErr: Label 'The VAT report setup was not found. You can create one on the VAT Report Setup page.';
         AssistedSetupHelpLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2141039', Locked = true;
 
-
     internal procedure SetOriginalRepresentativeAmount(VATReportHeader: Record "VAT Report Header")
     var
         VATStatementReportLine: Record "VAT Statement Report Line";
@@ -36,6 +35,7 @@ codeunit 4701 "VAT Group Helper Functions"
             VATGroupSubmissionHeader.SetCurrentKey("Start Date", "End Date");
             VATGroupSubmissionHeader.SetRange("Start Date", StartDate);
             VATGroupSubmissionHeader.SetRange("End Date", EndDate);
+            VATGroupSubmissionHeader.SetRange("VAT Group Return No.", '');
             repeat
                 VATGroupSubmissionHeader.SetRange("Group Member ID", VATGroupApprovedMember.ID);
                 if not VATGroupSubmissionHeader.IsEmpty() then
@@ -55,9 +55,11 @@ codeunit 4701 "VAT Group Helper Functions"
     begin
         if VATGroupApprovedMember.FindSet() then begin
             if VATReportHeader.Status > VATReportHeader.Status::Open then
-                VATGroupSubmissionHeader.SetFiltersForLastSubmissionInAPeriod(VATReportHeader."Start Date", VATReportHeader."End Date", true, VATReportHeader."No.")
+                VATGroupSubmissionHeader.SetFiltersForLastSubmissionInAPeriod(
+                    VATReportHeader."Start Date", VATReportHeader."End Date", true, VATReportHeader."No.")
             else
-                VATGroupSubmissionHeader.SetFiltersForLastSubmissionInAPeriod(VATReportHeader."Start Date", VATReportHeader."End Date", false, '');
+                VATGroupSubmissionHeader.SetFiltersForLastSubmissionInAPeriod(
+                    VATReportHeader."Start Date", VATReportHeader."End Date", false, '');
 
             repeat
                 VATGroupSubmissionHeader.SetRange("Group Member ID", VATGroupApprovedMember.ID);
@@ -148,5 +150,12 @@ codeunit 4701 "VAT Group Helper Functions"
         VideoCategory: Enum "Video Category";
     begin
         AssistedSetup.Add(Info.Id(), Page::"VAT Group Setup Guide", AssistedSetupTxt, AssistedSetupGroup::Extensions, '', VideoCategory::Uncategorized, AssistedSetupHelpLinkTxt);
+    end;
+
+    internal procedure GetVATGroupDefaultBCVersion(): Enum "VAT Group BC Version"
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        exit(VATReportSetup."VAT Group BC Version"::BC);
     end;
 }

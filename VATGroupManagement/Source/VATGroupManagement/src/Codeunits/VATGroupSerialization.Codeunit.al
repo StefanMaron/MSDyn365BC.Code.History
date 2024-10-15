@@ -2,10 +2,23 @@ codeunit 4704 "VAT Group Serialization"
 {
     internal procedure CreateVATSubmissionJson(VATReportHeader: Record "VAT Report Header"): JsonObject
     var
+        VATReportSetup: Record "VAT Report Setup";
         VATSubmissionJson: JsonObject;
+        LinesJson: Text;
     begin
+        VATReportSetup.Get();
+
         VATSubmissionJson := FillVATSubmissionHeaderJson(VATReportHeader);
-        VATSubmissionJson.Add('vatGroupSubmissionLines', FillVATSubmissionLinesJson(VATReportHeader));
+        CASE VATReportSetup."VAT Group BC Version" OF
+            VATReportSetup."VAT Group BC Version"::NAV2017:
+                begin
+                    FillVATSubmissionLinesJson(VATReportHeader).WriteTo(LinesJson);
+                    VATSubmissionJson.Add('vatGroupSubmissionLines', LinesJson);
+                end;
+            VATReportSetup."VAT Group BC Version"::NAV2018,
+            VATReportSetup."VAT Group BC Version"::BC:
+                VATSubmissionJson.Add('vatGroupSubmissionLines', FillVATSubmissionLinesJson(VATReportHeader));
+        END;
 
         exit(VATSubmissionJson);
     end;
@@ -22,6 +35,7 @@ codeunit 4704 "VAT Group Serialization"
         VATGroup: Text;
         Counter: Integer;
     begin
+        VATReportSetup.Get();
         MemberId := DelChr(VATReportSetup."Group Member ID", '=', '{|}');
 
         Counter := 1;

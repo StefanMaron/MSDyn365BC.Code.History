@@ -21,6 +21,13 @@ page 4701 "VAT Group Submissions"
         {
             repeater(General)
             {
+                field(id; ID)
+                {
+                    Editable = false;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'id', Locked = true;
+                    ToolTip = 'Specifies the record identifier.';
+                }
                 field(no; "No.")
                 {
                     ApplicationArea = Basic, Suite;

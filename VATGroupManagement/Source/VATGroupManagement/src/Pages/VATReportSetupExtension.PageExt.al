@@ -57,6 +57,11 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                 {
                     Visible = ("VAT Group Role" = "VAT Group Role"::Member);
                     ShowCaption = false;
+                    field(GroupRepresentativeBCVersion; "VAT Group BC Version")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the product version that the group representative uses.';
+                    }
                     field(APIURL; "Group Representative API URL")
                     {
                         ApplicationArea = Basic, Suite;
@@ -184,7 +189,46 @@ pageextension 4703 "VAT Report Setup Extension" extends "VAT Report Setup"
                         Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
                         DrillDown = true;
                         DrillDownPageId = "VAT Group Approved Member List";
-
+                    }
+                }
+                group(GroupSettlementAccountControl)
+                {
+                    Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
+                    ShowCaption = false;
+                    field(GroupSettlementAccount; "Group Settlement Account")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the settlement account for the VAT group member amounts.';
+                    }
+                }
+                group(VATSettlementAccountControl)
+                {
+                    Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
+                    ShowCaption = false;
+                    field(VATSettlementAccount; "VAT Settlement Account")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the normal VAT settlement account.';
+                    }
+                }
+                group(VATDueBoxNoControl)
+                {
+                    Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
+                    ShowCaption = false;
+                    field(VATDueBoxNo; "VAT Due Box No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the number of the box on the form from the tax authority that should contain the total VAT amount due for a VAT group submission.';
+                    }
+                }
+                group(GroupSettlementGenJnlTemplControl)
+                {
+                    Visible = ("VAT Group Role" = "VAT Group Role"::Representative);
+                    ShowCaption = false;
+                    field(GroupSettlementGenJnlTempl; "Group Settle. Gen. Jnl. Templ.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the number series used for the document to post VAT for the VAT group to the settlement account.';
                     }
                 }
             }
