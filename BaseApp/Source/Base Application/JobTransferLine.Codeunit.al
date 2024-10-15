@@ -511,7 +511,10 @@ codeunit 1004 "Job Transfer Line"
             NondeductibleBaseAmount := 0;
             NondeductibleVATAmtPrUnit := 0;
             NondeductibleVATAmtPrUnitLCY := 0;
-            VATAmount := "Amount Including VAT" - Amount;
+            if PurchLine."VAT Calculation Type" = "Tax Calculation Type"::"Reverse Charge VAT" then
+                VATAmount := CalcRevChargeVATAmount(PurchLine)
+            else
+                VATAmount := "Amount Including VAT" - Amount;
             BaseAmount := Amount;
             GenJnlPostLine.ChangeVATAmounts(VATAmount, BaseAmount, NondeductibleVATAmount, NondeductibleBaseAmount,
               "Deductible %", GLSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
@@ -693,6 +696,18 @@ codeunit 1004 "Job Transfer Line"
             exit(PurchLine."Unit of Measure Code" <> Item."Base Unit of Measure");
         end;
         exit(false);
+    end;
+
+    local procedure CalcRevChargeVATAmount(PurchaseLine: Record "Purchase Line") VATAmount: Decimal;
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+        GetCurrencyRounding(PurchaseLine."Currency Code");
+        VATAmount :=
+            Round(
+                PurchaseLine.Amount * VATPostingSetup."VAT %" / 100,
+                Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
     end;
 
     [IntegrationEvent(false, false)]

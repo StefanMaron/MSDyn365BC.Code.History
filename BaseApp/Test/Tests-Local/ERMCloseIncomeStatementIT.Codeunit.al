@@ -404,9 +404,74 @@ codeunit 144113 "ERM Close Income Statement IT"
         UpdateAddnlReportingCurrencyGeneralLedgerSetup(OldAdditionalReportingCurrency);
     end;
 
+    [Test]
+    [HandlerFunctions('CloseIncomeStatementRequestPageHandler,CloseOpenBalanceSheetRequestPageHandler,DimensionSelectionMultipleModalPageHandler,GeneralJournalBatchesModalPageHandler,ConfirmHandler,MessageHandler,FiscalYearBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RunFiscalBalanceReportTwoBusinessUnits()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        BusinessUnit: array[2] of Record "Business Unit";
+        GLEntry: Record "G/L Entry";
+        JournalPostingDate: Date;
+        ClosingPostingDate: Date;
+        Index: Integer;
+    begin
+        // [FEATURE] [Business Unit]
+        // [SCENARIO 413343] User gets result running report "Close/Open Balance Sheet" having multiple Business Units in system and posted G/L entries on them.
+
+        Initialize();
+
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
+
+        SelectGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.Validate("Income/Balance", IncomeBalanceType::"Balance Sheet");
+        GLAccount.Modify();
+
+        JournalPostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
+
+        for Index := 1 to ArrayLen(BusinessUnit) do begin
+            LibraryERM.CreateBusinessUnit(BusinessUnit[Index]);
+
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+              GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", -LibraryRandom.RandDecInRange(100, 200, 2));
+            GenJournalLine.Validate("Posting Date", JournalPostingDate);
+            GenJournalLine.Validate("Business Unit Code", BusinessUnit[Index].Code);
+            GenJournalLine.Modify(true);
+
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        LibraryFiscalYear.CloseFiscalYear();
+        ClosingPostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));
+
+        GLEntry.SetRange("Posting Date", JournalPostingDate, ClosingPostingDate);
+        GLEntry.SetRange("Business Unit Code", BusinessUnit[1].Code);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetRange("Business Unit Code", BusinessUnit[2].Code);
+        Assert.RecordIsNotEmpty(GLEntry);
+
+        RunCloseIncomeStatement(GenJournalLine, ClosingPostingDate, CreateGLAccount());
+        RunCloseOpenBalanceSheet(
+          GenJournalLine, GLAccount."No.", IncStr(GenJournalLine."Document No."), true, ClosingPostingDate);
+
+        ClosingPostingDate := LibraryFiscalYear.GetLastPostingDate(true);
+        CreateAndPostGenJournalLine(GenJournalLine, ClosingPostingDate);
+
+        RunFiscalYearBalance(ClosingPostingDate, GenJournalLine."Account No.");
+
+        LibraryReportDataSet.LoadDataSetFile();
+        LibraryReportDataSet.AssertElementWithValueExists(GLAccountNoCap, GenJournalLine."Account No.");
+    end;
+
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
@@ -491,11 +556,11 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
 
         with DimSetEntry do begin
-            Init;
+            Init();
             "Dimension Code" := DimensionCode;
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -545,7 +610,8 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(IncStr(GenJournalLine."Document No."));
         LibraryVariableStorage.Enqueue(GLAccount);
-        Commit();  // commit requires to run report.
+        LibraryVariableStorage.Enqueue(true); // Close by Business Unit
+        Commit();
         Clear(CloseIncomeStatement);
         CloseIncomeStatement.Run;
     end;
@@ -559,13 +625,19 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(DocumentNo);
-        LibraryVariableStorage.Enqueue(GLAccount);
+        if GLAccount <> '' then
+            LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo())
+        else
+            LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(DocumentNo);
-        LibraryVariableStorage.Enqueue(GLAccount);
+        if GLAccount <> '' then
+            LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo())
+        else
+            LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(BusinessUnit);
-        Commit();  // commit requires to run report.
+        Commit();
         Clear(CloseOpenBalanceSheet);
         CloseOpenBalanceSheet.Run;
     end;
@@ -664,6 +736,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         CloseIncomeStatement.BalancingAccountNo.SetValue(FieldValue);
         CloseIncomeStatement.NetProfitAccountNo.SetValue(FieldValue);
         CloseIncomeStatement.NetLossAccountNo.SetValue(FieldValue);
+        CloseIncomeStatement.ClosePerBusUnit.SetValue(LibraryVariableStorage.DequeueBoolean); // Close by Business Unit
         CloseIncomeStatement.OK.Invoke;
     end;
 

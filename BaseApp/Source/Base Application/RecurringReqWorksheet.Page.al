@@ -560,12 +560,12 @@ page 296 "Recurring Req. Worksheet"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ChangeExchangeRate: Page "Change Exchange Rate";
         CurrentJnlBatchName: Code[10];
-        Description2: Text[100];
-        BuyFromVendorName: Text[100];
         OpenedFromBatch: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+        Description2: Text[100];
+        BuyFromVendorName: Text[100];
 
     local procedure MakePurchaseOrder()
     var

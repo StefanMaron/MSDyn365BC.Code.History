@@ -1050,7 +1050,14 @@
     end;
 
     local procedure FinalizeDeleteHeader(var PassedServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFinalizeDeleteHeader(PassedServHeader, ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PassedServHeader do begin
             Delete;
             ServITRMgt.DeleteInvoiceSpecFromHeader(ServHeader);
@@ -1073,7 +1080,14 @@
     end;
 
     local procedure FinalizeDeleteItemLines()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFinalizeDeleteItemLines(PServItemLine, ServHeader, ServItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         // delete Service Item Lines persistent and temporary
         PServItemLine.Reset();
         PServItemLine.SetRange("Document Type", ServHeader."Document Type");
@@ -1544,7 +1558,8 @@
                 ServiceLineTemp.SetRange("Document No.", ServiceItemLineTemp."Document No.");
                 ServiceLineTemp.SetRange("Service Item No.", ServiceItemLineTemp."Service Item No.");
                 if not ServiceLineTemp.FindFirst then
-                    ServiceItemClosedCondition := false
+                    ServiceItemClosedCondition := false;
+                OnCheckCloseConditionOnAfterServiceLineTempLoop(ServiceItemLineTemp, ServiceLineTemp, Qty, QtytoInv, QtyToCsm, QtyInvd, QtyCsmd);
             until (ServiceItemLineTemp.Next() = 0) or (not ServiceItemClosedCondition);
         exit(QtyClosedCondition and ServiceItemClosedCondition);
     end;
@@ -1643,7 +1658,14 @@
     end;
 
     procedure SetLastNos(var PServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLastNos(PServHeader, ServHeader, Ship, Invoice, ServLinesPassed, CloseCondition, IsHandled);
+        if IsHandled then
+            exit;
+
         if Ship then begin
             PServHeader."Last Shipping No." := ServHeader."Last Shipping No.";
             PServHeader."Shipping No." := '';
@@ -2346,6 +2368,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizeDeleteHeader(var PassedServHeader: Record "Service Header"; var ServHeader: Record "Service Header" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizeDeleteItemLines(var PServItemLine: Record "Service Item Line"; var ServHeader: Record "Service Header" temporary; var ServItemLine: Record "Service Item Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAndCheckCustomer(var ServiceHeader: Record "Service Header" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -2401,7 +2433,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLastNos(var PServHeader: Record "Service Header"; var ServHeader: Record "Service Header" temporary; Ship: Boolean; Invoice: Boolean; ServLinesPassed: Boolean; CloseCondition: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSortLines(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCloseConditionOnAfterServiceLineTempLoop(var ServiceItemLine: Record "Service Item Line"; var ServiceLine: Record "Service Line"; Qty: Decimal; QtytoInv: Decimal; QtyToCsm: Decimal; QtyInvd: Decimal; QtyCsmd: Decimal)
     begin
     end;
 

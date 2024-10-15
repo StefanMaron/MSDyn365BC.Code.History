@@ -1,7 +1,7 @@
 page 12106 "Contribution Codes-INPS"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Contribution Codes';
+    Caption = 'Social Security Codes';
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Contribution Code";

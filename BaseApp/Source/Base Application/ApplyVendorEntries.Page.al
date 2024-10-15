@@ -696,7 +696,6 @@ page 233 "Apply Vendor Entries"
         PostingDone: Boolean;
         [InDataSet]
         AppliesToIDVisible: Boolean;
-        ActionPerformed: Boolean;
         Text012: Label 'The application was successfully posted.';
         IsOfficeAddin: Boolean;
         HasDocumentAttachment: Boolean;
@@ -865,7 +864,6 @@ page 233 "Apply Vendor Entries"
         else
             VendEntrySetApplID.SetApplId(VendLedgEntry, ApplyingVendLedgEntry, PurchHeader."Applies-to ID");
 
-        ActionPerformed := VendLedgEntry."Applies-to ID" <> '';
         CalcApplnAmount();
     end;
 
@@ -1305,15 +1303,16 @@ page 233 "Apply Vendor Entries"
     local procedure CheckActionPerformed() Result: Boolean
     var
         IsHandled: Boolean;
+        ActionPerformed: Boolean;
     begin
+        ActionPerformed := false;
+
         IsHandled := false;
         OnBeforeCheckActionPerformed(
             ActionPerformed, OK, CalcType.AsInteger(), PostingDone, ApplyingVendLedgEntry, ApplnType.AsInteger(), Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        if ActionPerformed then
-            exit(false);
         if (not (CalcType = CalcType::Direct) and not OK and not PostingDone) or
            (ApplnType = ApplnType::"Applies-to Doc. No.")
         then

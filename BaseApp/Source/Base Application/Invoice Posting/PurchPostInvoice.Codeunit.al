@@ -624,6 +624,7 @@
         JobPurchLine.SetRange("Gen. Prod. Posting Group", InvoicePostingBuffer."Gen. Prod. Posting Group");
         JobPurchLine.SetRange("VAT Bus. Posting Group", InvoicePostingBuffer."VAT Bus. Posting Group");
         JobPurchLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
+        JobPurchLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
 
         OnAfterSetJobLineFilters(JobPurchLine, InvoicePostingBuffer);
     end;
@@ -815,6 +816,7 @@
         VATPostingSetup: Record "VAT Posting Setup";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         VATBaseAmount: Decimal;
+        VATBaseAmountACY: Decimal;
         VATAmount: Decimal;
         VATAmountACY: Decimal;
         VATAmountRemainder: Decimal;
@@ -837,20 +839,16 @@
                             VATPostingSetup.Get(InvoicePostingBuffer."VAT Bus. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
                             OnCalculateVATAmountsOnAfterGetReverseChargeVATPostingSetup(VATPostingSetup);
 
-                            VATBaseAmount := InvoicePostingBuffer."VAT Base Amount";
+                            VATBaseAmount := InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100);
+                            VATBaseAmountACY := InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100);
 
                             if PurchHeader."Currency Code" <> '' then
                                 VATBaseAmount := CurrExchRate.ExchangeAmtLCYToFCY(
                                     PurchHeader.GetUseDate(), PurchHeader."Currency Code",
                                     VATBaseAmount, PurchHeader."Currency Factor");
 
-                            VATAmount :=
-                                VATBaseAmount * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100;
-
-                            VATAmountACY :=
-                                InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100) *
-                                VATPostingSetup."VAT %" / 100;
+                            VATAmount := VATBaseAmount * VATPostingSetup."VAT %" / 100;
+                            VATAmountACY := VATBaseAmountACY * VATPostingSetup."VAT %" / 100;
 
                             TempInvoicePostingBufferReverseCharge := InvoicePostingBuffer;
                             if TempInvoicePostingBufferReverseCharge.Find() then begin
@@ -865,10 +863,16 @@
 
                                 VATAmountACYRemainder += VATAmountACY;
                                 InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
-                                VATAmountACYRemainder -= InvoicePostingBuffer."VAT Amount (ACY)"
+                                VATAmountACYRemainder -= InvoicePostingBuffer."VAT Amount (ACY)";
+
+                                InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end else begin
                                 InvoicePostingBuffer."VAT Amount" := Round(VATAmount);
                                 InvoicePostingBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
+
+                                InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
+                                InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
                             InvoicePostingBuffer.Modify();
                         end;

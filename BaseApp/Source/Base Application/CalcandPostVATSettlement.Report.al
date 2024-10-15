@@ -463,7 +463,7 @@
                             NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement, IsPostingAllowed);
 
                             // Close current VAT entries
-                            if PostSettlement and (NextVATEntryNo <> 0) then begin
+                            if PostSettlement then begin
                                 CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
                                 UpdateVATPeriodOnSettlementVATEntry(NextVATEntryNo);
                             end;
@@ -507,6 +507,7 @@
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
@@ -514,6 +515,7 @@
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
                                     if VATType.AsInteger() < VATEntry.Type::Settlement.AsInteger() then
@@ -527,6 +529,7 @@
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
@@ -536,6 +539,7 @@
                                             repeat
                                                 VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
                                     if VATType.AsInteger() < VATEntry.Type::Settlement.AsInteger() then begin
@@ -875,6 +879,8 @@
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
         OnAfterPostReport();
     end;
 
@@ -1340,6 +1346,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry"; var VATEntry2: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter(VATPostingSetup: Record "VAT Posting Setup"; VATType: enum "General Posting Type"; var VATEntry: Record "VAT Entry"; FindFirstEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter(VATPostingSetup: Record "VAT Posting Setup"; VATType: enum "General Posting Type"; var VATEntry: Record "VAT Entry"; FindFirstEntry: Boolean)
     begin
     end;
 }

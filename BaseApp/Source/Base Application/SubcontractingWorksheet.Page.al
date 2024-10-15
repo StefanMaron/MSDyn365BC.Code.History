@@ -424,10 +424,12 @@ page 99000886 "Subcontracting Worksheet"
     var
         ReqJnlManagement: Codeunit ReqJnlManagement;
         CurrentJnlBatchName: Code[10];
-        Description2: Text[100];
-        BuyFromVendorName: Text[100];
         OpenedFromBatch: Boolean;
         Text12100: Label 'You are not allowed to insert lines manually.';
+
+    protected var
+        Description2: Text[100];
+        BuyFromVendorName: Text[100];
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin

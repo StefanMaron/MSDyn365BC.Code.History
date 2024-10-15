@@ -59,6 +59,7 @@ codeunit 86 "Sales-Quote to Order"
         OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled, SalesQuoteLine);
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+            SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
             DeleteLinks;
             Delete;
             SalesQuoteLine.DeleteAll();

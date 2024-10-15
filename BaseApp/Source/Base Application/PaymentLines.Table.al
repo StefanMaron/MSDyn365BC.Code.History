@@ -323,6 +323,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < SalesHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := SalesHeader."Document Date";
+                OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(PaymentLines, SalesHeader);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -417,6 +418,7 @@ table 12170 "Payment Lines"
                 if PaymentLines."Pmt. Discount Date" < PurchaseHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := PurchaseHeader."Document Date";
 
+                OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(PaymentLines, PurchaseHeader);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -522,6 +524,7 @@ table 12170 "Payment Lines"
 
                 if PaymentLines."Pmt. Discount Date" < ServiceHeader."Document Date" then
                     PaymentLines."Pmt. Discount Date" := ServiceHeader."Document Date";
+                OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader);
                 PaymentLines.Insert();
             until PaymentLinesTerms.Next() = 0;
         end;
@@ -586,6 +589,21 @@ table 12170 "Payment Lines"
         PaymentLines.SetRange(Code, DocumentNo);
         if not PaymentLines.IsEmpty() then
             PaymentLines.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLiensPurchasesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesSalesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record "Service Header")
+    begin
     end;
 }
 

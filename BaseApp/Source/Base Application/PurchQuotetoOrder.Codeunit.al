@@ -56,6 +56,7 @@ codeunit 96 "Purch.-Quote to Order"
         OnBeforeDeletePurchQuote(Rec, PurchOrderHeader, IsHandled);
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+            PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
             DeleteLinks;
             Delete;
             PurchQuoteLine.DeleteAll();

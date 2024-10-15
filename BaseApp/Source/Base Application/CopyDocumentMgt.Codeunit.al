@@ -1373,7 +1373,7 @@
     begin
         CopyThisLine := true;
         IsHandled := false;
-        OnBeforeCopySalesLine(ToSalesHeader, FromSalesHeader, FromSalesLine, RecalculateLines, CopyThisLine, MoveNegLines, Result, IsHandled);
+        OnBeforeCopySalesLine(ToSalesHeader, FromSalesHeader, FromSalesLine, RecalculateLines, CopyThisLine, MoveNegLines, Result, IsHandled, DocLineNo);
         if IsHandled then
             exit(Result);
 
@@ -1484,7 +1484,7 @@
         ToSalesLine."Automatically Generated" := FromSalesLine."Automatically Generated";
 
         IsHandled := false;
-        OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader, ToSalesLine, FromSalesLine, FromSalesDocType, RecalculateLines, CopyThisLine, LinesNotCopied, Result, IsHandled, NextLineNo);
+        OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader, ToSalesLine, FromSalesLine, FromSalesDocType, RecalculateLines, CopyThisLine, LinesNotCopied, Result, IsHandled, NextLineNo, DocLineNo);
         if IsHandled then
             exit(Result);
         if CopyThisLine then begin
@@ -6058,6 +6058,12 @@
         ToSalesLine."Special Order Purchase No." := '';
         ToSalesLine."Special Order Purch. Line No." := 0;
 
+        ToSalesLine.Area := ToSalesHeader.Area;
+        ToSalesLine."Exit Point" := ToSalesHeader."Exit Point";
+        ToSalesLine."Transaction Specification" := ToSalesHeader."Transaction Specification";
+        ToSalesLine."Transaction Type" := ToSalesHeader."Transaction Type";
+        ToSalesLine."Transport Method" := ToSalesHeader."Transport Method";
+
         OnAfterSetDefaultValuesToSalesLine(ToSalesLine, ToSalesHeader, CreateToHeader);
     end;
 
@@ -6101,6 +6107,12 @@
         ToPurchLine."Sales Order Line No." := 0;
         ToPurchLine."Special Order Sales No." := '';
         ToPurchLine."Special Order Sales Line No." := 0;
+
+        ToPurchLine.Area := ToPurchHeader.Area;
+        ToPurchLine."Entry Point" := ToPurchHeader."Entry Point";
+        ToPurchLine."Transaction Specification" := ToPurchHeader."Transaction Specification";
+        ToPurchLine."Transaction Type" := ToPurchHeader."Transaction Type";
+        ToPurchLine."Transport Method" := ToPurchHeader."Transport Method";
 
         OnAfterSetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, CreateToHeader);
     end;
@@ -7534,7 +7546,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopySalesLine(var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; RecalculateAmount: Boolean; var CopyThisLine: Boolean; MoveNegLines: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCopySalesLine(var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; RecalculateAmount: Boolean; var CopyThisLine: Boolean; MoveNegLines: Boolean; var Result: Boolean; var IsHandled: Boolean; DocLineNo: Integer)
     begin
     end;
 
@@ -9154,7 +9166,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; FromSalesDocType: Enum "Sales Document Type From"; var RecalculateLines: Boolean; var CopyThisLine: Boolean; var LinesNotCopied: Integer; var Result: Boolean; var IsHandled: Boolean; var NextLineNo: Integer)
+    local procedure OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; FromSalesDocType: Enum "Sales Document Type From"; var RecalculateLines: Boolean; var CopyThisLine: Boolean; var LinesNotCopied: Integer; var Result: Boolean; var IsHandled: Boolean; var NextLineNo: Integer; DocLineNo: Integer)
     begin
     end;
 

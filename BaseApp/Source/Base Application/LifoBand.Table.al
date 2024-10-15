@@ -158,6 +158,12 @@ table 12130 "Lifo Band"
     procedure UpdateIncrementValue()
     begin
         "Increment Value" := "Residual Quantity" * "Year Average Cost";
+        OnAfterUpdateIncrementValue(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateIncrementValue(var LifoBand: Record "Lifo Band")
+    begin
     end;
 }
 
