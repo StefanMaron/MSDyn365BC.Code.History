@@ -15,6 +15,14 @@ page 1157 "Client Detail Cash Flow Chart"
     {
         area(content)
         {
+            group(Disclaimer)
+            {
+                Caption = ' ';
+                ShowCaption = false;
+                Editable = false;
+                Visible = IsCashFlowSetUp;
+                InstructionalText = 'AI generated suggestions may not always be accurate. Please validate results for correctness before using content provided.';
+            }
             field(StatusText; StatusText)
             {
                 ApplicationArea = All;

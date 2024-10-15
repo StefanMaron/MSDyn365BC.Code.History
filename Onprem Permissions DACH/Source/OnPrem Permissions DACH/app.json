@@ -2,7 +2,7 @@
   "id": "66562109-c5eb-437e-bb8b-f4809337714e",
   "name": "OnPrem Permissions (DACH)",
   "publisher": "Microsoft",
-  "version": "24.4.22295.22925",
+  "version": "24.5.23489.23968",
   "brief": "This extension includes permission set for on premise systems.",
   "description": "This extension includes permission set for on premise systems.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -20,5 +20,5 @@
     "includeSourceInSymbolFile": true
   },
   "target": "OnPrem",
-  "application": "24.4.0.0"
+  "application": "24.5.0.0"
 }

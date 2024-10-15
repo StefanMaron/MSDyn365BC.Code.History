@@ -492,7 +492,13 @@ page 7118 "Purchase Analysis Report"
         tmpLastColumn: Text[80];
         tmpFirstLineNo: Integer;
         tmpLastLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPointsAnalysisColumn(CurrentColumnTemplate, Direction, FirstColumn, LastColumn, tmpFirstColumn, tmpFirstLineNo, tmpLastColumn, tmpLastLineNo, NoOfColumns, LastLineNo, FirstLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         AnalysisColumn2.SetRange("Analysis Area", AnalysisColumn2."Analysis Area"::Purchase);
         AnalysisColumn2.SetRange("Analysis Column Template", CurrentColumnTemplate);
 
@@ -602,6 +608,11 @@ page 7118 "Purchase Analysis Report"
     local procedure CurrentSourceTypeFilterOnAfterValidate()
     begin
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPointsAnalysisColumn(CurrentColumnTemplate: Code[10]; Direction: Option; FirstColumn: Text[1024]; LastColumn: Text[1024]; var tmpFirstColumn: Text[80]; var tmpFirstLineNo: Integer; var tmpLastColumn: Text[80]; var tmpLastLineNo: Integer; NoOfColumns: Integer; LastLineNo: Integer; FirstLineNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 
