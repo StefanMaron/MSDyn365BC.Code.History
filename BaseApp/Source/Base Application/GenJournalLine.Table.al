@@ -3216,6 +3216,7 @@
         TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
+        PrevPostingDate: Date;
     begin
         IsHandled := false;
         OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
@@ -3244,11 +3245,14 @@
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and
-                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        (("Document No." <> PrevDocNo) or
+                          ("Posting Date" <> PrevPostingDate) or
+                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
                         not LastGenJnlLine.EmptyLine
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
                     if "Document No." <> '' then begin
                         if "Applies-to ID" = "Document No." then
                             RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
@@ -5643,6 +5647,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
+        "Payment Method Code" := PurchHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -5740,6 +5745,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
+        "Payment Method Code" := SalesHeader."Payment Method Code";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
