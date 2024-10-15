@@ -1,4 +1,3 @@
-#if not CLEAN22
 report 10630 "VAT Reconciliation"
 {
     DefaultLayout = RDLC;
@@ -6,9 +5,6 @@ report 10630 "VAT Reconciliation"
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Reconciliation';
     UsageCategory = ReportsAndAnalysis;
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-    ObsoleteReason = 'This report is moved to W1, and renamed as VAT Reconciliation Report.';
 
     dataset
     {
@@ -99,6 +95,8 @@ report 10630 "VAT Reconciliation"
             }
 
             trigger OnAfterGetRecord()
+            var
+                Telemetry: Codeunit Telemetry;
             begin
                 BaseAmountSalesVAT := 0;
                 BaseAmountRevCharges := 0;
@@ -131,8 +129,10 @@ report 10630 "VAT Reconciliation"
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if VATEntry.FindSet() then begin
+                        Telemetry.LogMessage('0000LFF', 'Transactions with amount mismatch found', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation);
                         repeat
                             if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
+                                Telemetry.LogMessage('0000LFE', 'Transactions with amount mismatch for Reverse Charge VAT', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation);
                                 BaseAmountRevCharges += VATEntry.Base;
                                 SalesVATRevCharges += VATEntry.Amount;
                             end else
@@ -194,16 +194,6 @@ report 10630 "VAT Reconciliation"
         actions
         {
         }
-
-        trigger OnOpenPage()
-        var
-            DeprecationNotification: Notification;
-            DeprecationMsg: Label 'This report will be removed in upcoming releases. Please use "VAT Reconciliation Report" instead.';
-        begin
-            DeprecationNotification.Message := DeprecationMsg;
-            DeprecationNotification.Scope := NotificationScope::LocalScope;
-            DeprecationNotification.Send();
-        end;
     }
 
     labels
@@ -239,4 +229,3 @@ report 10630 "VAT Reconciliation"
         PurchVATCaptionLbl: Label 'Purchase VAT';
         TotalCaptionLbl: Label 'Total';
 }
-#endif

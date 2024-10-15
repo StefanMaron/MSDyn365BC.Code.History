@@ -202,7 +202,7 @@
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the work type code of the service line linked to this entry.';
                     Visible = false;
                 }

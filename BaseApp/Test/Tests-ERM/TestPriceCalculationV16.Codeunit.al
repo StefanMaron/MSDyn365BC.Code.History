@@ -5020,6 +5020,101 @@ codeunit 134159 "Test Price Calculation - V16"
                 PurchaseLine.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure S483393_CopyAllowInvoiceDiscInGetReceiptLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PriceListLine: Record "Price List Line";
+        PriceListHeader: Record "Price List Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        // [SCENARIO 483393] Verify that manually set "Allow Invoice Disc." is carried over from Order to Invoice line with Get Receipt Lines.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Price List Header for All Vendors.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Purchase,
+            "Price Source Type"::"All Vendors",
+            '');
+
+        // [GIVEN] Create a Price List Line with an Item.
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine,
+            PriceListHeader,
+            "Price Amount Type"::Any,
+            "Price Asset Type"::Item,
+            Item."No.");
+
+        // [GIVEN] Update the Direct Unit Cost in Price List Line with Allow Line Disc. = true and Allow Invoice Disc. = false.
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        PriceListLine.Validate("Allow Line Disc.", true);
+        PriceListLine.Validate("Allow Invoice Disc.", false);
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Update Status to Active in Price List Header.
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Order Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Order Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineOrder,
+            PurchaseHeaderOrder,
+            PurchaseLineOrder.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set Invoice Discount for Item line.
+        PurchaseLineOrder.Validate("Allow Invoice Disc.", true);
+        PurchaseLineOrder.Validate("Inv. Discount Amount", Round(PurchaseLineOrder."Line Amount" * LibraryRandom.RandDec(1, 2)));
+        PurchaseLineOrder.Modify(true);
+
+        // [GIVEN] Receive Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Create a Purchase Invoice Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderInvoice,
+            PurchaseHeaderInvoice."Document Type"::Invoice,
+            PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("Vendor Invoice No.", PurchaseHeaderInvoice."No.");
+        PurchaseHeaderInvoice.Modify(true);
+
+        // [WHEN] Run "Get Receipt Lines" from new Purchase Invoice.
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchRcptHeader.SetRange("Order No.", PurchaseHeaderOrder."No.");
+        if PurchRcptHeader.FindSet() then
+            repeat
+                PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+                PurchGetReceipt.CreateInvLines(PurchRcptLine);
+            until PurchRcptHeader.Next() = 0;
+
+        // [THEN] Verify that "Allow Invoce Disc." is copied from Purchase Order Line to Purchase Invoice Line.
+        PurchaseLineInvoice.SetRange("Document No.", PurchaseHeaderInvoice."No.");
+        PurchaseLineInvoice.FindFirst();
+        Assert.AreEqual(
+            true,
+            PurchaseLineInvoice."Allow Invoice Disc.",
+            PurchaseLineInvoice.FieldCaption("Allow Invoice Disc."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

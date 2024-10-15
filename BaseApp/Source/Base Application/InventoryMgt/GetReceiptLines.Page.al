@@ -315,6 +315,8 @@ page 5709 "Get Receipt Lines"
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
+        OnBeforeIsFirstDocLine(Rec, TempPurchRcptLine);
+
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
@@ -363,6 +365,11 @@ page 5709 "Get Receipt Lines"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnQueryClosePage(CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsFirstDocLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary)
     begin
     end;
 }
