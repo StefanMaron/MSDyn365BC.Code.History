@@ -791,8 +791,12 @@ report 11603 "Calculate GST Settlement"
                 end;
             end;
             Init();
+#if not CLEAN22
             if ICPartner then
                 Validate("IC Partner G/L Acc. No.", '');
+#endif
+            if ICPartner then
+                Validate("IC Account No.", '');
             Validate("Posting Date", PostDate);
             Validate("Document Date", PostDate);
             Validate("Document No.", DocNo);
@@ -823,7 +827,11 @@ report 11603 "Calculate GST Settlement"
             end;
         end;
 
+#if not CLEAN22
         GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccount);
+#endif
+        if (GenJournalLine."IC Account Type" = "IC Journal Account Type"::"G/L Account") then
+            GenJournalLine.Validate("IC Account No.", ICPartnerGLAccount);
         GenJournalLine."IC Partner Code" := ICPartnerCode;
     end;
 

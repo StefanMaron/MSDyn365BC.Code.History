@@ -1462,6 +1462,7 @@ codeunit 134902 "ERM Account Schedule"
         // 1.Setup: Create and Post General Journal Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random for Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
@@ -1559,6 +1560,7 @@ codeunit 134902 "ERM Account Schedule"
         // 1.Setup: Create and Post General Journal Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
         GLAccountNo := GenJournalLine."Account No.";
@@ -1582,6 +1584,7 @@ codeunit 134902 "ERM Account Schedule"
         // 1.Setup: Create and Post General Journal Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1683,6 +1686,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := SignFactor * LibraryRandom.RandInt(100) + LibraryERM.GetAmountRoundingPrecision;  // Required random value for Amount upto 2 decimal precision.
         SetupForAccountScheduleOverviewPage(
           AccScheduleLine, Show, Amount, ColumnLayout."Rounding Factor"::None, '');
@@ -1707,6 +1711,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         SetupForAccountScheduleOverviewPage(
           AccScheduleLine,
           ColumnLayout.Show::Never,
@@ -1781,6 +1786,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := LibraryRandom.RandDec(10000000, 2);  // Take large random value for Amount.
         SetupForAccountScheduleOverviewPage(AccScheduleLine, ColumnLayout.Show::Always, Amount, RoundingFactor, '');
         LibraryVariableStorage.Enqueue(AccScheduleLine."Schedule Name");
@@ -1803,6 +1809,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         MaxAmount := 1000; // any random 1..1000 number will be divided by 10000000 thus we will have quite smal number
         Amount := LibraryRandom.RandDec(MaxAmount, 2);
         SetupForAccountScheduleOverviewPage(
@@ -1827,6 +1834,7 @@ codeunit 134902 "ERM Account Schedule"
         Amount: Decimal;
     begin
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Factor := LibraryERM.GetAmountRoundingPrecision;
         Amount := LibraryRandom.RandDecInRange(100, 200, 2) * Factor;
         AccountScheduleOverviewPageRoundingOption(
@@ -1893,6 +1901,7 @@ codeunit 134902 "ERM Account Schedule"
         Factor: Decimal;
     begin
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         MaxAmount := 1000;
         Factor := Power(MaxAmount, 2);
 
@@ -1971,6 +1980,7 @@ codeunit 134902 "ERM Account Schedule"
         ExpectedTimeStamp := Format(Today());
 
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         SetupForAccountScheduleOverviewPage(AccScheduleLine, ColumnLayout.Show::Never,
           LibraryRandom.RandDec(100, 2), ColumnLayout."Rounding Factor"::None, '');
         LibraryVariableStorage.Enqueue(AccScheduleLine."Schedule Name");
@@ -2045,6 +2055,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create and post General Line.Create Account Schedule Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         SetupForAccScheduleReportWithFormula(ColumnLayout, Amount);
         CreateColumnLayoutLine(ColumnLayout, ColumnLayout."Column Layout Name", ColumnLayout."Column No." + Formula);
         Commit();  // Commit required for running the Report.
@@ -2064,6 +2075,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // Setup: Create and post General Line.Create Account Schedule Line.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := LibraryRandom.RandInt(10) + LibraryERM.GetAmountRoundingPrecision;  // Take random value for Amount.
         AccScheduleReportColumnForCrossCalculation(
           '+', Amount, Format(Amount + Amount, 0, LibraryAccSchedule.GetAutoFormatString), 1);  // Take 1 for multiplying with fixed value.
@@ -2080,6 +2092,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // Setup: Create and post General Line.Create Account Schedule Line.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := LibraryRandom.RandInt(10) + LibraryERM.GetAmountRoundingPrecision;  // Take random value for Amount.
         AccScheduleReportColumnForCrossCalculation(
           '*', Amount, Format(Amount * Amount, 0, LibraryAccSchedule.GetAutoFormatString), 1);  // Take 1 for multiplying with fixed value.
@@ -2094,6 +2107,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // Verify Account Schedule Report with Column Layout formula for cross division.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         // Setup: Create and post General Line.Create Account Schedule Line.
         Amount := LibraryRandom.RandInt(10) + LibraryERM.GetAmountRoundingPrecision;  // Take random value for Amount.
         AccScheduleReportColumnForCrossCalculation(
@@ -2142,6 +2156,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create and post General Line.Create Account Schedule Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := LibraryRandom.RandDec(10, 2);  // Take random for Amount.
         SetupForAccScheduleReportWithFormula(ColumnLayout, Amount);
         CreateColumnLayoutLine(
@@ -2325,6 +2340,7 @@ codeunit 134902 "ERM Account Schedule"
         // 1.Setup: Create Column Layout, create and Post General Journal Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
         SetupForAccScheduleLinetWithFormula(AccScheduleLine, Amount, FormulaValue, ColumnLayout."Column Layout Name", RowNo, false);
         EnqueueValuesForAccScheduleReport(ColumnLayout."Column Layout Name", AccScheduleLine."Schedule Name");
@@ -2345,6 +2361,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create Column Layout.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
 
         // Excercise. Create Account Schedule Line with Formula, using Random value for Amount and Row No.
@@ -2373,6 +2390,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create Column Layout.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
 
         // Excercise. Create Account Schedule Line with Formula.
@@ -2401,6 +2419,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create Column Layout.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
 
         // Excercise. Create Account Schedule Line with Formula, using Random value for Amount and Row No.
@@ -2510,6 +2529,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // Setup: Create and post General Line.Create Account Schedule Line.
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         Amount := LibraryRandom.RandDec(10, 2);
         Value := LibraryRandom.RandInt(10);   // Take random value for multiplication.
         AccScheduleReportColumnForCrossCalculation('+', Amount, Format(2 * Amount * Value), Value);
@@ -2593,6 +2613,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create Column Layout, create Account Schedule Line with New Page True, take random value for Amount and Row No.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateColumnLayout(ColumnLayout);
         SetupForAccScheduleLinetWithFormula(
           AccScheduleLine,
@@ -2661,6 +2682,7 @@ codeunit 134902 "ERM Account Schedule"
         // Setup: Create and post General Journal Line.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(10, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2695,6 +2717,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Acc. Schedule Line by using InsertGLAccounts function.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Debit Amount");
 
         // Verify Debit amount on Account Schdule Line.
@@ -2718,6 +2741,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Acc. Schedule Line by using InsertGLAccounts function.
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Credit Amount");
 
         // Verify Credit amount on Account Schdule Line.
@@ -2741,6 +2765,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Acc. Schedule Line by using InsertGLAccounts function
         Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.AddJournalsEdit();
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Net Amount");
 
         // Verify Net amount on Account Schedule Line.

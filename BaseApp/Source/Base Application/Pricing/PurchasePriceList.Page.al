@@ -420,7 +420,14 @@ page 7018 "Purchase Price List"
     trigger OnQueryClosePage(CloseAction: Action): Boolean;
     var
         PriceListManagement: Codeunit "Price List Management";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnQueryClosePageOnBeforeDraftLineCheck(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Rec.Find() then
             if Rec.HasDraftLines() then begin
                 PriceListManagement.SendVerifyLinesNotification(Rec);
@@ -508,6 +515,11 @@ page 7018 "Purchase Price List"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Purchase Price Source Type"; var IsJobGroup: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnBeforeDraftLineCheck(var PriceListHeader: Record "Price List Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

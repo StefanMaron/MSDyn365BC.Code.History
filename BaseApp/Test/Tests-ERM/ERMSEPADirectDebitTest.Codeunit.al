@@ -19,6 +19,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryDimension: Codeunit "Library - Dimension";
         ServerFileName: Text;
         IsInitialized: Boolean;
         NoEntriesErr: Label 'No entries have been created.', Comment = '%1=Field;%2=Table;%3=Field;%4=Table';
@@ -681,6 +682,46 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry.TestField("Transfer Date", Today);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateDirectDebitCollectionHandlerWithDimension')]
+    [Scope('OnPrem')]
+    procedure VarifyTotalFilterWorkingWhenCreatingDirectDebitCollectionsWithDimension()
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        // [SCENARIO 471033] Total filter is not work when Creating Direct Debit Collections
+        Initialize();
+
+        // [GIVEN] Setup: Create new Dimension Values
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [THEN] Create new Bank Account, Customer, Invoice with Dimension Value 1, and Post Sales Invoice
+        CreateSEPABankAccount(BankAccount);
+        PostWorkdateSalesInvoiceSEPADirectDebitWithCurrencyAndDimension(
+            Customer,
+            WorkDate() - LibraryRandom.RandIntInRange(20, 30),
+            WorkDate() + LibraryRandom.RandIntInRange(20, 30),
+            Customer."Partner Type"::Company, '',
+            1,
+            DimensionValue[1].Code);
+
+        // [WHEN] Run "Create Direct Debit Collection" report with expected error 'No entries have been created.'
+        asserterror RunCreateDirectDebitCollectionReportWithDimensionFilter(
+            WorkDate() - LibraryRandom.RandIntInRange(5, 10),
+            WorkDate() + LibraryRandom.RandIntInRange(5, 10),
+            Customer."Partner Type"::Company,
+            BankAccount."No.",
+            false,
+            false,
+            DimensionValue[2].Code);
+
+        // [VERIFY] Verify: Expected error occurred during execution of "Create Direct Debit Collection" report
+        Assert.ExpectedError(NoEntriesErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -782,6 +823,35 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateDirectDebitCollection.OnlyCustomerValidMandate.SetValue(ValidCustMandate);
         CreateDirectDebitCollection.OnlyInvoiceValidMandate.SetValue(ValidInvMandate);
         CreateDirectDebitCollection.BankAccNo.SetValue(BankAccNo);
+        CreateDirectDebitCollection.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateDirectDebitCollectionHandlerWithDimension(var CreateDirectDebitCollection: TestRequestPage "Create Direct Debit Collection")
+    var
+        FromDate: Variant;
+        ToDate: Variant;
+        ValidCustMandate: Variant;
+        ValidInvMandate: Variant;
+        BankAccNo: Variant;
+        PartnerType: Variant;
+        DimValCode: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(FromDate);
+        LibraryVariableStorage.Dequeue(ToDate);
+        LibraryVariableStorage.Dequeue(PartnerType);
+        LibraryVariableStorage.Dequeue(ValidCustMandate);
+        LibraryVariableStorage.Dequeue(ValidInvMandate);
+        LibraryVariableStorage.Dequeue(BankAccNo);
+        LibraryVariableStorage.Dequeue(DimValCode);
+        CreateDirectDebitCollection.FromDueDate.SetValue(FromDate);
+        CreateDirectDebitCollection.ToDueDate.SetValue(ToDate);
+        CreateDirectDebitCollection.PartnerType.SetValue(PartnerType);
+        CreateDirectDebitCollection.OnlyCustomerValidMandate.SetValue(ValidCustMandate);
+        CreateDirectDebitCollection.OnlyInvoiceValidMandate.SetValue(ValidInvMandate);
+        CreateDirectDebitCollection.BankAccNo.SetValue(BankAccNo);
+        CreateDirectDebitCollection.Customer.SetFilter("Global Dimension 1 Filter", DimValCode);
         CreateDirectDebitCollection.OK.Invoke;
     end;
 
@@ -995,6 +1065,60 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PmtJnlExportErrorText.SetRange("Document No.", Format(DirectDebitCollectionEntry."Direct Debit Collection No."));
         PmtJnlExportErrorText.SetRange("Journal Line No.", DirectDebitCollectionEntry."Entry No.");
         Assert.RecordIsEmpty(PmtJnlExportErrorText);
+    end;
+
+    local procedure PostWorkdateSalesInvoiceSEPADirectDebitWithCurrencyAndDimension(
+        var Customer: Record Customer;
+        MandateFromDate: Date;
+        MandateToDate: Date;
+        PartnerType: Enum "Partner Type";
+        CurrencyCode: Code[10];
+        DimSetID: Integer;
+        DimValCode: Code[20]): Code[20]
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        PaymentMethod: Record "Payment Method";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // Create Payment Method with Direct Debit, create Customer with Bank Account
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+        CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, PartnerType);
+        Customer.Validate("Global Dimension 1 Code", DimValCode);
+        Customer.Modify(true);
+
+        // Create "SEPA Direct Debit Mandate" for the Customer Bank Account
+        LibrarySales.CreateCustomerMandate(
+            SEPADirectDebitMandate,
+            CustomerBankAccount."Customer No.",
+            CustomerBankAccount.Code,
+            MandateFromDate,
+            MandateToDate);
+
+        // Create Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Dimension Set ID", DimSetID);
+        SalesHeader.Validate("Shortcut Dimension 1 Code", DimValCode);
+        SalesHeader.Modify();
+
+        // Create Item, sales Line, and post sales invoice
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
+        SalesLine.Validate("Currency Code", CurrencyCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    local procedure RunCreateDirectDebitCollectionReportWithDimensionFilter(FromDate: Date; ToDate: Date; PartnerType: Enum "Partner Type"; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean; DimValCode: Code[20])
+    begin
+        EnqueueRequestPage(FromDate, ToDate, PartnerType, BankAccNo, ValidCustMandate, ValidInvMandate);
+        LibraryVariableStorage.Enqueue(DimValCode);
+        Commit();
+        Report.Run(Report::"Create Direct Debit Collection");
     end;
 
     [MessageHandler]

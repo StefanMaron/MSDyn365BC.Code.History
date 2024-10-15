@@ -39,6 +39,7 @@ codeunit 134421 "Report Selections Tests"
         StatementTitlePdfTxt: Label 'Statement';
         ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
         InvalidCustomReportSelectionErr: Label 'Invalid Custom Report Selection';
+        LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1872,6 +1873,47 @@ codeunit 134421 "Report Selections Tests"
         Assert.RecordIsNotEmpty(CustomReportSelection);
     end;
 
+    [Test]
+    [HandlerFunctions('CustomReportLayoutsHandlerCancel')]
+    [Scope('OnPrem')]
+    procedure VerifySalesInvoiceCustomReportNotRevertsBackToRdlc()
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        LayoutCode: Code[20];
+    begin
+        // [SCENARIO 466237] D365 BC - Custom report reverts back to RDLC when using Select Layout without making a choice (click Cancel).
+        Initialize();
+
+        // [GIVEN] Delete and create new Custom Report Layouts
+        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID());
+        CustomReportLayout.DeleteAll();
+
+        if ReportLayoutSelection.Get(StandardSalesInvoiceReportID(), CompanyName) then
+            ReportLayoutSelection.Delete();
+
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), CustomReportLayout.Type::RDLC.AsInteger());
+        CustomReportLayout.Get(LayoutCode);
+
+        // [THEN] Create report layout selection with new custom layout 
+        ReportLayoutSelection.Init();
+        ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID();
+        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
+        ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
+        ReportLayoutSelection.Insert(true);
+
+        // [WHEN] Invoke Select Layout from Report Layout Selection Page
+        ReportLayoutSelectionPage.OpenEdit;
+        ReportLayoutSelectionPage.Filter.SetFilter("Report ID", Format(StandardSalesInvoiceReportID()));
+        ReportLayoutSelectionPage.SelectLayout.Invoke();
+        ReportLayoutSelectionPage.Close();
+
+        // [VERIFY] Verify: Report Layout Selection should not change back to RDLC
+        ReportLayoutSelection.Get(StandardSalesInvoiceReportID(), CompanyName);
+        Assert.AreEqual(LayoutCode, ReportLayoutSelection."Custom Report Layout Code", LayoutCodeShouldNotChangedErr);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2465,6 +2507,11 @@ codeunit 134421 "Report Selections Tests"
         CustomReportLayout.Insert(true);
     end;
 
+    local procedure StandardSalesInvoiceReportID(): Integer
+    begin
+        exit(Report::"Standard Sales - Invoice");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -2673,6 +2720,13 @@ codeunit 134421 "Report Selections Tests"
     begin
         CustomerReportSelections.First();
         CustomerReportSelections.Usage2.SetValue('Pro Forma Invoice');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomReportLayoutsHandlerCancel(var CustomReportLayouts: TestPage "Custom Report Layouts")
+    begin
+        CustomReportLayouts.Cancel().Invoke();
     end;
 }
 

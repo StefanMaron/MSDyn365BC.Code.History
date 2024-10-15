@@ -1736,7 +1736,7 @@ codeunit 28040 WHTManagement
         EndTrans := GLEntry."Transaction No.";
         WHTEntry.Reset();
         WHTEntry.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");
-        WHTEntry.SetRange("Transaction No.", StartTrans, EndTrans);
+        WHTEntry.SetRange("Entry No.", GLReg."From WHT Entry No.", GLReg."To WHT Entry No.");
         if not WHTEntry.FindFirst() then
             exit;
         repeat
@@ -1787,6 +1787,7 @@ codeunit 28040 WHTManagement
             if (VendorArray[PrintSlips] <> WHTSlipBuffer2) or
                (DocumentArray[PrintSlips] <> WHTSlipDocument2)
             then begin
+                PurchSetup.TestField("WHT Certificate No. Series");
                 WHTSlipNo :=
                   NoSeriesMgt.GetNextNo(
                     PurchSetup."WHT Certificate No. Series", WHTEntry."Posting Date", true);

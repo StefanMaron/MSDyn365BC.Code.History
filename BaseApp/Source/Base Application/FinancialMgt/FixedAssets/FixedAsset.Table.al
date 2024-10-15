@@ -427,7 +427,7 @@ table 5600 "Fixed Asset"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssistEdit(FASetup, FA, Rec, Result, IsHandled);
+        OnBeforeAssistEdit(FASetup, FA, Rec, Result, IsHandled, OldFA);
         if IsHandled then
             exit(Result);
 
@@ -539,7 +539,7 @@ table 5600 "Fixed Asset"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEdit(var FASetup: Record "FA Setup"; var FixedAsset: Record "Fixed Asset"; var Rec: Record "Fixed Asset"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeAssistEdit(var FASetup: Record "FA Setup"; var FixedAsset: Record "Fixed Asset"; var Rec: Record "Fixed Asset"; var Result: Boolean; var IsHandled: Boolean; OldFixedAsset: Record "Fixed Asset")
     begin
     end;
 

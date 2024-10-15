@@ -79,6 +79,9 @@ End Function
         <Field Name="PostingDate">
           <DataField>PostingDate</DataField>
         </Field>
+        <Field Name="VATDate">
+          <DataField>VATDate</DataField>
+        </Field>
         <Field Name="DocNo">
           <DataField>DocNo</DataField>
         </Field>

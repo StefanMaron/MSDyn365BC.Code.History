@@ -375,6 +375,23 @@ codeunit 132217 "Library - Lower Permissions"
         PushPermissionSetInternal(PermissionSetRoleID, false);
     end;
 
+    /// <summary>
+    /// Sets only the specified permission set, without All Objects, Local etc.
+    /// </summary>
+    procedure SetExactPermissionSet(PermissionSetRoleID: Code[20])
+    begin
+        if not PermissionsMock.IsStarted() then
+            exit;
+
+        if (UpperCase(PermissionSetRoleID) <> UpperCase(XO365FULLTxt)) and
+           (UpperCase(PermissionSetRoleID) <> UpperCase('SUPER'))
+        then
+            HasChangedPermissionsBelowO365Full := true;
+
+        PermissionsMock.ClearAssignments();
+        PermissionsMock.Assign(PermissionSetRoleID);
+    end;
+
     local procedure PushPermissionSetInternal(PermissionSetRoleID: Code[20]; AddDefaults: Boolean)
     var
         PermissionSet: Record "Permission Set";

@@ -12,15 +12,22 @@ page 9817 "Permission Sets FactBox"
             repeater(Group)
             {
                 Caption = 'User Permissions';
-                field(PermissionSet; "Role ID")
+                field(PermissionSet; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
                     ToolTip = 'Specifies the ID of a security role that has been assigned to this Windows login in the current database.';
                     Style = Unfavorable;
                     StyleExpr = PermissionSetNotFound;
+
+                    trigger OnDrillDown()
+                    var
+                        PermissionSetRelation: Codeunit "Permission Set Relation";
+                    begin
+                        PermissionSetRelation.OpenPermissionSetPage('', Rec."Role ID", Rec."App ID", Rec.Scope);
+                    end;
                 }
-                field(Description; "Role Name")
+                field(Description; Rec."Role Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -29,7 +36,7 @@ page 9817 "Permission Sets FactBox"
                     ToolTip = 'Specifies the name of the security role that has been given to this Windows login in the current database.';
                     Visible = false;
                 }
-                field(Company; "Company Name")
+                field(Company; Rec."Company Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company';
@@ -60,4 +67,3 @@ page 9817 "Permission Sets FactBox"
         [InDataSet]
         PermissionSetNotFound: Boolean;
 }
-

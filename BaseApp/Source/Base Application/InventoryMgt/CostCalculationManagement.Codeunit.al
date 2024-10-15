@@ -471,7 +471,7 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit(Result);
 
-        CompQtyBasePerMfgQtyBase := ProdOrderComp."Quantity (Base)" / ProdOrderLine."Qty. per Unit of Measure";
+        CompQtyBasePerMfgQtyBase := (ProdOrderComp.Quantity * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";
 
         if (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::"Fixed Quantity") and (OutputQtyBase <> 0) then
             exit(CalcQtyAdjdForBOMScrap(CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"))

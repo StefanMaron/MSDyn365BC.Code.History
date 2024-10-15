@@ -781,6 +781,283 @@ codeunit 134417 "ERM Delete Documents"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DeletePstdPurchRcptsAllowedDeletionBeforeDateIsEmpty()
+    var
+        PurchRcptHeader: array[2] of Record "Purch. Rcpt. Header";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Purchase]
+        // [SCENARIO 463858] Delete posted Purchase Receipts. "Allow Document Deletion Before" is not set up.
+        Initialize();
+
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
+
+        // [GIVEN] Receive on two different dates
+        PostingDate[1] := CalcDate('<-5D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedPurchaseReceipt(PurchRcptHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete posted Purchase Receipts
+        asserterror PurchRcptHeader[1].Delete(true);
+        asserterror PurchRcptHeader[2].Delete(true);
+
+        // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdPurchRcptsWithPostingDateAfterAllowedDeletionBeforeDate()
+    var
+        PurchRcptHeader: array[2] of Record "Purch. Rcpt. Header";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+        PostingDate: array[2] of Date;
+        Receive, Invoice : array[2] of Boolean;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Purchase]
+        // [SCENARIO 463858] Delete posted Purchase Receipts. On second receipt, posting date is greater/equal then allowed deletion date. On the first receipt, posting date is less then allowed deletion date
+        Initialize();
+
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        PurchaseSetup.Get();
+
+        // [GIVEN] Receive on two different dates
+        PostingDate[1] := CalcDate('<-5D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedPurchaseReceipt(PurchRcptHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete first receipt
+        PurchRcptHeader[1].Delete(true);
+
+        // [THEN] Posted Purchase Receipt is deleted
+        VerifyPostedDocDeleted(Database::"Purch. Rcpt. Header", PurchRcptHeader[1].FieldName("No."), PurchRcptHeader[1]."No.");
+
+        // [WHEN] Delete second receipt
+        asserterror PurchRcptHeader[2].Delete(true);
+
+        // [THEN] Verfiy second purchase receipt is not deleted
+        Assert.ExpectedError(StrSubstNo(PurchDocDeletionErr, PurchaseSetup."Allow Document Deletion Before"));
+        VerifyPostedDocExists(Database::"Purch. Rcpt. Header", PurchRcptHeader[2].FieldName("No."), PurchRcptHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdReturnShptsAllowedDeletionBeforeDateIsEmpty()
+    var
+        ReturnShipmentHeader: array[2] of Record "Return Shipment Header";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Purchase]
+        // [SCENARIO 463858] Delete posted Return Shipments. "Allow Document Deletion Before" is not set up.
+        Initialize();
+
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = 0D.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
+
+        // [GIVEN] Receive shipments
+        PostingDate[1] := CalcDate('<-2D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedReturnShipment(ReturnShipmentHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete posted Return Shipments
+        asserterror ReturnShipmentHeader[1].Delete(true);
+        asserterror ReturnShipmentHeader[2].Delete(true);
+
+        // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdReturnShptsWithPostingDateAfterAllowedDeletionBeforeDate()
+    var
+        ReturnShipmentHeader: array[2] of Record "Return Shipment Header";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Purchase]
+        // [SCENARIO 463858] Delete posted Return Shipments. On second return, posting date is greater/equal then allowed deletion date. On the first return, posting date is less then allowed deletion date
+        Initialize();
+
+        // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        PurchaseSetup.Get();
+
+        // [GIVEN] Receive on two different dates
+        PostingDate[1] := CalcDate('<-2D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedReturnShipment(ReturnShipmentHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete first receipt
+        ReturnShipmentHeader[1].Delete(true);
+
+        // [THEN] Posted Return Shipment is deleted
+        VerifyPostedDocDeleted(Database::"Return Shipment Header", ReturnShipmentHeader[1].FieldName("No."), ReturnShipmentHeader[1]."No.");
+
+        // [WHEN] Delete second return shipment
+        asserterror ReturnShipmentHeader[2].Delete(true);
+
+        // [THEN] Verfiy second return shipment is not deleted
+        Assert.ExpectedError(StrSubstNo(PurchDocDeletionErr, PurchaseSetup."Allow Document Deletion Before"));
+        VerifyPostedDocExists(Database::"Return Shipment Header", ReturnShipmentHeader[2].FieldName("No."), ReturnShipmentHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdSaleShptsAllowedDeletionBeforeDateIsEmpty()
+    var
+        SalesShipmentHeader: array[2] of Record "Sales Shipment Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Sales]
+        // [SCENARIO 463858] Delete posted Sales Shipments. "Allow Document Deletion Before" is not set up.
+        Initialize();
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
+
+        // [GIVEN] Ship on two different dates
+        PostingDate[1] := CalcDate('<-5D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedSalesShipment(SalesShipmentHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete posted Sales Shipments
+        asserterror SalesShipmentHeader[1].Delete(true);
+        asserterror SalesShipmentHeader[2].Delete(true);
+
+        // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdSaleShptssWithPostingDateAfterAllowedDeletionBeforeDate()
+    var
+        SalesShipmentHeader: array[2] of Record "Sales Shipment Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Sales]
+        // [SCENARIO 463858] Delete posted Sales Shipments. On second shipment, posting date is greater/equal then allowed deletion date. On the first shipment, posting date is less then allowed deletion date
+        Initialize();
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        SalesSetup.Get();
+
+        // [GIVEN] Ship on two different dates
+        PostingDate[1] := CalcDate('<-5D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedSalesShipment(SalesShipmentHeader, PostingDate);
+        Commit();
+
+        // Mock No. Printed
+        SalesShipmentHeader[1]."No. Printed" := 1;
+        SalesShipmentHeader[1].Modify();
+        SalesShipmentHeader[2]."No. Printed" := 1;
+        SalesShipmentHeader[2].Modify();
+
+        // [WHEN] Delete first shipment
+        SalesShipmentHeader[1].Delete(true);
+
+        // [THEN] Posted Sales Shipment is deleted
+        VerifyPostedDocDeleted(Database::"Sales Shipment Header", SalesShipmentHeader[1].FieldName("No."), SalesShipmentHeader[1]."No.");
+
+        // [WHEN] Delete second shipment
+        asserterror SalesShipmentHeader[2].Delete(true);
+
+        // [THEN] Verfiy second sales shipment is not deleted
+        Assert.ExpectedError(StrSubstNo(SalesDocDeletionErr, SalesSetup."Allow Document Deletion Before"));
+        VerifyPostedDocExists(Database::"Sales Shipment Header", SalesShipmentHeader[2].FieldName("No."), SalesShipmentHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdReturnRcptsAllowedDeletionBeforeDateIsEmpty()
+    var
+        ReturnReceiptHeader: array[2] of Record "Return Receipt Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Sales]
+        // [SCENARIO 463858] Delete posted Return Receipts. "Allow Document Deletion Before" is not set up.
+        Initialize();
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = 0D.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
+
+        // [GIVEN] Return receipts
+        PostingDate[1] := CalcDate('<-2D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedReturnReceipt(ReturnReceiptHeader, PostingDate);
+        Commit();
+
+        // [WHEN] Delete posted Return Receipts
+        asserterror ReturnReceiptHeader[1].Delete(true);
+        asserterror ReturnReceiptHeader[2].Delete(true);
+
+        // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePstdReturnRcptsWithPostingDateAfterAllowedDeletionBeforeDate()
+    var
+        ReturnReceiptHeader: array[2] of Record "Return Receipt Header";
+        SalesSetup: Record "Sales & Receivables Setup";
+        PostingDate: array[2] of Date;
+    begin
+        // [FEATURE] [Allow Document Deletion] [Sales]
+        // [SCENARIO 463858] Delete posted Return Receipts. On second return, posting date is greater/equal then allowed deletion date. On the first return, posting date is less then allowed deletion date
+        Initialize();
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate());
+        SalesSetup.Get();
+
+        // [GIVEN] Receive on two different dates
+        PostingDate[1] := CalcDate('<-2D>', WorkDate());
+        PostingDate[2] := WorkDate();
+        MockPostedReturnReceipt(ReturnReceiptHeader, PostingDate);
+        Commit();
+
+        // Mock No. Printed
+        ReturnReceiptHeader[1]."No. Printed" := 1;
+        ReturnReceiptHeader[1].Modify();
+        ReturnReceiptHeader[2]."No. Printed" := 1;
+        ReturnReceiptHeader[2].Modify();
+
+        // [WHEN] Delete first return receipt
+        ReturnReceiptHeader[1].Delete(true);
+
+        // [THEN] Posted Return Receipt is deleted
+        VerifyPostedDocDeleted(Database::"Return Receipt Header", ReturnReceiptHeader[1].FieldName("No."), ReturnReceiptHeader[1]."No.");
+
+        // [WHEN] Delete second return receipt
+        asserterror ReturnReceiptHeader[2].Delete(true);
+
+        // [THEN] Verfiy second return receipt is not deleted
+        Assert.ExpectedError(StrSubstNo(SalesDocDeletionErr, SalesSetup."Allow Document Deletion Before"));
+        VerifyPostedDocExists(Database::"Return Receipt Header", ReturnReceiptHeader[2].FieldName("No."), ReturnReceiptHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure BatchDeleteInvoicedSalesOrderWithItemCharge()
     var
         SalesHeader: Record "Sales Header";
@@ -1353,6 +1630,47 @@ codeunit 134417 "ERM Delete Documents"
 
         // [THEN] The purchase order is deleted.
         Assert.IsFalse(PurchaseHeader.Find(), 'Purchase order is not deleted');
+    end;
+
+    [Test]
+    procedure DeletingPurchaseLineArchiveDeletesPurchaseCommentLineArchive()
+    var
+        PurchCommentLineArchive: Record "Purch. Comment Line Archive";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+    begin
+        // when deleting a purchase line archive, the corresponding purchase comment line archive should be deleted but no other purchase comment line archive
+        // incorrect filter PurchCommentLineArchive.SetRange("No.", "No."); on the OnDelete trigger of Purchase Line Archive caused issues.
+        PurchaseLineArchive."Document Type" := PurchaseLineArchive."Document Type"::Order;
+        PurchaseLineArchive."Document No." := CopyStr(LibraryRandom.RandText(MaxStrLen(PurchaseLineArchive."Document No.")), 1, MaxStrLen(PurchaseLineArchive."Document No."));
+        PurchaseLineArchive."Line No." := 10000;
+        PurchaseLineArchive."Doc. No. Occurrence" := 1;
+        PurchaseLineArchive."Version No." := 1;
+        PurchaseLineArchive."No." := CopyStr(LibraryRandom.RandText(MaxStrLen(PurchaseLineArchive."No.")), 1, MaxStrLen(PurchaseLineArchive."No."));
+        PurchaseLineArchive.Insert();
+
+        PurchCommentLineArchive."Document Type" := PurchaseLineArchive."Document Type";
+        PurchCommentLineArchive."No." := PurchaseLineArchive."Document No."; // line to be deleted
+        PurchCommentLineArchive."Document Line No." := PurchaseLineArchive."Line No.";
+        PurchCommentLineArchive."Doc. No. Occurrence" := PurchaseLineArchive."Doc. No. Occurrence";
+        PurchCommentLineArchive."Version No." := PurchaseLineArchive."Version No.";
+        PurchCommentLineArchive."Line No." := 1;
+        PurchCommentLineArchive.Insert();
+
+        PurchCommentLineArchive."Document Type" := PurchaseLineArchive."Document Type";
+        PurchCommentLineArchive."No." := PurchaseLineArchive."No."; // line should not be deleted
+        PurchCommentLineArchive."Document Line No." := PurchaseLineArchive."Line No.";
+        PurchCommentLineArchive."Doc. No. Occurrence" := PurchaseLineArchive."Doc. No. Occurrence";
+        PurchCommentLineArchive."Version No." := PurchaseLineArchive."Version No.";
+        PurchCommentLineArchive."Line No." := 1;
+        PurchCommentLineArchive.Insert();
+
+        PurchaseLineArchive.Delete(true);
+
+        // still exists
+        PurchCommentLineArchive.Get(PurchaseLineArchive."Document Type", PurchaseLineArchive."No.", PurchaseLineArchive."Doc. No. Occurrence", PurchaseLineArchive."Version No.", PurchaseLineArchive."Line No.", 1);
+        // deleted
+        asserterror PurchCommentLineArchive.Get(PurchaseLineArchive."Document Type", PurchaseLineArchive."Document No.", PurchaseLineArchive."Doc. No. Occurrence", PurchaseLineArchive."Version No.", PurchaseLineArchive."Line No.", 1);
+        Assert.AssertRecordNotFound();
     end;
 
     local procedure Initialize()
@@ -2052,6 +2370,86 @@ codeunit 134417 "ERM Delete Documents"
             SalesReceivablesSetup."Archive Quotes" := NewArchiveQuotes;
             SalesReceivablesSetup.Modify();
         end;
+    end;
+
+    local procedure MockPostedPurchaseReceipt(var PurchRcptHeader: array[2] of Record "Purch. Rcpt. Header"; PostingDate: array[2] of Date)
+    begin
+        PurchRcptHeader[1].Init();
+        PurchRcptHeader[1]."No." := LibraryUtility.GenerateRandomCode(PurchRcptHeader[1].FieldNo("No."), DATABASE::"Purch. Rcpt. Header");
+        PurchRcptHeader[1]."Posting Date" := PostingDate[1];
+        PurchRcptHeader[1].Insert();
+
+        PurchRcptHeader[2].Init();
+        PurchRcptHeader[2]."No." := LibraryUtility.GenerateRandomCode(PurchRcptHeader[2].FieldNo("No."), DATABASE::"Purch. Rcpt. Header");
+        PurchRcptHeader[2]."Posting Date" := PostingDate[2];
+        PurchRcptHeader[2].Insert();
+    end;
+
+    local procedure MockPostedReturnShipment(var ReturnShipmentHeader: array[2] of Record "Return Shipment Header"; PostingDate: array[2] of Date)
+    begin
+        ReturnShipmentHeader[1].Init();
+        ReturnShipmentHeader[1]."No." := LibraryUtility.GenerateRandomCode(ReturnShipmentHeader[1].FieldNo("No."), DATABASE::"Return Shipment Header");
+        ReturnShipmentHeader[1]."Posting Date" := PostingDate[1];
+        ReturnShipmentHeader[1].Insert();
+
+        ReturnShipmentHeader[2].Init();
+        ReturnShipmentHeader[2]."No." := LibraryUtility.GenerateRandomCode(ReturnShipmentHeader[2].FieldNo("No."), DATABASE::"Return Shipment Header");
+        ReturnShipmentHeader[2]."Posting Date" := PostingDate[2];
+        ReturnShipmentHeader[2].Insert();
+    end;
+
+    local procedure MockPostedSalesShipment(var SalesShipmentHeader: array[2] of Record "Sales Shipment Header"; PostingDate: array[2] of Date)
+    begin
+        SalesShipmentHeader[1].Init();
+        SalesShipmentHeader[1]."No." := LibraryUtility.GenerateRandomCode(SalesShipmentHeader[1].FieldNo("No."), DATABASE::"Sales Shipment Header");
+        SalesShipmentHeader[1]."Posting Date" := PostingDate[1];
+        SalesShipmentHeader[1]."No. Printed" := 1;
+        SalesShipmentHeader[1].Insert();
+
+        SalesShipmentHeader[2].Init();
+        SalesShipmentHeader[2]."No." := LibraryUtility.GenerateRandomCode(SalesShipmentHeader[2].FieldNo("No."), DATABASE::"Sales Shipment Header");
+        SalesShipmentHeader[2]."Posting Date" := PostingDate[2];
+        SalesShipmentHeader[2]."No. Printed" := 1;
+        SalesShipmentHeader[2].Insert();
+    end;
+
+    local procedure MockPostedReturnReceipt(var ReturnReceiptHeader: array[2] of Record "Return Receipt Header"; PostingDate: array[2] of Date)
+    begin
+        ReturnReceiptHeader[1].Init();
+        ReturnReceiptHeader[1]."No." := LibraryUtility.GenerateRandomCode(ReturnReceiptHeader[1].FieldNo("No."), DATABASE::"Return Receipt Header");
+        ReturnReceiptHeader[1]."Posting Date" := PostingDate[1];
+        ReturnReceiptHeader[1]."No. Printed" := 1;
+        ReturnReceiptHeader[1].Insert();
+
+        ReturnReceiptHeader[2].Init();
+        ReturnReceiptHeader[2]."No." := LibraryUtility.GenerateRandomCode(ReturnReceiptHeader[2].FieldNo("No."), DATABASE::"Return Receipt Header");
+        ReturnReceiptHeader[2]."Posting Date" := PostingDate[2];
+        ReturnReceiptHeader[2]."No. Printed" := 1;
+        ReturnReceiptHeader[2].Insert();
+    end;
+
+    local procedure VerifyPostedDocDeleted(TableId: Integer; FieldName: Text; FieldValue: Code[20])
+    var
+        DataTypeMgt: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+        FieldReference: FieldRef;
+    begin
+        RecRef.Open(TableId);
+        DataTypeMgt.FindFieldByName(RecRef, FieldReference, FieldName);
+        FieldReference.SetRange(FieldValue);
+        Assert.RecordIsEmpty(RecRef);
+    end;
+
+    local procedure VerifyPostedDocExists(TableId: Integer; FieldName: Text; FieldValue: Code[20])
+    var
+        DataTypeMgt: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+        FieldReference: FieldRef;
+    begin
+        RecRef.Open(TableId);
+        DataTypeMgt.FindFieldByName(RecRef, FieldReference, FieldName);
+        FieldReference.SetRange(FieldValue);
+        Assert.RecordIsNotEmpty(RecRef);
     end;
 
     [ModalPageHandler]

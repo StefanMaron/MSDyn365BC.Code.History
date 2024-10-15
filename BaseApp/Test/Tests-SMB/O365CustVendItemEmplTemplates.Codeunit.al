@@ -3387,7 +3387,9 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         FieldExclusionList.Add(Item.FieldNo("Last Time Modified"));
         FieldExclusionList.Add(Item.FieldNo("Picture"));
         FieldExclusionList.Add(Item.FieldNo("Application Wksh. User ID"));
+#if not CLEAN23
         FieldExclusionList.Add(Item.FieldNo("Coupled to CRM"));
+#endif
         FieldExclusionList.Add(Item.FieldNo("Low-Level Code"));
         FieldExclusionList.Add(Item.FieldNo("Last Unit Cost Calc. Date"));
         FieldExclusionList.Add(Item.FieldNo("Rolled-up Material Cost"));

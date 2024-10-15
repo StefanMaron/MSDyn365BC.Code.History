@@ -475,7 +475,7 @@ codeunit 1002 "Job Create-Invoice"
         SalesLine.Description := JobPlanningLine.Description;
         SalesLine."Description 2" := JobPlanningLine."Description 2";
         SalesLine."Line No." := GetNextLineNo(SalesLine);
-        OnBeforeInsertSalesLine(SalesLine, SalesHeader, Job, JobPlanningLine);
+        OnBeforeInsertSalesLine(SalesLine, SalesHeader, Job, JobPlanningLine, JobInvCurrency);
         SalesLine.Insert(true);
 
         if SalesLine.Type <> SalesLine.Type::" " then begin
@@ -1017,7 +1017,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnBeforeInsertSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Job: Record Job; JobPlanningLine: Record "Job Planning Line"; JobInvCurrency: Boolean)
     begin
     end;
 

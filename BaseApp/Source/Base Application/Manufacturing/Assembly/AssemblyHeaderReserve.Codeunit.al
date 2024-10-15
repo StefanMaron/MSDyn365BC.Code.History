@@ -225,12 +225,17 @@ codeunit 925 "Assembly Header-Reserve"
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
     begin
-        TrackingSpecification.InitFromAsmHeader(AssemblyHeader);
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyHeader."Due Date");
-        ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound());
-        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyHeader, ItemTrackingLines);
-        ItemTrackingLines.RunModal();
+        IsHandled := false;
+        OnBeforeCallItemTracking(AssemblyHeader, IsHandled);
+        if not IsHandled then begin
+            TrackingSpecification.InitFromAsmHeader(AssemblyHeader);
+            ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyHeader."Due Date");
+            ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound());
+            OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyHeader, ItemTrackingLines);
+            ItemTrackingLines.RunModal();
+        end;
     end;
 
     procedure DeleteLineConfirm(var AssemblyHeader: Record "Assembly Header"): Boolean
@@ -521,6 +526,11 @@ codeunit 925 "Assembly Header-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var AssemblyHeader: Record "Assembly Header"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }
