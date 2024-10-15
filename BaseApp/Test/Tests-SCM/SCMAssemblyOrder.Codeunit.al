@@ -1782,6 +1782,108 @@ codeunit 137908 "SCM Assembly Order"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
     end;
 
+    [Test]
+    procedure VerifyDefaultDimensionsOnlyHasItemsDefaultDimensions()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLineItem: Record "Assembly Line";
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        Location: Record Location;
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        // [SCENARIO 491902] Dimension Value Code in Location Dimensions Overrides the Product Specific Dimension in the Assembly Order.
+        Initialize();
+
+        // [GIVEN] Create Assembly and Component Item
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Add Default Dimension on Assembly and Component Item 
+        AddDefaultDimensionToAssemblyItem(AsmItem, DimensionValue[1]);
+        AddDefaultDimensionToAssemblyItem(CompItem, DimensionValue[2]);
+
+        // // [GIVEN] Create Location without Default Dimension
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLineItem, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [VERIFY] Verify: Default Dimension of Assembly Header should not filled on Assembly Line Default Dimension
+        VerifyAssemblyHeaderDimensionNotExistsOnAssemblyLine(AssemblyLineItem."Dimension Set ID", DimensionValue[1]);
+
+        // [THEN] Verify: Default Dimension on Assembly Line is filled with Component Item Default Dimension
+        VerifyDimensionIsNotReInitializedOnLine(AssemblyLineItem, DimensionValue[2]);
+        VerifyDimensionValue(AssemblyLineItem."Dimension Set ID", DimensionValue[2]);
+    end;
+
+    [Test]
+    procedure VerifyDefaultDimensionsOnlyHasItemAndLocationDimensions()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLineItem: Record "Assembly Line";
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: array[3] of Record "Dimension Value";
+    begin
+        // [SCENARIO 491902] Dimension Value Code in Location Dimensions Overrides the Product Specific Dimension in the Assembly Order.
+        Initialize();
+
+        // [GIVEN] Create Assembly and Component Item        
+        LibraryInventory.CreateItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Add Default Dimension on Assembly Item
+        AddDefaultDimensionToAssemblyItem(AsmItem, DimensionValue[1]);
+        AddDefaultDimensionToAssemblyItem(CompItem, DimensionValue[2]);
+
+        // [GIVEN] Create Dimension Value for Global Dimension 2
+        LibraryDimension.CreateDimensionValue(DimensionValue[3], LibraryERM.GetGlobalDimensionCode(2));
+
+        // [GIVEN] Create Location with default dimension
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension, Database::Location, Location.Code, DimensionValue[3]."Dimension Code", DimensionValue[3].Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 1, '');
+        CreateAssemblyOrderLine(AssemblyHeader, AssemblyLineItem, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [WHEN] Change Location on Assembly Line
+        AssemblyLineItem.Validate("Location Code", Location.Code);
+
+        // [VERIFY] Verify: Default Dimension of Assembly Header should not filled on Assembly Line Default Dimension
+        VerifyAssemblyHeaderDimensionNotExistsOnAssemblyLine(AssemblyLineItem."Dimension Set ID", DimensionValue[1]);
+
+        // [THEN] Verify: Default Dimension on Assembly Line is filled with Component Item and Location Default Dimension
+        VerifyDimensionValue(AssemblyLineItem."Dimension Set ID", DimensionValue[2]);
+        VerifyDimensionValue(AssemblyLineItem."Dimension Set ID", DimensionValue[3]);
+    end;
+
+    local procedure VerifyAssemblyHeaderDimensionNotExistsOnAssemblyLine(DimensionSetID: Integer; DimensionValue: Record "Dimension Value")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        Assert.IsFalse(not DimensionSetEntry.FindFirst(), NotMatchingDimensionsMsg);
+    end;
+
+    local procedure VerifyDimensionValue(DimensionSetID: Integer; DimensionValue: Record "Dimension Value")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DimensionSetEntry.FindFirst();
+        Assert.IsTrue(DimensionSetEntry."Dimension Value Code" = DimensionValue.Code, NotMatchingDimensionsMsg);
+    end;
+
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; VariantCode: Code[10])
     var
         ItemJournalBatch: Record "Item Journal Batch";
