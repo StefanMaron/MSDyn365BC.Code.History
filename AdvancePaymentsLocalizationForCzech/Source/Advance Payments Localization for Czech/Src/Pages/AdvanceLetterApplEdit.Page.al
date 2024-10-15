@@ -41,6 +41,8 @@ page 31175 "Advance Letter Appl. Edit CZZ"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
+                        OnBeforeOnLookupAdvanceLetterNo(Rec, TempAdvanceLetterApplication);
+                        
                         if Page.RunModal(Page::"Advance Letter Application CZZ", TempAdvanceLetterApplication) = Action::LookupOK then begin
                             Rec."Advance Letter Type" := TempAdvanceLetterApplication."Advance Letter Type";
                             Rec."Advance Letter No." := TempAdvanceLetterApplication."Advance Letter No.";
@@ -168,5 +170,10 @@ page 31175 "Advance Letter Appl. Edit CZZ"
                     NewAdvanceLetterApplication.Insert();
                 end;
             until Rec.Next() = 0;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnLookupAdvanceLetterNo(var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ"; var TempAdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ" temporary)
+    begin
     end;
 }

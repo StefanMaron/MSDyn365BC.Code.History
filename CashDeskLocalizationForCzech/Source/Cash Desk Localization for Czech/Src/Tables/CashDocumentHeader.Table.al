@@ -24,7 +24,6 @@ using Microsoft.Utilities;
 using System.Automation;
 using System.Reflection;
 using System.Security.AccessControl;
-using System.Security.User;
 using System.Utilities;
 
 #pragma warning disable AA0232
@@ -313,7 +312,7 @@ table 11732 "Cash Document Header CZP"
 
             trigger OnValidate()
             begin
-                if not UserSetupManagement.CheckRespCenter(3, "Responsibility Center") then
+                if not CashDeskManagementCZP.CheckResponsibilityCenter("Responsibility Center") then
                     Error(RespCenterErr, FieldCaption("Responsibility Center"), CashDeskManagementCZP.GetUserCashResponsibilityFilter(CopyStr(UserId(), 1, 50)));
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
@@ -606,7 +605,7 @@ table 11732 "Cash Document Header CZP"
         DeleteRecordInApprovalRequest();
 
         CashDeskManagementCZP.CheckCashDesks();
-        if not UserSetupManagement.CheckRespCenter(3, "Responsibility Center") then
+        if not CashDeskManagementCZP.CheckResponsibilityCenter("Responsibility Center") then
             Error(RespCenterDeleteErr, FieldCaption("Responsibility Center"), CashDeskManagementCZP.GetUserCashResponsibilityFilter(CopyStr(UserId(), 1, 50)));
 
         CashDocumentPostCZP.DeleteCashDocumentHeader(Rec);
@@ -672,7 +671,7 @@ table 11732 "Cash Document Header CZP"
 
     trigger OnModify()
     begin
-        if not UserSetupManagement.CheckRespCenter(3, "Responsibility Center") then
+        if not CashDeskManagementCZP.CheckResponsibilityCenter("Responsibility Center") then
             Error(RespCenterModifyErr, FieldCaption("Responsibility Center"), CashDeskManagementCZP.GetUserCashResponsibilityFilter(CopyStr(UserId(), 1, 50)));
     end;
 
@@ -691,7 +690,6 @@ table 11732 "Cash Document Header CZP"
         Employee: Record Employee;
         NoSeriesManagement: Codeunit NoSeriesManagement;
         DimensionManagement: Codeunit DimensionManagement;
-        UserSetupManagement: Codeunit "User Setup Management";
         ConfirmManagement: Codeunit "Confirm Management";
         CashDeskManagementCZP: Codeunit "Cash Desk Management CZP";
         RenameErr: Label 'You cannot rename a %1.', Comment = '%1 = TableCaption';

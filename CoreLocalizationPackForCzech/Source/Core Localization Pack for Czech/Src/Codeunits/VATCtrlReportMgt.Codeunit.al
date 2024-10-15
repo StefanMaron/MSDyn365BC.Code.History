@@ -907,6 +907,14 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
                         end;
                 end;
 
+                if (VATCtrlReportSectionCZL.Code in ['A4', 'B2']) and
+                   (VATCtrlReportLineCZL."Corrections for Bad Receivable" = "VAT Ctrl. Report Corect. CZL"::"Insolvency Proceedings (p.44)")
+                then begin
+                    TempVATCtrlReportBufferCZL."Base 1" := 0;
+                    TempVATCtrlReportBufferCZL."Base 2" := 0;
+                    TempVATCtrlReportBufferCZL."Base 3" := 0;
+                end;
+
                 OnBeforeModifyVATCtrlReportBufferForExport(TempVATCtrlReportBufferCZL, VATCtrlReportLineCZL);
                 TempVATCtrlReportBufferCZL.Modify();
             until VATCtrlReportLineCZL.Next() = 0;
