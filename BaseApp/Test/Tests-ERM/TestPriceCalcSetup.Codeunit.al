@@ -2355,6 +2355,25 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLine.TestField("Unit Price", ExpectedPrice);
     end;
 
+    [Test]
+    procedure T300_FindActivePricingSubscription()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        TestPriceCalcSetup: Codeunit "Test Price Calc. Setup";
+    begin
+        // [GIVEN] There is a subscription to "Price Asset - Item" 
+        BindSubscription(TestPriceCalcSetup); // to activate OnAfterGetAssetTypeHandler
+
+        // [THEN] FindActivePricingSubscription() returns Yes
+        Assert.ExpectedMessage('7020-OnAfterGetAssetTypeHandler;Manual-1;', PriceCalculationMgt.FindActiveSubscriptions());
+
+        // [GIVEN] There is no subscription to "Price Asset - Item" 
+        UnbindSubscription(TestPriceCalcSetup); // to deactivate OnAfterGetAssetTypeHandler
+
+        // [THEN] FindActivePricingSubscription() returns No
+        Assert.AreEqual('7020-OnAfterGetAssetTypeHandler;Manual-0;', PriceCalculationMgt.FindActiveSubscriptions(), 'unbound');
+    end;
+
     local procedure Initialize()
     var
         PriceCalculationSetup: Record "Price Calculation Setup";
@@ -2548,4 +2567,10 @@ codeunit 134158 "Test Price Calc. Setup"
         Vendor.Modify(true);
         exit(Vendor."No.")
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Line - Price", 'OnAfterGetAssetType', '', false, false)]
+    local procedure OnAfterGetAssetTypeHandler(SalesLine: Record "Sales Line"; var AssetType: Enum "Price Asset Type");
+    begin
+    end;
+
 }

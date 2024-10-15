@@ -230,6 +230,14 @@ page 9309 "Purchase Credit Memos"
         }
         area(factboxes)
         {
+            part(AttachedDocuments; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(38),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -614,7 +622,7 @@ page 9309 "Purchase Credit Memos"
                     ApplicationArea = Suite;
                     Caption = 'Vendor - Payment Receipt';
                     Image = "Report";
-                    RunObject = Report "Customer - Payment Receipt";
+                    RunObject = Report "Vendor - Payment Receipt";
                     ToolTip = 'View a document showing which vendor ledger entries that a payment has been applied to.';
                 }
             }
