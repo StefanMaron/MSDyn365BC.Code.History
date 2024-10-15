@@ -17,4 +17,14 @@ codeunit 1820 "Customer Consent Mgt."
         CustConsentConfirmation.RunModal();
         exit(CustConsentConfirmation.WasAgreed())
     end;
+
+    procedure ConfirmUserConsentToOpenExternalLink(): Boolean
+    var
+        CustConsentConfirmation: Page "Cust. Consent Confirmation";
+    begin
+        CustConsentConfirmation.SetOpenExternalLinkConsentText();
+        CustConsentConfirmation.LookupMode(true);
+        CustConsentConfirmation.RunModal();
+        exit(CustConsentConfirmation.WasAgreed())
+    end;
 }
