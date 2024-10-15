@@ -5075,6 +5075,8 @@ codeunit 134378 "ERM Sales Order"
 
         // [VERIFY] Verify Sales Order Quantities are updated in the sales line.
         Assert.Equal(SalesLine.Quantity, SalesLine."Outstanding Qty. (Base)");
+
+        LibraryWorkflow.DeleteAllExistingWorkflows();
     end;
 
     [Test]
@@ -5172,6 +5174,53 @@ codeunit 134378 "ERM Sales Order"
 
         // [VERIFY] Verify Unit Price of Credit Memo Sales Line and Expected Unit Price are same.
         Assert.AreEqual(ExpectedUnitPrice, SalesLine2."Unit Price", UnitPriceMustMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VerifySalesOrderUpdatedAfterCorrectPostedSalesInvoice()
+    var
+        SalesLine: array[3] of Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        PostedSalesInvoices: TestPage "Posted Sales Invoices";
+    begin
+        // [SCENARIO 494700] Verify partially posted Sales Order updated correctly after posting Corrective Credit memo.
+        Initialize();
+
+        // [GIVEN] Create Sales Document.
+        CreateSalesDocument(SalesHeader, SalesLine[1], SalesHeader."Document Type"::Order, CreateCustomer(), CreateItem());
+
+        // [GIVEN] Create Sales Line 2
+        CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, CreateItem(), LibraryRandom.RandDec(20, 2), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Create Sales Line 3
+        CreateSalesLine(SalesLine[3], SalesHeader, SalesLine[3].Type::Item, CreateItem(), LibraryRandom.RandDec(20, 2), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Update Qty To Ship in Sales Line 1
+        SalesLine[1].Validate("Qty. to Ship", LibraryRandom.RandIntInRange(1, 2));
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Update Qty To Ship in Sales Line 2
+        SalesLine[2].Validate("Qty. to Ship", LibraryRandom.RandIntInRange(1, 2));
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Post the partial sales order.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Create Corrective Credit Memo
+        SalesCreditMemo.Trap();
+        PostedSalesInvoices.OpenView();
+        PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
+        PostedSalesInvoices.CreateCreditMemo.Invoke();
+
+        // [WHEN] Post the Corrective Credit Memo
+        SalesCreditMemo.Post.Invoke();
+
+        // [VERIFY] Verify Sales Order Quantities are updated in the sales line.
+        VerifySalesOrderAfterPostCorrectiveCreditMemo(SalesHeader."No.");
     end;
 
     local procedure Initialize()
@@ -7245,6 +7294,22 @@ codeunit 134378 "ERM Sales Order"
         SalesLine.Modify(true);
 
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure VerifySalesOrderAfterPostCorrectiveCreditMemo(SalesHeaderNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.FindSet();
+        repeat
+            Assert.Equal(SalesLine.Quantity, SalesLine."Outstanding Qty. (Base)");
+            Assert.Equal(SalesLine."Qty. Invoiced (Base)", 0);
+            Assert.Equal(SalesLine."Qty. to Invoice", SalesLine.Quantity);
+            Assert.Equal(SalesLine."Qty. to Ship", SalesLine.Quantity);
+            Assert.Equal(SalesLine."Qty. Shipped (Base)", 0);
+        until SalesLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
