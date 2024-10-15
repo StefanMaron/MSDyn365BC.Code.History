@@ -4406,7 +4406,7 @@
         if IsHandled then
             exit;
 
-        if "Prepmt. Amt. Inv." <> 0 then
+        if ("Prepmt. Amt. Inv." <> 0) and (Rec."VAT Prod. Posting Group" <> xRec."VAT Prod. Posting Group") then
             Error(CannotChangeVATGroupWithPrepmInvErr);
     end;
 

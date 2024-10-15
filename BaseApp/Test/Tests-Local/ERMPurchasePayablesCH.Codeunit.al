@@ -47,6 +47,42 @@ codeunit 144049 "ERM Purchase Payables CH"
         PurchaseLine.TestField("Amount Including VAT", ExpectedAmountInclVAT);
     end;
 
+    [Test]
+    procedure UpdatePurchaseOrderExpectedReceiptDateAfterPostingPrepayment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Prepayment] [Receipt Date]
+        // [SCENARIO 404747] Purchase Order "Expected Receipt Date" can be changed after posting prepayment invoice
+
+        // [GIVEN] Purchase order with prepayment
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Expected Receipt Date", WorkDate());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandInt(100));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post prepayment invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Reopen the order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Modify "Expected Receipt Date"
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Expected Receipt Date", PurchaseHeader."Expected Receipt Date" + 1);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Expected Receipt Date" has been updated
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Expected Receipt Date", PurchaseHeader."Expected Receipt Date");
+    end;
+
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DocumentType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);

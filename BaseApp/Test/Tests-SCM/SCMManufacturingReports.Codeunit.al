@@ -1080,6 +1080,40 @@ codeunit 137304 "SCM Manufacturing Reports"
         Assert.ExpectedError(StrSubstNo(ElementNotFoundErr, ChildItem."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ProdOrderShortageListRequestPageHandler')]
+    procedure NonInventoryItemsNotShownInProdOrderShortageListReport()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        NonInvtCompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Prod. Order - Shortage List]
+        // [SCENARIO 398308] Non-inventory items are not shown in Prod. Order - Shortage List report.
+        Initialize();
+
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtCompItem);
+
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, CompItem."No.", NonInvtCompItem."No.", 1);
+
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.");
+
+        ProductionOrder.SetRecFilter();
+        REPORT.Run(REPORT::"Prod. Order - Shortage List", true, false, ProductionOrder);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('ItemNo_ProdOrderComp', CompItem."No.");
+        LibraryReportDataset.AssertElementTagWithValueNotExist('ItemNo_ProdOrderComp', NonInvtCompItem."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -89,7 +89,7 @@
         RestrictedRecord.DeleteAll(true);
     end;
 
-    local procedure UpdateRestriction(RecVar: Variant; xRecVar: Variant)
+    procedure UpdateRestriction(RecVar: Variant; xRecVar: Variant)
     var
         RestrictedRecord: Record "Restricted Record";
         RecRef: RecordRef;

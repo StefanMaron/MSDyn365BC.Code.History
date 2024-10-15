@@ -32,7 +32,7 @@ table 480 "Dimension Set Entry"
         {
             Caption = 'Dimension Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
 
             trigger OnValidate()
             begin
