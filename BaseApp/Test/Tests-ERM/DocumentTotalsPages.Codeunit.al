@@ -43,7 +43,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote);
 
         SalesQuote.OpenEdit();
-        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
 
         SalesQuote.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -53,11 +53,11 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesQuote."Currency Code".AssistEdit;
+        SalesQuote."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         SalesInvoice.OpenEdit();
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         SalesInvoice.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -87,7 +87,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesInvoice."Currency Code".AssistEdit;
+        SalesInvoice."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -97,12 +97,29 @@ codeunit 134344 "Document Totals Pages"
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        SalesInvoice.Release.Invoke;
+        SalesInvoice.Release.Invoke();
         SalesInvoice."Posting Date".SetValue(SalesInvoice."Posting Date".AsDate + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        SalesInvoice.Reopen.Invoke();
+        SalesInvoice.Close();
+
+        DeleteAllLinesFromSalesDocument(SalesHeader);
+        CreateSalesLine(SalesHeader);
+        CreateSalesLine(SalesHeader);
+
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        SalesInvoice."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -122,7 +139,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Order);
 
         SalesOrder.OpenEdit();
-        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         SalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -132,7 +149,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesOrder."Currency Code".AssistEdit;
+        SalesOrder."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -142,12 +159,30 @@ codeunit 134344 "Document Totals Pages"
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        SalesOrder.Release.Invoke;
+        SalesOrder.Release.Invoke();
         SalesOrder."Posting Date".SetValue(SalesOrder."Posting Date".AsDate + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        SalesOrder.Reopen.Invoke();
+        SalesOrder.Close();
+
+        DeleteAllLinesFromSalesDocument(SalesHeader);
+        CreateSalesLine(SalesHeader);
+        CreateSalesLine(SalesHeader);
+
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesOrder."Currency Code".AssistEdit();
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -167,7 +202,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
         SalesCreditMemo.OpenEdit();
-        SalesCreditMemo.GotoRecord(SalesHeader);
+        SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
 
         SalesCreditMemo.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -177,7 +212,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesCreditMemo."Currency Code".AssistEdit;
+        SalesCreditMemo."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -187,12 +222,29 @@ codeunit 134344 "Document Totals Pages"
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        SalesCreditMemo.Release.Invoke;
+        SalesCreditMemo.Release.Invoke();
         SalesCreditMemo."Posting Date".SetValue(SalesCreditMemo."Posting Date".AsDate + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        SalesCreditMemo.Reopen.Invoke();
+        SalesCreditMemo.Close();
+
+        DeleteAllLinesFromSalesDocument(SalesHeader);
+        CreateSalesLine(SalesHeader);
+        CreateSalesLine(SalesHeader);
+
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        SalesCreditMemo."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -212,7 +264,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         SalesReturnOrder.OpenEdit();
-        SalesReturnOrder.GotoRecord(SalesHeader);
+        SalesReturnOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         SalesReturnOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -222,7 +274,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesReturnOrder."Currency Code".AssistEdit;
+        SalesReturnOrder."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -232,12 +284,29 @@ codeunit 134344 "Document Totals Pages"
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        SalesReturnOrder.Release.Invoke;
+        SalesReturnOrder.Release.Invoke();
         SalesReturnOrder."Posting Date".SetValue(SalesReturnOrder."Posting Date".AsDate + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        SalesReturnOrder.Reopen.Invoke();
+        SalesReturnOrder.Close();
+
+        DeleteAllLinesFromSalesDocument(SalesHeader);
+        CreateSalesLine(SalesHeader);
+        CreateSalesLine(SalesHeader);
+
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        SalesReturnOrder."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -257,7 +326,7 @@ codeunit 134344 "Document Totals Pages"
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
 
         BlanketSalesOrder.OpenEdit();
-        BlanketSalesOrder.GotoRecord(SalesHeader);
+        BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -267,11 +336,11 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        BlanketSalesOrder."Currency Code".AssistEdit;
+        BlanketSalesOrder."Currency Code".AssistEdit();
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -291,7 +360,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
 
         PurchaseQuote.OpenEdit();
-        PurchaseQuote.GotoRecord(PurchaseHeader);
+        PurchaseQuote.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
@@ -301,11 +370,11 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseQuote."Currency Code".AssistEdit;
+        PurchaseQuote."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -325,7 +394,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseInvoice.PurchLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
@@ -335,7 +404,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseInvoice."Currency Code".AssistEdit;
+        PurchaseInvoice."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -350,7 +419,24 @@ codeunit 134344 "Document Totals Pages"
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        PurchaseInvoice.Reopen.Invoke();
+        PurchaseInvoice.Close();
+
+        DeleteAllLinesFromPurchaseDocument(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        PurchaseInvoice."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -370,7 +456,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         PurchaseOrder.OpenEdit();
-        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
@@ -380,7 +466,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseOrder."Currency Code".AssistEdit;
+        PurchaseOrder."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -390,12 +476,30 @@ codeunit 134344 "Document Totals Pages"
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        PurchaseOrder.Release.Invoke;
+        PurchaseOrder.Release.Invoke();
         PurchaseOrder."Posting Date".SetValue(PurchaseOrder."Posting Date".AsDate + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        PurchaseOrder.Reopen.Invoke();
+        PurchaseOrder.Close();
+
+        DeleteAllLinesFromPurchaseDocument(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseOrder."Currency Code".AssistEdit();
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -415,7 +519,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
         PurchaseCreditMemo.OpenEdit();
-        PurchaseCreditMemo.GotoRecord(PurchaseHeader);
+        PurchaseCreditMemo.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
@@ -425,7 +529,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseCreditMemo."Currency Code".AssistEdit;
+        PurchaseCreditMemo."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -435,12 +539,29 @@ codeunit 134344 "Document Totals Pages"
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        PurchaseCreditMemo.Release.Invoke;
+        PurchaseCreditMemo.Release.Invoke();
         PurchaseCreditMemo."Posting Date".SetValue(PurchaseCreditMemo."Posting Date".AsDate + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        PurchaseCreditMemo.Reopen.Invoke();
+        PurchaseCreditMemo.Close();
+
+        DeleteAllLinesFromPurchaseDocument(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        PurchaseCreditMemo."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -460,7 +581,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         PurchaseReturnOrder.OpenEdit();
-        PurchaseReturnOrder.GotoRecord(PurchaseHeader);
+        PurchaseReturnOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
@@ -470,7 +591,7 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseReturnOrder."Currency Code".AssistEdit;
+        PurchaseReturnOrder."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -485,7 +606,24 @@ codeunit 134344 "Document Totals Pages"
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        // Bug 412765:
+        PurchaseReturnOrder.Reopen.Invoke();
+        PurchaseReturnOrder.Close();
+
+        DeleteAllLinesFromPurchaseDocument(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+        CreatePurchaseLine(PurchaseHeader);
+
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        PurchaseReturnOrder."Posting Date".SetValue(LibraryRandom.RandDate(5));
+
+        VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, 0);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -505,7 +643,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
 
         BlanketPurchaseOrder.OpenEdit();
-        BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
+        BlanketPurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
@@ -515,11 +653,11 @@ codeunit 134344 "Document Totals Pages"
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(10, 20, 2));
-        BlanketPurchaseOrder."Currency Code".AssistEdit;
+        BlanketPurchaseOrder."Currency Code".AssistEdit();
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -540,7 +678,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         SalesQuote.OpenEdit();
-        SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesQuote.SalesLines.Next, 'Stan must be able to go to next line');
@@ -567,7 +705,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         SalesOrder.OpenEdit();
-        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesOrder.SalesLines.Next, 'Stan must be able to go to next line');
@@ -594,7 +732,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         SalesInvoice.OpenEdit();
-        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesInvoice.SalesLines.Next, 'Stan must be able to go to next line');
@@ -621,7 +759,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         SalesCreditMemo.OpenEdit();
-        SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesCreditMemo.SalesLines.Next, 'Stan must be able to go to next line');
@@ -648,7 +786,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         SalesReturnOrder.OpenEdit();
-        SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesReturnOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesReturnOrder.SalesLines.Next, 'Stan must be able to go to next line');
@@ -675,7 +813,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
 
         BlanketSalesOrder.OpenEdit();
-        BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(BlanketSalesOrder.SalesLines.Next, 'Stan must be able to go to next line');
@@ -703,7 +841,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
         PurchaseQuote.OpenEdit();
-        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuote.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseQuote.PurchLines."No.".SetValue(Item."No.");
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -733,7 +871,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         PurchaseOrder.OpenEdit();
-        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -763,7 +901,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
         PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -793,7 +931,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
         PurchaseCreditMemo.OpenEdit();
-        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemo.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -823,7 +961,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         PurchaseReturnOrder.OpenEdit();
-        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseReturnOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseReturnOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -853,7 +991,7 @@ codeunit 134344 "Document Totals Pages"
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order");
 
         BlanketPurchaseOrder.OpenEdit();
-        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        BlanketPurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         BlanketPurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandIntInRange(2, 5));
@@ -883,7 +1021,7 @@ codeunit 134344 "Document Totals Pages"
 
         // [GIVEN] Sales Order is opened on Sales Order page.
         SalesOrder.OpenEdit();
-        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Sales Order page.
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
@@ -913,7 +1051,7 @@ codeunit 134344 "Document Totals Pages"
 
         // [GIVEN] Purchase Order is opened on Purchase Order page.
         PurchaseOrder.OpenEdit();
-        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Purchase Order page.
         LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
@@ -1386,7 +1524,7 @@ codeunit 134344 "Document Totals Pages"
         LibraryVariableStorage.Enqueue(Round(MaxAllowedVATDifference / 3));
 
         SalesInvoicePage.OpenEdit();
-        SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoicePage.Filter.SetFilter("No.", SalesHeader."No.");
 
         ExpectedVATAmount :=
           Round((SalesLineItem.CalcLineAmount() + SalesLineGLAccount.CalcLineAmount()) * VATPostingSetup."VAT %" / 100) +
@@ -1474,7 +1612,7 @@ codeunit 134344 "Document Totals Pages"
         LibraryVariableStorage.Enqueue(Round(MaxAllowedVATDifference / 3));
 
         PurchaseInvoicePage.OpenEdit();
-        PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         ExpectedVATAmount :=
           Round((PurchaseLineItem.CalcLineAmount() + PurchaseLineGLAccount.CalcLineAmount()) * VATPostingSetup."VAT %" / 100) +
@@ -1534,7 +1672,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Sales Quote is opened on Sales Quote page.
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
         SalesQuote.OpenEdit();
-        SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         SalesQuote.Release.Invoke();
@@ -1563,7 +1701,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Sales Order is opened on Sales Order page.
         LibrarySales.CreateSalesOrder(SalesHeader);
         SalesOrder.OpenEdit();
-        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         SalesOrder.Release.Invoke();
@@ -1592,7 +1730,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Sales Invoice is opened on Sales Invoice page.
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesInvoice.OpenEdit();
-        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         SalesInvoice.Release.Invoke();
@@ -1621,7 +1759,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Sales Credit Memo is opened on Sales Credit Memo page.
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
         SalesCreditMemo.OpenEdit();
-        SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         SalesCreditMemo.Release.Invoke();
@@ -1652,7 +1790,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         BlanketSalesOrder.OpenEdit();
-        BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         BlanketSalesOrder.Release.Invoke();
@@ -1683,7 +1821,7 @@ codeunit 134344 "Document Totals Pages"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesReturnOrder.OpenEdit();
-        SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesReturnOrder.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         SalesReturnOrder.Release.Invoke();
@@ -1712,7 +1850,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Purchase Quote is opened on Purchase Quote page.
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
         PurchaseQuote.OpenEdit();
-        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuote.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         PurchaseQuote.Release.Invoke();
@@ -1741,7 +1879,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Purchase Order is opened on Purchase Order page.
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         PurchaseOrder.OpenEdit();
-        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         PurchaseOrder.Release.Invoke();
@@ -1770,7 +1908,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Purchase Invoice is opened on Purchase Invoice page.
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseInvoice.OpenEdit();
-        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         PurchaseInvoice."Re&lease".Invoke();
@@ -1799,7 +1937,7 @@ codeunit 134344 "Document Totals Pages"
         // [GIVEN] Purchase Credit Memo is opened on Purchase Credit Memo page.
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
         PurchaseCreditMemo.OpenEdit();
-        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemo.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         PurchaseCreditMemo.Release.Invoke();
@@ -1830,7 +1968,7 @@ codeunit 134344 "Document Totals Pages"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         BlanketPurchaseOrder.OpenEdit();
-        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        BlanketPurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         BlanketPurchaseOrder.Release.Invoke();
@@ -1861,7 +1999,7 @@ codeunit 134344 "Document Totals Pages"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseReturnOrder.OpenEdit();
-        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseReturnOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
         PurchaseReturnOrder."Re&lease".Invoke();
@@ -1926,6 +2064,36 @@ codeunit 134344 "Document Totals Pages"
           Vendor, LibraryRandom.RandDecInDecimalRange(10, 20, 2), LibraryRandom.RandDecInDecimalRange(10, 20, 2));
     end;
 
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header")
+    begin
+        CreateSalesLineWithAmount(SalesHeader, 1, LibraryRandom.RandDecInRange(10, 20, 2));
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header")
+    begin
+        CreatePurchaseLineWithAmount(PurchaseHeader, 1, LibraryRandom.RandDecInRange(10, 20, 2));
+    end;
+
+    local procedure CreateSalesLineWithAmount(var SalesHeader: Record "Sales Header"; LineQuantity: Decimal; LinePrice: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        SalesLine.Validate("Unit Price", LinePrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLineWithAmount(var PurchaseHeader: Record "Purchase Header"; LineQuantity: Decimal; LineCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", LineCost);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreateItemWithExtendedText(var Item: Record Item)
     var
         ExtendedTextHeader: Record "Extended Text Header";
@@ -1943,8 +2111,6 @@ codeunit 134344 "Document Totals Pages"
     end;
 
     local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
-    var
-        SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
 
@@ -1955,27 +2121,20 @@ codeunit 134344 "Document Totals Pages"
         SalesHeader.SetHideValidationDialog(false);
         SalesHeader.Modify(true);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
-        SalesLine.Modify(true);
+        CreateSalesLineWithAmount(SalesHeader, 1, LibraryRandom.RandDecInRange(10, 20, 2));
+
+        SalesHeader.CalcFields(Amount);
     end;
 
     local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; Type: Enum "Sales Document Type"; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
-    var
-        SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, Type, LibrarySales.CreateCustomerNo());
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', Qty1);
-        SalesLine.Validate("Unit Price", UnitPrice1);
-        SalesLine.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', Qty2);
-        SalesLine.Validate("Unit Price", UnitPrice2);
-        SalesLine.Modify(true);
+
+        CreateSalesLineWithAmount(SalesHeader, Qty1, UnitPrice1);
+        CreateSalesLineWithAmount(SalesHeader, Qty2, UnitPrice2);
     end;
 
     local procedure CreatePurchaseHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
-    var
-        PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
 
@@ -1986,24 +2145,17 @@ codeunit 134344 "Document Totals Pages"
         PurchaseHeader.SetHideValidationDialog(false);
         PurchaseHeader.Modify(true);
 
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
-        PurchaseLine.Modify(true);
+        CreatePurchaseLineWithAmount(PurchaseHeader, 1, LibraryRandom.RandDecInRange(10, 20, 2));
 
         PurchaseHeader.CalcFields(Amount);
     end;
 
     local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Document type"; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
-    var
-        PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, LibraryPurchase.CreateVendorNo());
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', Qty1);
-        PurchaseLine.Validate("Direct Unit Cost", UnitPrice1);
-        PurchaseLine.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', Qty2);
-        PurchaseLine.Validate("Direct Unit Cost", UnitPrice2);
-        PurchaseLine.Modify(true);
+
+        CreatePurchaseLineWithAmount(PurchaseHeader, Qty1, UnitPrice1);
+        CreatePurchaseLineWithAmount(PurchaseHeader, Qty2, UnitPrice2);
     end;
 
     local procedure CreateSalesLineWithVATPostingSetupAndAmount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; UnitPrice: Decimal)
@@ -2069,6 +2221,32 @@ codeunit 134344 "Document Totals Pages"
     begin
         ChangeExchangeRate.CurrentExchRate.SetValue(LibraryVariableStorage.DequeueDecimal());
         ChangeExchangeRate.OK.Invoke();
+    end;
+
+    local procedure DeleteAllLinesFromSalesDocument(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.Find();
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.DeleteAll(true);
+
+        SalesHeader.Find();
+    end;
+
+    local procedure DeleteAllLinesFromPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseHeader.Find();
+
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.DeleteAll(true);
+
+        PurchaseHeader.Find();
     end;
 
     local procedure VerifySalesHeaderInvoiceDiscountAmount(var SalesHeader: Record "Sales Header"; InvoiceDiscountAmount: Decimal)

@@ -12,6 +12,8 @@
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         ReminderCommentLine: Record "Reminder Comment Line";
         IsHandled: Boolean;
+        DimSetIDArr: array[10] of Integer;
+        DummyGlobalDimCode: Code[20];
     begin
         IsHandled := false;
         OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedReminderHeader);
@@ -93,7 +95,11 @@
                     GenJnlLine2 := GenJnlLine;
                     GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                     GenJnlLine2."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                    GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
+                    DimSetIDArr[1] := "Dimension Set ID";
+                    DimSetIDArr[2] := GenJnlLine."Dimension Set ID";
+                    GenJnlLine2."Dimension Set ID" :=
+                        DimMgt.GetCombinedDimensionSetID(
+                            DimSetIDArr, DummyGlobalDimCode, DummyGlobalDimCode);
                     OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
                     GenJnlPostLine.Run(GenJnlLine2);
                     OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
