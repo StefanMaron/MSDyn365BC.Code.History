@@ -124,6 +124,7 @@ page 1853 "Sales Forecast Setup Card"
                 Promoted = true;
                 PromotedIsBig = true;
                 PromotedOnly = true;
+                PromotedCategory = Process;
                 ToolTip = 'Setup scheduled forecasting of item sales';
 
                 trigger OnAction()
@@ -142,6 +143,7 @@ page 1853 "Sales Forecast Setup Card"
                 Promoted = true;
                 PromotedIsBig = true;
                 PromotedOnly = true;
+                PromotedCategory = Process;
                 ToolTip = 'Update forecast for all items';
 
                 trigger OnAction()
@@ -162,6 +164,8 @@ page 1853 "Sales Forecast Setup Card"
                 Gesture = None;
                 Image = LinkWeb;
                 Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
                 ToolTip = 'Explore models for Azure Machine Learning, and use Azure Machine Learning Studio to build, test, and deploy the Forecasting Model for Microsoft Dynamics 365.';
 
                 trigger OnAction()

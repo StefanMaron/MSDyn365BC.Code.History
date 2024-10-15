@@ -1,9 +1,13 @@
+#if not CLEAN19
 /// <summary>
 /// Contains methods for interacting with/opening the SmartList Designer 
 /// </summary>
 codeunit 888 "SmartList Designer"
 {
     Access = Public;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not available in Business Central. This codeunit will be removed or marked as internal.';
+    ObsoleteTag = '19.0';
 
     /// <summary>
     /// Check if the provided user has been granted access to the
@@ -72,3 +76,4 @@ codeunit 888 "SmartList Designer"
         exit(SmartListDesignerImpl.IsDesignerEnabled());
     end;
 }
+#endif

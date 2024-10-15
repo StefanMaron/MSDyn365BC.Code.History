@@ -596,109 +596,6 @@ codeunit 139500 "MS - PayPal Standard Tests"
     end;
 
     [Test]
-    [HandlerFunctions('SalesInvoiceReportRequestPageHandler,MessageHandler,ConsentConfirmYes')]
-    procedure TestSalesInvoiceReportSingleInvoice();
-    var
-        TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
-        MSPayPalStandardAccount: Record "MS - PayPal Standard Account";
-        DummyPaymentMethod: Record "Payment Method";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary;
-    begin
-        Initialize();
-
-        // Setup
-        CreateDefaultPayPalStandardAccount(MSPayPalStandardAccount);
-        CreatePaymentMethod(DummyPaymentMethod, FALSE);
-        CreateAndPostSalesInvoice(SalesInvoiceHeader, DummyPaymentMethod);
-        TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument, SalesInvoiceHeader);
-
-        TempPaymentReportingArgument.SetRange("Payment Service ID", TempPaymentReportingArgument.GetPayPalServiceID());
-        TempPaymentReportingArgument.FindFirst();
-
-        // Exercise
-        SalesInvoiceHeader.SETRECFILTER();
-        COMMIT();
-        REPORT.RUN(REPORT::"Sales - Invoice", TRUE, FALSE, SalesInvoiceHeader);
-
-        // Verify
-        VerifyPaymentServiceIsInReportDataset(TempPaymentReportingArgument);
-        VerifyPayPalURL(TempPaymentReportingArgument, MSPayPalStandardAccount, SalesInvoiceHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceReportRequestPageHandler,MessageHandler,ConsentConfirmYes')]
-    procedure TestSalesInvoiceReportMultipleInvoices();
-    var
-        TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
-        MSPayPalStandardAccount: Record "MS - PayPal Standard Account";
-        DummyPaymentMethod: Record "Payment Method";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceHeader2: Record "Sales Invoice Header";
-        TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary;
-        TempPaymentReportingArgument2: Record "Payment Reporting Argument" temporary;
-    begin
-        Initialize();
-        SalesInvoiceHeader.DELETEALL();
-
-        // Setup
-        CreateDefaultPayPalStandardAccount(MSPayPalStandardAccount);
-        CreatePaymentMethod(DummyPaymentMethod, FALSE);
-        CreateAndPostSalesInvoice(SalesInvoiceHeader, DummyPaymentMethod);
-        CreateAndPostSalesInvoice(SalesInvoiceHeader2, DummyPaymentMethod);
-        TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument, SalesInvoiceHeader);
-        TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument2, SalesInvoiceHeader2);
-
-        TempPaymentReportingArgument.SetRange("Payment Service ID", TempPaymentReportingArgument.GetPayPalServiceID());
-        TempPaymentReportingArgument.FindFirst();
-
-        TempPaymentReportingArgument2.SetRange("Payment Service ID", TempPaymentReportingArgument2.GetPayPalServiceID());
-        TempPaymentReportingArgument2.FindFirst();
-
-        // Exercise
-        SalesInvoiceHeader.SETFILTER("No.", '%1..%2', SalesInvoiceHeader."No.", SalesInvoiceHeader2."No.");
-        COMMIT();
-        REPORT.RUN(REPORT::"Sales - Invoice", TRUE, FALSE, SalesInvoiceHeader);
-
-        // Verify
-        VerifyPaymentServiceIsInReportDataset(TempPaymentReportingArgument);
-        VerifyPaymentServiceIsInReportDataset(TempPaymentReportingArgument2);
-
-        VerifyPayPalURL(TempPaymentReportingArgument, MSPayPalStandardAccount, SalesInvoiceHeader);
-        VerifyPayPalURL(TempPaymentReportingArgument2, MSPayPalStandardAccount, SalesInvoiceHeader2);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceReportRequestPageHandler,MessageHandler,ConsentConfirmYes')]
-    procedure TestSalesInvoiceReportChangeTargetURL();
-    var
-        TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
-        MSPayPalStandardAccount: Record "MS - PayPal Standard Account";
-        DummyPaymentMethod: Record "Payment Method";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary;
-    begin
-        Initialize();
-
-        // Setup
-        CreateDefaultPayPalStandardAccount(MSPayPalStandardAccount);
-        MSPayPalStandardAccount.SetTargetURL(NewTargetURLTxt);
-        CreatePaymentMethod(DummyPaymentMethod, FALSE);
-        CreateAndPostSalesInvoice(SalesInvoiceHeader, DummyPaymentMethod);
-        TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument, SalesInvoiceHeader);
-
-        // Exercise
-        COMMIT();
-        SalesInvoiceHeader.SETRECFILTER();
-        REPORT.RUN(REPORT::"Sales - Invoice", TRUE, FALSE, SalesInvoiceHeader);
-
-        // Verify
-        VerifyPaymentServiceIsInReportDataset(TempPaymentReportingArgument);
-        TempPaymentReportingArgument.FINDFIRST();
-        VerifyPayPalURL(TempPaymentReportingArgument, MSPayPalStandardAccount, SalesInvoiceHeader);
-    end;
-
-    [Test]
     [HandlerFunctions('EMailDialogHandler,MessageHandler,ConsentConfirmYes')]
     procedure TestCoverLetterPaymentLinkSMTPSetup(); // To be removed together with deprecated SMTP objects
     var
@@ -1248,7 +1145,7 @@ codeunit 139500 "MS - PayPal Standard Tests"
 
         GetCustomBodyLayout(CustomReportLayout);
 
-	ReportSelections.Reset();
+        ReportSelections.Reset();
         ReportSelections.SetRange(Usage, NativeReports.PostedSalesInvoiceReportId());
         ReportSelections.FINDFIRST();
         ReportSelections.VALIDATE("Use for Email Attachment", TRUE);
@@ -1548,15 +1445,6 @@ codeunit 139500 "MS - PayPal Standard Tests"
         SelectPaymentService.OK().INVOKE();
     end;
 
-    [RequestPageHandler]
-    procedure SalesInvoiceReportRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice");
-    var
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
-    begin
-        DatasetFileName := LibraryReportDataset.GetFileName();
-        SalesInvoice.SAVEASXML(LibraryReportDataset.GetParametersFileName(), DatasetFileName);
-    end;
-
     [ConfirmHandler]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean);
     begin
@@ -1592,7 +1480,7 @@ codeunit 139500 "MS - PayPal Standard Tests"
     [Scope('OnPrem')]
     procedure ConsentConfirmYes(var CustConsentConfirmation: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfirmation.Yes().Invoke();
+        CustConsentConfirmation.Accept.Invoke();
     end;
 
     local procedure BindActiveDirectoryMockEvents();

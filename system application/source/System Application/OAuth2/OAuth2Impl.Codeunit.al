@@ -730,6 +730,11 @@ codeunit 502 OAuth2Impl
         IdToken := CompoundToken.IdToken;
     end;
 
+    procedure GetLastErrorMessage(): Text
+    begin
+        exit(AuthFlow.LastErrorMessage());
+    end;
+
     [NonDebuggable]
     local procedure Initialize(RedirectURL: Text)
     var

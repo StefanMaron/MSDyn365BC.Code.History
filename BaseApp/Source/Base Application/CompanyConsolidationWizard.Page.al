@@ -99,17 +99,17 @@ page 1826 "Company Consolidation Wizard"
                         trigger OnAssistEdit()
                         var
                             SelectedCompany: Record Company;
-                            AllowedCompanies: Page "Allowed Companies";
+                            AccessibleCompanies: Page "Accessible Companies";
                         begin
-                            AllowedCompanies.Initialize;
+                            AccessibleCompanies.Initialize();
 
                             if SelectedCompany.Get(CompanyName) then
-                                AllowedCompanies.SetRecord(SelectedCompany);
+                                AccessibleCompanies.SetRecord(SelectedCompany);
 
-                            AllowedCompanies.LookupMode(true);
+                            AccessibleCompanies.LookupMode(true);
 
-                            if AllowedCompanies.RunModal = ACTION::LookupOK then begin
-                                AllowedCompanies.GetRecord(SelectedCompany);
+                            if AccessibleCompanies.RunModal() = Action::LookupOK then begin
+                                AccessibleCompanies.GetRecord(SelectedCompany);
                                 SelectCompanyName := SelectedCompany.Name;
                                 ConsolidatedCompany := SelectCompanyName;
                             end;

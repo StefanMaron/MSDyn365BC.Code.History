@@ -1,5 +1,5 @@
 /// <summary>
-/// Persists information about the reports that Business Central has uploaded to Power BI, by user.
+/// Persists information about the reports that Business Central has uploaded to the user's Power BI personal workspace.
 /// </summary>
 table 6307 "Power BI Report Uploads"
 {
@@ -48,16 +48,12 @@ table 6307 "Power BI Report Uploads"
         }
         field(7; "Embed Url"; Text[250])
         {
-#if not CLEAN16
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'The field has been extended to a bigger field. Use "Report Embed Url" field instead.';
             Caption = 'Embed Url';
             DataClassification = CustomerContent;
             Description = 'URL to cache when selecting the reporting.';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(8; "Should Retry"; Boolean)
         {
@@ -103,4 +99,3 @@ table 6307 "Power BI Report Uploads"
     {
     }
 }
-

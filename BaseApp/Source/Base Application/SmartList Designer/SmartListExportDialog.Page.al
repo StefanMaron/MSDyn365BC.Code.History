@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 9894 "SmartList Export Dialog"
 {
     Caption = 'SmartList Export';
     Extensible = false;
     PageType = StandardDialog;
     UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -43,3 +47,4 @@ page 9894 "SmartList Export Dialog"
     var
         Filename: Text[250];
 }
+#endif

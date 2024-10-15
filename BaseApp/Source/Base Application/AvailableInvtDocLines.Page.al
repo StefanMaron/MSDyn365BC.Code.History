@@ -168,8 +168,6 @@ page 6873 "Available - Invt. Doc. Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
@@ -179,6 +177,10 @@ page 6873 "Available - Invt. Doc. Lines"
         FullyReservedErr: Label 'Fully reserved.';
         CancelReservationQst: Label 'Do you want to cancel the reservation?';
         AvailableQuantityErr: Label 'Available Quantity is %1.', Comment = '%1 - quantity';
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -256,7 +258,7 @@ page 6873 "Available - Invt. Doc. Lines"
         ReservMgt.SetReservSource(SourceRecRef, ReservEntry.GetTransferDirection());
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
         Rec.SetReservationFilters(ReservEntry2);

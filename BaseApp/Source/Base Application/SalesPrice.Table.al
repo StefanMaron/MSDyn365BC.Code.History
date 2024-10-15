@@ -1,10 +1,15 @@
 table 7002 "Sales Price"
 {
     Caption = 'Sales Price';
+#if not CLEAN19
     LookupPageID = "Sales Prices";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {
@@ -14,6 +19,7 @@ table 7002 "Sales Price"
             NotBlank = true;
             TableRelation = Item;
 
+#if not CLEAN19
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -37,10 +43,12 @@ table 7002 "Sales Price"
 
                 UpdateValuesFromItem;
             end;
+#endif
         }
         field(2; "Sales Code"; Code[20])
         {
             Caption = 'Sales Code';
+#if not CLEAN19
             TableRelation = IF ("Sales Type" = CONST("Customer Price Group")) "Customer Price Group"
             ELSE
             IF ("Sales Type" = CONST(Customer)) Customer
@@ -78,6 +86,7 @@ table 7002 "Sales Price"
                             end;
                     end;
             end;
+#endif
         }
         field(3; "Currency Code"; Code[10])
         {
@@ -126,6 +135,7 @@ table 7002 "Sales Price"
         {
             Caption = 'Sales Type';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Sales Type" <> xRec."Sales Type" then begin
@@ -133,6 +143,7 @@ table 7002 "Sales Price"
                     UpdateValuesFromItem;
                 end;
             end;
+#endif
         }
         field(14; "Minimum Quantity"; Decimal)
         {
@@ -155,6 +166,11 @@ table 7002 "Sales Price"
                     if "Sales Type" = "Sales Type"::Campaign then
                         Error(Text002, "Sales Type");
             end;
+        }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
         }
         field(5400; "Unit of Measure Code"; Code[10])
         {
@@ -185,6 +201,9 @@ table 7002 "Sales Price"
         key(Key3; SystemModifiedAt)
         {
         }
+        key(Key4; "Coupled to CRM")
+        {
+        }
     }
 
     fieldgroups
@@ -211,14 +230,17 @@ table 7002 "Sales Price"
     end;
 
     var
-        CustPriceGr: Record "Customer Price Group";
-        Text000: Label '%1 cannot be after %2';
-        Cust: Record Customer;
+#if not CLEAN19
         Text001: Label '%1 must be blank.';
+        CustPriceGr: Record "Customer Price Group";
+        Cust: Record Customer;
         Campaign: Record Campaign;
         Item: Record Item;
+#endif
+        Text000: Label '%1 cannot be after %2';
         Text002: Label 'If Sales Type = %1, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
+#if not CLEAN19
     local procedure UpdateValuesFromItem()
     begin
         if Item.Get("Item No.") then begin
@@ -258,5 +280,6 @@ table 7002 "Sales Price"
     local procedure OnValidateSalesCodeOnAfterGetCustomerPriceGroup(var Salesprice: Record "Sales Price"; CustPriceGroup: Record "Customer Price Group")
     begin
     end;
+#endif
 }
 

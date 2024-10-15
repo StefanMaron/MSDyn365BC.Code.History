@@ -52,7 +52,7 @@ page 43 "Sales Invoice"
                     NotBlank = true;
                     ShowMandatory = true;
                     AboutTitle = 'Who you are selling to';
-                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.';
+                    AboutText = 'This can be an existing customer, or you can register a new from here. Customers can have special prices and discounts that are automatically used when you enter the sales lines.​';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
@@ -1006,9 +1006,9 @@ page 43 "Sales Invoice"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(Function_CustomerCard)
@@ -1435,7 +1435,7 @@ page 43 "Sales Invoice"
                     PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     AboutTitle = 'When all is set, you post';
-                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count. After posting, the sales invoice is moved to the Posted Sales Invoices list.';
+                    AboutText = 'After entering the sales lines and other information, you post the invoice to make it count.​ After posting, the sales invoice is moved to the Posted Sales Invoices list.';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
@@ -1481,6 +1481,7 @@ page 43 "Sales Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1585,8 +1586,8 @@ page 43 "Sales Invoice"
     begin
         WorkDescription := GetWorkDescription;
         UpdateShipToBillToGroupVisibility();
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1629,11 +1630,7 @@ page 43 "Sales Invoice"
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 

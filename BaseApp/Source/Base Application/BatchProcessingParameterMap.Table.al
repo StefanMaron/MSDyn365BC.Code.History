@@ -10,7 +10,7 @@ table 53 "Batch Processing Parameter Map"
         field(1; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(2; "Batch ID"; Guid)
         {

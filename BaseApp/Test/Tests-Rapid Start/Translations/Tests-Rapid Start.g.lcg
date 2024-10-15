@@ -50,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table DummyRSTable - Field Entry No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1360375865 - Field 2045094567 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Long Text Field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table DummyRSTable - Field Long Text Field - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 1360375865 - Field 2374477337 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Text Field]]></Val>

@@ -538,6 +538,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LineRecID: array[10] of RecordID;
         CustomerNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: Integer;
     begin
         // [FEATURE] [Sales]
@@ -553,11 +554,13 @@ codeunit 134486 "Check Dimensions On Posting"
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Customer 'A'
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -581,7 +584,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1st line, where Error message is 'Dimensions Area and Salesperson cannot be used concurrently'
         // [THEN] 2nd line, where Error message is 'Dimension Department is blocked'
         // [THEN] "Source Record ID" in both lines is 'Sales Line: Order, 1004, 10000'
-        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -598,6 +601,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ContextRecID: array[10] of RecordID;
         CustomerNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: array[2] of Integer;
     begin
         // [FEATURE] [Sales]
@@ -614,12 +618,14 @@ codeunit 134486 "Check Dimensions On Posting"
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
         DimSetID[1] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         Clear(DimensionValue);
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID[2] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Customer 'A'
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -630,6 +636,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ContextRecID[3] := SalesHeader.RecordId;
         Clear(SourceDimRecID[3]);
         ExpectedErrorMessage[3] := OnAfterCheckDocErr;
+        ExpectedCallStack[3] := '"Sales-Post"(CodeUnit 80).OnAfterCheckSalesDoc(Event) ';
         // [GIVEN] Dimensions 'Area' and 'Salesperson' are set in the first line.
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -651,7 +658,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1st line: Error message is 'Dimensions Area and Salesperson cannot be used concurrently'; "Context" is 'Sales Line: Order, 1004, 10000'
         // [THEN] 2nd line: Error message is 'Dimension Department is blocked'; "Context" is 'Sales Line: Order, 1004, 20000'
         // [THEN] 3rd line: Error message is 'OnAfterCheckDoc'; "Context" is 'Sales Header: Order, 1004'
-        VerifyLineDimErrors(ContextRecID, 3, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(ContextRecID, 3, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -818,8 +825,8 @@ codeunit 134486 "Check Dimensions On Posting"
         // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
         SalesHeader[3].SetRange("Sell-to Customer No.", CustomerNo);
         SalesBatchPostMgt.RunWithUI(SalesHeader[3], 2, '');
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[1]);
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3]);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[1], true);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3], true);
 
         // [THEN] "Error Messages" contains 8 lines:
         // [THEN] 4 (2 header + 2 line) lines for 'Sales Header: Order, 1002' and 4 (2 header + 2 line) lines for 'Sales Header: Order, 1003'
@@ -919,6 +926,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LineRecID: array[10] of RecordID;
         CustomerNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: array[2] of Integer;
     begin
         // [FEATURE] [Sales] [Prepayment]
@@ -935,12 +943,14 @@ codeunit 134486 "Check Dimensions On Posting"
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
         DimSetID[1] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         Clear(DimensionValue);
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID[2] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Customer 'A'
         LibrarySales.CreatePrepaymentVATSetup(GLAccount, GLAccount."Gen. Posting Type"::Sale);
@@ -971,7 +981,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] Opened page "Error Messages", where are two lines:
         // [THEN] 1st line: Error message is 'Dimensions Area and Salesperson cannot be used concurrently'; "Context" is 'Sales Line: Order, 1004, 10000'
         // [THEN] 2nd line: Error message is 'Dimension Department is blocked'; "Context" is 'Sales Line: Order, 1004, 20000'
-        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -1447,6 +1457,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LineRecID: array[10] of RecordID;
         VendorNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: Integer;
     begin
         // [FEATURE] [Purchase]
@@ -1462,11 +1473,13 @@ codeunit 134486 "Check Dimensions On Posting"
         ExpectedErrorMessage[1] :=
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Vendor 'A'
         VendorNo := LibraryPurchase.CreateVendorNo;
@@ -1490,7 +1503,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1st line, where Error message is 'Dimensions Area and Purchaseperson cannot be used concurrently'
         // [THEN] 2nd line, where Error message is 'Dimension Department is blocked'
         // [THEN] "Source Record ID" in both lines is 'Purchase Line: Order, 1004, 10000'
-        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -1507,6 +1520,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ContextRecID: array[10] of RecordID;
         VendorNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: array[2] of Integer;
     begin
         // [FEATURE] [Purchase]
@@ -1523,12 +1537,14 @@ codeunit 134486 "Check Dimensions On Posting"
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
         DimSetID[1] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         Clear(DimensionValue);
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID[2] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Vendor 'A'
         VendorNo := LibraryPurchase.CreateVendorNo;
@@ -1539,6 +1555,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ContextRecID[3] := PurchaseHeader.RecordId;
         Clear(SourceDimRecID[3]);
         ExpectedErrorMessage[3] := OnAfterCheckDocErr;
+        ExpectedCallStack[3] := '"Purch.-Post"(CodeUnit 90).OnAfterCheckPurchDoc(Event) ';
         // [GIVEN] Dimensions 'Area' and 'Purchaseperson' are set in the first line.
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -1560,7 +1577,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1st line: Error message is 'Dimensions Area and Purchaseperson cannot be used concurrently'; "Context" is 'Purchase Line: Order, 1004, 10000'
         // [THEN] 2nd line: Error message is 'Dimension Department is blocked'; "Context" is 'Purchase Line: Order, 1004, 20000'
         // [THEN] 3rd line: Error message is 'OnAfterCheckDoc'; "Context" is 'Purchase Header: Order, 1004'
-        VerifyLineDimErrors(ContextRecID, 3, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(ContextRecID, 3, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -1726,8 +1743,8 @@ codeunit 134486 "Check Dimensions On Posting"
         // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
         PurchHeader[3].SetRange("Buy-from Vendor No.", VendorNo);
         PurchBatchPostMgt.RunWithUI(PurchHeader[3], 2, '');
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[1]);
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3]);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[1], true);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3], true);
 
         // [THEN] "Error Messages" contains 8 lines:
         // [THEN] 4 (2 header + 2 line) lines for 'Purchase Header: Order, 1002' and 4 (2 header + 2 line) lines for 'Purchase Header: Order, 1003'
@@ -1814,6 +1831,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LineRecID: array[10] of RecordID;
         VendorNo: Code[20];
         ExpectedErrorMessage: array[10] of Text;
+        ExpectedCallStack: array[10] of Text;
         DimSetID: array[2] of Integer;
     begin
         // [FEATURE] [Purchase] [Prepayment]
@@ -1830,12 +1848,14 @@ codeunit 134486 "Check Dimensions On Posting"
           StrSubstNo(DimCombBlockedErr, DimensionValue[1]."Dimension Code", DimensionValue[2]."Dimension Code");
         SourceDimRecID[1] := DimensionCombination.RecordId;
         DimSetID[1] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[1] := 'DimensionManagement(CodeUnit 408).CheckDimComb ';
         // [GIVEN] Dimension 'Department' is blocked
         Clear(DimensionValue);
         LibraryDimension.CreateDimWithDimValue(DimensionValue[3]);
         ExpectedErrorMessage[2] := SetDimensionBlocked(DimensionValue[3]."Dimension Code", Dimension);
         SourceDimRecID[2] := Dimension.RecordId;
         DimSetID[2] := GetDimensionSetID(DimensionValue);
+        ExpectedCallStack[2] := 'DimensionManagement(CodeUnit 408).CheckDim ';
 
         // [GIVEN] Vendor 'A'
         LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, GLAccount."Gen. Posting Type"::Purchase);
@@ -1867,7 +1887,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] Opened page "Error Messages", where are two lines:
         // [THEN] 1st line: Error message is 'Dimensions Area and Purchaseperson cannot be used concurrently'; "Context" is 'Purchase Line: Order, 1004, 10000'
         // [THEN] 2nd line: Error message is 'Dimension Department is blocked'; "Context" is 'Purchase Line: Order, 1004, 20000'
-        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID);
+        VerifyLineDimErrors(LineRecID, 2, ExpectedErrorMessage, SourceDimRecID, ExpectedCallStack);
     end;
 
     [Test]
@@ -3048,7 +3068,7 @@ codeunit 134486 "Check Dimensions On Posting"
         until TempErrorMessage.Next = 0;
     end;
 
-    local procedure VerifyLineDimErrors(LineRecID: array[10] of RecordID; ErrorCount: Integer; ExpectedErrorMessage: array[10] of Text; SourceDimRecID: array[10] of RecordID)
+    local procedure VerifyLineDimErrors(LineRecID: array[10] of RecordID; ErrorCount: Integer; ExpectedErrorMessage: array[10] of Text; SourceDimRecID: array[10] of RecordID; ExpectedCallStack: array[10] of Text)
     var
         TempErrorMessage: Record "Error Message" temporary;
         i: Integer;
@@ -3059,6 +3079,7 @@ codeunit 134486 "Check Dimensions On Posting"
         TempErrorMessage.FindSet();
         repeat
             i += 1;
+            Assert.ExpectedMessage(ExpectedCallStack[i], TempErrorMessage.GetErrorCallStack());
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
             Assert.AreEqual(LineRecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
             Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));

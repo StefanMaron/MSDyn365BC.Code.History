@@ -30,7 +30,7 @@ permissionset 8992 "D365 WHSE, EDIT"
                   tabledata "Warehouse Activity Line" = IM,
                   tabledata "Warehouse Class" = RIMD,
                   tabledata "Warehouse Employee" = IM,
-                  tabledata "Warehouse Entry" = Rimd,
+                  tabledata "Warehouse Entry" = md,
                   tabledata "Warehouse Journal Batch" = IMD,
                   tabledata "Warehouse Journal Line" = IMD,
                   tabledata "Warehouse Journal Template" = IMD,

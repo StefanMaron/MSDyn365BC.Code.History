@@ -354,7 +354,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
                     SalesLine.SetRange("Document No.", SourceDocHeaderNo);
                     SalesLine.FindFirst;
-                    ReservationManagement.SetSalesLine(SalesLine);
+                    ReservationManagement.SetReservSource(SalesLine);
                     FullReservation := SalesLine.Quantity <= AvailableQty;
                     ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
                       Round(AvailableQty / SalesLine."Qty. per Unit of Measure", 0.00001), AvailableQty);
@@ -365,7 +365,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     ProdOrderComponent.SetRange("Prod. Order No.", SourceDocHeaderNo);
                     ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
                     ProdOrderComponent.FindFirst;
-                    ReservationManagement.SetProdOrderComponent(ProdOrderComponent);
+                    ReservationManagement.SetReservSource(ProdOrderComponent);
                     FullReservation := ProdOrderComponent."Expected Quantity" <= AvailableQty;
                     ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComponent."Due Date",
                       Round(AvailableQty / ProdOrderComponent."Qty. per Unit of Measure", 0.00001), AvailableQty);
@@ -424,7 +424,7 @@ codeunit 137017 "SCM Reservations Data Driven"
 
         if QtyToReserve > 0 then begin
             FullReservation := (Qty = QtyToReserve);
-            ReservationManagement.SetSalesLine(SalesLine);
+            ReservationManagement.SetReservSource(SalesLine);
             ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
               Round(QtyToReserve / SalesLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
             SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -472,7 +472,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
             ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
             ProdOrderComponent.FindFirst;
-            ReservationManagement.SetProdOrderComponent(ProdOrderComponent);
+            ReservationManagement.SetReservSource(ProdOrderComponent);
             ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComponent."Due Date",
               Round(QtyToReserve / ProdOrderComponent."Qty. per Unit of Measure", 0.00001), QtyToReserve);
             ProdOrderComponent.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -481,7 +481,7 @@ codeunit 137017 "SCM Reservations Data Driven"
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
+    local procedure RegisterWhseActivity(ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Enum "Warehouse Activity Document Type"; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";

@@ -58,19 +58,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(ProdOrderComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        CreateReservation(ProdOrderComp, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
-    local procedure CreateBindingReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    procedure CreateBindingReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
         DummyReservEntry: Record "Reservation Entry";
     begin
@@ -86,14 +74,6 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by ProdOrderComp.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
-    begin
-        ProdOrderComp.SetReservationFilters(FilterReservEntry);
-    end;
-#endif
 
     procedure Caption(ProdOrderComp: Record "Prod. Order Component") CaptionText: Text
     begin

@@ -1495,7 +1495,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         AddItemToInventory(ChildItem2, Location, AsmStockBin, 100, '', '');
         LibraryAssembly.ReopenAO(AsmHeader);
         LibraryAssembly.CreateAssemblyLine(
-          AsmHeader, AsmLine, AsmLine.Type::Item, ChildItem2."No.", ChildItem2."Base Unit of Measure", 0, 1, '');
+          AsmHeader, AsmLine, "BOM Component Type"::Item, ChildItem2."No.", ChildItem2."Base Unit of Measure", 0, 1, '');
         // Create pick directly from asm order
         LibraryAssembly.ReleaseAO(AsmHeader);
         AsmHeader.CreatePick(false, UserId, 0, false, false, false);
@@ -2138,7 +2138,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Pick Worksheet]
         // [SCENARIO 356658] Creating pick from pick worksheet that is populated from warehouse shipment of an assemble-to-order sales line.
@@ -2305,7 +2305,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhsePickRequest.FindFirst();
     end;
 
-    local procedure FindWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WhseActivityLine.SetRange("Source No.", SourceNo);
         WhseActivityLine.SetRange("Activity Type", ActivityType);

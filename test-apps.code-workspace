@@ -1,6 +1,12 @@
 {
   "folders": [
     {
+      "path": "./recommendedapps/test/Recommended Apps Tests"
+    },
+    {
+      "path": "./DataArchive/test/Data Archive Tests"
+    },
+    {
       "path": "./system application/test/System Application Test"
     },
     {

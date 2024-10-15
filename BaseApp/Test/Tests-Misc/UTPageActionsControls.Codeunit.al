@@ -20,6 +20,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryERM: Codeunit "Library - ERM";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryJob: Codeunit "Library - Job";
         AmountRoundingValidationErr: Label 'Validation error for Field: %1,  Message = ''You cannot change the contents of the %2 field because there are posted ledger entries.';
         TypeSaaSValidationErr: Label 'error for Field: TypeSaaS,  Message = ''Your entry of ''0'' is not an acceptable value for ''Type''.';
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -30,7 +31,9 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        LibraryTemplates: Codeunit "Library - Templates";
         PageFieldNotVisibleErr: Label '%1 must not be visible.';
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('ItemTrackingMPH,PostedSalesInvoiceLinesMPH')]
@@ -40,6 +43,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesHeader: Record "Sales Header";
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
+        Initialize();
         // [FEATURE] [Sales]
         // [SCENARIO 376891] Open tracking Invoice Lines from Posted Sales Shipment
         PostSalesDocumentWithLotTracking(SalesHeader, SalesHeader."Document Type"::Order);
@@ -1579,6 +1583,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [General Ledger Setup]
         // [SCENARIO 258864] There is a "#Basic,#Suite" application area for "Amount Rounding Precision (LCY)", "Amount Decimal Places (LCY)",
         // [SCENARIO 258864] "Unit-Amount Rounding Precision (LCY)" and "Unit-Amount Decimal Places (LCY)" fields in general ledger setup page
+        Initialize();
         MockRecordWithKeyValue(GLEntry);
         Commit();
 
@@ -2132,6 +2137,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseOrderListTestPage."No.".AssertEquals(PurchaseHeader."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler')]
@@ -2161,6 +2167,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -3091,6 +3098,50 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RequireCountryRegionCodeInAddress()
+    var
+        PostCode: Record "Post Code";
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        GLSetup: Record "General Ledger Setup";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Address]
+        // [SCENARIO 316984] Function PostCode.CheckClearPostCodeCityCounty does not clear Post Code, City and County when GLSetup."Require Country/Region Code in Address" = true
+        Initialize();
+
+        // [GIVEN] PostCode = "P", City = "CITY", County = "COUNTY", CountryCode = "COUNTRY"
+        LibraryERM.CreatePostCode(PostCode);
+
+        // [GIVEN] Customer with PostCode = "P", City = "CITY", County = "COUNTY", CountryCode = "CC1"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySales.CreateCustomer(Customer);
+        Customer."Post Code" := PostCode.Code;
+        Customer.City := PostCode.City;
+        Customer.County := PostCode.County;
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] GLSetup."Require Country/Region Code in Address" = true
+        GLSetup.Get();
+        GLSetup."Req.Country/Reg. Code in Addr." := true;
+        GLSetup.Modify();
+
+        // [GIVEN] Customer card page with created customer
+        CustomerCard.OpenEdit;
+        CustomerCard.FILTER.SetFilter("No.", Customer."No.");
+
+        // [WHEN] "Country/Region Code" is being changed to "CC2"
+        CustomerCard."Country/Region Code".SetValue(PostCode."Country/Region Code");
+
+        // [THEN] City, Post Code, County parameters have not been changed
+        CustomerCard."Post Code".AssertEquals(Customer."Post Code");
+        CustomerCard.City.AssertEquals(Customer.City);
+        CustomerCard.County.AssertEquals(Customer.County);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PaymentMethodCodeOnSalesCreditMemo()
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
@@ -3618,8 +3669,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" is not 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are Visible on page Customer Posting Groups
-
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         CustPstGrps.OpenEdit;
         Assert.IsTrue(
@@ -3628,7 +3678,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(
           CustPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -3640,7 +3689,8 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" and "Payment Tolerance %" are 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are not Visible on page Customer Posting Groups
-
+        Initialize();
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
@@ -3682,6 +3732,8 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" and "Payment Tolerance %"are 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are not Visible on page Vendor Posting Groups
+        Initialize();
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
@@ -3692,7 +3744,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldNotVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -3729,7 +3780,7 @@ codeunit 134341 "UT Page Actions & Controls"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplateModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerCardGetTotalSalesDoesntCallSetFilterForUnpostedLines()
     var
@@ -4182,6 +4233,7 @@ codeunit 134341 "UT Page Actions & Controls"
         MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesLineDiscountLineIsSelected()
@@ -4231,6 +4283,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
         LibraryVariableStorage.AssertEmpty();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -4245,6 +4298,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [WHEN] Create Task page is opened
         MockTodo(ToDo);
+        ToDo.SetFilter("Salesperson Code", SalesPerson.Code);
         LibrarySales.CreateSalesperson(SalesPerson);
 
         CreateTask.OpenEdit;
@@ -4267,6 +4321,54 @@ codeunit 134341 "UT Page Actions & Controls"
         // [THEN] Field 'Salesperson Code' is enabled
         Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
         CreateTask.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListPageHandler')]
+    [Scope('OnPrem')]
+    procedure BilltoContactLookupOnJobCardPage()
+    var
+        Job: Record Job;
+        Contact: Record Contact;
+        Customer: Record Customer;
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 407536] "Bill-to Contact No." lookup in "Job Card" must update "Bill-to Contact No."
+        Initialize();
+        LibraryApplicationArea.EnableJobsSetup;
+
+        // [GIVEN] Job and Contact "C1"
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", '');
+        Job.Modify(true);
+
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        JobCard.Trap();
+
+        // [WNEN] Open Job Card and invoke "Bill-to Contact No." lookup and choose "C1"
+        Page.Run(Page::"Job Card", Job);
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        JobCard."Bill-to Contact No.".Lookup();
+
+        // [THEN] "Job Card"."Bill-to Contact No." = "C1"
+        JobCard."Bill-to Contact No.".AssertEquals(Contact."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+        if IsInitialized then
+            exit;
+
+        LibraryTemplates.EnableTemplatesFeature();
+
+        IsInitialized := true;
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        Commit();
     end;
 
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
@@ -4425,6 +4527,7 @@ codeunit 134341 "UT Page Actions & Controls"
         end;
     end;
 
+#if not CLEAN19
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         SalesLineDiscount.Init();
@@ -4453,6 +4556,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDecInRange(2, 7, 2));
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateGLAccountInventoryPostingSetup(var GLAccount: Record "G/L Account")
     var
@@ -5056,9 +5160,9 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplateModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.Cancel.Invoke;
+        SelectCustomerTemplList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5143,12 +5247,13 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TimeZoneLookup(var TimeZones: TestPage "Time Zones")
+    procedure TimeZoneLookup(var TimeZones: TestPage "Time Zones Lookup")
     begin
         TimeZones.FILTER.SetFilter(ID, LibraryVariableStorage.DequeueText);
         TimeZones.OK.Invoke;
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
@@ -5169,6 +5274,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         LibraryVariableStorage.Enqueue(SalesPrLineDisc."Set Special Prices".Enabled());
     end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]
@@ -5197,6 +5303,14 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         VATStatementTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText);
         VATStatementTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.GoToKey(LibraryVariableStorage.DequeueText());
+        ContactList.OK().Invoke();
     end;
 }
 

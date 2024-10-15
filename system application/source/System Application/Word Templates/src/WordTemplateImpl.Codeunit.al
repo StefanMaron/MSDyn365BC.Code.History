@@ -185,6 +185,11 @@ codeunit 9988 "Word Template Impl."
         Result.CreateInStream(DocumentInStream, TextEncoding::UTF8);
     end;
 
+    procedure GetDocumentSize(): Integer
+    begin
+        exit(Result.Length());
+    end;
+
     procedure Create()
     var
         TableId: Integer;

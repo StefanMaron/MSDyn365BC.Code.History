@@ -7,12 +7,14 @@ codeunit 1336 "Item Templ. Mgt."
     var
         VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
 
-    procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean): Boolean
+    procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean) Result: Boolean
     var
         ItemTempl: Record "Item Templ.";
     begin
-        if not IsEnabled() then
-            exit(false);
+        IsHandled := false;
+        OnBeforeCreateItemFromTemplate(Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         IsHandled := true;
 
@@ -171,6 +173,11 @@ codeunit 1336 "Item Templ. Mgt."
     var
         ItemTempl: Record "Item Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateFromTemplate(Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(ItemTempl, IsHandled) then
             exit;
 
@@ -188,6 +195,11 @@ codeunit 1336 "Item Templ. Mgt."
     var
         ItemTempl: Record "Item Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateMultipleFromTemplate(Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(ItemTempl, IsHandled) then
             exit;
 
@@ -199,9 +211,6 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure CanBeUpdatedFromTemplate(var ItemTempl: Record "Item Templ."; var IsHandled: Boolean): Boolean
     begin
-        if not IsEnabled() then
-            exit(false);
-
         IsHandled := true;
 
         if not SelectItemTemplate(ItemTempl) then
@@ -221,7 +230,9 @@ codeunit 1336 "Item Templ. Mgt."
     var
         ItemTempl: Record "Item Templ.";
     begin
-        if not IsEnabled() then
+        IsHandled := false;
+        OnBeforeCreateTemplateFromItem(Item, IsHandled);
+        if IsHandled then
             exit;
 
         IsHandled := true;
@@ -303,9 +314,6 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure ShowItemTemplList(var IsHandled: Boolean)
     begin
-        if not IsEnabled() then
-            exit;
-
         IsHandled := true;
         Page.Run(Page::"Item Templ. List");
     end;
@@ -398,6 +406,26 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemFromTemplate(var Item: Record Item; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFromTemplate(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateMultipleFromTemplate(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTemplateFromItem(Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

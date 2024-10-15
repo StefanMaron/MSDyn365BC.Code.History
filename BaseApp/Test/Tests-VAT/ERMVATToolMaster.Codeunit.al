@@ -44,6 +44,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         Commit();
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure VATToolMasterDataConvFalse()
@@ -107,6 +108,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.DeleteRecords(DATABASE::"Serv. Price Adjustment Detail");
         ERMVATToolHelper.DeleteGroups;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -236,6 +238,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         VATToolItem(VATRateChangeSetup2."Update Items"::Both, true, false, 1);
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure VATToolItemTemplateVAT()
@@ -264,7 +267,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         asserterror VATToolItemTemplate(VATRateChangeSetup2."Update Item Templates"::No, 1);
         Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure VATToolItemChargeVAT()
@@ -565,6 +568,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure ConfigItemTemplate()
@@ -573,7 +577,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         TempRecRef: RecordRef;
         "Count": Integer;
     begin
-        // [FEATURE] [[Rapidstart]
+        // [FEATURE] [Rapidstart]
         // [SCENARIO 361083] A configuration item template updates when running VAT Rate Change Tool
 
         Initialize();
@@ -593,6 +597,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
         ERMVATToolHelper.DeleteGroups();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -684,6 +689,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.DeleteGroups;
     end;
 
+#if not CLEAN18
     local procedure VATToolItemTemplate(FieldOption: Option; "Count": Integer)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -719,7 +725,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
         ERMVATToolHelper.DeleteGroups;
     end;
-
+#endif
     local procedure VATToolItemCharge(FieldOption: Option; "Count": Integer)
     var
         TempRecRef: RecordRef;
@@ -1247,6 +1253,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         end;
     end;
 
+#if not CLEAN18
     local procedure CreateItemTemplate(var ItemTemplate: Record "Item Template")
     var
         VATProdPostingGroup: Code[20];
@@ -1273,6 +1280,7 @@ codeunit 134050 "ERM VAT Tool - Master"
             ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
         end;
     end;
+#endif
 
     local procedure CreateConfigItemTemplates(var TempRecRef: RecordRef; "Count": Integer)
     var

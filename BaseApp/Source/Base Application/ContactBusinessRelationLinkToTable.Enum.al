@@ -1,7 +1,8 @@
-enum 5057 "Contact Business Relation Link To Table"
+enum 5057 "Contact Business Relation Link To Table" implements "Contact Business Relation Link"
 {
     Extensible = true;
     AssignmentCompatibility = true;
+    DefaultImplementation = "Contact Business Relation Link" = "Contact BRL Default";
 
     value(0; " ")
     {
@@ -9,17 +10,21 @@ enum 5057 "Contact Business Relation Link To Table"
     value(1; Customer)
     {
         Caption = 'Customer';
+        Implementation = "Contact Business Relation Link" = "Contact BRL Customer";
     }
     value(2; Vendor)
     {
         Caption = 'Vendor';
+        Implementation = "Contact Business Relation Link" = "Contact BRL Vendor";
     }
     value(3; "Bank Account")
     {
         Caption = 'Bank Account';
+        Implementation = "Contact Business Relation Link" = "Contact BRL Bank Account";
     }
     value(4; Employee)
     {
         Caption = 'Employee';
+        Implementation = "Contact Business Relation Link" = "Contact BRL Employee";
     }
 }

@@ -1195,6 +1195,62 @@ codeunit 137275 "SCM Inventory Journals"
         Assert.ExpectedError(ItemExistErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculateInventoryIncludeItemWithoutTransactionHandler')]
+    [Scope('OnPrem')]
+    procedure ShouldNotGenerateInventoryLinesForInTransitLocations()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInvJournal: TestPage "Phys. Inventory Journal";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO] We should not create item journal lines for in-transit locations in the physical inventory journal
+        // as we cannot post them.
+        Initialize();
+
+        // [GIVEN] A from-, to- and in-transit location with an item located at the from location.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Location Code", FromLocation.Code);
+        PurchaseLine.Modify(true);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] A shipped transfer order.
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+        Commit();
+
+        // [WHEN] Calculating inventory for items not on inventory.
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryVariableStorage.Enqueue('');
+        PhysInvJournal.OpenEdit();
+        PhysInvJournal.CalculateInventory.Invoke();
+
+        // [THEN] No item journal line is created for the in-transit location.
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.FindSet();
+        repeat
+            Assert.AreNotEqual(
+                ItemJournalLine."Location Code",
+                InTransitLocation.Code,
+                'Expected in-transit location to not appear in Item Journal Line.'
+            );
+        until ItemJournalLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

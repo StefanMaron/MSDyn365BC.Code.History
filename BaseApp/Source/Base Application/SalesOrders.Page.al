@@ -29,6 +29,13 @@ page 48 "Sales Orders"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;

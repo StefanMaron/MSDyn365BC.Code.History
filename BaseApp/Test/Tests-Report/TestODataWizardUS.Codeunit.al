@@ -722,6 +722,7 @@ codeunit 134767 "Test OData Wizard US"
         ODataSetupWizard.FinishAction.Invoke;
     end;
 
+#If not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure TestOnCompanyInitialization()
@@ -736,7 +737,7 @@ codeunit 134767 "Test OData Wizard US"
         // [THEN] A record is created in the Assisted Setup table.
         Assert.IsTrue(AssistedSetupTestLibrary.Exists(PAGE::"OData Setup Wizard"), 'Missing Assisted Setup Record');
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestWizardNextValidation()
@@ -788,7 +789,7 @@ codeunit 134767 "Test OData Wizard US"
     var
         TenantWebService: Record "Tenant Web Service";
         TenantWebServiceColumns: Record "Tenant Web Service Columns";
-        ODataUtility: Codeunit ODataUtility;
+        EditinExcelTestLibrary: Codeunit "Edit in Excel Test Library";
         AzureADTenant: Codeunit "Azure AD Tenant";
         AuthenticationOverrides: DotNet AuthenticationOverrides;
         DataEntityExportInfo: DotNet DataEntityExportInfo;
@@ -819,7 +820,7 @@ codeunit 134767 "Test OData Wizard US"
 
         // [WHEN] CreateDataEntityExportInfo is run.
         DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;
-        ODataUtility.CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, '');
+        EditinExcelTestLibrary.CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, '', '');
 
         // [THEN] The DataEntityExportInfo object has various properties set.
         Assert.IsTrue(DataEntityExportInfo.EnableDesign, 'Unexpected value for DataEntityExportInfo.EnableDesign');
@@ -869,7 +870,7 @@ codeunit 134767 "Test OData Wizard US"
     var
         TenantWebService: Record "Tenant Web Service";
         TenantWebServiceColumns: Record "Tenant Web Service Columns";
-        ODataUtility: Codeunit ODataUtility;
+        EditinExcelTestLibrary: Codeunit "Edit in Excel Test Library";
         DataEntityExportInfo: DotNet DataEntityExportInfo;
         DataEntityInfo: DotNet DataEntityInfo;
         DataEntityInfoEnum: DotNet GenericIEnumerator1;
@@ -891,7 +892,7 @@ codeunit 134767 "Test OData Wizard US"
 
         // [WHEN] CreateDataEntityExportInfo is run.
         DataEntityExportInfo := DataEntityExportInfo.DataEntityExportInfo;
-        ODataUtility.CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, '');
+        EditinExcelTestLibrary.CreateDataEntityExportInfo(TenantWebService, DataEntityExportInfo, TenantWebServiceColumns, '', '');
         DataEntityInfoEnum := DataEntityExportInfo.Entities.GetEnumerator;
         DataEntityInfoEnum.MoveNext;
         DataEntityInfo := DataEntityInfoEnum.Current;
@@ -915,7 +916,7 @@ codeunit 134767 "Test OData Wizard US"
         ODataExpectedName := '_AB__CD__EF_G_H_I';
 
         // [WHEN] The name is 'externalized'.
-        ODataActualName := ODataUtility.ExternalizeODataObjectName(ODataCandidateName);
+        ODataActualName := ODataUtility.ExternalizeName(ODataCandidateName);
 
         // [THEN] The name adheres to expected formatting.
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
@@ -935,12 +936,13 @@ codeunit 134767 "Test OData Wizard US"
         ODataExpectedName := 'ABPercentCDPercent';
 
         // [WHEN] The name is 'externalized'.
-        ODataActualName := ODataUtility.ExternalizeODataObjectName(ODataCandidateName);
+        ODataActualName := ODataUtility.ExternalizeName(ODataCandidateName);
 
         // [THEN] The name adheres to expected formatting.
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('SalesPriceFilterPageHandler')]
     [Scope('OnPrem')]
@@ -981,6 +983,7 @@ codeunit 134767 "Test OData Wizard US"
 
         AssertODataUrls(ServiceRootUrl, ServiceName, SelectText, FilterText, FilterText, ObjectTypeVariable::Page);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure CreateCustomerListEndpoint(ServiceNameParam: Text[240]; FilterTextParam: Text; AddColumnsParam: Boolean; var TenantWebService: Record "Tenant Web Service")
@@ -1225,6 +1228,7 @@ codeunit 134767 "Test OData Wizard US"
         VerifyNavContact(NavContact, ExchangeContact);
     end;
 
+#if not CLEAN19
     [FilterPageHandler]
     [Scope('OnPrem')]
     procedure SalesPriceFilterPageHandler(var SalesLineRecordRef: RecordRef): Boolean
@@ -1236,5 +1240,6 @@ codeunit 134767 "Test OData Wizard US"
         SalesLineRecordRef.SetView(SalesPrice.GetView());
         exit(true);
     end;
+#endif
 }
 

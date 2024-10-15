@@ -97,7 +97,7 @@ page 99000892 "Work Center Group Load Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -106,7 +106,7 @@ page 99000892 "Work Center Group Load Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -121,17 +121,27 @@ page 99000892 "Work Center Group Load Lines"
         MfgSetup: Record "Manufacturing Setup";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         WorkCenterGroup: Record "Work Center Group";
         CapacityUoM: Code[10];
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewWorkCenterGroup: Record "Work Center Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date"; NewCapUoM: Code[10])
     begin
+        SetLines(
+            NewWorkCenterGroup,
+            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType), NewCapUOM);
+    end;
+#endif
+
+    procedure SetLines(var NewWorkCenterGroup: Record "Work Center Group"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewCapUoM: Code[10])
+    begin
         WorkCenterGroup.Copy(NewWorkCenterGroup);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CapacityUoM := NewCapUoM;

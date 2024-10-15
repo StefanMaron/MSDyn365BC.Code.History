@@ -212,7 +212,7 @@ page 959 "Time Sheet Archive"
                     Image = PreviousSet;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    PromotedIsBig = true;                    
+                    PromotedIsBig = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()

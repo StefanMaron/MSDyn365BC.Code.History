@@ -12,7 +12,8 @@ page 9144 "Approvals Activities"
         {
             cuegroup(Approvals)
             {
-                Caption = 'Approvals';
+                Caption = 'Pending Approvals';
+
                 field("Requests Sent for Approval"; "Requests Sent for Approval")
                 {
                     ApplicationArea = Suite;

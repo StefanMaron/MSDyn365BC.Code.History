@@ -284,6 +284,7 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(false);
     end;
 
+#if not CLEAN18
     local procedure UpdateConfigTemplateLine(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -342,6 +343,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 until ConfigTemplateLine.Next() = 0;
         until ConfigTemplateHeader.Next() = 0;
     end;
+#endif
 
     procedure UpdateTable(TableID: Integer; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
     var
@@ -382,6 +384,7 @@ codeunit 550 "VAT Rate Change Conversion"
         Field.SetRange(TableNo, RecRef.Number);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         Field.SetRange(RelationTableNo, DATABASE::"Gen. Product Posting Group");
+        Field.SetRange(Type, Field.Type::Code);
         if Field.Find('+') then
             repeat
                 FieldRef := RecRef.Field(Field."No.");
@@ -1665,6 +1668,7 @@ codeunit 550 "VAT Rate Change Conversion"
         OnAfterAreTablesSelected(VATRateChangeSetup, Result);
     end;
 
+#if not CLEAN18
     local procedure InitVATRateChangeLogEntryFromConfigTemplateLine(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; ConfigTemplateLine: Record "Config. Template Line")
     var
         RecRef: RecordRef;
@@ -1674,6 +1678,7 @@ codeunit 550 "VAT Rate Change Conversion"
         VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
         VATRateChangeLogEntry."Table ID" := RecRef.Number;
     end;
+#endif
 
     local procedure IncludeLine(Type: Option " ","G/L Account",Item,Resource; No: Code[20]): Boolean
     begin

@@ -714,7 +714,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         SalesHeader: Record "Sales Header";
         Location: Record Location;
         I: Integer;
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Pick]
         // [SCENARIO] Picks should not cause rounding residuals
@@ -1574,7 +1574,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
         UOMCodes: array[2] of Code[10];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Warehouse Adjustment] [Item Tracking]
         // [SCENARIO 327742] Warehouse Adjustments should be calculated correctly when using multipleUOM and Item Tracking
@@ -2125,7 +2125,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
           SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
-    local procedure CreateAndReceivePurchaseOrderWithSNTracking(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; SerialNo: Code[20])
+    local procedure CreateAndReceivePurchaseOrderWithSNTracking(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; SerialNo: Code[50])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2271,7 +2271,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         Item.Modify(true);
     end;
 
-    local procedure CreateLotTrackedSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateLotTrackedSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50]; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2304,7 +2304,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         end;
     end;
 
-    local procedure CreatePurchaseLineWithLotTracking(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; LotNo: Code[20])
+    local procedure CreatePurchaseLineWithLotTracking(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; LotNo: Code[50])
     begin
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, Quantity, LocationCode);
         EnqueueLotTrackingParameters(LotNo, PurchaseLine."Quantity (Base)");
@@ -2407,7 +2407,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseJournalLine.Modify(true);
     end;
 
-    local procedure CreateWhseJournalLineWithLotTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseJnlTemplateName: Code[10]; WhseJnlBatchName: Code[10]; Bin: Record Bin; ItemNo: Code[20]; UoMCode: Code[10]; Quantity: Decimal; LotNo: Code[20]; ExpirationDate: Date)
+    local procedure CreateWhseJournalLineWithLotTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseJnlTemplateName: Code[10]; WhseJnlBatchName: Code[10]; Bin: Record Bin; ItemNo: Code[20]; UoMCode: Code[10]; Quantity: Decimal; LotNo: Code[50]; ExpirationDate: Date)
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
@@ -2430,7 +2430,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseItemTrackingLine.Modify(true);
     end;
 
-    local procedure CreateWhseJournalLineWithLotTrackingOnNewBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseJnlTemplateName: Code[10]; WhseJnlBatchName: Code[10]; ItemNo: Code[20]; UOMCode: Code[10]; Quantity: Decimal; LotNo: Code[20]; ExpirationDate: Date; LocationCode: Code[10])
+    local procedure CreateWhseJournalLineWithLotTrackingOnNewBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseJnlTemplateName: Code[10]; WhseJnlBatchName: Code[10]; ItemNo: Code[20]; UOMCode: Code[10]; Quantity: Decimal; LotNo: Code[50]; ExpirationDate: Date; LocationCode: Code[10])
     var
         Bin: Record Bin;
     begin
@@ -2470,7 +2470,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         end;
     end;
 
-    local procedure EnqueueLotTrackingParameters(LotNo: Code[20]; Quantity: Decimal)
+    local procedure EnqueueLotTrackingParameters(LotNo: Code[50]; Quantity: Decimal)
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignManualLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2497,7 +2497,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindWhseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Option; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
+    local procedure FindWhseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -2505,7 +2505,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
+    local procedure FindWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
     begin
         with WarehouseActivityLine do begin
             SetRange("Activity Type", ActivityType);
@@ -2619,7 +2619,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         exit(ItemUnitOfMeasure.Code);
     end;
 
-    local procedure SetExpirationDateOnReservationEntry(ItemNo: Code[20]; LotNo: Code[20]; NewExpirationDate: Date)
+    local procedure SetExpirationDateOnReservationEntry(ItemNo: Code[20]; LotNo: Code[50]; NewExpirationDate: Date)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
@@ -2628,7 +2628,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         ReservationEntry.ModifyAll("Expiration Date", NewExpirationDate);
     end;
 
-    local procedure SetHandlingParametersOnWhseActivityLines(ActivityType: Option; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; QtyToHandle: Decimal; LotNo: Code[20])
+    local procedure SetHandlingParametersOnWhseActivityLines(ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; QtyToHandle: Decimal; LotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -2647,7 +2647,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateAndPostWhseJnlB25525(Item, Location.Code, WorkDate, WorkDate, WorkDate, WorkDate, WorkDate);
     end;
 
-    local procedure UpdatePhysInventoryQtyOnWhseJournalLine(JnlTemplateName: Code[10]; JnlBatchName: Code[10]; LocationCode: Code[10]; LotNo: Code[20]; NewPhysInvQty: Decimal)
+    local procedure UpdatePhysInventoryQtyOnWhseJournalLine(JnlTemplateName: Code[10]; JnlBatchName: Code[10]; LocationCode: Code[10]; LotNo: Code[50]; NewPhysInvQty: Decimal)
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin

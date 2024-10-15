@@ -21,12 +21,11 @@ page 157 "Item Availability by Periods"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        if PeriodType = PeriodType::Period then
+                        if PeriodType = PeriodType::"Accounting Period" then
                             PeriodPeriodTypeOnValidate;
                         if PeriodType = PeriodType::Year then
                             YearPeriodTypeOnValidate;
@@ -44,7 +43,6 @@ page 157 "Item Availability by Periods"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -146,13 +144,13 @@ page 157 "Item Availability by Periods"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        PeriodType: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         LastDate: Date;
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.ItemAvailLines.PAGE.Set(Rec, PeriodType, AmountType);
+        CurrPage.ItemAvailLines.PAGE.SetLines(Rec, PeriodType, AmountType);
     end;
 
     procedure GetLastDate(): Date

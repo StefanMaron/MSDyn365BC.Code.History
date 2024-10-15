@@ -1,9 +1,10 @@
+#if not CLEAN19
 report 1192 "Suggest Res. Price Chg.(Price)"
 {
     Caption = 'Suggest Res. Price Chg.(Price)';
     ProcessingOnly = true;
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: Price Worksheet page';
     ObsoleteTag = '16.0';
 
     dataset
@@ -221,4 +222,4 @@ report 1192 "Suggest Res. Price Chg.(Price)"
         CreateNewPrices := CreateNewPricesFrom;
     end;
 }
-
+#endif

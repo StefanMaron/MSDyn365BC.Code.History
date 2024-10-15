@@ -1216,8 +1216,8 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     local procedure CreateAssemblyLine(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; Item: Record Item; Quantity: Integer)
     begin
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, Item."No.", true),
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, Item."No.", true),
           Quantity, 0, '');
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
@@ -1231,8 +1231,8 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyLine: Record "Assembly Line";
     begin
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Resource, Resource."No.", true),
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Resource, Resource."No.", true),
           Quantity, 0, '');
     end;
 

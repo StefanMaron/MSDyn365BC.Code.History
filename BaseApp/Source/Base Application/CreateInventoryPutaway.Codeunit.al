@@ -229,6 +229,8 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Variant Code" := "Variant Code";
                             NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                             NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                            NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                            NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                             NewWhseActivLine.Description := Description;
                             NewWhseActivLine."Description 2" := "Description 2";
                             NewWhseActivLine."Due Date" := "Expected Receipt Date";
@@ -284,7 +286,11 @@ codeunit 7321 "Create Inventory Put-away"
             else
                 SetFilter("Return Qty. to Ship", '<%1', 0);
             OnBeforeFindPurchLine(PurchLine, WhseActivHeader);
-            exit(Find('-'));
+
+            if not Find('-') then
+                exit(false);
+
+            exit(IsInventoriableItem());
         end;
     end;
 
@@ -333,6 +339,8 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Variant Code" := "Variant Code";
                             NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                             NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                            NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                            NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                             NewWhseActivLine.Description := Description;
                             NewWhseActivLine."Description 2" := "Description 2";
                             NewWhseActivLine."Due Date" := "Planned Shipment Date";
@@ -386,7 +394,11 @@ codeunit 7321 "Create Inventory Put-away"
             else
                 SetFilter("Return Qty. to Receive", '>%1', 0);
             OnBeforeFindSalesLine(SalesLine, WhseActivHeader);
-            exit(Find('-'));
+
+            if not Find('-') then
+                exit(false);
+
+            exit(IsInventoriableItem());
         end;
     end;
 
@@ -433,6 +445,8 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Variant Code" := "Variant Code";
                             NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                             NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                            NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                            NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                             NewWhseActivLine.Description := Description;
                             NewWhseActivLine."Description 2" := "Description 2";
                             NewWhseActivLine."Due Date" := "Receipt Date";
@@ -522,6 +536,8 @@ codeunit 7321 "Create Inventory Put-away"
                             NewWhseActivLine."Variant Code" := "Variant Code";
                             NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                             NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                            NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                            NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                             NewWhseActivLine.Description := Description;
                             NewWhseActivLine."Description 2" := "Description 2";
                             NewWhseActivLine."Due Date" := "Due Date";
@@ -615,6 +631,8 @@ codeunit 7321 "Create Inventory Put-away"
                                 NewWhseActivLine."Shelf No." := GetShelfNo("Item No.");
                             NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                             NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                            NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                            NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                             NewWhseActivLine.Description := Description;
                             NewWhseActivLine."Due Date" := "Due Date";
                             NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Prod. Consumption";
@@ -709,7 +727,10 @@ codeunit 7321 "Create Inventory Put-away"
         InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
     end;
 
-    local procedure InsertWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    procedure InsertWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        CalculatedPutAway: Decimal;
     begin
         with NewWhseActivLine do begin
             if Location."Bin Mandatory" then
@@ -726,7 +747,16 @@ codeunit 7321 "Create Inventory Put-away"
                     CopyTrackingFromSpec(TempTrackingSpecification);
                     Validate(Quantity, CalcQty(TempTrackingSpecification."Qty. to Handle (Base)"));
                 end else
-                    Validate(Quantity, PutAwayQty);
+                    if WhseItemTrackingSetup."Serial No. Required" and (NewWhseActivLine."Qty. per Unit of Measure" > 1) then begin
+                        CalculatedPutAway := CalcQty(PutAwayQty);
+                        if UOMMgt.RoundQty(UOMMgt.CalcBaseQty(RemQtyToPutAway - CalculatedPutAway, NewWhseActivLine."Qty. per Unit of Measure"), 1) = 0 then
+                            Validate(Quantity, RemQtyToPutAway)
+                        else
+                            Validate(Quantity, CalculatedPutAway);
+                        "Qty. (Base)" := UOMMgt.RoundQty("Qty. (Base)", 1);
+                        TestField("Qty. (Base)", 1);
+                    end else
+                        Validate(Quantity, PutAwayQty);
             Validate("Qty. to Handle", 0);
             OnInsertWhseActivLineOnBeforeAutoCreation(
                 NewWhseActivLine, TempTrackingSpecification, ReservationFound,

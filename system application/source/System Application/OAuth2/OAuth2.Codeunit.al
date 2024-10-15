@@ -664,6 +664,15 @@ codeunit 501 OAuth2
 #pragma warning restore AS0022
 
     /// <summary>
+    /// Get the last error message that happened during acquiring of an access token.
+    /// </summary>
+    /// <returns>The last error message that happened during acquiring of an access token.</returns>
+    procedure GetLastErrorMessage(): Text
+    begin
+        exit(OAuth2Impl.GetLastErrorMessage());
+    end;
+
+    /// <summary>
     /// Returns the default Business Central redirectURL 
     /// </summary>
     [NonDebuggable]

@@ -22,11 +22,9 @@ table 911 "Posted Assembly Line"
         {
             Caption = 'Order Line No.';
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "BOM Component Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource';
-            OptionMembers = " ",Item,Resource;
         }
         field(11; "No."; Code[20])
         {
