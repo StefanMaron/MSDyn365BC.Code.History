@@ -1410,6 +1410,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        IntegrationRecordRef: RecordRef;
+        TelemetryCategories: Dictionary of [Text, Text];
+        IntegrationTableName: Text;
     begin
         if ConnectionType <> TableConnectionType::CRM then
             exit;
@@ -1432,21 +1435,33 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             Session.LogMessage('0000LCT', 'Multi-Company Synch Enabled', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end;
 
+        TelemetryCategories.Add('Category', CategoryTok);
+        TelemetryCategories.Add('IntegrationTableID', Format(IntegrationTableID));
+        if TryCalculateTableName(IntegrationRecordRef, IntegrationTableID, IntegrationTableName) then
+            TelemetryCategories.Add('IntegrationTableName', IntegrationTableName);
+
         if IntegrationTableID in [
                 Database::"CRM Account",
                 Database::"CRM Contact",
                 Database::"CRM Transactioncurrency",
                 Database::"CRM Systemuser"] then begin
-            Session.LogMessage('0000FMC', 'Synching a base entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Session.LogMessage('0000FMC', 'Synching a base entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
             FeatureTelemetry.LogUsage('0000H7O', 'Dataverse', 'Base entity synch');
             FeatureTelemetry.LogUsage('0000IIL', 'Dataverse Base Entities', 'Base entity synch');
             FeatureTelemetry.LogUptake('0000KMT', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Used);
             exit;
         end;
         if IntegrationTableID > MinCustomTableId() then begin
-            Session.LogMessage('0000FMD', 'Synching a custom entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Session.LogMessage('0000FMD', 'Synching a custom entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
             FeatureTelemetry.LogUsage('0000H7P', 'Dataverse', 'Custom entity synch');
         end;
+    end;
+
+    [TryFunction]
+    local procedure TryCalculateTableName(var IntegrationRecordRef: RecordRef; TableId: Integer; var TableName: Text)
+    begin
+        IntegrationRecordRef.Open(TableId);
+        TableName := IntegrationRecordRef.Name();
     end;
 
     local procedure MinCustomTableId(): Integer

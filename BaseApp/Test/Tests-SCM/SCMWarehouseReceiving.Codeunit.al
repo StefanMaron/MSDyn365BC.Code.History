@@ -4045,6 +4045,72 @@ codeunit 137152 "SCM Warehouse - Receiving"
         VerifyLotNoInItemLedgerEntry(LotNos);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCapacityPolicySetToProhibitMoreThanMaxCapRespectsMaxWeightOnBin()
+    var
+        MunichLocation: Record Location;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReceiveBin: Record Bin;
+        PutawayBin1: Record Bin;
+        PutawayBin2: Record Bin;
+    begin
+        // [BUG 495153] Creting Put-away lines does not respect max. weight on the bin when 'Bin Capacity Policy' is set to 'Prohibit More Than Max. Cap.'
+        // Bug https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/495153
+        Initialize();
+
+        // [GIVEN] Create a warehouse location.
+        CreateFullWMSLocationWithReceiveAndPutawaybins(MunichLocation, ReceiveBin, PutawayBin1, PutawayBin2);
+        MunichLocation.Validate("Always Create Put-away Line", false);
+        MunichLocation.Validate("Bin Capacity Policy", MunichLocation."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+        MunichLocation.Validate("Put-away Bin Policy", MunichLocation."Put-away Bin Policy"::"Put-away Template");
+        MunichLocation.Modify(true);
+
+        // [GIVEN] Create an item with weight set on UOM.
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 1);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Purchase order with item and quantity.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 15);
+        PurchaseLine.Validate("Location Code", MunichLocation.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Warehouse receipt is created and posted to create put-away lines.
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, MunichLocation.Code);
+
+        // [THEN] Verify that the put-away lines are created with the correct bin.
+        WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
+        WarehouseActivityHeader.SetRange("Location Code", MunichLocation.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+
+        Assert.RecordCount(WarehouseActivityLine, 3); // 1 take and 2 place lines.
+
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Bin Code", ReceiveBin.Code);
+
+        // Verify that the line is created with the correct bin.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Bin Code", PutawayBin2.Code);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Bin Code", PutawayBin1.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6274,6 +6340,72 @@ codeunit 137152 "SCM Warehouse - Receiving"
             ItemLedgerEntry.SetRange("Lot No.", LotNos[i]);
             Assert.RecordIsNotEmpty(ItemLedgerEntry);
         end;
+    end;
+
+    procedure CreateFullWMSLocationWithReceiveAndPutawaybins(var Location: Record Location; var ReceiveBin: Record Bin; var PutawayBin1: Record Bin; var PutawayBin2: Record Bin)
+    var
+        PutAwayTemplateHeader: Record "Put-away Template Header";
+        PutAwayTemplateLine: Record "Put-away Template Line";
+        Zone: Record Zone;
+    begin
+        Clear(Location);
+        Location.Init();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        // Skip validate trigger for bin mandatory to improve performance.
+        Location."Bin Mandatory" := true;
+        Location.Validate("Directed Put-away and Pick", true);
+        if Location."Require Pick" then
+            if Location."Require Shipment" then begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            end else begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            end
+        else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        end;
+
+        if Location."Require Put-away" and not Location."Require Receive" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+        Location.Modify(true);
+
+        // Create Zones and bins
+        // Pick zone
+        LibraryWarehouse.CreateZone(Zone, 'PICK', Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), '', '', 100, false);
+        LibraryWarehouse.CreateBin(PutawayBin1, Location.Code, 'Bin1', Zone.Code, LibraryWarehouse.SelectBinType(false, false, true, true));
+        PutawayBin1.Validate("Bin Ranking", 100);
+        PutawayBin1.Validate("Maximum Weight", 20);
+        PutawayBin1.Modify(true);
+        LibraryWarehouse.CreateBin(PutawayBin2, Location.Code, 'Bin2', Zone.Code, LibraryWarehouse.SelectBinType(false, false, true, true));
+        PutawayBin2.Validate("Bin Ranking", 200);
+        PutawayBin2.Validate("Maximum Weight", 10);
+        PutawayBin2.Modify(true);
+
+        // Receive Zone
+        LibraryWarehouse.CreateZone(Zone, 'RECEIVE', Location.Code, LibraryWarehouse.SelectBinType(true, false, false, false), '', '', 10, false);
+        LibraryWarehouse.CreateBin(ReceiveBin, Location.Code, 'Bin3', Zone.Code, LibraryWarehouse.SelectBinType(true, false, false, false));
+        Location.Validate("Receipt Bin Code", ReceiveBin.Code);
+
+        // Bin policies fast tab
+        // Created the STD put-away template - same as the one in the demo data
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, true, true, true, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, true, true, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, true, true, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, true, false, false, false);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, true);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, false);
+        Location.Validate("Put-away Template Code", PutAwayTemplateHeader.Code);
+
+        Location.Validate("Allow Breakbulk", true);
+
+        Location.Modify(true);
     end;
 
     [RequestPageHandler]

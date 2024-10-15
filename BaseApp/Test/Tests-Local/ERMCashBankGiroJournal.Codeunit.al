@@ -118,6 +118,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         AmountToApplyIsChangedQst: Label 'The amount has been adjusted in one or more applied entries. All CBG statement lines will be created using the adjusted amounts.\\Do you want to apply the corrected amounts to all lines in this CBG statement?';
         SelectDimensionCodeErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
         DimensionValueErr: Label 'Invalid Dimension Value';
+        VATDateOutOfVATDatesErr: Label 'The VAT Date is not within the range of allowed VAT dates.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4000,6 +4001,39 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure BankGiroJournalShouldNotPostWhenVATDateIsNotInAllowedRange()
+    var
+        VATSetup: Record "VAT Setup";
+        CBGStatementLine: Record "CBG Statement Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        GLAccNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 496597] Bank/Giro journal is not showing an error message if the VAT Date is not within the allowed period in the Dutch version.
+        Initialize();
+
+        // [GIVEN]
+        Amount := LibraryRandom.RandDec(100, 2);  // Take Random Amount.
+        GLAccNo := CreateGLAccount();
+
+        // [THEN] VAT Setup with defined Allowed Posting Period
+        VATSetup.Get();
+        VATSetup."Allow VAT Date From" := WorkDate() - LibraryRandom.RandIntInRange(21, 30);
+        VATSetup."Allow VAT Date To" := WorkDate() - LibraryRandom.RandIntInRange(10, 20);
+        VATSetup.Modify();
+
+        // [WHEN] Create Bank/Giro Journal Document with line
+        OpenBankGiroJournalListPage(CreateBankAccount());
+        OpenBankGiroJournalPage(BankGiroJournal, CBGStatementLine."Account Type"::"G/L Account", GLAccNo, Amount, false);
+
+        // [WHEN] VAT Reporting Date is updated to date out of Allowed period
+        asserterror BankGiroJournal.Post.Invoke();
+        Assert.ExpectedError(VATDateOutOfVATDatesErr);
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -5928,6 +5962,20 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::"Salesperson/Purchaser", SalespersonPurchaser.Code, DimensionCode, DimensionValueCode);
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     [ModalPageHandler]

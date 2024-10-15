@@ -14,6 +14,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Utilities;
+using Microsoft.Finance.VAT.Calculation;
 
 table 11400 "CBG Statement"
 {
@@ -434,6 +435,7 @@ table 11400 "CBG Statement"
         UpdateAnalysisView: Codeunit "Update Analysis View";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Status: Dialog;
         AmountLV: Decimal;
         AmountVV: Decimal;
@@ -461,6 +463,9 @@ table 11400 "CBG Statement"
         if CBGStatementLine.Find('-') then begin
             Counter := CBGStatementLine."Line No.";
             repeat
+                if CBGStatementLine."VAT Prod. Posting Group" <> '' then
+                    VATReportingDateMgt.IsValidDate(CBGStatementLine, CBGStatementLine.FieldNo(Date), true);
+
                 AmountVV := CBGStatementLine."Debit Incl. VAT" - CBGStatementLine."Credit Incl. VAT";
                 GenJnlLine.Init();
                 CBGStatementLine.CreateGenJournalLine(GenJnlLine);

@@ -205,14 +205,18 @@ codeunit 311 "Item-Check Avail."
                (OldSalesLine."Bin Code" = SalesLine."Bin Code") and
                not OldSalesLine."Drop Shipment" and
                (OldSalesLine."Shipment Date" <= LookAheadDate)
-            then
-                if OldSalesLine."Shipment Date" > SalesLine."Shipment Date" then
-                    AvailableToPromise.SetChangedSalesLine(OldSalesLine)
-                else begin
-                    OldItemNetChange := -OldSalesLine."Outstanding Qty. (Base)";
-                    OldSalesLine.CalcFields("Reserved Qty. (Base)");
-                    OldItemNetResChange := -OldSalesLine."Reserved Qty. (Base)";
-                end;
+            then begin
+                IsHandled := false;
+                OnSalesLineShowWarningOnAfterFindingPrevSalesLineQtyWithinPeriod(SalesLine, OldSalesLine, IsHandled);
+                if not IsHandled then
+                    if OldSalesLine."Shipment Date" > SalesLine."Shipment Date" then
+                        AvailableToPromise.SetChangedSalesLine(OldSalesLine)
+                    else begin
+                        OldItemNetChange := -OldSalesLine."Outstanding Qty. (Base)";
+                        OldSalesLine.CalcFields("Reserved Qty. (Base)");
+                        OldItemNetResChange := -OldSalesLine."Reserved Qty. (Base)";
+                    end;
+            end;
         end;
 
         NewItemNetResChange := -(SalesLine."Qty. to Asm. to Order (Base)" - OldSalesLine.QtyBaseOnATO());
@@ -427,9 +431,13 @@ codeunit 311 "Item-Check Avail."
                (OldServLine."Location Code" = ServLine."Location Code") and
                (OldServLine."Bin Code" = ServLine."Bin Code")
             then begin
-                OldItemNetChange := -OldServLine."Outstanding Qty. (Base)";
-                OldServLine.CalcFields("Reserved Qty. (Base)");
-                OldItemNetResChange := -OldServLine."Reserved Qty. (Base)";
+                IsHandled := false;
+                OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServLine, OldServLine, IsHandled);
+                if not IsHandled then begin
+                    OldItemNetChange := -OldServLine."Outstanding Qty. (Base)";
+                    OldServLine.CalcFields("Reserved Qty. (Base)");
+                    OldItemNetResChange := -OldServLine."Reserved Qty. (Base)";
+                end;
             end;
 
         UseOrderPromise := true;
@@ -548,6 +556,7 @@ codeunit 311 "Item-Check Avail."
         OldAssemblyHeader: Record "Assembly Header";
         Item: Record Item;
         CompanyInfo: Record "Company Information";
+        IsHandled: Boolean;
     begin
         with AssemblyHeader do begin
             UseOrderPromise := true;
@@ -567,9 +576,13 @@ codeunit 311 "Item-Check Avail."
                    (OldAssemblyHeader."Location Code" = "Location Code") and
                    (OldAssemblyHeader."Bin Code" = "Bin Code")
                 then begin
-                    OldAssemblyHeader.CalcFields("Reserved Qty. (Base)");
-                    SchedRcpt :=
-                      SchedRcpt - ConvertQty(OldAssemblyHeader."Remaining Quantity (Base)" - OldAssemblyHeader."Reserved Qty. (Base)");
+                    IsHandled := false;
+                    OnAsmOrderCalculateOnAfterFindingPrevAsmOrderCalculateWithinPeriod(AssemblyHeader, OldAssemblyHeader, IsHandled);
+                    if not IsHandled then begin
+                        OldAssemblyHeader.CalcFields("Reserved Qty. (Base)");
+                        SchedRcpt :=
+                        SchedRcpt - ConvertQty(OldAssemblyHeader."Remaining Quantity (Base)" - OldAssemblyHeader."Reserved Qty. (Base)");
+                    end;
                 end;
         end;
         FetchCalculation2(InventoryQty2, GrossReq2, ReservedReq2, SchedRcpt2, ReservedRcpt2);
@@ -898,6 +911,21 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowAndHandleAvailabilityPage(ItemNo2: Code[20]; UnitOfMeasureCode2: Code[10]; InventoryQty2: Decimal; GrossReq2: Decimal; ReservedReq2: Decimal; SchedRcpt2: Decimal; ReservedRcpt2: Decimal; CurrentQuantity2: Decimal; CurrentReservedQty2: Decimal; TotalQuantity2: Decimal; EarliestAvailDate2: Date; var Rollback: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServiceLine: Record "Service Line"; OldServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineShowWarningOnAfterFindingPrevSalesLineQtyWithinPeriod(SalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAsmOrderCalculateOnAfterFindingPrevAsmOrderCalculateWithinPeriod(AssemblyHeader: Record "Assembly Header"; OldAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -278,7 +278,7 @@ codeunit 7312 "Create Pick"
                 if (TotalQtytoPick > 0) and CurrLocation."Always Create Pick Line" then begin
                     TotalQtytoPickBase := UnitOfMeasureManagement.CalcBaseQty(TotalQtytoPick, QtyPerUnitofMeasure);
                     UpdateQuantitiesToPick(
-                        TotalQtytoPick,
+                        TotalQtytoPickBase,
                         QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
                         QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
                         TotalQtytoPick, TotalQtytoPickBase);
