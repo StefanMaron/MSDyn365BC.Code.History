@@ -90,6 +90,7 @@
             trigger OnValidate()
             var
                 JobPlanningLine: Record "Job Planning Line";
+                JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
             begin
                 if xRec.Status <> Status then begin
                     if Status = Status::Completed then
@@ -102,7 +103,14 @@
                     Modify;
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
-                    JobPlanningLine.ModifyAll(Status, Status);
+                    if JobPlanningLine.FindSet() then begin
+                        if CheckReservationEntries() then
+                            repeat
+                                JobPlanningLineReserve.DeleteLine(JobPlanningLine);
+                            until JobPlanningLine.Next() = 0;
+                        JobPlanningLine.ModifyAll(Status, Status);
+                        PerformAutoReserve(JobPlanningLine);
+                    end;
                 end;
             end;
         }
@@ -873,6 +881,9 @@
         EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This job''s Ending Date value';
         UpdateJobTaskDimQst: Label 'You have changed a dimension.\\Do you want to update the lines?';
         RunWIPFunctionsQst: Label 'You must run the %1 function to create completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Calculate WIP report';
+        ReservationEntriesDeleteQst: Label 'Any reservation entries that exist for this job will be deleted. \Do you want to continue?';
+        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
+        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
 
     procedure AssistEdit(OldJob: Record Job): Boolean
     begin
@@ -1379,6 +1390,52 @@
         ReservEntry.SetFilter("Source Type", '%1|%2', DATABASE::"Job Planning Line", DATABASE::"Job Journal Line");
         ReservEntry.SetRange("Source ID", xRec."No.");
         ReservEntry.ModifyAll("Source ID", "No.", true);
+    end;
+
+    local procedure CheckReservationEntries(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+        ConfirmManagement: Codeunit "Confirm Management";
+        ReservationToDeleteExists: Boolean;
+    begin
+        ReservationToDeleteExists := false;
+
+        if Status <> Status::Open then begin
+            ReservEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+            ReservEntry.SetRange("Source ID", "No.");
+            ReservationToDeleteExists := not ReservEntry.IsEmpty();
+            if ReservationToDeleteExists then
+                if not ConfirmManagement.GetResponseOrDefault(ReservationEntriesDeleteQst, false) then
+                    Error(ReservationEntriesExistErr, Status);
+        end;
+
+        exit(ReservationToDeleteExists);
+    end;
+
+    local procedure PerformAutoReserve(var JobPlanningLine: Record "Job Planning Line")
+    var
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
+        ReservationManagement: Codeunit "Reservation Management";
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
+        FullAutoReservation: Boolean;
+        AutoReservePossible: Boolean;
+    begin
+        JobPlanningLine.SetRange(Status, JobPlanningLine.Status::Order);
+        JobPlanningLine.SetRange(Reserve, JobPlanningLine.Reserve::Always);
+        JobPlanningLine.SetFilter("Remaining Qty. (Base)", '<>%1', 0);
+        AutoReservePossible := JobPlanningLine.FindSet();
+        if AutoReservePossible then begin
+            repeat
+                JobPlanningLineReserve.ReservQuantity(JobPlanningLine, QtyToReserve, QtyToReserveBase);
+                ReservationManagement.SetJobPlanningLine(JobPlanningLine);
+                ReservationManagement.AutoReserve(FullAutoReservation, '', JobPlanningLine."Planning Date", QtyToReserve, QtyToReserveBase);
+                AutoReservePossible := AutoReservePossible and FullAutoReservation;
+                JobPlanningLine.UpdatePlanned();
+            until JobPlanningLine.Next() = 0;
+            if not AutoReservePossible then
+                Message(AutoReserveNotPossibleMsg);
+        end;
     end;
 
     local procedure UpdateJobTaskDimension(FieldNumber: Integer; ShortcutDimCode: Code[20])

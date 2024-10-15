@@ -6,6 +6,7 @@ codeunit 92 "Purch.-Post + Print"
     var
         PurchHeader: Record "Purchase Header";
     begin
+        OnBeforeOnRun(PurchHeader);
         PurchHeader.Copy(Rec);
         Code(PurchHeader);
         Rec := PurchHeader;
@@ -41,11 +42,23 @@ codeunit 92 "Purch.-Post + Print"
         if PurchSetup."Post & Print with Job Queue" then
             PurchasePostViaJobQueue.EnqueuePurchDoc(PurchHeader)
         else begin
-            CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
+            RunPurchPost(PurchHeader);
             GetReport(PurchHeader);
         end;
 
         OnAfterPost(PurchHeader);
+    end;
+
+    local procedure RunPurchPost(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunPurchPost(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        Codeunit.Run(Codeunit::"Purch.-Post", PurchHeader);
     end;
 
     local procedure ConfirmPost(var PurchHeader: Record "Purchase Header"; DefaultOption: Integer): Boolean
@@ -201,6 +214,11 @@ codeunit 92 "Purch.-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePrintInvoice(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -217,6 +235,11 @@ codeunit 92 "Purch.-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintShip(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPurchPost(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

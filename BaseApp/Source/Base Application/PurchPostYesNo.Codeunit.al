@@ -107,7 +107,7 @@ codeunit 91 "Purch.-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConfirmPost(PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterConfirmPost(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

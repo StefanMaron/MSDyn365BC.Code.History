@@ -356,8 +356,12 @@ report 5848 "Cost Shares Breakdown"
                     if CostSharePrint in [CostSharePrint::Sales, CostSharePrint::Inventory] then begin
                         CostShareBuf.SetCurrentKey("Item No.");
                         CostShareBuf.SetRange("Item No.", ItemPrint."No.");
-                        if CostSharePrint = CostSharePrint::Sales then
+                        if CostSharePrint = CostSharePrint::Sales then begin
                             CostShareBuf.SetRange("Entry Type", CostShareBuf."Entry Type"::Sale);
+                            if EndDate = 0D then
+                                EndDate := DMY2Date(31, 12, 9998);
+                            CostShareBuf.SetRange("Posting Date", StartDate, EndDate)
+                        end;
                     end else begin
                         CostShareBuf.SetCurrentKey("Order Type", "Order No.");
                         CostShareBuf.SetRange("Order Type", CostShareBuf."Order Type"::Production);

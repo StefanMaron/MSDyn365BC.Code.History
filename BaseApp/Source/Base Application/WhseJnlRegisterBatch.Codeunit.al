@@ -1,4 +1,4 @@
-codeunit 7304 "Whse. Jnl.-Register Batch"
+﻿codeunit 7304 "Whse. Jnl.-Register Batch"
 {
     Permissions = TableData "Warehouse Journal Batch" = imd,
                   TableData "Warehouse Entry" = imd,
@@ -277,13 +277,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             WhseJnlLine3.SetRange("Location Code", "Location Code");
             if not WhseJnlLine3.FindLast then
                 IncrBatchName := IncStr("Journal Batch Name") <> '';
-            OnBeforeIncrBatchName(WhseJnlLine3, IncrBatchName);
-            if IncrBatchName then begin
-                WhseJnlBatch.Delete();
-                WhseJnlBatch.Name := IncStr("Journal Batch Name");
-                if WhseJnlBatch.Insert() then;
-                "Journal Batch Name" := WhseJnlBatch.Name;
-            end;
+            IncreaseBatchName(IncrBatchName);
 
             WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
             if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin
@@ -296,6 +290,23 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 WhseJnlLine3.SetUpNewLine(WhseJnlLine2);
                 WhseJnlLine3.Modify();
             end;
+        end;
+    end;
+
+    local procedure IncreaseBatchName(IncrBatchName: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIncrBatchName(WhseJnlLine3, IncrBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IncrBatchName then begin
+            WhseJnlBatch.Delete();
+            WhseJnlBatch.Name := IncStr(WhseJnlLine."Journal Batch Name");
+            if WhseJnlBatch.Insert() then;
+            WhseJnlLine."Journal Batch Name" := WhseJnlBatch.Name;
         end;
     end;
 
@@ -641,7 +652,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIncrBatchName(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IncrBatchName: Boolean);
+    local procedure OnBeforeIncrBatchName(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IncrBatchName: Boolean; var IsHandled: Boolean);
     begin
     end;
 

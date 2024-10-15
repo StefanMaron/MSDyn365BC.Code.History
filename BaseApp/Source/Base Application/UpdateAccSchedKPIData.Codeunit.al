@@ -134,6 +134,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
     local procedure CalcValues(Number: Integer)
     var
+        AccountingPeriod: Record "Accounting Period";
         ToDate: Date;
         ColNo: Integer;
         CalculatedValue: Decimal;
@@ -151,7 +152,8 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         AccSchedKPIBuffer.Init();
         AccSchedKPIBuffer."No." := LastLineNo;
         AccSchedKPIBuffer.Date := Date;
-        AccSchedKPIBuffer."Closed Period" := Date <= LastClosedDate;
+        AccSchedKPIBuffer."Closed Period" :=
+          AccountingPeriod.CorrespondingAccountingPeriodExists(AccountingPeriod, Date) and AccountingPeriod.Closed;
         AccSchedKPIBuffer."Account Schedule Name" := TempAccScheduleLine."Schedule Name";
         AccSchedKPIBuffer."KPI Code" := CopyStr(TempAccScheduleLine."Row No.", 1, MaxStrLen(AccSchedKPIBuffer."KPI Code"));
         AccSchedKPIBuffer."KPI Name" := CopyStr(TempAccScheduleLine.Description, 1, MaxStrLen(AccSchedKPIBuffer."KPI Name"));
@@ -190,7 +192,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         // Forecasted values
         with AccSchedKPIWebSrvSetup do
             if (("Forecasted Values Start" = "Forecasted Values Start"::"After Latest Closed Period") and
-                not AccSchedKPIBuffer."Closed Period") or
+                not (Date <= LastClosedDate)) or
                (("Forecasted Values Start" = "Forecasted Values Start"::"After Current Date") and (Date > WorkDate))
             then begin
                 AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Budget"; // Net Change Budget
