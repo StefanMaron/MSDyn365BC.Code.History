@@ -1765,6 +1765,73 @@
         );
     end;
 
+    [Test]
+    procedure VerifyWhseRequestIsRemovedOnDeleteSalesOrderLines()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Sales Line
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location with Require Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Create and Release Sales Order
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, 1, Location.Code);
+
+        // [GIVEN] Reopen the Sales Order
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [THEN] Verify Warehouse Request rec exist
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1);
+
+        // [WHEN] Remove Sales Lines
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.DeleteAll(true);
+
+        // [THEN] Verify Warehouse Request removed
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyWhseRequestIsRemovedOnDeletePurchaseOrderLines()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Purchase Line
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Release Purchase Order
+        CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", Item."No.", 1, 1, LocationGreen.Code);
+
+        // [GIVEN] Reopen the Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Verify Warehouse Request rec exist
+        VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 1);
+
+        // [WHEN] Remove Purchase Lines
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.DeleteAll(true);
+
+        // [THEN] Verify Warehouse Request removed
+        VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2441,6 +2508,16 @@
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal; LocationCode: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, VendorNo, LocationCode);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
     local procedure CreateAndReleaseSimpleTransferOrder(var TransferHeader: Record "Transfer Header"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -3340,6 +3417,17 @@
             until Next = 0;
         end;
         Assert.AreEqual(ExpectedQty, PickQtySum, ValueMustBeEqualTxt);
+    end;
+
+    local procedure VerifyWarehouseRequestRec(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; Expected: Integer)
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetRange("Source Type", SourceType);
+        WarehouseRequest.SetRange("Source Subtype", SourceSubtype);
+        WarehouseRequest.SetRange("Source No.", SourceNo);
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
+        Assert.AreEqual(Expected, WarehouseRequest.Count(), 'Expected warehouse request to exist.');
     end;
 
     [ModalPageHandler]
