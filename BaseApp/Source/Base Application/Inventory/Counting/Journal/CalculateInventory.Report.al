@@ -787,7 +787,15 @@ report 790 "Calculate Inventory"
     end;
 
     local procedure ItemBinLocationIsCalculated(BinCode: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
+        IsCalculated: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeItemBinLocationIsCalculated("Item Ledger Entry", IsHandled, IsCalculated);
+        if IsHandled then
+            exit(IsCalculated);
+
         TempQuantityOnHandBuffer.Reset();
         TempQuantityOnHandBuffer.SetRange("Item No.", "Item Ledger Entry"."Item No.");
         TempQuantityOnHandBuffer.SetRange("Variant Code", "Item Ledger Entry"."Variant Code");
@@ -1120,6 +1128,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcWhseQtyOnAfterGetWhseItemTrkgSetup(LocationCode: Code[10]; var ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemBinLocationIsCalculated(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var IsCalculated: Boolean)
     begin
     end;
 }

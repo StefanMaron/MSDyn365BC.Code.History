@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#if not CLEAN25
 namespace Microsoft.Integration.FieldService;
 
 using Microsoft.Projects.Project.Job;
@@ -23,6 +24,10 @@ using Microsoft.Sales.History;
 codeunit 6405 "FS Int. Table. Subscriber"
 {
     SingleInstance = true;
+    EventSubscriberInstance = Manual;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     var
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
@@ -744,7 +749,11 @@ codeunit 6405 "FS Int. Table. Subscriber"
     var
         FSConnectionSetup: Record "FS Connection Setup";
         FSWorkOrderProduct: Record "FS Work Order Product";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        FSWorkOrderProduct2: Record "FS Work Order Product";
         FSWorkOrderService: Record "FS Work Order Service";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        FSWorkOrderService2: Record "FS Work Order Service";
         FSBookableResourceBooking: Record "FS Bookable Resource Booking";
         CRMIntegrationRecord: Record "CRM Integration Record";
         JobPlanningLine: Record "Job Planning Line";
@@ -786,9 +795,9 @@ codeunit 6405 "FS Int. Table. Subscriber"
         JobUsageLink.Modify();
 
         // write back consumption data to Field Service
-        if not FSWorkOrderProduct.WritePermission() then
+        if not FSWorkOrderProduct2.WritePermission() then
             exit;
-        if not FSWorkOrderService.WritePermission() then
+        if not FSWorkOrderService2.WritePermission() then
             exit;
         Codeunit.Run(Codeunit::"CRM Integration Management");
         if FSWorkOrderProduct.Get(CRMIntegrationRecord."CRM ID") then begin
@@ -1118,3 +1127,4 @@ codeunit 6405 "FS Int. Table. Subscriber"
     begin
     end;
 }
+#endif

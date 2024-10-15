@@ -8,7 +8,8 @@ page 245 "Consolidations in Progress"
     SourceTableView = order(descending);
     PageType = List;
     InsertAllowed = false;
-    Editable = false;
+    ModifyAllowed = false;
+    DeleteAllowed = true;
 
     layout
     {

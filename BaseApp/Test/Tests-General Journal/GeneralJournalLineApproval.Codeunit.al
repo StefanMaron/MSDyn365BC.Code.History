@@ -1403,6 +1403,45 @@ codeunit 134322 "General Journal Line Approval"
         Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlLineApprovalStatus.Value, 'Imposed restriction is not shown');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure RenumberMultipleGenjnlLineHasRestrictedRecord()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [SCENARIO 539249] After renumbering doc numbers on the General Journal Lines approval workflow. Restricted Entry created for all General Journal Line
+        Initialize();
+
+        // [GIVEN] Delete All the General Journal Template
+        GenJournalTemplate.DeleteAll();
+
+        // [GIVEN] Enable Gen. Journal Batch Approval Workflow
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        // [GIVEN] Create multipe Gen. Journal Line
+        CreateMultipleGenJnlLine(GenJournalLine);
+
+        // [GIVEN] Create Approval Entry for Gen. Journal Line with a status Approved
+        GenJournalBatch.Get(GenJournalLine[1]."Journal Template Name", GenJournalLine[1]."Journal Batch Name");
+        CreateMultipleApprovalEntry(GenJournalLine);
+
+        // [WHEN] Renumber the document
+        GeneralJournal.OpenView();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        GeneralJournal."Renumber Document Numbers".Invoke();
+        GeneralJournal.Close();
+
+        // [THEN] Verify: Restrictd record created for all the General Journal Line.
+        VerifyMultipleRestrictionRecordExists(GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -1483,7 +1522,7 @@ codeunit 134322 "General Journal Line Approval"
         CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate(), BalAccountType, BalAccountNo);
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LibraryRandom.RandDecInRange(10000, 50000, 2));
+GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
     local procedure CreatePmtJnlBatchWithOneInvoiceLineForAccTypeCustomer(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
@@ -1839,5 +1878,51 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         exit(ApprovalCommentLine.FindFirst())
     end;
+
+    local procedure CreateMultipleGenJnlLine(var GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        i: Integer;
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        for i := 1 to ArrayLen(GenJnlLine) do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJnlLine[i],
+                GenJournalBatch."Journal Template Name",
+                GenJournalBatch.Name,
+                GenJnlLine[i]."Account Type"::"G/L Account",
+                GenJnlLine[i]."Document Type"::" ",
+                LibraryERM.CreateGLAccountNo(),
+                LibraryRandom.RandDec(100, 2));
+            GenJnlLine[i].Validate("Document No.", Format(GenJnlLine[i]."Line No."));
+            GenJnlLine[i].Modify();
+        end;
+    end;
+
+    local procedure CreateMultipleApprovalEntry(GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        ApprovalStatus: Enum "Approval Status";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GenJnlLine) do
+            CreateApprovalEntryForCurrentUser(GenJnlLine[1].RecordId, ApprovalStatus::Approved);
+    end;
+
+    local procedure VerifyMultipleRestrictionRecordExists(var GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GenJnlLine) do
+            VerifyRestrictionRecordExists(GenJnlLine[i].RecordId);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(QuestionText: Text[1024]; var Relpy: Boolean)
+    begin
+        Relpy := true;
+    end;
+
 }
 

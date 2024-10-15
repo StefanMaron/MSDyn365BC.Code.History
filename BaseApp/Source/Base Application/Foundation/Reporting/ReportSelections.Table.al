@@ -1011,14 +1011,14 @@ table 77 "Report Selections"
 
     local procedure GetNextJobQueueParam(var Parameter: Text): Text
     var
-        i: Integer;
+        I: Integer;
         Result: Text;
     begin
-        i := StrPos(Parameter, '|');
-        if i > 0 then
-            Result := CopyStr(Parameter, 1, i - 1);
-        if (i + 1) < StrLen(Parameter) then
-            Parameter := CopyStr(Parameter, i + 1);
+        I := StrPos(Parameter, '|');
+        if I > 0 then
+            Result := CopyStr(Parameter, 1, I - 1);
+        if (I + 1) < StrLen(Parameter) then
+            Parameter := CopyStr(Parameter, I + 1);
         exit(Result);
     end;
 
@@ -1856,6 +1856,7 @@ table 77 "Report Selections"
     var
         ReportLayoutSelectionLocal: Record "Report Layout Selection";
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        CustomerStatementSub: codeunit "Customer Statement Subscr";
         LastUsedParameters: Text;
         IsHandled: Boolean;
         OutStream: OutStream;
@@ -1865,7 +1866,9 @@ table 77 "Report Selections"
             ReportLayoutSelectionLocal.SetTempLayoutSelectedName(Rec."Report Layout Name", Rec."Report Layout AppID")
         else
             ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
+        BindSubscription(CustomerStatementSub);
         OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob, Rec);
+        UnbindSubscription(CustomerStatementSub);
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
             LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);

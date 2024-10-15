@@ -1456,6 +1456,7 @@ codeunit 7302 "WMS Management"
 
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
+        OnSerialNoOnInventoryOnBeforeCalcQtyBase(WarehouseEntry);
         WarehouseEntry.CalcSums("Qty. (Base)");
         exit(WarehouseEntry."Qty. (Base)" > 0);
     end;
@@ -2367,6 +2368,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestinationNo: Code[20]; var DestinationName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSerialNoOnInventoryOnBeforeCalcQtyBase(var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 }

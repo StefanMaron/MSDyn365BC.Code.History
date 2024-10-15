@@ -18,13 +18,11 @@ codeunit 6319 "Power BI Workspace Mgt."
         CouldntGetWorkspacesTelemetryMsg: Label 'Could not retrieve workspaces.', Locked = true;
         CouldntGetReportsTelemetryMsg: Label 'Could not retrieve reports from workspace %1.', Locked = true;
 
-    [Scope('OnPrem')]
     procedure GetMyWorkspaceLabel(): Text[200]
     begin
         exit(MyWorkspaceTxt);
     end;
 
-    [Scope('OnPrem')]
     procedure AddPersonalWorkspace(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary)
     begin
         TempPowerBISelectionElement.Init();
@@ -35,7 +33,6 @@ codeunit 6319 "Power BI Workspace Mgt."
         TempPowerBISelectionElement.Insert();
     end;
 
-    [Scope('OnPrem')]
     procedure AddSharedWorkspaces(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary)
     var
         PowerBIServiceProvider: Interface "Power BI Service Provider";
@@ -78,7 +75,6 @@ codeunit 6319 "Power BI Workspace Mgt."
         exit(PowerBIUrlMgt.GetPowerBISharedReportsUrl(PowerBISelectionElement.ID));
     end;
 
-    [Scope('OnPrem')]
     procedure GetReportsAndWorkspaces(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; EnglishContext: Text[30])
     var
         TempWorkspacePowerBISelectionElement: Record "Power BI Selection Element" temporary;
@@ -96,13 +92,13 @@ codeunit 6319 "Power BI Workspace Mgt."
 
         if TempWorkspacePowerBISelectionElement.FindSet() then
             repeat
-                AddReportsForWorkspace(TempPowerBISelectionElement, TempWorkspacePowerBISelectionElement.ID, TempWorkspacePowerBISelectionElement.Name, EnglishContext);
+                AddReportsForWorkspace(TempPowerBISelectionElement, TempWorkspacePowerBISelectionElement.ID, TempWorkspacePowerBISelectionElement.Name);
+                FillEnabledColumn(TempPowerBISelectionElement, EnglishContext);
             until TempWorkspacePowerBISelectionElement.Next() = 0;
     end;
 
-    local procedure AddReportsForWorkspace(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; WorkspaceID: Guid; WorkspaceName: Text[200]; Context: Text[30])
+    procedure AddReportsForWorkspace(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; WorkspaceID: Guid; WorkspaceName: Text[200])
     var
-        PowerBIDisplayedElement: Record "Power BI Displayed Element";
         PowerBIServiceProvider: Interface "Power BI Service Provider";
         ReturnedReport: DotNet ReturnedReport;
         ReturnedReportList: DotNet ReturnedReportList;
@@ -141,10 +137,23 @@ codeunit 6319 "Power BI Workspace Mgt."
             TempPowerBISelectionElement.Type := TempPowerBISelectionElement.Type::Report;
             TempPowerBISelectionElement.WorkspaceName := WorkspaceName;
             TempPowerBISelectionElement.WorkspaceID := WorkspaceID;
-            TempPowerBISelectionElement.Enabled := PowerBIDisplayedElement.Get(UserSecurityId(), Context, PowerBIDisplayedElement.MakeReportKey(TempPowerBISelectionElement.ID), TempPowerBISelectionElement.Type);
 
             if not TempPowerBISelectionElement.Insert() then
                 Session.LogMessage('0000F2D', FailedToInsertReportTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
         end;
+    end;
+
+    local procedure FillEnabledColumn(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; EnglishContext: Text[30])
+    var
+        PowerBIDisplayedElement: Record "Power BI Displayed Element";
+    begin
+        TempPowerBISelectionElement.SetRange(TempPowerBISelectionElement.Type, TempPowerBISelectionElement.Type::Report);
+        if TempPowerBISelectionElement.FindSet() then
+            repeat
+                TempPowerBISelectionElement.Enabled := PowerBIDisplayedElement.Get(UserSecurityId(), EnglishContext, PowerBIDisplayedElement.MakeReportKey(TempPowerBISelectionElement.ID), TempPowerBISelectionElement.Type);
+                TempPowerBISelectionElement.Modify(true);
+            until TempPowerBISelectionElement.Next() = 0;
+
+        TempPowerBISelectionElement.SetRange(TempPowerBISelectionElement.Type);
     end;
 }

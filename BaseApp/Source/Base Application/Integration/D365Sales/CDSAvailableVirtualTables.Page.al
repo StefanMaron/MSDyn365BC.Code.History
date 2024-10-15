@@ -153,7 +153,7 @@ page 5372 "CDS Available Virtual Tables"
     var
         EnablingJobScheduledNotificationLbl: Label 'A job queue entry has been scheduled to enable the selected virtual tables in the Dataverse environment. You can close this page and continue working.';
         DetailsTxt: Label 'Details';
-        VirtualTableEntityNameTxt: Label 'mserp_businesscentralentity', Locked = true;
+        VirtualTableEntityNameTxt: Label 'dyn365bc_businesscentralentity', Locked = true;
         VirtualTableAppNameTxt: Label 'dyn365bc_BusinessCentralConfiguration', Locked = true;
 
     local procedure SendNotification()

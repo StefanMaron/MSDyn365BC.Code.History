@@ -3,7 +3,6 @@ namespace Microsoft.Projects.Project.Journal;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Reporting;
-using Microsoft.Integration.FieldService;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
@@ -220,12 +219,17 @@ page 201 "Job Journal"
                     ToolTip = 'Specifies the quantity of the resource or item that remains to complete a project. The remaining quantity is calculated as the difference between Quantity and Qty. Posted. You can modify this field to indicate the quantity you want to remain on the project planning line after you post usage.';
                     Visible = false;
                 }
+#if not CLEAN25
                 field(QuantityToTransferToInvoice; Rec."Qty. to Transfer to Invoice")
                 {
                     ApplicationArea = Jobs;
-                    Visible = FSRelatedFieldsVisible;
+                    Visible = false;
                     ToolTip = 'Specifies the number of units of the project journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 field("Direct Unit Cost (LCY)"; Rec."Direct Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
@@ -870,7 +874,6 @@ page 201 "Job Journal"
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
-        SetFSFieldsVisibility();
         SetDimensionsVisibility();
 
         OpenJournal();
@@ -890,7 +893,6 @@ page 201 "Job Journal"
         IsSaaSExcelAddinEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
-        FSRelatedFieldsVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -932,13 +934,6 @@ page 201 "Job Journal"
             Error('');
         JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
-    end;
-
-    local procedure SetFSFieldsVisibility()
-    var
-        FSConnectionSetup: Record "FS Connection Setup";
-    begin
-        FSRelatedFieldsVisible := (FSConnectionSetup.IsEnabled());
     end;
 
     local procedure SetDimensionsVisibility()
