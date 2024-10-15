@@ -3216,6 +3216,9 @@
         key(Key18; "Shipment Date", "Outstanding Quantity")
         {
         }
+        key(Key19; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
