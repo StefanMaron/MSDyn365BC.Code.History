@@ -5856,7 +5856,7 @@
         if IsHandled then
             exit;
 
-        if (GenJnlLine.Amount = 0) and (GenJnlLine."Amount (LCY)" = 0) then
+        if ((GenJnlLine.Amount = 0) and (GenJnlLine."Amount (LCY)" = 0)) and (not IsGainLossAccount(GenJnlLine."Source Currency Code", GLAccNo)) then
             exit;
 
         TableID[1] := DATABASE::"G/L Account";
@@ -5867,11 +5867,30 @@
         if GenJnlLine."Line No." <> 0 then
             Error(
               DimensionUsedErr,
-              GenJnlLine.TableCaption, GenJnlLine."Journal Template Name",
+              GenJnlLine.TableCaption(), GenJnlLine."Journal Template Name",
               GenJnlLine."Journal Batch Name", GenJnlLine."Line No.",
-              DimMgt.GetDimValuePostingErr);
+              DimMgt.GetDimValuePostingErr());
 
-        Error(DimMgt.GetDimValuePostingErr);
+        Error(DimMgt.GetDimValuePostingErr());
+    end;
+
+    local procedure IsGainLossAccount(CurrencyCode: Code[10]; GLAccNo: Code[20]): Boolean
+    var
+        Currency: Record Currency;
+    begin
+        if CurrencyCode = '' then
+            exit(false);
+
+        if not Currency.Get(CurrencyCode) then
+            exit(false);
+
+        case true of
+            Currency."Realized Gains Acc." = GLAccNo,
+            Currency."Realized Losses Acc." = GLAccNo,
+            Currency."Unrealized Gains Acc." = GLAccNo,
+            Currency."Unrealized Losses Acc." = GLAccNo:
+                exit(true);
+        end;
     end;
 
     local procedure CheckGLAccDirectPosting(GenJnlLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account")
