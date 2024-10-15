@@ -16,6 +16,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -1803,6 +1804,46 @@ codeunit 136303 "Job Consumption - Usage Link"
         LinkQuantities(QtyToPost, -QtyToPost / 3, LibraryJob.GLAccountType())
     end;
 
+    [Test]
+    procedure GLAccountLineViaPurchOrderSeveralLines()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        PL_Qty: Decimal;
+    begin
+        // Setup
+        Initialize();
+
+        // [GIVEN] A job with job task
+        PL_Qty := LibraryRandom.RandInt(100);
+        CreateJob(true, true, Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Job planning line 
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.GLAccountType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, 2 * PL_Qty);
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Purchase orders with two lines for the job planning line, split the quantity
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLineForJobPlanningLine(PurchaseHeader, JobPlanningLine, PL_Qty);
+        CreatePurchaseLineForJobPlanningLine(PurchaseHeader, JobPlanningLine, PL_Qty);
+
+        // [WHEN] Post the purchase order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        // refresh
+        JobPlanningLine.Get(Job."No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
+
+        // [THEN] Verify that the planning line is processed and quantity stays the same
+        JobPlanningLine.TestField(Quantity, 2 * PL_Qty);
+        JobPlanningLine.TestField("Qty. Posted", JobPlanningLine.Quantity);
+        JobPlanningLine.TestField("Qty. to Transfer to Journal", 0);
+        JobPlanningLine.TestField("Remaining Qty.", 0);
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN23
@@ -2465,6 +2506,17 @@ codeunit 136303 "Job Consumption - Usage Link"
         WorkType.Validate(Code, WorkTypeCode);
         WorkType.Insert(true);
         exit(WorkTypeCode)
+    end;
+
+    local procedure CreatePurchaseLineForJobPlanningLine(Purchaseheader: Record "Purchase Header"; JobPlanningLine: Record "Job Planning Line"; Qty: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", JobPlanningLine."No.", Qty);
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure MockJobPlanningLine(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; JobTaskNo: Code[20]; JobPlanningLineNo: Integer)
