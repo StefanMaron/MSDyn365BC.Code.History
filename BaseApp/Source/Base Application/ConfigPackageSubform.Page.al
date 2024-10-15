@@ -133,7 +133,7 @@ page 8625 "Config. Package Subform"
                         CurrPage.Update();
                     end;
                 }
-                field(NoOfDatabaseRecords; GetNoOfDatabaseRecords)
+                field(NoOfDatabaseRecords; GetNoOfDatabaseRecordsText())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Database Records';

@@ -12,9 +12,15 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader.Find();
         SalesInvoiceHeader."Payment Method Code" := "Payment Method Code";
         SalesInvoiceHeader."Payment Reference" := "Payment Reference";
+        OnOnRunOnBeforeTestFieldNo(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", "No.");
         SalesInvoiceHeader.Modify();
         Rec := SalesInvoiceHeader;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnRunOnBeforeTestFieldNo(var SalesInvoiceHeader: Record "Sales Invoice Header"; SalesInvoiceHeaderRec: Record "Sales Invoice Header")
+    begin
     end;
 }
 

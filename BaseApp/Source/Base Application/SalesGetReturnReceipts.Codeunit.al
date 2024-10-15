@@ -32,9 +32,11 @@ codeunit 6638 "Sales-Get Return Receipts"
     procedure CreateInvLines(var ReturnRcptLine2: Record "Return Receipt Line")
     var
         DifferentCurrencies: Boolean;
+        ShouldInsertReturnRcptLine: Boolean;
     begin
         with ReturnRcptLine2 do begin
             SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
+            OnCreateInvLinesOnAfterReturnRcptLine2SetFilters(ReturnRcptLine2);
             if Find('-') then begin
                 SalesLine.LockTable();
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -56,7 +58,9 @@ codeunit 6638 "Sales-Get Return Receipts"
                         end;
                         OnBeforeTransferLineToSalesDoc(ReturnRcptHeader, ReturnRcptLine2, SalesHeader, DifferentCurrencies);
                     end;
-                    if not DifferentCurrencies then begin
+                    ShouldInsertReturnRcptLine := not DifferentCurrencies;
+                    OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnRcptHeader, ReturnRcptLine2, SalesHeader, ShouldInsertReturnRcptLine);
+                    if ShouldInsertReturnRcptLine then begin
                         ReturnRcptLine := ReturnRcptLine2;
                         ReturnRcptLine.InsertInvLineFromRetRcptLine(SalesLine);
                         if Type = Type::"Charge (Item)" then
@@ -175,6 +179,16 @@ codeunit 6638 "Sales-Get Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineToSalesDoc(ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var SalesHeader: Record "Sales Header"; var TransferLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(var ReturnReceiptHeader: Record "Return Receipt Header"; var ReturnReceiptLine: Record "Return Receipt Line"; var SalesHeader: Record "Sales Header"; var ShouldInsertReturnRcptLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterReturnRcptLine2SetFilters(var ReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 

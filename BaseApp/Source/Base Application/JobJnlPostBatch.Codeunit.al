@@ -46,6 +46,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         LastPostedDocNo: Code[20];
         NoOfPostingNoSeries: Integer;
         PostingNoSeriesNo: Integer;
+        SuppressCommit: Boolean;
 
     local procedure "Code"()
     var
@@ -55,6 +56,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         IsHandled: Boolean;
     begin
+        OnBeforeCode(JobJnlLine, SuppressCommit);
         with JobJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -71,7 +73,8 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
             if not Find('=><') then begin
                 "Line No." := 0;
-                Commit();
+                if not SuppressCommit then
+                    Commit();
                 exit;
             end;
 
@@ -179,11 +182,13 @@ codeunit 1013 "Job Jnl.-Post Batch"
             UpdateAndDeleteLines;
             OnAfterPostJnlLines(JobJnlBatch, JobJnlLine, JobRegNo);
 
-            Commit();
+            if not SuppressCommit then
+                Commit();
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
-        Commit();
+        if not SuppressCommit then
+            Commit();
     end;
 
     local procedure CheckRecurringLine(var JobJnlLine2: Record "Job Journal Line")
@@ -298,6 +303,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
         end;
     end;
 
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckJnlLine(var JobJournalLine: Record "Job Journal Line")
     begin
@@ -310,6 +320,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJnlLines(var JobJournalBatch: Record "Job Journal Batch"; var JobJournalLine: Record "Job Journal Line"; JobRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var JobJournalLine: Record "Job Journal Line"; var SuppressCommit: Boolean)
     begin
     end;
 

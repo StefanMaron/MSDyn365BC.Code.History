@@ -19,6 +19,7 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer.SetInsertFromTemplate(true);
         Customer.Init();
         InitCustomerNo(Customer, CustomerTempl);
+        Customer."Contact Type" := CustomerTempl."Contact Type";
         Customer.Insert(true);
         Customer.SetInsertFromTemplate(false);
 
@@ -102,12 +103,17 @@ codeunit 1381 "Customer Templ. Mgt."
             Customer."Territory Code" := CustomerTempl."Territory Code";
         Customer."Credit Limit (LCY)" := CustomerTempl."Credit Limit (LCY)";
         Customer."Allow Line Disc." := CustomerTempl."Allow Line Disc.";
+        Customer."Contact Type" := CustomerTempl."Contact Type";
+        Customer."Partner Type" := CustomerTempl."Partner Type";
+        Customer."Location Code" := CustomerTempl."Location Code";
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
 
     procedure SelectCustomerTemplateFromContact(var CustomerTempl: Record "Customer Templ."; Contact: Record Contact): Boolean
     begin
+        OnBeforeSelectCustomerTemplateFromContact(CustomerTempl, Contact);
+
         CustomerTempl.SetRange("Contact Type", Contact.Type);
         exit(SelectCustomerTemplate(CustomerTempl));
     end;
@@ -299,6 +305,8 @@ codeunit 1381 "Customer Templ. Mgt."
         CustomerTempl."Territory Code" := Customer."Territory Code";
         CustomerTempl."Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
         CustomerTempl."Allow Line Disc." := Customer."Allow Line Disc.";
+        CustomerTempl."Partner Type" := Customer."Partner Type";
+        CustomerTempl."Location Code" := Customer."Location Code";
 
         CustomerTempl.Insert();
     end;
@@ -371,6 +379,11 @@ codeunit 1381 "Customer Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectCustomerTemplateFromContact(var CustomerTempl: Record "Customer Templ."; Contact: Record Contact)
     begin
     end;
 

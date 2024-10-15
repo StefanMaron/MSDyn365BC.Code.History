@@ -18,6 +18,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         JobQueueCategoryDescLbl: Label 'Send API Webhook Notifications';
         CreateNotificationMsg: Label 'Create new notification. Subscription: %1. Expiration time: %2. Table: %3. Last modified time: %4. Change type: %5. Notification ID: %6.', Locked = true;
         CannotCreateNotificationErr: Label 'Cannot create new notification. Subscription: %1. Expiration time: %2. Table: %3. Last modified time: %4. Change type: %5.', Locked = true;
+        ZeroSystemIdTxt: Label 'The record has zero system ID. Subscription: %1. Expiration time: %2. Table: %3. Last modified time: %4. Change type: %5.', Locked = true;
         FilterMatchingMsg: Label 'The record in table %3 is matching the filter in %4 %5. Subscription: %1. Expiration time: %2', Locked = true;
         FilterMismatchingMsg: Label 'The record in table %3 is mismatching the filter in %4 %5. Subscription: %1. Expiration time: %2', Locked = true;
         DeleteSubscriptionMsg: Label 'Delete subscription. Subscription: %1. Expiration time: %2. Table: %3.', Locked = true;
@@ -135,6 +136,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         ApiWebhookEntity: Record "Api Webhook Entity";
         RegisteredNotificationDeleted: Boolean;
         RegisteredNotificationCreated: Boolean;
+        RecordSystemId: Guid;
     begin
         if not GetEntity(APIWebhookSubscription, ApiWebhookEntity) then begin
             Session.LogMessage('000024N', StrSubstNo(DeleteObsoleteOrUnsupportedSubscriptionMsg, APIWebhookSubscription.SystemId,
@@ -142,18 +144,22 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit(false);
         end;
 
+        RecordSystemId := RecRef.Field(RecRef.SystemIdNo).Value();
+        if IsNullGuid(RecordSystemId) then
+            RecordSystemId := xRecRef.Field(RecRef.SystemIdNo).Value();
+
         if ApiWebhookEntity."OData Key Specified" then begin
             if not CheckTableFilters(APIWebhookSubscription, ApiWebhookEntity, RecRef) then
                 exit(false);
-            exit(RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeTypeOption::Updated));
+            exit(RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeTypeOption::Updated, RecordSystemId));
         end;
 
         if CheckTableFilters(APIWebhookSubscription, ApiWebhookEntity, xRecRef) then
             RegisteredNotificationDeleted :=
-              RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, xRecRef, ChangeTypeOption::Deleted);
+              RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, xRecRef, ChangeTypeOption::Deleted, RecordSystemId);
         if CheckTableFilters(APIwebhookSubscription, ApiWebhookEntity, RecRef) then
             RegisteredNotificationCreated :=
-              RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeTypeOption::Created);
+              RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeTypeOption::Created, RecordSystemId);
         exit(RegisteredNotificationDeleted or RegisteredNotificationCreated);
     end;
 
@@ -346,11 +352,34 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option): Boolean
     var
+        SavedRecordRef: RecordRef;
+        RecordSystemId: Guid;
+    begin
+        RecordSystemId := RecRef.Field(RecRef.SystemIdNo).Value();
+        if IsNullGuid(RecordSystemId) then
+            if ChangeType = ChangeTypeOption::Updated then begin
+                SavedRecordRef.Open(RecRef.Number);
+                CopyPrimaryKeyFields(RecRef, SavedRecordRef);
+                if SavedRecordRef.Find() then
+                    RecordSystemId := SavedRecordRef.Field(SavedRecordRef.SystemIdNo).Value();
+            end;
+        exit(RegisterNotification(ApiWebhookEntity, APIWebhookSubscription, RecRef, ChangeType, RecordSystemId));
+    end;
+
+    local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option; RecordSystemId: Guid): Boolean
+    var
         APIWebhookNotification: Record "API Webhook Notification";
         FieldValue: Text;
     begin
         if not APIWebhookNotification.WritePermission() then begin
             Session.LogMessage('0000DY2', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit(false);
+        end;
+
+        if IsNullGuid(RecordSystemId) then begin
+            Session.LogMessage('0000FMO', StrSubstNo(ZeroSystemIdTxt, APIWebhookSubscription.SystemId,
+                DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id",
+                DateTimeToString(APIWebhookNotification."Last Modified Date Time"), APIWebhookNotification."Change Type"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
 
@@ -361,7 +390,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             APIWebhookNotification."Change Type" := ChangeType;
             // Cannot use $systemModifiedAt as it is not updated yet in OnDatabaseModify
             APIWebhookNotification."Last Modified Date Time" := CurrentDateTime();
-            APIWebhookNotification."Entity ID" := RecRef.Field(RecRef.SystemIdNo).Value();
+            APIWebhookNotification."Entity ID" := RecordSystemId;
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
                 if IsDetailedLoggingEnabled() then

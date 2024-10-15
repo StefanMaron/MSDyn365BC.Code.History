@@ -65,14 +65,26 @@ table 5906 "Service Comment Line"
 
     trigger OnInsert()
     begin
+        TestTableLineNo();
+    end;
+
+    var
+        ServCommentLine: Record "Service Comment Line";
+
+    local procedure TestTableLineNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestTableLineNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type in ["Service Comment Line Type"::Fault, "Service Comment Line Type"::Resolution,
                     "Service Comment Line Type"::Accessory, "Service Comment Line Type"::Internal]
         then
             TestField("Table Line No.");
     end;
-
-    var
-        ServCommentLine: Record "Service Comment Line";
 
     procedure SetUpNewLine()
     begin
@@ -100,6 +112,11 @@ table 5906 "Service Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var ServiceCommentLineRec: Record "Service Comment Line"; var ServiceCommentLineFilter: Record "Service Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestTableLineNo(ServiceCommentLine: Record "Service Comment Line"; var IsHandled: Boolean)
     begin
     end;
 }

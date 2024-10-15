@@ -1,4 +1,4 @@
-table 99000764 "Routing Line"
+﻿table 99000764 "Routing Line"
 {
     Caption = 'Routing Line';
 
@@ -272,6 +272,7 @@ table 99000764 "Routing Line"
                         RtngComment."Operation No." := "Operation No.";
                         RtngComment."Line No." := StdTaskComment."Line No.";
                         RtngComment.Comment := StdTaskComment.Text;
+                        OnValidateStandardTaskCodeOnBeforeRtngCommentLineInsert(RtngComment, StdTaskComment);
                         RtngComment.Insert();
                     until StdTaskComment.Next() = 0;
             end;
@@ -556,6 +557,11 @@ table 99000764 "Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCertifiedRoutingVersionExistsOnBeforeCalculate(var RtngVersionCode: Code[20]; var RtngHeaderNo: Code[20]; CalculationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStandardTaskCodeOnBeforeRtngCommentLineInsert(var RoutingCommentLine: Record "Routing Comment Line"; StdTaskComment: Record "Standard Task Description")
     begin
     end;
 }
