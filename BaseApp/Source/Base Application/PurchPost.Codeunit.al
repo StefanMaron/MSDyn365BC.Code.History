@@ -112,6 +112,7 @@
         end;
 
         PurchaseLinesProcessed := false;
+        PurchHeader."IRS 1099 Amount" := 0;
         if TempPurchLineGlobal.FindSet() then
             repeat
                 OnRunOnBeforePostPurchLine(TempPurchLineGlobal);
@@ -2217,9 +2218,18 @@
         with PurchLine do begin
             case Type of
                 Type::Item:
-                    DummyTrackingSpecification.CheckItemTrackingQuantity(
-                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.",
-                      "Qty. to Receive (Base)", "Qty. to Invoice (Base)", PurchHeader.Receive, PurchHeader.Invoice);
+                    case PurchHeader."Document Type" of
+                        PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice:
+                            DummyTrackingSpecification.CheckItemTrackingQuantity(
+                              DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.",
+                              "Qty. to Receive (Base)", "Qty. to Invoice (Base)", PurchHeader.Receive, PurchHeader.Invoice);
+                        PurchHeader."Document Type"::"Credit Memo", PurchHeader."Document Type"::"Return Order":
+                            DummyTrackingSpecification.CheckItemTrackingQuantity(
+                              DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.",
+                              "Return Qty. to Ship (Base)", "Qty. to Invoice (Base)", PurchHeader.Ship, PurchHeader.Invoice);
+                        else
+                            OnTestPurchLineOnTypeCaseOnDocumentTypeCaseElse(PurchHeader, PurchLine);
+                    end;
                 Type::"Charge (Item)":
                     TestPurchLineItemCharge(PurchLine);
                 Type::"Fixed Asset":
@@ -11177,6 +11187,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnClearVATForSalesTax(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestPurchLineOnTypeCaseOnDocumentTypeCaseElse(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

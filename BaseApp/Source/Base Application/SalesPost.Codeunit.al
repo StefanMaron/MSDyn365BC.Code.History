@@ -1979,7 +1979,14 @@
         if IsHandled then
             exit;
 
-        TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice:
+                TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+            SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order":
+                TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. to Receive (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Receive, SalesHeader.Invoice);
+            else
+                OnCheckItemTrackingQuantityOnDocumentTypeCaseElse(SalesHeader, SalesLine);
+        end;
     end;
 
     local procedure TestSalesLineItemCharge(SalesLine: Record "Sales Line")
@@ -11207,6 +11214,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateICPartnerBusPostingGroups(var TempICGenJnlLine: Record "Gen. Journal Line" temporary; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemTrackingQuantityOnDocumentTypeCaseElse(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 }
