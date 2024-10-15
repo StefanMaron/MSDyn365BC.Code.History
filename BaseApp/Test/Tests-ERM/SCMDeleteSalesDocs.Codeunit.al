@@ -37,7 +37,6 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
         CompanyInformation.Get;
         CompanyInformation."Bank Account No." := 'A';
         CompanyInformation.Modify;

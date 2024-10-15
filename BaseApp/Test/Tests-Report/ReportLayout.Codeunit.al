@@ -862,7 +862,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
+        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(CalcDate('<CY+1D>', WorkDate))); // NAVCZ
         ClosingTrialBalance.AmtsInAddCurr.SetValue(false);
         ClosingTrialBalance.SaveAsPdf(FormatFileName(ClosingTrialBalance.Caption));
     end;

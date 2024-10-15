@@ -133,6 +133,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
         GenJournalLine: Record "Gen. Journal Line";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         TolerancePct: Decimal;
         ToleranceAmount: Decimal;
     begin
@@ -148,6 +149,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
         ToleranceAmount :=
           CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup, TolerancePct);
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
         // Exercise: Apply Payment with Invoice.
         ApplyFromGeneralJournal(GenJournalLine."Document Type", GenJournalLine."Account No.");
@@ -3596,6 +3598,7 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure CreateGenLineAndApplyEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Option; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         GeneralJournal: TestPage "General Journal";
     begin
         SelectGenJournalBatch(GenJournalBatch);
@@ -3604,6 +3607,7 @@ codeunit 134022 "ERM Payment Tolerance"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Apply Entries".Invoke;
@@ -3747,6 +3751,8 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     local procedure CustomerInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; GLAccountNo: Code[20]; TolerancePct: Decimal) ToleranceAmount: Decimal
+    var
+        JournalUserPreferences: Record "Journal User Preferences";
     begin
         // Post Invoice and create Payment line with Random Amount.
         CreateModifyGenJournalLine(

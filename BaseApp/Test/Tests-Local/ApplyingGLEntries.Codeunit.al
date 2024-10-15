@@ -391,6 +391,8 @@ codeunit 145007 "Applying G/L Entries"
         GLEntryApplying.ByAmount.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
         GLEntryApplying.Applying.SetValue(FieldValue);
+        LibraryVariableStorage.Dequeue(FieldValue);
+        GLEntryApplying."G/L Account".SetFilter("No.", FieldValue);
         GLEntryApplying.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

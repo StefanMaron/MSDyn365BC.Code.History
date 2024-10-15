@@ -53,7 +53,7 @@ codeunit 31120 "EET Service Mgt."
     [Scope('OnPrem')]
     procedure SendRegisteredSalesDataMessage(EETEntry: Record "EET Entry")
     var
-        X509Certificate2: DotNet X509Certificate2;
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         XmlDoc: DotNet XmlDocument;
         RequestContentXmlDoc: DotNet XmlDocument;
         ResponseContentXmlDoc: DotNet XmlDocument;
@@ -61,12 +61,12 @@ codeunit 31120 "EET Service Mgt."
     begin
         Initialize;
 
-        LoadValidCertificate(EETEntry.GetCertificateCode, X509Certificate2);
-        if not CheckEETEntry(EETEntry, X509Certificate2) then
+        LoadValidCertificate(EETEntry.GetCertificateCode, DotNetX509Certificate2);
+        if not CheckEETEntry(EETEntry, DotNetX509Certificate2) then
             Error('');
 
         CreateXmlDocument(EETEntry, XmlDoc);
-        CreateSoapRequest(XmlDoc, X509Certificate2, RequestContentXmlDoc);
+        CreateSoapRequest(XmlDoc, DotNetX509Certificate2, RequestContentXmlDoc);
         SendSoapRequest(RequestContentXmlDoc, ResponseXmlDoc, ResponseContentXmlDoc);
 
         if HasResponseContentError(ResponseContentXmlDoc) then
@@ -83,14 +83,14 @@ codeunit 31120 "EET Service Mgt."
             Error('');
     end;
 
-    local procedure CheckEETEntry(EETEntry: Record "EET Entry"; X509Certificate2: DotNet X509Certificate2): Boolean
+    local procedure CheckEETEntry(EETEntry: Record "EET Entry"; DotNetX509Certificate2: Codeunit DotNet_X509Certificate2): Boolean
     var
         CompanyInformation: Record "Company Information";
-        CertificateCZManagement: Codeunit "Certificate CZ Management";
+        CertificateManagement: Codeunit "Certificate Management";
         CommonName: Text;
     begin
         CompanyInformation.Get;
-        CommonName := CertificateCZManagement.GetCertificateCommonName(X509Certificate2);
+        CommonName := CertificateManagement.GetCertificateCommonName(DotNetX509Certificate2);
         if CompanyInformation."VAT Registration No." <> CommonName then
             LogMessage(TempErrorMessage."Message Type"::Error, '',
               StrSubstNo(VATRegistrationErr, CompanyInformation."VAT Registration No.", CommonName));
@@ -103,16 +103,16 @@ codeunit 31120 "EET Service Mgt."
         exit(not HasErrors);
     end;
 
-    local procedure LoadValidCertificate("Code": Code[10]; var X509Certificate2: DotNet X509Certificate2)
+    local procedure LoadValidCertificate("Code": Code[10]; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
     var
+        IsolatedCertificate: Record "Isolated Certificate";
         CertificateCZCode: Record "Certificate CZ Code";
-        CertificateCZ: Record "Certificate CZ";
     begin
         CertificateCZCode.Get(Code);
-        if not CertificateCZCode.LoadValidCertificate(CertificateCZ) then
+        if not CertificateCZCode.LoadValidCertificate(IsolatedCertificate) then
             Error(CertificateNotExistErr, Code);
-        CertificateCZ.LoadCertificateFromStore(X509Certificate2);
-        OnAfterLoadValidCertificate(CertificateCZ);
+        IsolatedCertificate.GetDotNetX509Certificate2(DotNetX509Certificate2);
+        OnAfterLoadValidCertificate(IsolatedCertificate);
     end;
 
     local procedure CreateXmlDocument(EETEntry: Record "EET Entry"; var XmlDoc: DotNet XmlDocument)
@@ -190,21 +190,21 @@ codeunit 31120 "EET Service Mgt."
         XMLDOMMgt.AddAttribute(XMLNode, Name, NodeValue);
     end;
 
-    local procedure CreateSoapRequest(SoapBodyContentXmlDoc: DotNet XmlDocument; X509Certificate2: DotNet X509Certificate2; var RequestContentXmlDoc: DotNet XmlDocument)
+    local procedure CreateSoapRequest(SoapBodyContentXmlDoc: DotNet XmlDocument; DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; var RequestContentXmlDoc: DotNet XmlDocument)
     var
         SoapEnvelopeXmlDoc: DotNet XmlDocument;
         SoapBodyXmlNode: DotNet XmlNode;
     begin
-        CreateSoapEnvelope(SoapEnvelopeXmlDoc, SoapBodyXmlNode, X509Certificate2);
+        CreateSoapEnvelope(SoapEnvelopeXmlDoc, SoapBodyXmlNode, DotNetX509Certificate2);
         AddBodyToEnvelope(SoapBodyXmlNode, SoapBodyContentXmlDoc);
-        SignXmlDocument(SoapEnvelopeXmlDoc, X509Certificate2, RequestContentXmlDoc);
+        SignXmlDocument(SoapEnvelopeXmlDoc, DotNetX509Certificate2, RequestContentXmlDoc);
         OnAfterCreateSoapRequest(RequestContentXmlDoc);
     end;
 
-    local procedure CreateSoapEnvelope(var SoapEnvelopeXmlDoc: DotNet XmlDocument; var SoapBodyXmlNode: DotNet XmlNode; X509Certificate2: DotNet X509Certificate2)
+    local procedure CreateSoapEnvelope(var SoapEnvelopeXmlDoc: DotNet XmlDocument; var SoapBodyXmlNode: DotNet XmlNode; DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
     var
+        CertificateManagement: Codeunit "Certificate Management";
         XMLDOMMgt: Codeunit "XML DOM Management";
-        CertificateCZMgt: Codeunit "Certificate CZ Management";
         EnvelopeXmlNode: DotNet XmlNode;
         HeaderXmlNode: DotNet XmlNode;
         SecurityXmlNode: DotNet XmlNode;
@@ -215,13 +215,13 @@ codeunit 31120 "EET Service Mgt."
             AddRootElementWithPrefix(SoapEnvelopeXmlDoc, 'Envelope', 'soap', SoapNamespaceTxt, EnvelopeXmlNode);
             AddElementWithPrefix(EnvelopeXmlNode, 'Header', '', 'soap', SoapNamespaceTxt, HeaderXmlNode);
 
-            if not IsNull(X509Certificate2) then begin
+            if not DotNetX509Certificate2.IsDotNetNull() then begin
                 AddElementWithPrefix(HeaderXmlNode, 'Security', '', 'wsse', SecurityExtensionNamespaceTxt, SecurityXmlNode);
                 AddAttributeWithPrefix(SecurityXmlNode, 'mustUnderstand', 'soap', SoapNamespaceTxt, '1');
                 AddAttribute(SecurityXmlNode, 'xmlns:wsu', SecurityUtilityNamespaceTxt);
 
                 AddElementWithPrefix(
-                  SecurityXmlNode, 'BinarySecurityToken', CertificateCZMgt.EncodeCertificateToBase64(X509Certificate2, false),
+                  SecurityXmlNode, 'BinarySecurityToken', CertificateManagement.ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2, '', false),
                   'wsse', SecurityExtensionNamespaceTxt, BinarySecurityTokenXmlNode);
                 AddAttributeWithPrefix(BinarySecurityTokenXmlNode, 'Id', 'wsu', SecurityUtilityNamespaceTxt, CreateXmlElementID);
                 AddAttribute(BinarySecurityTokenXmlNode, 'EncodingType', SecurityEncodingTypeBase64BinaryTxt);
@@ -238,8 +238,10 @@ codeunit 31120 "EET Service Mgt."
         SoapBodyXmlNode.AppendChild(SoapBodyXmlNode.OwnerDocument.ImportNode(SoapBodyContentXmlDoc.DocumentElement, true));
     end;
 
-    local procedure SignXmlDocument(XmlDoc: DotNet XmlDocument; X509Certificate2: DotNet X509Certificate2; var SignedXmlDoc: DotNet XmlDocument)
+    local procedure SignXmlDocument(XmlDoc: DotNet XmlDocument; DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; var SignedXmlDoc: DotNet XmlDocument)
     var
+        DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
+        TempBlob: Codeunit "Temp Blob";
         XMLDOMMgt: Codeunit "XML DOM Management";
         XMLElectronicSignMgt: Codeunit "XML Electronic Sign Management";
         Signature: DotNet XmlElement;
@@ -249,6 +251,8 @@ codeunit 31120 "EET Service Mgt."
         BinarySecurityTokenId: Text;
         SoapBodyId: Text;
         ReferenceIndex: Integer;
+        KeyStream: InStream;
+        OutputStream: OutStream;
     begin
         XMLDOMMgt.FindNodeWithNamespace(
           XmlDoc.DocumentElement, BinarySecurityTokenPathTxt, 'wsse', SecurityExtensionNamespaceTxt, BinarySecurityTokenXmlNode);
@@ -265,7 +269,11 @@ codeunit 31120 "EET Service Mgt."
             SetInclusiveNamespacesPrefixList('soap');
             SetSignatureMethod(SignatureMethodRSASHA256Txt);
             AddSecurityTokenReference(BinarySecurityTokenId, SecurityValueTypeX509V3Txt);
-            GetSignature(XmlDoc, X509Certificate2.PrivateKey, Signature);
+            DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
+            TempBlob.CreateOutStream(OutputStream);
+            TempBlob.CreateInStream(KeyStream);
+            OutputStream.Write(DotNetAsymmetricAlgorithm.ToXmlString(true));
+            GetSignature(XmlDoc, KeyStream, Signature);
         end;
 
         SignedXmlDoc := XmlDoc;
@@ -411,6 +419,7 @@ codeunit 31120 "EET Service Mgt."
 
     local procedure CheckResponseSecurity(ResponseXmlDoc: DotNet XmlDocument)
     var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         X509Certificate2: DotNet X509Certificate2;
         X509Chain: DotNet X509Chain;
         X509RevocationMode: DotNet X509RevocationMode;
@@ -418,28 +427,28 @@ codeunit 31120 "EET Service Mgt."
         if VerificationMode then
             exit;
 
-        if not GetResponseCertificate(ResponseXmlDoc, X509Certificate2) then
+        if not GetResponseCertificate(ResponseXmlDoc, DotNetX509Certificate2) then
             exit;
 
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
         X509Chain := X509Chain.X509Chain;
         X509Chain.ChainPolicy.RevocationMode := X509RevocationMode.NoCheck;
         if not X509Chain.Build(X509Certificate2) then
             LogMessage(TempErrorMessage."Message Type"::Error, '', EETCertificateNotValidErr);
 
-        if not CheckResponseSignature(ResponseXmlDoc, X509Certificate2) then
+        if not CheckResponseSignature(ResponseXmlDoc, DotNetX509Certificate2) then
             LogMessage(TempErrorMessage."Message Type"::Error, '', SignatureNotValidErr);
     end;
 
-    local procedure CheckResponseSignature(SignedXmlDoc: DotNet XmlDocument; X509Certificate2: DotNet X509Certificate2): Boolean
+    local procedure CheckResponseSignature(SignedXmlDoc: DotNet XmlDocument; DotNetX509Certificate2: Codeunit DotNet_X509Certificate2): Boolean
     begin
-        // TODO: Verify signature
-        exit((SignedXmlDoc.OuterXml <> '') and (not IsNull(X509Certificate2)));
+        exit((SignedXmlDoc.OuterXml <> '') and (not DotNetX509Certificate2.IsDotNetNull()));
     end;
 
-    local procedure GetResponseCertificate(ResponseXmlDoc: DotNet XmlDocument; var X509Certificate2: DotNet X509Certificate2): Boolean
+    local procedure GetResponseCertificate(ResponseXmlDoc: DotNet XmlDocument; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2): Boolean
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
-        CertificateCZManagement: Codeunit "Certificate CZ Management";
+        CertificateManagement: Codeunit "Certificate Management";
         BinarySecurityTokenXmlNode: DotNet XmlNode;
     begin
         if not XMLDOMMgt.FindNodeWithNamespace(
@@ -447,8 +456,8 @@ codeunit 31120 "EET Service Mgt."
         then
             exit(false);
 
-        CertificateCZManagement.DecodeCertificateFromBase64(BinarySecurityTokenXmlNode.InnerText, X509Certificate2);
-        exit(not IsNull(X509Certificate2));
+        CertificateManagement.ConvertBase64StringToDotNetX509Certificate2(BinarySecurityTokenXmlNode.InnerText, '', DotNetX509Certificate2);
+        exit(not DotNetX509Certificate2.IsDotNetNull());
     end;
 
     local procedure InitializeSecurityProtocol()
@@ -620,7 +629,7 @@ codeunit 31120 "EET Service Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLoadValidCertificate(var CertificateCZ: Record "Certificate CZ")
+    local procedure OnAfterLoadValidCertificate(var IsolatedCertificate: Record "Isolated Certificate")
     begin
     end;
 

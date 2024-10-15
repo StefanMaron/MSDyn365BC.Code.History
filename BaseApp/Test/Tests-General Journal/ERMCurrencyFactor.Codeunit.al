@@ -161,6 +161,7 @@ codeunit 134077 "ERM Currency Factor"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         GeneralJournal: TestPage "General Journal";
         CurrencyFactor: Decimal;
         CurrencyCode: Code[10];
@@ -182,6 +183,7 @@ codeunit 134077 "ERM Currency Factor"
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           LibraryRandom.RandDec(100, 2));
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
         // Exercise: Open Apply Customer Entries page from General Journal and Set Applies to ID through page handler.
         GeneralJournal.OpenEdit;

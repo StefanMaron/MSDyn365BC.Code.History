@@ -87,7 +87,7 @@ codeunit 144201 "Tax VAT Statements"
         VATStatementLine.Reset;
         VATStatementLine.SetRange("Statement Template Name", VATStatementTemplate.Name);
         VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
-        VATStatementLine.SetRange(Type, VATStatementLine.Type::"Row Totaling");
+        VATStatementLine.SetRange(Type, VATStatementLine.Type::Formula);
         VATStatementLine.SetRange(Print, true);
         VATStatementLine.FindFirst;
         RowNo := VATStatementLine."Row No.";
@@ -109,7 +109,7 @@ codeunit 144201 "Tax VAT Statements"
                 end;
 
                 Sign := 1;
-                if VATStatementLine."Calculate with" = VATStatementLine."Calculate with"::"Opposite Sign" then
+                if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then
                     Sign := -1;
 
                 if VATEntry.FindFirst then
@@ -226,9 +226,9 @@ codeunit 144201 "Tax VAT Statements"
 
         // 3. Verify
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('VatStmtLineRowNo', '1099');
+        LibraryReportDataset.SetRange('VatStmtLineRowNo', '2DAN');
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'VatStmtLineRowNo', '1099'));
+            Error(StrSubstNo(RowNotFoundErr, 'VatStmtLineRowNo', '2DAN'));
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', -GenJnlLn."VAT Amount");
     end;
 
@@ -312,9 +312,9 @@ codeunit 144201 "Tax VAT Statements"
         CreateVATAttributeCode(VATAttributeCode1, VATStatementTemplate, 'OBRAT5');
         CreateVATAttributeCode(VATAttributeCode2, VATStatementTemplate, 'PLN23');
 
-        FindVATStatementLine(VATStatementLine, VATStatementTemplate, '1150');
+        FindVATStatementLine(VATStatementLine, VATStatementTemplate, '40D');
         SetAttributeCode(VATStatementLine, VATAttributeCode1.Code);
-        FindVATStatementLine(VATStatementLine, VATStatementTemplate, '1110');
+        FindVATStatementLine(VATStatementLine, VATStatementTemplate, '3D');
         SetAttributeCode(VATStatementLine, VATAttributeCode2.Code);
     end;
 

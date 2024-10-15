@@ -13,7 +13,7 @@ table 31041 "Depreciation Group"
         {
             Caption = 'Starting Date';
         }
-        field(4; Description; Text[50])
+        field(4; Description; Text[100])
         {
             Caption = 'Description';
         }

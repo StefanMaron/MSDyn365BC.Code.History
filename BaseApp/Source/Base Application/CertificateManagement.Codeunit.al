@@ -29,7 +29,7 @@ codeunit 1259 "Certificate Management"
         FileName := FileManagement.BLOBImportWithFilter(TempBlob, SelectFileTxt, FileName, CertFileFilterTxt, CertExtFilterTxt);
         if FileName = '' then
             Error('');
-	
+
         UploadedCertFileName := FileManagement.GetFileName(FileName);
         exit(VerifyCert(IsolatedCertificate));
     end;
@@ -117,6 +117,16 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    procedure GetCertAsDotNetX509Certificate2(IsolatedCertificate: Record "Isolated Certificate"; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    var
+        StoredPassword: Text;
+    begin
+        // NAVCZ
+        if IsolatedStorage.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
+        ConvertBase64StringToDotNetX509Certificate2(GetCertAsBase64String(IsolatedCertificate), StoredPassword, DotNetX509Certificate2);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetCertDataScope(IsolatedCertificate: Record "Isolated Certificate"): DataScope
     begin
         case IsolatedCertificate.Scope of
@@ -179,6 +189,70 @@ codeunit 1259 "Certificate Management"
             Validate("Issued By", GetIssuer(DotNet_X509Certificate2.Issuer));
             Validate("Issued To", GetIssuer(DotNet_X509Certificate2.Subject));
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure ConvertBase64StringToDotNetX509Certificate2(Base64String: Text; Password: Text; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    var
+        DotNetArrayBytes: Codeunit DotNet_Array;
+        DotNetX509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
+        Convert: DotNet Convert;
+    begin
+        // NAVCZ
+        DotNetArrayBytes.SetArray(Convert.FromBase64String(Base64String));
+        DotNetX509KeyStorageFlags.Exportable();
+        DotNetX509Certificate2.X509Certificate2(DotNetArrayBytes, Password, DotNetX509KeyStorageFlags);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean): Text
+    var
+        DotNetArrayBytes: Codeunit DotNet_Array;
+        Bytes: DotNet Array;
+        Convert: DotNet Convert;
+    begin
+        // NAVCZ
+        if DotNetX509Certificate2.IsDotNetNull() then
+            exit('');
+
+        ConvertDotNetX509Certificate2ToBytes(DotNetX509Certificate2, Password, WithPrivateKey, DotNetArrayBytes);
+        DotNetArrayBytes.GetArray(Bytes);
+        exit(Convert.ToBase64String(Bytes));
+    end;
+
+    [Scope('OnPrem')]
+    procedure ConvertDotNetX509Certificate2ToBytes(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean; var DotNetArrayBytes: Codeunit DotNet_Array): Boolean
+    var
+        X509Certificate2: DotNet X509Certificate2;
+        X509ContentType: DotNet X509ContentType;
+        Bytes: DotNet Array;
+    begin
+        // NAVCZ
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        if IsNull(X509Certificate2) then
+            exit(false);
+
+        if WithPrivateKey then
+            Bytes := X509Certificate2.Export(X509ContentType.Pkcs12, Password)
+        else
+            Bytes := X509Certificate2.GetRawCertData;
+
+        DotNetArrayBytes.SetArray(Bytes);
+        exit(not IsNull(Bytes));
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetCertificateCommonName(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2): Text
+    var
+        X509Certificate2: DotNet X509Certificate2;
+        X509NameType: DotNet X509NameType;
+    begin
+        // NAVCZ
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        if IsNull(X509Certificate2) then
+            exit('');
+
+        exit(X509Certificate2.GetNameInfo(X509NameType.SimpleName, false));
     end;
 }
 

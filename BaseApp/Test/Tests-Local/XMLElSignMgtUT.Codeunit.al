@@ -11,7 +11,7 @@ codeunit 145018 "XML El. Sign Mgt. UT"
 
     var
         Assert: Codeunit Assert;
-        LibraryCertificateCZ: Codeunit "Library - Certificate CZ";
+        LibraryCertificate: Codeunit "Library - Certificate";
         IsInitialized: Boolean;
         SignatureNotValidErr: Label 'Signature is not valid.';
 
@@ -37,13 +37,13 @@ codeunit 145018 "XML El. Sign Mgt. UT"
         XMLElectronicSignManagement: Codeunit "XML Electronic Sign Management";
         XmlDoc: DotNet XmlDocument;
         Signature: DotNet XmlElement;
-        "Key": DotNet AsymmetricAlgorithm;
+        KeyStream: InStream;
         ReferenceIndex: Integer;
     begin
         Initialize;
 
         // [GIVEN] Get test private key
-        LibraryCertificateCZ.GetCertificatePrivateKey(Key);
+        LibraryCertificate.GetCertificatePrivateKey(KeyStream);
 
         // [GIVEN] Generate test xml document
         GenerateXMLDocument(XmlDoc);
@@ -54,7 +54,7 @@ codeunit 145018 "XML El. Sign Mgt. UT"
           ReferenceIndex, 'XmlDsigEnvelopedSignatureTransform', '');
 
         // [WHEN] Get signature
-        XMLElectronicSignManagement.GetSignature(XmlDoc, Key, Signature);
+        XMLElectronicSignManagement.GetSignature(XmlDoc, KeyStream, Signature);
 
         // [THEN] Signature is valid
         Assert.AreEqual(GetSignature(URI), Signature.InnerText, SignatureNotValidErr);

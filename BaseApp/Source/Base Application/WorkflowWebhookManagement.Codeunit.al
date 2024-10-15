@@ -69,6 +69,7 @@ codeunit 1543 "Workflow Webhook Management"
     procedure GetCanRequestAndCanCancelJournalBatch(GenJournalBatch: Record "Gen. Journal Batch"; var CanRequestBatchApproval: Boolean; var CanCancelBatchApproval: Boolean; var CanRequestLineApprovals: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
         // Helper method to check the General Journal Batch and all its lines for ability to request/cancel approval.
         // Journal pages' ribbon buttons only let users request approval for the batch or its individual lines, but not both.
@@ -82,13 +83,15 @@ codeunit 1543 "Workflow Webhook Management"
             exit;
         end;
 
-        GenJournalLine.FindSet;
-        repeat
-            if not CanRequestApproval(GenJournalLine.RecordId) then begin
-                CanRequestLineApprovals := false;
-                exit;
-            end;
-        until GenJournalLine.Next = 0;
+        WorkflowWebhookEntry.SetRange(Response, WorkflowWebhookEntry.Response::Pending);
+        if WorkflowWebhookEntry.FindSet() then
+            repeat
+                if GenJournalLine.Get(WorkflowWebhookEntry."Record ID") then
+                    if (GenJournalLine."Journal Batch Name" = GenJournalBatch.Name) and (GenJournalLine."Journal Template Name" = GenJournalBatch."Journal Template Name") then begin
+                        CanRequestLineApprovals := false;
+                        exit;
+                    end;
+            until WorkflowWebhookEntry.Next() = 0;
 
         CanRequestLineApprovals := true;
     end;

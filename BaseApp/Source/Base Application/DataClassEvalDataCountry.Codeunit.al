@@ -126,7 +126,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Entry Status");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Certificate CZ Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Certificate CZ");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reg. No. Srv Config");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
     end;

@@ -21,21 +21,21 @@ codeunit 31132 "XML Electronic Sign Management"
 
     [TryFunction]
     [Scope('OnPrem')]
-    procedure GetSignature(XmlDocument: DotNet XmlDocument; "Key": DotNet RSA; var Signature: DotNet XmlElement)
+    procedure GetSignature(XmlDocument: DotNet XmlDocument; "Key": InStream; var Signature: DotNet XmlElement)
     var
         RSACryptoServiceProvider: DotNet RSACryptoServiceProvider;
+        StreamReader: DotNet StreamReader;
         Reference: DotNet Reference;
     begin
         if IsNull(XmlDocument) then
             Error(XmlDocumentNotDefinedErr);
 
-        if IsNull(Key) then
+        if "Key".EOS() then
             Error(KeyNotDefinedErr);
 
-        InitializeAlgorithms;
-
+        StreamReader := StreamReader.StreamReader("Key");
         RSACryptoServiceProvider := RSACryptoServiceProvider.RSACryptoServiceProvider;
-        RSACryptoServiceProvider.ImportParameters(Key.ExportParameters(true));
+        RSACryptoServiceProvider.FromXmlString(StreamReader.ReadToEnd());
 
         SignedXml := SignedXml.SignedXml(XmlDocument);
         SignedXml.SigningKey := RSACryptoServiceProvider;
@@ -63,8 +63,6 @@ codeunit 31132 "XML Electronic Sign Management"
     [Scope('OnPrem')]
     procedure CheckSignature(Signature: DotNet XmlElement; X509Certificate2: DotNet X509Certificate2): Boolean
     begin
-        InitializeAlgorithms;
-
         if not IsNull(GlobalSignedXmlDoc) then
             SignedXml := SignedXml.SignedXml(GlobalSignedXmlDoc);
 
@@ -273,18 +271,6 @@ codeunit 31132 "XML Electronic Sign Management"
         Type := GetDotNetType(SignedXml);
         FieldInfo := Type.GetField(CanonicalizationMethod);
         exit(FieldInfo.GetValue(GetDotNetType(SignedXml)));
-    end;
-
-    local procedure InitializeAlgorithms()
-    var
-        CryptoConfig: DotNet CryptoConfig;
-        RSAPKCS1SHA256SignatureDescription: DotNet RSAPKCS1SHA256SignatureDescription;
-        Names: DotNet Array;
-        String: DotNet String;
-    begin
-        Names := Names.CreateInstance(GetDotNetType(String), 1);
-        Names.SetValue(SignatureMethodRSASHA256Txt, 0);
-        CryptoConfig.AddAlgorithm(GetDotNetType(RSAPKCS1SHA256SignatureDescription), Names);
     end;
 
     local procedure FormatURI(URI: Text): Text

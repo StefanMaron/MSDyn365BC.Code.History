@@ -861,6 +861,8 @@ report 594 "Get Item Ledger Entries"
                 // NAVCZ
             end;
 
+            OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
+
             if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::Transfer] then begin
                 if TotalCostAmt = 0 then begin
                     CalculateAverageCost(AverageCost, AverageCostACY);
@@ -1323,6 +1325,11 @@ report 594 "Get Item Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSumTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
     begin
     end;
 }

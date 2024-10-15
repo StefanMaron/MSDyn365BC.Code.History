@@ -829,8 +829,9 @@ codeunit 31020 "Purchase-Post Advances"
                 DocumentType::"Credit Memo":
                     begin
                         TestField("Prepayment No.", '');
-                        PostingDate := CurrPurchInvHeader."Posting Date";
-                        VATDate := CurrPurchInvHeader."VAT Date";
+                        PurchAdvanceLetterHeader.TESTFIELD("Posting Date");
+                        PostingDate := PurchAdvanceLetterHeader."Posting Date";
+                        VATDate := PurchAdvanceLetterHeader."VAT Date";
                         if VATDate = 0D then
                             VATDate := PostingDate;
                         if "Prepmt. Cr. Memo No." = '' then
@@ -1124,9 +1125,13 @@ codeunit 31020 "Purchase-Post Advances"
             "Prices Including VAT" := true;
             "Prepayment Credit Memo" := true;
             "Vendor Cr. Memo No." := PurchAdvanceLetterHeader."External Document No.";
-
             "Letter No." := PurchAdvanceLetterHeader."No.";
-
+            "Posting Date" := PurchAdvanceLetterHeader."Posting Date";
+            "Document Date" := "Posting Date";
+            "VAT Date" := PurchAdvanceLetterHeader."VAT Date";
+            IF "VAT Date" = 0D THEN
+                "VAT Date" := "Posting Date";
+            "Original Document VAT Date" := PurchAdvanceLetterHeader."Original Document VAT Date";
             Insert;
         end;
     end;

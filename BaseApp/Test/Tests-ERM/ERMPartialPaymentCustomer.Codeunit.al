@@ -660,6 +660,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine2: Record "Gen. Journal Line";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         GeneralJournal: TestPage "General Journal";
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -670,6 +671,7 @@ codeunit 134002 "ERM Partial Payment Customer"
           DocumentType, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.", -GenJournalLine.Amount);
         GenJournalLine2.Validate("Bal. Account No.", GenJournalLine."Bal. Account No.");
         GenJournalLine2.Modify(true);
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine2."Journal Batch Name"); // NAVCZ
 
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);

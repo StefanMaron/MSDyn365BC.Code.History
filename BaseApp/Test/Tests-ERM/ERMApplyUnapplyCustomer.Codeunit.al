@@ -727,6 +727,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         PostedDocumentNo: Code[20];
         Amount: Decimal;
     begin
@@ -741,6 +742,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
         GenJournalLine.Find;
         GenJournalLine.Validate(Amount, GenJournalLine.Amount + Amount);

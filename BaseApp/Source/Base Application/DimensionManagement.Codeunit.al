@@ -652,7 +652,13 @@ codeunit 408 DimensionManagement
     procedure UpdateDefaultDim(TableID: Integer; No: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
     var
         DefaultDim: Record "Default Dimension";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDefaultDim(TableID, No, GlobalDim1Code, GlobalDim2Code, IsHandled);
+        if IsHandled then
+            exit;
+
         GetGLSetup;
         // NAVCZ
         AutoCreateDimension(TableID, No);
@@ -987,7 +993,13 @@ codeunit 408 DimensionManagement
     procedure SaveDefaultDim(TableID: Integer; No: Code[20]; FieldNumber: Integer; ShortcutDimCode: Code[20])
     var
         DefaultDim: Record "Default Dimension";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSaveDefaultDim(TableID, No, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         GetGLSetup;
         if ShortcutDimCode <> '' then begin
             if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[FieldNumber])
@@ -1152,6 +1164,8 @@ codeunit 408 DimensionManagement
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Item Group");
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Item");
         DefaultDimInsertTempObject(TempAllObjWithCaption, DATABASE::"Service Contract Template");
+
+        OnAfterDefaultDimObjectNoWithoutGlobalDimsList(TempAllObjWithCaption);
     end;
 
     local procedure DefaultDimInsertTempObject(var TempAllObjWithCaption: Record AllObjWithCaption temporary; TableID: Integer)
@@ -1261,7 +1275,14 @@ codeunit 408 DimensionManagement
     procedure CheckDim(DimCode: Code[20]): Boolean
     var
         Dim: Record Dimension;
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDim(DimCode, Result, IsHandled);
+        if IsHandled then
+            EXIT(Result);
+
         if Dim.Get(DimCode) then begin
             // NAVCZ
             if Dim.Blocked and (not DontCheckDim) then begin
@@ -1281,7 +1302,14 @@ codeunit 408 DimensionManagement
     procedure CheckDimValue(DimCode: Code[20]; DimValCode: Code[20]): Boolean
     var
         DimVal: Record "Dimension Value";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimValue(DimCode, DimValCode, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if (DimCode <> '') and (DimValCode <> '') then
             if DimVal.Get(DimCode, DimValCode) then begin
                 // NAVCZ
@@ -2494,7 +2522,22 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDefaultDimObjectNoWithoutGlobalDimsList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimValues(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDim(DimCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValue(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -2540,6 +2583,16 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDimValueCodeNoUpdate(FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveDefaultDim(TableID: Integer; No: Code[20]; FieldNumber: Integer; ShortcutDimCode: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDefaultDim(TableID: Integer; No: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var IsHandled: Boolean);
     begin
     end;
 

@@ -92,12 +92,12 @@ page 31120 "EET Service Setup"
                 RunObject = Page "EET Business Premises";
                 ToolTip = 'Displays a list of your premises.';
             }
-            action("Certificates Codes")
+            action("Certificate Codes")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Certificates Codes';
+                Caption = 'Certificate Codes';
                 Image = Certificate;
-                RunObject = Page "Certificates CZ Codes";
+                RunObject = Page "Certificate Code List";
                 ToolTip = 'Displays a list of available certificates.';
             }
         }

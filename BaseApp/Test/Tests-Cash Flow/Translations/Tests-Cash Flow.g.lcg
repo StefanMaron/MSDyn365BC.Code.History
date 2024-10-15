@@ -410,31 +410,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow Pages - NamedType CashFlowForeCastErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1410012192 - NamedType 1694652751" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1410012192 - NamedType 1136246855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Records in table %1 was not deleted.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType RecordNotDeletedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType RecordNotDeleted)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1410012192 - NamedType 606601310" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1410012192 - NamedType 1008014686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Counters dosn't match: before: %1 and after: %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType BeforeAndAfterCounterTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType BeforeAndAfterCounter)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1410012192 - NamedType 1379408338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1410012192 - NamedType 4048046978" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amounts before and after posting dosn't match.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType WrongAmountaTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow - Posting - NamedType WrongAmounta)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1496044347 - NamedType 824584069" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -590,13 +590,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow UnitTests - NamedType NothingInsideFilterTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3317154367 - NamedType 2038633821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3317154367 - NamedType 1020141434" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rollback.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CF Accounts - NamedType RollbackErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CF Accounts - NamedType ROLLBACK)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

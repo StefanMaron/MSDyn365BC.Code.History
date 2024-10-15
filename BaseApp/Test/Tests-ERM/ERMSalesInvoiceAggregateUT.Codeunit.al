@@ -55,7 +55,6 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
 
         if GeneralLedgerSetup.UseVat then begin
             LibraryERMCountryData.CreateVATData;
@@ -65,7 +64,6 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibrarySales.SetStockoutWarning(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup"); // NAVCZ
         DisableWarningOnClosingInvoice;
 
         Commit;

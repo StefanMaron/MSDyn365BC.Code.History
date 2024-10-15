@@ -23,10 +23,11 @@ codeunit 2 "Company-Initialize"
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
-                  TableData "Config. Setup" = i,
                   TableData "Electronically Govern. Setup" = i,
                   TableData "Credits Setup" = i,
-                  TableData "Stat. Reporting Setup" = i;
+                  TableData "Stat. Reporting Setup" = i,
+                  tabledata "Trial Balance Setup" = i,
+                  TableData "Config. Setup" = i;
 
     trigger OnRun()
     var
@@ -52,14 +53,14 @@ codeunit 2 "Company-Initialize"
         InitJobWIPMethods;
         InitBankExportImportSetup;
         InitDocExchServiceSetup;
-        BankPmtApplRule.InsertDefaultMatchingRules;
-        InsertClientAddIns;
-
         // NAVCZ
         InitCreditRepSelection;
         InitCashDeskRepSelection;
         RegistrationLogMgt.InitServiceSetup;
+        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := InitBankPmtApplRuleCode();
         // NAVCZ
+        BankPmtApplRule.InsertDefaultMatchingRules;
+        InsertClientAddIns;
         VATRegistrationLogMgt.InitServiceSetup;
         WorkflowSetup.InitWorkflow;
         TransformationRule.CreateDefaultTransformations;
@@ -79,6 +80,8 @@ codeunit 2 "Company-Initialize"
         Text000: Label 'Initializing company...';
         SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
+        SEPACZCodeTxt: Label 'SEPACZ', Comment = 'No need to translate - but can be translated at will.'; // NAVCZ
+        SEPACZNameTxt: Label 'SEPA Czech'; // NAVCZ
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
         SEPADDNameTxt: Label 'SEPA Direct Debit';
         Text001: Label 'SALES';
@@ -209,6 +212,12 @@ codeunit 2 "Company-Initialize"
         VATPDTxt: Label 'VATPD';
         NonDeductibleVATTxt: Label 'Non deductible VAT';
         PurchaseVATDelayTxt: Label 'Purchase VAT delay';
+        OPBALANCETxt: Label 'OPBALANCE';
+        OpenBalanceSheetTxt: Label 'Open Balance Sheet';
+        CLBALANCETxt: Label 'CLBALANCE';
+        CloseBalanceSheetTxt: Label 'Close Balance Sheet';
+        BankPmtApplRuleCodeTxt: Label 'DEFAULT'; // NAVCZ
+        BankPmtApplRuleCodeDescriptionTxt: Label 'Default Rules'; // NAVCZ
 
     procedure InitSetupTables()
     var
@@ -236,6 +245,7 @@ codeunit 2 "Company-Initialize"
         CompanyInfo: Record "Company Information";
         CreditsSetup: Record "Credits Setup";
         ElectronicallyGovernSetup: Record "Electronically Govern. Setup";
+        TrialBalanceSetup: Record "Trial Balance Setup";
         SocialListeningSetup: Record "Social Listening Setup";
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
@@ -372,6 +382,12 @@ codeunit 2 "Company-Initialize"
                 Insert;
             end;
 
+        with TrialBalanceSetup do
+            if not FindFirst then begin
+                init;
+                Insert;
+            end;
+
         with CompanyInfo do
             if not FindFirst then begin
                 Init;
@@ -487,6 +503,8 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Cash Desk", Text26540, Text26541); // NAVCZ
                 InsertSourceCode("VAT Coefficient", VATNDTxt, NonDeductibleVATTxt); // NAVCZ
                 InsertSourceCode("Purchase VAT Delay", VATPDTxt, PurchaseVATDelayTxt); // NAVCZ
+                InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
+                InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
                 Insert;
             end;
     end;
@@ -548,6 +566,11 @@ codeunit 2 "Company-Initialize"
             InsertBankExportImportSetup(SEPADDCodeTxt, SEPADDNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02", CODEUNIT::"SEPA DD-Check Line");
         end;
+        // NAVCZ
+        if not BankExportImportSetup.Get(SEPACZCodeTxt) then
+            InsertBankExportImportSetup(SEPACZCodeTxt, SEPACZNameTxt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"Exp. Launcher SEPA", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
+        // NAVCZ
     end;
 
     local procedure InitDocExchServiceSetup()
@@ -794,11 +817,10 @@ codeunit 2 "Company-Initialize"
         // NAVCZ
         with ReportSelections do
             if WritePermission then
-                if not FindFirst then begin
+                if not FindFirst() then begin
                     InsertCreditRepSelection(Usage::Credit, '1', REPORT::Credit);
                     InsertCreditRepSelection(Usage::"Posted Credit", '1', REPORT::"Posted Credit");
                 end;
-        // NAVCZ
     end;
 
     local procedure InsertCreditRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
@@ -806,12 +828,11 @@ codeunit 2 "Company-Initialize"
         ReportSelections: Record "Credit Report Selections";
     begin
         // NAVCZ
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := ReportUsage;
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
-        // NAVCZ
+        ReportSelections.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -822,13 +843,12 @@ codeunit 2 "Company-Initialize"
         // NAVCZ
         with ReportSelections do
             if WritePermission then
-                if not FindFirst then begin
+                if not FindFirst() then begin
                     InsertCashDeskRepSelection(Usage::"C.Rcpt", '1', REPORT::"Receipt Cash Document");
                     InsertCashDeskRepSelection(Usage::"C.Wdrwl", '1', REPORT::"Withdrawal Cash Document");
                     InsertCashDeskRepSelection(Usage::"P.C.Rcpt", '1', REPORT::"Posted Receipt Cash Doc.");
                     InsertCashDeskRepSelection(Usage::"P.C.Wdrwl", '1', REPORT::"Posted Withdrawal Cash Doc.");
                 end;
-        // NAVCZ
     end;
 
     local procedure InsertCashDeskRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
@@ -836,12 +856,27 @@ codeunit 2 "Company-Initialize"
         ReportSelections: Record "Cash Desk Report Selections";
     begin
         // NAVCZ
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := ReportUsage;
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
+        ReportSelections.Insert();
+    end;
+
+    local procedure InitBankPmtApplRuleCode(): Code[10]
+    var
+        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
+    begin
         // NAVCZ
+        with BankPmtApplRuleCode do begin
+            if not Get(CopyStr(BankPmtApplRuleCodeTxt, 1, MaxStrLen(Code))) then begin
+                Init();
+                Code := CopyStr(BankPmtApplRuleCodeTxt, 1, MaxStrLen(Code));
+                Description := CopyStr(BankPmtApplRuleCodeDescriptionTxt, 1, MaxStrLen(Description));
+                Insert();
+            end;
+            exit(Code);
+        end;
     end;
 
     local procedure InitApplicationAreasForSaaS()

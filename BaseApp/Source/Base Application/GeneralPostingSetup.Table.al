@@ -29,7 +29,11 @@ table 252 "General Posting Setup"
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
                       "Sales Account", GLAccountCategory."Account Category"::Income,
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetIncomeProdSales, GLAccountCategoryMgt.GetIncomeService));
+                      StrSubstNo('%1|%2|%3|%4',
+                        GLAccountCategoryMgt.GetIRevenuesFromOwnProductsAndServices(),
+                        GLAccountCategoryMgt.GetIIRevenuesFromMerchandise(),
+                        GLAccountCategoryMgt.GetIII1RevenuesFromSalesOfFixedAssets(),
+                        GLAccountCategoryMgt.GetIII2RevenuesOfMaterialSold())); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -49,7 +53,7 @@ table 252 "General Posting Setup"
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
                       "Sales Line Disc. Account", GLAccountCategory."Account Category"::Income,
-                      GLAccountCategoryMgt.GetIncomeSalesDiscounts);
+                      GLAccountCategoryMgt.GetIII3AnotherOperatingRevenues()); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -69,7 +73,7 @@ table 252 "General Posting Setup"
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
                       "Sales Inv. Disc. Account", GLAccountCategory."Account Category"::Income,
-                      GLAccountCategoryMgt.GetIncomeSalesDiscounts);
+                      GLAccountCategoryMgt.GetIII3AnotherOperatingRevenues()); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -96,16 +100,6 @@ table 252 "General Posting Setup"
             Caption = 'Purch. Account';
             TableRelation = "G/L Account";
 
-            trigger OnLookup()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Account")
-                else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Purch. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
-            end;
-
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Account");
@@ -116,16 +110,6 @@ table 252 "General Posting Setup"
             Caption = 'Purch. Line Disc. Account';
             TableRelation = "G/L Account";
 
-            trigger OnLookup()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Line Disc. Account")
-                else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Purch. Line Disc. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      GLAccountCategoryMgt.GetCOGSDiscountsGranted);
-            end;
-
             trigger OnValidate()
             begin
                 CheckGLAcc("Purch. Line Disc. Account");
@@ -135,16 +119,6 @@ table 252 "General Posting Setup"
         {
             Caption = 'Purch. Inv. Disc. Account';
             TableRelation = "G/L Account";
-
-            trigger OnLookup()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Inv. Disc. Account")
-                else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Purch. Inv. Disc. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      GLAccountCategoryMgt.GetCOGSDiscountsGranted);
-            end;
 
             trigger OnValidate()
             begin
@@ -176,8 +150,9 @@ table 252 "General Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("COGS Account")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "COGS Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      "COGS Account", GLAccountCategory."Account Category"::Expense,
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetA1CostsOfGoodsSold(),
+                        GLAccountCategoryMgt.GetF2NetBookValueofMaterialSold())); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -189,16 +164,6 @@ table 252 "General Posting Setup"
         {
             Caption = 'Inventory Adjmt. Account';
             TableRelation = "G/L Account";
-
-            trigger OnLookup()
-            begin
-                if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Adjmt. Account")
-                else
-                    GLAccountCategoryMgt.LookupGLAccount(
-                      "Inventory Adjmt. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
-            end;
 
             trigger OnValidate()
             begin
@@ -358,8 +323,8 @@ table 252 "General Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Adjmt. Account")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Inventory Adjmt. Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      "Inventory Adjmt. Account", GLAccountCategory."Account Category"::Assets,
+                      GLAccountCategoryMgt.GetCI32Goods()); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -378,8 +343,9 @@ table 252 "General Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("COGS Account (Interim)")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "COGS Account (Interim)", GLAccountCategory."Account Category"::"Cost of Goods Sold",
-                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials, GLAccountCategoryMgt.GetCOGSLabor));
+                      "COGS Account (Interim)", GLAccountCategory."Account Category"::Expense,
+                      StrSubstNo('%1|%2', GLAccountCategoryMgt.GetA1CostsOfGoodsSold(),
+                        GLAccountCategoryMgt.GetF2NetBookValueofMaterialSold())); // NAVCZ
             end;
 
             trigger OnValidate()
@@ -391,6 +357,11 @@ table 252 "General Posting Setup"
         {
             Caption = 'Invt. Rounding Adj. Account';
             TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                CheckGLAcc("Invt. Rounding Adj. Account");
+            end;
         }
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {
@@ -794,6 +765,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Sales Pmt. Tol. Debit Acc."));
         if "Sales Prepayments Account" = '' then
             SuggestAccount(RecRef, FieldNo("Sales Prepayments Account"));
+
+        OnAfterSuggestSalesAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestPurchAccounts(var RecRef: RecordRef)
@@ -816,6 +789,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Purch. Pmt. Tol. Debit Acc."));
         if "Purch. Prepayments Account" = '' then
             SuggestAccount(RecRef, FieldNo("Purch. Prepayments Account"));
+
+        OnAfterSuggestPurchAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestInvtAccounts(var RecRef: RecordRef)
@@ -834,6 +809,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Overhead Applied Account"));
         if "Purchase Variance Account" = '' then
             SuggestAccount(RecRef, FieldNo("Purchase Variance Account"));
+
+        OnAfterSuggestInvtAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestAccount(var RecRef: RecordRef; AccountFieldNo: Integer)
@@ -867,6 +844,21 @@ table 252 "General Posting Setup"
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestSalesAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestPurchAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
     end;
 }
 

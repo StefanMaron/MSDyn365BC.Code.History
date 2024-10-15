@@ -133,26 +133,22 @@ table 570 "G/L Account Category"
         if "Sibling Sequence No." = 0 then
             "Sibling Sequence No." := "Entry No." * 10000 mod 2000000000;
         Indentation := 0;
-        PresentationOrder := CopyStr(Format(1000000 + "Sibling Sequence No."), 2);
+        PresentationOrder := Format(1000000 + "Sibling Sequence No."); // NAVCZ
         while GLAccountCategory."Parent Entry No." <> 0 do begin
             Indentation += 1;
             GLAccountCategory.Get(GLAccountCategory."Parent Entry No.");
-            PresentationOrder := CopyStr(Format(1000000 + GLAccountCategory."Sibling Sequence No."), 2) + PresentationOrder;
+            PresentationOrder := Format(1000000 + GLAccountCategory."Sibling Sequence No.") + PresentationOrder; // NAVCZ
         end;
+        // NAVCZ
         case "Account Category" of
             "Account Category"::Assets:
                 PresentationOrder := '0' + PresentationOrder;
             "Account Category"::Liabilities:
                 PresentationOrder := '1' + PresentationOrder;
-            "Account Category"::Equity:
+            else
                 PresentationOrder := '2' + PresentationOrder;
-            "Account Category"::Income:
-                PresentationOrder := '3' + PresentationOrder;
-            "Account Category"::"Cost of Goods Sold":
-                PresentationOrder := '4' + PresentationOrder;
-            "Account Category"::Expense:
-                PresentationOrder := '5' + PresentationOrder;
         end;
+        // NAVCZ
         "Presentation Order" := CopyStr(PresentationOrder, 1, MaxStrLen("Presentation Order"));
         Modify;
     end;

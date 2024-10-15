@@ -147,9 +147,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         i: Integer;
     begin
-        exit; // NAVCZ
-
         Initialize;
+
+        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.AddO365Setup;
 
         // Fuzzy testing on discount percentage, currency and number of payments.
         for i := 1 to 10 do begin

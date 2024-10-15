@@ -475,7 +475,7 @@
                 field("Job Planning Line No."; "Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Job Line Type"; "Job Line Type")
@@ -1442,8 +1442,11 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        CurrPage.SaveRecord;
-        SendLineInvoiceDiscountResetNotification;
+        if "Line Amount" <> xRec."Line Amount" then begin
+            CurrPage.SaveRecord;
+            SendLineInvoiceDiscountResetNotification;
+            CurrPage.Update(false);
+        end;
     end;
 
     procedure UpdateEditableOnRow()
@@ -1452,6 +1455,8 @@
         CurrPageIsEditable := CurrPage.Editable;
         IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     procedure UpdateTypeText()
@@ -1503,6 +1508,11 @@
             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                 if xRec."Document No." = '' then
                     Type := Type::Item;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

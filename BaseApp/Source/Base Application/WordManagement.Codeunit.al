@@ -569,7 +569,14 @@ codeunit 5054 WordManagement
     local procedure DeleteFile(FileName: Text): Boolean
     var
         I: Integer;
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteFile(FileName, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         // Wait for Word to release the files
         if FileName = '' then
             exit(false);
@@ -1113,6 +1120,11 @@ codeunit 5054 WordManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCanRunWord(var CanRunWord: Boolean; var CanRunWordModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteFile(FileName: Text; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -2717,21 +2717,21 @@ Cstr(Fields!gteRegNo.Value)</Value>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer__Currency_Code__">
+                                          <Textbox Name="STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer__Currency_Code__.Value</Value>
+                                                    <Value>=Fields!STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065.Value</Value>
                                                     <Style />
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer__Currency_Code__</rd:DefaultName>
+                                            <rd:DefaultName>STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -2832,21 +2832,21 @@ Cstr(Fields!gteRegNo.Value)</Value>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer__Currency_Code__2">
+                                          <Textbox Name="STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer2__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer2__Currency_Code__.Value</Value>
+                                                    <Value>=Fields!STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015.Value</Value>
                                                     <Style />
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol__FORMAT_ABS_greTRemLineBuffer__Remaining_Amount___0___Precision_2_2__Sign__Integer__1000Character____Decimals____greTRemLineBuffer__Currency_Code__</rd:DefaultName>
+                                            <rd:DefaultName>STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -4220,8 +4220,8 @@ End Function</Code>
         <Field Name="STRSUBSTNO_gtcText003_gteRemName_">
           <DataField>STRSUBSTNO_gtcText003_gteRemName_</DataField>
         </Field>
-        <Field Name="DataItem1100162065">
-          <DataField>DataItem1100162065</DataField>
+        <Field Name="STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065">
+          <DataField>STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065</DataField>
         </Field>
         <Field Name="Integer_Number">
           <DataField>Integer_Number</DataField>
@@ -4229,8 +4229,8 @@ End Function</Code>
         <Field Name="STRSUBSTNO_gtcText003_gteRemName__Control1100171014">
           <DataField>STRSUBSTNO_gtcText003_gteRemName__Control1100171014</DataField>
         </Field>
-        <Field Name="DataItem1100171015">
-          <DataField>DataItem1100171015</DataField>
+        <Field Name="STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015">
+          <DataField>STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015</DataField>
         </Field>
         <Field Name="Integer2_Number">
           <DataField>Integer2_Number</DataField>

@@ -11,6 +11,9 @@ codeunit 31121 "EET Entry Management"
     var
         EETServiceSetup: Record "EET Service Setup";
         TempErrorMessage: Record "Error Message" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        InputStream: InStream;
+        OutputStream: OutStream;
         HasGotSetup: Boolean;
         MoreEETLinesDeniedErr: Label 'Cash document %1 %2 cannot contain more then one EET line.', Comment = '%1 = Cash Document Type;%2 = Cash Document No.';
         EntryDescriptionTxt: Label '%1 %2', Comment = '%1 = Applied Document Type;%2 = Applied Document No.';
@@ -605,38 +608,63 @@ codeunit 31121 "EET Entry Management"
     [Scope('OnPrem')]
     procedure GenerateSignatureCode(var EETEntry: Record "EET Entry"): Text
     var
+        IsolatedCertificate: Record "Isolated Certificate";
         CertificateCZCode: Record "Certificate CZ Code";
-        CertificateCZ: Record "Certificate CZ";
-        Signature: DotNet Array;
-        Convert: DotNet Convert;
+        Base64Convert: Codeunit "Base64 Convert";
+        HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512;
     begin
         CertificateCZCode.Get(EETEntry.GetCertificateCode);
-        if not CertificateCZCode.LoadValidCertificate(CertificateCZ) then
+        if not CertificateCZCode.LoadValidCertificate(IsolatedCertificate) then
             exit;
 
-        CertificateCZ.SignUTF8Text(GenerateSignatureCodePlainText(EETEntry), 'SHA256', Signature);
-        exit(Convert.ToBase64String(Signature));
+        InitBlob();
+        SignText(GenerateSignatureCodePlainText(EETEntry), IsolatedCertificate, HashAlgorithmType::SHA256, OutputStream);
+        exit(Base64Convert.ToBase64(InputStream));
     end;
 
     [Scope('OnPrem')]
     procedure GenerateSecurityCode(SignatureCode: Text): Text[44]
     var
-        CryptoManagement: Codeunit "Crypto Management";
-        Hash: DotNet Array;
-        Convert: DotNet Convert;
-        BitConverter: DotNet BitConverter;
-        HexString: Text;
+        CryptographyManagement: Codeunit "Cryptography Management";
+        Base64Convert: Codeunit "Base64 Convert";
+        HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512;
+        Hash: Text;
     begin
         if SignatureCode = '' then
             exit;
 
-        CryptoManagement.ComputeHash(Convert.FromBase64String(SignatureCode), 'SHA1', Hash);
-        HexString := BitConverter.ToString(Hash);
-        HexString := DelChr(HexString, '=', '-');
+        InitBlob();
+        Base64Convert.FromBase64(SignatureCode, OutputStream);
+        Hash := CryptographyManagement.GenerateHash(InputStream, HashAlgorithmType::SHA1);
         exit(
           StrSubstNo('%1-%2-%3-%4-%5',
-            CopyStr(HexString, 1, 8), CopyStr(HexString, 9, 8), CopyStr(HexString, 17, 8),
-            CopyStr(HexString, 25, 8), CopyStr(HexString, 33, 8)));
+            CopyStr(Hash, 1, 8), CopyStr(Hash, 9, 8), CopyStr(Hash, 17, 8),
+            CopyStr(Hash, 25, 8), CopyStr(Hash, 33, 8)));
+    end;
+
+    local procedure SignText(InputString: Text; IsolatedCertificate: Record "Isolated Certificate"; HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512; SignatureStream: OutStream)
+    var
+        CryptographyManagement: Codeunit "Cryptography Management";
+        DotNetAsimmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        TempBlob: Codeunit "Temp Blob";
+        KeyStream: InStream;
+        OutputStream: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutputStream);
+        TempBlob.CreateInStream(KeyStream);
+
+        IsolatedCertificate.GetDotNetX509Certificate2(DotNetX509Certificate2);
+        DotNetX509Certificate2.PrivateKey(DotNetAsimmetricAlgorithm);
+        OutputStream.Write(DotNetAsimmetricAlgorithm.ToXmlString(true));
+        CryptographyManagement.SignData(InputString, KeyStream, HashAlgorithmType, SignatureStream);
+    end;
+
+    local procedure InitBlob()
+    begin
+        Clear(TempBlob);
+        TempBlob.CreateInStream(InputStream);
+        TempBlob.CreateOutStream(OutputStream);
     end;
 
     [Scope('OnPrem')]

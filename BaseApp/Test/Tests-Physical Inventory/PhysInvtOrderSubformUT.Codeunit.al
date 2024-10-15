@@ -325,6 +325,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         // [SCENARIO 382436] Physical inventory order with two recording lines containing the same item with different lot nos. and expiration dates, should post entries with correct expiration dates
 
         Initialize;
+        UpdateInventorySetup; // NAVCZ
 
         // [GIVEN] Item "I" with lot tracking and lot expiration date control
         CreateLocationWithBin(Bin);
@@ -628,6 +629,18 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         repeat
             ItemLedgerEntry.TestField("Expiration Date", ExpirationDate);
         until ItemLedgerEntry.Next = 0;
+    end;
+
+
+    local procedure UpdateInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // NAVCZ
+        InventorySetup.Get();
+        InventorySetup."Def.Template for Phys.Neg.Adj" := '';
+        InventorySetup."Def.Template for Phys.Pos.Adj" := '';
+        InventorySetup.Modify();
     end;
 
     [ModalPageHandler]

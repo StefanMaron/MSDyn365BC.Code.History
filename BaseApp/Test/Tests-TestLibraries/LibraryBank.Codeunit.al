@@ -227,8 +227,7 @@ codeunit 143000 "Library - Bank"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        BankPmtApplRule.Reset;
-        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccApplRuleCode);
+        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankAccApplRuleCode;
         BankPmtApplRule.InsertDefaultMatchingRules;
     end;
 }

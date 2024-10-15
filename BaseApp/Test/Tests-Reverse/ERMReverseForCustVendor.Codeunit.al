@@ -335,7 +335,6 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
         isInitialized := true;
         Commit;
 

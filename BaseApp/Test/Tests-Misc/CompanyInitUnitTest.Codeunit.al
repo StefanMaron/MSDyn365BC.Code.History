@@ -560,8 +560,8 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Stmt", '1', REPORT::"Bank Account Statement");
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Recon.Test", '1', REPORT::"Bank Acc. Recon. - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"B.Check", '1', REPORT::Check);
-        CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', REPORT::Reminder);
-        CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', REPORT::"Finance Charge Memo");
+        CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', REPORT::"Reminder CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', REPORT::"Finance Charge Memo CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"Rem.Test", '1', REPORT::"Reminder - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"F.C.Test", '1', REPORT::"Finance Charge Memo - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::Inv1, '1', REPORT::"Transfer Order");
@@ -572,13 +572,13 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::M1, '1', REPORT::"Prod. Order - Job Card");
         CheckReportSelectionEntry(ReportSelections.Usage::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
         CheckReportSelectionEntry(ReportSelections.Usage::M3, '1', REPORT::"Prod. Order - Shortage List");
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', REPORT::"Service Quote");
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', REPORT::"Service Order");
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', REPORT::"Service Quote CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', REPORT::"Service Order CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', REPORT::"Service - Invoice CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', REPORT::"Service - Shipment CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote");
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', REPORT::"Service Contract");
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', REPORT::"Service Contract CZ"); // NAVCZ
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Test", '1', REPORT::"Service Document - Test");
         CheckReportSelectionEntry(ReportSelections.Usage::"Asm.Order", '1', REPORT::"Assembly Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Asm.Order", '1', REPORT::"Posted Assembly Order");
@@ -591,7 +591,13 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Return", '1', REPORT::"Arch.Purch. Return Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1', REPORT::"Arch. Sales Return Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction");
-        CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::Statement);
+        CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::"Standard Statement"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.Let", '1', Report::"Sales - Advance Letter CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.Inv", '1', Report::"Sales - Advance Invoice CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.CrM", '1', Report::"Sales - Advance Credit Memo CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.Let", '1', Report::"Purchase - Advance Letter CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.Inv", '1', Report::"Purchase - Advance Invoice CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.CrM", '1', Report::"Purchase - Advance Cr. Memo CZ"); // NAVCZ
     end;
 
     local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)

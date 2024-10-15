@@ -563,6 +563,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         PostedDocumentNo: Code[20];
         Amount: Decimal;
         PaymentTolerance: Decimal;
@@ -580,6 +581,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CreateAndModifyPurchaseLine(PurchaseHeader);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
+        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
 
         // Exericse.

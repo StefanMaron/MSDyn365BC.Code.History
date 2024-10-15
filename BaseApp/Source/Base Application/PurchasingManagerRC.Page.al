@@ -262,15 +262,27 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     // action("Order")
                     // {
-                    //	ApplicationArea = Suite;
-                    //	Caption = 'Order';
-                    //	RunObject = codeunit 8815;
+                    //     ApplicationArea = Suite;
+                    //     Caption = 'Order';
+                    //     RunObject = codeunit 8815;
                     // }
                     action("Purchasing Deferral Summary")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Purchasing Deferral Summary';
                         RunObject = report "Deferral Summary - Purchasing";
+                    }
+                    action("Purch. Advance Letter List")
+                    {
+                        ApplicationArea =;
+                        Caption = 'Purch. Advance Letter List';
+                        RunObject = report "Purch. Advance Letter List";
+                    }
+                    action("Quantity Received Check")
+                    {
+                        ApplicationArea =;
+                        Caption = 'Quantity Received Check';
+                        RunObject = report "Quantity Received Check";
                     }
                 }
             }
@@ -689,6 +701,12 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Report Selections Purchase';
                     RunObject = page "Report Selection - Purchase";
                 }
+                action("Adv. Payment Selection-Purch")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Adv. Payment Selection-Purch';
+                    RunObject = page 31039;
+                }
                 action("Req. Worksheet")
                 {
                     ApplicationArea = Planning;
@@ -715,6 +733,7 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Journal Templates")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
                     RunObject = page "Item Journal Templates";
                 }
@@ -726,16 +745,19 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Disc. Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
                     RunObject = page "Item Disc. Groups";
                 }
                 action("Item Tracking Codes")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Tracking Codes';
                     RunObject = page "Item Tracking Codes";
                 }
                 action("Inventory Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Setup';
                     RunObject = page "Inventory Setup";
                 }

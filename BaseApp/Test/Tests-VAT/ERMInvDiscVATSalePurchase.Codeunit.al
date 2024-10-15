@@ -1563,6 +1563,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     begin
         // Setup: Create Purchase Order and Calculate Invoice Discount with multiple Purchase Line.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(5), DocumentType);
+        UpdateGenPostingSetup(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group"); // NAVCZ
         PurchCalcDiscount.Run(PurchaseLine);
         InvDiscAmt := CalculatePurchaseInvDiscAmount(PurchaseHeader);
         exit(PurchaseLine."VAT %");
@@ -1831,7 +1832,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         // Not using Library Item Finder method to make this funtion World ready.
         FindVATPostingSetup(VATPostingSetup);
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindLast; // NAVCZ
         LibraryInventory.CreateItem(Item);
         Item.Validate(Blocked, false);
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -2185,6 +2186,16 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
           AmountIncludingVAT, PurchCrMemoLine."Amount Including VAT", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(
             AmountError, PurchCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchCrMemoLine.TableCaption));
+    end;
+
+    local procedure UpdateGenPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // NAVCZ
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        GeneralPostingSetup."Purch. Inv. Disc. Account" := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup.Modify();
     end;
 
     [ModalPageHandler]

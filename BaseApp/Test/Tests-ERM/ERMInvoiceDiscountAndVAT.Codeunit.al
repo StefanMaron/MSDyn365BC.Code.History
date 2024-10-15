@@ -337,7 +337,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Verify: Verify Depreciation Amount.
         VerifyDepreciationAmount(FixedAsset."No.",
-          -Round(Round(FADepreciationBook."Book Value" / FADepreciationBook."No. of Depreciation Years" / 12), 1, '>')); // NAVCZ
+          -Round(Round(FADepreciationBook."Book Value" / FADepreciationBook."No. of Depreciation Years"), 1, '>')); // NAVCZ
         LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 
@@ -2437,6 +2437,8 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GLAccount."No.");
             GeneralPostingSetup.Modify(true);
         end;
+        GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", LibraryERM.CreateGLAccountNo()); // NAVCZ
+        GeneralPostingSetup.Modify(true); // NAVCZ
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2699,7 +2701,9 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
         GenJournalLine.SetRange("Account No.", AccountNo);
         GenJournalLine.FindFirst;
-        GenJournalLine.TestField(Amount, DepreciationAmount);
+        DepreciationAmount := Round(DepreciationAmount * GenJournalLine."No. of Depreciation Days" / 360, 1, '>'); // NAVCZ
+        if not (GenJournalLine.Amount in [(DepreciationAmount - 1) .. (DepreciationAmount + 1)]) then // NAVCZ
+            GenJournalLine.TestField(Amount, DepreciationAmount);
     end;
 
     local procedure VerifyInvDiscAmtAndVATAmt(PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; VATPercent: Decimal; AllowInvDisc: Boolean)

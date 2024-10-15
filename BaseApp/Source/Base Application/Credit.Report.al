@@ -290,7 +290,7 @@ report 31050 Credit
                         column(STRSUBSTNO_gtcText003_gteRemName_; StrSubstNo(RemainingReceivablesAndPayablesLbl, RemName))
                         {
                         }
-                        column(DataItem1100162065; StrSubstNo(AmountAfterCreditLbl, TempCreditLine."Variable Symbol", Format(Abs(TempCreditLine."Remaining Amount"), 0, AmtFormatTxt), TempCreditLine."Currency Code"))
+                        column(STRSUBSTNO_gtcText004_greTRemLineBuffer__Variable_Symbol_Control1100162065; StrSubstNo(AmountAfterCreditLbl, TempCreditLine."Variable Symbol", Format(Abs(TempCreditLine."Remaining Amount"), 0, AmtFormatTxt), TempCreditLine."Currency Code"))
                         {
                         }
                         column(Integer_Number; Number)
@@ -325,7 +325,7 @@ report 31050 Credit
                         column(STRSUBSTNO_gtcText003_gteRemName__Control1100171014; StrSubstNo(RemainingReceivablesAndPayablesLbl, RemName))
                         {
                         }
-                        column(DataItem1100171015; StrSubstNo(AmountAfterCreditLbl, TempCreditLine2."Variable Symbol", Format(Abs(TempCreditLine2."Remaining Amount"), 0, AmtFormatTxt), TempCreditLine2."Currency Code"))
+                        column(STRSUBSTNO_gtcText004_greTRemLineBuffer2__Variable_Symbol_Control1100171015; StrSubstNo(AmountAfterCreditLbl, TempCreditLine2."Variable Symbol", Format(Abs(TempCreditLine2."Remaining Amount"), 0, AmtFormatTxt), TempCreditLine2."Currency Code"))
                         {
                         }
                         column(Integer2_Number; Number)

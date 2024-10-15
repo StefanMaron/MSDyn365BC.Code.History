@@ -246,7 +246,8 @@ table 11741 "Cash Desk Event"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Cash Desk Event", Code, FieldNumber, ShortcutDimCode);
+        if not IsTemporary then
+            DimMgt.SaveDefaultDim(DATABASE::"Cash Desk Event", Code, FieldNumber, ShortcutDimCode);
     end;
 }
 

@@ -15,10 +15,10 @@ codeunit 134555 "ERM CF Accounts"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
-        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
-        SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget","Sales Advance Letters","Purchase Advance Letters";
+        CFHelper: Codeunit "Library - Cash Flow Helper";
+        SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget";
         isInitialized: Boolean;
-        RollbackErr: Label 'Rollback.';
+        ROLLBACK: Label 'Rollback.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -67,7 +67,7 @@ codeunit 134555 "ERM CF Accounts"
         VerifyIndentation(TempCashFlowAccount);
 
         // Roll back account setup
-        asserterror Error(RollbackErr);
+        asserterror Error(ROLLBACK);
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 134555 "ERM CF Accounts"
         CashFlowAccount: Record "Cash Flow Account";
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
         AccountNo: Code[20];
-        ExpectedFilter: Text;
+        ExpectedFilter: Code[80];
     begin
         Initialize;
         // Clear existing cash flow account to make room for our test
@@ -120,7 +120,7 @@ codeunit 134555 "ERM CF Accounts"
           'Incorrect account filter generated');
 
         // Roll back account setup
-        asserterror Error(RollbackErr);
+        asserterror Error(ROLLBACK);
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 134555 "ERM CF Accounts"
         Initialize;
         Evaluate(FAPostingDateFormula, '<1M>');
         FASetup.Get;
-        LibraryCashFlowHelper.CreateFixedAssetForInvestment(
+        CFHelper.CreateFixedAssetForInvestment(
           FixedAsset, FASetup."Default Depr. Book", FAPostingDateFormula,
           LibraryRandom.RandDec(1000, 2));
 
@@ -161,8 +161,7 @@ codeunit 134555 "ERM CF Accounts"
         Evaluate(DeprecEndDateFormula, '<1M-D5>');
         Evaluate(ExpectedDisposalDateFormula, '<1M+1W-WD1>');
         FASetup.Get;
-        LibraryCashFlowHelper.CreateFixedAssetForDisposal(
-          FixedAsset, FASetup."Default Depr. Book", DeprecStartDateFormula, DeprecEndDateFormula,
+        CFHelper.CreateFixedAssetForDisposal(FixedAsset, FASetup."Default Depr. Book", DeprecStartDateFormula, DeprecEndDateFormula,
           ExpectedDisposalDateFormula, LibraryRandom.RandDec(1000, 2));
 
         ConsiderSource[SourceType::"Fixed Assets Disposal"] := true;

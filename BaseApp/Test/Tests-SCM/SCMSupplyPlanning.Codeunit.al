@@ -34,7 +34,6 @@ codeunit 137054 "SCM Supply Planning"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryWorkDate: Codeunit "Library - WorkDate";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -3999,7 +3998,6 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Base Calendar]
 
         // Setup: Create Vendor, Item and add Base Calendar Code to Company Information.
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1Y>', WorkDate)); // NAVCZ
         CreateItemWithVendorNoReorderingPolicy(Item);
 
         ServiceMgtSetup.Get;
@@ -4015,7 +4013,6 @@ codeunit 137054 "SCM Supply Planning"
 
         // Tear Down.
         UpdateCompanyInformationBaseCalendarCode(OldBaseCalendarCode);
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     [Test]
@@ -4025,7 +4022,6 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // Setup: Create Vendor with blank Base Calendar Code, Item.
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1Y>', WorkDate)); // NAVCZ
         CreateItemWithVendorNoReorderingPolicy(Item);
 
         // Exercise: Calculate Regenerative Plan.
@@ -4034,7 +4030,6 @@ codeunit 137054 "SCM Supply Planning"
 
         // Verify: verify Order Date in created requisition line.
         Assert.AreEqual(WorkDate, RequisitionLine."Order Date", StrSubstNo(ReqLineOrderDateErr, WorkDate));
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     [Test]
@@ -4051,7 +4046,6 @@ codeunit 137054 "SCM Supply Planning"
 
         // Setup: Create Vendor with Base Calendar Code, Item
         // and add Base Calendar Code to Company Information.
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1Y>', WorkDate)); // NAVCZ
         VendorNo := CreateItemWithVendorNoReorderingPolicy(Item);
 
         ServiceMgtSetup.Get;
@@ -4068,7 +4062,6 @@ codeunit 137054 "SCM Supply Planning"
 
         // Tear Down.
         UpdateCompanyInformationBaseCalendarCode(OldBaseCalendarCode);
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     [Test]
@@ -4926,7 +4919,6 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // Setup: Create and update Item. Create Sales Order.
         Initialize;
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1Y>', WorkDate)); // NAVCZ
         CreateAndUpdateOrderItem(Item);
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandIntInRange(20, 30), WorkDate);
 
@@ -4944,7 +4936,6 @@ codeunit 137054 "SCM Supply Planning"
 
         // Verify: Verify the Excepted Receipt Date in Reservation Entry.
         VerifyExpectedReceiptDateOnReservationEntry(Item."No.", WorkDate);
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location)

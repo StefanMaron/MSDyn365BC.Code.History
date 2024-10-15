@@ -9,14 +9,14 @@ codeunit 134554 "ERM Cash Flow - Posting"
     end;
 
     var
-        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
+        CFHelper: Codeunit "Library - Cash Flow Helper";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryCF: Codeunit "Library - Cash Flow";
         LibraryERM: Codeunit "Library - ERM";
-        RecordNotDeletedTxt: Label 'Records in table %1 was not deleted.';
-        BeforeAndAfterCounterTxt: Label 'Counters dosn''t match: before: %1 and after: %2.';
-        WrongAmountaTxt: Label 'Amounts before and after posting dosn''t match.';
+        RecordNotDeleted: Label 'Records in table %1 was not deleted.';
+        BeforeAndAfterCounter: Label 'Counters dosn''t match: before: %1 and after: %2.';
+        WrongAmounta: Label 'Amounts before and after posting dosn''t match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -31,12 +31,11 @@ codeunit 134554 "ERM Cash Flow - Posting"
         AmountAfter: Decimal;
         ConsiderSource: array[16] of Boolean;
     begin
-        UpdateCashFlowSetup; // NAVCZ
-        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
         with CashFlowForecast do begin
             ConsiderAllSources(ConsiderSource);
-            LibraryCashFlowHelper.FillJournal(ConsiderSource, "No.", false);
+            CFHelper.FillJournal(ConsiderSource, "No.", false);
 
             CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
             CFWorksheetLine.SetRange("Cash Flow Forecast No.", "No.");
@@ -53,8 +52,8 @@ codeunit 134554 "ERM Cash Flow - Posting"
             CFForecastEntry.CalcSums("Amount (LCY)");
             AmountAfter := CFForecastEntry."Amount (LCY)";
 
-            Assert.AreEqual(CounterBefore, CounterAfter, StrSubstNo(BeforeAndAfterCounterTxt, CounterBefore, CounterAfter));
-            Assert.AreEqual(AmountBefore, AmountAfter, WrongAmountaTxt);
+            Assert.AreEqual(CounterBefore, CounterAfter, StrSubstNo(BeforeAndAfterCounter, CounterBefore, CounterAfter));
+            Assert.AreEqual(AmountBefore, AmountAfter, WrongAmounta);
         end;
     end;
 
@@ -68,8 +67,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         ConsiderSource: array[16] of Boolean;
     begin
-        UpdateCashFlowSetup; // NAVCZ
-        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
         with CashFlowForecast do begin
             CFAccountComment."Table Name" := CFAccountComment."Table Name"::"Cash Flow Forecast";
@@ -79,7 +77,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
             CFAccountComment.Insert;
 
             ConsiderAllSources(ConsiderSource);
-            LibraryCashFlowHelper.FillJournal(ConsiderSource, "No.", false);
+            CFHelper.FillJournal(ConsiderSource, "No.", false);
 
             CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
             CFWorksheetLine.SetRange("Cash Flow Forecast No.", "No.");
@@ -91,11 +89,11 @@ codeunit 134554 "ERM Cash Flow - Posting"
             CFAccountComment.Reset;
             CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
             CFAccountComment.SetRange("No.", "No.");
-            Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeletedTxt, CFAccountComment.TableCaption));
+            Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption));
 
             CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
             CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-            Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeletedTxt, CFForecastEntry.TableCaption));
+            Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeleted, CFForecastEntry.TableCaption));
         end;
     end;
 
@@ -108,7 +106,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         // Setup
-        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CreateGLBudgetCFWorksheetLine(GLBudgetEntry, CFWorksheetLine, CashFlowForecast, LibraryRandom.RandDec(100, 2));
 
         // Exercise
@@ -130,7 +128,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
         // Setup
-        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CreateGLBudgetCFWorksheetLine(GLBudgetEntry, CFWorksheetLine, CashFlowForecast, LibraryRandom.RandDec(100, 2));
 
         // Exercise
@@ -155,7 +153,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         ExpectedAmount: Decimal;
     begin
         // Setup
-        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         ExpectedAmount := LibraryRandom.RandDec(100, 2);
         CreateGLBudgetCFWorksheetLine(GLBudgetEntry, CFWorksheetLine, CashFlowForecast, -ExpectedAmount);
 
@@ -167,7 +165,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         CFForecastEntry.FindFirst;
         CFForecastEntry.TestField("Source Type", CFForecastEntry."Source Type"::"G/L Budget");
         CFForecastEntry.TestField("G/L Budget Name", GLBudgetEntry."Budget Name");
-        LibraryCashFlowHelper.VerifyExpectedCFAmount(-ExpectedAmount, CFForecastEntry."Amount (LCY)");
+        CFHelper.VerifyExpectedCFAmount(-ExpectedAmount, CFForecastEntry."Amount (LCY)");
     end;
 
     local procedure CreateGLBudgetCFWorksheetLine(var GLBudgetEntry: Record "G/L Budget Entry"; var CFWorksheetLine: Record "Cash Flow Worksheet Line"; var CashFlowForecast: Record "Cash Flow Forecast"; CashFlowAmount: Decimal)
@@ -176,8 +174,8 @@ codeunit 134554 "ERM Cash Flow - Posting"
         GLAccount: Record "G/L Account";
         GLBudgetName: Record "G/L Budget Name";
     begin
-        LibraryCashFlowHelper.FindCFBudgetAccount(CFAccount);
-        LibraryCashFlowHelper.FindFirstGLAccFromCFAcc(GLAccount, CFAccount);
+        CFHelper.FindCFBudgetAccount(CFAccount);
+        CFHelper.FindFirstGLAccFromCFAcc(GLAccount, CFAccount);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, CashFlowForecast."G/L Budget From", GLAccount."No.", GLBudgetName.Name);
         GLBudgetEntry.Validate(Amount, LibraryRandom.RandDec(100, 2));
@@ -210,17 +208,6 @@ codeunit 134554 "ERM Cash Flow - Posting"
     begin
         CFWorksheetLine.FindFirst;
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch", CFWorksheetLine);
-    end;
-
-    local procedure UpdateCashFlowSetup()
-    var
-        CashFlowSetup: Record "Cash Flow Setup";
-    begin
-        // NAVCZ
-        CashFlowSetup.Get;
-        CashFlowSetup."S. Adv. Letter CF Account No." := CashFlowSetup."Receivables CF Account No.";
-        CashFlowSetup."P. Adv. Letter CF Account No." := CashFlowSetup."Payables CF Account No.";
-        CashFlowSetup.Modify;
     end;
 }
 

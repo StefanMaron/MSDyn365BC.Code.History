@@ -1,4 +1,4 @@
-codeunit 368 "Format Document"
+﻿codeunit 368 "Format Document"
 {
 
     trigger OnRun()
@@ -89,7 +89,14 @@ codeunit 368 "Format Document"
     end;
 
     procedure SetLogoPosition(LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLogoPosition(LogoPosition, CompanyInfo1, CompanyInfo2, CompanyInfo3, IsHandled);
+        if IsHandled then
+            exit;
+
         case LogoPosition of
             LogoPosition::"No Logo":
                 ;
@@ -245,7 +252,6 @@ codeunit 368 "Format Document"
             FormattedVATPercentage := Format(VATPercentage);
             FormattedLineAmount := Format(LineAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
         end;
-
         OnAfterSetSalesPurchaseLine(
           Quantity, UnitPrice, VATPercentage, LineAmount, CurrencyCode,
           FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount);
@@ -303,6 +309,11 @@ codeunit 368 "Format Document"
 
         CopyArray(PaymentSymbol, TempPaymentSymbol, 1, 2);
         CopyArray(PaymentSymbolLabel, TempPaymentSymbolLabel, 1, 2);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLogoPosition(var LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information"; var IsHandled: Boolean);
+    begin
     end;
 }
 

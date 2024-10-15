@@ -434,15 +434,6 @@ report 20 "Calc. and Post VAT Settlement"
                     trigger OnAfterGetRecord()
                     begin
                         VATEntry.Reset;
-                        if not
-                           VATEntry.SetCurrentKey(
-                             Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-                             "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role",
-                             "VAT Date") // NAVCZ
-                        then
-                            VATEntry.SetCurrentKey(
-                              Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Date"); // NAVCZ
-                        // NAVCZ
                         VATEntry.SetRange(Type, VATType);
                         VATEntry.SetRange(Closed, false);
                         VATEntry.SetFilter("VAT Date", VATDateFilter); // NAVCZ
@@ -467,6 +458,10 @@ report 20 "Calc. and Post VAT Settlement"
                             "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
                             "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
                                 begin
+                                    VATEntry.SetCurrentKey(
+                                      Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+                                      "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
+                                      "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date");
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
@@ -486,6 +481,7 @@ report 20 "Calc. and Post VAT Settlement"
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                                 begin
+                                    VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Date");
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat

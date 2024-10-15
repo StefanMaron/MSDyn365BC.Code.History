@@ -2,7 +2,7 @@ table 31130 "Certificate CZ Code"
 {
     Caption = 'Certificate Code';
     DataCaptionFields = "Code", Description;
-    LookupPageID = "Certificates CZ Codes";
+    LookupPageID = "Certificate Code List";
 
     fields
     {
@@ -29,28 +29,35 @@ table 31130 "Certificate CZ Code"
     }
 
     [Scope('OnPrem')]
-    procedure LoadValidCertificate(var CertificateCZ: Record "Certificate CZ"): Boolean
+    procedure LoadValidCertificate(var IsolatedCertificate: Record "Isolated Certificate"): Boolean
+    var
+        User: Record User;
     begin
-        if LoadValidCertificateForUser(CertificateCZ, UserId) then
+        if not User.Get(UserSecurityId()) then
+            User.Init();
+        exit(LoadValidCertificate(IsolatedCertificate, User."User Name"));
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadValidCertificate(var IsolatedCertificate: Record "Isolated Certificate"; UserName: Code[50]): Boolean
+    begin
+        Clear(IsolatedCertificate);
+        IsolatedCertificate.SetRange("Certificate Code", Code);
+        IsolatedCertificate.SetFilter("Expiry Date", '%1|>=%2', 0DT, CurrentDateTime);
+        IsolatedCertificate.SetRange("Company ID", CompanyName);
+        if UserName = '' then
+            exit(IsolatedCertificate.FindFirst());
+
+        IsolatedCertificate.SetRange("User ID", UserName);
+        if IsolatedCertificate.FindFirst() then
             exit(true);
-        exit(LoadValidCertificateForAll(CertificateCZ));
-    end;
 
-    local procedure LoadValidCertificateForAll(var CertificateCZ: Record "Certificate CZ"): Boolean
-    begin
-        exit(LoadValidCertificateForUser(CertificateCZ, ''));
-    end;
+        IsolatedCertificate.SetRange("Company ID");
+        if IsolatedCertificate.FindFirst() then
+            exit(true);
 
-    local procedure LoadValidCertificateForUser(var CertificateCZ: Record "Certificate CZ"; UserCode: Code[50]): Boolean
-    begin
-        Clear(CertificateCZ);
-        CertificateCZ.SetRange("Certificate Code", Code);
-        CertificateCZ.SetFilter("Valid From", '%1|<=%2', 0DT, CurrentDateTime);
-        CertificateCZ.SetFilter("Valid To", '%1|>=%2', 0DT, CurrentDateTime);
-        CertificateCZ.SetFilter("User ID", '%1', UserCode);
-        if not CertificateCZ.FindFirst then
-            exit(false);
-        exit(CertificateCZ.IsValid);
+        IsolatedCertificate.SetRange("User ID");
+        IsolatedCertificate.SetRange("Company ID", CompanyName);
+        exit(IsolatedCertificate.FindFirst());
     end;
 }
-

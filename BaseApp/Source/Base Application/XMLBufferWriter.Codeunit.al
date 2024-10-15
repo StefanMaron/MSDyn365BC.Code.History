@@ -101,7 +101,7 @@ codeunit 1235 "XML Buffer Writer"
     local procedure CreateXmlReaderFromXmlText(XmlText: Text)
     begin
         StringReader := StringReader.StringReader(XmlText);
-        XmlReader := XmlReader.Create(StringReader);
+        XmlReader := XmlReader.Create(StringReader, XmlReaderSettings);
     end;
 
     local procedure InitializeXMLReaderSettings()

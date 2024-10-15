@@ -16,7 +16,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryXMLRead: Codeunit "Library - XML Read";
-        LibraryWorkDate: Codeunit "Library - WorkDate";
         LibraryRandom: Codeunit "Library - Random";
         ServerFileName: Text;
         IsInitialized: Boolean;
@@ -213,7 +212,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize;
 
         // Setup
-        LibraryWorkDate.SetWorkDate(Today); // NAVCZ
         PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
@@ -238,11 +236,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryXMLRead.VerifyAttributeValueInSubtree('DrctDbtTxInf', 'InstdAmt', 'Ccy', 'EUR');
         LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', BankAccount.IBAN);
         LibraryXMLRead.VerifyNodeValueInSubtree('FinInstnId', 'BIC', BankAccount."SWIFT Code");
-
-        // NAVCZ
-        // Teardowm
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate);
-        // NAVCZ
     end;
 
     [Test]

@@ -76,6 +76,12 @@ table 1262 "Isolated Certificate"
             Caption = 'Issued To';
             Editable = false;
         }
+        field(31130; "Certificate Code"; Code[20])
+        {
+            Caption = 'Certificate Code';
+            Editable = false;
+            TableRelation = "Certificate CZ Code";
+        }
     }
 
     keys
@@ -153,6 +159,12 @@ table 1262 "Isolated Certificate"
     local procedure ExistsInIsolatedStorage(): Boolean
     begin
         exit(ISOLATEDSTORAGE.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
+    end;
+
+    procedure GetDotNetX509Certificate2(var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    begin
+        // NAVCZ
+        CertificateManagement.GetCertAsDotNetX509Certificate2(Rec, DotNetX509Certificate2);
     end;
 }
 

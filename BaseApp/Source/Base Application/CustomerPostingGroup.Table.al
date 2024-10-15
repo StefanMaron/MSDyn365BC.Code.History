@@ -21,7 +21,8 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Receivables Account")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Receivables Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                      "Receivables Account", GLAccountCategory."Account Category"::Assets,
+                      GLAccountCategoryMgt.GetCII21TradeReceivables()); // NAVCZ
 
                 Validate("Receivables Account");
             end;
@@ -32,7 +33,8 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Receivables Account", false, false)
                 else
                     GLAccountCategoryMgt.CheckGLAccount(
-                      "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetAR);
+                      "Receivables Account", false, false, GLAccountCategory."Account Category"::Assets,
+                      GLAccountCategoryMgt.GetCII21TradeReceivables()); // NAVCZ
                 CheckOpenCustLedgEntries(false); // NAVCZ
             end;
         }
@@ -47,7 +49,8 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Service Charge Acc.")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      "Service Charge Acc.", GLAccountCategory."Account Category"::Income,
+                      GLAccountCategoryMgt.GetVIIOtherFinancialRevenues()); // NAVCZ
 
                 Validate("Service Charge Acc.");
             end;
@@ -58,7 +61,8 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
                 else
                     GLAccountCategoryMgt.CheckGLAccount(
-                      "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService);
+                      "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income,
+                      GLAccountCategoryMgt.GetVIIOtherFinancialRevenues()); // NAVCZ
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -305,7 +309,7 @@ table 92 "Customer Posting Group"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Payment Tolerance Credit Acc.")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      "Payment Tolerance Credit Acc.", GLAccountCategory."Account Category"::Expense, ''); // NAVCZ
 
                 Validate("Payment Tolerance Credit Acc.");
             end;
@@ -317,7 +321,7 @@ table 92 "Customer Posting Group"
                 else
                     GLAccountCategoryMgt.CheckGLAccount(
                       "Payment Tolerance Credit Acc.", false, false,
-                      GLAccountCategory."Account Category"::Expense, GLAccountCategoryMgt.GetInterestExpense);
+                      GLAccountCategory."Account Category"::Expense, ''); // NAVCZ
             end;
         }
         field(19; "Add. Fee per Line Account"; Code[20])
@@ -356,8 +360,25 @@ table 92 "Customer Posting Group"
             Caption = 'Advance Account';
             TableRelation = "G/L Account";
 
+            trigger OnLookup()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Advance Account")
+                else
+                    GLAccountCategoryMgt.LookupGLAccount("Advance Account", GLAccountCategory."Account Category"::Liabilities,
+                        GLAccountCategoryMgt.GetCII3ShorttermAdvancePaymentsReceived());
+
+                Validate("Advance Account");
+            end;
+
             trigger OnValidate()
             begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Advance Account", false, false)
+                else
+                    GLAccountCategoryMgt.CheckGLAccount("Advance Account", false, false, GLAccountCategory."Account Category"::Liabilities,
+                        GLAccountCategoryMgt.GetCII3ShorttermAdvancePaymentsReceived());
+
                 CheckOpenCustLedgEntries(true);
             end;
         }

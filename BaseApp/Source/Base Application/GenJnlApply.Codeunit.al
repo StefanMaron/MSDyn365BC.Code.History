@@ -367,6 +367,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             // NAVCZ
             if "Line No." <> 0 then
                 // NAVCZ
@@ -429,6 +432,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             // NAVCZ
             if "Line No." <> 0 then
                 // NAVCZ
@@ -470,6 +476,9 @@ codeunit 225 "Gen. Jnl.-Apply"
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';
+
+            SetJournalLineFieldsFromApplication;
+
             if Modify then;
         end;
 

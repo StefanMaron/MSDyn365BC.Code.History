@@ -815,8 +815,9 @@ codeunit 31000 "Sales-Post Advances"
                 DocumentType::"Credit Memo":
                     begin
                         TestField("Prepayment No.", '');
-                        PostingDate := CurrSalesInvHeader."Posting Date";
-                        VATDate := CurrSalesInvHeader."VAT Date";
+                        SalesAdvanceLetterHeader.TESTFIELD("Document Date");
+                        PostingDate := SalesAdvanceLetterHeader."Document Date";
+                        VATDate := SalesAdvanceLetterHeader."VAT Date";
                         if VATDate = 0D then
                             VATDate := PostingDate;
                         if "Prepmt. Cr. Memo No." = '' then
@@ -1074,6 +1075,11 @@ codeunit 31000 "Sales-Post Advances"
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "Reason Code" := SalesAdvanceLetterHeader."Reason Code";
             "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
+            "Posting Date" := SalesAdvanceLetterHeader."Document Date";
+            "Document Date" := "Posting Date";
+            "VAT Date" := SalesAdvanceLetterHeader."VAT Date";
+            IF "VAT Date" = 0D THEN
+                "VAT Date" := "Posting Date";
             Insert;
         end;
     end;

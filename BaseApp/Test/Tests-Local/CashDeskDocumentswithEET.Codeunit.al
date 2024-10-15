@@ -12,7 +12,7 @@ codeunit 144104 "Cash Desk Documents with EET"
     var
         Assert: Codeunit Assert;
         LibraryCashDesk: Codeunit "Library - Cash Desk";
-        LibraryCertificateCZ: Codeunit "Library - Certificate CZ";
+        LibraryCertificate: Codeunit "Library - Certificate";
         LibraryEET: Codeunit "Library - EET";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -259,7 +259,7 @@ codeunit 144104 "Cash Desk Documents with EET"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -268,7 +268,7 @@ codeunit 144104 "Cash Desk Documents with EET"
         LibraryEET.SetCertificateCode(CreateCertificateCode);
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"EET Service Setup");
     end;
@@ -397,20 +397,20 @@ codeunit 144104 "Cash Desk Documents with EET"
         end;
     end;
 
-    local procedure CreateCertificate(var CertificateCZ: Record "Certificate CZ")
+    local procedure CreateCertificate(var IsolatedCertificate: Record "Isolated Certificate")
     var
         CertificateCZCode: Record "Certificate CZ Code";
     begin
-        LibraryCertificateCZ.CreateCertificateCode(CertificateCZCode);
-        LibraryCertificateCZ.CreateCertificateWithImportedCertificate(CertificateCZ, CertificateCZCode.Code, '', true);
+        LibraryCertificate.CreateCertificateCZCode(CertificateCZCode);
+        LibraryCertificate.CreateIsolatedCertificateWithWithTestBlob(IsolatedCertificate, CertificateCZCode.Code, 1);
     end;
 
-    local procedure CreateCertificateCode(): Code[10]
+    local procedure CreateCertificateCode(): Code[20]
     var
-        CertificateCZ: Record "Certificate CZ";
+        IsolatedCertificate: Record "Isolated Certificate";
     begin
-        CreateCertificate(CertificateCZ);
-        exit(CertificateCZ."Certificate Code");
+        CreateCertificate(IsolatedCertificate);
+        exit(IsolatedCertificate."Certificate Code");
     end;
 
     local procedure CreateCustomerNo(): Code[20]

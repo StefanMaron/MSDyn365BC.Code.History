@@ -28,7 +28,6 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryWorkDate: Codeunit "Library - WorkDate";
         VerifyOnGlobal: Option RequisitionLine,Orders;
         DemandTypeGlobal: Option Sales,Production;
         GlobalChildItemNo: Code[20];
@@ -152,7 +151,6 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         // Setup: Create Work Center, Routing, Item, Create Firm Planned Production Order and calculate Plan from Order Planning.
         Initialize;
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1Y>', WorkDate)); // NAVCZ
         CreateManufacturingSetup(ParentItem, ChildItem, false, ChildItem."Order Tracking Policy"::None);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2) +
@@ -172,7 +170,6 @@ codeunit 137088 "SCM Order Planning - III"
         // Verify : Check that error message is same as accepted during make order when change Production Order Due Date after calculate plan.
         ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(DateErrorText, ProductionOrder."Due Date" - 1)) > 0, GetLastErrorText);
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     [Test]

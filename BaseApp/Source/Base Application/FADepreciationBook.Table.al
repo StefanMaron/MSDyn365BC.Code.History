@@ -1088,7 +1088,7 @@ table 5612 "FA Depreciation Book"
                 PAGE.Run(0, TempFALedgEntry);
             end;
         end else begin
-            SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
+            SetBookValueAfterDisposalFiltersOnFALedgerEntry(FALedgEntry);
             PAGE.Run(0, FALedgEntry);
         end;
     end;
@@ -1160,6 +1160,15 @@ table 5612 "FA Depreciation Book"
         FALedgEntry.SetRange("FA No.", "FA No.");
         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
         exit(not FALedgEntry.IsEmpty);
+    end;
+    
+    local procedure SetBookValueAfterDisposalFiltersOnFALedgerEntry(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+        SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
+        FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::Disposal);
+        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
+        if GetFilter("FA Posting Date Filter") <> '' then
+            FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
     end;
 }
 

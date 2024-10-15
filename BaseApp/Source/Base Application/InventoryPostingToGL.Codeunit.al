@@ -103,9 +103,9 @@ codeunit 5802 "Inventory Posting To G/L"
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled);
+        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled, RunOnlyCheck);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with ValueEntry do begin
             GetGLSetup;
@@ -1073,6 +1073,8 @@ codeunit 5802 "Inventory Posting To G/L"
                     CreateGLItemLedgRelation(ValueEntry);
             until Next = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
+            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting);
+
             DeleteAll;
         end;
         PostingDesc := ''; // NAVCZ
@@ -1256,10 +1258,12 @@ codeunit 5802 "Inventory Posting To G/L"
     var
         Item: Record Item;
     begin
-        if WIPInventory then
+        if WIPInventory then begin
+            OnBeforeGetInvPostingGroupCode(ValueEntry, InvPostingGroupCode);
             if ValueEntry."Source No." <> ValueEntry."Item No." then
                 if Item.Get(ValueEntry."Source No.") then
                     exit(Item."Inventory Posting Group");
+        end;
 
         exit(InvPostingGroupCode);
     end;
@@ -1344,7 +1348,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean; RunOnlyCheck: Boolean)
     begin
     end;
 
@@ -1375,6 +1379,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInvPostingGroupCode(var ValueEntry: Record "Value Entry"; var InvPostingGroupCode: Code[20])
     begin
     end;
 
@@ -1415,6 +1424,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvtPostBufOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvtPostBufferOnAfterPostInvtPostBuf(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean);
     begin
     end;
 

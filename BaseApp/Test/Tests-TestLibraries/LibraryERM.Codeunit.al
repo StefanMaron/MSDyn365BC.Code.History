@@ -1823,6 +1823,7 @@ codeunit 131300 "Library - ERM"
     procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10])
     begin
         GenJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account"); // NAVCZ
         if not GenJournalBatch.FindFirst then
             CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
     end;

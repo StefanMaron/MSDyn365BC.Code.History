@@ -231,6 +231,7 @@ page 345 Reconciliation
         // NAVCZ
     end;
 
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
     begin
     end;

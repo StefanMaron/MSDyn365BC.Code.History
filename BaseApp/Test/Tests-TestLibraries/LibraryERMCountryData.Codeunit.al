@@ -215,8 +215,6 @@ codeunit 131305 "Library - ERM Country Data"
         LibraryERM.CreateReasonCode(ReasonCode);
 
         SalesReceivablesSetup.Get;
-        SalesReceivablesSetup."Reason Code For Payment Disc." := ReasonCode.Code;
-        SalesReceivablesSetup."Pmt.Disc.Tax Corr.Doc. Nos." := LibraryERM.CreateNoSeriesCode;
         SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate);
         SalesReceivablesSetup.Modify;
         // NAVCZ

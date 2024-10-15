@@ -843,8 +843,12 @@ table 5767 "Warehouse Activity Line"
     procedure AutofillQtyToHandle(var WhseActivLine: Record "Warehouse Activity Line")
     var
         NotEnough: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeAutofillQtyToHandle(WhseActivLine);
+        IsHandled := false;
+        OnBeforeAutofillQtyToHandle(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
 
         with WhseActivLine do begin
             NotEnough := false;
@@ -1482,14 +1486,24 @@ table 5767 "Warehouse Activity Line"
                 repeat
                     ItemTrackingMgt.CalcWhseItemTrkgLine(WhseItemTrkgLine);
                     UpdateReservation(WhseActivLine, true);
-                    if ((WhseActivLine."Whse. Document Type" in
-                         [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly]) or
-                        (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement")) and
-                       (WhseItemTrkgLine."Quantity Handled (Base)" = 0)
+                    if WhseActivLine."Whse. Document Type" in
+                       [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly]
                     then
-                        WhseItemTrkgLine.Delete
+                        if WhseItemTrkgLine."Quantity Handled (Base)" = 0 then
+                            WhseItemTrkgLine.Delete
+                        else begin
+                            WhseItemTrkgLine."Quantity (Base)" := WhseItemTrkgLine."Quantity Handled (Base)";
+                            WhseItemTrkgLine."Qty. to Handle (Base)" := 0;
+                            WhseItemTrkgLine."Qty. to Handle" := 0;
+                            WhseItemTrkgLine.Modify;
+                        end
                     else
-                        WhseItemTrkgLine.Modify;
+                        if (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement") and
+                           (WhseItemTrkgLine."Quantity Handled (Base)" = 0)
+                        then
+                            WhseItemTrkgLine.Delete
+                        else
+                            WhseItemTrkgLine.Modify;
                 until WhseItemTrkgLine.Next = 0;
         end;
     end;
@@ -2136,22 +2150,25 @@ table 5767 "Warehouse Activity Line"
 
     local procedure ReNumberAllLines(var NewWhseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer; var NewLineNo: Integer)
     var
-        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
         LineNo: Integer;
     begin
-        LineNo := 10000 * NewWhseActivityLine.Count;
-        NewWhseActivityLine.Find('+');
+        NewWhseActivityLine.FindSet;
         repeat
-            WarehouseActivityLine := NewWhseActivityLine;
-            NewWhseActivityLine.Delete;
-            NewWhseActivityLine := WarehouseActivityLine;
-            NewWhseActivityLine."Line No." := LineNo;
-            NewWhseActivityLine.Insert;
-
-            if WarehouseActivityLine."Line No." = OldLineNo then
+            LineNo += 10000;
+            TempWarehouseActivityLine := NewWhseActivityLine;
+            TempWarehouseActivityLine."Line No." := LineNo;
+            TempWarehouseActivityLine.Insert;
+            if NewWhseActivityLine."Line No." = OldLineNo then
                 NewLineNo := LineNo;
-            LineNo -= 10000;
-        until NewWhseActivityLine.Next(-1) = 0;
+        until NewWhseActivityLine.Next = 0;
+        NewWhseActivityLine.DeleteAll;
+
+        TempWarehouseActivityLine.FindSet;
+        repeat
+            NewWhseActivityLine := TempWarehouseActivityLine;
+            NewWhseActivityLine.Insert;
+        until TempWarehouseActivityLine.Next = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -2240,7 +2257,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

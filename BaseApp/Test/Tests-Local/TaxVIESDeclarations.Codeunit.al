@@ -22,16 +22,18 @@ codeunit 144202 "Tax VIES Declarations"
     local procedure Initialize()
     var
         VIESDeclarationHeader: Record "VIES Declaration Header";
+        VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
 
-        VIESDeclarationHeader.DeleteAll;
-        LibraryTax.CreateStatReportingSetup;
-        LibraryTax.SetVIESStatementInformation;
+        VIESDeclarationHeader.DeleteAll();
+        VATRegistrationNoFormat.DeleteAll();
+        LibraryTax.CreateStatReportingSetup();
+        LibraryTax.SetVIESStatementInformation();
 
         isInitialized := true;
     end;

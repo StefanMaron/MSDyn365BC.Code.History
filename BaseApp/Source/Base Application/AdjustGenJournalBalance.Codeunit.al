@@ -138,6 +138,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     "Recurring Method" := PrevGenJnlLine2."Recurring Method";
                     "Recurring Frequency" := PrevGenJnlLine2."Recurring Frequency";
                     "Posting No. Series" := PrevGenJnlLine2."Posting No. Series";
+                    OnBeforeGenJnlLineInsert(NewGenJnlLine, GenJnlLine2, PrevGenJnlLine2);
                     if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then
                         Insert;
                 end;
@@ -149,6 +150,11 @@ codeunit 407 "Adjust Gen. Journal Balance"
     begin
         // NAVCZ
         UseDocNoFilter := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineInsert(var NewGenJnlLine: Record "Gen. Journal Line"; GenJnlLine2: Record "Gen. Journal Line"; PrevGenJnlLine2: Record "Gen. Journal Line")
+    begin
     end;
 }
 

@@ -65,9 +65,7 @@ table 11794 "Vendor Template"
         field(33; "Invoice Disc. Code"; Code[20])
         {
             Caption = 'Invoice Disc. Code';
-            TableRelation = Customer;
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = Vendor;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -158,8 +156,10 @@ table 11794 "Vendor Template"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Vendor Template", Code, FieldNumber, ShortcutDimCode);
-        Modify;
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"Vendor Template", Code, FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
     end;
 
     [Scope('OnPrem')]

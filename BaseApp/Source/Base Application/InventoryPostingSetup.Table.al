@@ -26,7 +26,11 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account", GLAccountCategory."Account Category"::Assets, 
+                      StrSubstNo('%1|%2|%3', 
+                        GLAccountCategoryMgt.GetCI1Material(),
+                        GLAccountCategoryMgt.GetCI31FinishedProducts(),
+                        GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 
                 Validate("Inventory Account");
             end;
@@ -37,7 +41,12 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account", false, false)
                 else
                     GLAccountCategoryMgt.CheckGLAccount(
-                      "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets,
+                      StrSubstNo('%1|%2|%3', 
+                        GLAccountCategoryMgt.GetCI1Material(),
+                        GLAccountCategoryMgt.GetCI31FinishedProducts(),
+                        GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
+
                 CheckValueEntries(FieldCaption("Inventory Account")); // NAVCZ
             end;
         }
@@ -60,7 +69,11 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account (Interim)")
                 else
                     GLAccountCategoryMgt.LookupGLAccount(
-                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets,
+                      StrSubstNo('%1|%2|%3', 
+                        GLAccountCategoryMgt.GetCI1Material(),
+                        GLAccountCategoryMgt.GetCI31FinishedProducts(),
+                        GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
 
                 Validate("Inventory Account (Interim)");
             end;
@@ -71,7 +84,12 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account (Interim)", false, false)
                 else
                     GLAccountCategoryMgt.CheckGLAccount(
-                      "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets,
+                      StrSubstNo('%1|%2|%3', 
+                        GLAccountCategoryMgt.GetCI1Material(),
+                        GLAccountCategoryMgt.GetCI31FinishedProducts(),
+                        GLAccountCategoryMgt.GetCI32Goods())); // NAVCZ
+
                 CheckValueEntries(FieldCaption("Inventory Account (Interim)")); // NAVCZ
             end;
         }
@@ -79,6 +97,28 @@ table 5813 "Inventory Posting Setup"
         {
             Caption = 'Consumption Account';
             TableRelation = "G/L Account";
+
+            trigger OnLookup()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Consumption Account")
+                else
+                    GLAccountCategoryMgt.LookupGLAccount(
+                      "Consumption Account", GLAccountCategory."Account Category"::Expense,
+                      GLAccountCategoryMgt.GetA2MaterialAndEnergyConsumption());
+
+                Validate("Consumption Account");
+            end;
+
+            trigger OnValidate()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Consumption Account", false, false)
+                else
+                    GLAccountCategoryMgt.CheckGLAccount(
+                      "Consumption Account", false, false, GLAccountCategory."Account Category"::Expense,
+                      GLAccountCategoryMgt.GetA2MaterialAndEnergyConsumption());
+            end;
         }
         field(11761; "Change In Inv.Of WIP Acc."; Code[20])
         {

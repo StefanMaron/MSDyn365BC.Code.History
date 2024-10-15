@@ -562,7 +562,6 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
         isInitialized := true;
         Commit;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -870,9 +869,6 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     local procedure SetupUnapplyPaymentWithPaymentToleranceScenario(var Customer: Record Customer; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPercent: Integer)
     var
         PaymentTerms: Record "Payment Terms";
-        CustomerPostingGroup: Record "Customer Posting Group";
-        GLAccount: Record "G/L Account";
-        VATPostSetup: Record "VAT Posting Setup";
     begin
         CreateUpdatePaymentToleranceSetup(GeneralPostingSetup, VATPostingSetup, VATPercent, VATCalculationType);
 
@@ -887,18 +883,6 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
 
         // Update General Posting Setup
         UpdateCustomerPostingGroupSalesDiscAccounts(Customer."Customer Posting Group");
-
-        // NAVCZ
-        CustomerPostingGroup.Get(Customer."Customer Posting Group");
-        GLAccount.Get(CustomerPostingGroup."Invoice Rounding Account");
-        if not VATPostSetup.Get(Customer."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then begin
-            VATPostSetup.Init;
-            VATPostSetup."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-            VATPostSetup."VAT Prod. Posting Group" := GLAccount."VAT Prod. Posting Group";
-            VATPostSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-            VATPostSetup."VAT %" := VATPostingSetup."VAT %";
-            VATPostSetup.Insert;
-        end;
     end;
 
     local procedure SetupPaymentWithPaymentToleranceAndFullVATScenario(var Vendor: Record Vendor; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPercent: Integer)

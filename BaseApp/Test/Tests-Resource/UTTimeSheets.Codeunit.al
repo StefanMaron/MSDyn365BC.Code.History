@@ -815,6 +815,7 @@ codeunit 136500 "UT Time Sheets"
 
         // assembly line:
         AssemblyQty := AssemblyLine.Quantity;
+        UpdateGenPostingSetup(AssemblyLine."Gen. Bus. Posting Group", AssemblyLine."Gen. Prod. Posting Group"); // NAVCZ
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         TimeSheetChartSetup."Show by" := TimeSheetChartSetup."Show by"::Type;
@@ -2390,5 +2391,17 @@ codeunit 136500 "UT Time Sheets"
         Assert.IsFalse(TimeSheetList.Next, 'Unexpected record in repeater for filtered Time Sheet');
         TimeSheetList.Close;
     end;
+
+    local procedure UpdateGenPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        // NAVCZ
+        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
+        GeneralPostingSetup."Direct Cost Applied Account" := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup.Modify();
+    end;
+
 }
 

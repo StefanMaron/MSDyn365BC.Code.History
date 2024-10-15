@@ -2104,22 +2104,22 @@ codeunit 134984 "ERM Sales Report III"
             MaxStrLen(Customer."Phone No.")));
         Customer.Validate(Contact,
           CopyStr(
-            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer.Contact),0),
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer.Contact), 0),
             1,
             MaxStrLen(Customer.Contact)));
         Customer.Modify;
 
         // [GIVEN] Create and post invoice for Customer "CUST", "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
-        CreatePostSalesInvoiceWithDueDateCalc(Customer."No.",CalcDate('<1M>',WorkDate));
+        CreatePostSalesInvoiceWithDueDateCalc(Customer."No.", CalcDate('<1M>', WorkDate));
 
         // [WHEN] Run report Aged Accounts Receivable with "Print Details" = "Yes"
-        RunAgedAccountsReceivableWithParameters(Customer,CalcDate('<2M>',WorkDate));
+        RunAgedAccountsReceivableWithParameters(Customer, CalcDate('<2M>', WorkDate));
 
         // [THEN] Customer "CUST" is printed with Phone No. = "12345", Contact = "CONT"
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('Name1_Cust',Customer."No.");
-        LibraryReportDataset.AssertElementWithValueExists('CustomerPhoneNo',Customer."Phone No.");
-        LibraryReportDataset.AssertElementWithValueExists('CustomerContactName',Customer.Contact);
+        LibraryReportDataset.AssertElementWithValueExists('Name1_Cust', Customer."No.");
+        LibraryReportDataset.AssertElementWithValueExists('CustomerPhoneNo', Customer."Phone No.");
+        LibraryReportDataset.AssertElementWithValueExists('CustomerContactName', Customer.Contact);
     end;
 
     local procedure Initialize()
@@ -2451,20 +2451,20 @@ codeunit 134984 "ERM Sales Report III"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePostSalesInvoiceWithDueDateCalc(CustomerNo: Code[20];DueDate: Date): Decimal
+    local procedure CreatePostSalesInvoiceWithDueDateCalc(CustomerNo: Code[20]; DueDate: Date): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Invoice,CustomerNo);
-        SalesHeader.Validate("Due Date",DueDate);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Due Date", DueDate);
         SalesHeader.Modify;
         LibrarySales.CreateSalesLine(
-          SalesLine,SalesHeader,SalesLine.Type::Item,LibraryInventory.CreateItemNo,LibraryRandom.RandDec(10,2));
-        SalesLine.Validate("Unit Price",LibraryRandom.RandDec(100,2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader,true,true));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         exit(SalesInvoiceHeader."Amount Including VAT");
     end;
@@ -2885,7 +2885,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesDocumentTest.Run;
     end;
 
-    local procedure RunAgedAccountsReceivableWithParameters(Customer: Record Customer;AgedAsOfDate: Date)
+    local procedure RunAgedAccountsReceivableWithParameters(Customer: Record Customer; AgedAsOfDate: Date)
     var
         AgedAccountsReceivable: Report "Aged Accounts Receivable";
     begin
@@ -3832,9 +3832,9 @@ codeunit 134984 "ERM Sales Report III"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure StatementCancelRequestPageHandler(var Statement: TestRequestPage Statement)
+    procedure StatementCancelRequestPageHandler(var StandardStatement: TestRequestPage "Standard Statement")
     begin
-        Statement.Cancel.Invoke;
+        StandardStatement.Cancel.Invoke;
     end;
 
     [RequestPageHandler]
@@ -3944,7 +3944,7 @@ codeunit 134984 "ERM Sales Report III"
         AgedAccountsReceivable.Agingby.SetValue(RefAgingBy::"Due Date");
         AgedAccountsReceivable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate);
         AgedAccountsReceivable.PrintDetails.SetValue(true);
-        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName,LibraryReportDataset.GetFileName);
+        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [ConfirmHandler]

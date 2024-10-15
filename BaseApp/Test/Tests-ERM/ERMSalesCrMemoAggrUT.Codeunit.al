@@ -51,7 +51,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup; // NAVCZ
 
         if GeneralLedgerSetup.UseVat then begin
             LibraryERMCountryData.CreateVATData;
@@ -61,7 +60,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibrarySales.SetStockoutWarning(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup"); // NAVCZ
         DisableWarningOnClosingCrMemo;
 
         Commit;

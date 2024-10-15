@@ -9,6 +9,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionSales;
+
         with ReportSelections do begin
             InitReportUsage(Usage::"Pro Forma S. Invoice");
             InitReportUsage(Usage::"S.Invoice Draft");
@@ -28,9 +30,6 @@ codeunit 1901 "Report Selection Mgt."
             InitReportUsage(Usage::"S.Arch.Return");
             InitReportUsage(Usage::"S.Arch.Blanket");
             InitReportUsage(Usage::"S.Order Pick Instruction");
-            InitReportUsage(Usage::"S.Adv.Let");
-            InitReportUsage(Usage::"S.Adv.Inv");
-            InitReportUsage(Usage::"S.Adv.CrM");
         end;
 
         OnAfterInitReportSelectionSales;
@@ -40,6 +39,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionPurch();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"P.Quote");
             InitReportUsage(Usage::"P.Blanket");
@@ -55,9 +56,6 @@ codeunit 1901 "Report Selection Mgt."
             InitReportUsage(Usage::"P.Arch.Order");
             InitReportUsage(Usage::"P.Arch.Return");
             InitReportUsage(Usage::"P.Arch.Blanket");
-            InitReportUsage(Usage::"P.Adv.Let");
-            InitReportUsage(Usage::"P.Adv.Inv");
-            InitReportUsage(Usage::"P.Adv.CrM");
         end;
 
         OnAfterInitReportSelectionPurch;
@@ -67,6 +65,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionInvt();
+
         with ReportSelections do begin
             InitReportUsage(Usage::Inv1);
             InitReportUsage(Usage::Inv2);
@@ -89,6 +89,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionBank();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"B.Stmt");
             InitReportUsage(Usage::"B.Recon.Test");
@@ -102,6 +104,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionCust();
+
         with ReportSelections do begin
             InitReportUsage(Usage::Reminder);
             InitReportUsage(Usage::"Fin.Charge");
@@ -117,6 +121,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionServ();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"SM.Quote");
             InitReportUsage(Usage::"SM.Order");
@@ -135,6 +141,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionProd();
+
         with ReportSelections do begin
             InitReportUsage(Usage::M1);
             InitReportUsage(Usage::M2);
@@ -148,6 +156,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelectionWhse: Record "Report Selection Warehouse";
     begin
+        OnBeforeInitReportSelectionWhse();
+
         with ReportSelectionWhse do begin
             InitReportUsageWhse(Usage::Pick);
             InitReportUsageWhse(Usage::"Put-away");
@@ -175,31 +185,31 @@ codeunit 1901 "Report Selection Mgt."
                 Usage::"S.Invoice Draft":
                     InsertRepSelection(Usage::"S.Invoice Draft", '1', REPORT::"Standard Sales - Draft Invoice");
                 Usage::"S.Quote":
-                    InsertRepSelection(Usage::"S.Quote", '1', REPORT::"Sales - Quote CZ");
+                    InsertRepSelection(Usage::"S.Quote", '1', REPORT::"Standard Sales - Quote");
                 Usage::"S.Blanket":
                     InsertRepSelection(Usage::"S.Blanket", '1', REPORT::"Blanket Sales Order");
                 Usage::"S.Order":
-                    InsertRepSelection(Usage::"S.Order", '1', REPORT::"Order Confirmation CZ");
+                    InsertRepSelection(Usage::"S.Order", '1', REPORT::"Standard Sales - Order Conf.");
                 Usage::"S.Work Order":
                     InsertRepSelection(Usage::"S.Work Order", '1', REPORT::"Work Order");
                 Usage::"S.Invoice":
-                    InsertRepSelection(Usage::"S.Invoice", '1', REPORT::"Sales - Invoice CZ");
+                    InsertRepSelection(Usage::"S.Invoice", '1', REPORT::"Standard Sales - Invoice");
                 Usage::"S.Return":
-                    InsertRepSelection(Usage::"S.Return", '1', REPORT::"Return Order Confirmation CZ");
+                    InsertRepSelection(Usage::"S.Return", '1', REPORT::"Return Order Confirmation");
                 Usage::"S.Cr.Memo":
-                    InsertRepSelection(Usage::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo CZ");
+                    InsertRepSelection(Usage::"S.Cr.Memo", '1', REPORT::"Standard Sales - Credit Memo");
                 Usage::"S.Shipment":
-                    InsertRepSelection(Usage::"S.Shipment", '1', REPORT::"Sales - Shipment CZ");
+                    InsertRepSelection(Usage::"S.Shipment", '1', REPORT::"Sales - Shipment");
                 Usage::"S.Ret.Rcpt.":
-                    InsertRepSelection(Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Reciept CZ");
+                    InsertRepSelection(Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Receipt");
                 Usage::"S.Test":
                     InsertRepSelection(Usage::"S.Test", '1', REPORT::"Sales Document - Test");
                 Usage::"P.Quote":
-                    InsertRepSelection(Usage::"P.Quote", '1', REPORT::"Purchase - Quote CZ");
+                    InsertRepSelection(Usage::"P.Quote", '1', REPORT::"Purchase - Quote");
                 Usage::"P.Blanket":
                     InsertRepSelection(Usage::"P.Blanket", '1', REPORT::"Blanket Purchase Order");
                 Usage::"P.Order":
-                    InsertRepSelection(Usage::"P.Order", '1', REPORT::"Order CZ");
+                    InsertRepSelection(Usage::"P.Order", '1', REPORT::Order);
                 Usage::"P.Invoice":
                     InsertRepSelection(Usage::"P.Invoice", '1', REPORT::"Purchase - Invoice");
                 Usage::"P.Return":
@@ -257,11 +267,11 @@ codeunit 1901 "Report Selection Mgt."
                 Usage::"SM.Order":
                     InsertRepSelection(Usage::"SM.Order", '1', REPORT::"Service Order");
                 Usage::"SM.Invoice":
-                    InsertRepSelection(Usage::"SM.Invoice", '1', REPORT::"Service - Invoice CZ");
+                    InsertRepSelection(Usage::"SM.Invoice", '1', REPORT::"Service - Invoice");
                 Usage::"SM.Credit Memo":
-                    InsertRepSelection(Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo CZ");
+                    InsertRepSelection(Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo");
                 Usage::"SM.Shipment":
-                    InsertRepSelection(Usage::"SM.Shipment", '1', REPORT::"Service - Shipment CZ");
+                    InsertRepSelection(Usage::"SM.Shipment", '1', REPORT::"Service - Shipment");
                 Usage::"SM.Contract Quote":
                     InsertRepSelection(Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote");
                 Usage::"SM.Contract":
@@ -295,19 +305,7 @@ codeunit 1901 "Report Selection Mgt."
                 Usage::"S.Order Pick Instruction":
                     InsertRepSelection(Usage::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction");
                 Usage::"C.Statement":
-                    InsertRepSelection(Usage::"C.Statement", '1', REPORT::Statement);
-                Usage::"S.Adv.Let":
-                    InsertRepSelection(Usage::"S.Adv.Let", '1', REPORT::"Sales - Advance Letter CZ");
-                Usage::"S.Adv.Inv":
-                    InsertRepSelection(Usage::"S.Adv.Inv", '1', REPORT::"Sales - Advance Invoice CZ");
-                Usage::"S.Adv.CrM":
-                    InsertRepSelection(Usage::"S.Adv.CrM", '1', REPORT::"Sales - Advance Credit Memo CZ");
-                Usage::"P.Adv.Let":
-                    InsertRepSelection(Usage::"P.Adv.Let", '1', REPORT::"Purchase - Advance Letter CZ");
-                Usage::"P.Adv.Inv":
-                    InsertRepSelection(Usage::"P.Adv.Inv", '1', REPORT::"Purchase - Advance Invoice CZ");
-                Usage::"P.Adv.CrM":
-                    InsertRepSelection(Usage::"P.Adv.CrM", '1', REPORT::"Purchase - Advance Cr. Memo CZ");
+                    InsertRepSelection(Usage::"C.Statement", '1', REPORT::"Standard Statement");
                 else
                     OnInitReportUsage(ReportUsage);
             end;
@@ -368,6 +366,46 @@ codeunit 1901 "Report Selection Mgt."
             ReportSelectionWhse."Report ID" := ReportID;
             ReportSelectionWhse.Insert;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionSales()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionPurch()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionInvt()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionBank()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionCust()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionServ()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionProd()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionWhse()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

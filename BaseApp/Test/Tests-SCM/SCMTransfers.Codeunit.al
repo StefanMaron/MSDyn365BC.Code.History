@@ -18,7 +18,6 @@ codeunit 137038 "SCM Transfers"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryWorkDate: Codeunit "Library - WorkDate";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -209,7 +208,6 @@ codeunit 137038 "SCM Transfers"
     begin
         // Setup  : Update Sales Setup. Create Transfer setup.
         Initialize;
-        LibraryWorkDate.SetWorkDate(CalcDate('<-1W>', WorkDate)); // NAVCZ
         UpdateSalesReceivablesSetup;
         CreateTransferSetup(SalesHeader, ItemNo, false);
 
@@ -240,7 +238,6 @@ codeunit 137038 "SCM Transfers"
 
         // Verify : Verify 5 Requisition Lines are left in Planning Worksheet after purchase order messages have been carried out.
         VerifyNumberOfRequisitionLine(ItemNo, 5);
-        LibraryWorkDate.SetWorkDate(LibraryWorkDate.GetDefaultWorkDate); // NAVCZ
     end;
 
     [Test]

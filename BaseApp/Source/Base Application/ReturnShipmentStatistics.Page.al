@@ -60,25 +60,48 @@ page 6655 "Return Shipment Statistics"
     begin
         ClearAll;
 
-        ReturnShptLine.SetRange("Document No.", "No.");
-
-        if ReturnShptLine.Find('-') then
-            repeat
-                LineQty := LineQty + ReturnShptLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (ReturnShptLine.Quantity * ReturnShptLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (ReturnShptLine.Quantity * ReturnShptLine."Gross Weight");
-                TotalVolume := TotalVolume + (ReturnShptLine.Quantity * ReturnShptLine."Unit Volume");
-                if ReturnShptLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(ReturnShptLine.Quantity / ReturnShptLine."Units per Parcel", 1, '>');
-            until ReturnShptLine.Next = 0;
+        CalculateTotals();
     end;
 
     var
-        ReturnShptLine: Record "Return Shipment Line";
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        ReturnShptLine: Record "Return Shipment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnShptLine.SetRange("Document No.", "No.");
+        if ReturnShptLine.Find('-') then
+            repeat
+                LineQty += ReturnShptLine.Quantity;
+                TotalNetWeight += ReturnShptLine.Quantity * ReturnShptLine."Net Weight";
+                TotalGrossWeight += ReturnShptLine.Quantity * ReturnShptLine."Gross Weight";
+                TotalVolume += ReturnShptLine.Quantity * ReturnShptLine."Unit Volume";
+                if ReturnShptLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(ReturnShptLine.Quantity / ReturnShptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    ReturnShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until ReturnShptLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(ReturnShipmentHeader: Record "Return Shipment Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnShipmentLine: Record "Return Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

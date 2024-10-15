@@ -57,6 +57,7 @@ table 255 "VAT Statement Template"
         field(11761; "Allow Comments/Attachments"; Boolean)
         {
             Caption = 'Allow Comments/Attachments';
+            InitValue = true; // NAVCZ
 
             trigger OnValidate()
             begin

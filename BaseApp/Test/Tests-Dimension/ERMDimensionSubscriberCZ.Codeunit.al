@@ -60,5 +60,20 @@ codeunit 143001 "ERM Dimension Subscriber - CZ"
           CreditLine.FieldNo("Global Dimension 1 Code"), CreditLine.FieldNo("Global Dimension 2 Code"),
           DimSetID, GlobalDim1ValueCode, GlobalDim2ValueCode);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, 131001, 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
+    local procedure AddingLocalTable(var TableBuffer: Record "Integer" temporary)
+    begin
+        AddTable(TableBuffer, DATABASE::"Cash Desk Event");
+        AddTable(TableBuffer, DATABASE::"Vendor Template");
+    end;
+
+    local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
+    begin
+        if not TableBuffer.Get(TableID) then begin
+            TableBuffer.Number := TableID;
+            TableBuffer.Insert;
+        end;
+    end;
 }
 
