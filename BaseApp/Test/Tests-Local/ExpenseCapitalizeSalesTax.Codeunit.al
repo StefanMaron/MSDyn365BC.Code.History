@@ -599,6 +599,124 @@
         Assert.RecordCount(GLEntry, 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseInvoiceFCYWithExpenseTaxAndJobLCY()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyCode: Code[10];
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Job] [FCY]
+        // [SCENARIO 435381] Stan posts FCY Purchase Invoice with Expense/Capitalize tax and uses LCY Job.
+        Initialize();
+        UpdatePurchaseSetup(false);
+
+        CurrencyCode := CreateCurrencyWithExchangeRate(100 / 124.17);
+        UnitCost := 500;
+
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup, 7, true);
+
+        CreateVendorWithTaxSetupAndCurrency(Vendor, TaxArea.Code, CurrencyCode);
+        CreatePurchaseOrderWithTaxSetupAndCurrency(PurchaseHeader, Vendor."No.", TaxArea.Code, CurrencyCode);
+
+        CreateGLAccountWithPurchaseTaxSetup(GLAccount, TaxGroup.Code);
+
+        CreateJobAndTask(Job, JobTask, '');
+
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, GLAccount."No.", Job."No.", JobTask."Job Task No.", UnitCost);
+
+        PostPurchaseDocSaveLine(PurchaseHeader, PurchaseLine);
+
+        VerifyUnitCostOnJobLedgerEntry(PurchaseLine, 664.31, 664.31);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseInvoiceLCYWithExpenseTaxAndJobFCY()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyCode: Code[10];
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Job] [FCY]
+        // [SCENARIO 435381] Stan posts LCY Purchase Invoice with Expense/Capitalize tax and uses FCY Job.
+        Initialize();
+        UpdatePurchaseSetup(false);
+
+        CurrencyCode := CreateCurrencyWithExchangeRate(124.17 / 100);
+        UnitCost := 500;
+
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup, 7, true);
+
+        CreateVendorWithTaxSetupAndCurrency(Vendor, TaxArea.Code, '');
+        CreatePurchaseOrderWithTaxSetupAndCurrency(PurchaseHeader, Vendor."No.", TaxArea.Code, '');
+
+        CreateGLAccountWithPurchaseTaxSetup(GLAccount, TaxGroup.Code);
+
+        CreateJobAndTask(Job, JobTask, CurrencyCode);
+
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, GLAccount."No.", Job."No.", JobTask."Job Task No.", UnitCost);
+
+        PostPurchaseDocSaveLine(PurchaseHeader, PurchaseLine);
+
+        VerifyUnitCostOnJobLedgerEntry(PurchaseLine, 664.31, 535);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseInvoiceFCY1WithExpenseTaxAndJobFCY2()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyCode: array[2] of Code[10];
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Job] [FCY]
+        // [SCENARIO 435381] Stan posts FCY_1 Purchase Invoice with Expense/Capitalize tax and uses FCY_2 Job.
+        Initialize();
+        UpdatePurchaseSetup(false);
+
+        CurrencyCode[1] := CreateCurrencyWithExchangeRate(100 / 124.17);
+        CurrencyCode[2] := CreateCurrencyWithExchangeRate(100 / (124.17 * 2));
+        UnitCost := 500;
+
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup, 7, true);
+
+        CreateVendorWithTaxSetupAndCurrency(Vendor, TaxArea.Code, CurrencyCode[1]);
+        CreatePurchaseOrderWithTaxSetupAndCurrency(PurchaseHeader, Vendor."No.", TaxArea.Code, CurrencyCode[1]);
+
+        CreateGLAccountWithPurchaseTaxSetup(GLAccount, TaxGroup.Code);
+
+        CreateJobAndTask(Job, JobTask, CurrencyCode[2]);
+
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, GLAccount."No.", Job."No.", JobTask."Job Task No.", UnitCost);
+
+        PostPurchaseDocSaveLine(PurchaseHeader, PurchaseLine);
+
+        VerifyUnitCostOnJobLedgerEntry(PurchaseLine, 267.50, 664.31);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -629,7 +747,12 @@
         ExchangeRateAmount: Decimal;
     begin
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
-        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount));
+        exit(CreateCurrencyWithExchangeRate(ExchangeRateAmount));
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(ExchangeRateAmount: Decimal): Code[10]
+    begin
+        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRateAmount, ExchangeRateAmount));
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20])
@@ -663,6 +786,41 @@
         Job.Modify(true);
 
         LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateVendorWithTaxSetupAndCurrency(var Vendor: Record Vendor; TaxAreaCode: Code[20]; CurrencyCode: Code[10])
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Tax Liable", true);
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateGLAccountWithPurchaseTaxSetup(var GLAccount: Record "G/L Account"; TaxGroupCode: Code[20])
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("Tax Group Code", TaxGroupCode);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithTaxSetupAndCurrency(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; TaxAreaCode: Code[20]; CurrencyCode: Code[10])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Tax Liable", true);
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20]; UnitCost: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Validate("Job No.", JobNo);
+        PurchaseLine.Validate("Job Task No.", JobTaskNo);
+        PurchaseLine.Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateJobPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; Quantity: Decimal; UnitCost: Decimal; CurrencyCode: Code[10])
@@ -735,8 +893,13 @@
 
     local procedure CreateSalesTaxSetupWithTaxExpenseJurisdiction(var TaxArea: Record "Tax Area"; var TaxGroup: Record "Tax Group")
     begin
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup, LibraryRandom.RandDecInRange(5, 10, 2), true);
+    end;
+
+    local procedure CreateSalesTaxSetupWithTaxExpenseJurisdiction(var TaxArea: Record "Tax Area"; var TaxGroup: Record "Tax Group"; TaxPercent: Decimal; ExpenseCapitalize: Boolean)
+    begin
         CreateSalesTaxSetup(TaxArea, TaxGroup);
-        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, LibraryRandom.RandDecInRange(5, 10, 2), true);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, TaxPercent, ExpenseCapitalize);
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; SalesTaxRate: Decimal; ExpenseTax: Boolean)
@@ -905,7 +1068,7 @@
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyJobLedgerEntry(PurchaseLine: Record "Purchase Line")
+    local procedure VerifyJobLedgerEntry(var PurchaseLine: Record "Purchase Line")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
         JobCurrFactor: Decimal;
@@ -927,6 +1090,23 @@
             Assert.AreEqual(
               PurchaseLine."Amount Including VAT", "Total Cost (LCY)", StrSubstNo(WrongAmountErr, FieldName("Total Cost (LCY)"), TableName));
         end;
+    end;
+
+    local procedure VerifyUnitCostOnJobLedgerEntry(var PurchaseLine: Record "Purchase Line"; ExpectedUnitCost: Decimal; ExpectedUnitCostLCY: Decimal)
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobCurrFactor: Decimal;
+    begin
+        JobLedgerEntry.SetRange("Job No.", PurchaseLine."Job No.");
+        JobLedgerEntry.SetRange("Job Task No.", PurchaseLine."Job Task No.");
+        JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::"G/L Account");
+        JobLedgerEntry.SetRange("No.", PurchaseLine."No.");
+        JobLedgerEntry.FindFirst();
+
+        Assert.AreNearlyEqual(ExpectedUnitCost, JobLedgerEntry."Unit Cost", 0.01, JobLedgerEntry.FieldName("Unit Cost"));
+        Assert.AreNearlyEqual(ExpectedUnitCostLCY, JobLedgerEntry."Unit Cost (LCY)", 0.01, JobLedgerEntry.FieldName("Unit Cost (LCY)"));
+        Assert.AreNearlyEqual(ExpectedUnitCost, JobLedgerEntry."Total Cost", 0.01, JobLedgerEntry.FieldName("Total Cost"));
+        Assert.AreNearlyEqual(ExpectedUnitCostLCY, JobLedgerEntry."Total Cost (LCY)", 0.01, JobLedgerEntry.FieldName("Total Cost (LCY)"));
     end;
 
     local procedure VerifySalesHeaderAmountInclVAT(SalesHeader: Record "Sales Header"; TaxGroupCode: Code[20])

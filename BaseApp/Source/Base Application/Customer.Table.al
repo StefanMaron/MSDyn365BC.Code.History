@@ -1708,6 +1708,11 @@
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
         }
+        field(27005; "CFDI General Public"; Boolean)
+        {
+            Caption = 'CFDI General Public';
+        }
+
     }
 
     keys
