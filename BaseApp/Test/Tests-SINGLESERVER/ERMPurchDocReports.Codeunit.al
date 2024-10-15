@@ -1906,6 +1906,38 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.AssertElementTagWithValueNotExist('DocNo_VendLedgEntry', VendorLedgerEntryInvoice."Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseCreditMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoReportTotalAmountExclVATWithPuchaseLineWithDimensions()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+    begin
+        // [FEATURE] [Dimensions]
+        // [SCENARIO 386412] There is no error in calculating Total Amount Excluding VAT in report "Purchase - Credit Memo" when Dimensions are applied to purchase line.
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Purchase Credit Memo with "Prices Including VAT" set to TRUE and a Purchase Line with Direct Unit Cost "110", Quantity "2", VAT % "10".
+        // [GIVEN] Purchase Line has Dimension Set with enough Dimensions to fill more than one line in Report "Purchase - Credit Memo".
+        CreatePurchaseDocWithDimensions(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", LibraryRandom.RandInt(100));
+
+        // [GIVEN] Purchase Credit Memo is posted.
+        PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Report "Purchase - Credit Memo" is run with "Show Internal Information" set to TRUE.
+        PurchCrMemoHdr.SetRecFilter();
+        REPORT.Run(REPORT::"Purchase - Credit Memo", true, true, PurchCrMemoHdr);
+
+        // [THEN] In resulting file cell with Total Amount Excluding VAT is equal to 200.
+        LibraryReportValidation.OpenExcelFile;
+        with PurchaseLine do
+            LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('AA', Format(Round(Quantity * "Direct Unit Cost" * 100 / (100 + "VAT %"))));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

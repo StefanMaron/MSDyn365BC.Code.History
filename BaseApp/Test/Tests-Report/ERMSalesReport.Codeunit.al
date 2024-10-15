@@ -3329,6 +3329,61 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccumulateRoundedVATBaseLCYtInSalesInvoiceRepForDocHavingTwoEqualLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        DocumentNo: Code[20];
+        ExchangeRate: Decimal;
+        UnitPrice: Decimal;
+        VATPercent: Decimal;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [SCENARIO 388612] VAT Base LCY on "Sales - Invoice" report must accumulate remainig amounts from previous lines in LCY
+        Initialize();
+
+        // [GIVEN] "Print VAT specification in LCY" in the "General Ledger Setup" = True
+        UpdateGeneralLedgerSetup(true);
+
+        // [GIVEN] Currency "CAD" with "Echange Rate Amount"
+        ExchangeRate := LibraryRandom.RandDecInDecimalRange(0.5, 1.5, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
+
+        // [GIVEN] VAT Posting Setup with "VAT Bus. Posting Group"
+        VATPercent := LibraryRandom.RandInt(25);
+        CreateVATPostingGroup(VATPostingSetup, VATPercent);
+        VATProdPostingGroup := VATPostingSetup."VAT Prod. Posting Group";
+
+        // [GIVEN] Posted Sales Invoice "PSI001" in "CAD"
+        CreateSalesHeader(
+          SalesHeader, CurrencyCode, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Created two equal Sales line
+        UnitPrice := LibraryRandom.RandInt(1000);
+        CreateSalesLineWithVAT(
+          SalesHeader, SalesLine, CreateItemWithVATProdPostingGroup(VATProdPostingGroup), UnitPrice);
+        CreateSalesLineWithVAT(
+          SalesHeader, SalesLine, CreateItemWithVATProdPostingGroup(VATProdPostingGroup), UnitPrice);
+
+        // [GIVEN] Posted Sales Invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Pring "Sales - Invoice" for "PSI001"
+        RunSalesInvoiceReport(DocumentNo, false, false, false, 1);
+
+        // [THEN] VAT Specification LCY Printed correctly and equal to values from "VAT ENtry"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
+        FindVATEntry(VATEntry, DocumentNo, WorkDate, VATProdPostingGroup);
+        VerifyVATSpecificationLCYForSalesInvoice(VATEntry, VATPercent);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");

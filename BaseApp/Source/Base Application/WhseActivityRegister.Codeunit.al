@@ -1816,7 +1816,8 @@ codeunit 7307 "Whse.-Activity-Register"
         exit(
           (WhseActivityLine."Activity Type" = WhseActivityLine."Activity Type"::Pick) and
           (WhseActivityLine."Action Type" in [WhseActivityLine."Action Type"::Place, WhseActivityLine."Action Type"::" "]) and
-          (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Sales Order") and
+          (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Sales Order") and 
+          (WhseActivityLine."Breakbulk No." = 0) and
           ((WhseActivityLine."Serial No." <> '') or (WhseActivityLine."Lot No." <> '')));
     end;
 
