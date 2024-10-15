@@ -1113,9 +1113,11 @@ codeunit 99000813 "Carry Out Action"
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1155,6 +1157,15 @@ codeunit 99000813 "Carry Out Action"
                         AsmLine.Modify;
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToProdOrder(ServiceLine, ProdOrderLine, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         ProdOrderLine.Modify;
     end;
@@ -1164,9 +1175,11 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1204,6 +1217,15 @@ codeunit 99000813 "Carry Out Action"
                         AsmLine.Modify;
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToTransfer(ServiceLine, TransLine, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         TransLine.Modify;
     end;
@@ -1213,9 +1235,11 @@ codeunit 99000813 "Carry Out Action"
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1255,6 +1279,15 @@ codeunit 99000813 "Carry Out Action"
                         AsmLine.Modify;
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToAssembly(ServiceLine, AsmHeader, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         AsmHeader.Modify;
     end;
@@ -1263,9 +1296,11 @@ codeunit 99000813 "Carry Out Action"
     var
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
+        AsmLine: Record "Assembly Line";
         ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         case SupplyReqLine."Demand Type" of
@@ -1286,6 +1321,12 @@ codeunit 99000813 "Carry Out Action"
                     end;
                     SalesLineReserve.BindToRequisition(
                       SalesLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
+                end;
+            DATABASE::"Assembly Line":
+                begin
+                    AsmLine.Get(SupplyReqLine."Demand Subtype", SupplyReqLine."Demand Order No.", SupplyReqLine."Demand Line No.");
+                    AssemblyLineReserve.BindToRequisition(
+                      AsmLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
                 end;
             DATABASE::"Service Line":
                 begin

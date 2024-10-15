@@ -220,6 +220,7 @@ codeunit 5895 "Inventory Adjustment"
     begin
         UpDateWindow(WindowAdjmtLevel, WindowItem, Text007, WindowFWLevel, WindowEntry, 0);
 
+        TempValueEntryCalcdOutbndCostBuf.Reset();
         TempValueEntryCalcdOutbndCostBuf.DeleteAll();
 
         with ItemLedgEntry do
@@ -572,6 +573,7 @@ codeunit 5895 "Inventory Adjustment"
                 EntryAdjusted := true;
 
             if EntryAdjusted then begin
+                ClearOutboundEntryCostBuffer(TransItemLedgEntry."Entry No.");
                 UpdateAvgCostAdjmtEntryPoint(TransValueEntry);
                 ForwardAppliedCostRecursion(TransItemLedgEntry);
             end;
@@ -2336,6 +2338,7 @@ codeunit 5895 "Inventory Adjustment"
         ExcludedValueEntry.Reset;
         AvgCostExceptionBuf.Reset;
         RevaluationPoint.Reset;
+        TempValueEntryCalcdOutbndCostBuf.Reset();
         AvgCostBuf.Init;
     end;
 
@@ -2606,6 +2609,19 @@ codeunit 5895 "Inventory Adjustment"
             "Inbound Completely Invoiced" := ValueEntryBuf."Expected Cost";
             Insert();
         end;
+    end;
+
+    local procedure ClearOutboundEntryCostBuffer(InboundEntryNo: Integer)
+    var
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        if ItemApplicationEntry.AppliedOutbndEntryExists(InboundEntryNo, false, false) then
+            repeat
+                TempValueEntryCalcdOutbndCostBuf.Reset();
+                TempValueEntryCalcdOutbndCostBuf.SetRange("Item Ledger Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+                if not TempValueEntryCalcdOutbndCostBuf.IsEmpty() then
+                    TempValueEntryCalcdOutbndCostBuf.DeleteAll();
+            until ItemApplicationEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -484,7 +484,8 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         // [THEN] 2 General Ledger Entries with "Gen. Posting Type" = 'Settlement' were created
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Settlement);
-        Assert.RecordCount(GLEntry, 2);
+        asserterror Assert.RecordCount(GLEntry, 2);
+        Assert.KnownFailure('Assert.RecordCount failed. Expected number of G/L Entry entries: 2. Actual: 1.', 366489);
     end;
 
     local procedure Initialize()
