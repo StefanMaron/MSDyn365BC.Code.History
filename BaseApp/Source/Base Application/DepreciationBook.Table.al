@@ -346,9 +346,11 @@ table 5611 "Depreciation Book"
         Text000: Label 'The book cannot be deleted because it is in use.';
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
         FASetup: Record "FA Setup";
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
         FAJnlSetup: Record "FA Journal Setup";
         Text10500: Label 'You cannot set %1 to %2 because some Fixed Assets associated with this book\exists where Depreciation Method is other than Straight-Line.';
+
+    protected var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
 
     procedure IndexGLIntegration(var GLIntegration: array[9] of Boolean)
     begin

@@ -24,6 +24,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
         UpdateContactParentCompanySuccessfulTxt: Label 'Contact parent company has successfully been updated.', Locked = true;
         UpdateContactParentCompanyAlreadySetTxt: Label 'Contact parent company has already been set correctly.', Locked = true;
+        DataverseAuthUpgradeEnabledSecretNameLbl: Label 'dataverseauthupgenabled', Locked = true;
+        DataverseAuthUpgradeJobQueueCategoryLbl: Label 'CDSAUTHUPG', Locked = true;
+        SuccessfullyScheduledDataverseAuthupgradeTxt: Label 'Successfully scheduled Dataverse authentication type upgrade.', Locked = true;
+        DataverseAuthupgradeJQEDescriptionTxt: Label 'Upgrading authentication type for connecting to Dataverse.', Comment = 'Dataverse is a name of a Microsoft service and must not be translated.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnInitCDSConnection', '', true, true)]
     local procedure HandleOnInitCDSConnection(var ConnectionName: Text; var handled: Boolean)
@@ -428,6 +432,70 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     local procedure HandleOnAfterUncoupleRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
     begin
         RemoveChildCouplings(LocalRecordRef, IntegrationRecordRef);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnAfterInitSynchJob', '', true, true)]
+    local procedure ScheduleAuthUpgradeOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        DataverseAuthUpgradeEnabledTxt: Text;
+    begin
+        if ConnectionType <> TableConnectionType::CRM then
+            exit;
+
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
+            exit;
+
+        if not CRMConnectionSetup.WritePermission() then
+            exit;
+
+        if not CDSConnectionSetup.WritePermission() then
+            exit;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then
+                if CDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0 then
+                    exit;
+
+        if CRMConnectionSetup.IsEnabled() then
+            if CRMConnectionSetup.GetConnectionString().IndexOf('{CERTIFICATE}') > 0 then
+                exit;
+
+        if not CRMIntegrationManagement.UserCanRescheduleJob() then
+            exit;
+
+        // this will enable us to roll this out region per region and it will always exit for Embed ISV clusters
+        if not AzureKeyVault.GetAzureKeyVaultSecret(DataverseAuthUpgradeEnabledSecretNameLbl, DataverseAuthUpgradeEnabledTxt) then
+            exit;
+        if Lowercase(DataverseAuthUpgradeEnabledTxt) <> 'yes' then
+            exit;
+
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDataverseAuthenticationUpgradeTag()) then
+            exit;
+
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"CDS Setup Certificate Auth");
+        if not JobQueueEntry.FindFirst() then
+            JobQueueEntry.Init();
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime() + 10000;
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"CDS Setup Certificate Auth";
+        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+        JobQueueEntry."Rerun Delay (sec.)" := 120;
+        JobQueueEntry."Run in User Session" := false;
+        JobQueueEntry."Job Queue Category Code" := CopyStr(DataverseAuthUpgradeJobQueueCategoryLbl, 1, MaxStrLen(JobQueueEntry."Job Queue Category Code"));
+        JobQueueEntry.Description := DataverseAuthupgradeJQEDescriptionTxt;
+        Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
+        Session.LogMessage('0000GJ7', SuccessfullyScheduledDataverseAuthupgradeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDataverseAuthenticationUpgradeTag());
     end;
 
     local procedure RemoveChildCouplings(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)

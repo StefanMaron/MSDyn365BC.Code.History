@@ -61,6 +61,8 @@ codeunit 5618 "Table Depr. Calculation"
             end;
         StartingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, StartingDate, Year365Days, DeprBook."Use Accounting Period");
         EndingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, EndingDate, Year365Days, DeprBook."Use Accounting Period");
+        OnGetTablePercentOnAfterSetLimits(DeprBookCode, DeprTableCode, FirstUserDefinedDeprDate, StartingDate, EndingDate, StartingLimit, EndingLimit);
+
         if not Year365Days then begin
             if Date2DMY(StartingDate, 2) = 2 then
                 if Date2DMY(StartingDate + 1, 1) = 1 then
@@ -134,12 +136,14 @@ codeunit 5618 "Table Depr. Calculation"
                 DeprTableLine.FieldError("Period No.", UnbrokenSeqErr);
             if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then begin
                 FirstUserDefinedDeprDate := AccountingPeriod."Starting Date";
-                if AccountingPeriod.Next <> 0 then
+                if AccountingPeriod.Next <> 0 then begin
                     DaysInPeriod :=
                       DepreciationCalc.DeprDays(
                         FirstUserDefinedDeprDate,
                         DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days, DeprBook."Use Accounting Period"),
                         Year365Days, DeprBook."Use Accounting Period");
+                    OnCreateTableBufferOnAfterCalculateDaysInPeriod(DeprBook, AccountingPeriod, FirstUserDefinedDeprDate, Year365Days, DaysInPeriod);
+                end;
                 if DaysInPeriod = 0 then
                     Error(PeriodMustBeSpecifiedErr);
                 if DaysInPeriod <= 5 then
@@ -172,4 +176,15 @@ codeunit 5618 "Table Depr. Calculation"
     local procedure OnBeforeValidateYear365Days(DepreBook: Record "Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTableBufferOnAfterCalculateDaysInPeriod(DeprBook: Record "Depreciation Book"; AccountingPeriod: Record "Accounting Period"; FirstUserDefinedDeprDate: Date; Year365Days: Boolean; var DaysInPeriod: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTablePercentOnAfterSetLimits(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date; var StartingLimit: Integer; var EndingLimit: Integer)
+    begin
+    end;
 }
+

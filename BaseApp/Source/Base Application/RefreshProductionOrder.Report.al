@@ -1,4 +1,4 @@
-report 99001025 "Refresh Production Order"
+﻿report 99001025 "Refresh Production Order"
 {
     Caption = 'Refresh Production Order';
     ProcessingOnly = true;
@@ -213,6 +213,7 @@ report 99001025 "Refresh Production Order"
     trigger OnInitReport()
     begin
         Direction := Direction::Backward;
+        OnAfterInitReport();
     end;
 
     var
@@ -433,6 +434,11 @@ report 99001025 "Refresh Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckReservationExistOnBeforeCheckProdOrderComp2ReservedQtyBase(var ProdOrderComp2: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitReport()
     begin
     end;
 }

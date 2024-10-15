@@ -11,6 +11,7 @@ pageextension 8900 "Email Address Lookup" extends "Email Address Lookup"
 
                 field(JobResponsible; JobSelection)
                 {
+                    ApplicationArea = All;
                     Caption = 'Job Responsibility';
                     ToolTip = 'A comma separated list of Job Responsibility codes.';
 

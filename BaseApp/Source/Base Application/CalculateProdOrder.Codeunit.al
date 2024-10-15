@@ -1,4 +1,4 @@
-codeunit 99000773 "Calculate Prod. Order"
+﻿codeunit 99000773 "Calculate Prod. Order"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Line" = rimd,
@@ -529,9 +529,9 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderLine := ProdOrderLine2;
 
         IsHandled := false;
-        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry, Direction, CalcRouting, CalcComponents, DeleteRelations, LetDueDateDecrease, IsHandled, ProdOrderLine);
+        OnBeforeCalculate(ItemLedgEntry, CapLedgEntry, Direction, CalcRouting, CalcComponents, DeleteRelations, LetDueDateDecrease, IsHandled, ProdOrderLine, ErrorOccured);
         if IsHandled then
-            exit;
+            exit(not ErrorOccured);
 
         if ProdOrderLine.Status = ProdOrderLine.Status::Released then begin
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
@@ -716,6 +716,7 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingTool.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         RoutingTool.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
         RoutingTool.SetRange("Version Code", VersionCode);
+        OnCopyRoutingToolsOnAfterRoutingToolSetFilters(RoutingTool, ProdOrderRoutingLine, VersionCode);
         if RoutingTool.Find('-') then
             repeat
                 ProdOrderRoutingTool.TransferFields(RoutingTool);
@@ -917,7 +918,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeCalculate(var ItemLedgerEntry: Record "Item Ledger Entry"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; Direction: Option Forward,Backward; CalcRouting: Boolean; CalcComponents: Boolean; DeleteRelations: Boolean; LetDueDateDecrease: Boolean; var IsHandled: Boolean; var ProdOrderLine: Record "Prod. Order Line"; var ErrorOccured: Boolean)
     begin
     end;
 
@@ -998,6 +999,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingFromActualOnBeforeCalcStartEndDate(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcStartEndDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyRoutingToolsOnAfterRoutingToolSetFilters(var RoutingTool: Record "Routing Tool"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
     begin
     end;
 
