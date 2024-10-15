@@ -2,7 +2,7 @@
     "id":  "e98078ff-1f85-442b-828f-9f73ce6c4e22",
     "name":  "FEC Audit File",
     "publisher":  "Microsoft",
-    "version":  "23.7.18957.0",
+    "version":  "23.7.19495.0",
     "brief":  "The FEC Audit File extension makes it easy to export general ledger data in the Fichier des écritures comptables (FEC) format.",
     "description":  "As a part of the audit reporting in France, companies must be able to export general ledger data according to the Fichier des écritures comptables (FEC) format. This extension enables using FEC format within Audit File Export app.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",

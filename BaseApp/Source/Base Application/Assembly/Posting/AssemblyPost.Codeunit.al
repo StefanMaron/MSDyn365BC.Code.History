@@ -29,6 +29,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Tracking;
 using System.Utilities;
 
 codeunit 900 "Assembly-Post"
@@ -1241,7 +1242,8 @@ codeunit 900 "Assembly-Post"
                     InitQtyToConsume();
                     Modify();
 
-                    RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type".AsInteger(), 0D, "Due Date");
+                    if not FindItemLedgerEntryAndWhseItemTrackingLine(AsmLine, PostedAsmLine) then
+                        RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type".AsInteger(), 0D, "Due Date");
                     VerifyAsmLineReservAfterUndo(AsmLine);
                 end;
             until PostedAsmLine.Next() = 0;
@@ -1575,6 +1577,48 @@ codeunit 900 "Assembly-Post"
     begin
         Item.Get(ItemJnlLine."Item No.");
         ItemJnlLine."Item Category Code" := Item."Item Category Code";
+    end;
+
+    local procedure FindItemLedgerEntryAndWhseItemTrackingLine(AssemblyLine: Record "Assembly Line"; PostedAssemblyLine: Record "Posted Assembly Line"): Boolean
+    var
+        Item: Record Item;
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
+        WhseItemTrackingLineIsDeleted: Boolean;
+    begin
+        PostedAssemblyHeader.SetLoadFields("Item No.");
+        PostedAssemblyHeader.Get(PostedAssemblyLine."Document No.");
+
+        Item.SetLoadFields("Assembly Policy");
+        Item.Get(PostedAssemblyHeader."Item No.");
+        if not (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") then
+            exit(false);
+
+        ItemTrackingDocManagement.RetrieveEntriesFromShptRcpt(TempItemLedgerEntry, Database::"Posted Assembly Line", 0, PostedAssemblyLine."Document No.", '', 0, PostedAssemblyLine."Line No.");
+        if TempItemLedgerEntry.FindSet() then
+            repeat
+                ItemLedgerEntry.Get(TempItemLedgerEntry."Entry No.");
+                WhseItemTrackingLineIsDeleted := FindandDeleteWhseItemTrackingLinesforAssembly(AssemblyLine, ItemLedgerEntry);
+            until TempItemLedgerEntry.Next() = 0;
+
+        exit(WhseItemTrackingLineIsDeleted);
+    end;
+
+    local procedure FindandDeleteWhseItemTrackingLinesforAssembly(AssemblyLine: Record "Assembly Line"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        WhseItemTrackingLine.SetSourceFilter(
+            Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
+            AssemblyLine."Document No.", AssemblyLine."Line No.", true);
+        WhseItemTrackingLine.SetRange("Quantity Handled (Base)", Abs(ItemLedgerEntry.Quantity));
+        WhseItemTrackingLine.SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry);
+        if WhseItemTrackingLine.FindFirst() then begin
+            WhseItemTrackingLine.Delete();
+            exit(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
