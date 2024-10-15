@@ -15,9 +15,11 @@ codeunit 5707 "TransferOrder-Post + Print"
 
     local procedure "Code"()
     var
+        InventorySetup: Record "Inventory Setup";
         TransLine: Record "Transfer Line";
         TransferPostShipment: Codeunit "TransferOrder-Post Shipment";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
         DefaultNumber: Integer;
         Selection: Option " ",Shipment,Receipt;
         IsHandled: Boolean;
@@ -43,9 +45,16 @@ codeunit 5707 "TransferOrder-Post + Print"
             OnRunOnBeforePrepareAndPrintReport(TransHeader, DefaultNumber, Selection);
 
             if "Direct Transfer" then begin
-                TransferPostShipment.Run(TransHeader);
-                TransferPostReceipt.Run(TransHeader);
-                PrintReport(TransHeader, Selection::Receipt);
+                InventorySetup.Get();
+                if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
+                    TransferPostShipment.Run(TransHeader);
+                    TransferPostReceipt.Run(TransHeader);
+                    PrintShipment(TransHeader."Last Shipment No.");
+                    PrintReceipt(TransHeader."Last Receipt No.");
+                end else begin
+                    TransferPostTransfer.Run(TransHeader);
+                    PrintDirectTransfer(TransHeader."Last Shipment No.");
+                end;
             end else begin
                 if DefaultNumber = 0 then
                     DefaultNumber := Selection::Shipment;
@@ -108,6 +117,22 @@ codeunit 5707 "TransferOrder-Post + Print"
         end;
     end;
 
+    local procedure PrintDirectTransfer(DocNo: Code[20])
+    var
+        DirectTransHeader: Record "Direct Trans. Header";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintDirectTransfer(DocNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DirectTransHeader.Get(DocNo) then begin
+            DirectTransHeader.SetRecFilter();
+            DirectTransHeader.PrintRecords(false);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPost(var TransHeader: Record "Transfer Header"; Selection: Option " ",Shipment,Receipt)
     begin
@@ -125,6 +150,11 @@ codeunit 5707 "TransferOrder-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintShipment(DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintDirectTransfer(DocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
