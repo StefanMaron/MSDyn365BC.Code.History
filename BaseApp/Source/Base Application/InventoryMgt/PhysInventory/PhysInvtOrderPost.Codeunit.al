@@ -154,6 +154,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
             if PhysInvtOrderLine.FindSet() then
                 repeat
                     PostPhysInventoryOrderLine();
+                    OnCodeOnAferPostPhysInventoryOrderLineNonNegative(PhysInvtOrderHeader, PhysInvtOrderLine, ItemJnlPostLine);
                 until PhysInvtOrderLine.Next() = 0;
 
             // Insert posted expected phys. invt. tracking Lines
@@ -200,6 +201,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 GenJnlPostPreview.ThrowError();
             FinalizePost("No.");
         end;
+
+        OnAfterCode(PhysInvtOrderHeader, PstdPhysInvtOrderHdr);
     end;
 
     local procedure CheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item)
@@ -704,6 +707,16 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckOrderLineOnBeforeTestFieldItemBlocked(Item: Record "Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAferPostPhysInventoryOrderLineNonNegative(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr");
     begin
     end;
 }

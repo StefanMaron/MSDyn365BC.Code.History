@@ -1941,8 +1941,10 @@ table 901 "Assembly Line"
         InitDefaultDimensionSources(DefaultDimSource);
         if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then
             CreateDim(DefaultDimSource, HeaderDimensionSetID)
-        else
+        else begin
             "Dimension Set ID" := HeaderDimensionSetID;
+            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])

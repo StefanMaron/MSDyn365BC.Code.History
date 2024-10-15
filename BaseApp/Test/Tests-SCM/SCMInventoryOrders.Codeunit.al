@@ -1381,7 +1381,7 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 
     [Test]
-    [HandlerFunctions('OrderPromisingHandler')]
+    [HandlerFunctions('OrderPromisingModelHandler')]
     [Scope('OnPrem')]
     procedure CalculateAvailabilityAndCapability()
     var
@@ -1406,7 +1406,7 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 
     [Test]
-    [HandlerFunctions('OrderPromisingHandler')]
+    [HandlerFunctions('OrderPromisingModelHandler')]
     [Scope('OnPrem')]
     procedure CalculateAvailabilityAndCapabilityAfterPostingItemJournalLine()
     var
@@ -1434,7 +1434,7 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 
     [Test]
-    [HandlerFunctions('OrderPromisingHandler')]
+    [HandlerFunctions('OrderPromisingModelHandler')]
     [Scope('OnPrem')]
     procedure CalculateAvailabilityAndCapabilityAfterPostingItemJournalLineWithReserveQuantity()
     var
@@ -2559,7 +2559,6 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(4, 10));
 
         // [WHEN] Update the new sales price of the item.
-        LibraryVariableStorage.Enqueue(NewSalesPrice."Minimum Quantity");
         UpdatedUnitPrice := SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader);
 
         // [VERIFY] Verify Selected Unit Price from Get Price is Updated in Sales Order Line.
@@ -2573,6 +2572,132 @@ codeunit 137400 "SCM Inventory - Orders"
                 SalesLine.TableCaption()));
     end;
 #endif
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesHandlerNew')]
+    procedure DeleteUnpostedSalesLineifAnotherSalesLineIsLinkedToPostedItemCharge()
+    var
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+    begin
+        // [SCENARIO 483458] Verify that it is possible to delete the unposted sales line if another sales line is linked to the posted item charge.
+        Initialize(false);
+
+        // [GIVEN] Create a Item Charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create a sales line with type = "Item".
+        CreateSalesLine(
+            SalesLine[1],
+            SalesHeader,
+            SalesLine[1].Type::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another sales line with type = "Item".
+        CreateSalesLine(
+            SalesLine[2],
+            SalesHeader,
+            SalesLine[2].Type::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another sales line with type = "Charge Item".
+        CreateSalesLine(
+            SalesLine[3],
+            SalesHeader,
+            SalesLine[3].Type::"Charge (Item)",
+            ItemCharge."No.",
+            SalesLine[2].Quantity);
+
+        // [GIVEN] Create and assign the quanity.
+        LibraryVariableStorage.Enqueue(SalesLine[2]);
+        LibraryVariableStorage.Enqueue(SalesLine[2].Quantity);
+        SalesLine[3].ShowItemChargeAssgnt();
+
+        // [GIVEN] Update the "Qty. to Ship" to 0 in the first sales line.
+        UpdateQtyToShipOnSalesLine(SalesLine[1], 0);
+
+        // [GIVEN] Post the sales document.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Reopen the sales document.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [WHEN] Delete the first sales line.
+        SalesLine[1].Delete(true);
+
+        // [VERIFY] Verify that it is possible to delete the first sales line.
+        SalesLine[1].SetRange("Document No.", SalesHeader."No.");
+        Assert.RecordCount(SalesLine[1], LibraryRandom.RandIntInRange(2, 2));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchaseHandlerNew')]
+    procedure DeleteUnpostedPurchaseLineifAnotherPurchaseLineIsLinkedToPostedItemCharge()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[3] of Record "Purchase Line";
+    begin
+        // [SCENARIO 483458] Verify that it is possible to delete the unposted Purchase line if another purchase line is linked to the posted item charge.
+        Initialize(false);
+
+        // [GIVEN] Create a Item Charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create a purchase line with type = "Item".
+        CreatePurchaseLine(
+            PurchaseHeader,
+            PurchaseLine[1],
+            PurchaseLine[1].Type::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another purchase line with type = "Item".
+        CreatePurchaseLine(
+            PurchaseHeader,
+            PurchaseLine[2],
+            PurchaseLine[2].Type::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create another purchase line with type = "Charge Item".
+        CreatePurchaseLine(
+            PurchaseHeader,
+            PurchaseLine[3],
+            PurchaseLine[3].Type::"Charge (Item)",
+            ItemCharge."No.",
+            PurchaseLine[2].Quantity);
+
+        // [GIVEN] Create and assign the quanity.
+        LibraryVariableStorage.Enqueue(PurchaseLine[2]);
+        LibraryVariableStorage.Enqueue(PurchaseLine[2].Quantity);
+        PurchaseLine[3].ShowItemChargeAssgnt();
+
+        // [GIVEN] Update the "Qty. to Receive" to 0 in the first Purchase line.
+        UpdateQtyToReceiveOnPurchaseLine(PurchaseLine[1], 0);
+
+        // [GIVEN] Post the Purchase document.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Reopen the Purchase document.
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Delete the first Purchase line.
+        PurchaseLine[1].Delete(true);
+
+        // [VERIFY] Verify that it is possible to delete the first purchase line.
+        PurchaseLine[1].SetRange("Document No.", PurchaseHeader."No.");
+        Assert.RecordCount(PurchaseLine[1], LibraryRandom.RandIntInRange(2, 2));
+    end;
 
     local procedure Initialize(Enable: Boolean)
     var
@@ -3880,6 +4005,27 @@ codeunit 137400 "SCM Inventory - Orders"
         OrderPromisingLines.AcceptButton.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderPromisingModelHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        if CapableToPromise then
+            OrderPromisingLines.CapableToPromise.Invoke
+        else
+            OrderPromisingLines.AvailableToPromise.Invoke;
+
+        if RequestedShipmentDate then begin
+            OrderPromisingLines."Requested Shipment Date".AssertEquals(RequestedDeliveryDate);
+            OrderPromisingLines."Requested Delivery Date".AssertEquals(RequestedDeliveryDate);
+        end else begin
+            OrderPromisingLines."Unavailable Quantity".AssertEquals(UnavailableQuantity);
+            OrderPromisingLines."Requested Delivery Date".AssertEquals(RequestedDeliveryDate);
+            OrderPromisingLines."Planned Delivery Date".AssertEquals(RequestedDeliveryDate);
+        end;
+
+        OrderPromisingLines.AcceptButton.Invoke;
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderHandler(var SalesOrder: TestPage "Sales Order")
@@ -3965,5 +4111,38 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 #endif
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentSalesHandlerNew(var ItemChargeAssignmentSalesPage: TestPage "Item Charge Assignment (Sales)")
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        PurchaseLineVariant: Variant;
+        QuantityToAssignVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PurchaseLineVariant);
+        LibraryVariableStorage.Dequeue(QuantityToAssignVariant);
+
+        FindItemChargeAssignmentSales(ItemChargeAssignmentSales, PurchaseLineVariant);
+        ItemChargeAssignmentSalesPage.GoToRecord(ItemChargeAssignmentSales);
+        ItemChargeAssignmentSalesPage."Qty. to Assign".SetValue(QuantityToAssignVariant);
+        ItemChargeAssignmentSalesPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchaseHandlerNew(var ItemChargeAssignmentPurchase: TestPage "Item Charge Assignment (Purch)")
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchaseLineVariant: Variant;
+        QuantityToAssignVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PurchaseLineVariant);
+        LibraryVariableStorage.Dequeue(QuantityToAssignVariant);
+
+        FindItemChargeAssignmentPurch(ItemChargeAssignmentPurch, PurchaseLineVariant);
+        ItemChargeAssignmentPurchase.GoToRecord(ItemChargeAssignmentPurch);
+        ItemChargeAssignmentPurchase."Qty. to Assign".SetValue(QuantityToAssignVariant);
+        ItemChargeAssignmentPurchase.OK().Invoke();
+    end;
 }
 

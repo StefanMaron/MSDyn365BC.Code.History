@@ -18,7 +18,7 @@ codeunit 87 "Blanket Sales Order to Order"
         IsHandled: Boolean;
         SuppressCommit: Boolean;
     begin
-        OnBeforeRun(Rec, HideValidationDialog);
+        OnBeforeRun(Rec, HideValidationDialog, SuppressCommit);
 
         TestField("Document Type", "Document Type"::"Blanket Order");
         ShouldRedistributeInvoiceAmount := SalesCalcDiscountByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
@@ -421,7 +421,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean)
+    local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 

@@ -588,6 +588,7 @@
             PurchPost.GetPurchLines(Rec, TempPurchLine, i - 1);
             OnRefreshOnAfterGetRecordOnAfterGetPurchLines(Rec, TempPurchLine);
             Clear(PurchPost);
+            OnRefreshOnAfterGetRecordOnBeforePurchLineCalcVATAmountLines(Rec);
             case i of
                 1:
                     PurchLine.CalcVATAmountLines(0, Rec, TempPurchLine, TempVATAmountLine1);
@@ -612,6 +613,8 @@
                     TotalAmount1[i] := TotalPurchLine[i].Amount;
                     TotalAmount2[i] := TotalPurchLine[i]."Amount Including VAT";
                 end;
+
+            OnRefreshOnAfterGetRecordOnAfterCalcTotal(Rec, i);
         end;
         TempPurchLine.DeleteAll();
         Clear(TempPurchLine);
@@ -638,6 +641,8 @@
         OptionValueOutOfRange := -1;
         PrevTab := OptionValueOutOfRange;
         UpdateHeaderInfo(2, TempVATAmountLine2);
+
+        OnAfterRefreshOnAfterGetRecord(Rec, TotalAmount1, TotalAmount2);
     end;
 
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
@@ -896,6 +901,21 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header"; var IndexNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRefreshOnAfterGetRecordOnBeforePurchLineCalcVATAmountLines(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRefreshOnAfterGetRecordOnAfterCalcTotal(var PurchaseHeader: Record "Purchase Header"; i: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterRefreshOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; TotalAmount1: array[3] of Decimal; TotalAmount2: array[3] of Decimal)
     begin
     end;
 }

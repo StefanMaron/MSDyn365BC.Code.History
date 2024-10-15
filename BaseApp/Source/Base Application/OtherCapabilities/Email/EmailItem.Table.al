@@ -328,11 +328,16 @@ table 9500 "Email Item"
     end;
 
     procedure Send(HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
+    begin
+        Send(HideMailDialog, EmailScenario, false);
+    end;
+
+    procedure Send(HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
     var
         MailManagement: Codeunit "Mail Management";
     begin
         OnBeforeSend(Rec, HideMailDialog, MailManagement);
-        MailManagement.SendMailOrDownload(Rec, HideMailDialog, EmailScenario);
+        MailManagement.SendMailOrDownload(Rec, HideMailDialog, EmailScenario, Enqueue);
         exit(MailManagement.IsSent());
     end;
 

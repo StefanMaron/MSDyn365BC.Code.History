@@ -56,6 +56,8 @@
         AddCurrencyCode: Code[10];
         GLSourceCode: Code[10];
         LastDocNo: Code[20];
+        VATBusPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20];
         FiscalYearStartDate: Date;
         CurrencyDate: Date;
         LastDate: Date;
@@ -72,6 +74,7 @@
         AddCurrGLEntryVATAmt: Decimal;
         CurrencyFactor: Decimal;
         ExpenseAmount: Decimal;
+        UnRealisedVATAmount: Decimal;
         FirstEntryNo: Integer;
         NextEntryNo: Integer;
         NextVATEntryNo: Integer;
@@ -92,6 +95,7 @@
         GLSetupRead: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        IsVATEntryFilter: Boolean;
 
         NeedsRoundingErr: Label '%1 needs to be rounded', Comment = '%1 - amount';
         PurchaseAlreadyExistsErr: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -3233,6 +3237,8 @@
         NewCustLedgEntry: Record "Cust. Ledger Entry";
         NewCVLedgEntryBuf2: Record "CV Ledger Entry Buffer";
         TempOldCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        NewCustLedgEntry2: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
         Completed: Boolean;
         AppliedAmount: Decimal;
         NewRemainingAmtBeforeAppln: Decimal;
@@ -3309,16 +3315,41 @@
                (GLSetup."Prepayment Unrealized VAT" and TempOldCustLedgEntry.Prepayment)
             then
                 if IsNotPayment(TempOldCustLedgEntry."Document Type") then begin
+                    NewCustLedgEntry2.CopyFromCVLedgEntryBuffer(NewCVLedgEntryBuf);
                     TempOldCustLedgEntry.RecalculateAmounts(
                       NewCVLedgEntryBuf."Currency Code", TempOldCustLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date");
                     OnApplyCustLedgEntryOnAfterRecalculateAmounts(TempOldCustLedgEntry, OldCustLedgEntry, NewCVLedgEntryBuf, GenJnlLine);
-                    CustUnrealizedVAT(
-                      GenJnlLine,
-                      TempOldCustLedgEntry,
-                      CurrExchRate.ExchangeAmount(
-                        AppliedAmount, NewCVLedgEntryBuf."Currency Code",
-                        TempOldCustLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date"),
-                      VATRealizedGainLossLCY, NewCVLedgEntryBuf."Adjusted Currency Factor", NewCVLedgEntryBuf."Posting Date");
+                    VATEntry.SetCurrentKey("Transaction No.");
+                    VATEntry.SetRange("Transaction No.", NewCustLedgEntry2."Transaction No.");
+                    VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
+                    if VATEntry.FindSet() then
+                        repeat
+                            VATBusPostingGroup := VATEntry."VAT Bus. Posting Group";
+                            VATProdPostingGroup := VATEntry."VAT Prod. Posting Group";
+                            UnRealisedVATAmount := VATEntry."Unrealized Base" + VATEntry."Remaining Unrealized Amount";
+                            if UnRealisedVATAmount <> 0 then begin
+                                IsVATEntryFilter := true;
+                                CustUnrealizedVAT(
+                                  GenJnlLine,
+                                  TempOldCustLedgEntry,
+                                  CurrExchRate.ExchangeAmount(
+                                    AppliedAmount, NewCVLedgEntryBuf."Currency Code",
+                                    TempOldCustLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date"),
+                                  VATRealizedGainLossLCY, NewCVLedgEntryBuf."Adjusted Currency Factor", NewCVLedgEntryBuf."Posting Date");
+                            end;
+                            ClearUnrealizedVATGlobalVariables();
+                        until VATEntry.Next() = 0;
+
+                    if not IsVATEntryFilter then
+                        CustUnrealizedVAT(
+                          GenJnlLine,
+                          TempOldCustLedgEntry,
+                          CurrExchRate.ExchangeAmount(
+                            AppliedAmount, NewCVLedgEntryBuf."Currency Code",
+                            TempOldCustLedgEntry."Currency Code", NewCVLedgEntryBuf."Posting Date"),
+                          VATRealizedGainLossLCY, NewCVLedgEntryBuf."Adjusted Currency Factor", NewCVLedgEntryBuf."Posting Date");
+
+                    IsVATEntryFilter := false;
                 end;
 
             OnApplyCustLedgEntryOnBeforeTempOldCustLedgEntryDelete(TempOldCustLedgEntry, NewCVLedgEntryBuf, GenJnlLine, Cust, NextEntryNo, GLReg, AppliedAmount, OldCVLedgEntryBuf);
@@ -3789,6 +3820,7 @@
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
+        SetFilterVATEntry(VATEntry2);
 
         OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
 
@@ -3809,15 +3841,19 @@
                     InsertSummarizedVAT(GenJnlLine);
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
-
-                VATPart :=
-                  VATEntry2.GetUnrealizedVATPart(
-                    Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
-                    PaidAmount,
-                    CustLedgEntry2."Amount (LCY)",
-                    TotalUnrealVATAmountFirst,
-                    TotalUnrealVATAmountLast,
-                    CustLedgEntry2."Original Amt. (LCY)");
+                if (UnRealisedVATAmount + VATEntry2."Remaining Unrealized Amount" + VATEntry2."Unrealized Base" = 0)
+                        and (PaidAmount <> 0)
+                        and IsVATEntryFilter then
+                    VATPart := 1
+                else
+                    VATPart :=
+                      VATEntry2.GetUnrealizedVATPart(
+                        Round(SettledAmount / CustLedgEntry2.GetAdjustedCurrencyFactor()),
+                        PaidAmount,
+                        CustLedgEntry2."Amount (LCY)",
+                        TotalUnrealVATAmountFirst,
+                        TotalUnrealVATAmountLast,
+                        CustLedgEntry2."Original Amt. (LCY)");
 
                 OnCustUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, CustLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -6591,7 +6627,7 @@
         if IsHandled then
             exit;
 
-        if (GenJnlLine.Amount = 0) and (GenJnlLine."Amount (LCY)" = 0) then
+        if ((GenJnlLine.Amount = 0) and (GenJnlLine."Amount (LCY)" = 0)) and (not IsGainLossAccount(GenJnlLine."Source Currency Code", GLAccNo)) then
             exit;
 
         TableID[1] := DATABASE::"G/L Account";
@@ -6607,6 +6643,25 @@
               DimMgt.GetDimValuePostingErr());
 
         Error(DimMgt.GetDimValuePostingErr());
+    end;
+
+    local procedure IsGainLossAccount(CurrencyCode: Code[10]; GLAccNo: Code[20]): Boolean
+    var
+        Currency: Record Currency;
+    begin
+        if CurrencyCode = '' then
+            exit(false);
+
+        if not Currency.Get(CurrencyCode) then
+            exit(false);
+
+        case true of
+            Currency."Realized Gains Acc." = GLAccNo,
+            Currency."Realized Losses Acc." = GLAccNo,
+            Currency."Unrealized Gains Acc." = GLAccNo,
+            Currency."Unrealized Losses Acc." = GLAccNo:
+                exit(true);
+        end;
     end;
 
     local procedure CheckGLAccDirectPosting(GenJnlLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account")
@@ -7547,6 +7602,22 @@
     procedure SetTempGLEntryBufEntryNo(NewTempGLEntryBufEntryNo: Integer)
     begin
         TempGLEntryBuf."Entry No." := NewTempGLEntryBufEntryNo;
+    end;
+
+    local procedure SetFilterVATEntry(var VATEntry: Record "VAT Entry")
+    begin
+        if not IsVATEntryFilter then
+            exit;
+
+        VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+    end;
+
+    local procedure ClearUnrealizedVATGlobalVariables()
+    begin
+        Clear(VATBusPostingGroup);
+        Clear(VATProdPostingGroup);
+        Clear(UnRealisedVATAmount);
     end;
 
     [IntegrationEvent(true, false)]
