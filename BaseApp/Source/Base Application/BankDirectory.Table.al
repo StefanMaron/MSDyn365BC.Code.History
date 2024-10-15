@@ -324,7 +324,7 @@ table 11500 "Bank Directory"
         else begin
             BankDirectory2.Get("Clearing No.");
             BankDirectory2."No of Outlets" := BankDirectory2."No of Outlets" + 1;
-            BankDirectory2.Modify;
+            BankDirectory2.Modify();
         end;
     end;
 

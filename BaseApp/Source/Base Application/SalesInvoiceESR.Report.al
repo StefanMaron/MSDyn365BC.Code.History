@@ -489,7 +489,7 @@ report 3010532 "Sales Invoice ESR"
                 PrepareFooter;
 
                 // Print LCY Code for foreign cust
-                GlSetup.Get;
+                GlSetup.Get();
                 if ("Bill-to Country/Region Code" <> '') and ("Currency Code" = '') then
                     "Currency Code" := GlSetup."LCY Code";
 
@@ -508,7 +508,7 @@ report 3010532 "Sales Invoice ESR"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAdr.Company(CompanyAdr, CompanyInfo);
                 Lbl_TotalInvDisc1 := ML_InvoiceDisc;
             end;

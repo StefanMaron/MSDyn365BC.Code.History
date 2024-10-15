@@ -27,7 +27,7 @@ codeunit 138300 "RS Pack Content - Standard"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is NOT a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsFalse(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -279,7 +279,7 @@ codeunit 138300 "RS Pack Content - Standard"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 175276] Marketing Setup Default fields filled
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Default Language Code");
         MarketingSetup.TestField("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::Email);
         MarketingSetup.TestField("Default Sales Cycle Code");
@@ -293,7 +293,7 @@ codeunit 138300 "RS Pack Content - Standard"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Automatic Cost Posting", true);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
     end;
@@ -304,7 +304,7 @@ codeunit 138300 "RS Pack Content - Standard"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Nos.", ItemNoSeriesTok);
         ValidateNoSeriesExists(ItemNoSeriesTok);
         InventorySetup.TestField("Nonstock Item Nos.", NonStockNoSeriesTok);

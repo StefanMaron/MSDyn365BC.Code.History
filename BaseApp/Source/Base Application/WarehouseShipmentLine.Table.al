@@ -129,7 +129,8 @@ table 7321 "Warehouse Shipment Line"
                 if Quantity < "Qty. Shipped" then
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Shipped"));
 
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 InitOutstandingQtys;
                 "Completely Picked" := (Quantity = "Qty. Picked") or ("Qty. (Base)" = "Qty. Picked (Base)");
 
@@ -146,7 +147,7 @@ table 7321 "Warehouse Shipment Line"
                         OrderStatus := WhseShptHeader.GetDocumentStatus(0);
                         if OrderStatus <> WhseShptHeader."Document Status" then begin
                             WhseShptHeader.Validate("Document Status", OrderStatus);
-                            WhseShptHeader.Modify;
+                            WhseShptHeader.Modify();
                         end;
                     end;
                 end;
@@ -169,7 +170,8 @@ table 7321 "Warehouse Shipment Line"
                 WMSMgt: Codeunit "WMS Management";
             begin
                 GetLocation("Location Code");
-                "Qty. Outstanding (Base)" := UOMMgt.CalcBaseQty("Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
                 if Location."Require Pick" then begin
                     if "Assemble to Order" then
                         Validate("Qty. to Ship", 0)
@@ -235,7 +237,8 @@ table 7321 "Warehouse Shipment Line"
                     Error('');
 
                 if CurrFieldNo <> FieldNo("Qty. to Ship (Base)") then
-                    "Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Qty. to Ship", "Qty. per Unit of Measure");
+                    "Qty. to Ship (Base)" :=
+                        UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
 
                 if "Assemble to Order" then
                     ATOLink.UpdateQtyToAsmFromWhseShptLine(Rec);
@@ -260,7 +263,8 @@ table 7321 "Warehouse Shipment Line"
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" := UOMMgt.CalcBaseQty("Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
             end;
         }
         field(24; "Qty. Picked (Base)"; Decimal)
@@ -277,7 +281,8 @@ table 7321 "Warehouse Shipment Line"
 
             trigger OnValidate()
             begin
-                "Qty. Shipped (Base)" := UOMMgt.CalcBaseQty("Qty. Shipped", "Qty. per Unit of Measure");
+                "Qty. Shipped (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Shipped", "Qty. per Unit of Measure");
             end;
         }
         field(26; "Qty. Shipped (Base)"; Decimal)
@@ -389,12 +394,10 @@ table 7321 "Warehouse Shipment Line"
             Caption = 'Weight';
             DecimalPlaces = 0 : 5;
         }
-        field(44; "Shipping Advice"; Option)
+        field(44; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
             Editable = false;
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(45; "Shipment Date"; Date)
         {
@@ -509,7 +512,7 @@ table 7321 "Warehouse Shipment Line"
           WhseShptHeader.GetDocumentStatus("Line No.");
         if OrderStatus <> WhseShptHeader."Document Status" then begin
             WhseShptHeader.Validate("Document Status", OrderStatus);
-            WhseShptHeader.Modify;
+            WhseShptHeader.Modify();
         end;
     end;
 
@@ -543,7 +546,7 @@ table 7321 "Warehouse Shipment Line"
         Reset;
         "No." := DocNo;
         SetRange("No.", "No.");
-        LockTable;
+        LockTable();
         if FindLast then;
 
         Init;
@@ -619,7 +622,8 @@ table 7321 "Warehouse Shipment Line"
         QuantityBase: Decimal;
     begin
         if "Qty. (Base)" = 0 then
-            QuantityBase := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure")
+            QuantityBase :=
+                UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure")
         else
             QuantityBase := "Qty. (Base)";
 
@@ -789,7 +793,7 @@ table 7321 "Warehouse Shipment Line"
         ReserveTransferLine: Codeunit "Transfer Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         SecondSourceQtyArray: array[3] of Decimal;
-        Direction: Option Outbound,Inbound;
+        Direction: Enum "Transfer Direction";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -907,8 +911,6 @@ table 7321 "Warehouse Shipment Line"
         AsmHeader: Record "Assembly Header";
         AsmLineMgt: Codeunit "Assembly Line Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
         if "Assemble to Order" then begin
             TestField("Source Type", DATABASE::"Sales Line");
@@ -916,8 +918,7 @@ table 7321 "Warehouse Shipment Line"
             ATOSalesLine.AsmToOrderExists(AsmHeader);
             AsmLineMgt.CreateWhseItemTrkgForAsmLines(AsmHeader);
         end else begin
-            ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", WhseSNRequired, WhseLNRequired, false);
-            if WhseSNRequired or WhseLNRequired then
+            if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
                 ItemTrackingMgt.InitItemTrkgForTempWkshLine(
                   WhseWkshLine."Whse. Document Type"::Shipment, "No.",
                   "Line No.", "Source Type",

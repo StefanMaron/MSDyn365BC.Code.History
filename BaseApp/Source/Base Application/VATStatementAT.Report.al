@@ -326,7 +326,7 @@ report 11110 "VAT Statement AT"
 
     trigger OnPreReport()
     begin
-        Companyinfo.Get;
+        Companyinfo.Get();
         FDFFileName := FileManagement.ServerTempFileName('fdf');
         XMLFileName := FileManagement.ServerTempFileName('xml');
 
@@ -404,7 +404,7 @@ report 11110 "VAT Statement AT"
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
                     Amount := 0;
-                    VATEntries.Reset;
+                    VATEntries.Reset();
                     VATEntries.SetCurrentKey(
                       Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
                       "Tax Jurisdiction Code", "Use Tax", "Posting Date");

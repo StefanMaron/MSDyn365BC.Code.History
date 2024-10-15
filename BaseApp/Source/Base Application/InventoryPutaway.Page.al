@@ -1,4 +1,4 @@
-﻿page 7375 "Inventory Put-away"
+page 7375 "Inventory Put-away"
 {
     Caption = 'Inventory Put-away';
     PageType = Document;

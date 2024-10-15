@@ -36,11 +36,11 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMIncident: Record "CRM Incident";
     begin
-        CRMIncident.Init;
+        CRMIncident.Init();
         CRMIncident.CustomerId := CRMAccount.AccountId;
         CRMIncident.Title := 'Test CRM Case';
         CRMIncident.StateCode := Status;
-        CRMIncident.Insert;
+        CRMIncident.Insert();
         exit(CRMIncident.IncidentId);
     end;
 
@@ -57,7 +57,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMOpportunity: Record "CRM Opportunity";
     begin
-        CRMOpportunity.Init;
+        CRMOpportunity.Init();
         CRMOpportunity.ParentAccountId := CRMAccount.AccountId;
         CRMOpportunity.TotalAmount := 10;
         CRMOpportunity.StateCode := Status;
@@ -78,11 +78,11 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMQuote: Record "CRM Quote";
     begin
-        CRMQuote.Init;
+        CRMQuote.Init();
         CRMQuote.CustomerId := CRMAccount.AccountId;
         CRMQuote.Name := 'Test CRM Quote';
         CRMQuote.StateCode := Status;
-        CRMQuote.Insert;
+        CRMQuote.Insert();
         exit(CRMQuote.QuoteId);
     end;
 
@@ -131,7 +131,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMProduct.Price := LibraryRandom.RandDec(1, 3);
         CRMProduct.TransactionCurrencyId := CreateGuid;
         CRMProduct.ProductNumber := Format(CreateGuid);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -165,7 +165,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
         CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
-        Customer.Modify;
+        Customer.Modify();
         CRMAccount.OwnerId := CRMSystemuser.SystemUserId;
         CreateCRMAccount(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMAccount.AccountId);
@@ -258,12 +258,12 @@ codeunit 139164 "Library - CRM Integration"
         CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
         LibraryResource.CreateResourceNew(Resource);
         Resource.Validate("Base Unit of Measure", UnitOfMeasure.Code);
-        Resource.Modify;
+        Resource.Modify();
 
         CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
         CRMProduct.ProductTypeCode := CRMProduct.ProductTypeCode::Services;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         CoupleRecordIdToCRMId(Resource.RecordId, CRMProduct.ProductId);
     end;
@@ -280,7 +280,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCoupledUnitOfMeasureAndUomSchedule(UnitOfMeasure, CRMUom, CRMUomschedule);
         LibraryInventory.CreateItem(Item);
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
-        Item.Modify;
+        Item.Modify();
 
         CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
@@ -369,7 +369,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationRecord: Record "Integration Record";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField(BaseCurrencyId);
         CRMTransactioncurrency.Get(CRMConnectionSetup.BaseCurrencyId);
         CreateCurrencyAndEnsureIntegrationRecord(Currency, IntegrationRecord);
@@ -420,7 +420,7 @@ codeunit 139164 "Library - CRM Integration"
             CRMSystemuserId := CRMAccount.OwnerId;
 
         Clear(CRMAccount);
-        CRMAccount.Init;
+        CRMAccount.Init();
         CRMAccount.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CRMAccount.Name)), 1, MaxStrLen(CRMAccount.Name));
         CRMAccount.CustomerTypeCode := CRMAccount.CustomerTypeCode::Customer;
         CRMAccount.CreatedBy := CRMSystemuserId;
@@ -430,7 +430,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMAccount.OwnerId := CRMSystemuserId;
         CRMAccount.OwnerIdType := CRMAccount.OwnerIdType::systemuser;
         CRMAccount.TransactionCurrencyId := GetGLSetupCRMTransactionCurrencyID;
-        CRMAccount.Insert;
+        CRMAccount.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -455,7 +455,7 @@ codeunit 139164 "Library - CRM Integration"
             CRMSystemuserId := CRMContact.OwnerId;
 
         Clear(CRMContact);
-        CRMContact.Init;
+        CRMContact.Init();
         CRMContact.FullName :=
           CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CRMContact.FullName)), 1, MaxStrLen(CRMContact.FullName));
         CRMContact.MobilePhone := LibraryUtility.GenerateGUID;
@@ -465,7 +465,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMContact.ModifiedOn := CRMContact.CreatedOn;
         CRMContact.OwnerId := CRMSystemuserId;
         CRMContact.OwnerIdType := CRMContact.OwnerIdType::systemuser;
-        CRMContact.Insert;
+        CRMContact.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -487,7 +487,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMContact.ParentCustomerId := ParentCRMAccount.AccountId;
         CRMContact.ParentCustomerIdType := CRMContact.ParentCustomerIdType::account;
         Clear(CRMContact.ModifiedBy); // to avoid filter 'ModifiedBy<>IntegrationUserId' in COD5340
-        CRMContact.Modify;
+        CRMContact.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -536,13 +536,13 @@ codeunit 139164 "Library - CRM Integration"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
     begin
         CreateCRMTransactionCurrency(CRMTransactioncurrency, GetBaseCRMTestCurrencySymbol);
-        CRMOrganization.Init;
+        CRMOrganization.Init();
         CRMOrganization.CurrencyDecimalPrecision := CurrencyPrecision;
         CRMOrganization.BaseCurrencyPrecision := CurrencyPrecision;
         CRMOrganization.BaseCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
         CRMOrganization.BaseCurrencySymbol := CopyStr(CRMTransactioncurrency.CurrencySymbol, 1, 5);
         CRMOrganization.BaseCurrencyIdName := CRMTransactioncurrency.CurrencyName;
-        CRMOrganization.Insert;
+        CRMOrganization.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -555,7 +555,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuser.FindFirst;
 
         Clear(CRMProduct);
-        CRMProduct.Init;
+        CRMProduct.Init();
         CRMProduct.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
         CRMProduct.DefaultUoMId := CRMUom.UoMId;
         CRMProduct.DefaultUoMScheduleId := CRMUom.UoMScheduleId;
@@ -568,7 +568,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMProduct.CreatedOn := CurrentDateTime;
         CRMProduct.ModifiedOn := CRMProduct.CreatedOn;
         CRMProduct.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CRMProduct.Name)), 1, MaxStrLen(CRMProduct.Name));
-        CRMProduct.Insert;
+        CRMProduct.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -581,7 +581,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuser.FindFirst;
 
         Clear(CRMPricelevel);
-        CRMPricelevel.Init;
+        CRMPricelevel.Init();
         CRMPricelevel.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
         CRMPricelevel.OrganizationId := CreateGuid;
         CRMPricelevel.Name := 'Test Price List';
@@ -589,7 +589,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMPricelevel.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMPricelevel.CreatedOn := CurrentDateTime;
         CRMPricelevel.ModifiedOn := CRMPricelevel.CreatedOn;
-        CRMPricelevel.Insert;
+        CRMPricelevel.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -611,7 +611,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMProductpricelevel.UoMId := CRMProduct.DefaultUoMId;
         CRMProductpricelevel.PricingMethodCode := CRMProductpricelevel.PricingMethodCode::CurrencyAmount;
         CRMProductpricelevel.Amount := LibraryRandom.RandDec(100, 2);
-        CRMProductpricelevel.Insert;
+        CRMProductpricelevel.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -625,12 +625,12 @@ codeunit 139164 "Library - CRM Integration"
 
         Clear(CRMSalesorder);
         CRMSalesorder.Name := 'Test CRM Sales Order';
-        CRMSalesorder.Init;
+        CRMSalesorder.Init();
         CRMSalesorder.CreatedBy := CRMSystemuser.SystemUserId;
         CRMSalesorder.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMSalesorder.CreatedOn := CurrentDateTime;
         CRMSalesorder.ModifiedOn := CRMSalesorder.CreatedOn;
-        CRMSalesorder.Insert;
+        CRMSalesorder.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -643,7 +643,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSalesorder.TotalAmountLessFreight -= DiscountAmount;
 
         CRMSalesorder.ModifiedOn := CurrentDateTime;
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -656,7 +656,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMQuote.TotalAmountLessFreight -= DiscountAmount;
 
         CRMQuote.ModifiedOn := CurrentDateTime;
-        CRMQuote.Modify;
+        CRMQuote.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -670,7 +670,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSalesorder.CustomerId := AccountId;
         CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
         CRMSalesorder.TransactionCurrencyId := CurrencyId;
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -682,7 +682,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CreateCoupledItemAndProduct(Item, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
     end;
 
@@ -696,7 +696,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCoupledResourceAndProduct(Resource, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
         CRMProduct.ProductTypeCode := CRMProduct.ProductTypeCode::Services;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
     end;
 
@@ -725,7 +725,7 @@ codeunit 139164 "Library - CRM Integration"
     procedure CreateCRMSystemUser(var CRMSystemuser: Record "CRM Systemuser")
     begin
         Clear(CRMSystemuser);
-        CRMSystemuser.Init;
+        CRMSystemuser.Init();
         CRMSystemuser.FullName :=
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(20, 0), 1, MaxStrLen(CRMSystemuser.FullName));
         CRMSystemuser.CreatedOn := CurrentDateTime;
@@ -735,7 +735,143 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuser.IsLicensed := true;
         CRMSystemuser.IsIntegrationUser := false;
         CRMSystemuser.IsDisabled := false;
-        CRMSystemuser.Insert;
+        CRMSystemuser.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCRMTeam(var CRMTeam: Record "CRM Team")
+    var
+        CDSCompany: Record "CDS Company";
+    begin
+        EnsureCDSCompany(CDSCompany);
+        CreateCRMTeam(
+            CRMTeam,
+            CopyStr(LibraryUtility.GenerateRandomAlphabeticText(20, 0), 1, MaxStrLen(CRMTeam.Name)),
+            CDSCompany.OwningBusinessUnit);
+    end;
+
+    local procedure CreateCRMTeam(var CRMTeam: Record "CRM Team"; Name: Text[160]; BusinessunitId: Guid)
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+    begin
+        EnsureAdminCRMSystemUser();
+        FindAdminCRMSystemUser(CRMSystemuser);
+
+        Clear(CRMTeam);
+        CRMTeam.Init();
+        CRMTeam.Name := Name;
+        CRMTeam.BusinessUnitId := BusinessunitId;
+        CRMTeam.CreatedBy := CRMSystemuser.SystemUserId;
+        CRMTeam.ModifiedBy := CRMSystemuser.SystemUserId;
+        CRMTeam.CreatedOn := CurrentDateTime();
+        CRMTeam.ModifiedOn := CRMTeam.CreatedOn;
+        CRMTeam.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCRMBusinessunit(var CRMBusinessunit: Record "CRM Businessunit"; Name: Text[160])
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+    begin
+        EnsureAdminCRMSystemUser();
+        FindAdminCRMSystemUser(CRMSystemuser);
+
+        Clear(CRMBusinessunit);
+        CRMBusinessunit.Init();
+        CRMBusinessunit.Name := Name;
+        CRMBusinessunit.CreatedBy := CRMSystemuser.SystemUserId;
+        CRMBusinessunit.ModifiedBy := CRMSystemuser.SystemUserId;
+        CRMBusinessunit.CreatedOn := CurrentDateTime();
+        CRMBusinessunit.ModifiedOn := CRMBusinessunit.CreatedOn;
+        CRMBusinessunit.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure EnsureCDSCompany(var CDSCompany: Record "CDS Company")
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMBusinessunit: Record "CRM Businessunit";
+        CRMSystemuser: Record "CRM Systemuser";
+        CRMTeam: Record "CRM Team";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        ExternalId: Text[36];
+    begin
+        ExternalId := GetCompanyExternalId();
+        CDSCompany.SetRange(ExternalId, ExternalId);
+        if CDSCompany.FindFirst() then
+            exit;
+        EnsureAdminCRMSystemUser();
+        FindAdminCRMSystemUser(CRMSystemuser);
+        CreateCRMBusinessunit(CRMBusinessunit, CDSIntegrationImpl.GetDefaultBusinessUnitName());
+        CDSConnectionSetup.Get();
+        CDSConnectionSetup."Business Unit Id" := CRMBusinessunit.BusinessUnitId;
+        CDSConnectionSetup."Business Unit Name" := CRMBusinessunit.Name;
+        CDSConnectionSetup.Modify(true);
+        CreateCRMTeam(CRMTeam, StrSubstNo('BCI - %1', CRMBusinessunit.Name), CRMBusinessunit.BusinessUnitId);
+        CDSCompany.ExternalId := GetCompanyExternalId();
+        CDSCompany.Name := CompanyName();
+        CDSCompany.OwningBusinessUnit := CRMBusinessunit.BusinessUnitId;
+        CDSCompany.OwnerIdType := CDSCompany.OwnerIdType::team;
+        CDSCompany.OwnerId := CRMTeam.TeamId;
+        CDSCompany.DefaultOwningTeam := CRMTeam.TeamId;
+        CDSCompany.CreatedBy := CRMSystemuser.SystemUserId;
+        CDSCompany.ModifiedBy := CRMSystemuser.SystemUserId;
+        CDSCompany.CreatedOn := CurrentDateTime();
+        CDSCompany.ModifiedOn := CDSCompany.CreatedOn;
+        CDSCompany.Insert();
+    end;
+
+    local procedure GetCompanyExternalId(): Text[36]
+    var
+        Company: Record Company;
+        ExternalId: Text[36];
+    begin
+        Company.Get(CompanyName());
+        ExternalId := CopyStr(Format(Company.SystemId).ToLower().Replace('{', '').Replace('}', ''), 1, MaxStrLen(ExternalId));
+        exit(ExternalId);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCDSSolution(var CDSSolution: Record "CDS Solution"; UniqueName: Text[65]; FriendlyName: Text[250]; Version: Text[250])
+    begin
+        Clear(CDSSolution);
+        CDSSolution.Init();
+        CDSSolution.UniqueName := UniqueName;
+        CDSSolution.FriendlyName := FriendlyName;
+        CDSSolution.Version := Version;
+        CDSSolution.IsManaged := true;
+        CDSSolution.IsVisible := true;
+        CDSSolution.InstalledOn := CurrentDateTime();
+        CDSSolution.CreatedOn := CDSSolution.InstalledOn;
+        CDSSolution.ModifiedOn := CDSSolution.InstalledOn;
+        CDSSolution.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure EnsureAdminCRMSystemUser(): Guid
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+    begin
+        if not FindAdminCRMSystemUser(CRMSystemuser) then begin
+            CreateCRMSystemUser(CRMSystemuser);
+            CRMSystemuser.FirstName := 'Administrator';
+            CRMSystemuser.LastName := 'User';
+            CRMSystemuser.Modify();
+        end;
+        CRMSystemuser.Reset();
+        CRMSystemuser.SetFilter(SystemUserId, '<>%1', CRMSystemuser.SystemUserId);
+        if not CRMSystemuser.FindFirst() then begin
+            Clear(CRMSystemuser);
+            CreateCRMSystemUser(CRMSystemuser);
+        end;
+        exit(CRMSystemuser.SystemUserId);
+    end;
+
+    local procedure FindAdminCRMSystemUser(var CRMSystemuser: Record "CRM Systemuser"): Boolean
+    begin
+        CRMSystemuser.SetRange(FirstName, 'Administrator');
+        CRMSystemuser.SetRange(LastName, 'User');
+        exit(CRMSystemuser.FindFirst());
     end;
 
     [Scope('OnPrem')]
@@ -748,7 +884,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMSystemuser.FindFirst;
 
         Clear(CRMTransactioncurrency);
-        CRMTransactioncurrency.Init;
+        CRMTransactioncurrency.Init();
         CRMTransactioncurrency.ExchangeRate := 1;
         CRMTransactioncurrency.CurrencySymbol := ISOCurrencyCode;
         CRMTransactioncurrency.ISOCurrencyCode := ISOCurrencyCode;
@@ -757,7 +893,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMTransactioncurrency.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMTransactioncurrency.CreatedOn := CurrentDateTime;
         CRMTransactioncurrency.ModifiedOn := CRMTransactioncurrency.CreatedOn;
-        CRMTransactioncurrency.Insert;
+        CRMTransactioncurrency.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -776,16 +912,16 @@ codeunit 139164 "Library - CRM Integration"
             CRMUomName := DefaultUoMNameTxt;
 
         Clear(CRMUomschedule);
-        CRMUomschedule.Init;
+        CRMUomschedule.Init();
         CRMUomschedule.Name := StrSubstNo('NAV %1', CRMUomName);
         CRMUomschedule.CreatedBy := CRMSystemuser.SystemUserId;
         CRMUomschedule.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMUomschedule.CreatedOn := CurrentDateTime;
         CRMUomschedule.ModifiedOn := CRMUomschedule.CreatedOn;
-        CRMUomschedule.Insert;
+        CRMUomschedule.Insert();
 
         Clear(CRMUom);
-        CRMUom.Init;
+        CRMUom.Init();
         CRMUom.UoMScheduleId := CRMUomschedule.UoMScheduleId;
         CRMUom.Name := CRMUomName;
         CRMUom.Quantity := 1;
@@ -794,20 +930,20 @@ codeunit 139164 "Library - CRM Integration"
         CRMUom.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMUom.CreatedOn := CurrentDateTime;
         CRMUom.ModifiedOn := CRMUom.CreatedOn;
-        CRMUom.Insert;
+        CRMUom.Insert();
 
         CRMUomschedule.BaseUoMName := CRMUom.Name;
-        CRMUomschedule.Modify;
+        CRMUomschedule.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure CreateCRMOpportunity(var CRMOpportunity: Record "CRM Opportunity")
     begin
         Clear(CRMOpportunity);
-        CRMOpportunity.Init;
+        CRMOpportunity.Init();
         CRMOpportunity.Name :=
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(20, 0), 1, MaxStrLen(CRMOpportunity.Name));
-        CRMOpportunity.Insert;
+        CRMOpportunity.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -815,7 +951,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         CurrencyRecordRef: RecordRef;
     begin
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, LibraryUtility.GenerateRandomCodeWithLength(Currency.FieldNo(Code), DATABASE::Currency, 5));
         Currency.Insert(true);
 
@@ -837,12 +973,12 @@ codeunit 139164 "Library - CRM Integration"
 
         Clear(CRMQuote);
         CRMQuote.Name := 'Test CRM Quote';
-        CRMQuote.Init;
+        CRMQuote.Init();
         CRMQuote.CreatedBy := CRMSystemuser.SystemUserId;
         CRMQuote.ModifiedBy := CRMSystemuser.SystemUserId;
         CRMQuote.CreatedOn := CurrentDateTime;
         CRMQuote.ModifiedOn := CRMQuote.CreatedOn;
-        CRMQuote.Insert;
+        CRMQuote.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -856,7 +992,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMQuote.CustomerIdType := CRMQuote.CustomerIdType::account;
         CRMQuote.TransactionCurrencyId := CurrencyId;
 
-        CRMQuote.Modify;
+        CRMQuote.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -868,7 +1004,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CreateCoupledItemAndProduct(Item, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         PrepareCRMQuoteLine(CRMQuote, CRMQuotedetail, CRMProduct.ProductId);
     end;
 
@@ -882,7 +1018,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCoupledResourceAndProduct(Resource, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
         CRMProduct.ProductTypeCode := CRMProduct.ProductTypeCode::Services;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         PrepareCRMQuoteLine(CRMQuote, CRMQuotedetail, CRMProduct.ProductId);
     end;
 
@@ -916,9 +1052,9 @@ codeunit 139164 "Library - CRM Integration"
         Counter: Integer;
     begin
         CRMIntegrationRecord.SetRange("Table ID", DATABASE::"Unit of Measure");
-        CRMIntegrationRecord.DeleteAll;
+        CRMIntegrationRecord.DeleteAll();
         with UnitOfMeasure do begin
-            DeleteAll;
+            DeleteAll();
 
             for Counter := 1 to UnitOfMeasureRecordCount do begin
                 Init;
@@ -930,7 +1066,7 @@ codeunit 139164 "Library - CRM Integration"
         end;
 
         with TestIntegrationTable do begin
-            DeleteAll;
+            DeleteAll();
 
             for Counter := 1 to IntegrationTableRecordCount do begin
                 Init;
@@ -950,7 +1086,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         // Integration Table Mapping definition
         with IntegrationTableMapping do begin
-            DeleteAll;
+            DeleteAll();
 
             Init;
             Name := 'TEST';
@@ -964,7 +1100,7 @@ codeunit 139164 "Library - CRM Integration"
 
         // Map columns. Bidirectional, ToIntegrationTable, FromIntegrationTable
         with IntegrationFieldMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "No." := 0;
             "Integration Table Mapping Name" := 'TEST';
@@ -993,7 +1129,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         // Integration Table Mapping definition
         with IntegrationTableMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Name := 'TEST RESOURCE-PROD';
             "Table ID" := DATABASE::Resource;
@@ -1006,7 +1142,7 @@ codeunit 139164 "Library - CRM Integration"
 
         // Map columns, "No." -> ProductNumber
         with IntegrationFieldMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "No." := 0;
             "Integration Table Mapping Name" := 'TEST RESOURCE-PROD';
@@ -1025,7 +1161,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMAccount: Record "CRM Account";
     begin
         with IntegrationTableMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Name := LibraryUtility.GenerateGUID;
             "Table ID" := DATABASE::Customer;
@@ -1037,7 +1173,7 @@ codeunit 139164 "Library - CRM Integration"
         end;
 
         with IntegrationFieldMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "No." := 0;
             "Integration Table Mapping Name" := IntegrationTableMapping.Name;
@@ -1083,12 +1219,42 @@ codeunit 139164 "Library - CRM Integration"
     end;
 
     [Scope('OnPrem')]
+    procedure EnsureCDSSystemUser(): Guid
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        CDSConnectionSetup.Get();
+        if not FindIntegrationSystemUser(CDSConnectionSetup, CRMSystemuser) then begin
+            CreateCRMSystemUser(CRMSystemuser);
+            CRMSystemuser.FirstName := 'Integration';
+            CRMSystemuser.LastName := 'User';
+            case CDSConnectionSetup."Authentication Type" of
+                CDSConnectionSetup."Authentication Type"::Office365, CDSConnectionSetup."Authentication Type"::OAuth:
+                    CRMSystemuser.InternalEMailAddress :=
+                      CopyStr(CDSConnectionSetup."User Name", 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
+                CDSConnectionSetup."Authentication Type"::AD, CDSConnectionSetup."Authentication Type"::IFD:
+                    CRMSystemuser.DomainName :=
+                      CopyStr(CDSConnectionSetup."User Name", 1, MaxStrLen(CRMSystemuser.DomainName));
+            end;
+            CRMSystemuser.Modify();
+        end;
+        CRMSystemuser.Reset();
+        CRMSystemuser.SetFilter(SystemUserId, '<>%1', CRMSystemuser.SystemUserId);
+        if not CRMSystemuser.FindFirst then begin
+            Clear(CRMSystemuser);
+            CreateCRMSystemUser(CRMSystemuser);
+        end;
+        exit(CRMSystemuser.SystemUserId);
+    end;
+
+    [Scope('OnPrem')]
     procedure EnsureCRMSystemUser(): Guid
     var
         CRMSystemuser: Record "CRM Systemuser";
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         if not FindIntegrationSystemUser(CRMConnectionSetup, CRMSystemuser) then begin
             CreateCRMSystemUser(CRMSystemuser);
             CRMSystemuser.FirstName := 'Integration';
@@ -1101,15 +1267,27 @@ codeunit 139164 "Library - CRM Integration"
                     CRMSystemuser.DomainName :=
                       CopyStr(CRMConnectionSetup."User Name", 1, MaxStrLen(CRMSystemuser.DomainName));
             end;
-            CRMSystemuser.Modify;
+            CRMSystemuser.Modify();
         end;
-        CRMSystemuser.Reset;
+        CRMSystemuser.Reset();
         CRMSystemuser.SetFilter(SystemUserId, '<>%1', CRMSystemuser.SystemUserId);
         if not CRMSystemuser.FindFirst then begin
             Clear(CRMSystemuser);
             CreateCRMSystemUser(CRMSystemuser);
         end;
         exit(CRMSystemuser.SystemUserId);
+    end;
+
+    local procedure FindIntegrationSystemUser(CDSConnectionSetup: Record "CDS Connection Setup"; var CRMSystemuser: Record "CRM Systemuser"): Boolean
+    begin
+        with CDSConnectionSetup do
+            case "Authentication Type" of
+                "Authentication Type"::Office365, "Authentication Type"::OAuth:
+                    CRMSystemuser.SetRange(InternalEMailAddress, "User Name");
+                "Authentication Type"::AD, "Authentication Type"::IFD:
+                    CRMSystemuser.SetRange(DomainName, "User Name");
+            end;
+        exit(CRMSystemuser.FindFirst());
     end;
 
     local procedure FindIntegrationSystemUser(CRMConnectionSetup: Record "CRM Connection Setup"; var CRMSystemuser: Record "CRM Systemuser"): Boolean
@@ -1129,7 +1307,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(Format(GeneralLedgerSetup."LCY Code", 5));
     end;
 
@@ -1139,7 +1317,7 @@ codeunit 139164 "Library - CRM Integration"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CRMTransactioncurrency.SetFilter(ISOCurrencyCode,
           CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode)));
         if not CRMTransactioncurrency.FindFirst then
@@ -1153,17 +1331,17 @@ codeunit 139164 "Library - CRM Integration"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         if not IsNullGuid(CRMConnectionSetup."Default CRM Price List ID") then
             if CRMPricelevel.Get(CRMConnectionSetup."Default CRM Price List ID") then
                 exit;
 
-        CRMPricelevel.Init;
+        CRMPricelevel.Init();
         CRMPricelevel.Name := CRMSynchHelper.GetDefaultPriceListName;
-        CRMPricelevel.Insert;
+        CRMPricelevel.Insert();
 
         CRMConnectionSetup.Validate("Default CRM Price List ID", CRMPricelevel.PriceLevelId);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1196,7 +1374,7 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationSynchJob."Start Date/Time" := CurrentDateTime - 5;
         IntegrationSynchJob."Finish Date/Time" := CurrentDateTime;
         IntegrationSynchJob.Message := CopyStr(Msg, 1, 250);
-        IntegrationSynchJob.Insert;
+        IntegrationSynchJob.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1212,7 +1390,7 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationSynchJobErrors.Message :=
           CopyStr(ErrorMsg, 1, MaxStrLen(IntegrationSynchJobErrors.Message));
         IntegrationSynchJobErrors."Date/Time" := FailedOn;
-        IntegrationSynchJobErrors.Insert;
+        IntegrationSynchJobErrors.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1226,7 +1404,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CurrentDateTime;
         CRMIntegrationRecord.Skipped := Skipped;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1240,7 +1418,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord."Last Synch. Job ID" := JobID;
         CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime;
         CRMIntegrationRecord.Skipped := Skipped;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1254,7 +1432,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CurrentDateTime;
         CRMIntegrationRecord.Skipped := false;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1268,7 +1446,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord."Last Synch. Job ID" := JobID;
         CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime;
         CRMIntegrationRecord.Skipped := false;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
     end;
 
     local procedure OpenAndFilterCustomerCard(var CustomerCard: TestPage "Customer Card"; CustomerNo: Code[20])
@@ -1388,9 +1566,9 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CreateCoupledItemAndProduct(Item, CRMProduct);
         Item.Validate(Type, Item.Type::Service);
-        Item.Modify;
+        Item.Modify();
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Item, Item."No.");
     end;
 
@@ -1403,7 +1581,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         CreateCoupledResourceAndProduct(Resource, CRMProduct);
         CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Resource, Resource."No.");
     end;
 
@@ -1412,10 +1590,10 @@ codeunit 139164 "Library - CRM Integration"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Write-in Product Type", ProductType);
         SalesSetup.Validate("Write-in Product No.", ProductNo);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1451,14 +1629,14 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
     begin
-        CRMConnectionSetup.DeleteAll;
-        CRMIntegrationRecord.DeleteAll;
-        IntegrationRecord.DeleteAll;
-        IntegrationSynchJob.DeleteAll;
-        IntegrationSynchJobErrors.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
+        CRMIntegrationRecord.DeleteAll();
+        IntegrationRecord.DeleteAll();
+        IntegrationSynchJob.DeleteAll();
+        IntegrationSynchJobErrors.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
 
-        IntTableSynchSubscriber.Reset;
+        IntTableSynchSubscriber.Reset();
         CRMIntegrationManagement.ClearState;
         CRMIntTableSubscriber.ClearCache;
         Clear(CRMIntTableSubscriber);
@@ -1486,7 +1664,7 @@ codeunit 139164 "Library - CRM Integration"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Freight G/L Acc. No.", LibraryERM.CreateGLAccountWithSalesSetup);
         SalesReceivablesSetup.Modify(true);
         exit(SalesReceivablesSetup."Freight G/L Acc. No.");
@@ -1501,11 +1679,11 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord.FindByRecordID(RecID);
         CRMIntegrationRecord."Last Synch. Modified On" := SyncDateTime;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := SyncDateTime;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
         // mock an unchaged IntegrationRecord, "Modified On" is equal to "Last Synch. Modified On"
         IntegrationRecord.FindByRecordId(RecID);
         IntegrationRecord."Modified On" := CRMIntegrationRecord."Last Synch. Modified On";
-        IntegrationRecord.Modify;
+        IntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1515,7 +1693,7 @@ codeunit 139164 "Library - CRM Integration"
     begin
         IntegrationRecord.FindByRecordId(RecID);
         IntegrationRecord."Modified On" += ShiftBy;
-        IntegrationRecord.Modify;
+        IntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]

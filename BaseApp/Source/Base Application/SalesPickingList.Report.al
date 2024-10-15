@@ -238,7 +238,7 @@ report 11512 "Sales Picking List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAdr.Company(CompanyAdr, CompanyInfo);
             end;
         }

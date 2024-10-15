@@ -271,8 +271,8 @@ report 11554 "SR Vendor Orders per Period"
     begin
         VendFilter := Vendor.GetFilters;
 
-        PurchSetup.Get;
-        GLSetup.Get;
+        PurchSetup.Get();
+        GLSetup.Get();
 
         if ShowAmtInLCY then
             AmtFilterTxt := Text000 + ' ' + GLSetup."LCY Code"

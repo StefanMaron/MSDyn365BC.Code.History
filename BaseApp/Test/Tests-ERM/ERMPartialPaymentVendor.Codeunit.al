@@ -20,7 +20,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
         AmountToApplyLargerError: Label '%1 must not be larger than %2 in %3 %4=''%5''.';
         AmountMustNotBeEqual: Label '%1 must not be equal to %2.';
         UnknownError: Label 'Unknown Error.';
-        CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
     local procedure Initialize()
     var
@@ -33,7 +32,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -113,7 +112,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryUtility.GenerateGUID; // Hack to fix problem with GenerateGUID.
 
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Invoice);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForSameDirection(DeltaAssert, TempGenJournalLine, ApplicationAmount);
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         CalcRmngAmtForApplngEntry(DeltaAssert, TempGenJournalLine, NoOfLines, ApplicationAmount);
@@ -201,7 +200,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryUtility.GenerateGUID; // Hack to fix problem with GenerateGUID.
 
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForApplOnSameEntry(DeltaAssert, TempGenJournalLine);
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");  // Filter applying entry.
         VendorLedgerEntry.FindFirst;
@@ -295,7 +294,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryUtility.GenerateGUID; // Hack to fix problem with GenerateGUID.
 
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::"Credit Memo");
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForSameDirection(DeltaAssert, TempGenJournalLine, -ApplicationAmount);
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Refund);
         CalcRmngAmtForApplngEntry(DeltaAssert, TempGenJournalLine, NoOfLines, -ApplicationAmount);
@@ -388,7 +387,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         LibraryUtility.GenerateGUID; // Hack to fix problem with GenerateGUID.
 
         TempGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Refund);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForApplOnSameEntry(DeltaAssert, TempGenJournalLine);
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");  // Filter applying entry.
         VendorLedgerEntry.FindFirst;
@@ -406,7 +405,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPaymentBySetAppliesToID()
     var
@@ -419,7 +417,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyRefundBySetAppliesToID()
     var
@@ -672,7 +669,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         CreateLineWhichWillBeApplied(GenJournalLine, GeneralJournalLineDocumentType, Amount);
 
         // 2. Exercise: Try to set Amount to Apply having different sign than Remaining Amount.
-        Commit;  // Commit is required to match errors.
+        Commit();  // Commit is required to match errors.
         asserterror LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, GenJournalLine.Amount);
 
         // 3. Verify: Verify that the application generates an error on application of Payment/Refund To Invoice/Credit Memo
@@ -724,7 +721,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         CreateLineWhichWillBeApplied(GenJournalLine, GeneralJournalLineDocumentType, SignFactor * Amount);
 
         // 2. Exercise: Try to set Amount to Apply more than Invoice/Credit Memo Amount.
-        Commit;  // Commit is required to match errors.
+        Commit();  // Commit is required to match errors.
         asserterror LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry.Amount * (1 + LibraryRandom.RandInt(10)));
 
         // 3. Verify: Verify that the application generates an error on application of Payment/Refund To Invoice/Credit Memo
@@ -917,7 +914,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPaymentToMultipleDocument()
     var
@@ -932,7 +928,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyRefundToMultipleDocument()
     var
@@ -1535,7 +1530,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         GenJournalLine.FindSet;
         repeat
             NewGenJournalLine := GenJournalLine;
-            NewGenJournalLine.Insert;
+            NewGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -1659,14 +1654,6 @@ codeunit 134004 "ERM Partial Payment Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure ReferencNoSendNotificationHandler(var TheNoitification: Notification): Boolean
-    begin
-        Assert.AreEqual(Format(CannotAssignReferenceNoMsg), TheNoitification.Message, 'Wrong notification message');
-        exit(false)
     end;
 }
 

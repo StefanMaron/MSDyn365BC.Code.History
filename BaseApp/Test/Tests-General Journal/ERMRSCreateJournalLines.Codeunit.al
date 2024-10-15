@@ -41,7 +41,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Create Journal Lines");
     end;
 
@@ -63,9 +63,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Direct Posting and Account Type as Posting of G/L Account.
-        GLAccount.SetRange("Direct Posting", true);
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.SetFilter("Currency Code", '%1', '');
+        LibraryERM.SetGLAccountDirectPostingFilter(GLAccount);
         RunCreateGLAccountJournalLines(
           GLAccount,
           GenJournalBatch,
@@ -1662,7 +1660,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateGLAccJournalLines.InitializeRequest(
           DocumentTypes, PostingDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateGLAccJournalLines.UseRequestPage(false);
-        Commit;  // Commit is required for Create Lines.
+        Commit();  // Commit is required for Create Lines.
         CreateGLAccJournalLines.Run;
     end;
 
@@ -1676,7 +1674,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateCustomerJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateCustomerJournalLines.UseRequestPage(false);
-        Commit;  // Commit is required for Create Lines.
+        Commit();  // Commit is required for Create Lines.
         CreateCustomerJournalLines.Run;
     end;
 
@@ -1690,7 +1688,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateVendorJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateCode);
         CreateVendorJournalLines.UseRequestPage(false);
-        Commit;  // Commit is required for Create Lines.
+        Commit();  // Commit is required for Create Lines.
         CreateVendorJournalLines.Run;
     end;
 
@@ -1704,7 +1702,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         CreateItemJournalLines.InitializeRequestTemplate(
           ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, TemplateCode);
         CreateItemJournalLines.UseRequestPage(false);
-        Commit;  // Commit is required for Create Lines.
+        Commit();  // Commit is required for Create Lines.
         CreateItemJournalLines.Run;
     end;
 
@@ -1896,7 +1894,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     var
         StandardGenJnlLine: Record "Standard General Journal Line";
     begin
-        StandardGenJnlLine.Init;
+        StandardGenJnlLine.Init();
         StandardGenJnlLine."Journal Template Name" := JournalTemplateName;
         StandardGenJnlLine."Standard Journal Code" := StandardJournalCode;
         StandardGenJnlLine.Insert(true);

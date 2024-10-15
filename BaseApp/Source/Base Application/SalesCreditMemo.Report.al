@@ -241,10 +241,10 @@ report 207 "Sales - Credit Memo"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -268,7 +268,7 @@ report 207 "Sales - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Cr.Memo Line"; "Sales Cr.Memo Line")
@@ -431,10 +431,10 @@ report 207 "Sales - Credit Memo"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -458,7 +458,7 @@ report 207 "Sales - Credit Memo"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Cr.Memo Line"."Dimension Set ID");
                             end;
@@ -473,7 +473,7 @@ report 207 "Sales - Credit Memo"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -494,12 +494,12 @@ report 207 "Sales - Credit Memo"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
                             NewPageLine := false;
@@ -612,7 +612,7 @@ report 207 "Sales - Credit Memo"
                         begin
                             VATAmountLine.GetLine(Number);
                             if not VATClause.Get(VATAmountLine."VAT Clause Code") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             VATClause.GetDescription("Sales Cr.Memo Header");
                         end;
 
@@ -665,7 +665,7 @@ report 207 "Sales - Credit Memo"
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Cr.Memo Header"."Currency Code" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -692,7 +692,7 @@ report 207 "Sales - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -803,9 +803,9 @@ report 207 "Sales - Credit Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         NewPageGroupNo := 0;

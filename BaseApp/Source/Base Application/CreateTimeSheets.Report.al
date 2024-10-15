@@ -26,7 +26,7 @@ report 950 "Create Time Sheets"
                         CurrReport.Skip();
 
                     if CheckExistingPeriods then begin
-                        TimeSheetHeader.Init;
+                        TimeSheetHeader.Init();
                         TimeSheetHeader."No." := NoSeriesMgt.GetNextNo(ResourcesSetup."Time Sheet Nos.", Today, true);
                         TimeSheetHeader."Starting Date" := StartingDate;
                         TimeSheetHeader."Ending Date" := EndingDate;
@@ -126,7 +126,7 @@ report 950 "Create Time Sheets"
 
     trigger OnInitReport()
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -209,7 +209,7 @@ report 950 "Create Time Sheets"
     procedure InitParameters(NewStartingDate: Date; NewNoOfPeriods: Integer; NewResourceFilter: Code[250]; NewCreateLinesFromJobPlanning: Boolean; NewHideDialog: Boolean)
     begin
         ClearAll;
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         StartingDate := NewStartingDate;
         NoOfPeriods := NewNoOfPeriods;
         HidResourceFilter := NewResourceFilter;

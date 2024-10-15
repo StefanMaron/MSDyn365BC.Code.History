@@ -174,7 +174,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
                 trigger OnAfterGetRecord()
                 begin
                     if ("Posting Date" = ClosingDate("Posting Date")) and WithoutClosingEntries then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     GlBalance := GlBalance + Amount;
                     Entryno := Entryno + 1;
@@ -308,12 +308,12 @@ report 11566 "SR G/L Acc Sheet Posting Info"
                     end;
 
                     if not ProvEntry then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     Entryno := Entryno + 1;
 
                     if ("Posting Date" = ClosingDate("Posting Date")) and WithoutClosingEntries then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Bal. Account No." <> '' then
                         BalAccType := CopyStr(Format("Bal. Account Type"), 1, 1)
@@ -324,7 +324,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
                 trigger OnPreDataItem()
                 begin
                     if not ProvEntryExist then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Clear(ProvDebit);
                     Clear(ProvCredit);
 
@@ -367,7 +367,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
                    (not ProvEntryExist) and
                    (not ShowAllAccounts)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not(NotFirstPage and NewPagePerAcc) then
                     NotFirstPage := true;
@@ -485,7 +485,7 @@ report 11566 "SR G/L Acc Sheet Posting Info"
     begin
         GlJourDateFilter := "G/L Account".GetFilter("Date Filter");
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

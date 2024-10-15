@@ -367,15 +367,15 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Whse Get Source Inbound");
     end;
 
     local procedure UpdateSalesReceivablesSetup(var TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         TempSalesReceivablesSetup := SalesReceivablesSetup;
-        TempSalesReceivablesSetup.Insert;
+        TempSalesReceivablesSetup.Insert();
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", false);
         SalesReceivablesSetup.Validate("Stockout Warning", false);
@@ -460,7 +460,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
     begin
         WarehouseEmployee.SetRange("User ID", UserId);
         if WarehouseEmployee.FindFirst then
-            WarehouseEmployee.DeleteAll;
+            WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, IsDefault);
     end;
 
@@ -550,7 +550,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
 
     local procedure CreateWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode2: Code[10])
     begin
-        WarehouseReceiptHeader.Init;
+        WarehouseReceiptHeader.Init();
         WarehouseReceiptHeader.Insert(true);
         WarehouseReceiptHeader.Validate("Location Code", LocationCode2);
         WarehouseReceiptHeader.Modify(true);
@@ -594,7 +594,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Receipt Nos.", WorkDate, false));
     end;
 
@@ -647,7 +647,7 @@ codeunit 137204 "SCM Whse Get Source Inbound"
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", TempSalesReceivablesSetup."Exact Cost Reversing Mandatory");

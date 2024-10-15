@@ -92,7 +92,7 @@ report 320 "Vendor Item Catalog"
                         Item.Get("Item No.");
 
                     if not ItemVend.Get("Vendor No.", "Item No.", "Variant Code") then
-                        ItemVend.Init;
+                        ItemVend.Init();
                 end;
             }
 

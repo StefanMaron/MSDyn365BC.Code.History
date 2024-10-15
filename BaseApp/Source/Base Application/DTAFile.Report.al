@@ -14,7 +14,7 @@ report 3010541 "DTA File"
             trigger OnAfterGetRecord()
             begin
                 if ("Account No." = '') or (Amount = 0) then  // incomplete lne
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ClearVars;
                 CheckDebitBank;
@@ -129,9 +129,9 @@ report 3010541 "DTA File"
             DownloadToFile;
 
         if FileBank."Backup Copy" then begin
-            FileBank.LockTable;
+            FileBank.LockTable();
             FileBank."Last Backup No." := IncStr(FileBank."Last Backup No.");
-            FileBank.Modify;
+            FileBank.Modify();
             BackupFilename := FileBank."Backup Folder" + 'DTA' + FileBank."Last Backup No." + '.BAK';
             if FileBank."File Format" = FileBank."File Format"::"With CR/LF" then
                 FileMgt.DownloadToFile(ServerTempFilename, BackupFilename)
@@ -229,7 +229,7 @@ report 3010541 "DTA File"
     local procedure PrepareFile(_Bankcode: Code[20])
     begin
         // Create file
-        GlSetup.Get;
+        GlSetup.Get();
         FileBank.Get(_Bankcode);
         FileBank.TestField("DTA/EZAG", 0);  // DTA
         FileBank.TestField("DTA File Folder");
@@ -266,7 +266,7 @@ report 3010541 "DTA File"
                             SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 51) + Text016;
                 if VendEntry."On Hold" = '' then begin
                     VendEntry."On Hold" := 'DTA';
-                    VendEntry.Modify;
+                    VendEntry.Modify();
                 end;
             end;
         end;

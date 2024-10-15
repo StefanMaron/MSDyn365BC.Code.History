@@ -140,7 +140,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Exercise: Create Cost Journal Line with blank Document No.
         CreateCostJournalLine(CostJournalLine, WorkDate);
         CostJournalLine."Document No." := '';
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
 
         // Verify:
         VerifyExpectedErrorOnCostAcctgJournalRep(CostJournalLine, BlankDocumentNoError);
@@ -162,7 +162,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CreateCostJournalLine(CostJournalLine, WorkDate);
         CostJournalLine."Cost Type No." := '';
         CostJournalLine."Bal. Cost Type No." := '';
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
 
         // Verify:
         VerifyExpectedErrorOnCostAcctgJournalRep(CostJournalLine, BlankBalCostTypeError);
@@ -679,7 +679,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         EnqueueCostAcctgAnalysisReport(CostType."Cost Center Code", '', true, CostType."No.");
 
         // Exercise : Run the Report with Filters Cost Center Code & Supress without Amt is True
-        Commit;
+        Commit();
         RunCostAcctgAnalysisReport;
 
         // Verify : Without Amount Cost Type No. Not Print On Report
@@ -752,7 +752,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Exercise: To create Dimension value and set it on request page using UpdateCostAcctgDimensionsHandler.
         LibraryDimension.CreateDimension(Dimension);
         LibraryVariableStorage.Enqueue(Dimension.Code);
-        Commit; // COMMIT is required to run this report.
+        Commit(); // COMMIT is required to run this report.
         asserterror REPORT.Run(REPORT::"Update Cost Acctg. Dimensions");
 
         // Verify: To check that error is encountered on setting same Cost Center Dimension and Cost Object Dimension.
@@ -1151,7 +1151,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostType: Record "Cost Type";
     begin
-        Commit;
+        Commit();
         CostType.SetRange("No.", CostTypeNo);
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetRange("Budget Filter", BudgetFilter);
@@ -1161,7 +1161,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
     local procedure RunCostAcctgJournalReport(CostJournalLine: Record "Cost Journal Line")
     begin
-        Commit;
+        Commit();
         CostJournalLine.SetRange("Document No.", CostJournalLine."Document No.");
         REPORT.Run(REPORT::"Cost Acctg. Journal", true, false, CostJournalLine);
     end;
@@ -1181,7 +1181,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostType: Record "Cost Type";
     begin
-        Commit;
+        Commit();
         CostType.SetFilter("No.", CostTypeNo);
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         REPORT.Run(REPORT::"Cost Acctg. Stmt. per Period", true, false, CostType);
@@ -1191,7 +1191,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostType: Record "Cost Type";
     begin
-        Commit; // COMMIT is required to run this report.
+        Commit(); // COMMIT is required to run this report.
         CostType.SetRange("No.", CostTypeNo);
         CostType.SetRange("Date Filter", WorkDate);
         REPORT.Run(REPORT::"Cost Acctg. Statement", true, false, CostType);
@@ -1199,7 +1199,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
     local procedure RunCostAllocationsReport(CostAllocationSource: Record "Cost Allocation Source")
     begin
-        Commit;
+        Commit();
         CostAllocationSource.SetRange(ID, CostAllocationSource.ID);
         REPORT.Run(REPORT::"Cost Allocations", true, false, CostAllocationSource);
     end;
@@ -1228,7 +1228,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldAddCurr := GeneralLedgerSetup."Additional Reporting Currency";
         if not ShowAddCurr then
             exit;
@@ -1242,7 +1242,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := NewAdditionalReportingCurrency; // VALIDATE trigger includes unneeded checks.
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1268,7 +1268,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         CostJournalLine."Bal. Cost Center Code" := BalCostCenterCode;
         CostJournalLine."Bal. Cost Object Code" := BalCostObjectCode;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
     end;
 
     local procedure ValidateCostAcctgStmtBudgetReport(CostEntry: Record "Cost Entry")
@@ -1445,7 +1445,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
         // Exercise: To set values on Request Page of Cost Acctg. Balance/Budget Report
         EnqueueCostAcctgBalanceBudget(WorkDate, EndDate, LibraryUtility.GenerateGUID);
-        Commit;   // COMMIT is required to run this report.
+        Commit();   // COMMIT is required to run this report.
         asserterror REPORT.Run(REPORT::"Cost Acctg. Balance/Budget");
 
         // Verify: To verify that error occurs.
@@ -1475,10 +1475,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         CostType.Type := Type;
         CostType.Blocked := Blocked;
-        CostType.Modify;
+        CostType.Modify();
         CreateCostJournalLine(CostJournalLine, WorkDate);
         CostJournalLine."Cost Type No." := CostType."No.";
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
 
         // Verify: To verify that expected error is diplayed on the report.
         VerifyExpectedErrorOnCostAcctgJournalRep(CostJournalLine, ExpectedError);

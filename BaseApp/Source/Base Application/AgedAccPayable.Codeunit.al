@@ -67,7 +67,7 @@ codeunit 764 "Aged Acc. Payable"
         EndDate: Date;
         Index: Integer;
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetAutoCalcFields("Remaining Amt. (LCY)");

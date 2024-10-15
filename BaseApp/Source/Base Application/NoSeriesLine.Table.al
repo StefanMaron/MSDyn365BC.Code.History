@@ -278,7 +278,15 @@ table 309 "No. Series Line"
         while (i > 1) and not ("Starting No."[i] in ['0' .. '9']) do
             i -= 1;
         j := i - StrLen(NumberCode);
-        exit(CopyStr("Starting No.", 1, j) + NumberCode + CopyStr("Starting No.", i + 1));
+        if (j > 0) and (i < MaxStrLen("Starting No.")) then
+            exit(CopyStr("Starting No.", 1, j) + NumberCode + CopyStr("Starting No.", i + 1));
+        if (j > 0) then
+            exit(CopyStr("Starting No.", 1, j) + NumberCode);
+        while (i > 1) and ("Starting No."[i] in ['0' .. '9']) do
+            i -= 1;
+        if (i > 0) and (i + StrLen(NumberCode) <= MaxStrLen(NumberCode)) then
+            exit(CopyStr("Starting No.", 1, i) + NumberCode);
+        exit(NumberCode); // should ideally not be possible, as bigints can produce max 18 digits
     end;
 }
 

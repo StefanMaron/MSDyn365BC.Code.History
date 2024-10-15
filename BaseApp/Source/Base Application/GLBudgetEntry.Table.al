@@ -257,11 +257,11 @@ table 96 "G/L Budget Entry"
         TestField(Date);
         TestField("G/L Account No.");
         TestField("Budget Name");
-        LockTable;
+        LockTable();
         "User ID" := UserId;
         "Last Date Modified" := Today;
         if "Entry No." = 0 then
-            "Entry No." := GetNextEntryNo;
+            "Entry No." := GetLastEntryNo() + 1;
 
         GetGLSetup;
         DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
@@ -283,6 +283,7 @@ table 96 "G/L Budget Entry"
     end;
 
     var
+        Text000: Label 'The dimension value %1 has not been set up for dimension %2.';
         Text001: Label '1,5,,Budget Dimension 1 Code';
         Text002: Label '1,5,,Budget Dimension 2 Code';
         Text003: Label '1,5,,Budget Dimension 3 Code';
@@ -294,6 +295,13 @@ table 96 "G/L Budget Entry"
         GLSetupRetrieved: Boolean;
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure CheckIfBlocked()
     begin
         if "Budget Name" = GLBudgetName.Name then
@@ -303,16 +311,25 @@ table 96 "G/L Budget Entry"
         GLBudgetName.TestField(Blocked, false);
     end;
 
-    local procedure ValidateDimValue(DimCode: Code[20]; DimValueCode: Code[20])
+    local procedure ValidateDimValue(DimCode: Code[20]; var DimValueCode: Code[20])
+    var
+        DimValue: Record "Dimension Value";
     begin
-        if not DimMgt.CheckDimValue(DimCode, DimValueCode) then
-            Error(DimMgt.GetDimErr());
+        if DimValueCode = '' then
+            exit;
+
+        DimValue."Dimension Code" := DimCode;
+        DimValue.Code := DimValueCode;
+        DimValue.Find('=><');
+        if DimValueCode <> CopyStr(DimValue.Code, 1, StrLen(DimValueCode)) then
+            Error(Text000, DimValueCode, DimCode);
+        DimValueCode := DimValue.Code;
     end;
 
     local procedure GetGLSetup()
     begin
         if not GLSetupRetrieved then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRetrieved := true;
         end;
     end;
@@ -351,17 +368,6 @@ table 96 "G/L Budget Entry"
             exit(DimValue.Code);
         end;
         exit(DefaultValue);
-    end;
-
-    local procedure GetNextEntryNo(): Integer
-    var
-        GLBudgetEntry: Record "G/L Budget Entry";
-    begin
-        GLBudgetEntry.SetCurrentKey("Entry No.");
-        if GLBudgetEntry.FindLast then
-            exit(GLBudgetEntry."Entry No." + 1);
-
-        exit(1);
     end;
 
     procedure GetCaptionClass(BudgetDimType: Integer): Text[250]
@@ -447,17 +453,17 @@ table 96 "G/L Budget Entry"
         if DimCode = '' then
             exit;
         if TempDimSetEntry.Get("Dimension Set ID", DimCode) then
-            TempDimSetEntry.Delete;
+            TempDimSetEntry.Delete();
         if DimValueCode = '' then
             DimVal.Init
         else
             DimVal.Get(DimCode, DimValueCode);
-        TempDimSetEntry.Init;
+        TempDimSetEntry.Init();
         TempDimSetEntry."Dimension Set ID" := "Dimension Set ID";
         TempDimSetEntry."Dimension Code" := DimCode;
         TempDimSetEntry."Dimension Value Code" := DimValueCode;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
     end;
 
     local procedure UpdateDimensionSetId(DimCode: Code[20]; DimValueCode: Code[20])
@@ -476,7 +482,7 @@ table 96 "G/L Budget Entry"
     begin
         AnalysisViewBudgetEntry.SetRange("Budget Name", "Budget Name");
         AnalysisViewBudgetEntry.SetRange("Entry No.", "Entry No.");
-        AnalysisViewBudgetEntry.DeleteAll;
+        AnalysisViewBudgetEntry.DeleteAll();
     end;
 
     local procedure VerifyNoRelatedAnalysisViewBudgetEntries(GLBudgetEntry: Record "G/L Budget Entry")

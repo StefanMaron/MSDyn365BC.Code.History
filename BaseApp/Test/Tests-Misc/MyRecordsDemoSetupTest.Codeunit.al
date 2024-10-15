@@ -26,7 +26,7 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(false);
 
         // [GIVEN] The My Customer table is empty
-        MyCustomer.DeleteAll;
+        MyCustomer.DeleteAll();
 
         // [WHEN] Calling CompanyOpen
         LogInManagement.CompanyOpen;
@@ -47,7 +47,7 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(true);
 
         // [GIVEN] The My Customer table is not empty for the current user
-        MyCustomer.DeleteAll;
+        MyCustomer.DeleteAll();
         CreateMyCustomerForCurrentUser;
 
         // [WHEN] Calling CompanyOpen
@@ -72,8 +72,8 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(true);
 
         // [GIVEN] The My Customer and Customer tables are empty
-        MyCustomer.DeleteAll;
-        Customer.DeleteAll;
+        MyCustomer.DeleteAll();
+        Customer.DeleteAll();
 
         // [GIVEN] Six customers with a balance that is not 0
         CreateCustomerWithBalance(3);
@@ -121,7 +121,7 @@ codeunit 138090 "My Records Demo Setup Test"
         CreateMyCustomerForCurrentUser;
 
         // [GIVEN] The My Item table is empty
-        MyItem.DeleteAll;
+        MyItem.DeleteAll();
 
         // [WHEN] Calling CompanyOpen
         LogInManagement.CompanyOpen;
@@ -144,7 +144,7 @@ codeunit 138090 "My Records Demo Setup Test"
         // [GIVEN] The My Customer and My Item tables are not empty for the current user
         CreateMyCustomerForCurrentUser;
 
-        MyItem.DeleteAll;
+        MyItem.DeleteAll();
         CreateMyItemForCurrentUser;
 
         // [WHEN] Calling CompanyOpen
@@ -171,10 +171,10 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(true);
 
         // [GIVEN] The My Customer, Customer, My Item and Item tables are empty
-        MyCustomer.DeleteAll;
-        Customer.DeleteAll;
-        MyItem.DeleteAll;
-        Item.DeleteAll;
+        MyCustomer.DeleteAll();
+        Customer.DeleteAll();
+        MyItem.DeleteAll();
+        Item.DeleteAll();
 
         // [GIVEN] Seven items with a unit price that is not 0
         CreateItemWithUnitPrice(4);
@@ -224,7 +224,7 @@ codeunit 138090 "My Records Demo Setup Test"
         CreateMyItemForCurrentUser;
 
         // [GIVEN] The My Vendor table is empty
-        MyVendor.DeleteAll;
+        MyVendor.DeleteAll();
 
         // [WHEN] Calling CompanyOpen
         LogInManagement.CompanyOpen;
@@ -248,7 +248,7 @@ codeunit 138090 "My Records Demo Setup Test"
         CreateMyCustomerForCurrentUser;
         CreateMyItemForCurrentUser;
 
-        MyVendor.DeleteAll;
+        MyVendor.DeleteAll();
         CreateMyVendorForCurrentUser;
 
         // [WHEN] Calling CompanyOpen
@@ -277,12 +277,12 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(true);
 
         // [GIVEN] The My Customer, Customer, My Item, Item, My Vendor and Vendor tables are empty
-        MyCustomer.DeleteAll;
-        Customer.DeleteAll;
-        MyItem.DeleteAll;
-        Item.DeleteAll;
-        MyVendor.DeleteAll;
-        Vendor.DeleteAll;
+        MyCustomer.DeleteAll();
+        Customer.DeleteAll();
+        MyItem.DeleteAll();
+        Item.DeleteAll();
+        MyVendor.DeleteAll();
+        Vendor.DeleteAll();
 
         // [GIVEN] Seven vendors with a balance that is not 0
         CreateVendorWithBalance(4);
@@ -331,7 +331,7 @@ codeunit 138090 "My Records Demo Setup Test"
         CreateMyVendorForCurrentUser;
 
         // [GIVEN] The My Account table is empty
-        MyAccount.DeleteAll;
+        MyAccount.DeleteAll();
 
         // [WHEN] Calling CompanyOpen
         LogInManagement.CompanyOpen;
@@ -356,7 +356,7 @@ codeunit 138090 "My Records Demo Setup Test"
         CreateMyItemForCurrentUser;
         CreateMyVendorForCurrentUser;
 
-        MyAccount.DeleteAll;
+        MyAccount.DeleteAll();
         CreateMyAccountForCurrentUser;
 
         // [WHEN] Calling CompanyOpen
@@ -387,14 +387,14 @@ codeunit 138090 "My Records Demo Setup Test"
         Initialize(true);
 
         // [GIVEN] The My Customer, Customer, My Item, Item, My Vendor, Vendor, My Account and G/L Account tables are empty
-        MyCustomer.DeleteAll;
-        Customer.DeleteAll;
-        MyItem.DeleteAll;
-        Item.DeleteAll;
-        MyVendor.DeleteAll;
-        Vendor.DeleteAll;
-        MyAccount.DeleteAll;
-        GLAccount.DeleteAll;
+        MyCustomer.DeleteAll();
+        Customer.DeleteAll();
+        MyItem.DeleteAll();
+        Item.DeleteAll();
+        MyVendor.DeleteAll();
+        Vendor.DeleteAll();
+        MyAccount.DeleteAll();
+        GLAccount.DeleteAll();
 
         // [GIVEN] Seven G/L Accounts that have the Reconciliation Account flag activated
         CreateGLAccountWithReconciliationAccount(true);
@@ -440,17 +440,17 @@ codeunit 138090 "My Records Demo Setup Test"
 
         if CompanyInformation.Get then;
         CompanyInformation."Demo Company" := IsDemoCompany;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     local procedure CreateMyCustomerForCurrentUser()
     var
         MyCustomer: Record "My Customer";
     begin
-        MyCustomer.Init;
+        MyCustomer.Init();
         MyCustomer."Customer No." := Format(PrimaryKeyNo);
         MyCustomer."User ID" := UserId;
-        MyCustomer.Insert;
+        MyCustomer.Insert();
 
         PrimaryKeyNo += 1;
     end;
@@ -460,10 +460,10 @@ codeunit 138090 "My Records Demo Setup Test"
         Customer: Record Customer;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
 
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Entry No." := PrimaryKeyNo;
         DetailedCustLedgEntry.Amount := Balance;
         DetailedCustLedgEntry."Customer No." := Customer."No.";
@@ -478,10 +478,10 @@ codeunit 138090 "My Records Demo Setup Test"
     var
         MyItem: Record "My Item";
     begin
-        MyItem.Init;
+        MyItem.Init();
         MyItem."Item No." := Format(PrimaryKeyNo);
         MyItem."User ID" := UserId;
-        MyItem.Insert;
+        MyItem.Insert();
 
         PrimaryKeyNo += 1;
     end;
@@ -490,7 +490,7 @@ codeunit 138090 "My Records Demo Setup Test"
     var
         Item: Record Item;
     begin
-        Item.Init;
+        Item.Init();
         Item."Unit Price" := UnitPrice;
         Item.Insert(true);
 
@@ -501,10 +501,10 @@ codeunit 138090 "My Records Demo Setup Test"
     var
         MyVendor: Record "My Vendor";
     begin
-        MyVendor.Init;
+        MyVendor.Init();
         MyVendor."Vendor No." := Format(PrimaryKeyNo);
         MyVendor."User ID" := UserId;
-        MyVendor.Insert;
+        MyVendor.Insert();
 
         PrimaryKeyNo += 1;
     end;
@@ -514,10 +514,10 @@ codeunit 138090 "My Records Demo Setup Test"
         Vendor: Record Vendor;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Insert(true);
 
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Entry No." := PrimaryKeyNo;
         DetailedVendorLedgEntry.Amount := Balance;
         DetailedVendorLedgEntry."Vendor No." := Vendor."No.";
@@ -532,10 +532,10 @@ codeunit 138090 "My Records Demo Setup Test"
     var
         MyAccount: Record "My Account";
     begin
-        MyAccount.Init;
+        MyAccount.Init();
         MyAccount."Account No." := Format(PrimaryKeyNo);
         MyAccount."User ID" := UserId;
-        MyAccount.Insert;
+        MyAccount.Insert();
 
         PrimaryKeyNo += 1;
     end;
@@ -544,10 +544,10 @@ codeunit 138090 "My Records Demo Setup Test"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := Format(PrimaryKeyNo);
         GLAccount."Reconciliation Account" := ReconciliationAccount;
-        GLAccount.Insert;
+        GLAccount.Insert();
 
         PrimaryKeyNo += 1;
 

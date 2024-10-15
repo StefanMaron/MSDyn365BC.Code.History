@@ -267,9 +267,9 @@ report 11100 "Fixed Assets - List AT"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 AmountBefore := 0;
                 AmountAfter := 0;
@@ -322,7 +322,7 @@ report 11100 "Fixed Assets - List AT"
                 if "Fixed Asset"."Vendor No." <> '' then
                     Vendor.Get("Fixed Asset"."Vendor No.")
                 else begin
-                    Vendor.Init;
+                    Vendor.Init();
                     Vendor."No." := '';
                 end;
 
@@ -431,7 +431,7 @@ report 11100 "Fixed Assets - List AT"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

@@ -262,7 +262,7 @@ report 5005273 "Issued Delivery Reminder"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
             end;
         }

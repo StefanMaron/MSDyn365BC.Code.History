@@ -654,7 +654,7 @@ codeunit 136114 "Service Order Check"
         CreateAndUpdateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem, ServiceItemLine."Line No.");
         CreateServiceLineWithDescriptionOnly(ServiceHeader, ServiceItemLine."Line No.");
         GetServiceLines(ServiceLine, ServiceHeader."No.", ServiceHeader."Document Type");
-        ServiceLineCount := ServiceLine.Count;
+        ServiceLineCount := ServiceLine.Count();
 
         // 2. Exercise.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1327,12 +1327,13 @@ codeunit 136114 "Service Order Check"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryService.SetupServiceMgtNoSeries;
+        UpdateInventorySetup;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Check");
     end;
 
@@ -1340,9 +1341,9 @@ codeunit 136114 "Service Order Check"
     begin
         FromServiceLine.FindSet;
         repeat
-            ToTempServiceLine.Init;
+            ToTempServiceLine.Init();
             ToTempServiceLine := FromServiceLine;
-            ToTempServiceLine.Insert;
+            ToTempServiceLine.Insert();
         until FromServiceLine.Next = 0
     end;
 
@@ -1696,7 +1697,7 @@ codeunit 136114 "Service Order Check"
         ServiceItemLine.FindSet;
         repeat
             TempServiceItemLine := ServiceItemLine;
-            TempServiceItemLine.Insert;
+            TempServiceItemLine.Insert();
         until ServiceItemLine.Next = 0;
     end;
 
@@ -1817,7 +1818,7 @@ codeunit 136114 "Service Order Check"
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
         TempServiceLine.FindFirst;
-        Amount := Round(TempServiceLine."Line Amount" * CustInvoiceDisc."Discount %" / 100);
+        Amount := Round(TempServiceLine."Line Discount Amount" + (TempServiceLine."Line Amount" * CustInvoiceDisc."Discount %" / 100));
         GeneralPostingSetup.Get(TempServiceLine."Gen. Bus. Posting Group", TempServiceLine."Gen. Prod. Posting Group");
         FindServiceInvoiceHeader(ServiceInvoiceHeader, TempServiceLine."Document No.");
         VerifyAmountOnGLEntry(ServiceInvoiceHeader."No.", GeneralPostingSetup."Sales Inv. Disc. Account", Amount);
@@ -2137,6 +2138,15 @@ codeunit 136114 "Service Order Check"
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
         ServiceShipmentLine.FindFirst;
         ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
+    end;
+
+    local procedure UpdateInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Posting", false);
+        InventorySetup.Modify(true);
     end;
 
     [ModalPageHandler]

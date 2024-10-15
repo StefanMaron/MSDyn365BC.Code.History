@@ -16,7 +16,7 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
         SalesQuoteToInvoice.Run(Rec);
         SalesQuoteToInvoice.GetSalesInvoiceHeader(InvoiceSalesHeader);
 
-        Commit;
+        Commit();
 
         if GuiAllowed then
             if OfficeMgt.AttachAvailable then

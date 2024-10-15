@@ -116,13 +116,14 @@ table 9055 "Purchase Cue"
 
     procedure CountOrders(FieldNumber: Integer): Integer
     var
+        PurchaseHeader: Record "Purchase Header";
         CountPurchOrders: Query "Count Purchase Orders";
         Result: Integer;
     begin
         case FieldNumber of
             FieldNo("Outstanding Purchase Orders"):
                 begin
-                    CountPurchOrders.SetRange(Status, CountPurchOrders.Status::Released);
+                    CountPurchOrders.SetRange(Status, PurchaseHeader.Status::Released);
                     CountPurchOrders.SetRange(Completely_Received, false);
                 end;
             FieldNo("Not Invoiced"):

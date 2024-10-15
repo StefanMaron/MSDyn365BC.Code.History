@@ -181,10 +181,10 @@ report 3010534 "Service - Invoice ESR"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -209,7 +209,7 @@ report 3010534 "Service - Invoice ESR"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Service Invoice Line"; "Service Invoice Line")
@@ -371,10 +371,10 @@ report 3010534 "Service - Invoice ESR"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindFirst then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -399,7 +399,7 @@ report 3010534 "Service - Invoice ESR"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Service Invoice Line"."Dimension Set ID");
                             end;
@@ -414,7 +414,7 @@ report 3010534 "Service - Invoice ESR"
                             if (Type = Type::"G/L Account") and not ShowInternalInfo then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -430,15 +430,15 @@ report 3010534 "Service - Invoice ESR"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
-                            ServiceShipmentBuffer.Reset;
-                            ServiceShipmentBuffer.DeleteAll;
+                            VATAmountLine.DeleteAll();
+                            ServiceShipmentBuffer.Reset();
+                            ServiceShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -510,7 +510,7 @@ report 3010534 "Service - Invoice ESR"
                         trigger OnPreDataItem()
                         begin
                             if VATAmountLine.GetTotalVATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -564,7 +564,7 @@ report 3010534 "Service - Invoice ESR"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(ESR; "Integer")
@@ -752,9 +752,9 @@ report 3010534 "Service - Invoice ESR"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        ServiceSetup.Get();
 
         case ServiceSetup."Logo Position on Documents" of
             ServiceSetup."Logo Position on Documents"::"No Logo":
@@ -763,12 +763,12 @@ report 3010534 "Service - Invoice ESR"
                 CompanyInfo.CalcFields(Picture);
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             ServiceSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -879,7 +879,7 @@ report 3010534 "Service - Invoice ESR"
                 exit(0D);
         end;
 
-        ServiceShipmentBuffer.Reset;
+        ServiceShipmentBuffer.Reset();
         ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
         ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
         if ServiceShipmentBuffer.Find('-') then begin
@@ -887,12 +887,12 @@ report 3010534 "Service - Invoice ESR"
             if ServiceShipmentBuffer.Next = 0 then begin
                 ServiceShipmentBuffer.Get(
                   ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
-                ServiceShipmentBuffer.Delete;
+                ServiceShipmentBuffer.Delete();
                 exit(ServiceShipmentBuffer2."Posting Date");
             end;
             ServiceShipmentBuffer.CalcSums(Quantity);
             if ServiceShipmentBuffer.Quantity <> "Service Invoice Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll;
+                ServiceShipmentBuffer.DeleteAll();
                 exit("Service Invoice Header"."Posting Date");
             end;
         end else
@@ -996,7 +996,7 @@ report 3010534 "Service - Invoice ESR"
         ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity + QtyOnShipment;
-            ServiceShipmentBuffer.Modify;
+            ServiceShipmentBuffer.Modify();
             exit;
         end;
 

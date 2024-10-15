@@ -18,7 +18,6 @@ codeunit 82 "Sales-Post + Print"
         ReceiveInvoiceQst: Label '&Receive,&Invoice,Receive &and Invoice';
         SendReportAsEmail: Boolean;
 
-    [Scope('OnPrem')]
     procedure PostAndEmail(var ParmSalesHeader: Record "Sales Header")
     var
         SalesHeader: Record "Sales Header";
@@ -50,7 +49,7 @@ codeunit 82 "Sales-Post + Print"
 
         OnAfterConfirmPost(SalesHeader);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Post & Print with Job Queue" and not SendReportAsEmail then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
         else begin
@@ -59,7 +58,7 @@ codeunit 82 "Sales-Post + Print"
         end;
 
         OnAfterPost(SalesHeader);
-        Commit;
+        Commit();
     end;
 
     procedure GetReport(var SalesHeader: Record "Sales Header")
@@ -76,7 +75,7 @@ codeunit 82 "Sales-Post + Print"
             case "Document Type" of
                 "Document Type"::Order:
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if Ship and Invoice and not SalesSetup."Shipment on Ship and Invoice" then
                             Ship := false;
                         if Ship then

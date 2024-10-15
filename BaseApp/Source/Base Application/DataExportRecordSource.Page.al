@@ -110,7 +110,7 @@ page 11004 "Data Export Record Source"
                         DataExportManagement: Codeunit "Data Export Management";
                     begin
                         CurrPage.Update(true);
-                        Commit;
+                        Commit();
                         DataExportManagement.UpdateTableRelation(Rec);
                         CurrPage.Update(false);
                     end;

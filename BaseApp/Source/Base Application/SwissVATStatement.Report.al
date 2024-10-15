@@ -50,17 +50,17 @@ report 26100 "Swiss VAT Statement"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Statement Cipher" <> '' then begin
-                        TempVATStmtLine.Reset;
+                        TempVATStmtLine.Reset();
                         TempVATStmtLine.SetRange("VAT Statement Cipher", "VAT Statement Cipher");
                         if not TempVATStmtLine.FindFirst then begin
-                            TempVATStmtLine.Init;
+                            TempVATStmtLine.Init();
                             TempVATStmtLine.TransferFields("VAT Statement Line");
-                            TempVATStmtLine.Insert;
+                            TempVATStmtLine.Insert();
                         end else
                             Error(Text009, "VAT Statement Cipher", "Statement Template Name", "Statement Name");
                         if not TempVATReportLine.Get("VAT Statement Cipher", 0) then begin
                             TempVATReportLine."VAT Report No." := "VAT Statement Cipher";
-                            TempVATReportLine.Insert;
+                            TempVATReportLine.Insert();
                         end;
                     end;
                     CalcLineTotal("VAT Statement Line", TotalAmount, 0);
@@ -554,7 +554,7 @@ report 26100 "Swiss VAT Statement"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GetCheckVATCipherSetup;
             end;
         }
@@ -711,7 +711,7 @@ report 26100 "Swiss VAT Statement"
 
         trigger OnOpenPage()
         begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
         end;
     }
 
@@ -1008,7 +1008,7 @@ report 26100 "Swiss VAT Statement"
     [Scope('OnPrem')]
     procedure CalcVATEntryAmount(VatStmtLineEntrAmt: Record "VAT Statement Line")
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
         then begin
             VATEntry.SetRange("VAT Bus. Posting Group", VatStmtLineEntrAmt."VAT Bus. Posting Group");
@@ -1063,7 +1063,7 @@ report 26100 "Swiss VAT Statement"
     procedure ValidateClosedRgstrNo()
     begin
         if ClosedRgstrNo <> 0 then begin
-            GLReg.Reset;
+            GLReg.Reset();
             GLReg.SetRange("Source Code", SourceCodeSetup."VAT Settlement");
             GLReg.SetRange("No.", ClosedRgstrNo);
             if GLReg.IsEmpty then
@@ -1076,7 +1076,7 @@ report 26100 "Swiss VAT Statement"
     [Scope('OnPrem')]
     procedure LookUpClosedRgstrNo(var Text: Text[1024]): Boolean
     begin
-        GLReg.Reset;
+        GLReg.Reset();
         GLReg.FilterGroup(2);
         GLReg.SetRange("Source Code", SourceCodeSetup."VAT Settlement");
         GLReg.FilterGroup(0);
@@ -1121,7 +1121,7 @@ report 26100 "Swiss VAT Statement"
             exit;
 
         TempVATReportLine.Amount := Amount;
-        TempVATReportLine.Modify;
+        TempVATReportLine.Modify();
     end;
 
     local procedure GetCheckVATCipherSetup()
@@ -1130,7 +1130,7 @@ report 26100 "Swiss VAT Statement"
         RecordRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        VATCipherSetup.Get;
+        VATCipherSetup.Get();
         RecordRef.GetTable(VATCipherSetup);
         Fields.SetRange(TableNo, DATABASE::"VAT Cipher Setup");
         Fields.SetFilter(ObsoleteState, '<>%1', Fields.ObsoleteState::Removed);

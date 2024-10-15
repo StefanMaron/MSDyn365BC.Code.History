@@ -115,7 +115,7 @@ report 3010832 "LSV Collection Journal"
             trigger OnAfterGetRecord()
             begin
                 if ("Customer No." = '') and ("Collection Amount" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 xTxt := '';
                 BankAcc := '';
@@ -157,7 +157,7 @@ report 3010832 "LSV Collection Journal"
                     xTxt := Text005;
 
                 // Cust. Bank
-                DebBank.Reset;
+                DebBank.Reset();
                 DebBank.SetRange("Customer No.", "Customer No.");
                 if DebBank.Count > 1 then
                     DebBank.SetRange(Code, LsvSetup."LSV Customer Bank Code");

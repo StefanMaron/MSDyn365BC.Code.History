@@ -110,7 +110,7 @@ report 11015 "Export Business Data"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -222,7 +222,7 @@ report 11015 "Export Business Data"
             RecordRef.Open("Table No.");
             RecordRef.CurrentKeyIndex("Key No.");
             SetPeriodFilter("Period Field No.", RecordRef);
-            TotalRecords := RecordRef.Count;
+            TotalRecords := RecordRef.Count();
             RecordRef.Close;
         end;
     end;
@@ -326,7 +326,7 @@ report 11015 "Export Business Data"
     begin
         with DataExportRecordSource do
             if RecRef.FindSet then begin
-                NoOfRecordsArr[Indentation] += RecRef.Count;
+                NoOfRecordsArr[Indentation] += RecRef.Count();
                 if GuiAllowed then
                     Window.Update(1, RecRef.Caption);
                 repeat
@@ -379,7 +379,7 @@ report 11015 "Export Business Data"
             SetRange("Data Exp. Rec. Type Code", ParentDataExportRecordSource."Data Exp. Rec. Type Code");
             SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
             if FindSet then begin
-                DataExportTableRelation.Reset;
+                DataExportTableRelation.Reset();
                 DataExportTableRelation.SetRange("Data Export Code", "Data Export Code");
                 DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                 DataExportTableRelation.SetRange("From Table No.", ParentDataExportRecordSource."Table No.");
@@ -482,7 +482,7 @@ report 11015 "Export Business Data"
         i: Integer;
         j: Integer;
     begin
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", ExportCode);
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", RecordCode);
         if DataExportRecordSource.FindSet then
@@ -545,7 +545,7 @@ report 11015 "Export Business Data"
         DataExportRecordField: Record "Data Export Record Field";
     begin
         if DataExportRecordSource."Date Filter Handling" <> DataExportRecordSource."Date Filter Handling"::" " then begin
-            DataExportRecordField.Init;
+            DataExportRecordField.Init();
             DataExportRecordField."Table No." := DataExportRecordSource."Table No.";
             DataExportRecordField."Date Filter Handling" := DataExportRecordSource."Date Filter Handling";
             SetFlowFilterDateField(DataExportRecordField, DataExportRecordSource."Date Filter Field No.", RecRef);
@@ -559,7 +559,7 @@ report 11015 "Export Business Data"
         if DateFilterFieldNo > 0 then
             SetFlowFilter(DateFilterFieldNo, DataExportRecordField."Date Filter Handling", RecRef)
         else begin
-            Field.Reset;
+            Field.Reset();
             Field.SetRange(TableNo, DataExportRecordField."Table No.");
             Field.SetRange(Type, Field.Type::Date);
             Field.SetRange(Class, Field.Class::FlowFilter);

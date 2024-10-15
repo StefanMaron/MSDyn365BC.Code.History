@@ -113,7 +113,7 @@ report 3010536 "Adjust Exchange Rates G/L"
 
                 // Prepare line in GL journal
                 if PrepareGlLines and (Correction <> 0) then begin
-                    GlLine.Init;
+                    GlLine.Init();
                     GlLine."Journal Template Name" := GenJourTemplate.Name;
                     GlLine."Journal Batch Name" := GenJourBatch.Name;
                     LastLineNo := LastLineNo + 10000;
@@ -125,7 +125,7 @@ report 3010536 "Adjust Exchange Rates G/L"
                     GlLine."Account No." := "G/L Account"."No.";
                     GlLine.Validate("Posting Date", KeyDate);
 
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     GlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
                     GlLine.Description :=
                       StrSubstNo(Text007, "Currency Code", "No.", KeyDate);
@@ -135,7 +135,7 @@ report 3010536 "Adjust Exchange Rates G/L"
                         GlLine.Validate("Bal. Account No.", Currency."Realized Losses Acc.");
                     GlLine."Amount (LCY)" := Correction;
                     GlLine.Validate(Amount, Correction);
-                    GlLine.Modify;
+                    GlLine.Modify();
                     LinesCreated := LinesCreated + 1;
                 end;
             end;
@@ -248,7 +248,7 @@ report 3010536 "Adjust Exchange Rates G/L"
             if GlLine.FindFirst then
                 Error(Text002, GenJourBatch.Name);
             GlLine.SetRange("Account No.");
-            GlLine.DeleteAll;
+            GlLine.DeleteAll();
         end;
     end;
 

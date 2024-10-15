@@ -77,7 +77,7 @@ codeunit 1100 "Cost Account Mgt"
                     Window.Update(1, "No.");
                     NoOfGLAcc := NoOfGLAcc + 1;
 
-                    CostType.Init;
+                    CostType.Init();
                     CostType."No." := "No.";
                     CostType.Name := Name;
                     CostType."Search Name" := "Search Name";
@@ -100,7 +100,7 @@ codeunit 1100 "Cost Account Mgt"
                         CostType."G/L Account Range" := '';
                     OnGetCostTypesFromChartDirectOnBeforeCostTypeInsert(GLAcc, CostType, CostTypeExists);
                     if not CostTypeExists then
-                        if CostType.Insert then begin
+                        if CostType.Insert() then begin
                             RecsCreated := RecsCreated + 1;
                             "Cost Type No." := "No.";
                         end;
@@ -165,7 +165,7 @@ codeunit 1100 "Cost Account Mgt"
                         UpdateCostType := IsGLAccNoFirstFromRange(CostType, "No.")
                     else begin
                         CostType."No." := "No.";
-                        UpdateCostType := CostType.Insert;
+                        UpdateCostType := CostType.Insert();
                     end;
 
                     if UpdateCostType then begin
@@ -188,7 +188,7 @@ codeunit 1100 "Cost Account Mgt"
                         else
                             CostType."G/L Account Range" := '';
 
-                        CostType.Modify;
+                        CostType.Modify();
                         "Cost Type No." := CostType."No.";
                     end;
                 end;
@@ -199,7 +199,7 @@ codeunit 1100 "Cost Account Mgt"
                     if CostType.Get(xGLAcc."No.") then begin
                         CostType.Rename(GLAcc."No.");
                         CostType."G/L Account Range" := GLAcc."No.";
-                        CostType.Modify;
+                        CostType.Modify();
                         GLAcc."Cost Type No." := GLAcc."No.";
                     end else
                         exit;
@@ -216,7 +216,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostCenter: Record "Cost Center";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if not CanUpdate(CostAccSetup."Align Cost Center Dimension", CostAccSetup."Align Cost Center Dimension"::"No Alignment",
              CostAccSetup."Align Cost Center Dimension"::Prompt, DimValue, CostAccSetup."Cost Center Dimension", CallingTrigger,
              CostCenter.TableCaption)
@@ -256,7 +256,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostObject: Record "Cost Object";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if not CanUpdate(CostAccSetup."Align Cost Object Dimension", CostAccSetup."Align Cost Object Dimension"::"No Alignment",
              CostAccSetup."Align Cost Object Dimension"::Prompt, DimValue, CostAccSetup."Cost Object Dimension", CallingTrigger,
              CostObject.TableCaption)
@@ -296,7 +296,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostType: Record "Cost Type";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
 
         with GLAcc do
             if CostType.Get("Cost Type No.") then begin
@@ -317,7 +317,7 @@ codeunit 1100 "Cost Account Mgt"
                     else
                         CostType."Cost Object Code" := '';
 
-                CostType.Modify;
+                CostType.Modify();
             end;
     end;
 
@@ -376,8 +376,8 @@ codeunit 1100 "Cost Account Mgt"
     begin
         Window.Open(Text008);
 
-        GLAcc.Reset;
-        CostType.Reset;
+        GLAcc.Reset();
+        CostType.Reset();
         GLAcc.ModifyAll("Cost Type No.", '');
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetFilter("G/L Account Range", '<>%1', '');
@@ -395,7 +395,7 @@ codeunit 1100 "Cost Account Mgt"
                         end;
                         GLAcc."Cost Type No." := CostType."No.";
                         NoOfGLAcc := NoOfGLAcc + 1;
-                        GLAcc.Modify;
+                        GLAcc.Modify();
                     until GLAcc.Next = 0;
             until CostType.Next = 0;
 
@@ -407,7 +407,7 @@ codeunit 1100 "Cost Account Mgt"
         CostCenter: Record "Cost Center";
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if not Confirm(Text021, true, CostAccSetup."Cost Center Dimension") then
             Error('');
 
@@ -520,7 +520,7 @@ codeunit 1100 "Cost Account Mgt"
         CostObject: Record "Cost Object";
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if not Confirm(Text022, true, CostAccSetup."Cost Object Dimension") then
             Error('');
 
@@ -667,7 +667,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if DimSetEntry.Get(DimSetID, CostAccSetup."Cost Center Dimension") then
             exit(DimSetEntry."Dimension Value Code");
         exit('');
@@ -677,7 +677,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DefaultDim: Record "Default Dimension";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if DefaultDim.Get(TableID, No, CostAccSetup."Cost Center Dimension") then
             exit(DefaultDim."Dimension Value Code");
     end;
@@ -693,7 +693,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         exit(DimValue.Get(CostAccSetup."Cost Center Dimension", CostCenterCode));
     end;
 
@@ -701,7 +701,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         DimValue.LookupDimValue(CostAccSetup."Cost Center Dimension", CostCenterCode);
     end;
 
@@ -709,7 +709,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if DimSetEntry.Get(DimSetID, CostAccSetup."Cost Object Dimension") then
             exit(DimSetEntry."Dimension Value Code");
         exit('');
@@ -719,7 +719,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DefaultDim: Record "Default Dimension";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if DefaultDim.Get(TableID, No, CostAccSetup."Cost Object Dimension") then
             exit(DefaultDim."Dimension Value Code");
     end;
@@ -735,7 +735,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         exit(DimValue.Get(CostAccSetup."Cost Object Dimension", CostObjectCode));
     end;
 
@@ -743,7 +743,7 @@ codeunit 1100 "Cost Account Mgt"
     var
         DimValue: Record "Dimension Value";
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         DimValue.LookupDimValue(CostAccSetup."Cost Object Dimension", COstObjectCode);
     end;
 
@@ -773,7 +773,7 @@ codeunit 1100 "Cost Account Mgt"
         if IsHandled then
             exit;
 
-        CostCenter.Init;
+        CostCenter.Init();
         CostCenter.Code := DimValue.Code;
         CostCenter.Name := DimValue.Name;
         CostCenter."Line Type" := DimValue."Dimension Value Type";
@@ -806,7 +806,7 @@ codeunit 1100 "Cost Account Mgt"
         if IsHandled then
             exit;
 
-        CostObject.Init;
+        CostObject.Init();
         CostObject.Code := DimValue.Code;
         CostObject.Name := DimValue.Name;
         CostObject."Line Type" := DimValue."Dimension Value Type";
@@ -817,12 +817,12 @@ codeunit 1100 "Cost Account Mgt"
     var
         CostBudgetReg: Record "Cost Budget Register";
     begin
-        CostBudgetReg.LockTable;
+        CostBudgetReg.LockTable();
         if CostBudgetReg.FindLast then
             CostBudgetReg."No." := CostBudgetReg."No." + 1
         else
             CostBudgetReg."No." := 1;
-        CostBudgetReg.Init;
+        CostBudgetReg.Init();
         CostBudgetReg.Source := CostBudgetReg.Source::Manual;
         CostBudgetReg."From Cost Budget Entry No." := CostBudgetEntryNo;
         CostBudgetReg."To Cost Budget Entry No." := CostBudgetEntryNo;
@@ -831,7 +831,7 @@ codeunit 1100 "Cost Account Mgt"
         CostBudgetReg.Amount := CostBudgetAmount;
         CostBudgetReg."Processed Date" := Today;
         CostBudgetReg."User ID" := UserId;
-        CostBudgetReg.Insert;
+        CostBudgetReg.Insert();
 
         exit(CostBudgetReg."No.");
     end;
@@ -863,7 +863,7 @@ codeunit 1100 "Cost Account Mgt"
 
     local procedure CheckAlignment(var GLAcc: Record "G/L Account"; CallingTrigger: Option): Boolean
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
 
         if CostAccSetup."Align G/L Account" = CostAccSetup."Align G/L Account"::"No Alignment" then
             exit(false);
@@ -891,16 +891,16 @@ codeunit 1100 "Cost Account Mgt"
         GLAcc: Record "G/L Account";
         CostType: Record "Cost Type";
     begin
-        CostType.Reset;
+        CostType.Reset();
         CostType.SetRange("No.", GLAccNo);
         if CostType.IsEmpty then begin
             CostTypeExists := false;
-            CostType.Reset;
+            CostType.Reset();
             CostType.SetRange(Type, CostType.Type::"Cost Type");
             CostType.SetFilter("G/L Account Range", '<>%1', '');
             if CostType.FindSet then
                 repeat
-                    GLAcc.Reset;
+                    GLAcc.Reset();
                     GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
                     GLAcc.SetFilter("No.", CostType."G/L Account Range");
                     if GLAcc.FindSet then
@@ -919,7 +919,7 @@ codeunit 1100 "Cost Account Mgt"
         RecRef: RecordRef;
         DimCode: Code[20];
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         RecRef.GetTable(CostAccSetup);
         FieldRef := RecRef.Field(FieldNo);
         Evaluate(DimCode, Format(FieldRef.Value));

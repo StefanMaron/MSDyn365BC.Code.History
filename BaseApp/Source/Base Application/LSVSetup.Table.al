@@ -299,7 +299,7 @@ table 3010831 "LSV Setup"
     trigger OnInsert()
     begin
         if "LSV Sender Name" = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             "LSV Sender Name" := Format(CompanyInfo.Name, -MaxStrLen("LSV Sender Name"));
             "LSV Sender Name 2" := Format(CompanyInfo."Name 2", -MaxStrLen("LSV Sender Name 2"));
             "LSV Sender Address" := Format(CompanyInfo.Address, -MaxStrLen("LSV Sender Address"));

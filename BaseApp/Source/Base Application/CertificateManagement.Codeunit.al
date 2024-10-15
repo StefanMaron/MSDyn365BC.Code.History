@@ -29,9 +29,22 @@ codeunit 1259 "Certificate Management"
         FileName := FileManagement.BLOBImportWithFilter(TempBlob, SelectFileTxt, FileName, CertFileFilterTxt, CertExtFilterTxt);
         if FileName = '' then
             Error('');
-	
+
         UploadedCertFileName := FileManagement.GetFileName(FileName);
         exit(VerifyCert(IsolatedCertificate));
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitIsolatedCertificateFromBlob(var IsolatedCertificate: Record "Isolated Certificate"; NewTempBlob: Codeunit "Temp Blob"): Boolean
+    begin
+        TempBlob := NewTempBlob;
+        if not VerifyCert(IsolatedCertificate) then
+            exit(false);
+
+        DeleteCertAndPasswordFromIsolatedStorage(IsolatedCertificate);
+        SaveCertToIsolatedStorage(IsolatedCertificate);
+        SavePasswordToIsolatedStorage(IsolatedCertificate);
+        exit(true);
     end;
 
     [Scope('OnPrem')]
@@ -78,7 +91,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
-    procedure SavePasswordToIsolatedStorage(IsolatedCertificate: Record "Isolated Certificate")
+    procedure SavePasswordToIsolatedStorage(var IsolatedCertificate: Record "Isolated Certificate")
     begin
         with IsolatedCertificate do begin
             if Password <> '' then begin
@@ -95,14 +108,28 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetPasswordAsSecureString(var DotNet_SecureString: Codeunit DotNet_SecureString; IsolatedCertificate: Record "Isolated Certificate")
     var
         DotNetHelper_SecureString: Codeunit DotNetHelper_SecureString;
         StoredPassword: Text;
     begin
         StoredPassword := '';
-        if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
+        GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
         DotNetHelper_SecureString.SecureStringFromString(DotNet_SecureString, StoredPassword);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetPassword(IsolatedCertificate: Record "Isolated Certificate") StoredPassword: Text
+    begin
+        GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
+    end;
+
+    [NonDebuggable]
+    local procedure GetPasswordFromIsolatedStorage(var StoredPassword: Text; IsolatedCertificate: Record "Isolated Certificate")
+    begin
+        if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
     end;
 
     [Scope('OnPrem')]

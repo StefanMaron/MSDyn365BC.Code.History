@@ -41,7 +41,7 @@ table 1827 "Business Unit Setup"
         if not Company.FindSet then
             exit;
 
-        Language.Init;
+        Language.Init();
 
         if Company.FindSet then
             repeat

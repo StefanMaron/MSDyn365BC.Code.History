@@ -70,7 +70,7 @@ report 1085 "Job Post WIP to G/L"
                 PostingDate := WorkDate;
             DocNo := '';
 
-            JobsSetup.Get;
+            JobsSetup.Get();
 
             JobsSetup.TestField("Job Nos.");
             NoSeriesMgt.InitSeries(JobsSetup."Job WIP Nos.", JobsSetup."Job WIP Nos.", 0D, DocNo, NewNoSeriesCode);
@@ -86,7 +86,7 @@ report 1085 "Job Post WIP to G/L"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
         Message(WIPSuccessfullyPostedMsg);
     end;
 
@@ -94,7 +94,7 @@ report 1085 "Job Post WIP to G/L"
     var
         NewNoSeriesCode: Code[20];
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
 
         if DocNo = '' then begin
             JobsSetup.TestField("Job Nos.");

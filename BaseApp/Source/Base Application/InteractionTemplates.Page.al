@@ -55,7 +55,7 @@ page 5075 "Interaction Templates"
                             else
                                 InteractTmplLanguage.CreateAttachment;
                         end else begin
-                            InteractTmplLanguage.Init;
+                            InteractTmplLanguage.Init();
                             InteractTmplLanguage."Interaction Template Code" := Code;
                             InteractTmplLanguage."Language Code" := "Language Code (Default)";
                             InteractTmplLanguage.Description := Description;
@@ -200,7 +200,7 @@ page 5075 "Interaction Templates"
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
-                            InteractTemplLanguage.Init;
+                            InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
                             InteractTemplLanguage."Language Code" := "Language Code (Default)";
                             InteractTemplLanguage.Description := Description;
@@ -222,12 +222,12 @@ page 5075 "Interaction Templates"
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
-                            InteractTemplLanguage.Init;
+                            InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
                             InteractTemplLanguage."Language Code" := "Language Code (Default)";
                             InteractTemplLanguage.Description := Description;
-                            InteractTemplLanguage.Insert;
-                            Commit;
+                            InteractTemplLanguage.Insert();
+                            Commit();
                         end;
                         InteractTemplLanguage.CopyFromAttachment;
                         CurrPage.Update;
@@ -246,11 +246,11 @@ page 5075 "Interaction Templates"
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
-                            InteractTemplLanguage.Init;
+                            InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
                             InteractTemplLanguage."Language Code" := "Language Code (Default)";
                             InteractTemplLanguage.Description := Description;
-                            InteractTemplLanguage.Insert;
+                            InteractTemplLanguage.Insert();
                         end;
                         InteractTemplLanguage.ImportAttachment;
                         CurrPage.Update;

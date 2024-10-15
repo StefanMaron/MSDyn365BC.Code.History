@@ -137,7 +137,7 @@ report 11569 "SR Cust. Paymt List FCY Amount"
             trigger OnAfterGetRecord()
             begin
                 if not ("Document Type" in ["Document Type"::Payment]) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalcFields("Original Amt. (LCY)");
 
@@ -179,7 +179,7 @@ report 11569 "SR Cust. Paymt List FCY Amount"
                 if Sorting = Sorting::Chronological then
                     "Cust. Ledger Entry".SetCurrentKey("Entry No.");
 
-                GlSetup.Get;
+                GlSetup.Get();
                 Clear(PmtDiscLCY);
                 Clear(PaymentLCY);
                 Clear(NoOfRSPG);

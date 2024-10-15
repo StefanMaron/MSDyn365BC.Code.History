@@ -31,13 +31,13 @@ report 3010833 "LSV Close Collection"
             trigger OnPostDataItem()
             begin
                 // Write LSV journal entry
-                LsvJournal.LockTable;
+                LsvJournal.LockTable();
                 LsvJournal."LSV Bank Code" := LsvSetup."Bank Code";
                 LsvJournal."Credit Date" := CollectionDate;
                 LsvJournal."Collection Completed On" := Today;
                 LsvJournal."Collection Completed By" := UserId;
                 LsvJournal."LSV Status" := LsvJournal."LSV Status"::Released;
-                LsvJournal.Modify;
+                LsvJournal.Modify();
 
                 Message(Text012, LsvJournal."No.", NoOfLines, LsvSetup."LSV Currency Code", TotalAmt);
             end;
@@ -194,7 +194,7 @@ report 3010833 "LSV Close Collection"
                  NewCashDiscAmt)
             then begin
                 CustLedgEntry."Remaining Pmt. Disc. Possible" := NewCashDiscAmt;
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
             end else
                 Error(Text004);
         end;

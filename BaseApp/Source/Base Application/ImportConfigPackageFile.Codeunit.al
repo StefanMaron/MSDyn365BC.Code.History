@@ -26,7 +26,7 @@ codeunit 1799 "Import Config. Package File"
                 InsertLogEntry(JobQueueLogEntry);
                 FinalizeLogEntry(JobQueueLogEntry);
             end;
-            Commit;
+            Commit();
             Error(GetLastErrorText);
         end;
     end;

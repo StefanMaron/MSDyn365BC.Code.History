@@ -111,7 +111,7 @@ report 11505 "SR Item Acc Sheet Net Change"
                     if StartDate > 0D then
                         SetRange("Posting Date", 0D, StartDate - 1)
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
@@ -167,7 +167,7 @@ report 11505 "SR Item Acc Sheet Net Change"
                 trigger OnAfterGetRecord()
                 begin
                     if Quantity = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     CalcValues("Item Ledger Entry");
                     EntryNo := EntryNo + 1;

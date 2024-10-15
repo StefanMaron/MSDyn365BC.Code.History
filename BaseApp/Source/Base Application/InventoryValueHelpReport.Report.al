@@ -62,7 +62,7 @@ report 11517 "Inventory Value (Help Report)"
             begin
                 SetRange("Date Filter", 0D, StatusDate);
                 CalcFields("Net Change");
-                ValueEntry.Init;
+                ValueEntry.Init();
 
                 ItemLedgEntry.SetRange("Item No.", "No.");
                 ItemLedgEntry.SetFilter("Variant Code", GetFilter("Variant Filter"));
@@ -71,7 +71,7 @@ report 11517 "Inventory Value (Help Report)"
                 ItemLedgEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
 
                 if ItemLedgEntry.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if ItemLedgEntry.FindSet then
                     repeat
@@ -102,7 +102,7 @@ report 11517 "Inventory Value (Help Report)"
             begin
                 if not FirstLoop then
                     if TempItemStatisticsBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 FirstLoop := false;
             end;
@@ -111,7 +111,7 @@ report 11517 "Inventory Value (Help Report)"
             begin
                 FirstLoop := true;
                 if not TempItemStatisticsBuffer.FindSet then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -197,7 +197,7 @@ report 11517 "Inventory Value (Help Report)"
 
                 BufferRecExists := TempItemStatisticsBuffer.Get("Inventory Posting Group");
                 if not BufferRecExists then begin
-                    TempItemStatisticsBuffer.Init;
+                    TempItemStatisticsBuffer.Init();
                     TempItemStatisticsBuffer.Code := "Inventory Posting Group";
                 end;
 
@@ -214,7 +214,7 @@ report 11517 "Inventory Value (Help Report)"
                 if BufferRecExists then
                     TempItemStatisticsBuffer.Modify
                 else
-                    TempItemStatisticsBuffer.Insert;
+                    TempItemStatisticsBuffer.Insert();
             end;
         end;
     end;

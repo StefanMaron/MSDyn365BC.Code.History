@@ -1,4 +1,4 @@
-﻿page 5163 "Sales Quote Archive Subform"
+page 5163 "Sales Quote Archive Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -285,10 +285,7 @@
     }
 
     trigger OnAfterGetRecord()
-    var
-        DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
         DescriptionIndent := 0;
         DescriptionOnFormat;
         LineAmountOnFormat(Format("Line Amount"));
@@ -296,7 +293,7 @@
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility();
+        SetDimensionsVisibility;
     end;
 
     var

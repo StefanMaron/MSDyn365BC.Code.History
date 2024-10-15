@@ -1,6 +1,9 @@
 table 1304 "Sales Price and Line Disc Buff"
 {
     Caption = 'Sales Price and Line Disc Buff';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -25,6 +28,8 @@ table 1304 "Sales Price and Line Disc Buff"
                     Type::"Item Disc. Group":
                         if PAGE.RunModal(PAGE::"Item Disc. Groups", ItemDiscountGroup) = ACTION::LookupOK then
                             Validate(Code, ItemDiscountGroup.Code);
+                    else
+                        OnLookupCodeCaseElse();
                 end;
             end;
 
@@ -194,12 +199,10 @@ table 1304 "Sales Price and Line Disc Buff"
                 Validate("Starting Date");
             end;
         }
-        field(21; Type; Option)
+        field(21; Type; Enum "Sales Line Discount Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Item,Item Disc. Group';
-            OptionMembers = Item,"Item Disc. Group";
 
             trigger OnValidate()
             begin
@@ -217,6 +220,8 @@ table 1304 "Sales Price and Line Disc Buff"
                                 Validate(Code, "Loaded Disc. Group");
                             end;
                         end;
+                    else
+                        OnValidateTypeCaseElse();
                 end;
             end;
         }
@@ -350,6 +355,8 @@ table 1304 "Sales Price and Line Disc Buff"
         ItemNotInDiscGrErr: Label 'This item is not assigned to any discount group, therefore a discount group could not be used in context of this item.';
         IncludeVATQst: Label 'One or more of the sales prices do not include VAT.\Do you want to update all sales prices to include VAT?';
         ExcludeVATQst: Label 'One or more of the sales prices include VAT.\Do you want to update all sales prices to exclude VAT?';
+        PricesAndDiscountsCountLbl: Label 'Prices and Discounts', Locked = true;
+        PricesAndDiscountsCountMsg: Label 'Total count of Prices and Discounts loaded are: %1', Locked = true;
 
     local procedure UpdateValuesFromItem()
     var
@@ -374,7 +381,7 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesLineDiscountItemGroup: Record "Sales Line Discount";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         "Loaded Item No." := Item."No.";
         "Loaded Disc. Group" := Item."Item Disc. Group";
@@ -389,12 +396,14 @@ table 1304 "Sales Price and Line Disc Buff"
         LoadSalesLineDiscount(SalesLineDiscountItemGroup);
 
         if FindFirst then;
+
+        SendTraceTag('0000AI4', PricesAndDiscountsCountLbl, VERBOSITY::Normal, StrSubstNo(PricesAndDiscountsCountMsg, Count), DATACLASSIFICATION::SystemMetadata);
     end;
 
     procedure LoadDataForCustomer(Customer: Record Customer)
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         "Loaded Customer No." := Customer."No.";
         "Loaded Disc. Group" := Customer."Customer Disc. Group";
@@ -409,6 +418,8 @@ table 1304 "Sales Price and Line Disc Buff"
         LoadSalesLineDiscForCustDiscGr;
 
         GetCustomerCampaignSalesPrice;
+
+        SendTraceTag('0000AI3', PricesAndDiscountsCountLbl, VERBOSITY::Normal, StrSubstNo(PricesAndDiscountsCountMsg, Count), DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure LoadSalesLineDiscForCustomer()
@@ -552,7 +563,7 @@ table 1304 "Sales Price and Line Disc Buff"
     var
         SalesPrice: Record "Sales Price";
     begin
-        SalesPrice.Init;
+        SalesPrice.Init();
 
         SalesPrice."Item No." := Code;
         SalesPrice."Sales Code" := "Sales Code";
@@ -578,7 +589,7 @@ table 1304 "Sales Price and Line Disc Buff"
     var
         SalesLineDiscount: Record "Sales Line Discount";
     begin
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
 
         SalesLineDiscount.Code := Code;
         SalesLineDiscount.Type := Type;
@@ -830,9 +841,9 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         if SegmentLine.FindSet then
             repeat
-                TempCampaign.Init;
+                TempCampaign.Init();
                 TempCampaign."No." := SegmentLine."Campaign No.";
-                if TempCampaign.Insert then;
+                if TempCampaign.Insert() then;
             until SegmentLine.Next = 0;
     end;
 
@@ -868,6 +879,16 @@ table 1304 "Sales Price and Line Disc Buff"
 
     [IntegrationEvent(false, false)]
     local procedure OnLoadSalesPriceOnBeforeInsert(var SalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff"; SalesPrice: Record "Sales Price")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupCodeCaseElse()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateTypeCaseElse()
     begin
     end;
 }

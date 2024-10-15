@@ -1,4 +1,4 @@
-﻿page 1003 "Job Task Card"
+page 1003 "Job Task Card"
 {
     Caption = 'Job Task Card';
     DataCaptionExpression = Caption;

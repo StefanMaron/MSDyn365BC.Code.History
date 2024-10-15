@@ -171,7 +171,7 @@ report 99000762 "Prod. Order - Job Card"
                 ProdOrderRoutingLine.SetRange(Status, Status);
                 ProdOrderRoutingLine.SetRange("Prod. Order No.", "No.");
                 if not ProdOrderRoutingLine.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

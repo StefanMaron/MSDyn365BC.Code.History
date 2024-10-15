@@ -37,7 +37,7 @@ codeunit 135151 "Data Class. Notification Tests"
 
         LibraryLowerPermissions.SetO365BusFull;
         Clear(LibraryVariableStorage);
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         // [GIVEN] The company is not an EU company
         // [GIVEN] The company is a demo company
@@ -47,12 +47,12 @@ codeunit 135151 "Data Class. Notification Tests"
         // [GIVEN] There is a Customer in EU
         CountryRegion.Code := 'MYCODE';
         CountryRegion."EU Country/Region Code" := 'MYCODE';
-        CountryRegion.Insert;
+        CountryRegion.Insert();
 
         LibrarySales.CreateCustomer(Customer);
         Customer."Partner Type" := Customer."Partner Type"::Person;
         Customer."Country/Region Code" := 'MYCODE';
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] Busines Manager Role Center Opens
         BusinessManagerRoleCenter.OpenView;
@@ -77,15 +77,15 @@ codeunit 135151 "Data Class. Notification Tests"
         SetCompanyInEU(true);
 
         // [GIVEN] User has not classified any fields
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         // [GIVEN] There are no Data Privacy Entities
-        Customer.DeleteAll;
-        Vendor.DeleteAll;
-        Contact.DeleteAll;
-        SalespersonPurchaser.DeleteAll;
-        Employee.DeleteAll;
-        Resource.DeleteAll;
+        Customer.DeleteAll();
+        Vendor.DeleteAll();
+        Contact.DeleteAll();
+        SalespersonPurchaser.DeleteAll();
+        Employee.DeleteAll();
+        Resource.DeleteAll();
 
         // [WHEN] Busines Manager Role Center Opens
         BusinessManagerRoleCenter.OpenView;
@@ -96,12 +96,12 @@ codeunit 135151 "Data Class. Notification Tests"
         BusinessManagerRoleCenter.Close;
 
         // [GIVEN] User has not classified any fields
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         // [GIVEN] At least one entity exists
         Customer."No." := '1';
         Customer.Name := 'Customer1';
-        Customer.Insert;
+        Customer.Insert();
 
         // [WHEN] Busines Manager Role Center Opens
         BusinessManagerRoleCenter.OpenView;
@@ -131,7 +131,7 @@ codeunit 135151 "Data Class. Notification Tests"
         SetCompanyInEU(false);
 
         // [GIVEN] User has unclassified fields
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
         DataClassificationMgt.InsertDataSensitivityForField(3, 1, DataSensitivity."Data Sensitivity"::Unclassified);
 
         // [WHEN] Busines Manager Role Center Opens
@@ -164,7 +164,7 @@ codeunit 135151 "Data Class. Notification Tests"
         SetCompanyInEU(false);
 
         // [GIVEN] User has classified some fields
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
         DataClassificationMgt.InsertDataSensitivityForField(3, 1, DataSensitivity."Data Sensitivity"::Personal);
 
         // [GIVEN] 30 days have pass since last sync
@@ -229,7 +229,7 @@ codeunit 135151 "Data Class. Notification Tests"
         LibraryLowerPermissions.SetO365BusFull;
 
         // [GIVEN] Three entries in the Data Sensitivity table - one classified and two unclassified
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
         DataClassificationMgt.InsertDataSensitivityForField(27, 4, DataSensitivity."Data Sensitivity"::Unclassified);
         DataClassificationMgt.InsertDataSensitivityForField(18, 3, DataSensitivity."Data Sensitivity"::"Company Confidential");
         DataClassificationMgt.InsertDataSensitivityForField(25, 5, DataSensitivity."Data Sensitivity"::Unclassified);
@@ -270,9 +270,9 @@ codeunit 135151 "Data Class. Notification Tests"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := SetToDemo;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     local procedure SetCompanyInEU(IsEU: Boolean)
@@ -280,18 +280,18 @@ codeunit 135151 "Data Class. Notification Tests"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if not IsEU then
             CompanyInformation."Country/Region Code" := 'NotEUCode'
         else begin
-            CountryRegion.Init;
+            CountryRegion.Init();
             CountryRegion.Code := 'EUCode';
             CountryRegion."EU Country/Region Code" := 'EUCode';
-            CountryRegion.Insert;
+            CountryRegion.Insert();
             CompanyInformation."Country/Region Code" := 'EUCode';
         end;
 
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 }
 

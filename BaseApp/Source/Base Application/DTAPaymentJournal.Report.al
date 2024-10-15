@@ -201,7 +201,7 @@ report 3010545 "DTA Payment Journal"
             trigger OnAfterGetRecord()
             begin
                 if ("Account No." = '') and (Amount = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if oldAccNo <> "Account No." then begin
                     oldAccNo := "Account No.";
@@ -378,7 +378,7 @@ report 3010545 "DTA Payment Journal"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

@@ -58,7 +58,7 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [GIVEN] No Whse Employee set for current user
         WarehouseEmployee.SetRange("User ID", UserId);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
 
         // [WHEN] GetAllowedLocation(X)
         Location.FindFirst;
@@ -102,7 +102,7 @@ codeunit 137407 "SCM Warehouse IV"
         // [GIVEN] Whse Employee is not set for current user and location A, location B - default
         CreateWhseLocations(LocationCode);
         WarehouseEmployee.Get(UserId, LocationCode[1]);
-        WarehouseEmployee.Delete;
+        WarehouseEmployee.Delete();
 
         // [WHEN] GetAllowedLocation(A)
         AllowedLocationCode := WMSManagement.GetAllowedLocation(LocationCode[1]);
@@ -124,11 +124,11 @@ codeunit 137407 "SCM Warehouse IV"
         // [GIVEN] Whse Employee is not set for current user and location A
         CreateWhseLocations(LocationCode);
         WarehouseEmployee.Get(UserId, LocationCode[1]);
-        WarehouseEmployee.Delete;
+        WarehouseEmployee.Delete();
         // [GIVEN] Whse Employee is set for current user and location B as not default
         WarehouseEmployee.Get(UserId, LocationCode[2]);
         WarehouseEmployee.Default := false;
-        WarehouseEmployee.Modify;
+        WarehouseEmployee.Modify();
 
         // [WHEN] GetAllowedLocation(A)
         asserterror WMSManagement.GetAllowedLocation(LocationCode[1]);
@@ -886,7 +886,7 @@ codeunit 137407 "SCM Warehouse IV"
           true);
 
         // [THEN] Verify Source Code on Warehouse Register.
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         VerifyWarehouseRegister(WarehouseJournalLine."Journal Batch Name", SourceCodeSetup."Whse. Item Journal");
     end;
 
@@ -912,7 +912,7 @@ codeunit 137407 "SCM Warehouse IV"
         ItemJournalBatchName := CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
 
         // [THEN] Verify Source Code on Warehouse Register.
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         VerifyWarehouseRegister(ItemJournalBatchName, SourceCodeSetup."Item Journal");
     end;
 
@@ -939,7 +939,7 @@ codeunit 137407 "SCM Warehouse IV"
         RunDateCompressWhseEntries(WarehouseJournalLine."Item No.");
 
         // [THEN] Verify Source Code on Warehouse Register.
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         WarehouseRegister.FindLast;
         WarehouseRegister.TestField("Source Code", SourceCodeSetup."Compress Whse. Entries");
     end;
@@ -997,7 +997,7 @@ codeunit 137407 "SCM Warehouse IV"
           LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));  // Use randin value for Quantity.
 
         // [WHEN] Post Warehouse Journal Batch.
-        Commit;  // Commit required for Batch Post.
+        Commit();  // Commit required for Batch Post.
         CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-B.Register", WarehouseJournalBatch);
 
         // [THEN] Warehouse Entries for Posted Warehouse Journal Line.
@@ -1018,7 +1018,7 @@ codeunit 137407 "SCM Warehouse IV"
         Initialize;
 
         // [WHEN] Create New Location by Page.
-        TempLocation.Init;
+        TempLocation.Init();
         TempLocation.Validate(Code, LibraryUtility.GenerateRandomCode(TempLocation.FieldNo(Code), DATABASE::Location));
         TempLocation.Insert(true);
 
@@ -1267,7 +1267,7 @@ codeunit 137407 "SCM Warehouse IV"
         PickWorksheet."Get Warehouse Documents".Invoke;
 
         // [WHEN] Invoke Create Pick from Pick Worksheet.
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         PickWorksheet.CreatePick.Invoke;
 
         // [THEN] Verify Warehouse Activity Line.
@@ -1348,7 +1348,7 @@ codeunit 137407 "SCM Warehouse IV"
         PutAwayWorksheet.GetWarehouseDocuments.Invoke;
 
         // [WHEN] Invoke Create Put Away from Pick Worksheet.
-        Commit;  // Commit required.
+        Commit();  // Commit required.
         PutAwayWorksheet.CreatePutAway.Invoke;
 
         // [THEN] Verify Put Away Worksheet Line.
@@ -1665,7 +1665,7 @@ codeunit 137407 "SCM Warehouse IV"
         VerifyTransferOrderLine(TransferHeader."No.", Item."No.", PurchaseLine.Quantity - Qty);
 
         // [THEN] No item tracking is assigned to the line.
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry.SetRange("Item No.", Item."No.");
         Assert.RecordIsEmpty(ReservationEntry);
 
@@ -1810,7 +1810,7 @@ codeunit 137407 "SCM Warehouse IV"
         Initialize;
 
         // [GIVEN] Sales & Receivables Setup had Default Posting Date = "No Date"
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Default Posting Date", SalesReceivablesSetup."Default Posting Date"::"No Date");
         SalesReceivablesSetup.Modify(true);
 
@@ -1879,7 +1879,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         NoSeriesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse IV");
     end;
 
@@ -1887,7 +1887,7 @@ codeunit 137407 "SCM Warehouse IV"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Default Warranty Duration", DefaultWarrantyDuration);
         ServiceMgtSetup.Modify(true);
     end;
@@ -1932,7 +1932,7 @@ codeunit 137407 "SCM Warehouse IV"
 
     local procedure CreatePhysInvtCountingPeriod(var PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period")
     begin
-        PhysInvtCountingPeriod.Init;
+        PhysInvtCountingPeriod.Init();
         PhysInvtCountingPeriod.Validate(
           Code, LibraryUtility.GenerateRandomCode(PhysInvtCountingPeriod.FieldNo(Code), DATABASE::"Phys. Invt. Counting Period"));
         PhysInvtCountingPeriod.Validate(
@@ -2372,7 +2372,7 @@ codeunit 137407 "SCM Warehouse IV"
         i: Integer;
     begin
         WarehouseEmployee.SetRange("User ID", UserId);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
 
         for i := 1 to 2 do begin
             LibraryWarehouse.CreateLocation(Location);
@@ -2532,7 +2532,7 @@ codeunit 137407 "SCM Warehouse IV"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2598,7 +2598,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseEntry: Record "Warehouse Entry";
         DateCompressWhseEntries: Report "Date Compress Whse. Entries";
     begin
-        Commit;  // Commit required for batch job report.
+        Commit();  // Commit required for batch job report.
         Clear(DateCompressWhseEntries);
         WarehouseEntry.SetRange("Item No.", ItemNo);
         DateCompressWhseEntries.SetTableView(WarehouseEntry);
@@ -2611,7 +2611,7 @@ codeunit 137407 "SCM Warehouse IV"
         DeleteRegisteredWhseDocs: Report "Delete Registered Whse. Docs.";
     begin
         Clear(DeleteRegisteredWhseDocs);
-        Commit; // COMMIT is required to run the Report.
+        Commit(); // COMMIT is required to run the Report.
         RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeaderNo);
         DeleteRegisteredWhseDocs.SetTableView(RegisteredWhseActivityHdr);
         DeleteRegisteredWhseDocs.Run;
@@ -2624,7 +2624,7 @@ codeunit 137407 "SCM Warehouse IV"
         ItemJournalLine: Record "Item Journal Line";
     begin
         SelectItemJournalBatch(ItemJournalBatch);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine."Posting Date" := WorkDate;

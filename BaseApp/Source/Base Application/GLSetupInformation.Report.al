@@ -267,7 +267,7 @@ report 11514 "G/L Setup Information"
                 trigger OnAfterGetRecord()
                 begin
                     if Layout <> Layout::"General Info" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Company Information"; "Company Information")
@@ -472,7 +472,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"General Info" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Business Unit"; "Business Unit")
@@ -563,7 +563,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"General Info" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Customer Posting Group"; "Customer Posting Group")
@@ -624,7 +624,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Groups" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Vendor Posting Group"; "Vendor Posting Group")
@@ -673,7 +673,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Groups" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Inventory Posting Group"; "Inventory Posting Group")
@@ -698,7 +698,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Groups" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Bank Account Posting Group"; "Bank Account Posting Group")
@@ -723,7 +723,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Groups" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Gen. Business Posting Group"; "Gen. Business Posting Group")
@@ -760,7 +760,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Matrix" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Gen. Product Posting Group"; "Gen. Product Posting Group")
@@ -797,7 +797,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Matrix" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("General Posting Setup"; "General Posting Setup")
@@ -894,7 +894,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"Posting Matrix" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("VAT Business Posting Group"; "VAT Business Posting Group")
@@ -919,7 +919,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"VAT Setup" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("VAT Product Posting Group"; "VAT Product Posting Group")
@@ -944,7 +944,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"VAT Setup" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("VAT Posting Setup"; "VAT Posting Setup")
@@ -1029,7 +1029,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::"VAT Setup" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Source Code"; "Source Code")
@@ -1054,7 +1054,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::PostingSource then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Source Code Setup"; "Source Code Setup")
@@ -1337,7 +1337,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::PostingSource then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Reason Code"; "Reason Code")
@@ -1362,7 +1362,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::PostingSource then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Field"; "Field")
@@ -1374,7 +1374,7 @@ report 11514 "G/L Setup Information"
                     FldRef: FieldRef;
                 begin
                     if (StrPos(TableName, 'Setup') = 0) and (StrPos(TableName, 'Template') = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     RecRef.Open(TableNo);
                     if RecRef.FindFirst then
@@ -1383,17 +1383,17 @@ report 11514 "G/L Setup Information"
                             FldRefValue := FldRef.Value;
                             if FldRefValue <> '' then begin
                                 EntryNo := EntryNo + 1;
-                                NumberSeriesBuffer.Init;
+                                NumberSeriesBuffer.Init();
                                 NumberSeriesBuffer."Entry No." := EntryNo;
                                 NumberSeriesBuffer."Table No." := TableNo;
                                 NumberSeriesBuffer."Table Name" := TableName;
                                 NumberSeriesBuffer."Field Name" := FieldName;
                                 NumberSeriesBuffer."Field No." := "No.";
                                 NumberSeriesBuffer."Field Value" := FldRefValue;
-                                NumberSeriesBuffer.Insert;
-                                NumberSeriesBuffer2.Init;
+                                NumberSeriesBuffer.Insert();
+                                NumberSeriesBuffer2.Init();
                                 NumberSeriesBuffer2.Copy(NumberSeriesBuffer);
-                                NumberSeriesBuffer2.Insert;
+                                NumberSeriesBuffer2.Insert();
                             end;
                         until RecRef.Next = 0;
                     RecRef.Close;
@@ -1402,7 +1402,7 @@ report 11514 "G/L Setup Information"
                 trigger OnPreDataItem()
                 begin
                     if Layout <> Layout::NoSeries then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     EntryNo := 0;
                 end;
@@ -1423,7 +1423,7 @@ report 11514 "G/L Setup Information"
                     FirstEntry := false;
                     Clear(ErrorText);
 
-                    NumberSeriesBuffer.Reset;
+                    NumberSeriesBuffer.Reset();
                     if NumberSeriesBuffer.FindSet then
                         repeat
                             if not ((StrPos(NumberSeriesBuffer."Field Name", 'Posting') = 0) and
@@ -1438,7 +1438,7 @@ report 11514 "G/L Setup Information"
                                             NumberSeriesBuffer."Field Value"));
                                 end;
 
-                            NumberSeriesBuffer2.Reset;
+                            NumberSeriesBuffer2.Reset();
                             NumberSeriesBuffer2.SetRange("Field Value", NumberSeriesBuffer."Field Value");
                             NumberSeriesBuffer2.SetFilter("Entry No.", '<> %1', NumberSeriesBuffer."Entry No.");
                             if NumberSeriesBuffer2.FindSet then
@@ -1448,15 +1448,15 @@ report 11514 "G/L Setup Information"
                                             NumberSeriesBuffer2."Table Name", NumberSeriesBuffer2."Field Name", NumberSeriesBuffer."Field Value"));
                                         NumberSeriesBuffer2.Checked := true;
                                         NumberSeriesBuffer.Checked := true;
-                                        NumberSeriesBuffer.Modify;
-                                        NumberSeriesBuffer2.Modify;
+                                        NumberSeriesBuffer.Modify();
+                                        NumberSeriesBuffer2.Modify();
                                         FirstEntry := true;
                                     end;
                                 until NumberSeriesBuffer2.Next = 0;
                             if FirstEntry then begin
                                 NumberSeriesBuffer2.Get(NumberSeriesBuffer."Entry No.");
                                 NumberSeriesBuffer2.Checked := true;
-                                NumberSeriesBuffer2.Modify;
+                                NumberSeriesBuffer2.Modify();
                             end;
                         until NumberSeriesBuffer.Next = 0;
                     SetRange(Number, 1, ErrorCounter);

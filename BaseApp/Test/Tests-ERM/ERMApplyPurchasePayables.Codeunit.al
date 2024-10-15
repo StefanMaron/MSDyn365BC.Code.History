@@ -34,7 +34,6 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         WrongValErr: Label '%1 must be %2 in %3.';
         DialogTxt: Label 'Dialog';
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
-        CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
     [Test]
     [Scope('OnPrem')]
@@ -473,7 +472,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line for the vendor.
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -509,7 +508,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line for the vendor.
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -549,7 +548,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CreateGenJnlLineWithAppliesToDocNo(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document No.");
         GenJournalLine.Validate(Amount, PaymentAmount);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post Purchase Journal
         LibraryLowerPermissions.SetAccountPayables;
@@ -593,7 +592,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document No.");
         GenJournalLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
         GenJournalLine.Validate(Amount, PaymentAmount);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post Purchase Journal
         LibraryLowerPermissions.SetAccountPayables;
@@ -662,7 +661,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -701,7 +700,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -723,7 +722,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     end;
 
     [Test]
-    [HandlerFunctions('TwoEntriesWithSameAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler,ReferencNoSendNotificationHandler')]
+    [HandlerFunctions('TwoEntriesWithSameAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
     [Scope('OnPrem')]
     procedure SetAppliesToIDInOneRecordOfSeveralCustLedgEntries()
     var
@@ -741,7 +740,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -763,7 +762,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     end;
 
     [Test]
-    [HandlerFunctions('TwoEntriesWithDifferentAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler,ReferencNoSendNotificationHandler')]
+    [HandlerFunctions('TwoEntriesWithDifferentAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
     [Scope('OnPrem')]
     procedure SetDifferentAppliesToIDInOneRecordOfSeveralCustLedgEntries()
     var
@@ -781,7 +780,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [GIVEN] Create Payment Journal Line
         CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         LibraryLowerPermissions.SetAccountPayables;
         PaymentJournal.OpenEdit;
@@ -829,7 +828,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
     end;
@@ -992,7 +991,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // Creates or updates payment terms with given code.
         if not PmtTerms.Get(Code) then begin
-            PmtTerms.Init;
+            PmtTerms.Init();
             PmtTerms.Code := Code;
             PmtTerms.Insert(true);
         end;
@@ -1209,7 +1208,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         Batch: Record "Gen. Journal Batch";
     begin
         // Create an Invoice in the General Journal.
-        Inv.Init;
+        Inv.Init();
         ClearGenenalJournalLine(Batch);
         LibraryERM.CreateGeneralJnlLine(
           Inv,
@@ -1239,7 +1238,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         PostingDate: Date;
     begin
         // Create a Payment in the General Journal.
-        Pmt.Init;
+        Pmt.Init();
         ClearGenenalJournalLine(Batch);
         LibraryERM.CreateGeneralJnlLine(
           Pmt,
@@ -1376,7 +1375,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
     end;
 
     local procedure CreateVendPostingGrPmtDiscCreditAccNo(VendorNo: Code[20]): Code[20]
@@ -1477,7 +1476,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     local procedure SetAppliesToIDOnVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
         VendLedgEntry."Applies-to ID" := LibraryUtility.GenerateGUID;
-        VendLedgEntry.Modify;
+        VendLedgEntry.Modify();
     end;
 
     local procedure SetupApplyingEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AmountToApply: Decimal)
@@ -1664,14 +1663,6 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
         GeneralJournalTemplateList.OK.Invoke;
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure ReferencNoSendNotificationHandler(var TheNoitification: Notification): Boolean
-    begin
-        Assert.AreEqual(Format(CannotAssignReferenceNoMsg), TheNoitification.Message, 'Wrong notification message');
-        exit(false)
     end;
 }
 

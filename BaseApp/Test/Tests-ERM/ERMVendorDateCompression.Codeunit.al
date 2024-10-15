@@ -109,7 +109,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vendor Date Compression");
     end;
 

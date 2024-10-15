@@ -57,7 +57,7 @@ table 5616 "Maintenance Registration"
 
     trigger OnInsert()
     begin
-        FA.LockTable;
+        FA.LockTable();
         FA.Get("FA No.");
     end;
 

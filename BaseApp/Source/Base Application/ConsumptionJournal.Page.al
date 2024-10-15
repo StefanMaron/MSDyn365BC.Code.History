@@ -1,4 +1,4 @@
-﻿page 99000846 "Consumption Journal"
+page 99000846 "Consumption Journal"
 {
     ApplicationArea = Manufacturing;
     AutoSplitKey = true;
@@ -391,6 +391,7 @@
                         RunObject = Page "Capacity Ledger Entries";
                         RunPageLink = "Order Type" = CONST(Production),
                                       "Order No." = FIELD("Order No.");
+                        RunPageView = SORTING("Order Type", "Order No.");
                         ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
                     }
                 }
@@ -513,7 +514,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

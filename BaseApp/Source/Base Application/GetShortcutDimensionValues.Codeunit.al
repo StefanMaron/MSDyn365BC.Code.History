@@ -31,14 +31,14 @@ codeunit 480 "Get Shortcut Dimension Values"
     begin
         if TempDimSetEntry.Get(DimSetID, DimCode) then
             exit(TempDimSetEntry."Dimension Value Code");
-        TempDimSetEntry.Init;
+        TempDimSetEntry.Init();
         if DimensionSetEntry.Get(DimSetID, DimCode) then
             TempDimSetEntry := DimensionSetEntry
         else begin
             TempDimSetEntry."Dimension Set ID" := DimSetID;
             TempDimSetEntry."Dimension Code" := DimCode;
         end;
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         exit(TempDimSetEntry."Dimension Value Code");
     end;
 
@@ -50,7 +50,7 @@ codeunit 480 "Get Shortcut Dimension Values"
             HasGotGLSetup := false;
         if HasGotGLSetup then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetupShortcutDimCode[1] := GLSetup."Shortcut Dimension 1 Code";
         GLSetupShortcutDimCode[2] := GLSetup."Shortcut Dimension 2 Code";
         GLSetupShortcutDimCode[3] := GLSetup."Shortcut Dimension 3 Code";

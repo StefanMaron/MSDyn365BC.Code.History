@@ -150,7 +150,7 @@ report 11509 "Vendor Payment Order"
 
                 Pos := Pos + 1;
                 if not Vendor.Get("Gen. Journal Line"."Account No.") then
-                    Vendor.Init;
+                    Vendor.Init();
 
                 // Split text at space before pos 30
                 if StrLen(Description) > 30 then begin
@@ -189,7 +189,7 @@ report 11509 "Vendor Payment Order"
 
             trigger OnPreDataItem()
             begin
-                GlSetup.Get;
+                GlSetup.Get();
 
                 // Only vendor payment lines of selected journal
                 "Gen. Journal Line".SetRange("Journal Batch Name", JourName);
@@ -261,7 +261,7 @@ report 11509 "Vendor Payment Order"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         if CompanyInformation.IBAN <> '' then
             CompanyInfoBankAcc := CompanyInformation.IBAN

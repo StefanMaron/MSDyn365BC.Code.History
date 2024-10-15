@@ -8,7 +8,7 @@ codeunit 5005273 "Iss. Delivery Remind. printed"
         Find;
         "No. Printed" := "No. Printed" + 1;
         Modify;
-        Commit;
+        Commit();
     end;
 }
 

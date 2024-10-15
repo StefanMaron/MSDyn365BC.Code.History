@@ -195,7 +195,7 @@ report 3010543 "DTA Payment Order"
                 trigger OnAfterGetRecord()
                 begin
                     if iCurrency[Number] = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -222,7 +222,7 @@ report 3010543 "DTA Payment Order"
                 TotalAmtDomesticLCY := 0;
                 TotalNoOfPmtsDomestic := 0;
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAdr.Company(CompanySetup, CompanyInfo);
 
                 AdsLine[1] := "DTA Bank Name";
@@ -232,7 +232,7 @@ report 3010543 "DTA Payment Order"
                 CompressArray(AdsLine);
 
                 if "DTA Setup"."DTA Currency Code" = '' then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     "DTA Setup"."DTA Currency Code" := GLSetup."LCY Code";
                 end;
 

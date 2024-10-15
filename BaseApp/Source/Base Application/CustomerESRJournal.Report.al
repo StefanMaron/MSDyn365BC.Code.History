@@ -197,7 +197,7 @@ report 3010531 "Customer ESR Journal"
             trigger OnAfterGetRecord()
             begin
                 if ("Account No." = '') and (Amount = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Clear(CustLedgEntry);
                 Clear(Customer);

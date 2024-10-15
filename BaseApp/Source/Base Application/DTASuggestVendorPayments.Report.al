@@ -18,7 +18,7 @@ report 3010546 "DTA Suggest Vendor Payments"
 
                 PmtsPerVendor := 0;
 
-                VendEntry.Reset;
+                VendEntry.Reset();
                 VendEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date", "Currency Code");
                 VendEntry.SetRange("Vendor No.", "No.");
                 VendEntry.SetRange(Open, true);
@@ -101,7 +101,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                     end;
                 end;
 
-                GlSetup.Get;
+                GlSetup.Get();
 
                 if PostDate = 0D then
                     Error(Text006);
@@ -268,7 +268,7 @@ report 3010546 "DTA Suggest Vendor Payments"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
         if not VendorLedgEntryTemp.IsEmpty then
             if Confirm(Text029) then
                 PAGE.RunModal(0, VendorLedgEntryTemp);
@@ -278,7 +278,7 @@ report 3010546 "DTA Suggest Vendor Payments"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        VendorLedgEntryTemp.DeleteAll;
+        VendorLedgEntryTemp.DeleteAll();
         if InsertBankBalanceAccount then begin
             GenJournalBatch.Get(ToGlLine."Journal Template Name", ToGlLine."Journal Batch Name");
             GenJournalBatch.TestField("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
@@ -382,7 +382,7 @@ report 3010546 "DTA Suggest Vendor Payments"
 
                 Description := Format(Description + ', ' + VendEntry."External Document No.", -MaxStrLen(Description));
                 if not VendBank.Get(VendEntry."Vendor No.", VendEntry."Recipient Bank Account") then begin
-                    VendBank.Init;
+                    VendBank.Init();
                     VendBank."Vendor No." := '';
                 end;
 
@@ -428,7 +428,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                     // Get Debit Bank automatically
                     if AutoDebitBank then begin
                         DtaSetup."Bank Code" := '';  // reset
-                        DtaSetup.Reset;
+                        DtaSetup.Reset();
 
                         // Bank according to Currency available? Else, main Bank in LCY
                         if not (VendEntry."Currency Code" in ['', GlSetup."LCY Code"]) then begin
@@ -468,10 +468,10 @@ report 3010546 "DTA Suggest Vendor Payments"
             VendorLedgerEntry2.Get(VendorLedgerEntryNo);
             VendorLedgerEntry2."On Hold" := 'DTA';
             VendorLedgerEntry2."Accepted Payment Tolerance" := 0;
-            VendorLedgerEntry2.Modify;
+            VendorLedgerEntry2.Modify();
         end else begin
             VendorLedgEntryTemp := VendEntry;
-            if VendorLedgEntryTemp.Insert then;
+            if VendorLedgEntryTemp.Insert() then;
         end;
     end;
 
@@ -483,13 +483,13 @@ report 3010546 "DTA Suggest Vendor Payments"
         BalAccDtaBank: Record "DTA Setup";
     begin
         // delete old bal. lines
-        GlSetup.Get;
+        GlSetup.Get();
 
         PmtLine.SetRange("Journal Template Name", _GenJnlLine."Journal Template Name");
         PmtLine.SetRange("Journal Batch Name", _GenJnlLine."Journal Batch Name");
         PmtLine.SetRange("Source Code", 'BALANCE');
         if PmtLine.Find('-') then
-            PmtLine.DeleteAll;
+            PmtLine.DeleteAll();
 
         // Store last Line No.
         PmtLine.SetRange("Source Code");
@@ -540,7 +540,7 @@ report 3010546 "DTA Suggest Vendor Payments"
 
                 // Create line
                 if not BalAccLine.FindFirst then begin
-                    BalAccLine.Init;
+                    BalAccLine.Init();
                     BalAccLine."Journal Template Name" := PmtLine."Journal Template Name";
                     BalAccLine."Journal Batch Name" := PmtLine."Journal Batch Name";
                     LastLineNo := LastLineNo + 10000;
@@ -554,7 +554,7 @@ report 3010546 "DTA Suggest Vendor Payments"
                     BalAccLine.Description := BalAccDesc;
                     BalAccLine.Clearing := '99999';  // End of Sorting
                     BalAccLine."Posting No. Series" := GlBatchName2."Posting No. Series";
-                    BalAccLine.Insert;
+                    BalAccLine.Insert();
                 end;
 
                 if (AccountCurrency <> PaymentCurrency) and (AccountCurrency <> GlSetup."LCY Code") then begin
@@ -571,7 +571,7 @@ report 3010546 "DTA Suggest Vendor Payments"
 
                 BalAccLine."Amount (LCY)" := BalAccLine."Amount (LCY)" - PmtLine."Amount (LCY)";
                 BalAccLine.Validate("Amount (LCY)");  // Currency Factor calculated based on Amount and Amount LCY
-                BalAccLine.Modify;
+                BalAccLine.Modify();
 
             until PmtLine.Next = 0;
     end;

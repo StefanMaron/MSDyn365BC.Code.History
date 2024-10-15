@@ -26,7 +26,7 @@ codeunit 312 "Cust-Check Cr. Limit"
             exit;
 
         if not SalesHeader.Get(GenJnlLine."Document Type", GenJnlLine."Document No.") then
-            SalesHeader.Init;
+            SalesHeader.Init();
         OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
         if CustCheckCreditLimit.GenJnlLineShowWarningAndGetCause(GenJnlLine, AdditionalContextId) then
@@ -65,7 +65,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         AdditionalContextId: Guid;
     begin
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
-            SalesHeader.Init;
+            SalesHeader.Init();
 
         if GuiAllowed then
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, false);
@@ -103,7 +103,7 @@ codeunit 312 "Cust-Check Cr. Limit"
             exit;
 
         if not ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.") then
-            ServiceHeader.Init;
+            ServiceHeader.Init();
         OnNewCheckRemoveCustomerNotifications(ServiceHeader.RecordId, false);
 
         if CustCheckCreditLimit.ServiceLineShowWarningAndGetCause(ServiceLine, AdditionalContextId) then

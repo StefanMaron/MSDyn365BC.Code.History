@@ -1,4 +1,4 @@
-﻿page 291 "Req. Worksheet"
+page 291 "Req. Worksheet"
 {
     AdditionalSearchTerms = 'supply planning,mrp,mps';
     ApplicationArea = Basic, Suite, Planning;
@@ -60,6 +60,13 @@
                         ReqJnlManagement.GetDescriptionAndRcptName(Rec, Description2, BuyFromVendorName);
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for unit cost calculation in the line.';
                 }
                 field("Action Message"; "Action Message")
                 {

@@ -1,4 +1,4 @@
-﻿page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
+page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
 {
     Caption = 'Lines';
     Editable = false;
@@ -308,7 +308,7 @@
         QtyNotReturned2: Decimal;
         RevUnitCostLCY2: Decimal;
     begin
-        TempSalesShptLine.Reset;
+        TempSalesShptLine.Reset();
         TempSalesShptLine.CopyFilters(Rec);
         TempSalesShptLine.SetRange("Document No.", "Document No.");
         if not TempSalesShptLine.FindFirst then begin
@@ -322,7 +322,7 @@
                 ShowRec := IsShowRec(SalesShptLine2);
                 if ShowRec then begin
                     TempSalesShptLine := SalesShptLine2;
-                    TempSalesShptLine.Insert;
+                    TempSalesShptLine.Insert();
                 end;
             until (SalesShptLine2.Next = 0) or ShowRec;
             QtyNotReturned := QtyNotReturned2;
@@ -369,8 +369,8 @@
         Visible := NewVisible;
 
         if Visible then begin
-            TempSalesShptLine.Reset;
-            TempSalesShptLine.DeleteAll;
+            TempSalesShptLine.Reset();
+            TempSalesShptLine.DeleteAll();
         end;
     end;
 

@@ -207,6 +207,9 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer - Order Summary';
                             RunObject = report "Customer - Order Summary";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Customer/Item Sales")
                         {
@@ -214,6 +217,9 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer/Item Sales';
                             RunObject = report "Customer/Item Sales";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Customer Register")
                         {
@@ -227,6 +233,9 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer - Order Detail';
                             RunObject = report "Customer - Order Detail";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Customer - Top 10 List")
                         {
@@ -234,6 +243,9 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer Top 10 List';
                             RunObject = report "Customer - Top 10 List";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Customer - Trial Balance")
                         {
@@ -241,6 +253,9 @@ page 8907 "Sales & Marketing Manager RC"
                             Caption = 'Customer Trial Balance';
                             RunObject = report "Customer - Trial Balance";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Customer - Sales List")
                         {
@@ -425,6 +440,9 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Customer - Order Detail';
                         RunObject = report "Customer - Order Detail";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Sales Reservation Avail.")
                     {
@@ -456,6 +474,9 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Customer/Item Sales';
                         RunObject = report "Customer/Item Sales";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Customer - Order Summary1")
                     {
@@ -463,6 +484,9 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Customer - Order Summary';
                         RunObject = report "Customer - Order Summary";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                 }
             }
@@ -594,6 +618,9 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Item Charges - Specification';
                         RunObject = report "Item Charges - Specification";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Inventory - Customer Sales")
                     {
@@ -655,22 +682,25 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Item ABC Analysis';
                         RunObject = report "Item ABC Analysis";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                 }
             }
             group("Group15")
             {
-                Caption = 'Sales - CDS';
+                Caption = 'Sales - Common Data Service';
                 action("Sales Order List - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Sales Orders - Dynamics 365 for Sales';
+                    Caption = 'Sales Orders - Dynamics 365 Sales';
                     RunObject = page "CRM Sales Order List";
                 }
                 action("Quotes - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Quotes - Dynamics 365 for Sales';
+                    Caption = 'Quotes - Dynamics 365 Sales';
                     RunObject = page "CRM Sales Quote List";
                 }
                 action("Cases - Dynamics 365 for Customer Service")
@@ -682,37 +712,37 @@ page 8907 "Sales & Marketing Manager RC"
                 action("Opportunities - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Opportunities - Dynamics 365 for Sales';
+                    Caption = 'Opportunities - Dynamics 365 Sales';
                     RunObject = page "CRM Opportunity List";
                 }
                 action("Accounts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Accounts - Dynamics 365 for Sales';
+                    Caption = 'Accounts - Dynamics 365 Sales';
                     RunObject = page "CRM Account List";
                 }
                 action("Transaction Currencies - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Transaction Currencies - Dynamics 365 for Sales';
+                    Caption = 'Transaction Currencies - Dynamics 365 Sales';
                     RunObject = page "CRM TransactionCurrency List";
                 }
                 action("Unit Groups - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Unit Groups - Dynamics 365 for Sales';
+                    Caption = 'Unit Groups - Dynamics 365 Sales';
                     RunObject = page "CRM UnitGroup List";
                 }
                 action("Products - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Products - Dynamics 365 for Sales';
+                    Caption = 'Products - Dynamics 365 Sales';
                     RunObject = page "CRM Product List";
                 }
                 action("Contacts - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Contacts - Dynamics 365 for Sales';
+                    Caption = 'Contacts - Dynamics 365 Sales';
                     RunObject = page "CRM Contact List";
                 }
                 action("Records Skipped For Synchronization")

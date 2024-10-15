@@ -63,7 +63,6 @@ page 1191 "Create Employee Payment"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Type';
-                    OptionCaption = ' ,Computer Check,Manual Check,Electronic Payment,Electronic Payment-IAT';
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the payment journal line.';
                 }
             }
@@ -105,7 +104,7 @@ page 1191 "Create Employee Payment"
         NextDocNo: Code[20];
         JournalBatchName: Code[10];
         JournalTemplateName: Code[10];
-        BankPaymentType: Option " ","Computer Check","Manual Check","Electronic Payment","Electronic Payment-IAT";
+        BankPaymentType: Enum "Bank Payment Type";
         StartingDocumentNoErr: Label 'Starting Document No.';
         BatchNumberNotFilledErr: Label 'You must fill the Batch Name field.';
         PostingDateNotFilledErr: Label 'You must fill the Posting Date field.';
@@ -133,8 +132,8 @@ page 1191 "Create Employee Payment"
 
     procedure MakeGenJnlLines(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
-        TempEmplPaymentBuffer.Reset;
-        TempEmplPaymentBuffer.DeleteAll;
+        TempEmplPaymentBuffer.Reset();
+        TempEmplPaymentBuffer.DeleteAll();
 
         CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(EmployeeLedgerEntry);
         CopyTempEmpPaymentBuffersToGenJnlLines;
@@ -163,16 +162,16 @@ page 1191 "Create Employee Payment"
 
                     PaymentAmt := -EmployeeLedgerEntry."Remaining Amount";
 
-                    TempEmplPaymentBuffer.Reset;
+                    TempEmplPaymentBuffer.Reset();
                     TempEmplPaymentBuffer.SetRange("Employee No.", EmployeeLedgerEntry."Employee No.");
                     if TempEmplPaymentBuffer.Find('-') then begin
                         TempEmplPaymentBuffer.Amount := TempEmplPaymentBuffer.Amount + PaymentAmt;
-                        TempEmplPaymentBuffer.Modify;
+                        TempEmplPaymentBuffer.Modify();
                     end else begin
                         TempEmplPaymentBuffer."Document No." := NextDocNo;
                         NextDocNo := IncStr(NextDocNo);
                         TempEmplPaymentBuffer.Amount := PaymentAmt;
-                        TempEmplPaymentBuffer.Insert;
+                        TempEmplPaymentBuffer.Insert();
                     end;
                     EmployeeLedgerEntry."Applies-to ID" := TempEmplPaymentBuffer."Document No.";
                     EmployeeLedgerEntry."Amount to Apply" := EmployeeLedgerEntry."Remaining Amount";
@@ -191,17 +190,17 @@ page 1191 "Create Employee Payment"
         BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
         LastLineNo: Integer;
     begin
-        GenJnlLine.LockTable;
+        GenJnlLine.LockTable();
         GenJournalTemplate.Get(JournalTemplateName);
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         if GenJnlLine.FindLast then begin
             LastLineNo := GenJnlLine."Line No.";
-            GenJnlLine.Init;
+            GenJnlLine.Init();
         end;
 
-        TempEmplPaymentBuffer.Reset;
+        TempEmplPaymentBuffer.Reset();
         TempEmplPaymentBuffer.SetCurrentKey("Document No.");
         TempEmplPaymentBuffer.SetFilter(
           "Employee Ledg. Entry Doc. Type", '<>%1&<>%2', TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Refund,
@@ -228,7 +227,7 @@ page 1191 "Create Employee Payment"
                     Validate("Bal. Account No.", BalAccountNo);
                     Validate("Currency Code", TempEmplPaymentBuffer."Currency Code");
 
-                    CompanyInformation.Get;
+                    CompanyInformation.Get();
                     "Message to Recipient" := CompanyInformation.Name;
 
                     "Bank Payment Type" := BankPaymentType;
@@ -268,8 +267,8 @@ page 1191 "Create Employee Payment"
         with GenJnlLine do begin
             NewDimensionID := "Dimension Set ID";
 
-            DimBuf.Reset;
-            DimBuf.DeleteAll;
+            DimBuf.Reset();
+            DimBuf.DeleteAll();
             DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
             if DimBuf.FindSet then
                 repeat
@@ -277,7 +276,7 @@ page 1191 "Create Employee Payment"
                     TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
                     TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                     TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                    TempDimSetEntry.Insert;
+                    TempDimSetEntry.Insert();
                 until DimBuf.Next = 0;
             NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
             "Dimension Set ID" := NewDimensionID;
@@ -305,7 +304,7 @@ page 1191 "Create Employee Payment"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Reset;
+        GenJournalTemplate.Reset();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
         if GenJournalTemplate.FindFirst then

@@ -240,7 +240,7 @@ report 11581 "SR Item Vendor Shipping Rem."
 
             trigger OnPreDataItem()
             begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 FormatAdr.Company(CompanyAdr, CompanyInformation);
             end;
         }

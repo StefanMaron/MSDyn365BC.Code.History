@@ -217,7 +217,7 @@ codeunit 134205 "WF Demo Customer Approval"
 
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         CustomerCard.OpenEdit;
         CustomerCard.GotoRecord(Customer);
 
@@ -291,7 +291,7 @@ codeunit 134205 "WF Demo Customer Approval"
 
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         CustomerList.OpenEdit;
         CustomerList.GotoRecord(Customer);
 
@@ -491,7 +491,7 @@ codeunit 134205 "WF Demo Customer Approval"
           LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', WorkDate);
 
         // Exercise.
-        Commit;
+        Commit();
         CustomerCard.OpenEdit;
         CustomerCard.GotoRecord(Customer);
         CustomerCard.SendApprovalRequest.Invoke;
@@ -755,9 +755,9 @@ codeunit 134205 "WF Demo Customer Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
-        WorkflowUserGroup.DeleteAll;
-        WorkflowUserGroupMember.DeleteAll;
+        UserSetup.DeleteAll();
+        WorkflowUserGroup.DeleteAll();
+        WorkflowUserGroupMember.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -818,7 +818,7 @@ codeunit 134205 "WF Demo Customer Approval"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalCommentLine.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
@@ -853,7 +853,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         WorkflowUserGroupMember.FindSet;
         repeat
-            ApprovalEntry.Reset;
+            ApprovalEntry.Reset();
             ApprovalEntry.SetRange("Approval Code", Workflow.Code);
             ApprovalEntry.SetRange("Approver ID", WorkflowUserGroupMember."User Name");
             ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
@@ -872,7 +872,7 @@ codeunit 134205 "WF Demo Customer Approval"
     local procedure UpdateApprovalEntryWithCurrUser(var ApprovalEntry: Record "Approval Entry")
     begin
         ApprovalEntry."Approver ID" := UserId;
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
     end;
 
     [MessageHandler]

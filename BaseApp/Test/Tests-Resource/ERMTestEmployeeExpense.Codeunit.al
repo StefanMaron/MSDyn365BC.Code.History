@@ -23,8 +23,8 @@ codeunit 134113 "ERM Test Employee Expense"
         EmployeePostingGroup: Record "Employee Posting Group";
         EmployeePostingGroupCode: Code[20];
     begin
-        Employee.DeleteAll;
-        EmployeePostingGroup.DeleteAll;
+        Employee.DeleteAll();
+        EmployeePostingGroup.DeleteAll();
 
         EmployeePostingGroupCode := CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
         CreateEmployeeWithExpensePostingGroup(EmployeePostingGroupCode);
@@ -34,7 +34,7 @@ codeunit 134113 "ERM Test Employee Expense"
     var
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
-        EmployeePostingGroup.Init;
+        EmployeePostingGroup.Init();
         EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
         EmployeePostingGroup.Validate("Payables Account", ExpenseAccNo);
         EmployeePostingGroup.Insert(true);

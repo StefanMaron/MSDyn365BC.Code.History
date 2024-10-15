@@ -52,7 +52,7 @@ codeunit 3010536 GlForeignCurrMgt
     begin
         // Transfer Currency Code from GL Account to GlLine.Account or Bal. Account
 
-        GLSetup.Get;
+        GLSetup.Get();
         GlAcc.Get(AccNo);
         if (GlLine."Currency Code" = '') or (GlLine."Currency Code" = GLSetup."LCY Code") then
             GlLine."Currency Code" := GlAcc."Currency Code";
@@ -63,7 +63,7 @@ codeunit 3010536 GlForeignCurrMgt
     begin
         // CHeck if Acc and Bal. Acc have same Curr Code as in Gl Line
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ACYOnlyPosting :=
           (GLSetup."Additional Reporting Currency" <> '') and
@@ -83,7 +83,7 @@ codeunit 3010536 GlForeignCurrMgt
         // CHeck if Acc or Bal Acc (GL, Cust, Venor, Bank Summary) matches
         // Call from Function CheckCurrCode in this Codeunit.
 
-        GLSetup.Get;
+        GLSetup.Get();
         if (AccNo = '') or ACYOnly then
             exit;
 

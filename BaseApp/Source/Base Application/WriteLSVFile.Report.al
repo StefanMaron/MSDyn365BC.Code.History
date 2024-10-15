@@ -152,7 +152,7 @@ report 3010834 "Write LSV File"
           Text005 + // Customer #1
           Text006); // Entries #2
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("LSV No.");
         CustLedgEntry.SetRange("LSV No.", LsvJour."No.");
 
@@ -187,7 +187,7 @@ report 3010834 "Write LSV File"
             LsvJour."File Written On" := Today;
             if not TestSending then
                 LsvJour."LSV Status" := LsvJour."LSV Status"::"File Created";
-            LsvJour.Modify;
+            LsvJour.Modify();
         end;
 
         LsvJour.CalcFields("Amount Plus");
@@ -196,7 +196,7 @@ report 3010834 "Write LSV File"
             Error(Text007, TotalAmt, LsvJour."No.", LsvJour.Amount);
 
         if _LsvJour."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             FileCurrency := GLSetup."LCY Code";
         end else
             FileCurrency := _LsvJour."Currency Code";
@@ -245,7 +245,7 @@ report 3010834 "Write LSV File"
         Customer.TestField(City);
 
         // Get customer bank
-        CustomerBankAccount.Reset;
+        CustomerBankAccount.Reset();
         CustomerBankAccount.SetRange("Customer No.", _Customerno);
         if CustomerBankAccount.Count > 1 then
             CustomerBankAccount.SetRange(Code, LsvSetup."LSV Customer Bank Code");

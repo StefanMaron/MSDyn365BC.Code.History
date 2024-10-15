@@ -74,14 +74,14 @@ table 1102 "Cost Journal Batch"
     begin
         CostJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         CostJnlLine.SetRange("Journal Batch Name", Name);
-        CostJnlLine.DeleteAll;
+        CostJnlLine.DeleteAll();
     end;
 
     trigger OnInsert()
     var
         CostJnlTemplate: Record "Cost Journal Template";
     begin
-        LockTable;
+        LockTable();
         TestField(Name);
         CostJnlTemplate.Get("Journal Template Name");
     end;

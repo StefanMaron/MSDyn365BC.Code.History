@@ -167,7 +167,7 @@ codeunit 3010531 EsrMgt
 
             if not TotalRecord then begin
                 // Insert GL line
-                GenJournalLine.Init;
+                GenJournalLine.Init();
                 GenJournalLine."Journal Template Name" := ActGenJnlLine."Journal Template Name";
                 GenJournalLine."Journal Batch Name" := ActGenJnlLine."Journal Batch Name";
                 LastLineNo := LastLineNo + 10000;
@@ -177,7 +177,7 @@ codeunit 3010531 EsrMgt
                 GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
                 GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
 
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 if GeneralLedgerSetup."LCY Code" <> Currency then
                     GenJournalLine."Currency Code" := Currency;
 
@@ -221,7 +221,7 @@ codeunit 3010531 EsrMgt
                 GenJournalLine."Reason Code" := GlBatchName."Reason Code";
                 GenJournalLine."External Document No." := MicroFilmNo;
                 GenJournalLine."ESR Information" := 'ESR ' + RefNo + '/' + PaymentCharges + '/' + ddVA + '.' + mmVA + '.' + yyVA + '/' + TA;
-                GenJournalLine.Insert;
+                GenJournalLine.Insert();
 
                 // All lines same credit date? (one/multiple balance postings)
                 if FirstPostingDate = 0D then  // Save first
@@ -239,14 +239,14 @@ codeunit 3010531 EsrMgt
         f.Close;
         Erase(TempFileName);
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", ActGenJnlLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", ActGenJnlLine."Journal Batch Name");
         GenJournalLine.SetRange("Source Code", 'ESR');
         if GenJournalLine.FindSet then
             repeat
                 GenJournalLine.Validate(Amount, GenJournalLine.Amount);
-                GenJournalLine.Modify;
+                GenJournalLine.Modify();
             until GenJournalLine.Next = 0;
 
         // *** Bal account per line or as combined entry
@@ -260,11 +260,11 @@ codeunit 3010531 EsrMgt
                         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"G/L Account";
 
                     GenJournalLine.Validate("Bal. Account No.", ESRSetup."Bal. Account No.");
-                    GenJournalLine.Modify;
+                    GenJournalLine.Modify();
                 until GenJournalLine.Next = 0;
         end else begin
             // Add bal. acc. line at end
-            GenJournalLine.Init;
+            GenJournalLine.Init();
             GenJournalLine."Journal Template Name" := ActGenJnlLine."Journal Template Name";
             GenJournalLine."Journal Batch Name" := ActGenJnlLine."Journal Batch Name";
             LastLineNo := LastLineNo + 10000;
@@ -272,7 +272,7 @@ codeunit 3010531 EsrMgt
             GenJournalLine."Document No." := NextDocNo;
             GenJournalLine."Account Type" := ESRSetup."Bal. Account Type";
 
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             if GeneralLedgerSetup."LCY Code" <> Currency then
                 GenJournalLine."Currency Code" := Currency;
 
@@ -288,7 +288,7 @@ codeunit 3010531 EsrMgt
             GenJournalLine.Description := Text025 + ' ' + ESRSetup."Bank Code";
             GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
             GenJournalLine.Validate(Amount, TotalAmt);
-            GenJournalLine.Insert;
+            GenJournalLine.Insert();
         end;
 
         Window.Close;
@@ -515,9 +515,9 @@ codeunit 3010531 EsrMgt
         BackupFilename: Code[130];
     begin
         if ESRSetup."Backup Copy" then begin
-            ESRSetup.LockTable;
+            ESRSetup.LockTable();
             ESRSetup."Last Backup No." := IncStr(ESRSetup."Last Backup No.");
-            ESRSetup.Modify;
+            ESRSetup.Modify();
             BackupFilename := ESRSetup."Backup Folder" + 'ESR' + ESRSetup."Last Backup No." + '.BAK';
             if FileMgt.ClientFileExists(ESRSetup."ESR Filename") and (not FileMgt.ClientFileExists(BackupFilename)) then begin
                 FileMgt.CopyClientFile(ESRSetup."ESR Filename", BackupFilename, true);

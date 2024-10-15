@@ -91,7 +91,7 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Balance Manl Appl");
     end;
 

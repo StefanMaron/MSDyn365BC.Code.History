@@ -27,7 +27,7 @@ codeunit 11501 GeneralMgt
         if not (CurrencyCode = '') then begin
             exit(CurrencyCode);
         end else begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             GeneralLedgerSetup.TestField("LCY Code");
             exit(GeneralLedgerSetup."LCY Code");
         end;

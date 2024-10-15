@@ -502,11 +502,11 @@ table 92 "Customer Posting Group"
         SalesSetup: Record "Sales & Receivables Setup";
         PaymentTerms: Record "Payment Terms";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
         PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         InvRoundingVisible := SalesSetup."Invoice Rounding";
         ApplnRoundingVisible := SalesSetup."Appln. between Currencies" <> SalesSetup."Appln. between Currencies"::None;
     end;

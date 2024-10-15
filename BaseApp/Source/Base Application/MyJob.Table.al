@@ -27,12 +27,10 @@ table 9154 "My Job"
         {
             Caption = 'Description';
         }
-        field(5; Status; Option)
+        field(5; Status; Enum "Job Status")
         {
             Caption = 'Status';
             InitValue = Open;
-            OptionCaption = 'Planning,Quote,Open,Completed';
-            OptionMembers = Planning,Quote,Open,Completed;
         }
         field(6; "Bill-to Name"; Text[100])
         {

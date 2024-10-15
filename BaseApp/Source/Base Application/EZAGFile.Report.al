@@ -138,9 +138,9 @@ report 3010542 "EZAG File"
         FileMgt.DownloadToFile(ServerTempFileName, DtaSetup."EZAG File Folder" + DtaSetup."EZAG Filename");
         // Backup file
         if DtaSetup."Backup Copy" then begin
-            DtaSetup.LockTable;
+            DtaSetup.LockTable();
             DtaSetup."Last Backup No." := IncStr(DtaSetup."Last Backup No.");
-            DtaSetup.Modify;
+            DtaSetup.Modify();
             BackupFilename := DtaSetup."Backup Folder" + 'EZA' + DtaSetup."Last Backup No." + '.BAK';
             FileMgt.DownloadToFile(ServerTempFileName, BackupFilename)
         end;
@@ -150,7 +150,7 @@ report 3010542 "EZAG File"
 
         // Save last EZAG no.
         if TotalNoOfRecs > 0 then
-            DtaSetup.Modify;
+            DtaSetup.Modify();
     end;
 
     var
@@ -245,7 +245,7 @@ report 3010542 "EZAG File"
     procedure PrepareFile()
     begin
         // Create file
-        GlSetup.Get;
+        GlSetup.Get();
 
         Filename.TextMode := true;
         Filename.WriteMode := true;
@@ -273,7 +273,7 @@ report 3010542 "EZAG File"
         if (DtaSetup."Last EZAG Order No." = '99') or (DtaSetup."Last EZAG Order No." = '') then
             DtaSetup."Last EZAG Order No." := '00';
         DtaSetup."Last EZAG Order No." := IncStr(DtaSetup."Last EZAG Order No.");
-        DtaSetup.Modify;
+        DtaSetup.Modify();
 
         TaLineno := '000000';
 
@@ -302,7 +302,7 @@ report 3010542 "EZAG File"
                             SummaryPmtTxt := CopyStr(SummaryPmtTxt, 1, 61) + Text017;
                 if VendEntry."On Hold" = '' then begin
                     VendEntry."On Hold" := 'DTA';
-                    VendEntry.Modify;
+                    VendEntry.Modify();
                 end;
             end;
         end;

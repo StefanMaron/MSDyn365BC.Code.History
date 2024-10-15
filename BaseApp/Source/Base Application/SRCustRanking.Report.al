@@ -77,13 +77,13 @@ report 11539 "SR Cust. Ranking"
                     end;
 
                 if (TmpAmt[1] = 0) and (TmpAmt[2] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                CustAmt.Init;
+                CustAmt.Init();
                 CustAmt."Amount (LCY)" := TmpAmt[1];
                 CustAmt."Amount 2 (LCY)" := TmpAmt[2];
                 CustAmt."Customer No." := "No.";
-                CustAmt.Insert;
+                CustAmt.Insert();
 
                 Col1TotalAllRecs := Col1TotalAllRecs + CustAmt."Amount (LCY)";
                 Col2TotalAllRecs := Col2TotalAllRecs + CustAmt."Amount 2 (LCY)";
@@ -106,7 +106,7 @@ report 11539 "SR Cust. Ranking"
 
             trigger OnPreDataItem()
             begin
-                CustAmt.DeleteAll;
+                CustAmt.DeleteAll();
                 Window.Open(Text003);
             end;
         }
@@ -224,10 +224,10 @@ report 11539 "SR Cust. Ranking"
             begin
                 if Number = 1 then begin
                     if not CustAmt.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if (CustAmt.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 Customer.Get(CustAmt."Customer No.");
                 Col1Amt := CustAmt."Amount (LCY)";

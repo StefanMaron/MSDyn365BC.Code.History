@@ -334,7 +334,7 @@ table 3010541 "DTA Setup"
     trigger OnInsert()
     begin
         if "DTA Sender Name" = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             "DTA Sender Name" := CopyStr(CompanyInfo.Name, 1, MaxStrLen("DTA Sender Name"));
             "DTA Sender Name 2" := CopyStr(CompanyInfo."Name 2", 1, MaxStrLen("DTA Sender Name 2"));
             "DTA Sender Address" := CopyStr(CompanyInfo.Address, 1, MaxStrLen("DTA Sender Address"));

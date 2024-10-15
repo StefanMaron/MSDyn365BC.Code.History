@@ -99,6 +99,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Tax Auth';
                             RunObject = report "VAT- VIES Declaration Tax Auth";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT- VIES Declaration Disk")
                         {
@@ -106,6 +109,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Disk...';
                             RunObject = report "VAT- VIES Declaration Disk";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Day Book VAT Entry")
                         {
@@ -131,6 +137,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT Statement Germany';
                             RunObject = report "VAT Statement Germany";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT Statement AT")
                         {
@@ -138,6 +147,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT Statement Austria';
                             RunObject = report "VAT Statement AT";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT-Vies Declaration Tax - DE")
                         {
@@ -145,6 +157,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT-Vies Declaration Tax - DE';
                             RunObject = report "VAT-Vies Declaration Tax - DE";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT - VIES Declaration XML")
                         {
@@ -152,6 +167,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT - VIES Declaration XML';
                             RunObject = report "VAT - VIES Declaration XML";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Crossborder Services")
                         {
@@ -333,6 +351,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Dimensions - Total';
                             RunObject = report "Dimensions - Total";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Check Value Posting")
                         {
@@ -350,6 +371,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Account Schedule';
                             RunObject = report "Account Schedule";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Trial Balance")
                         {
@@ -461,6 +485,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Intrastat - Checklist AT")
                         {
@@ -1172,6 +1199,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer - Order Summary';
                         RunObject = report "Customer - Order Summary";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Customer - Order Detail")
                     {
@@ -1179,6 +1209,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer - Order Detail';
                         RunObject = report "Customer - Order Detail";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Customer - Labels")
                     {
@@ -1192,6 +1225,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer Top 10 List';
                         RunObject = report "Customer - Top 10 List";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Sales Statistics")
                     {
@@ -1205,6 +1241,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer/Item Sales';
                         RunObject = report "Customer/Item Sales";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Salesperson - Sales Statistics")
                     {
@@ -1236,6 +1275,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer Trial Balance';
                         RunObject = report "Customer - Trial Balance";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("EC Sales List")
                     {

@@ -29,7 +29,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [WHEN] The user creates a new Country/Region
         CountryRegion.Code := CopyStr(DelChr(CreateGuid, '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
-        CountryRegion.Insert;
+        CountryRegion.Insert();
 
         // [THEN] No error occurs
         asserterror Assert.ExpectedError('');
@@ -40,14 +40,14 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         // [WHEN] The user creates a new Country/Region
         CountryRegion.Code := CopyStr(DelChr(CreateGuid, '=', '{}-'), 1, MaxStrLen(CountryRegion.Code));
-        asserterror CountryRegion.Insert;
+        asserterror CountryRegion.Insert();
 
         // [THEN]
         Assert.ExpectedError(NoPermissionOnCountryRegionInsertErr);
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderBusinessManager()
     var
@@ -92,7 +92,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderExternalAccountant()
     var
@@ -193,14 +193,13 @@ codeunit 135404 "Sales Document Plan-based E2E"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        RoutingLine.DeleteAll;
+        RoutingLine.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -211,12 +210,9 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Document Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreatePurchaseOrderFromSalesOrder(var SalesOrder: TestPage "Sales Order"; var PurchaseOrder: TestPage "Purchase Order")
@@ -245,7 +241,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -257,7 +253,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -269,7 +265,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPurchaseOrderCreatedFromSalesOrder(var SalesOrder: TestPage "Sales Order"; var PurchaseOrder: TestPage "Purchase Order")
@@ -294,6 +290,12 @@ codeunit 135404 "Sales Document Plan-based E2E"
         ConfigTemplates.OK.Invoke;
     end;
 
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure DummyNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
@@ -301,6 +303,13 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchOrderFromSalesOrder.First;
         PurchOrderFromSalesOrder.Vendor.SetValue(CreateVendor);
         PurchOrderFromSalesOrder.OK.Invoke;
+    end;
+
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var NotificationToRecall: Notification): Boolean
+    begin
+        exit(true);
     end;
 }
 

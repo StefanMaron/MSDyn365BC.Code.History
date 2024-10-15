@@ -396,9 +396,9 @@ report 3010544 "EZAG Payment Order"
         DtaSetup.TestField("Last EZAG Order No.");
         DtaSetup.TestField("EZAG Media ID");
 
-        GlSetup.Get;
+        GlSetup.Get();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAdr.Company(Adr, CompanyInfo);
     end;
 

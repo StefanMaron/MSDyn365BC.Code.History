@@ -96,8 +96,8 @@ codeunit 5446 "Graph Webhook Sync To NAV"
             GraphIntegrationRecArchive.TransferFields(GraphIntegrationRecord);
             GraphIntegrationRecArchive."Webhook Notification".CreateOutStream(OutputStream);
             OutputStream.Write(ReadWebhookNotificationDetails(WebhookNotification));
-            if GraphIntegrationRecArchive.Insert then
-                GraphIntegrationRecord.Delete;
+            if GraphIntegrationRecArchive.Insert() then
+                GraphIntegrationRecord.Delete();
         end;
     end;
 

@@ -84,12 +84,12 @@ report 11504 "Import Bank Directory"
                             if AutoUpdate then
                                 Modify;
                         end else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    BankDirectory.Reset;
+                    BankDirectory.Reset();
                 end;
             }
             dataitem("Vendor Bank Account"; "Vendor Bank Account")
@@ -144,18 +144,18 @@ report 11504 "Import Bank Directory"
                             VendorBankAccount2.SetRange("Vendor No.", "Vendor No.");
                             VendorBankAccount2.SetRange("Clearing No.", BankDirectory."New Clearing No.");
                             if not VendorBankAccount2.Find('-') then begin
-                                VendorBankAccount2.Reset;
-                                VendorBankAccount2.Init;
+                                VendorBankAccount2.Reset();
+                                VendorBankAccount2.Init();
                                 VendorBankAccount2.TransferFields("Vendor Bank Account");
                                 VendorBankAccount2.Code := Format(Code + BankDirectory."New Clearing No.", -10);
                                 VendorBankAccount2.Validate("Clearing No.", BankDirectory."New Clearing No.");
                                 if AutoUpdate then
-                                    if not VendorBankAccount2.Insert then
+                                    if not VendorBankAccount2.Insert() then
                                         BranchNotFound := StrSubstNo(Text007, "Vendor No.", Code);
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                 end;
             }
             dataitem(Other; "Integer")
@@ -208,7 +208,7 @@ report 11504 "Import Bank Directory"
                             BranchNotFound := StrSubstNo(Text005, "DTA Sender Clearing", BankDirectory.TableCaption)
                         else
                             if BankDirectory."New Clearing No." = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 }
                 dataitem("LSV Setup"; "LSV Setup")
@@ -239,7 +239,7 @@ report 11504 "Import Bank Directory"
                             BranchNotFound := StrSubstNo(Text005, "LSV Sender Clearing", BankDirectory.TableCaption)
                         else
                             if BankDirectory."New Clearing No." = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                 }
 

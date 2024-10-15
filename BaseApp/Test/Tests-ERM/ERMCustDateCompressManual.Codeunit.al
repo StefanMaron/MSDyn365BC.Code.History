@@ -84,7 +84,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cust Date Compress Manual");
     end;
 
@@ -93,7 +93,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Create Journal Lines with Random Decimal Amount and Post them. Take Invoice Value always greater than Payment.
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, CustomerNo, PostingDate,

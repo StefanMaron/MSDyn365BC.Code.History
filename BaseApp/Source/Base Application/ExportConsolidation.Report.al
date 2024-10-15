@@ -26,12 +26,12 @@ report 91 "Export Consolidation"
                           Amount, "Debit Amount", "Credit Amount",
                           "Add.-Currency Debit Amount", "Add.-Currency Credit Amount");
                         if (Amount <> 0) or ("Debit Amount" <> 0) or ("Credit Amount" <> 0) then begin
-                            TempGLEntry.Reset;
-                            TempGLEntry.DeleteAll;
-                            TempDimBufOut.Reset;
-                            TempDimBufOut.DeleteAll;
+                            TempGLEntry.Reset();
+                            TempGLEntry.DeleteAll();
+                            TempDimBufOut.Reset();
+                            TempDimBufOut.DeleteAll();
                             TempGLEntry := "G/L Entry";
-                            TempGLEntry.Insert;
+                            TempGLEntry.Insert();
                             if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
                                 Consolidate.InsertGLEntry(TempGLEntry)
                             else begin
@@ -41,18 +41,18 @@ report 91 "Export Consolidation"
                         end;
                         Find('+');
                     end else begin
-                        TempGLEntry.Reset;
-                        TempGLEntry.DeleteAll;
+                        TempGLEntry.Reset();
+                        TempGLEntry.DeleteAll();
                         DimBufMgt.DeleteAllDimensions;
                         repeat
-                            TempDimBufIn.Reset;
-                            TempDimBufIn.DeleteAll;
-                            DimSetEntry.Reset;
+                            TempDimBufIn.Reset();
+                            TempDimBufIn.DeleteAll();
+                            DimSetEntry.Reset();
                             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                             if DimSetEntry.FindSet then begin
                                 repeat
                                     if TempSelectedDim.Get(UserId, 3, REPORT::"Export Consolidation", '', DimSetEntry."Dimension Code") then begin
-                                        TempDimBufIn.Init;
+                                        TempDimBufIn.Init();
                                         TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
                                         TempDimBufIn."Entry No." := "Entry No.";
                                         if TempDim.Get(DimSetEntry."Dimension Code") then
@@ -69,18 +69,18 @@ report 91 "Export Consolidation"
                                                 TempDimBufIn."Dimension Value Code" := TempDimVal.Code
                                         else
                                             TempDimBufIn."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                                        TempDimBufIn.Insert;
+                                        TempDimBufIn.Insert();
                                     end;
                                 until DimSetEntry.Next = 0;
                             end;
                             UpdateTempGLEntry(TempDimBufIn);
                         until Next = 0;
 
-                        TempGLEntry.Reset;
+                        TempGLEntry.Reset();
                         if TempGLEntry.FindSet then begin
                             repeat
-                                TempDimBufOut.Reset;
-                                TempDimBufOut.DeleteAll;
+                                TempDimBufOut.Reset();
+                                TempDimBufOut.DeleteAll();
                                 DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
                                 TempDimBufOut.SetRange("Entry No.", TempGLEntry."Entry No.");
                                 if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then begin
@@ -142,16 +142,16 @@ report 91 "Export Consolidation"
 
                 if Dim.Find('-') then begin
                     repeat
-                        TempDim.Init;
+                        TempDim.Init();
                         TempDim := Dim;
-                        TempDim.Insert;
+                        TempDim.Insert();
                     until Dim.Next = 0;
                 end;
                 if DimVal.Find('-') then begin
                     repeat
-                        TempDimVal.Init;
+                        TempDimVal.Init();
                         TempDimVal := DimVal;
-                        TempDimVal.Insert;
+                        TempDimVal.Insert();
                     until DimVal.Next = 0;
                 end;
 
@@ -160,15 +160,15 @@ report 91 "Export Consolidation"
                 SelectedDim.SetRange("Object ID", REPORT::"Export Consolidation");
                 if SelectedDim.Find('-') then begin
                     repeat
-                        TempSelectedDim.Init;
+                        TempSelectedDim.Init();
                         TempSelectedDim := SelectedDim;
                         TempDim.SetRange("Consolidation Code", SelectedDim."Dimension Code");
                         if TempDim.FindFirst then
                             TempSelectedDim."Dimension Code" := TempDim.Code;
-                        TempSelectedDim.Insert;
+                        TempSelectedDim.Insert();
                     until SelectedDim.Next = 0;
                 end;
-                TempDim.Reset;
+                TempDim.Reset();
 
                 if FileFormat = FileFormat::"Version 3.70 or Earlier (.txt)" then begin
                     Clear(GLEntryFile);
@@ -214,8 +214,8 @@ report 91 "Export Consolidation"
             trigger OnPreDataItem()
             begin
                 if FileFormat = FileFormat::"Version 3.70 or Earlier (.txt)" then
-                    CurrReport.Break;
-                GLSetup.Get;
+                    CurrReport.Break();
+                GLSetup.Get();
                 if GLSetup."Additional Reporting Currency" = '' then
                     SetRange("Currency Code", ParentCurrencyCode)
                 else
@@ -424,7 +424,7 @@ report 91 "Export Consolidation"
         if (not TempDimBuf.IsEmpty) and (DimEntryNo = 0) then begin
             TempGLEntry := "G/L Entry";
             TempGLEntry."Entry No." := DimBufMgt.InsertDimensions(TempDimBuf);
-            TempGLEntry.Insert;
+            TempGLEntry.Insert();
         end else
             if TempGLEntry.Get(DimEntryNo) then begin
                 TempGLEntry.Amount := TempGLEntry.Amount + "G/L Entry".Amount;
@@ -436,11 +436,11 @@ report 91 "Export Consolidation"
                   TempGLEntry."Add.-Currency Debit Amount" + "G/L Entry"."Add.-Currency Debit Amount";
                 TempGLEntry."Add.-Currency Credit Amount" :=
                   TempGLEntry."Add.-Currency Credit Amount" + "G/L Entry"."Add.-Currency Credit Amount";
-                TempGLEntry.Modify;
+                TempGLEntry.Modify();
             end else begin
                 TempGLEntry := "G/L Entry";
                 TempGLEntry."Entry No." := DimEntryNo;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             end;
     end;
 

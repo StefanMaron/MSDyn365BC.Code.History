@@ -32,7 +32,7 @@ codeunit 394 "FinChrgMemo-Make"
                 TestField("Fin. Charge Terms Code");
                 FinChrgMemoHeaderReq := FinChrgMemoHeader;
                 FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
-                FinChrgMemoLine.DeleteAll;
+                FinChrgMemoLine.DeleteAll();
             end;
 
         OverDue := false;
@@ -44,8 +44,8 @@ codeunit 394 "FinChrgMemo-Make"
             else begin
                 if Blocked = Blocked::All then
                     exit(false);
-                Currency.DeleteAll;
-                TempCurrency.DeleteAll;
+                Currency.DeleteAll();
+                TempCurrency.DeleteAll();
                 CustLedgEntry2.CopyFilters(CustLedgEntry);
                 CustLedgEntry.SetCurrentKey("Customer No.");
                 CustLedgEntry.SetRange("Customer No.", "No.");
@@ -53,7 +53,7 @@ codeunit 394 "FinChrgMemo-Make"
                     repeat
                         if CustLedgEntry."On Hold" = '' then begin
                             Currency.Code := CustLedgEntry."Currency Code";
-                            if Currency.Insert then;
+                            if Currency.Insert() then;
                         end;
                     until CustLedgEntry.Next = 0;
                 CustLedgEntry.CopyFilters(CustLedgEntry2);
@@ -67,8 +67,8 @@ codeunit 394 "FinChrgMemo-Make"
                ((FinChrgTerms."Additional Fee (LCY)" = 0) or (not OverDue))
             then
                 exit(true);
-            FinChrgMemoLine.LockTable;
-            FinChrgMemoHeader.LockTable;
+            FinChrgMemoLine.LockTable();
+            FinChrgMemoHeader.LockTable();
 
             if HeaderExists then
                 MakeFinChrgMemo(FinChrgMemoHeader."Currency Code")
@@ -103,7 +103,7 @@ codeunit 394 "FinChrgMemo-Make"
         NextLineNo := 0;
         MakeLines(CurrencyCode, false);
         FinChrgMemoHeader.InsertLines;
-        FinChrgMemoHeader.Modify;
+        FinChrgMemoHeader.Modify();
     end;
 
     local procedure FinChrgMemoCheck(CurrencyCode: Code[10])
@@ -124,7 +124,7 @@ codeunit 394 "FinChrgMemo-Make"
                 if FinChrgMemoHeader.FindFirst then
                     exit(false);
             end;
-            FinChrgMemoHeader.Init;
+            FinChrgMemoHeader.Init();
             FinChrgMemoHeader."No." := '';
             FinChrgMemoHeader."Posting Date" := FinChrgMemoHeaderReq."Posting Date";
             if not Checking then
@@ -133,7 +133,7 @@ codeunit 394 "FinChrgMemo-Make"
             FinChrgMemoHeader.Validate("Document Date", FinChrgMemoHeaderReq."Document Date");
             FinChrgMemoHeader.Validate("Currency Code", CurrencyCode);
             if not Checking then
-                FinChrgMemoHeader.Modify;
+                FinChrgMemoHeader.Modify();
             exit(true);
         end;
     end;
@@ -180,7 +180,7 @@ codeunit 394 "FinChrgMemo-Make"
                 repeat
                     Clear(FinChrgMemoLine);
                     NextLineNo := GetLastLineNo(FinChrgMemoHeader."No.") + 10000;
-                    FinChrgMemoLine.Init;
+                    FinChrgMemoLine.Init();
                     FinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoHeader."No.";
                     FinChrgMemoLine."Line No." := NextLineNo;
                     FinChrgMemoLine.SetFinChrgMemoHeader(FinChrgMemoHeader);
@@ -205,7 +205,7 @@ codeunit 394 "FinChrgMemo-Make"
                             FinChrgMemoLine.Insert
                         else begin
                             TempCurrency.Code := CurrencyCode;
-                            if TempCurrency.Insert then;
+                            if TempCurrency.Insert() then;
                         end;
                     OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
                 until CustLedgEntry.Next = 0;

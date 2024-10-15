@@ -144,7 +144,7 @@ codeunit 3010541 DtaMgt
             // Fill in purch header based on codingline and vendor bank
             if "Buy-from Vendor No." = '' then begin
                 Validate("Buy-from Vendor No.", VendBank."Vendor No.");
-                Commit;
+                Commit();
             end;
 
             Validate("Bank Code", VendBank.Code);
@@ -296,10 +296,10 @@ codeunit 3010541 DtaMgt
                         VendBank.Validate("ESR Account No.", PostAccountInsertDash(VendorBankAccount."ESR Account No."));
                     if VB2."Clearing No." <> '' then
                         VendBank.Validate("Clearing No.", VendorBankAccount."Clearing No.");
-                    VendBank.Insert;
+                    VendBank.Insert();
 
                     if Confirm(Text015Qst, true, VendorNo, VendorBankCode) then begin
-                        Commit;
+                        Commit();
                         if PAGE.RunModal(PAGE::"Vendor Bank Account Card", VendBank) = ACTION::LookupOK then;
                     end;
                 end
@@ -613,14 +613,14 @@ codeunit 3010541 DtaMgt
         if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) and
            (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment)
         then begin
-            VendEntry.Reset;
+            VendEntry.Reset();
             VendEntry.SetCurrentKey("Document No.");
             VendEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             VendEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             if VendEntry.FindFirst then
                 if VendEntry."On Hold" = 'DTA' then begin
                     VendEntry."On Hold" := '';
-                    VendEntry.Modify;
+                    VendEntry.Modify();
                 end;
         end;
     end;
@@ -677,7 +677,7 @@ codeunit 3010541 DtaMgt
                     exit;
                 repeat
                     GlLine.Validate("Currency Factor", "Currency Factor");
-                    GlLine.Modify;
+                    GlLine.Modify();
                 until GlLine.Next = 0;
             end;
         end;
@@ -720,7 +720,7 @@ codeunit 3010541 DtaMgt
     [Scope('OnPrem')]
     procedure GetIsoCurrencyCode(CurrencyCode: Code[10]) IsoCurrencyCode: Code[10]
     begin
-        GlSetup.Get;
+        GlSetup.Get();
 
         if CurrencyCode in ['', GlSetup."LCY Code"] then
             // ISO-Currency Code of LCY

@@ -127,7 +127,7 @@ report 11521 "SR G/L Entries Foreign Currenc"
                 CalcExrate("Amount (FCY)", Amount);
 
                 if not GlAcc.Get("G/L Account No.") then
-                    GlAcc.Init;
+                    GlAcc.Init();
 
                 if "Bal. Account No." <> '' then
                     BalAccType := CopyStr(Format("Bal. Account Type"), 1, 1)

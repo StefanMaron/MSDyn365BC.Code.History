@@ -195,21 +195,21 @@ page 9401 "VAT Amount Lines"
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         if NewVATAmountLine.Find('-') then
             repeat
                 TempVATAmountLine.Copy(NewVATAmountLine);
-                TempVATAmountLine.Insert;
+                TempVATAmountLine.Insert();
             until NewVATAmountLine.Next = 0;
     end;
 
     procedure GetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        NewVATAmountLine.DeleteAll;
+        NewVATAmountLine.DeleteAll();
         if TempVATAmountLine.Find('-') then
             repeat
                 NewVATAmountLine.Copy(TempVATAmountLine);
-                NewVATAmountLine.Insert;
+                NewVATAmountLine.Insert();
             until TempVATAmountLine.Next = 0;
     end;
 
@@ -252,7 +252,7 @@ page 9401 "VAT Amount Lines"
     begin
         TempVATAmountLine := Rec;
         TempVATAmountLine.Modified := true;
-        TempVATAmountLine.Modify;
+        TempVATAmountLine.Modify();
     end;
 }
 

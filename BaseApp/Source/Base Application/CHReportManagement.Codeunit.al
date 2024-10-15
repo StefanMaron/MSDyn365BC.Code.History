@@ -186,7 +186,7 @@ codeunit 11515 "CH Report Management"
             end;
 
             if ShowBankInfo then begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 CompanyInformation.TestField("Bank Name");
                 FooterLabel[8] := BankInformationTxt;
                 FooterTxt[8] := StrSubstNo('%1, %2 %3', CompanyInformation."Bank Name", AccountTxt, CompanyInformation."Bank Account No.");

@@ -144,7 +144,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name, Item."No.", Item."No.");
 
         // Verify: Verify Planning Worksheet for Quantities and Reference Order Type for Parent Item.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         NewShipmentDate := CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time"), SalesLine."Shipment Date");
         VerifyRequisitionLineWithDueDate(Item, RequisitionLine."Action Message"::New, SalesLine.Quantity, 0, NewShipmentDate);
         VerifyRequisitionLineWithDueDate(
@@ -2746,8 +2746,8 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning -II");
         LibrarySetupStorage.Restore;
-        RequisitionLine.DeleteAll;
-        ReservationEntry.DeleteAll;
+        RequisitionLine.DeleteAll();
+        ReservationEntry.DeleteAll();
         LibraryVariableStorage.Clear;
 
         LibraryApplicationArea.EnableEssentialSetup;
@@ -2771,7 +2771,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Supply Planning -II");
     end;
 
@@ -2779,7 +2779,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
@@ -2787,12 +2787,12 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Modify(true);
     end;
@@ -2816,20 +2816,20 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure ConsumptionJournalSetup()
     begin
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
     end;
 
     local procedure OutputJournalSetup()
     begin
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -2987,7 +2987,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Modify(true);
     end;
@@ -2996,7 +2996,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
         ManufacturingSetup.Modify(true);
@@ -3072,7 +3072,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::Planning);
-        RequisitionWkshName.Init;
+        RequisitionWkshName.Init();
         RequisitionWkshName.Validate("Worksheet Template Name", ReqWkshTemplate.Name);
         RequisitionWkshName.Validate(Name, NewName);
         RequisitionWkshName.Insert(true);
@@ -3083,7 +3083,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // Regenerative Planning using Page required where Forecast is used.
         LibraryVariableStorage.Enqueue(ItemNo);  // Required for CalculatePlanPlanWkshRequestPageHandler.
         LibraryVariableStorage.Enqueue(ItemNo2);  // Required for CalculatePlanPlanWkshRequestPageHandler.
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
         PlanningWorksheet.OK.Invoke;
@@ -3091,7 +3091,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure CalcRegenPlanForPlanningWkshPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
     begin
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
         PlanningWorksheet.OK.Invoke;
@@ -3411,7 +3411,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         RoutingCommentLine: Record "Routing Comment Line";
     begin
-        RoutingCommentLine.Init;
+        RoutingCommentLine.Init();
         RoutingCommentLine.Validate("Routing No.", RoutingLine."Routing No.");
         RoutingCommentLine.Validate("Operation No.", RoutingLine."Operation No.");
         RoutingCommentLine.Validate(Comment, RoutingLine."Operation No.");
@@ -3422,7 +3422,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         RoutingTool: Record "Routing Tool";
     begin
-        RoutingTool.Init;
+        RoutingTool.Init();
         RoutingTool.Validate("Routing No.", RoutingLine."Routing No.");
         RoutingTool.Validate("Operation No.", RoutingLine."Operation No.");
         RoutingTool.Validate("No.", RoutingLine."Operation No.");
@@ -3433,7 +3433,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         RoutingPersonnel: Record "Routing Personnel";
     begin
-        RoutingPersonnel.Init;
+        RoutingPersonnel.Init();
         RoutingPersonnel.Validate("Routing No.", RoutingLine."Routing No.");
         RoutingPersonnel.Validate("Operation No.", RoutingLine."Operation No.");
         RoutingPersonnel.Validate("No.", RoutingLine."Operation No.");
@@ -3490,7 +3490,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CalculateRegenPlanForPlanningWorksheet(Item);
         PlanningRoutingLine.SetRange("No.", WorkCenterNo);
         PlanningRoutingLine.FindFirst;
-        PlanningRoutingLine.Delete;
+        PlanningRoutingLine.Delete();
         AcceptActionMessage(RequisitionLine, Item."No.");
         CarryoutActionMessageForPlanWorksheet(RequisitionLine, Item."No.");
     end;
@@ -3864,7 +3864,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockoutWarning);
@@ -4213,7 +4213,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Planning Warning", false);
         ManufacturingSetup.Modify(true);
     end;
@@ -4254,7 +4254,7 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         PlanningComponent: Record "Planning Component";
     begin
-        PlanningComponent.Init;
+        PlanningComponent.Init();
         PlanningComponent.SetRange("Worksheet Template Name", ReqWkshtTemplateName);
         PlanningComponent.SetRange("Worksheet Batch Name", ReqWkshtName);
         PlanningComponent.SetRange("Worksheet Line No.", ReqWkshtLineNo);

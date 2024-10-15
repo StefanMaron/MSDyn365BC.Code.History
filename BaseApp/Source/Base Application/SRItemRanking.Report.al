@@ -89,15 +89,15 @@ report 11577 "SR Item Ranking"
                     end;  // case
 
                 if (TmpAmount[1] = 0) and (TmpAmount[2] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 // Write buffer records
-                ItemAmount.Init;
+                ItemAmount.Init();
 
                 ItemAmount.Amount := TmpAmount[1];
                 ItemAmount."Amount 2" := TmpAmount[2];
                 ItemAmount."Item No." := "No.";
-                ItemAmount.Insert;
+                ItemAmount.Insert();
 
                 // Total of all recs
                 Col1TotalAllRecs := Col1TotalAllRecs + ItemAmount.Amount;
@@ -121,7 +121,7 @@ report 11577 "SR Item Ranking"
 
             trigger OnPreDataItem()
             begin
-                ItemAmount.DeleteAll;  // Temp table
+                ItemAmount.DeleteAll();  // Temp table
                 Window.Open(Text004);
             end;
         }
@@ -240,10 +240,10 @@ report 11577 "SR Item Ranking"
                 // Loop temp record ItemAmt. Break on last rec or at max. number
                 if Number = 1 then begin
                     if not ItemAmount.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if (ItemAmount.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 Item.Get(ItemAmount."Item No.");
                 Col1Amount := ItemAmount.Amount;

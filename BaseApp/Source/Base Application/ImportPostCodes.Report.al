@@ -68,10 +68,10 @@ report 11502 "Import Post Codes"
         Length: Integer;
     begin
         Window.Open(StatusMsg);
-        PostCode.Reset;
+        PostCode.Reset();
         PostCode.SetRange(Code, '1000', '9999');
-        PostCode.DeleteAll;
-        PostCode.Reset;
+        PostCode.DeleteAll();
+        PostCode.Reset();
 
         TempServerFile.Open(TempServerFilePath);
         TempServerFile.CreateInStream(OriginalInStream);
@@ -94,12 +94,12 @@ report 11502 "Import Post Codes"
             TempCSVBuffer.SetFilter(Value, '1000..9999');
             if TempCSVBuffer.FindSet then
                 repeat
-                    PostCode.Init;
+                    PostCode.Init();
                     PostCode.Code := CopyStr(TempCSVBuffer.GetValueOfLineAt(1), 1, 20);
                     PostCode.City := CopyStr(TempCSVBuffer.GetValueOfLineAt(2), 1, 30);
                     PostCode."Search City" := PostCode.City;
                     PostCode.County := CopyStr(TempCSVBuffer.GetValueOfLineAt(3), 1, 30);
-                    PostCode.Insert;
+                    PostCode.Insert();
                     NumberOfPostCodes += 1;
                     if NumberOfPostCodes mod 10 = 0 then
                         Window.Update(1, Format(NumberOfPostCodes));
@@ -107,7 +107,7 @@ report 11502 "Import Post Codes"
             else
                 exit;
             TempCSVBuffer.ResetFilters;
-            TempCSVBuffer.DeleteAll;
+            TempCSVBuffer.DeleteAll();
         end;
         TempServerFile.Close;
         Window.Close;

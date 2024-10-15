@@ -108,7 +108,7 @@ report 11506 "SR Item Acc Sheet Inv. Value"
                     if StartDate > 0D then
                         SetRange("Posting Date", 0D, StartDate - 1)
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
@@ -161,9 +161,9 @@ report 11506 "SR Item Acc Sheet Inv. Value"
                 trigger OnAfterGetRecord()
                 begin
                     if "Invoiced Quantity" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if Quantity = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     CalcValues("Item Ledger Entry");
 

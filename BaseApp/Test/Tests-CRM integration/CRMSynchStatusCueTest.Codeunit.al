@@ -20,14 +20,14 @@ codeunit 139170 "CRM Synch. Status Cue Test"
         TestDate: DateTime;
         DefaultObjectToRun: Integer;
     begin
-        CRMSynchJobStatusCue.DeleteAll;
+        CRMSynchJobStatusCue.DeleteAll();
         CRMSynchJobManagement.SetInitialState(CRMSynchJobStatusCue);
         Assert.IsTrue(CRMSynchJobStatusCue.Code = '0', 'Expected ''0'' as the default value for the synch. status record');
         Assert.IsTrue(CRMSynchJobStatusCue.GetFilter("Date Filter") = '>''''',
           'Invalid filter. It should be the default date time, for empyt dates.');
         TestDate := CreateDateTime(Today, Time);
         CRMSynchJobStatusCue."Reset Date" := TestDate;
-        CRMSynchJobStatusCue.Modify;
+        CRMSynchJobStatusCue.Modify();
         CRMSynchJobManagement.SetInitialState(CRMSynchJobStatusCue);
         DefaultObjectToRun := CRMSynchJobManagement.GetDefaultJobRunner;
         EvaluateFilters(CRMSynchJobStatusCue, TestDate, DefaultObjectToRun);
@@ -83,8 +83,8 @@ codeunit 139170 "CRM Synch. Status Cue Test"
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; CodeUnitToRun: Integer; Status: Option)
     begin
-        JobQueueEntry.DeleteAll;
-        JobQueueEntry.Init;
+        JobQueueEntry.DeleteAll();
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today, 0T);
         JobQueueEntry."Last Ready State" := CreateDateTime(Today, 0T);
@@ -100,7 +100,7 @@ codeunit 139170 "CRM Synch. Status Cue Test"
     begin
         CreateJobQueueEntry(JobQueueEntry, JobToRun, Status);
         Assert.IsTrue(JobQueueEntry.Count = 1, 'There should be 1 JobQueueEntry Record');
-        CRMSynchJobStatusCue.DeleteAll;
+        CRMSynchJobStatusCue.DeleteAll();
         CRMSynchJobManagement.SetInitialState(CRMSynchJobStatusCue);
         CRMSynchJobManagement.OnReset(CRMSynchJobStatusCue);
     end;

@@ -212,7 +212,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(DateRange);
-        Commit;
+        Commit();
         MatchBankEntries.UseRequestPage(true);
         MatchBankEntries.SetTableView(BankAccReconciliation);
         REPORT.Run(REPORT::"Match Bank Entries", true, false, BankAccReconciliation);
@@ -254,7 +254,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(DateRange);
-        Commit;
+        Commit();
         MatchBankEntries.UseRequestPage(true);
         MatchBankEntries.SetTableView(BankAccReconciliation);
         REPORT.Run(REPORT::"Match Bank Entries", true, false, BankAccReconciliation);
@@ -576,7 +576,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(0);
-        Commit;
+        Commit();
         BankAccReconciliationPage.OpenEdit;
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
         BankAccReconciliationPage.MatchAutomatically.Invoke;
@@ -755,10 +755,9 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
 
         // Exercise.
-        AddBankEntriesToTemp(TempBankAccountLedgerEntry, BankAccountNo);
+        TempBankAccReconciliationLine.DeleteAll();
         TempBankAccountLedgerEntry.FindLast;
-        TempBankAccountLedgerEntry.Delete;
-        TempBankAccReconciliationLine.DeleteAll;
+        TempBankAccountLedgerEntry.Delete();
         MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
 
         // Verify.
@@ -779,7 +778,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Initialize;
 
         // [GIVEN] Record of "Bank Acc. Reconciliation Line" - "BACL"
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         // [GIVEN] Length of string "X" = 250
         FirstValue := PadStr('', 250, '0');
         // [GIVEN] Length of string "Y" = 100
@@ -808,7 +807,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Initialize;
 
         // [GIVEN] Record of "Posted Payment Recon. Line" - "PPRL"
-        PostedPaymentReconLine.Init;
+        PostedPaymentReconLine.Init();
         // [GIVEN] Length of string "X" = 250
         StringValue := PadStr('', 250, '0');
 
@@ -846,15 +845,13 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        TempBankAccReconciliationLine.Reset();
-        TempBankAccReconciliationLine.DeleteAll();
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         if BankAccReconciliationLine.FindSet then
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
-                TempBankAccReconciliationLine.Insert;
+                TempBankAccReconciliationLine.Insert();
             until BankAccReconciliationLine.Next = 0;
     end;
 
@@ -862,13 +859,11 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        TempBankAccLedgerEntry.Reset();
-        TempBankAccLedgerEntry.DeleteAll();
         BankAccLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         if BankAccLedgerEntry.FindSet then
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
-                TempBankAccLedgerEntry.Insert;
+                TempBankAccLedgerEntry.Insert();
             until BankAccLedgerEntry.Next = 0;
     end;
 
@@ -889,11 +884,11 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
     local procedure CreateBankAccRec(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Bank Account No." := BankAccountNo;
         BankAccReconciliation."Statement No." := StatementNo;
         BankAccReconciliation."Statement Date" := WorkDate;
-        BankAccReconciliation.Insert;
+        BankAccReconciliation.Insert();
     end;
 
     local procedure CreateBankAccRecLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; TransactionDate: Date; Description: Text[50]; PayerInfo: Text[50]; Amount: Decimal): Integer
@@ -905,7 +900,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         if BankAccReconciliationLine.FindLast then;
 
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         BankAccReconciliationLine."Bank Account No." := BankAccReconciliation."Bank Account No.";
         BankAccReconciliationLine."Statement Type" := BankAccReconciliation."Statement Type";
         BankAccReconciliationLine."Statement No." := BankAccReconciliation."Statement No.";
@@ -916,7 +911,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine."Statement Amount" := Amount;
         BankAccReconciliationLine.Difference := Amount;
         BankAccReconciliationLine.Type := BankAccReconciliationLine.Type::"Bank Account Ledger Entry";
-        BankAccReconciliationLine.Insert;
+        BankAccReconciliationLine.Insert();
 
         exit(BankAccReconciliationLine."Statement Line No.");
     end;
@@ -927,7 +922,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     begin
         if BankAccountLedgerEntry.FindLast then;
 
-        BankAccountLedgerEntry.Init;
+        BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry."Entry No." += 1;
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
         BankAccountLedgerEntry."Posting Date" := PostingDate;
@@ -938,7 +933,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccountLedgerEntry."External Document No." := ExtDocNo;
         BankAccountLedgerEntry.Open := true;
         BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::Open;
-        BankAccountLedgerEntry.Insert;
+        BankAccountLedgerEntry.Insert();
 
         exit(BankAccountLedgerEntry."Entry No.");
     end;

@@ -186,7 +186,7 @@ codeunit 134229 "ERM Analysis View"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Analysis View");
     end;
 
@@ -224,7 +224,7 @@ codeunit 134229 "ERM Analysis View"
                         AnalysisView."Dimension 4 Code" := Dimension.Code;
                 end;
             until (i = 4) or (Dimension.Next = 0);
-        AnalysisView.Modify;
+        AnalysisView.Modify();
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
     end;
 

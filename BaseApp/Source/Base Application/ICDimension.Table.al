@@ -55,7 +55,7 @@ table 411 "IC Dimension"
         ICDimValue: Record "IC Dimension Value";
     begin
         ICDimValue.SetRange("Dimension Code", Code);
-        ICDimValue.DeleteAll;
+        ICDimValue.DeleteAll();
     end;
 
     var

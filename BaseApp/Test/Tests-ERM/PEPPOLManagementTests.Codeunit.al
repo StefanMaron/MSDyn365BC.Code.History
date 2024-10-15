@@ -233,11 +233,10 @@ codeunit 139155 "PEPPOL Management Tests"
 
         NewGLNNo := LibraryUtility.GenerateGUID;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.GLN := NewGLNNo;
-        CompanyInfo."Use GLN in Electronic Document" := true;
         CompanyInfo.Name := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyInfo(SupplierEndpointID, SupplierSchemeID, SupplierName);
@@ -260,15 +259,14 @@ codeunit 139155 "PEPPOL Management Tests"
         SupplierName: Text;
     begin
         // Setup
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.GLN := '';
-        CompanyInfo."Use GLN in Electronic Document" := true;
         CompanyInfo."VAT Registration No." := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         CountryRegion.Get(CompanyInfo."Country/Region Code");
         CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyInfo(SupplierEndpointID, SupplierSchemeID, SupplierName);
@@ -297,7 +295,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         OldCompanyInfo := CompanyInfo;
 
         CompanyInfo.Address := LibraryUtility.GenerateGUID;
@@ -307,7 +305,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInfo.County := LibraryUtility.GenerateGUID;
         CompanyInfo."Country/Region Code" := LibraryUtility.GenerateGUID;
         CompanyInfo."Responsibility Center" := '';
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyPostalAddr(
@@ -330,8 +328,8 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInfo.County := OldCompanyInfo.County;
         CompanyInfo."Country/Region Code" := OldCompanyInfo."Country/Region Code";
         CompanyInfo."Responsibility Center" := OldCompanyInfo."Responsibility Center";
-        CompanyInfo.Modify;
-        CompanyInfo.Get;
+        CompanyInfo.Modify();
+        CompanyInfo.Get();
     end;
 
     [Test]
@@ -353,7 +351,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        RespCenter.Init;
+        RespCenter.Init();
         RespCenter.Code := LibraryUtility.GenerateGUID;
         RespCenter.Address := LibraryUtility.GenerateGUID;
         RespCenter."Address 2" := LibraryUtility.GenerateGUID;
@@ -361,11 +359,11 @@ codeunit 139155 "PEPPOL Management Tests"
         RespCenter."Post Code" := LibraryUtility.GenerateGUID;
         RespCenter.County := LibraryUtility.GenerateGUID;
         RespCenter."Country/Region Code" := LibraryUtility.GenerateGUID;
-        RespCenter.Insert;
+        RespCenter.Insert();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Responsibility Center" := RespCenter.Code;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         DummySalesHeader."Responsibility Center" := RespCenter.Code;
 
@@ -402,13 +400,13 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         CountryRegion.Get(CompanyInfo."Country/Region Code");
         CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
@@ -435,10 +433,9 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.GLN := LibraryUtility.GenerateGUID;
-        CompanyInfo."Use GLN in Electronic Document" := true;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyLegalEntity(
@@ -472,16 +469,15 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.GLN := '';
-        CompanyInfo."Use GLN in Electronic Document" := true;
         if CompanyInfo."Country/Region Code" = '' then begin
             CountryRegion.FindFirst;
             CompanyInfo.Validate("Country/Region Code", CountryRegion.Code)
         end;
         if CompanyInfo."VAT Registration No." = '' then
             CompanyInfo."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInfo."Country/Region Code");
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetAccountingSupplierPartyLegalEntity(
@@ -516,16 +512,16 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Telex No." := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
-        Salesperson.Init;
+        Salesperson.Init();
         Salesperson.Code := LibraryUtility.GenerateGUID;
         Salesperson.Name := LibraryUtility.GenerateGUID;
         Salesperson."Phone No." := LibraryUtility.GenerateGUID;
         Salesperson."E-Mail" := LibraryUtility.GenerateRandomEmail;
-        Salesperson.Insert;
+        Salesperson.Insert();
 
         DummySalesHeader."Salesperson Code" := Salesperson.Code;
 
@@ -561,8 +557,7 @@ codeunit 139155 "PEPPOL Management Tests"
         NewGLNNo := LibraryUtility.GenerateGUID;
 
         Cust.GLN := NewGLNNo;
-        Cust."Use GLN in Electronic Document" := true;
-        Cust.Modify;
+        Cust.Modify();
 
         DummySalesHeader."Bill-to Customer No." := Cust."No.";
         DummySalesHeader."Bill-to Name" := Cust.Name;
@@ -603,7 +598,7 @@ codeunit 139155 "PEPPOL Management Tests"
         DummySalesHeader."Bill-to Customer No." := Cust."No.";
         DummySalesHeader."Bill-to Name" := Cust.Name;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CountryRegion.Get(CompanyInfo."Country/Region Code");
 
         // Exercise
@@ -635,7 +630,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Bill-to Address" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Address 2" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to City" := LibraryUtility.GenerateGUID;
@@ -673,11 +668,11 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         CountryRegion.Get(CompanyInfo."Country/Region Code");
         CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
 
         DummySalesHeader."VAT Registration No." := LibraryUtility.GenerateGUID;
 
@@ -707,8 +702,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         LibrarySales.CreateCustomer(Cust);
         Cust.GLN := LibraryUtility.GenerateGUID;
-        Cust."Use GLN in Electronic Document" := true;
-        Cust.Modify;
+        Cust.Modify();
 
         DummySalesHeader.Validate("Bill-to Customer No.", Cust."No.");
 
@@ -741,8 +735,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Cust."Country/Region Code" := CountryRegion.Code;
         Cust."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegion.Code);
         Cust.GLN := '';
-        Cust."Use GLN in Electronic Document" := true;
-        Cust.Modify;
+        Cust.Modify();
 
         DummySalesHeader.Validate("Bill-to Customer No.", Cust."No.");
         DummySalesHeader.Validate("VAT Registration No.", Cust."VAT Registration No.");
@@ -773,13 +766,13 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup
         Initialize;
 
-        Cont.Init;
+        Cont.Init();
         Cont."No." := LibraryUtility.GenerateGUID;
         Cont.Name := LibraryUtility.GenerateGUID;
         Cont."Phone No." := LibraryUtility.GenerateGUID;
         Cont."Telex No." := LibraryUtility.GenerateGUID;
         Cont."E-Mail" := LibraryUtility.GenerateRandomEmail;
-        Cont.Insert;
+        Cont.Insert();
 
         DummySalesHeader."Bill-to Contact No." := Cont."No.";
 
@@ -819,16 +812,15 @@ codeunit 139155 "PEPPOL Management Tests"
         NewVATNo := LibraryUtility.GenerateGUID;
         NewName := LibraryUtility.GenerateGUID;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.GLN := NewGLNNo;
-        CompanyInfo."Use GLN in Electronic Document" := true;
         CompanyInfo."VAT Registration No." := NewVATNo;
         CompanyInfo.Name := NewName;
         CompanyInfo."Country/Region Code" := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         CountryRegion.Code := CompanyInfo."Country/Region Code";
-        CountryRegion.Insert;
+        CountryRegion.Insert();
         LibraryUtility.FillFieldMaxText(CountryRegion, CountryRegion.FieldNo("VAT Scheme"));
         CountryRegion.Find;
 
@@ -978,12 +970,12 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup for IBAN
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Bank Branch No." := LibraryUtility.GenerateGUID;
         CompanyInfo."SWIFT Code" := LibraryUtility.GenerateGUID;
         CompanyInfo."Bank Name" := LibraryUtility.GenerateGUID;
         CompanyInfo.IBAN := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
@@ -1015,12 +1007,12 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup for IBAN
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Bank Branch No." := LibraryUtility.GenerateGUID;
         CompanyInfo."SWIFT Code" := 'S W I F T 1 2 3';
         CompanyInfo."Bank Name" := LibraryUtility.GenerateGUID;
         CompanyInfo.IBAN := 'I B A N 12 3';
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
@@ -1052,11 +1044,11 @@ codeunit 139155 "PEPPOL Management Tests"
         // Setup for Bank Acc.
         Initialize;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.IBAN := '';
         CompanyInfo."SWIFT Code" := LibraryUtility.GenerateGUID;
         CompanyInfo."Bank Account No." := LibraryUtility.GenerateGUID;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         // Exercise
         PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
@@ -1165,7 +1157,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Validate(Code, LibraryUtility.GenerateGUID);
         CustInvoiceDisc.Validate("Discount %", 10);
         CustInvoiceDisc.Insert(true);
@@ -1274,7 +1266,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Validate(Code, LibraryUtility.GenerateGUID);
         CustInvoiceDisc.Validate("Discount %", 10);
         CustInvoiceDisc.Insert(true);
@@ -1329,7 +1321,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Validate(Code, LibraryUtility.GenerateGUID);
         CustInvoiceDisc.Validate("Discount %", 10);
         CustInvoiceDisc.Insert(true);
@@ -1402,7 +1394,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup2, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup2."VAT Identifier" := LibraryUtility.GenerateGUID;
         VATPostingSetup2."Tax Category" := Format(LibraryRandom.RandIntInRange(10, 100));
-        VATPostingSetup2.Modify;
+        VATPostingSetup2.Modify();
 
         // [GIVEN] Two sales lines of VAT Posting Setup "VAT25" with Amount Incl. VAT = 110 and 120
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -1640,7 +1632,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateCustomer(Cust);
         AddCustPEPPOLIdentifier(Cust."No.");
 
-        CustInvoiceDisc.Init;
+        CustInvoiceDisc.Init();
         CustInvoiceDisc.Validate(Code, LibraryUtility.GenerateGUID);
         CustInvoiceDisc.Validate("Discount %", 10);
         CustInvoiceDisc.Insert(true);
@@ -1796,7 +1788,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", 1);
         SalesLine."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         SalesLine."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceLine.Get(SalesInvoiceNo, SalesLine."Line No.");
@@ -1851,13 +1843,13 @@ codeunit 139155 "PEPPOL Management Tests"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GLAccount."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
         SalesLine."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         SalesLine."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvoiceLine.Get(SalesInvoiceNo, SalesLine."Line No.");
@@ -1912,7 +1904,7 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", 1);
         SalesLine."Line Amount" := LibraryRandom.RandInt(100);
         SalesLine.Amount := LibraryRandom.RandInt(100);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibraryInvt.CreateItemChargeAssignment(
           ItemChargeAssignmentSales, SalesLine, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", Item."No.");
@@ -2274,7 +2266,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, false));
 
-        SalesInvoiceHeader.Delete; // Applies-to-doc no longer exists
+        SalesInvoiceHeader.Delete(); // Applies-to-doc no longer exists
 
         // Exercise
         PEPPOLMgt.GetCrMemoBillingReferenceInfo(
@@ -2382,11 +2374,11 @@ codeunit 139155 "PEPPOL Management Tests"
 
         // Exercise
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        TempRecordExportBuffer.Init;
+        TempRecordExportBuffer.Init();
         TempRecordExportBuffer.RecordID := SalesInvoiceHeader.RecordId;
-        TempRecordExportBuffer.Insert;
+        TempRecordExportBuffer.Insert();
 
-        asserterror CODEUNIT.Run(CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", TempRecordExportBuffer);
+        asserterror CODEUNIT.Run(CODEUNIT::"Export Sales Inv. - PEPPOL 2.1", TempRecordExportBuffer);
 
         Assert.ExpectedError(StrSubstNo(NoUnitOfMeasureErr, SalesInvoiceHeader."No."));
     end;
@@ -2413,11 +2405,11 @@ codeunit 139155 "PEPPOL Management Tests"
 
         // Exercise
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        TempRecordExportBuffer.Init;
+        TempRecordExportBuffer.Init();
         TempRecordExportBuffer.RecordID := SalesCrMemoHeader.RecordId;
-        TempRecordExportBuffer.Insert;
+        TempRecordExportBuffer.Insert();
 
-        asserterror CODEUNIT.Run(CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", TempRecordExportBuffer);
+        asserterror CODEUNIT.Run(CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1", TempRecordExportBuffer);
 
         Assert.ExpectedError(StrSubstNo(NoUnitOfMeasureCRErr, SalesCrMemoHeader."No."));
     end;
@@ -2438,7 +2430,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesLine.Description := '';
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
@@ -2568,7 +2560,6 @@ codeunit 139155 "PEPPOL Management Tests"
         AssertVisibility(CompanyInformation."Country/Region Code".Visible, 'Company Info.Country/Region Code');
 
         AssertVisibility(CompanyInformation.GLN.Visible, 'Company Info.GLN');
-        AssertVisibility(CompanyInformation."Use GLN in Electronic Document".Visible, 'Company Info.Use GLN in Electronic Document');
         AssertVisibility(CompanyInformation."VAT Registration No.".Visible, 'Company Info.VAT Registration No.');
 
         AssertVisibility(CustomerCard.Name.Visible, 'Customer Card.Name');
@@ -2578,7 +2569,6 @@ codeunit 139155 "PEPPOL Management Tests"
         AssertVisibility(CustomerCard.City.Visible, 'Customer Card.City');
         AssertVisibility(CustomerCard."Country/Region Code".Visible, 'Customer Card.Country/Region Code');
         AssertVisibility(CustomerCard.GLN.Visible, 'Customer Card.GLN');
-        AssertVisibility(CustomerCard."Use GLN in Electronic Document".Visible, 'Customer Card.Use GLN in Electronic Document');
         AssertVisibility(CustomerCard."VAT Registration No.".Visible, 'Customer Card."VAT Registration No."');
 
         AssertVisibility(CompanyInformation.IBAN.Visible, 'Company Info.IBAN');
@@ -2595,13 +2585,13 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_TaxCurrencyCode_DocumentTypeCode()
+    procedure PEPPOL21_XMLExport_TaxCurrencyCode_DocumentTypeCode()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         XMLFilePath: Text;
     begin
         // [FEATURE] [XML] [Invoice]
-        // [SCENARIO 205106] Export PEPPOL does not generate cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements.
+        // [SCENARIO 205106] PEPPOL 2.1 xml does not export cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements.
 
         Initialize;
         UpdateCompanySwiftCode;
@@ -2609,18 +2599,18 @@ codeunit 139155 "PEPPOL Management Tests"
         // [GIVEN] Posted sales invoice for the customer
         SalesInvoiceHeader.Get(CreatePostSalesInvoice);
 
-        // [WHEN] Send the invoice electronically with PEPPOL format
+        // [WHEN] Send the invoice electronically with PEPPOL 2.1 format
         SalesInvoiceHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.1');
 
         // [THEN] cbc:TaxCurrencyCode and cbc:DocumentTypeCode elements are not exported
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyElementAbsenceInSubtree('Invoice', 'cbc:TaxCurrencyCode');
         LibraryXMLRead.VerifyElementAbsenceInSubtree('Invoice/cac:ContractDocumentReference', 'cbc:DocumentTypeCode');
 
-        // [THEN] cbc:InvoicedQuantity and cbc:BaseQuantity elements do not have unitCodeListID attribute
-        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:InvoiceLine', 'cbc:InvoicedQuantity', 'unitCodeListID');
-        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:InvoiceLine', 'cbc:BaseQuantity', 'unitCodeListID');
+        // [THEN] cbc:InvoicedQuantity and cbc:BaseQuantity elements have unitCodeListID attribute set to UNECERec20
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:InvoiceLine', 'cbc:InvoicedQuantity', 'unitCodeListID', 'UNECERec20');
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:InvoiceLine', 'cbc:BaseQuantity', 'unitCodeListID', 'UNECERec20');
     end;
 
     [Test]
@@ -2635,7 +2625,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [SCENARIO 277023] PEPPOLMgt.GetGLNDeliveryInfo() returns ActualDeliveryDate = "Shipment Date", DeliveryID = Ship-to Address.GLN, DeliveryIDSchemeID = '0088'
 
         // Blanked "Shipment Date" and blanked "Ship-to Code"
-        DummySalesHeader.Init;
+        DummySalesHeader.Init();
         VerifyPEPPOLMgtGetGLNDeliveryInfo(DummySalesHeader, '', '', '');
 
         // "Shipment Date" and blanked "Ship-to Code"
@@ -2655,7 +2645,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         // Blanked "Shipment Date" and Ship-to Address with GLN
         ShipToAddress.GLN := LibraryUtility.GenerateGUID;
-        ShipToAddress.Modify;
+        ShipToAddress.Modify();
         VerifyPEPPOLMgtGetGLNDeliveryInfo(DummySalesHeader, '', ShipToAddress.GLN, '0088');
 
         // "Shipment Date" and Ship-to Address with GLN
@@ -2672,7 +2662,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [FEATURE] [UT]
         // [SCENARIO 289768] PEPPOLMgt.GetGLNForHeader() returns '' when "Sell-to Customer No." is empty
 
-        DummySalesHeader.Init;
+        DummySalesHeader.Init();
         VerifyPEPPOLMgtGetGLNForHeader(DummySalesHeader, '');
     end;
 
@@ -2686,7 +2676,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [FEATURE] [UT]
         // [SCENARIO 289768] PEPPOLMgt.GetGLNForHeader() returns Customer.GLN when "Sell-to Customer No." is filled and "Ship-to Code" is blank
 
-        DummySalesHeader.Init;
+        DummySalesHeader.Init();
         CreateCustomerWithGLN(Customer);
         DummySalesHeader."Sell-to Customer No." := Customer."No.";
         VerifyPEPPOLMgtGetGLNForHeader(DummySalesHeader, Customer.GLN);
@@ -2703,11 +2693,11 @@ codeunit 139155 "PEPPOL Management Tests"
         // [FEATURE] [UT]
         // [SCENARIO 289768] PEPPOLMgt.GetGLNForHeader() returns Ship-to Address.GLN when it's not empty and both "Ship-to Code" and "Sell-to Customer No." are filled
 
-        DummySalesHeader.Init;
+        DummySalesHeader.Init();
         CreateCustomerWithGLN(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         ShipToAddress.GLN := CreateValidGLN;
-        ShipToAddress.Modify;
+        ShipToAddress.Modify();
         DummySalesHeader."Ship-to Code" := ShipToAddress.Code;
         DummySalesHeader."Sell-to Customer No." := Customer."No.";
         VerifyPEPPOLMgtGetGLNForHeader(DummySalesHeader, ShipToAddress.GLN);
@@ -2724,7 +2714,7 @@ codeunit 139155 "PEPPOL Management Tests"
         // [FEATURE] [UT]
         // [SCENARIO 289768] PEPPOLMgt.GetGLNForHeader() returns Customer.GLN when Ship-to Address.GLN is empty and both "Ship-to Code" and "Sell-to Customer No." are filled
 
-        DummySalesHeader.Init;
+        DummySalesHeader.Init();
         CreateCustomerWithGLN(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         DummySalesHeader."Ship-to Code" := ShipToAddress.Code;
@@ -2734,7 +2724,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesInvoice_ShipToAddress()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesInvoice_ShipToAddress()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Customer: Record Customer;
@@ -2743,7 +2733,7 @@ codeunit 139155 "PEPPOL Management Tests"
         XMLFilePath: Text;
     begin
         // [FEATURE] [Invoice]
-        // [SCENARIO 289768] PEPPOL Sales Invoice Delivery info (ActualDeliveryDate, Delivery ID) when Ship-to Code if filled in
+        // [SCENARIO 289768] PEPPOL 2.1 Sales Invoice Delivery info (ActualDeliveryDate, Delivery ID) when Ship-to Code if filled in
         Initialize;
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Ship-to Address.GLN = 12345) and "Ship-to Code" is filled in
@@ -2752,9 +2742,9 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         ShipToAddress.Get(Customer."No.", SalesInvoiceHeader."Ship-to Code");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesInvoiceHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2765,23 +2755,23 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesInvoice_noShipToCode()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesInvoice_noShipToCode()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Customer: Record Customer;
         XMLFilePath: Text;
     begin
         // [FEATURE] [Invoice]
-        // [SCENARIO 277023] PEPPOL Sales Invoice Delivery info (ActualDeliveryDate, Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Sales Invoice Delivery info (ActualDeliveryDate, Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = 12345) and no "Ship-to Code"
         SalesInvoiceHeader.Get(CreatePostSalesInvoice);
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesInvoiceHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2792,22 +2782,22 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesInvoice_BlankedGLN()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesInvoice_BlankedGLN()
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         XMLFilePath: Text;
     begin
         // [FEATURE] [Invoice]
-        // [SCENARIO 277023] PEPPOL Sales Invoice Delivery info (ActualDeliveryDate, blanked Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Sales Invoice Delivery info (ActualDeliveryDate, blanked Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = "") and no "Ship-to Code"
         SalesInvoiceHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesInvoiceHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2817,7 +2807,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesCrMemo_ShipToAddress()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesCrMemo_ShipToAddress()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         Customer: Record Customer;
@@ -2826,7 +2816,7 @@ codeunit 139155 "PEPPOL Management Tests"
         XMLFilePath: Text;
     begin
         // [FEATURE] [Credit Memo]
-        // [SCENARIO 289768] PEPPOL Sales Credit Memo Delivery info (ActualDeliveryDate, Delivery ID) when Ship-to Address is filled in
+        // [SCENARIO 289768] PEPPOL 2.1 Sales Credit Memo Delivery info (ActualDeliveryDate, Delivery ID) when Ship-to Address is filled in
         Initialize;
 
         // [GIVEN] Posted Sales Credit Memo ("Shipment Date" = 18-07-2018, Ship-to Address.GLN = 12345) with a "Ship-to Code"
@@ -2835,9 +2825,9 @@ codeunit 139155 "PEPPOL Management Tests"
         Customer.Get(SalesCrMemoHeader."Sell-to Customer No.");
         ShipToAddress.Get(Customer."No.", SalesCrMemoHeader."Ship-to Code");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesCrMemoHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2848,23 +2838,23 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesCrMemo_noShipToCode()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesCrMemo_noShipToCode()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         Customer: Record Customer;
         XMLFilePath: Text;
     begin
         // [FEATURE] [Credit Memo]
-        // [SCENARIO 277023] PEPPOL Sales Credit Memo Delivery info (ActualDeliveryDate, Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Sales Credit Memo Delivery info (ActualDeliveryDate, Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Sales Credit Memo ("Shipment Date" = 18-07-2018, Customer.GLN = 12345) and no "Ship-to Code"
         SalesCrMemoHeader.Get(CreatePostSalesCrMemo);
         Customer.Get(SalesCrMemoHeader."Sell-to Customer No.");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesCrMemoHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018", "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2875,22 +2865,22 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_SalesCrMemo_BlankedGLN()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_SalesCrMemo_BlankedGLN()
     var
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         XMLFilePath: Text;
     begin
         // [FEATURE] [Credit Memo]
-        // [SCENARIO 277023] PEPPOL Sales Credit Memo Delivery info (ActualDeliveryDate, blanked Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Sales Credit Memo Delivery info (ActualDeliveryDate, blanked Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Sales Invoice ("Shipment Date" = 18-07-2018, Customer.GLN = "") and no "Ship-to Code"
         SalesCrMemoHeader.Get(CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         SalesCrMemoHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ActualDeliveryDate" = "18-07-2018"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2900,23 +2890,23 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_ServiceInvoice()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_ServiceInvoice()
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         Customer: Record Customer;
         XMLFilePath: Text;
     begin
         // [FEATURE] [Service] [Invoice]
-        // [SCENARIO 277023] PEPPOL Service Invoice Delivery info (ActualDeliveryDate, Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Service Invoice Delivery info (ActualDeliveryDate, Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Service Invoice (Customer.GLN = 12345)
         CreatePostServiceInvoice(ServiceInvoiceHeader);
         Customer.Get(ServiceInvoiceHeader."Customer No.");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         ServiceInvoiceHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -2927,23 +2917,23 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PEPPOL_XMLExport_DeliveryInfo_ServiceCrMemo()
+    procedure PEPPOL21_XMLExport_DeliveryInfo_ServiceCrMemo()
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         Customer: Record Customer;
         XMLFilePath: Text;
     begin
         // [FEATURE] [Service] [Credit Memo]
-        // [SCENARIO 277023] PEPPOL Service Credit Memo Delivery info (ActualDeliveryDate, Delivery ID)
+        // [SCENARIO 277023] PEPPOL 2.1 Service Credit Memo Delivery info (ActualDeliveryDate, Delivery ID)
         Initialize;
 
         // [GIVEN] Posted Service Credit Memo (Customer.GLN = 12345)
         CreatePostServiceCrMemo(ServiceCrMemoHeader);
         Customer.Get(ServiceCrMemoHeader."Customer No.");
 
-        // [WHEN] Export PEPPOL format
+        // [WHEN] Export PEPPOL 2.1
         ServiceCrMemoHeader.SetRecFilter;
-        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, GetPEPPOLFormat);
+        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, 'PEPPOL 2.1');
 
         // [THEN] "Delivery" tag has been exported with "ID" = "12345", "ID/schemeID" = "0088"
         LibraryXMLRead.Initialize(XMLFilePath);
@@ -3011,7 +3001,7 @@ codeunit 139155 "PEPPOL Management Tests"
         CompanyInfo: Record "Company Information";
     begin
         if not IsInitialized then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfo.Validate(IBAN, 'GB29NWBK60161331926819');
             CompanyInfo.Validate("SWIFT Code", 'MIDLGB22Z0K');
             CompanyInfo.Validate("Bank Branch No.", '1234');
@@ -3052,14 +3042,14 @@ codeunit 139155 "PEPPOL Management Tests"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate(GLN, CreateValidGLN);
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibraryInvt.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateGenericSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
@@ -3151,13 +3141,13 @@ codeunit 139155 "PEPPOL Management Tests"
         CustLedgerEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
         if CustLedgerEntry.FindFirst then begin
             CustLedgerEntry.Positive := true;
-            CustLedgerEntry.Modify;
+            CustLedgerEntry.Modify();
         end;
 
         SalesHeader.Validate("Sell-to Customer No.", SalesCrMemoHeader."Sell-to Customer No.");
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::"Credit Memo");
         SalesHeader.Validate("Applies-to Doc. No.", SalesCrMemoHeader."No.");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure AttachAppliesToDocToHeaderFromPostedInvoice(var SalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -3165,7 +3155,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesHeader.Validate("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure GetVATAmt(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
@@ -3331,7 +3321,7 @@ codeunit 139155 "PEPPOL Management Tests"
         ShipToAddress.Validate(City, Customer.City);
         ShipToAddress.Validate("Post Code", Customer."Post Code");
         ShipToAddress.Validate(County, Customer.County);
-        ShipToAddress.Modify;
+        ShipToAddress.Modify();
     end;
 
     local procedure CreateCustomerWithAddressAndGLN(): Code[20]
@@ -3349,7 +3339,7 @@ codeunit 139155 "PEPPOL Management Tests"
     begin
         LibrarySales.CreateCustomerWithAddress(Customer);
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
-        Customer.Modify;
+        Customer.Modify();
         exit(Customer."No.");
     end;
 
@@ -3357,11 +3347,6 @@ codeunit 139155 "PEPPOL Management Tests"
     begin
       SalesInvoiceLine.SetRange("Document No.", InvoiceNo);
       SalesInvoiceLine.FindFirst;
-    end;
-
-    local procedure GetPEPPOLFormat(): Code[20]
-    begin
-        exit('PEPPOL BIS3');
     end;
 
     local procedure PEPPOLXMLExport(DocumentVariant: Variant; FormatCode: Code[20]): Text
@@ -3390,13 +3375,11 @@ codeunit 139155 "PEPPOL Management Tests"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0");
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1");
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0");
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1");
         CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0");
-        CreateElectronicDocumentFormatSetup(
-          GetPEPPOLFormat, ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0");
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1");
     end;
 
     local procedure VerifyPEPPOLMgtGetGLNDeliveryInfo(SalesHeader: Record "Sales Header"; ExpectedActualDeliveryDate: Text; ExpectedDeliveryID: Text; ExpectedDeliveryIDSchemeID: Text)
@@ -3475,7 +3458,7 @@ codeunit 139155 "PEPPOL Management Tests"
           PayableAmount,
           PayableAmountCurrencyID);
 
-        TempVATAmtLine.Reset;
+        TempVATAmtLine.Reset();
         TempVATAmtLine.CalcSums("Line Amount", "VAT Base", "Amount Including VAT", "Invoice Discount Amount");
 
         Assert.AreEqual(

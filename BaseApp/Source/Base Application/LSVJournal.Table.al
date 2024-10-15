@@ -24,7 +24,7 @@ table 3010832 "LSV Journal"
             trigger OnValidate()
             begin
                 if "LSV Status" in ["LSV Status"::"File Created", "LSV Status"::Finished] then begin
-                    LSVJournalLine.Reset;
+                    LSVJournalLine.Reset();
                     LSVJournalLine.SetRange("LSV Journal No.", "No.");
                     LSVJournalLine.SetRange("LSV Status", LSVJournalLine."LSV Status"::Open);
                     if LSVJournalLine.FindFirst then
@@ -122,7 +122,7 @@ table 3010832 "LSV Journal"
         if not ("LSV Status" in ["LSV Status"::Edit, "LSV Status"::Finished]) then
             Error(Text001);
 
-        LSVJournalLine.Reset;
+        LSVJournalLine.Reset();
         LSVJournalLine.SetRange("LSV Journal No.", "No.");
         LSVJournalLine.DeleteAll(true);
     end;
@@ -134,7 +134,7 @@ table 3010832 "LSV Journal"
         else
             "No." := 1;
 
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetCurrentKey("LSV No.");
         if CustLedgerEntry.FindLast then begin
             if CustLedgerEntry."LSV No." > "No." then
@@ -160,8 +160,8 @@ table 3010832 "LSV Journal"
 
         DirectDebitCollection.CreateNew(Format("No."), "LSV Bank Code", "Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"LSV Journal";
-        DirectDebitCollection.Modify;
-        Commit;
+        DirectDebitCollection.Modify();
+        Commit();
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         RunFileExportCodeunit(BankAcc.GetDDExportCodeunitID, DirectDebitCollection."No.", DirectDebitCollectionEntry);
@@ -182,7 +182,7 @@ table 3010832 "LSV Journal"
 
         LastError := GetLastErrorText;
         DeleteDirectDebitCollection(DirectDebitCollectionNo);
-        Commit;
+        Commit();
         Error(LastError);
     end;
 

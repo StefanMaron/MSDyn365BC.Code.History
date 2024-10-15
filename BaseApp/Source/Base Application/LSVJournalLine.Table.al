@@ -52,14 +52,14 @@ table 3010834 "LSV Journal Line"
             begin
                 TestField("Customer No.");
                 LSVJournal.Get("LSV Journal No.");
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.FilterGroup := 2;
                 if (LSVJournal."LSV Status" = LSVJournal."LSV Status"::Edit) and ("Applies-to Doc. No." = '') then begin
                     CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
                     CustLedgEntry.SetRange("Customer No.", "Customer No.");
                     CustLedgEntry.SetRange(Open, true);
                     CustLedgEntry.SetRange("On Hold", '');
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if not (LSVJournal."Currency Code" = GLSetup."LCY Code") then
                         CustLedgEntry.SetRange("Currency Code", LSVJournal."Currency Code");
                 end else begin
@@ -109,7 +109,7 @@ table 3010834 "LSV Journal Line"
                     CustLedgEntry.SetRange(Open, true);
                     CustLedgEntry.SetRange("On Hold", '');
                     LSVJournal.Get("LSV Journal No.");
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if not (LSVJournal."Currency Code" = GLSetup."LCY Code") then
                         CustLedgEntry.SetRange("Currency Code", LSVJournal."Currency Code");
                 end else begin
@@ -133,7 +133,7 @@ table 3010834 "LSV Journal Line"
                 if "Cust. Ledg. Entry No." = 0 then
                     exit;
 
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.FilterGroup := 2;
                 CustLedgEntry.SetCurrentKey("Entry No.");
                 CustLedgEntry.SetRange("Entry No.", "Cust. Ledg. Entry No.");
@@ -262,7 +262,7 @@ table 3010834 "LSV Journal Line"
 
         LSVJournal.Get("LSV Journal No.");
         LSVJournal.Validate("LSV Status");
-        LSVJournal.Modify;
+        LSVJournal.Modify();
     end;
 
     var
@@ -280,7 +280,7 @@ table 3010834 "LSV Journal Line"
 
     local procedure UpdateCustLedgEntry(CustLedgEntryNo: Integer; LSVNo: Integer; Caller: Integer)
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         if not CustLedgEntry.Get(CustLedgEntryNo) then
             exit;
 
@@ -305,7 +305,7 @@ table 3010834 "LSV Journal Line"
                     CustLedgEntry."LSV No." := 0;
                 end;
         end;
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -315,7 +315,7 @@ table 3010834 "LSV Journal Line"
     begin
         ActCustLedgEntry.Get(ActLSVJournalLine."Cust. Ledg. Entry No.");
 
-        GLSetup.Get;
+        GLSetup.Get();
         if ActCustLedgEntry."Currency Code" = '' then
             ActCustLedgEntry."Currency Code" := GLSetup."LCY Code";
 

@@ -44,7 +44,7 @@ table 11006 "Data Export Table Relation"
 
             trigger OnLookup()
             begin
-                FromField.Reset;
+                FromField.Reset();
                 FromField.FilterGroup(4);
                 FromField.SetRange(TableNo, "From Table No.");
                 FromField.SetFilter(Type, '%1|%2|%3|%4|%5|%6|%7',
@@ -108,7 +108,7 @@ table 11006 "Data Export Table Relation"
 
                 FromField.Get("From Table No.", "From Field No.");
                 TestField("To Table No.");
-                ToField.Reset;
+                ToField.Reset();
                 ToField.FilterGroup(4);
                 ToField.SetRange(TableNo, "To Table No.");
                 ToField.SetRange(Type, FromField.Type);

@@ -300,7 +300,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries-II");
     end;
 
@@ -442,7 +442,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldAdditionalReportingCurrency := GeneralLedgerSetup."Additional Reporting Currency";
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
         GeneralLedgerSetup.Modify(true);
@@ -559,7 +559,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         Navigate.UpdateNavigateForm(false);
         Navigate.FindRecordsOnOpen;
 
-        TempDocumentEntry.DeleteAll;
+        TempDocumentEntry.DeleteAll();
         Navigate.ReturnDocumentEntry(TempDocumentEntry);
     end;
 

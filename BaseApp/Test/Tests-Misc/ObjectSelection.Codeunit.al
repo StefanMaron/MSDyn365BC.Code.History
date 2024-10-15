@@ -529,12 +529,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Firm Planned Prod. Orders" Page should run "Prod. Order - Job Card" Report
 
         // [GIVEN] Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
-        Commit;
+        Commit();
         FirmPlannedProdOrders.ProdOrderJobCard.Invoke;
 
         // [THEN] Report "Prod. Order - Job Card" is run
@@ -553,12 +553,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Firm Planned Prod. Orders" Page should run "Prod. Order - Mat. Requisition" Report
 
         // [GIVEN] Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
-        Commit;
+        Commit();
         FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke;
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
@@ -577,12 +577,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Firm Planned Prod. Orders" Page should run "Prod. Order - Shortage List" Report
 
         // [GIVEN] Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
-        Commit;
+        Commit();
         FirmPlannedProdOrders.ProdOrderShortageList.Invoke;
 
         // [THEN] Report "Prod. Order - Shortage List" is run
@@ -601,12 +601,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Released Production Orders" Page should run "Prod. Order - Job Card" Report
 
         // [GIVEN] Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
-        Commit;
+        Commit();
         RelProdOrders.ProdOrderJobCard.Invoke;
 
         // [THEN] Report "Prod. Order - Job Card" is run
@@ -625,12 +625,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Released Production Orders" Page should run "Prod. Order - Mat. Requisition" Report
 
         // [GIVEN] Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
-        Commit;
+        Commit();
         RelProdOrders.ProdOrderMaterialRequisition.Invoke;
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
@@ -649,12 +649,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Released Production Orders" Page should run "Prod. Order - Shortage List" Report
 
         // [GIVEN] Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
-        Commit;
+        Commit();
         RelProdOrders.ProdOrderShortageList.Invoke;
 
         // [THEN] Report "Prod. Order - Shortage List" is run
@@ -673,12 +673,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Finished Production Orders" Page should run "Prod. Order - Job Card" Report
 
         // [GIVEN] Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M1, REPORT::"Prod. Order - Job Card");
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
-        Commit;
+        Commit();
         FinProdOrders.ProdOrderJobCard.Invoke;
 
         // [THEN] Report "Prod. Order - Job Card" is run
@@ -697,12 +697,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Finished Production Orders" Page should run "Prod. Order - Mat. Requisition" Report
 
         // [GIVEN] Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M2, REPORT::"Prod. Order - Mat. Requisition");
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
-        Commit;
+        Commit();
         FinProdOrders.ProdOrderMaterialRequisition.Invoke;
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
@@ -721,12 +721,12 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Finished Production Orders" Page should run "Prod. Order - Shortage List" Report
 
         // [GIVEN] Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateReportSelection(ReportSelections.Usage::M3, REPORT::"Prod. Order - Shortage List");
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page
-        Commit;
+        Commit();
         FinProdOrders.ProdOrderShortageList.Invoke;
 
         // [THEN] Report "Prod. Order - Shortage List" is run
@@ -744,7 +744,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Firm Planned Prod. Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
@@ -765,7 +765,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Firm Planned Prod. Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
@@ -786,7 +786,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Firm Planned Prod. Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FirmPlannedProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
@@ -807,7 +807,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Released Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
@@ -828,7 +828,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Released Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
@@ -849,7 +849,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Released Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         RelProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
@@ -870,7 +870,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderJobCard" of "Finished Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M1
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
@@ -891,7 +891,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderMaterialRequisition" of "Finished Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M2
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
@@ -912,7 +912,7 @@ codeunit 134562 "Object Selection"
         // [SCENARIO 376612] "ProdOrderShortageList" of "Finished Production Orders" Page should fail if no Report Selection is setup
 
         // [GIVEN] No Report Selection for M3
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         FinProdOrders.OpenNew;
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page

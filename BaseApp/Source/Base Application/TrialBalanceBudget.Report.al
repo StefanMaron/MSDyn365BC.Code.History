@@ -196,7 +196,7 @@ report 9 "Trial Balance/Budget"
             trigger OnPreDataItem()
             begin
                 GLAcc2.CopyFilters("G/L Account");
-                AccountingPeriod.Reset;
+                AccountingPeriod.Reset();
                 AccountingPeriod.SetRange("New Fiscal Year", true);
                 EndDate := GetRangeMax("Date Filter");
                 AccountingPeriod."Starting Date" := GetRangeMin("Date Filter");

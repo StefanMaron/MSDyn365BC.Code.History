@@ -5,7 +5,7 @@ codeunit 5354 "Auto Process Sales Quotes"
     trigger OnRun()
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-        Commit;
+        Commit();
         CreateNAVSalesQuotesFromSubmittedCRMSalesquotes;
     end;
 
@@ -17,7 +17,7 @@ codeunit 5354 "Auto Process Sales Quotes"
         if CRMQuote.FindSet(true) then
             repeat
                 if CODEUNIT.Run(CODEUNIT::"CRM Quote to Sales Quote", CRMQuote) then
-                    Commit;
+                    Commit();
             until CRMQuote.Next = 0;
     end;
 }

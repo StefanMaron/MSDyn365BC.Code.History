@@ -30,7 +30,7 @@ page 6520 "Item Tracing"
                         SerialNoInfo: Record "Serial No. Information";
                         SerialNoList: Page "Serial No. Information List";
                     begin
-                        SerialNoInfo.Reset;
+                        SerialNoInfo.Reset();
 
                         Clear(SerialNoList);
                         SerialNoList.SetTableView(SerialNoInfo);
@@ -49,7 +49,7 @@ page 6520 "Item Tracing"
                         LotNoInfo: Record "Lot No. Information";
                         LotNoList: Page "Lot No. Information List";
                     begin
-                        LotNoInfo.Reset;
+                        LotNoInfo.Reset();
 
                         Clear(LotNoList);
                         LotNoList.SetTableView(LotNoInfo);
@@ -68,7 +68,7 @@ page 6520 "Item Tracing"
                         Item: Record Item;
                         ItemList: Page "Item List";
                     begin
-                        Item.Reset;
+                        Item.Reset();
 
                         Clear(ItemList);
                         ItemList.SetTableView(Item);
@@ -97,7 +97,7 @@ page 6520 "Item Tracing"
                         if ItemNoFilter = '' then
                             Error(Text001);
 
-                        ItemVariant.Reset;
+                        ItemVariant.Reset();
 
                         Clear(ItemVariants);
                         ItemVariant.SetFilter("Item No.", ItemNoFilter);
@@ -235,7 +235,7 @@ page 6520 "Item Tracing"
                     var
                         ItemLedgerEntry: Record "Item Ledger Entry";
                     begin
-                        ItemLedgerEntry.Reset;
+                        ItemLedgerEntry.Reset();
                         ItemLedgerEntry.SetRange("Entry No.", "Item Ledger Entry No.");
                         PAGE.RunModal(0, ItemLedgerEntry);
                     end;

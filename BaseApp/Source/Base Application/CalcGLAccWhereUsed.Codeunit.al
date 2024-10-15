@@ -156,11 +156,11 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         GLAcc: Record "G/L Account";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Check G/L Account Usage" then begin
             CheckPostingGroups(GLAccNo);
             if GLAccWhereUsed.FindFirst then begin
-                Commit;
+                Commit();
                 if ConfirmManagement.GetResponse(StrSubstNo(ShowWhereUsedQst, GLAcc.TableCaption), true) then
                     ShowGLAccWhereUsed;
                 Error(Text000);
@@ -195,7 +195,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     begin
         if GLAccNo = GLAccNo2 then begin
             if NextEntryNo = 0 then
-                NextEntryNo := GetWhereUsedNextEntryNo;
+                NextEntryNo := GLAccWhereUsed.GetLastEntryNo() + 1;
 
             GLAccWhereUsed."Field Name" := FieldCaption;
             if Key[1] <> '' then
@@ -214,7 +214,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
             GLAccWhereUsed."Key 3" := CopyStr(Key[6], 1, MaxStrLen(GLAccWhereUsed."Key 3"));
             GLAccWhereUsed."Key 4" := CopyStr(Key[8], 1, MaxStrLen(GLAccWhereUsed."Key 4"));
             NextEntryNo := NextEntryNo + 1;
-            GLAccWhereUsed.Insert;
+            GLAccWhereUsed.Insert();
         end;
     end;
 
@@ -226,7 +226,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         FieldCaptionAndValue: Text;
     begin
         if NextEntryNo = 0 then
-            NextEntryNo := GetWhereUsedNextEntryNo;
+            NextEntryNo := GLAccWhereUsed.GetLastEntryNo() + 1;
 
         GLAccWhereUsed."Entry No." := NextEntryNo;
         GLAccWhereUsed."Field Name" := FieldCaption;
@@ -253,17 +253,17 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
             end;
         end;
         NextEntryNo := NextEntryNo + 1;
-        GLAccWhereUsed.Insert;
+        GLAccWhereUsed.Insert();
     end;
 
-    local procedure CheckPostingGroups(GLAccNo: Code[20])
+    procedure CheckPostingGroups(GLAccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
         TableBuffer: Record "Integer" temporary;
     begin
         NextEntryNo := 0;
         Clear(GLAccWhereUsed);
-        GLAccWhereUsed.DeleteAll;
+        GLAccWhereUsed.DeleteAll();
         GLAcc.Get(GLAccNo);
         GLAccWhereUsed."G/L Account No." := GLAccNo;
         GLAccWhereUsed."G/L Account Name" := GLAcc.Name;
@@ -311,13 +311,13 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     begin
         if not TableBuffer.Get(TableID) then begin
             TableBuffer.Number := TableID;
-            TableBuffer.Insert;
+            TableBuffer.Insert();
         end;
     end;
 
     local procedure AddCountryTables(var TableBuffer: Record "Integer")
     begin
-        TableBuffer.Reset;
+        TableBuffer.Reset();
         AddTable(TableBuffer, DATABASE::"Vendor Bank Account");
     end;
 
@@ -328,7 +328,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         RecRef: RecordRef;
     begin
         RecRef.Open(TableID);
-        GLAccWhereUsed.Init;
+        GLAccWhereUsed.Init();
         GLAccWhereUsed."Table ID" := TableID;
         GLAccWhereUsed."Table Name" := RecRef.Caption;
 
@@ -346,7 +346,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     var
         FieldRef: FieldRef;
     begin
-        RecRef.Reset;
+        RecRef.Reset();
         FieldRef := RecRef.Field(TableRelationsMetadata."Field No.");
         FieldRef.SetRange(GLAccNo);
         SetConditionFilter(RecRef, TableRelationsMetadata);
@@ -364,16 +364,6 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
             FieldRef := RecRef.Field(TableRelationsMetadata."Condition Field No.");
             FieldRef.SetFilter(TableRelationsMetadata."Condition Value");
         end;
-    end;
-
-    local procedure GetWhereUsedNextEntryNo(): Integer
-    var
-        TempGLAccountWhereUsed: Record "G/L Account Where-Used" temporary;
-    begin
-        TempGLAccountWhereUsed.Copy(GLAccWhereUsed, true);
-        if TempGLAccountWhereUsed.FindLast then
-            exit(TempGLAccountWhereUsed."Entry No." + 1);
-        exit(1);
     end;
 
     [IntegrationEvent(false, false)]

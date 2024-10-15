@@ -55,7 +55,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         PurchOrderFromSalesOrder: Page "Purch. Order From Sales Order";
         NoFilter: Text;
     begin
-        TempManufacturingUserTemplate.Init;
+        TempManufacturingUserTemplate.Init();
         TempManufacturingUserTemplate."User ID" := UserId;
         TempManufacturingUserTemplate."Make Orders" := TempManufacturingUserTemplate."Make Orders"::"The Active Order";
         TempManufacturingUserTemplate."Create Purchase Order" :=
@@ -63,7 +63,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         TempManufacturingUserTemplate."Create Production Order" := TempManufacturingUserTemplate."Create Production Order"::" ";
         TempManufacturingUserTemplate."Create Transfer Order" := TempManufacturingUserTemplate."Create Transfer Order"::" ";
         TempManufacturingUserTemplate."Create Assembly Order" := TempManufacturingUserTemplate."Create Assembly Order"::" ";
-        TempManufacturingUserTemplate.Insert;
+        TempManufacturingUserTemplate.Insert();
 
         PurchOrderFromSalesOrder.LookupMode(true);
         PurchOrderFromSalesOrder.SetSalesOrderNo(SalesHeader."No.");
@@ -111,7 +111,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; Vendor: Record Vendor)
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
 
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order] then
             PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice)
@@ -135,7 +135,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
         if SalesLine.Find('-') then
             repeat
                 Clear(PurchaseLine);
-                PurchaseLine.Init;
+                PurchaseLine.Init();
                 PurchaseLine."Document No." := PurchaseHeader."No.";
                 PurchaseLine."Document Type" := PurchaseHeader."Document Type";
 

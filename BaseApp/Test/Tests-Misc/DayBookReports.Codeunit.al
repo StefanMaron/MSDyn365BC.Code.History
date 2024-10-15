@@ -173,9 +173,9 @@ codeunit 139351 "Day Book Reports"
     var
         Customer: Record Customer;
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."No." := LibraryUtility.GenerateGUID;
-        Customer.Insert;
+        Customer.Insert();
         exit(Customer."No.");
     end;
 
@@ -228,9 +228,9 @@ codeunit 139351 "Day Book Reports"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := LibraryUtility.GenerateGUID;
-        Vendor.Insert;
+        Vendor.Insert();
         exit(Vendor."No.");
     end;
 

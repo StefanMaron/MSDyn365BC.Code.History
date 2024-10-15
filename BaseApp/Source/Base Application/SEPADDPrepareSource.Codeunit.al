@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
@@ -38,11 +38,11 @@ codeunit 1232 "SEPA DD-Prepare Source"
         Evaluate(LSVJnlNo, DirectDebitCollection.Identifier);
 
         if LSVJnl.Get(LSVJnlNo) then begin
-            ToDirectDebitCollectionEntry.Reset;
+            ToDirectDebitCollectionEntry.Reset();
             LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
             if LSVJnlLine.FindSet then
                 repeat
-                    ToDirectDebitCollectionEntry.Init;
+                    ToDirectDebitCollectionEntry.Init();
                     ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollectionNo;
                     ToDirectDebitCollectionEntry."Entry No." := LSVJnlLine."Line No.";
                     ToDirectDebitCollectionEntry.Validate("Customer No.", LSVJnlLine."Customer No.");

@@ -161,7 +161,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 trigger OnAfterGetRecord()
                 begin
                     if ("Posting Date" = ClosingDate("Posting Date")) and WithoutClosingEntries then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     GlBalance := GlBalance + Amount;
                     Entryno := Entryno + 1;
@@ -301,12 +301,12 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                     end;
 
                     if not ProvEntry then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     Entryno := Entryno + 1;
 
                     if ("Posting Date" = ClosingDate("Posting Date")) and WithoutClosingEntries then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Bal. Account No." <> '' then
                         BalAccType := CopyStr(Format("Bal. Account Type"), 1, 1)
@@ -326,7 +326,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                 trigger OnPreDataItem()
                 begin
                     if not ProvEntryExist then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Clear(ProvDebit);
                     Clear(ProvCredit);
 
@@ -370,7 +370,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
                    (not ProvEntryExist) and
                    (not ShowAllAccounts)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not(NotFirstPage and NewPagePerAcc) then
                     NotFirstPage := true;
@@ -488,7 +488,7 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
     begin
         GlJourDateFilter := "G/L Account".GetFilter("Date Filter");
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

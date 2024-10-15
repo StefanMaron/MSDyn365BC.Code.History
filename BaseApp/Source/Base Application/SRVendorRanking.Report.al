@@ -70,13 +70,13 @@ report 11557 "SR Vendor Ranking"
                     end;
 
                 if (TmpAmt[1] = 0) and (TmpAmt[2] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                VendAmt.Init;
+                VendAmt.Init();
                 VendAmt."Amount (LCY)" := TmpAmt[1];
                 VendAmt."Amount 2 (LCY)" := TmpAmt[2];
                 VendAmt."Vendor No." := "No.";
-                VendAmt.Insert;
+                VendAmt.Insert();
 
                 Col1TotalAllRecs := Col1TotalAllRecs + VendAmt."Amount (LCY)";
                 Col2TotalAllRecs := Col2TotalAllRecs + VendAmt."Amount 2 (LCY)";
@@ -99,7 +99,7 @@ report 11557 "SR Vendor Ranking"
 
             trigger OnPreDataItem()
             begin
-                VendAmt.DeleteAll;
+                VendAmt.DeleteAll();
                 Window.Open(Text003);
             end;
         }
@@ -217,10 +217,10 @@ report 11557 "SR Vendor Ranking"
             begin
                 if Number = 1 then begin
                     if not VendAmt.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if (VendAmt.Next = 0) or ((MaxNoOfRecs > 0) and (Number > MaxNoOfRecs)) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 Vendor.Get(VendAmt."Vendor No.");
                 Col1Amt := VendAmt."Amount (LCY)";

@@ -18,7 +18,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         AllProfile.SetRange("Profile ID", ProfileID);
         AllProfile.FindFirst();
         ConfPersonalizationMgt.SetCurrentProfile(AllProfile);
-        Commit;
+        Commit();
     end;
 
     procedure SetTeamMemberPlan()
@@ -27,7 +27,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('TEAM MEMBER');
         SetUserPlan(PlanIds.GetTeamMemberPlanId());
         SetUserGroupPlan(PlanIds.GetTeamMemberPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetExternalAccountantPlan()
@@ -36,7 +36,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('ACCOUNTANT');
         SetUserPlan(PlanIds.GetExternalAccountantPlanId());
         SetUserGroupPlan(PlanIds.GetExternalAccountantPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetBusinessManagerPlan()
@@ -45,7 +45,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetEssentialPlanId());
         SetUserGroupPlan(PlanIds.GetEssentialPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetPremiumUserPlan()
@@ -54,7 +54,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetPremiumPlanId());
         SetUserGroupPlan(PlanIds.GetPremiumPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetTeamMemberISVEmbPlan()
@@ -65,7 +65,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('TEAM MEMBER');
         SetUserPlan(PlanIds.GetTeamMemberISVPlanId());
         SetUserGroupPlan(PlanIds.GetTeamMemberISVPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetEssentialISVEmbUserPlan()
@@ -74,7 +74,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetEssentialISVPlanId());
         SetUserGroupPlan(PlanIds.GetEssentialISVPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetPremiumISVEmbUserPlan()
@@ -83,7 +83,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetPremiumISVPlanId());
         SetUserGroupPlan(PlanIds.GetPremiumISVPlanId());
-        Commit;
+        Commit();
     end;
 
     procedure SetDeviceISVEmbUserPlan()
@@ -92,7 +92,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
         SetProfileID('BUSINESS MANAGER');
         SetUserPlan(PlanIds.GetDeviceISVPlanId());
         SetUserGroupPlan(PlanIds.GetDeviceISVPlanId());
-        Commit;
+        Commit();
     end;
 
     local procedure SetUserPlan(PlanID: Text[50])

@@ -1,11 +1,12 @@
 page 5340 "CRM Systemuser List"
 {
-    Caption = 'Users - Microsoft Dynamics 365 Sales';
+    Caption = 'Users - Common Data Service';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
     SourceTable = "CRM Systemuser";
-    SourceTableView = SORTING(FullName);
+    SourceTableView = SORTING(FullName) WHERE(IsIntegrationUser = CONST(false), IsDisabled = CONST(false), IsLicensed = CONST(true));
+    UsageCategory = Lists;
 
     layout
     {
@@ -20,7 +21,7 @@ page 5340 "CRM Systemuser List"
                     Caption = 'Name';
                     Editable = false;
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(InternalEMailAddress; InternalEMailAddress)
                 {
@@ -35,7 +36,7 @@ page 5340 "CRM Systemuser List"
                     ApplicationArea = Suite;
                     Caption = 'Mobile Phone';
                     Editable = false;
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Coupled; Coupled)
                 {
@@ -43,7 +44,7 @@ page 5340 "CRM Systemuser List"
                     Caption = 'Coupled';
                     Editable = false;
                     OptionCaption = 'Yes,No,Current';
-                    ToolTip = 'Specifies if the Dynamics 365 Sales record is coupled to Dynamics 365.';
+                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
                 }
                 field(SalespersonPurchaserCode; TempCRMSystemuser.FirstName)
                 {
@@ -98,7 +99,7 @@ page 5340 "CRM Systemuser List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Create the Dynamics 365 Sales user as a salesperson in Business Central.';
+                ToolTip = 'Create the Common Data Service user as a salesperson in Business Central.';
                 Visible = ShowCouplingControls;
 
                 trigger OnAction()
@@ -119,7 +120,7 @@ page 5340 "CRM Systemuser List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Link the user in Dynamics 365 Sales to a user in Business Central.';
+                ToolTip = 'Link the user in Common Data Service to a salesperson in Business Central.';
                 Visible = ShowCouplingControls;
 
                 trigger OnAction()
@@ -132,9 +133,10 @@ page 5340 "CRM Systemuser List"
                     Synchronize: Boolean;
                     Direction: Option;
                 begin
-                    TempCRMSystemuser.Reset;
+                    TempCRMSystemuser.Reset();
                     TempCRMSystemuser.SetRange(IsSyncWithDirectory, true);
-                    if TempCRMSystemuser.FindSet then
+                    if TempCRMSystemuser.FindSet() then begin
+                        HasCoupled := true;
                         repeat
                             if TempCRMSystemuser.FirstName <> '' then begin
                                 SalespersonPurchaser.Get(TempCRMSystemuser.FirstName);
@@ -146,6 +148,7 @@ page 5340 "CRM Systemuser List"
                                 CRMCouplingManagement.RemoveCoupling(OldRecordId);
                             end;
                         until TempCRMSystemuser.Next = 0;
+                    end;
                     TempCRMSystemuser.ModifyAll(IsSyncWithDirectory, false);
                     TempCRMSystemuser.ModifyAll(IsDisabled, false);
                 end;
@@ -180,14 +183,21 @@ page 5340 "CRM Systemuser List"
 
     trigger OnInit()
     begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+        Coupled := Coupled::No;
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange(IsIntegrationUser, false);
-        SetRange(IsDisabled, false);
-        SetRange(IsLicensed, true);
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not HasCoupled then
+            if Confirm(ClosePageUncoupledUserTxt, true) then
+                exit(true);
+
+        exit(false);
     end;
 
     var
@@ -195,7 +205,9 @@ page 5340 "CRM Systemuser List"
         TempCRMSystemuser: Record "CRM Systemuser" temporary;
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
+        ClosePageUncoupledUserTxt: Label 'No Salespersons were scheduled for coupling.\\Are you sure you would like to exit?';
         ShowCouplingControls: Boolean;
+        HasCoupled: Boolean;
 
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")
     begin
@@ -211,26 +223,26 @@ page 5340 "CRM Systemuser List"
                 TempCRMSystemuser.FirstName := SalespersonCode;
                 TempCRMSystemuser.IsSyncWithDirectory := SyncNeeded;
                 TempCRMSystemuser.IsDisabled := SyncNeeded;
-                TempCRMSystemuser.Modify;
+                TempCRMSystemuser.Modify();
             end
         end else begin
             TempCRMSystemuser.SystemUserId := SystemUserId;
             TempCRMSystemuser.FirstName := SalespersonCode;
             TempCRMSystemuser.IsSyncWithDirectory := SyncNeeded;
             TempCRMSystemuser.IsDisabled := SyncNeeded;
-            TempCRMSystemuser.Insert;
+            TempCRMSystemuser.Insert();
         end;
     end;
 
     local procedure CleanDuplicateSalespersonRecords(SalesPersonCode: Code[20]; CRMUserId: Guid)
     begin
-        TempCRMSystemuser.Reset;
+        TempCRMSystemuser.Reset();
         TempCRMSystemuser.SetRange(FirstName, SalesPersonCode);
         TempCRMSystemuser.SetFilter(SystemUserId, '<>' + Format(CRMUserId));
         if TempCRMSystemuser.FindFirst then begin
             TempCRMSystemuser.IsDisabled := true;
             TempCRMSystemuser.FirstName := '';
-            TempCRMSystemuser.Modify;
+            TempCRMSystemuser.Modify();
         end;
     end;
 

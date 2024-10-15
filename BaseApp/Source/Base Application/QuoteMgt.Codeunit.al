@@ -282,7 +282,7 @@ codeunit 3010801 QuoteMgt
                             SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + "Amount Including VAT";
 
                             // Position
-                            if (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) and
+                            if (Type in [Type::"G/L Account", Type::Resource, Type::"Fixed Asset", Type::"Charge (Item)"]) and
                                ("No." <> '')
                             then begin
                                 ActualPosition := ActualPosition + 10;
@@ -417,7 +417,7 @@ codeunit 3010801 QuoteMgt
                             SubTotalGross[ActualLevel] := SubTotalGross[ActualLevel] + "Amount Including VAT";
 
                             // Position
-                            if (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) and
+                            if (Type in [Type::"G/L Account", Type::Resource, Type::"Fixed Asset", Type::"Charge (Item)"]) and
                                ("No." <> '')
                             then begin
                                 ActualPosition := ActualPosition + 10;
@@ -461,12 +461,12 @@ codeunit 3010801 QuoteMgt
         if IsHandled then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if (SalesHeader."Document Type" in [SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order]) and
            SalesSetup."Automatic recalculate Quotes"
         then begin
             ReCalc(SalesHeader, false);
-            Commit;
+            Commit();
         end;
     end;
 

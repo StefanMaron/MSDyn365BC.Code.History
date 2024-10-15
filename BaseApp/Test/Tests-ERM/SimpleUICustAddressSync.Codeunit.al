@@ -882,7 +882,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryApplicationArea.EnableFoundationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Simple UI: Cust. Address Sync");
     end;
 

@@ -64,7 +64,7 @@ report 794 "Adjust Item Costs/Prices"
             trigger OnPreDataItem()
             begin
                 if AdjustCard = AdjustCard::"Stockkeeping Unit Card" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(Text000);
             end;
@@ -116,7 +116,7 @@ report 794 "Adjust Item Costs/Prices"
             trigger OnPreDataItem()
             begin
                 if AdjustCard = AdjustCard::"Item Card" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Item.CopyFilter("No.", "Item No.");
                 Item.CopyFilter("Location Filter", "Location Code");
@@ -253,7 +253,7 @@ report 794 "Adjust Item Costs/Prices"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -287,7 +287,7 @@ report 794 "Adjust Item Costs/Prices"
         if Item.GetFilters <> '' then begin
             FilteredItem.SetRange("No.", ItemNo);
             if FilteredItem.IsEmpty then
-                CurrReport.Skip;
+                CurrReport.Skip();
         end;
     end;
 }

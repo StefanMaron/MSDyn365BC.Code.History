@@ -78,7 +78,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [SCENARIO] Creation of Time Sheet menu is working and creating timesheet
         Initialize;
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         ResourceNo := CreateTimesheetResourceWithUserSetup;
 
         // [GIVEN] Open Accounting Period
@@ -138,7 +138,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine.Validate(Status, TimeSheetLine.Status::Approved);
         TimeSheetLine.Validate(Posted, true);
         TimeSheetLine.Modify(true);
-        Commit;
+        Commit();
 
         // Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
@@ -205,7 +205,7 @@ codeunit 136504 "RES Time Sheet"
         // [SCENARIO] Creation of Time Sheet Menu is exists on Resource page
         Initialize;
         ResourceNo := CreateTimesheetResourceWithUserSetup;
-        Commit;
+        Commit();
 
         // [GIVEN] Resource card
         ResourceCard.OpenEdit;
@@ -245,7 +245,7 @@ codeunit 136504 "RES Time Sheet"
         // Exercise: Create Resource Journal Line.
         CreateAndModifyResourceJournalLine(ResJournalLine, ResJournalBatch, TimeSheetLine, Resource."No.");
         TempResJournalLine := ResJournalLine;
-        Commit;
+        Commit();
 
         // Verify.
         ResJournalLine.TestField("Time Sheet No.", TempResJournalLine."Time Sheet No.");
@@ -268,7 +268,7 @@ codeunit 136504 "RES Time Sheet"
         Initialize;
         CreateResourceJournalTemplate(ResJournalTemplate);
         CreateTimeSheet(TimeSheetLine);
-        Commit;
+        Commit();
 
         // Exercise.
         ResourceJournal.OpenEdit;
@@ -324,7 +324,7 @@ codeunit 136504 "RES Time Sheet"
         LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
         TimeSheetNo := CreateTimeSheet(TimeSheetLine);
         CreateJobAndJobTask(JobTask);
-        Commit;
+        Commit();
 
         // Exercise.
         JobJournal.OpenEdit;
@@ -344,7 +344,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup.
         Initialize;
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         TimeSheetNos := LibraryUtility.GetGlobalNoSeriesCode;
 
         // Exercise.
@@ -354,7 +354,7 @@ codeunit 136504 "RES Time Sheet"
         ResourcesSetup.Modify(true);
 
         // Verify.
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         ResourcesSetup.TestField("Time Sheet Nos.", TimeSheetNos);
         ResourcesSetup.TestField("Time Sheet First Weekday", ResourcesSetup."Time Sheet First Weekday"::Monday);
         ResourcesSetup.TestField("Time Sheet by Job Approval", ResourcesSetup."Time Sheet by Job Approval"::Always);
@@ -560,7 +560,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.Submit.Invoke;
         TimeSheet.OK.Invoke;
         ManagerTimeSheetApproval(TimeSheetHeader."No.");
-        Commit;
+        Commit();
 
         // Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
@@ -579,7 +579,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetArcCommentSheet.Close;
 
         // Delete Time Sheet Archive
-        TimeSheetHeaderArchive.Reset;
+        TimeSheetHeaderArchive.Reset();
         TimeSheetHeaderArchive.SetRange("No.", TimeSheetHeader."No.");
         TimeSheetHeaderArchive.FindFirst;
         TimeSheetHeaderArchive.Delete(true);
@@ -652,9 +652,9 @@ codeunit 136504 "RES Time Sheet"
         TestValue[3] := 1.12;
 
         // [GIVEN] Modify GLSetup."Amount Decimal Places" = '0'
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Amount Decimal Places", '0');
-        GLSetup.Modify;
+        GLSetup.Modify();
 
         // [GIVEN] Time Sheet line
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -1036,7 +1036,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryResource.SetResourceBlocked(Resource);
 
-        TimeSheetHeader.Init;
+        TimeSheetHeader.Init();
         TimeSheetHeader."Resource No." := Resource."No.";
         asserterror TimeSheetHeader.Insert(true);
 
@@ -1054,7 +1054,7 @@ codeunit 136504 "RES Time Sheet"
         // [SCENARIO 223058] Cassie cannot set blocked resource in time sheet header
         LibraryResource.CreateResourceWithUsers(Resource);
 
-        TimeSheetHeader.Init;
+        TimeSheetHeader.Init();
         TimeSheetHeader.Insert(true);
 
         LibraryResource.SetResourceBlocked(Resource);
@@ -1141,7 +1141,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryResource.SetResourceBlocked(Resource);
 
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         asserterror TimeSheetLine.Insert(true);
 
@@ -1209,7 +1209,7 @@ codeunit 136504 "RES Time Sheet"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Resources Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RES Time Sheet");
     end;
 
@@ -1326,7 +1326,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Create User Setup.
         CreateUserSetupAndResource(Resource, UserSetup);
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
 
         // Find first open Accounting Period.
         LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
@@ -1414,7 +1414,7 @@ codeunit 136504 "RES Time Sheet"
         JobJournalTemplate.Validate("Source Code", SourceCode);
         JobJournalTemplate.Modify(true);
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
-        JobJournalLine.Init;
+        JobJournalLine.Init();
         JobJournalLine.Validate("Journal Template Name", JobJournalTemplate.Name);
         JobJournalLine.Validate("Journal Batch Name", JobJournalBatch.Name);
         JobJournalLine.Validate("Source Code", SourceCode);
@@ -1471,7 +1471,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
         JobJournalTemplate."Increment Batch Name" := true;
-        JobJournalTemplate.Modify;
+        JobJournalTemplate.Modify();
 
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
         with JobJournalLine do begin
@@ -1489,7 +1489,7 @@ codeunit 136504 "RES Time Sheet"
         SuggestJobJnlLines: Report "Suggest Job Jnl. Lines";
     begin
         CreateJobJournalLine(JobJournalLine, SourceCode);
-        Commit;
+        Commit();
         SuggestJobJnlLines.SetJobJnlLine(JobJournalLine);
         SuggestJobJnlLines.Run;
     end;
@@ -1500,7 +1500,7 @@ codeunit 136504 "RES Time Sheet"
         AccountingPeriod: Record "Accounting Period";
         Date: Record Date;
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
         with Date do begin
             SetRange("Period Type", "Period Type"::Date);
@@ -1521,17 +1521,17 @@ codeunit 136504 "RES Time Sheet"
 
     local procedure MockTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header"; ResourceNo: Code[20])
     begin
-        TimeSheetHeader.Init;
+        TimeSheetHeader.Init();
         TimeSheetHeader."Resource No." := ResourceNo;
-        TimeSheetHeader.Insert;
+        TimeSheetHeader.Insert();
     end;
 
     local procedure MockTimeSheetLine(var TimeSheetLine: Record "Time Sheet Line"; TimeSheetNo: Code[20])
     begin
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetNo;
         TimeSheetLine."Line No." := LibraryUtility.GetNewRecNo(TimeSheetLine, TimeSheetLine.FieldNo("Line No."));
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
     end;
 
     local procedure IncrementJobJournalLineBatch(var JobJournalLine: Record "Job Journal Line")

@@ -26,7 +26,7 @@ codeunit 1660 "Payroll Management"
     var
         TempServiceConnection: Record "Service Connection" temporary;
     begin
-        TempServiceConnection.DeleteAll;
+        TempServiceConnection.DeleteAll();
         OnRegisterPayrollService(TempServiceConnection);
 
         if TempServiceConnection.IsEmpty then
@@ -56,12 +56,12 @@ codeunit 1660 "Payroll Management"
         SelectedServiceRecordId: RecordID;
         SelectedServiceName: Text;
     begin
-        TempServiceConnection.Reset;
+        TempServiceConnection.Reset();
         if SelectPayrollService(TempServiceConnection, SelectPayrollServiceToEnableTxt) then begin
             SelectedServiceRecordId := TempServiceConnection."Record ID";
             SelectedServiceName := TempServiceConnection.Name;
             SetupPayrollService(TempServiceConnection);
-            TempServiceConnection.DeleteAll;
+            TempServiceConnection.DeleteAll();
             OnRegisterPayrollService(TempServiceConnection);
             if not TempServiceConnection.IsEmpty then begin
                 TempServiceConnection.SetRange("Record ID", SelectedServiceRecordId);
@@ -104,16 +104,14 @@ codeunit 1660 "Payroll Management"
         AssistedSetup: Codeunit "Assisted Setup";
         RecordRef: RecordRef;
         RecordRefVariant: Variant;
-        Info: ModuleInfo;
     begin
         RecordRef.Get(TempServiceConnection."Record ID");
-        NavApp.GetCurrentModuleInfo(Info);
         if (TempServiceConnection.Status <> TempServiceConnection.Status::Enabled) and
            (TempServiceConnection.Status <> TempServiceConnection.Status::Connected) and
            (TempServiceConnection."Assisted Setup Page ID" <> 0) and
-           (AssistedSetup.ExistsAndIsNotComplete(Info.Id(), TempServiceConnection."Assisted Setup Page ID"))
+           (AssistedSetup.ExistsAndIsNotComplete(TempServiceConnection."Assisted Setup Page ID"))
         then
-            AssistedSetup.Run(Info.Id(), TempServiceConnection."Assisted Setup Page ID")
+            AssistedSetup.Run(TempServiceConnection."Assisted Setup Page ID")
         else begin
             RecordRefVariant := RecordRef;
             PAGE.RunModal(TempServiceConnection."Page ID", RecordRefVariant);

@@ -49,12 +49,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         LibraryERMCountryData.CreateVATData;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Sales Cr.Memo");
     end;
 
@@ -66,9 +66,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll;
+                ProductionBOMLine.DeleteAll();
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -197,11 +197,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibrarySmallBusiness.CreateItem(Item);
         CreateNewRespCenter(ResponsibilityCenter);
 
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserId;
         UserSetup.Validate("Sales Resp. Ctr. Filter", ResponsibilityCenter.Code);
-        if not UserSetup.Insert then
-            UserSetup.Modify;
+        if not UserSetup.Insert() then
+            UserSetup.Modify();
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Cust.Name);
@@ -215,7 +215,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         CreateNewRespCenter(ResponsibilityCenter);
 
         UserSetup.Validate("Sales Resp. Ctr. Filter", ResponsibilityCenter.Code);
-        UserSetup.Modify;
+        UserSetup.Modify();
 
         SalesCreditMemo.OpenEdit;
         Assert.IsFalse(SalesCreditMemo.GotoRecord(SalesHeader), '');
@@ -238,13 +238,13 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibrarySmallBusiness.CreateItem(Item);
 
-        ExtendedTextHeader.Init;
+        ExtendedTextHeader.Init();
         ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Item);
         ExtendedTextHeader.Validate("No.", Item."No.");
         ExtendedTextHeader.Validate("Sales Invoice", true);
         ExtendedTextHeader.Insert(true);
 
-        ExtendedTextLine.Init;
+        ExtendedTextLine.Init();
         ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
         ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
         ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");
@@ -450,7 +450,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         CreateCustomer(Customer);
         Customer."Payment Terms Code" := '';
-        Customer.Modify;
+        Customer.Modify();
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
@@ -572,7 +572,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer.Validate("Address 2", LibraryUtility.GenerateRandomCode(Customer.FieldNo("Address 2"), DATABASE::Customer));
         Customer.Validate(City, LibraryUtility.GenerateRandomCode(Customer.FieldNo(City), DATABASE::Customer));
         Customer.Validate("Post Code", LibraryUtility.GenerateRandomCode(Customer.FieldNo("Post Code"), DATABASE::Customer));
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     [ConfirmHandler]
@@ -593,7 +593,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         begin
             for I := 1 to 10 do
                 LibraryVariableStorage.Enqueue(true);
-            Commit;
+            Commit();
             Error('');
         end
     end;
@@ -613,10 +613,10 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     var
         NewCode: Code[10];
     begin
-        ResponsibilityCenter.Init;
+        ResponsibilityCenter.Init();
         NewCode := LibraryUtility.GenerateRandomCode(ResponsibilityCenter.FieldNo(Code), DATABASE::"Responsibility Center");
         ResponsibilityCenter.Validate(Code, NewCode);
-        ResponsibilityCenter.Insert;
+        ResponsibilityCenter.Insert();
     end;
 }
 

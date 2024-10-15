@@ -217,11 +217,11 @@ report 3010836 "LSV Collection Authorisation"
             begin
                 if GetFilters = '' then
                     if not Confirm(SendToAllCustomersQst) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 LsvSetup.Get(LsvSetup."Bank Code");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAdr.Company(CompanyAdr, CompanyInfo);
 
                 DebitAuthorizationENU := StrSubstNo(DebitAuthorizationENU1Txt, LsvSetup."LSV Currency Code");

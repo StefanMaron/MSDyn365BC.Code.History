@@ -19,10 +19,10 @@ report 5193 "Create Conts. from Bank Accs."
                     SetRange("Link to Table", "Link to Table"::"Bank Account");
                     SetRange("No.", "Bank Account"."No.");
                     if FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
-                Cont.Init;
+                Cont.Init();
                 Cont.TransferFields("Bank Account");
                 Cont."No." := '';
                 OnBeforeSetSkipDefaults("Bank Account", Cont);
@@ -47,16 +47,13 @@ report 5193 "Create Conts. from Bank Accs."
             begin
                 Window.Close;
 
-                if DuplicateContactExist then begin
-                    Commit;
-                    PAGE.RunModal(PAGE::"Contact Duplicates");
-                end;
+                if DuplicateContactExist then
+                    DuplMgt.Notify();
             end;
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000 +
-                  Text001, "No.");
+                Window.Open(Text000 + Text001, "No.");
             end;
         }
     }
@@ -79,7 +76,7 @@ report 5193 "Create Conts. from Bank Accs."
 
     trigger OnPreReport()
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Bank Accs.");
     end;
 

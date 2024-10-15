@@ -251,22 +251,22 @@ report 3010801 "Quote Analysis"
                        (TotalBecameOrder = 0) and (TotalCompletedOrder = 0) and
                        (TotalNoOrder = 0)
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnPostDataItem()
             begin
                 if NewSalesPerson then
-                    Salesperson.Delete;
+                    Salesperson.Delete();
             end;
 
             trigger OnPreDataItem()
             begin
-                Salesperson.Init;
+                Salesperson.Init();
                 Salesperson.Code := '';
                 Salesperson.Name := Text000;
-                NewSalesPerson := Salesperson.Insert;
+                NewSalesPerson := Salesperson.Insert();
 
                 Currency.InitRoundingPrecision;
                 Clear(TotalActQuote);
@@ -319,7 +319,7 @@ report 3010801 "Quote Analysis"
                    (TotalBecameOrder = 0) and (TotalCompletedOrder = 0) and
                    (TotalNoOrder = 0)
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -426,7 +426,7 @@ report 3010801 "Quote Analysis"
                     SalesLine2.SetRange("Document Type", SalesHead."Document Type");
                     SalesLine2.SetRange("Document No.", SalesHead."No.");
                     if SalesLine2.Find('-') then begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then
                             CalcInvDisc.Run(SalesLine2);
                     end;
@@ -443,7 +443,7 @@ report 3010801 "Quote Analysis"
                     if SalesLine2.Find('-') then
                         repeat
                             TmpSalesLine := SalesLine2;
-                            TmpSalesLine.Insert;
+                            TmpSalesLine.Insert();
                         until SalesLine2.Next = 0;
                 end;
             DATABASE::"Sales Header Archive":
@@ -464,7 +464,7 @@ report 3010801 "Quote Analysis"
                     if ArchSalesLine2.Find('-') then
                         repeat
                             TmpSalesLine.TransferFields(ArchSalesLine2);
-                            TmpSalesLine.Insert;
+                            TmpSalesLine.Insert();
                         until ArchSalesLine2.Next = 0;
                 end;
         end;
@@ -473,7 +473,7 @@ report 3010801 "Quote Analysis"
             TmpSalesHeader.Status := TmpSalesHeader.Status::Released;
             repeat
                 TmpSalesLine2 := TmpSalesLine;
-                TmpSalesLine2.Insert;
+                TmpSalesLine2.Insert();
                 TmpSalesLine2.SetSalesHeader(TmpSalesHeader);
                 TmpSalesLine2.CalcVATAmountLines(0, TmpSalesHeader, TmpSalesLine2, TempVATAmountLine0);
                 TmpSalesLine2.CalcVATAmountLines(1, TmpSalesHeader, TmpSalesLine2, TempVATAmountLine1);

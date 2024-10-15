@@ -36,7 +36,7 @@ codeunit 137601 "SCM CETAF Purchase"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Purchase");
     end;
 
@@ -350,7 +350,7 @@ codeunit 137601 "SCM CETAF Purchase"
           TempItemLedgerEntry, PurchaseLine, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code",
           InvoicePartialReceipt);
         PurchaseLine1.Validate(Quantity, PurchaseLine.Quantity);
-        PurchaseLine1.Modify;
+        PurchaseLine1.Modify();
 
         // Extract the Purchase Receipt No. from the ILEs.
         TempItemLedgerEntry.SetRange(Positive, true);
@@ -564,7 +564,7 @@ codeunit 137601 "SCM CETAF Purchase"
         // Apply return to charged receipt.
         PurchaseLine1.Validate(Quantity, PurchRcptLine.Quantity);
         PurchaseLine1.Validate("Appl.-to Item Entry", TempItemLedgerEntry."Entry No.");
-        PurchaseLine1.Modify;
+        PurchaseLine1.Modify();
 
         // Exercise.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");

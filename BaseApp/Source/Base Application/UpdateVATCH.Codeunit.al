@@ -81,26 +81,26 @@ codeunit 26100 "Update VAT-CH"
 
     local procedure CreateVatStatementSetup(TemplateName: Code[10]; TemplateDescription: Text[80])
     begin
-        VATCipherSetup.Get;
+        VATCipherSetup.Get();
         VATStatementLine.SetRange("Statement Template Name", TemplateName);
         VATStatementLine.SetRange("Statement Name", Text005);
-        VATStatementLine.DeleteAll;
+        VATStatementLine.DeleteAll();
         if VATStatementName.Get(TemplateName, Text005) then
-            VATStatementName.Delete;
+            VATStatementName.Delete();
         if VATStatementTemplate.Get(TemplateName) then
-            VATStatementTemplate.Delete;
+            VATStatementTemplate.Delete();
 
-        VATStatementTemplate.Init;
+        VATStatementTemplate.Init();
         VATStatementTemplate.Name := TemplateName;
         VATStatementTemplate.Description := TemplateDescription;
         VATStatementTemplate."VAT Statement Report ID" := 26100;
         VATStatementTemplate."Page ID" := 317;
-        VATStatementTemplate.Insert;
+        VATStatementTemplate.Insert();
 
-        VATStatementName.Init;
+        VATStatementName.Init();
         VATStatementName."Statement Template Name" := TemplateName;
         VATStatementName.Name := Text005;
-        VATStatementName.Insert;
+        VATStatementName.Insert();
 
         LineNo := 0;
         InsertSalestaxBaseamounts;
@@ -116,13 +116,13 @@ codeunit 26100 "Update VAT-CH"
     begin
         VATPostingSetup.SetFilter("Sales VAT Stat. Cipher", '<>%1', VATPostingSetup."Sales VAT Stat. Cipher");
         if VATPostingSetup.IsEmpty then begin
-            VATPostingSetup.Reset;
+            VATPostingSetup.Reset();
             VATPostingSetup.SetFilter("Purch. VAT Stat. Cipher", '<>%1', VATPostingSetup."Purch. VAT Stat. Cipher");
             if VATPostingSetup.IsEmpty then
                 Error(Text006);
         end;
 
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT");
 
@@ -279,7 +279,7 @@ codeunit 26100 "Update VAT-CH"
 
     local procedure InsertSalestaxEuAmount()
     begin
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         with VATPostingSetup do begin
             SetFilter("Sales VAT Stat. Cipher", '%1|%2', VATCipherSetup."Cash Flow Taxes", VATCipherSetup."Cash Flow Compensations");
             if not FindFirst then

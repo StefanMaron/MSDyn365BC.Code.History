@@ -17,8 +17,8 @@ codeunit 1351 "Telemetry Subscribers"
         PermissionSetAddedTelemetryTxt: Label 'Permission Set %1 was added. Total count of user defined Permission Sets is %2.', Locked = true;
         PermissionSetAssignedToUserTelemetryTxt: Label 'Permission Set %1 was added to a user.', Locked = true;
         PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Locked = true;
-        EffectivePermsCalculatedTxt: Label 'Effective permissions were calculated for company %1, object type %2, object ID %3.', Comment = '{LOCKED} %1 = company name, %2 = object type, %3 = object Id';
-        TenantPermissionsChangedFromEffectivePermissionsPageTxt: Label 'Tenant permission set %1 was changed.', Comment = '{LOCKED} %1 = permission set id';
+        EffectivePermsCalculatedTxt: Label 'Effective permissions were calculated for company %1, object type %2, object ID %3.', Locked = true, Comment = '%1 = company name, %2 = object type, %3 = object Id';
+        TenantPermissionsChangedFromEffectivePermissionsPageTxt: Label 'Tenant permission set %1 was changed.', Locked = true, Comment = '%1 = permission set id';
         NumberOfDocumentLinesMsg: Label 'Type of Document: %1, Number of Document Lines: %2', Locked = true;
         RecordCountCategoryTxt: Label 'AL Record Count', Locked = true;
         JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
@@ -412,3 +412,4 @@ codeunit 1351 "Telemetry Subscribers"
             StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), DATACLASSIFICATION::SystemMetadata);
     end;
 }
+

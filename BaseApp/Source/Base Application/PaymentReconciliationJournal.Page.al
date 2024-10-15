@@ -1,4 +1,4 @@
-﻿page 1290 "Payment Reconciliation Journal"
+page 1290 "Payment Reconciliation Journal"
 {
     AutoSplitKey = true;
     Caption = 'Payment Reconciliation Journal';
@@ -800,7 +800,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -847,7 +848,7 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         SetUpNewLine;
-        AppliedPmtEntry.Init;
+        AppliedPmtEntry.Init();
         StatementToRemAmtDifference := 0;
         RemainingAmountAfterPosting := 0;
     end;
@@ -856,10 +857,23 @@
     var
         ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         PageClosedByPosting := false;
 
         SetDimensionsVisibility;
+
+        if BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
+            CreateEmptyListNotification();
+    end;
+
+    local procedure CreateEmptyListNotification()
+    var
+        Notification: Notification;
+    begin
+        Notification.Id := CreateGuid();
+        Notification.Message := ListEmptyMsg;
+        Notification.Scope := NotificationScope::LocalScope;
+        Notification.Send;
     end;
 
     var
@@ -879,7 +893,7 @@
         OutstandingTransactions: Decimal;
         OutstandingPayments: Decimal;
         ShortcutDimCode: array[8] of Code[20];
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -888,6 +902,7 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to enter lines from a file, or enter lines manually.';
 
     local procedure UpdateSorting(IsAscending: Boolean)
     var
@@ -923,7 +938,7 @@
                 if PaymentMatchingDetails.MergeMessages(Rec) <> '' then
                     BankAccReconciliationLine."Sorting Order" -= ScoreRange;
 
-                BankAccReconciliationLine.Modify;
+                BankAccReconciliationLine.Modify();
             until BankAccReconciliationLine.Next = 0;
 
             OnUpdateSorting(BankAccReconciliation, SubscriberInvoked);

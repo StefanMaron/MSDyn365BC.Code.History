@@ -182,6 +182,9 @@ table 5360 "CRM Customeraddress"
             OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
             OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
             OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 50 ShippingMethodCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(23; Telephone2; Text[50])
         {
@@ -411,6 +414,14 @@ table 5360 "CRM Customeraddress"
             ExternalName = 'composite';
             ExternalType = 'Memo';
             SubType = Memo;
+        }
+        field(50; ShippingMethodCodeEnum; Enum "CDS Shipping Agent Code")
+        {
+            Caption = 'Shipping Method';
+            Description = 'Select a shipping method for deliveries sent to this address.';
+            ExternalName = 'shippingmethodcode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
         }
     }
 

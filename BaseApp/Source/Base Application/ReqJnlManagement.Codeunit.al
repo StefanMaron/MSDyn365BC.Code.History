@@ -23,7 +23,7 @@ codeunit 330 ReqJnlManagement
     begin
         JnlSelected := true;
 
-        ReqWkshTmpl.Reset;
+        ReqWkshTmpl.Reset();
         ReqWkshTmpl.SetRange("Page ID", PageID);
         ReqWkshTmpl.SetRange(Recurring, RecurringJnl);
         ReqWkshTmpl.SetRange(Type, Type);
@@ -32,7 +32,7 @@ codeunit 330 ReqJnlManagement
         case ReqWkshTmpl.Count of
             0:
                 begin
-                    ReqWkshTmpl.Init;
+                    ReqWkshTmpl.Init();
                     ReqWkshTmpl.Recurring := RecurringJnl;
                     ReqWkshTmpl.Type := Type;
                     if not RecurringJnl then begin
@@ -43,8 +43,8 @@ codeunit 330 ReqJnlManagement
                         ReqWkshTmpl.Description := Text99000001;
                     end;
                     ReqWkshTmpl.Validate("Page ID");
-                    ReqWkshTmpl.Insert;
-                    Commit;
+                    ReqWkshTmpl.Insert();
+                    Commit();
                 end;
             1:
                 ReqWkshTmpl.FindFirst;
@@ -152,12 +152,12 @@ codeunit 330 ReqJnlManagement
         ReqWkshName.SetRange("Worksheet Template Name", CurrentJnlTemplateName);
         if not ReqWkshName.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not ReqWkshName.FindFirst then begin
-                ReqWkshName.Init;
+                ReqWkshName.Init();
                 ReqWkshName."Worksheet Template Name" := CurrentJnlTemplateName;
                 ReqWkshName.Name := Text004;
                 ReqWkshName.Description := Text005;
                 ReqWkshName.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := ReqWkshName.Name
         end;
@@ -182,7 +182,7 @@ codeunit 330 ReqJnlManagement
     var
         ReqWkshName: Record "Requisition Wksh. Name";
     begin
-        Commit;
+        Commit();
         ReqWkshName."Worksheet Template Name" := ReqLine.GetRangeMax("Worksheet Template Name");
         ReqWkshName.Name := ReqLine.GetRangeMax("Journal Batch Name");
         ReqWkshName.FilterGroup(2);

@@ -260,6 +260,9 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Charges - Specification';
                         RunObject = report "Item Charges - Specification";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Inventory - Vendor Purchases")
                     {
@@ -643,6 +646,9 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Charges - Specification';
                         RunObject = report "Item Charges - Specification";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Inventory - Inbound Transfer1")
                     {
@@ -698,6 +704,9 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item ABC Analysis';
                         RunObject = report "Item ABC Analysis";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                 }
             }

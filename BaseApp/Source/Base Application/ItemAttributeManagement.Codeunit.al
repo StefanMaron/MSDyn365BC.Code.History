@@ -58,7 +58,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttribute.ID);
                 AttributeValueIDFilter := GetItemAttributeValueFilter(FilterItemAttributesBuffer, ItemAttribute);
                 if AttributeValueIDFilter = '' then begin
-                    TempFilteredItem.DeleteAll;
+                    TempFilteredItem.DeleteAll();
                     exit;
                 end;
 
@@ -108,8 +108,8 @@ codeunit 7500 "Item Attribute Management"
         ItemAttributeValueMapping.SetFilter("Item Attribute Value ID", AttributeValueIDFilter);
 
         if ItemAttributeValueMapping.IsEmpty then begin
-            TempFilteredItem.Reset;
-            TempFilteredItem.DeleteAll;
+            TempFilteredItem.Reset();
+            TempFilteredItem.DeleteAll();
             exit;
         end;
 
@@ -118,7 +118,7 @@ codeunit 7500 "Item Attribute Management"
                 repeat
                     Item.Get(ItemAttributeValueMapping."No.");
                     TempFilteredItem.TransferFields(Item);
-                    TempFilteredItem.Insert;
+                    TempFilteredItem.Insert();
                 until ItemAttributeValueMapping.Next = 0;
             exit;
         end;
@@ -126,7 +126,7 @@ codeunit 7500 "Item Attribute Management"
         repeat
             ItemAttributeValueMapping.SetRange("No.", TempFilteredItem."No.");
             if ItemAttributeValueMapping.IsEmpty then
-                TempFilteredItem.Delete;
+                TempFilteredItem.Delete();
         until TempFilteredItem.Next = 0;
         ItemAttributeValueMapping.SetRange("No.");
     end;
@@ -221,10 +221,12 @@ codeunit 7500 "Item Attribute Management"
     begin
         if TempFirstItemAttributeValue.FindFirst then
             repeat
-                if not TempSecondItemAttributeValue.Get(TempFirstItemAttributeValue."Attribute ID", TempFirstItemAttributeValue.ID) then begin
+                TempSecondItemAttributeValue.SetRange("Attribute ID", TempFirstItemAttributeValue."Attribute ID");
+                if TempSecondItemAttributeValue.IsEmpty then begin
                     TempResultingItemAttributeValue.TransferFields(TempFirstItemAttributeValue);
                     TempResultingItemAttributeValue.Insert();
                 end;
+                TempSecondItemAttributeValue.Reset();
             until TempFirstItemAttributeValue.Next = 0;
     end;
 
@@ -311,7 +313,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping.SetRange("Item Attribute Value ID", TempItemAttributeValueToRemove.ID);
                 if ItemAttributeValueMapping.IsEmpty then
                     if ItemAttributeValue.Get(TempItemAttributeValueToRemove."Attribute ID", TempItemAttributeValueToRemove.ID) then
-                        ItemAttributeValue.Delete;
+                        ItemAttributeValue.Delete();
             until TempItemAttributeValueToRemove.Next = 0;
     end;
 
@@ -365,7 +367,7 @@ codeunit 7500 "Item Attribute Management"
                 if ItemAttributeValueMapping.Insert(true) then begin
                     TempInsertedItemAttributeValueMapping.TransferFields(ItemAttributeValueMapping);
                     OnBeforeBufferedItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempInsertedItemAttributeValueMapping);
-                    TempInsertedItemAttributeValueMapping.Insert;
+                    TempInsertedItemAttributeValueMapping.Insert();
                 end;
             until TempItemAttributeValueToInsert.Next = 0;
     end;
@@ -396,7 +398,7 @@ codeunit 7500 "Item Attribute Management"
 
     procedure DoesValueExistInItemAttributeValues(Text: Text[250]; var ItemAttributeValue: Record "Item Attribute Value"): Boolean
     begin
-        ItemAttributeValue.Reset;
+        ItemAttributeValue.Reset();
         ItemAttributeValue.SetFilter(Value, '@' + Text);
         exit(ItemAttributeValue.FindSet);
     end;

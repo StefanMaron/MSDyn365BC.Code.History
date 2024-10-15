@@ -29,10 +29,10 @@ report 1143 "Import Cost Budget from Excel"
                 end;
 
                 if Amount = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not IsLineTypeCostType("Cost Type No.") then
-                    CurrReport.Skip;
-                CostBudgetEntry.Init;
+                    CurrReport.Skip();
+                CostBudgetEntry.Init();
                 CostBudgetEntry."Entry No." := EntryNo;
                 CostBudgetEntry."Budget Name" := ToCostBudgetName;
                 CostBudgetEntry."Cost Type No." := "Cost Type No.";
@@ -58,19 +58,16 @@ report 1143 "Import Cost Budget from Excel"
 
                 if not CostBudgetName.Get(ToCostBudgetName) then begin
                     if not Confirm(Text001, false, CostBudgetName.TableCaption, ToCostBudgetName) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CostBudgetName.Name := ToCostBudgetName;
-                    CostBudgetName.Insert;
+                    CostBudgetName.Insert();
                 end else begin
                     if not Confirm(Text003, false, LowerCase(Format(SelectStr(ImportOption + 1, Text027))), ToCostBudgetName) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
-                if CostBudgetEntry3.FindLast then
-                    EntryNo := CostBudgetEntry3."Entry No." + 1
-                else
-                    EntryNo := 1;
-                LastEntryNoBeforeImport := CostBudgetEntry3."Entry No.";
+                LastEntryNoBeforeImport := CostBudgetEntry3.GetLastEntryNo();
+                EntryNo := LastEntryNoBeforeImport + 1
             end;
         }
     }
@@ -135,8 +132,8 @@ report 1143 "Import Cost Budget from Excel"
 
     trigger OnPostReport()
     begin
-        ExcelBuffer.DeleteAll;
-        TempCostBudgetBuffer.DeleteAll;
+        ExcelBuffer.DeleteAll();
+        TempCostBudgetBuffer.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -146,18 +143,18 @@ report 1143 "Import Cost Budget from Excel"
 
         if CostType.Find('-') then begin
             repeat
-                TempCostType.Init;
+                TempCostType.Init();
                 TempCostType := CostType;
-                TempCostType.Insert;
+                TempCostType.Insert();
             until CostType.Next = 0;
         end;
 
-        ExcelBuffer.LockTable;
+        ExcelBuffer.LockTable();
         CostBudgetEntry.SetRange("Budget Name", ToCostBudgetName);
         if not CostBudgetName.Get(ToCostBudgetName) then
             Clear(CostBudgetName);
 
-        CostAccSetup.Get;
+        CostAccSetup.Get();
 
         ExcelBuffer.OpenBook(ServerFileName, SheetName);
         ExcelBuffer.ReadSheet;
@@ -216,10 +213,10 @@ report 1143 "Import Cost Budget from Excel"
           Text007 +
           '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
         Window.Update(1, 0);
-        TotalRecNo := ExcelBuffer.Count;
+        TotalRecNo := ExcelBuffer.Count();
         RecNo := 0;
-        TempCostBudgetBuffer2.Init;
-        TempCostBudgetBuffer.DeleteAll;
+        TempCostBudgetBuffer2.Init();
+        TempCostBudgetBuffer.DeleteAll();
 
         if ExcelBuffer.Find('-') then begin
             repeat
@@ -256,7 +253,7 @@ report 1143 "Import Cost Budget from Excel"
                             if Evaluate(TestDateTime, TempExcelBuffer."Cell Value as Text") then begin
                                 TempExcelBuffer."Cell Value as Text" := Format(DT2Date(TestDateTime));
                                 TempExcelBuffer.Comment := Text014;
-                                TempExcelBuffer.Insert;
+                                TempExcelBuffer.Insert();
                             end;
                         end;
                     (ExcelBuffer."Row No." > HeaderRowNo) and (HeaderRowNo > 0):
@@ -318,7 +315,7 @@ report 1143 "Import Cost Budget from Excel"
         end;
 
         Window.Close;
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         TempExcelBuffer.SetRange(Comment, Text009);
         if not TempExcelBuffer.FindFirst then
             Error(Text025);
@@ -345,7 +342,7 @@ report 1143 "Import Cost Budget from Excel"
     begin
         TempExcelBuffer := ExcelBuffer;
         TempExcelBuffer.Comment := Text;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 }
 

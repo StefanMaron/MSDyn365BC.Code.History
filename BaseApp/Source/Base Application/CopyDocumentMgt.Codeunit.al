@@ -1246,7 +1246,7 @@ codeunit 6620 "Copy Document Mgt."
         then
             exit(false);
 
-        if IsEntityBlocked(Database::"Sales Line", FromSalesLine.Type, FromSalesLine."No.") then begin
+        if IsEntityBlocked(Database::"Sales Line", ToSalesHeader.IsCreditDocType(), FromSalesLine.Type, FromSalesLine."No.") then begin
             LinesNotCopied := LinesNotCopied + 1;
             exit(false);
         end;
@@ -1556,7 +1556,7 @@ codeunit 6620 "Copy Document Mgt."
         then
             exit(false);
 
-        if IsEntityBlocked(Database::"Purchase Line", FromPurchLine.Type, FromPurchLine."No.") then begin
+        if IsEntityBlocked(Database::"Purchase Line", ToPurchHeader.IsCreditDocType(), FromPurchLine.Type, FromPurchLine."No.") then begin
             LinesNotCopied := LinesNotCopied + 1;
             exit(false);
         end;
@@ -1764,7 +1764,7 @@ codeunit 6620 "Copy Document Mgt."
             ToPurchLine.Validate("Unit of Measure", FromPurchLine."Unit of Measure");
             ToPurchLine.Validate("Unit of Measure Code", FromPurchLine."Unit of Measure Code");
             ToPurchLine.Validate(Quantity, FromPurchLine.Quantity);
-            if FromPurchLine.Type <> FromPurchLine.Type::Item then begin
+            if not (FromPurchLine.Type in [FromPurchLine.Type::Item, FromPurchLine.Type::Resource]) then begin
                 ToPurchHeader.TestField("Currency Code", FromPurchHeader."Currency Code");
                 ToPurchLine.Validate("Direct Unit Cost", FromPurchLine."Direct Unit Cost");
                 ToPurchLine.Validate("Line Discount %", FromPurchLine."Line Discount %");
@@ -2055,7 +2055,7 @@ codeunit 6620 "Copy Document Mgt."
             [ToSalesHeader."Document Type"::"Return Order", ToSalesHeader."Document Type"::"Credit Memo"])
         then begin
             CustLedgEntry.SetCurrentKey("Document No.");
-            CustLedgEntry.SetRange("Document Type", FromSalesHeader."Document Type"::Invoice);
+            CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
             CustLedgEntry.SetRange("Document No.", FromDocNo);
             if CustLedgEntry.FindFirst then begin
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
@@ -2072,7 +2072,7 @@ codeunit 6620 "Copy Document Mgt."
            (FromDocType = 9)
         then begin
             CustLedgEntry.SetCurrentKey("Document No.");
-            CustLedgEntry.SetRange("Document Type", FromSalesHeader."Document Type"::"Credit Memo");
+            CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
             CustLedgEntry.SetRange("Document No.", FromDocNo);
             if CustLedgEntry.FindFirst then begin
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
@@ -2095,7 +2095,7 @@ codeunit 6620 "Copy Document Mgt."
             [ToPurchHeader."Document Type"::"Return Order", ToPurchHeader."Document Type"::"Credit Memo"])
         then begin
             VendLedgEntry.SetCurrentKey("Document No.");
-            VendLedgEntry.SetRange("Document Type", FromPurchHeader."Document Type"::Invoice);
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
             VendLedgEntry.SetRange("Document No.", FromDocNo);
             if VendLedgEntry.FindFirst then begin
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
@@ -2112,7 +2112,7 @@ codeunit 6620 "Copy Document Mgt."
            (FromDocType = 9)
         then begin
             VendLedgEntry.SetCurrentKey("Document No.");
-            VendLedgEntry.SetRange("Document Type", FromPurchHeader."Document Type"::"Credit Memo");
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
             VendLedgEntry.SetRange("Document No.", FromDocNo);
             if VendLedgEntry.FindFirst then begin
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
@@ -4109,7 +4109,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure IsEntityBlocked(TableNo: Integer; Type: Option; EntityNo: Code[20]): Boolean
+    procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]): Boolean
     var
         GLAccount: Record "G/L Account";
         FixedAsset: Record "Fixed Asset";
@@ -4147,14 +4147,14 @@ codeunit 6620 "Copy Document Mgt."
                     end;
                     case TableNo of
                         database::"Sales Line":
-                            if Item."Sales Blocked" then begin
+                            if Item."Sales Blocked" and not CreditDocType then begin
                                 BlockedForSalesPurch := true;
                                 ErrorMessageMgt.LogMessage(
                                     MessageType, 0, StrSubstNo(IsSalesBlockedItemErr, Item."No."), Item,
                                     Item.FieldNo("Sales Blocked"), ForwardLinkMgt.GetHelpCodeForBlockedItem());
                             end;
                         database::"Purchase Line":
-                            if Item."Purchasing Blocked" then begin
+                            if Item."Purchasing Blocked" and not CreditDocType then begin
                                 BlockedForSalesPurch := true;
                                 ErrorMessageMgt.LogMessage(
                                     MessageType, 0, StrSubstNo(IsPurchBlockedItemErr, Item."No."), Item,
@@ -6205,9 +6205,6 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure InitPurchDeferralCode(var ToPurchLine: Record "Purchase Line")
-    var
-        GLAccount: Record "G/L Account";
-        Item: Record Item;
     begin
         if ToPurchLine."No." = '' then
             exit;
@@ -6217,18 +6214,7 @@ codeunit 6620 "Copy Document Mgt."
           ToPurchLine."Document Type"::Invoice,
           ToPurchLine."Document Type"::"Credit Memo",
           ToPurchLine."Document Type"::"Return Order":
-                case ToPurchLine.Type of
-                    ToPurchLine.Type::"G/L Account":
-                        begin
-                            GLAccount.Get(ToPurchLine."No.");
-                            ToPurchLine.Validate("Deferral Code", GLAccount."Default Deferral Template Code");
-                        end;
-                    ToPurchLine.Type::Item:
-                        begin
-                            Item.Get(ToPurchLine."No.");
-                            ToPurchLine.Validate("Deferral Code", Item."Default Deferral Template Code");
-                        end;
-                end;
+                ToPurchLine.InitDeferralCode();
         end;
     end;
 
@@ -6353,6 +6339,7 @@ codeunit 6620 "Copy Document Mgt."
             else
                 Clear(PaymentTerms);
             if not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
+                "Payment Terms Code" := '';
                 "Payment Discount %" := 0;
                 "Pmt. Discount Date" := 0D;
             end;
@@ -6372,6 +6359,7 @@ codeunit 6620 "Copy Document Mgt."
             else
                 Clear(PaymentTerms);
             if not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
+                "Payment Terms Code" := '';
                 "Payment Discount %" := 0;
                 "Pmt. Discount Date" := 0D;
             end;
@@ -7110,8 +7098,7 @@ codeunit 6620 "Copy Document Mgt."
                 TempTrackingSpecification."Item No." := TempItemLedgerEntry."Item No.";
                 TempTrackingSpecification."Location Code" := TempItemLedgerEntry."Location Code";
                 TempTrackingSpecification."Quantity (Base)" := TempItemLedgerEntry.Quantity;
-                TempTrackingSpecification."Serial No." := TempItemLedgerEntry."Serial No.";
-                TempTrackingSpecification."Lot No." := TempItemLedgerEntry."Lot No.";
+                TempTrackingSpecification.CopyTrackingFromItemledgEntry(TempItemLedgerEntry);
                 TempTrackingSpecification."Warranty Date" := TempItemLedgerEntry."Warranty Date";
                 TempTrackingSpecification."Expiration Date" := TempItemLedgerEntry."Expiration Date";
                 TempTrackingSpecification.Insert();
@@ -7121,8 +7108,8 @@ codeunit 6620 "Copy Document Mgt."
             repeat
                 if GetItemTrackingCode(ItemTrackingCode, TempTrackingSpecification."Item No.") then
                     ReservationEngineMgt.AddItemTrackingToTempRecSet(
-                      TempReservationEntry, TempTrackingSpecification, TempTrackingSpecification."Quantity (Base)", QtyToAddAsBlank,
-                      ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking");
+                        TempReservationEntry, TempTrackingSpecification, TempTrackingSpecification."Quantity (Base)",
+                        QtyToAddAsBlank, ItemTrackingCode);
             until TempTrackingSpecification.Next = 0;
     end;
 

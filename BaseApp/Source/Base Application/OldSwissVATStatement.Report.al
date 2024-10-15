@@ -265,10 +265,10 @@ report 11518 "Old Swiss VAT Statement"
                         end;
 
                         if not TempVATCurrencyAdjustmentBuffer.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then begin
-                            TempVATCurrencyAdjustmentBuffer.Init;
+                            TempVATCurrencyAdjustmentBuffer.Init();
                             TempVATCurrencyAdjustmentBuffer."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
                             TempVATCurrencyAdjustmentBuffer."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-                            TempVATCurrencyAdjustmentBuffer.Insert;
+                            TempVATCurrencyAdjustmentBuffer.Insert();
                         end;
                         if Sales then begin
                             if not "Exchange Rate Adjustment" then
@@ -283,7 +283,7 @@ report 11518 "Old Swiss VAT Statement"
                             TempVATCurrencyAdjustmentBuffer."VAT Purch. Base Amt. Adj." :=
                               TempVATCurrencyAdjustmentBuffer."VAT Purch. Base Amt. Adj." + Base;
                         end;
-                        TempVATCurrencyAdjustmentBuffer.Modify;
+                        TempVATCurrencyAdjustmentBuffer.Modify();
                         if "Exchange Rate Adjustment" then
                             CurrencyAdjusted := true;
 
@@ -310,7 +310,7 @@ report 11518 "Old Swiss VAT Statement"
 
                         // If No Cus/Vend Name found, klook into GL/Ledger Entries
                         if (BookTxt = '') and (not "Exchange Rate Adjustment") then begin
-                            "G/L Entry".Reset;
+                            "G/L Entry".Reset();
                             "G/L Entry".SetCurrentKey("Transaction No.");
                             "G/L Entry".SetRange("Transaction No.", "Transaction No.");
                             "G/L Entry".SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
@@ -447,7 +447,7 @@ report 11518 "Old Swiss VAT Statement"
                                 until FoundBalanceEntries or (BalanceVATEntry2.Next = 0);
 
                             if not FoundBalanceEntries then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                         TmpBase := 0;
                     end;
@@ -491,7 +491,7 @@ report 11518 "Old Swiss VAT Statement"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Unrealized VAT" then
                     if not Confirm(UnrealizedVATQst, false, CompanyName) then
                         Error(ProcessCancelledErr);
@@ -630,7 +630,7 @@ report 11518 "Old Swiss VAT Statement"
             begin
                 // Gett Account Name
                 if not GLAccount.Get("G/L Account No.") then
-                    GLAccount.Init;
+                    GLAccount.Init();
             end;
 
             trigger OnPreDataItem()
@@ -704,14 +704,14 @@ report 11518 "Old Swiss VAT Statement"
             begin
                 if NotFirstEntry then
                     if TempVATCurrencyAdjustmentBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 NotFirstEntry := true;
             end;
 
             trigger OnPreDataItem()
             begin
                 if not CurrencyAdjusted then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 TempVATCurrencyAdjustmentBuffer.Find('-');
             end;
@@ -979,7 +979,7 @@ report 11518 "Old Swiss VAT Statement"
             trigger OnAfterGetRecord()
             begin
                 // VAT Form Base
-                CompanyInformation.Get;
+                CompanyInformation.Get();
 
                 if TotalVATBase <> NormalRateBaseAmount + ReducedRateBaseAmount + SpecialRateBaseAmount + NoVATBaseAmount then
                     Message(WarningMsg);

@@ -44,7 +44,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         OnBeforeRunCheck(GenJnlLine);
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if EmptyLine then
                 exit;

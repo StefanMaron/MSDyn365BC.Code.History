@@ -18,13 +18,13 @@ codeunit 86 "Sales-Quote to Order"
         TestField("Document Type", "Document Type"::Quote);
         ShouldRedistributeInvoiceAmount := SalesCalcDiscountByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
 
-        SalesQuoteLine.Reset;
+        SalesQuoteLine.Reset();
         SalesQuoteLine.SetRange("Document Type", "Document Type");
         SalesQuoteLine.SetRange("Document No.", "No.");
         SalesQuoteLine.SetRange("Quote Variant", SalesQuoteLine."Quote Variant"::Variant);
         if not SalesQuoteLine.IsEmpty then
             Error(Text90800);
-        SalesQuoteLine.Reset;
+        SalesQuoteLine.Reset();
 
         OnCheckSalesPostRestrictions;
 
@@ -47,7 +47,7 @@ codeunit 86 "Sales-Quote to Order"
         TransferQuoteToOrderLines(SalesQuoteLine, Rec, SalesOrderLine, SalesOrderHeader, Cust);
         OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         case SalesSetup."Archive Quotes" of
             SalesSetup."Archive Quotes"::Always:
                 ArchiveManagement.ArchSalesDocumentNoConfirm(Rec);
@@ -57,7 +57,7 @@ codeunit 86 "Sales-Quote to Order"
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesOrderHeader."Posting Date" := 0D;
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
 
         SalesCommentLine.CopyComments("Document Type", SalesOrderHeader."Document Type", "No.", SalesOrderHeader."No.");
@@ -75,7 +75,7 @@ codeunit 86 "Sales-Quote to Order"
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             DeleteLinks;
             Delete;
-            SalesQuoteLine.DeleteAll;
+            SalesQuoteLine.DeleteAll();
         end;
 
         if not ShouldRedistributeInvoiceAmount then
@@ -105,7 +105,7 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
             SalesOrderHeader."No." := '';
             SalesOrderHeader."Quote No." := "No.";
-            SalesOrderLine.LockTable;
+            SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Insert(true);
 
@@ -121,7 +121,7 @@ codeunit 86 "Sales-Quote to Order"
             if SalesOrderHeader."Posting Date" = 0D then
                 SalesOrderHeader."Posting Date" := WorkDate;
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
     end;
 
@@ -129,11 +129,11 @@ codeunit 86 "Sales-Quote to Order"
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
     begin
-        ItemChargeAssgntSales.Reset;
+        ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", FromDocType);
         ItemChargeAssgntSales.SetRange("Document No.", FromDocNo);
         while ItemChargeAssgntSales.FindFirst do begin
-            ItemChargeAssgntSales.Delete;
+            ItemChargeAssgntSales.Delete();
             ItemChargeAssgntSales."Document Type" := SalesOrderHeader."Document Type";
             ItemChargeAssgntSales."Document No." := SalesOrderHeader."No.";
             if not (ItemChargeAssgntSales."Applies-to Doc. Type" in
@@ -143,7 +143,7 @@ codeunit 86 "Sales-Quote to Order"
                 ItemChargeAssgntSales."Applies-to Doc. Type" := ToDocType;
                 ItemChargeAssgntSales."Applies-to Doc. No." := ToDocNo;
             end;
-            ItemChargeAssgntSales.Insert;
+            ItemChargeAssgntSales.Insert();
         end;
     end;
 
@@ -164,7 +164,7 @@ codeunit 86 "Sales-Quote to Order"
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        Opp.Reset;
+        Opp.Reset();
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesHeader."No.");
@@ -176,8 +176,8 @@ codeunit 86 "Sales-Quote to Order"
                    Opp."Sales Document Type"::Order), true)
             then
                 Error('');
-            TempOpportunityEntry.DeleteAll;
-            TempOpportunityEntry.Init;
+            TempOpportunityEntry.DeleteAll();
+            TempOpportunityEntry.Init();
             TempOpportunityEntry.Validate("Opportunity No.", Opp."No.");
             TempOpportunityEntry."Sales Cycle Code" := Opp."Sales Cycle Code";
             TempOpportunityEntry."Contact No." := Opp."Contact No.";
@@ -188,17 +188,17 @@ codeunit 86 "Sales-Quote to Order"
             TempOpportunityEntry."Calcd. Current Value (LCY)" := TempOpportunityEntry.GetSalesDocValue(SalesHeader);
             TempOpportunityEntry."Cancel Old To Do" := true;
             TempOpportunityEntry."Wizard Step" := 1;
-            TempOpportunityEntry.Insert;
+            TempOpportunityEntry.Insert();
             TempOpportunityEntry.SetRange("Action Taken", TempOpportunityEntry."Action Taken"::Won);
             PAGE.RunModal(PAGE::"Close Opportunity", TempOpportunityEntry);
-            Opp.Reset;
+            Opp.Reset();
             Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
             Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
             Opp.SetRange("Sales Document No.", SalesHeader."No.");
             Opp.SetRange(Status, Opp.Status::"In Progress");
             if Opp.FindFirst then
                 Error(Text001, Opp.TableCaption, Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
-            Commit;
+            Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         end;
     end;
@@ -208,7 +208,7 @@ codeunit 86 "Sales-Quote to Order"
         Opp: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
     begin
-        Opp.Reset;
+        Opp.Reset();
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
         Opp.SetRange("Sales Document No.", SalesQuoteHeader."No.");
@@ -216,20 +216,20 @@ codeunit 86 "Sales-Quote to Order"
             if Opp.Status = Opp.Status::Won then begin
                 Opp."Sales Document Type" := Opp."Sales Document Type"::Order;
                 Opp."Sales Document No." := SalesOrderHeader."No.";
-                Opp.Modify;
-                OpportunityEntry.Reset;
+                Opp.Modify();
+                OpportunityEntry.Reset();
                 OpportunityEntry.SetCurrentKey(Active, "Opportunity No.");
                 OpportunityEntry.SetRange(Active, true);
                 OpportunityEntry.SetRange("Opportunity No.", Opp."No.");
                 if OpportunityEntry.FindFirst then begin
                     OpportunityEntry."Calcd. Current Value (LCY)" := OpportunityEntry.GetSalesDocValue(SalesOrderHeader);
-                    OpportunityEntry.Modify;
+                    OpportunityEntry.Modify();
                 end;
             end else
                 if Opp.Status = Opp.Status::Lost then begin
                     Opp."Sales Document Type" := Opp."Sales Document Type"::" ";
                     Opp."Sales Document No." := '';
-                    Opp.Modify;
+                    Opp.Modify();
                 end;
     end;
 
@@ -240,7 +240,7 @@ codeunit 86 "Sales-Quote to Order"
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         IsHandled: Boolean;
     begin
-        SalesQuoteLine.Reset;
+        SalesQuoteLine.Reset();
         SalesQuoteLine.SetRange("Document Type", SalesQuoteHeader."Document Type");
         SalesQuoteLine.SetRange("Document No.", SalesQuoteHeader."No.");
         OnTransferQuoteToOrderLinesOnAfterSetFilters(SalesQuoteLine, SalesQuoteHeader);
@@ -262,7 +262,7 @@ codeunit 86 "Sales-Quote to Order"
                     if SalesOrderLine."No." <> '' then
                         SalesOrderLine.DefaultDeferralCode;
                     OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
-                    SalesOrderLine.Insert;
+                    SalesOrderLine.Insert();
                     OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
                     ATOLink.MakeAsmOrderLinkedToSalesOrderLine(SalesQuoteLine, SalesOrderLine);
                     SalesLineReserve.TransferSaleLineToSalesLine(

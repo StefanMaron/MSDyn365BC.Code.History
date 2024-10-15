@@ -101,11 +101,11 @@ report 11108 "VAT - VIES Declaration XML"
                 if tempVATEntry.Find('-') then begin
                     tempVATEntry.Base := tempVATEntry.Base + Base;
                     tempVATEntry."Additional-Currency Base" := tempVATEntry."Additional-Currency Base" + "Additional-Currency Base";
-                    tempVATEntry.Modify;
+                    tempVATEntry.Modify();
                 end else begin
                     tempVATEntry := "VAT Entry";
                     tempVATEntry."VAT Registration No." := VATRegNo;
-                    tempVATEntry.Insert;
+                    tempVATEntry.Insert();
                     NoOfRecs := NoOfRecs + 1;
                 end;
             end;
@@ -168,10 +168,10 @@ report 11108 "VAT - VIES Declaration XML"
 
             trigger OnPreDataItem()
             begin
-                tempVATEntry.Reset;
+                tempVATEntry.Reset();
                 tempVATEntry.SetCurrentKey(Type, "Country/Region Code", "VAT Registration No.");
                 if not tempVATEntry.Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 SetRange(Number, 1, tempVATEntry.Count);
             end;
         }
@@ -234,7 +234,7 @@ report 11108 "VAT - VIES Declaration XML"
             trigger OnPreDataItem()
             begin
                 if not tempVATEntry.Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 WriteXMLHeader;
                 SetRange(Number, 1, tempVATEntry.Count);
                 WriteXMLGeneral;
@@ -320,7 +320,7 @@ report 11108 "VAT - VIES Declaration XML"
             else
                 FileManagement.CopyServerFile(ServerFileName, FileName, true);
 
-        tempVATEntry.DeleteAll;
+        tempVATEntry.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -350,8 +350,8 @@ report 11108 "VAT - VIES Declaration XML"
         if DelChr(PaketNr, '=', '01234567890 ') <> '' then
             Error(Text1160007);
 
-        CompanyInfo.Get;
-        VATReportSetup.Get;
+        CompanyInfo.Get();
+        VATReportSetup.Get();
 
         Clear(TotalSum);
     end;

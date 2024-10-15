@@ -26,11 +26,11 @@ codeunit 97 "Blanket Purch. Order to Order"
         if QtyToReceiveIsZero then
             Error(Text002);
 
-        PurchSetup.Get;
+        PurchSetup.Get();
 
         CreatePurchHeader(Rec, Vend."Prepayment %");
 
-        PurchBlanketOrderLine.Reset;
+        PurchBlanketOrderLine.Reset();
         PurchBlanketOrderLine.SetRange("Document Type", "Document Type");
         PurchBlanketOrderLine.SetRange("Document No.", "No.");
         if PurchBlanketOrderLine.FindSet then
@@ -109,13 +109,13 @@ codeunit 97 "Blanket Purch. Order to Order"
                     PurchOrderLine.DefaultDeferralCode;
                     if IsPurchOrderLineToBeInserted(PurchOrderLine) then begin
                         OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchBlanketOrderLine, Rec);
-                        PurchOrderLine.Insert;
+                        PurchOrderLine.Insert();
                         OnAfterPurchOrderLineInsert(PurchOrderLine, PurchBlanketOrderLine);
                     end;
 
                     if PurchBlanketOrderLine."Qty. to Receive" <> 0 then begin
                         PurchBlanketOrderLine.Validate("Qty. to Receive", 0);
-                        PurchBlanketOrderLine.Modify;
+                        PurchBlanketOrderLine.Modify();
                     end;
                 end;
             until PurchBlanketOrderLine.Next = 0;
@@ -124,7 +124,7 @@ codeunit 97 "Blanket Purch. Order to Order"
 
         if PurchSetup."Default Posting Date" = PurchSetup."Default Posting Date"::"No Date" then begin
             PurchOrderHeader."Posting Date" := 0D;
-            PurchOrderHeader.Modify;
+            PurchOrderHeader.Modify();
         end;
 
         if PurchSetup."Copy Comments Blanket to Order" then begin
@@ -136,7 +136,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         if not (ShouldRedistributeInvoiceAmount or PurchSetup."Calc. Inv. Discount") then
             PurchCalcDiscByType.ResetRecalculateInvoiceDisc(PurchOrderHeader);
 
-        Commit;
+        Commit();
 
         OnAfterRun(Rec, PurchOrderHeader);
     end;
@@ -164,7 +164,7 @@ codeunit 97 "Blanket Purch. Order to Order"
             PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
             PurchOrderHeader."No." := '';
             PurchOrderHeader.InitRecord;
-            PurchOrderLine.LockTable;
+            PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Insert(true);
 
@@ -182,7 +182,7 @@ codeunit 97 "Blanket Purch. Order to Order"
 
             PurchOrderHeader."Prepayment %" := PrepmtPercent;
             OnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Modify;
+            PurchOrderHeader.Modify();
         end;
     end;
 

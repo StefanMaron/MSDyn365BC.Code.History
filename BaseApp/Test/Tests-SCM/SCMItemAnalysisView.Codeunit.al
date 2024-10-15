@@ -79,7 +79,7 @@ codeunit 137229 "SCM Item Analysis View"
         asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Transaction rollback completely and no lines exist in item ledger entry for transfer order T.
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry.SetRange("Order No.", TransferLine."Document No.");
         Assert.RecordIsEmpty(ItemLedgerEntry);
     end;
@@ -97,7 +97,7 @@ codeunit 137229 "SCM Item Analysis View"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Analysis View");
     end;
 

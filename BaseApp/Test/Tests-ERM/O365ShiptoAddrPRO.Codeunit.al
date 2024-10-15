@@ -247,7 +247,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyShipToEditableState(PurchaseReturnOrder: TestPage "Purchase Return Order"; ExpectedState: Boolean)

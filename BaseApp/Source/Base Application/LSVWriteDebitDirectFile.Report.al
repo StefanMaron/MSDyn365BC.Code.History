@@ -25,7 +25,7 @@ report 3010839 "LSV Write DebitDirect File"
             trigger OnPreDataItem()
             begin
                 "LSV Journal".SetRange("No.", "No.");
-                LastLsvJour.Reset;
+                LastLsvJour.Reset();
                 LastLsvJour.SetRange("Credit Date", "LSV Journal"."Credit Date");
                 if LastLsvJour.FindFirst then begin
                     if LastLsvJour."DebitDirect Orderno." in ['', '99'] then
@@ -33,7 +33,7 @@ report 3010839 "LSV Write DebitDirect File"
                     else
                         LastOrderNo := LastLsvJour."DebitDirect Orderno.";
                     "LSV Journal"."DebitDirect Orderno." := IncStr(LastOrderNo);
-                    "LSV Journal".Modify;
+                    "LSV Journal".Modify();
                 end else
                     "LSV Journal"."DebitDirect Orderno." := '01';
 
@@ -173,7 +173,7 @@ report 3010839 "LSV Write DebitDirect File"
           Text006); // Entries #2
 
         // All entries per LSV journal - only one currency
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("LSV No.");
         CustLedgEntry.SetRange("LSV No.", LsvJour."No.");
 
@@ -195,7 +195,7 @@ report 3010839 "LSV Write DebitDirect File"
                     LSVJournalLine.SetRange("Cust. Ledg. Entry No.", CustLedgEntry."Entry No.");
                     LSVJournalLine.FindFirst;
                     Evaluate(LSVJournalLine."Transaction No.", TaLineno);
-                    LSVJournalLine.Modify;
+                    LSVJournalLine.Modify();
                     WriteCollectionRecord(CustLedgEntry."Customer No.", CustLedgEntry."Currency Code", CollectionAmt);
 
                     CollectionAmt := 0;
@@ -211,7 +211,7 @@ report 3010839 "LSV Write DebitDirect File"
         if (LsvJour."LSV Status" <> LsvJour."LSV Status"::"File Created") or (LsvJour."File Written On" = 0D) then begin
             LsvJour."File Written On" := Today;
             LsvJour."LSV Status" := LsvJour."LSV Status"::"File Created";
-            LsvJour.Modify;
+            LsvJour.Modify();
         end;
 
         LsvJour.CalcFields("Amount Plus");
@@ -220,7 +220,7 @@ report 3010839 "LSV Write DebitDirect File"
             Error(Text007, TotalAmt, LsvJour."No.", LsvJour.Amount);
 
         if _LsvJour."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             FileCurrency := GLSetup."LCY Code";
         end else
             FileCurrency := _LsvJour."Currency Code";
@@ -289,7 +289,7 @@ report 3010839 "LSV Write DebitDirect File"
         Customer.TestField(City);
 
         // Get customer bank
-        DebBank.Reset;
+        DebBank.Reset();
         DebBank.SetRange("Customer No.", _Customerno);
         if DebBank.Count > 1 then
             DebBank.SetRange(Code, LsvSetup."LSV Customer Bank Code");
@@ -405,7 +405,7 @@ report 3010839 "LSV Write DebitDirect File"
         LsvJour."DebitDirect Orderno." := '99';
         PrepareFile(CalcDate('<1W>', Today));
 
-        Customer.Reset;
+        Customer.Reset();
         Customer.SetRange("Payment Method Code", LsvSetup."LSV Payment Method Code");
         if Customer.FindSet then
             repeat

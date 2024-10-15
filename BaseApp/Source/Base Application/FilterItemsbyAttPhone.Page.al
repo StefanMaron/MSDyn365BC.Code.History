@@ -41,7 +41,7 @@ page 7509 "Filter Items by Att. Phone"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         SetRange(Value, '');
-        DeleteAll;
+        DeleteAll();
     end;
 }
 

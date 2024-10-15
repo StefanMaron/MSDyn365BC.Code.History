@@ -162,7 +162,7 @@ page 3010832 "LSV Journal List"
                     trigger OnAction()
                     begin
                         Clear(LSVCollectionJournal);
-                        LsvJournalLine.Reset;
+                        LsvJournalLine.Reset();
                         LsvJournalLine.SetRange("LSV Journal No.", "No.");
                         LsvJournalLine.FindFirst;
                         LSVCollectionJournal.SetGlobals(LsvJournalLine);
@@ -199,7 +199,7 @@ page 3010832 "LSV Journal List"
 
                     trigger OnAction()
                     begin
-                        LsvJournalLine.Reset;
+                        LsvJournalLine.Reset();
                         LsvJournalLine.SetRange("LSV Journal No.", "No.");
                         LsvJournalLine.FindFirst;
                         LsvMgt.ModifyPostingDate(LsvJournalLine);

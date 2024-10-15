@@ -13,10 +13,10 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         CashFlowForecastHandler: Codeunit "Cash Flow Forecast Handler";
         TimeSeriesManagement: Codeunit "Time Series Management";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        XPAYABLESTxt: Label 'PAYABLES', Comment = '{locked}';
-        XRECEIVABLESTxt: Label 'RECEIVABLES', Comment = '{locked}';
-        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Comment = '{locked}';
-        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Comment = '{locked}';
+        XPAYABLESTxt: Label 'PAYABLES', Locked = true;
+        XRECEIVABLESTxt: Label 'RECEIVABLES', Locked = true;
+        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Locked = true;
+        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Locked = true;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -74,13 +74,13 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         TimeSeriesManagement.Initialize('https://ussouthcentral.services.azureml.net', 'dummykey', 120, false);
 
         // [GIVEN] Maximum historical periods is 24 (default value)
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         PrepareData(TempTimeSeriesBuffer, CustLedgerEntry);
 
         // [THEN] There should be 24 Forecast entries
         Assert.RecordCount(TempTimeSeriesBuffer, 24);
 
-        TempTimeSeriesBuffer.DeleteAll;
+        TempTimeSeriesBuffer.DeleteAll();
 
         // [GIVEN] Maximum historical periods is 19
         TimeSeriesManagement.SetMaximumHistoricalPeriods(19);
@@ -98,7 +98,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         if CleanUp then
-            CustLedgerEntry.DeleteAll;
+            CustLedgerEntry.DeleteAll();
         CreateCustomerLedgerEntry(CalcDate('<-6Y+1D>', Date));
         CreateCustomerLedgerEntry(CalcDate('<-5Y+1D>', Date));
         CreateCustomerLedgerEntry(CalcDate('<-4Y+1D>', Date));
@@ -107,7 +107,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         CreateCustomerLedgerEntry(CalcDate('<-1Y+1D>', Date));
 
         if CleanUp then
-            VendorLedgerEntry.DeleteAll;
+            VendorLedgerEntry.DeleteAll();
         CreateVendorLedgerEntry(CalcDate('<-6Y+1D>', Date));
         CreateVendorLedgerEntry(CalcDate('<-5Y+1D>', Date));
         CreateVendorLedgerEntry(CalcDate('<-4Y+1D>', Date));
@@ -121,7 +121,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         VATEntry: Record "VAT Entry";
     begin
         if CleanUp then
-            VATEntry.DeleteAll;
+            VATEntry.DeleteAll();
         CreateVATEntry(CalcDate('<-6Y+1D>', Date), true);
         CreateVATEntry(CalcDate('<-5Y+1D>', Date), true);
         CreateVATEntry(CalcDate('<-4Y+1D>', Date), true);
@@ -144,7 +144,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
     begin
         if VATEntry.FindLast then;
         EntryNo := VATEntry."Entry No." + 1;
-        VATEntry.Init;
+        VATEntry.Init();
         if IsSales then
             VATEntry.Type := VATEntry.Type::Sale
         else
@@ -152,7 +152,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
         VATEntry."Document Date" := DocumentDate;
 
         VATEntry."Entry No." := EntryNo;
-        VATEntry.Insert;
+        VATEntry.Insert();
     end;
 
     local procedure CreateCustomerLedgerEntry(DueDate: Date)
@@ -162,12 +162,12 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
     begin
         if CustLedgerEntry.FindLast then;
         EntryNo := CustLedgerEntry."Entry No." + 1;
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry.Open := true;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Due Date" := DueDate;
         CustLedgerEntry."Entry No." := EntryNo;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntry(DueDate: Date)
@@ -177,12 +177,12 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
     begin
         if VendorLedgerEntry.FindLast then;
         EntryNo := VendorLedgerEntry."Entry No." + 1;
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Entry No." := EntryNo;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     [Normal]
@@ -190,7 +190,7 @@ codeunit 135201 "Cash Flow Frcst. Handler Tests"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.SaveUserDefinedAPIKey('dummykey');
         CashFlowSetup.Validate("API URL", 'https://ussouthcentral.services.azureml.net');
         CashFlowSetup.Validate("Period Type", CashFlowSetup."Period Type"::Year);

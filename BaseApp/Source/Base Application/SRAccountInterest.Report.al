@@ -153,7 +153,7 @@ report 11529 "SR Account Interest"
                 trigger OnPreDataItem()
                 begin
                     if AccType <> AccType::"G/L" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("G/L Account No.", AccNumber);
                     SetRange("Posting Date", StartDate, EndDate);
@@ -206,7 +206,7 @@ report 11529 "SR Account Interest"
                 trigger OnPreDataItem()
                 begin
                     if AccType <> AccType::Customer then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Customer No.", AccNumber);
                     SetRange("Posting Date", StartDate, EndDate);
@@ -259,7 +259,7 @@ report 11529 "SR Account Interest"
                 trigger OnPreDataItem()
                 begin
                     if AccType <> AccType::Vendor then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Vendor No.", AccNumber);
                     SetRange("Posting Date", StartDate, EndDate);
@@ -307,7 +307,7 @@ report 11529 "SR Account Interest"
                 trigger OnPreDataItem()
                 begin
                     if AccType <> AccType::Bank then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Bank Account No.", AccNumber);
                     SetRange("Posting Date", StartDate, EndDate);

@@ -83,7 +83,7 @@ table 1207 "Direct Debit Collection"
     procedure CreateNew(NewIdentifier: Code[20]; NewBankAccountNo: Code[20]; PartnerType: Option)
     begin
         Reset;
-        LockTable;
+        LockTable();
         if FindLast then;
         Init;
         "No." += 1;
@@ -147,7 +147,7 @@ table 1207 "Direct Debit Collection"
 
     procedure SetStatus(NewStatus: Option)
     begin
-        LockTable;
+        LockTable();
         Find;
         Status := NewStatus;
         Modify;

@@ -222,7 +222,7 @@ page 11500 "G/L Acc. Provisional Balance"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLLines2.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
             Error('');
     end;
@@ -361,7 +361,7 @@ page 11500 "G/L Acc. Provisional Balance"
         if _No = '' then
             exit;
 
-        GlLines.Reset;
+        GlLines.Reset();
         if not AllJournals then begin
             GlLines.SetRange("Journal Template Name", "Journal Template Name");
             GlLines.SetRange("Journal Batch Name", "Journal Batch Name");

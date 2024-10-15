@@ -56,8 +56,13 @@ page 7121 "Purchase Analysis Lines"
                 field(Type; Type)
                 {
                     ApplicationArea = PurchaseAnalysis;
-                    OptionCaption = 'Item,Item Group,,,Vendor,Sales/Purchase person,Formula';
                     ToolTip = 'Specifies the type of totaling for the analysis line. The type determines which items within the totaling range that you specify in the Range field will be totaled.';
+
+                    trigger OnValidate()
+                    begin
+                        if Type in [Type::Customer, Type::"Customer Group"] then
+                            FieldError(Type);
+                    end;
                 }
                 field(Range; Range)
                 {
@@ -252,7 +257,7 @@ page 7121 "Purchase Analysis Lines"
     begin
         AnalysisReportMgt.OpenAnalysisLines(CurrentAnalysisLineTempl, Rec);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if AnalysisLineTemplate.Get(GetRangeMax("Analysis Area"), CurrentAnalysisLineTempl) then
             if AnalysisLineTemplate."Item Analysis View Code" <> '' then

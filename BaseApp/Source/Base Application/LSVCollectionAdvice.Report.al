@@ -160,7 +160,7 @@ report 3010838 "LSV Collection Advice"
                         if "Cust. Ledger Entry"."Entry No." > 0 then
                             SetRange("Closed by Entry No.", "Cust. Ledger Entry"."Entry No.")
                         else
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -190,7 +190,7 @@ report 3010838 "LSV Collection Advice"
 
                     // Print only if a certain number of payments per customer
                     if Count < PrintFromNoOfCollPerCust then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     TotalCollectionAmt := 0;
                 end;
             }
@@ -276,10 +276,10 @@ report 3010838 "LSV Collection Advice"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAdr.Company(CompanyAdr, CompanyInfo);
 
-        GlSetup.Get;
+        GlSetup.Get();
         if GlSetup."LCY Code" = '' then
             GlSetup."LCY Code" := 'CHF';
     end;

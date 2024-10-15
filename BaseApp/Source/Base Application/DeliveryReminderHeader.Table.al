@@ -18,7 +18,7 @@ table 5005270 "Delivery Reminder Header"
 
             trigger OnValidate()
             begin
-                DeliveryReminderLine.Reset;
+                DeliveryReminderLine.Reset();
                 DeliveryReminderLine.SetRange("Document No.", "No.");
 
                 if (xRec."Vendor No." <> "Vendor No.") and
@@ -29,7 +29,7 @@ table 5005270 "Delivery Reminder Header"
                         "Vendor No." := xRec."Vendor No.";
                         exit;
                     end;
-                    DeliveryReminderLine.DeleteAll;
+                    DeliveryReminderLine.DeleteAll();
                 end;
 
                 GetVend("Vendor No.");
@@ -182,7 +182,7 @@ table 5005270 "Delivery Reminder Header"
             begin
                 with DeliveryReminderHeader do begin
                     DeliveryReminderHeader := Rec;
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     IsHandled := false;
                     OnBeforeLookupIssuingNoSeries(Rec, IsHandled);
                     if not IsHandled then begin
@@ -198,7 +198,7 @@ table 5005270 "Delivery Reminder Header"
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     PurchSetup.TestField("Delivery Reminder Nos.");
                     PurchSetup.TestField("Issued Delivery Reminder Nos.");
                     NoSeriesMgt.TestSeries(PurchSetup."Issued Delivery Reminder Nos.", "Issuing No. Series");
@@ -232,22 +232,22 @@ table 5005270 "Delivery Reminder Header"
 
     trigger OnDelete()
     begin
-        LockTable;
-        DeliveryReminderLine.Reset;
+        LockTable();
+        DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", "No.");
-        DeliveryReminderLine.DeleteAll;
+        DeliveryReminderLine.DeleteAll();
 
-        DeliveryReminderCommentLine.Reset;
+        DeliveryReminderCommentLine.Reset();
         DeliveryReminderCommentLine.SetRange("Document Type", DeliveryReminderCommentLine."Document Type"::"Delivery Reminder");
         DeliveryReminderCommentLine.SetRange("No.", "No.");
-        DeliveryReminderCommentLine.DeleteAll;
+        DeliveryReminderCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
     var
         IsHandled: Boolean;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         IsHandled := false;
         OnBeforeInsert(Rec, IsHandled);
         if not IsHandled then begin
@@ -296,7 +296,7 @@ table 5005270 "Delivery Reminder Header"
     begin
         with DeliveryReminderHeader do begin
             DeliveryReminderHeader := Rec;
-            PurchSetup.Get;
+            PurchSetup.Get();
             IsHandled := false;
             OnBeforeAssistEdit(DeliveryReminderHeader, OldReminderHeader, IsHandled);
             if not IsHandled then begin
@@ -305,7 +305,7 @@ table 5005270 "Delivery Reminder Header"
                 if NoSeriesMgt.SelectSeries(
                      PurchSetup."Delivery Reminder Nos.", OldReminderHeader."No. Series", "No. Series")
                 then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     PurchSetup.TestField("Delivery Reminder Nos.");
                     PurchSetup.TestField("Issued Delivery Reminder Nos.");
                     NoSeriesMgt.SetSeries("No.");
@@ -327,7 +327,7 @@ table 5005270 "Delivery Reminder Header"
     begin
         DeliveryReminderLine.SetRange("Document No.", "No.");
         if DeliveryReminderLine.FindFirst then begin
-            Commit;
+            Commit();
             if not
                Confirm(
                  Text1140002 +
@@ -335,7 +335,7 @@ table 5005270 "Delivery Reminder Header"
                  false)
             then
                 exit(true);
-            DeliveryReminderLine.DeleteAll;
+            DeliveryReminderLine.DeleteAll();
             Modify
         end;
     end;

@@ -17,7 +17,7 @@ report 3010831 "LSV Suggest Collection"
 
                 EntriesPerCust := 0;
 
-                CustLedgEntry.Reset;
+                CustLedgEntry.Reset();
                 CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
                 CustLedgEntry.SetRange("Customer No.", "No.");
                 CustLedgEntry.SetRange(Open, true);
@@ -60,7 +60,7 @@ report 3010831 "LSV Suggest Collection"
                                 , -MaxStrLen(LsvJournal."LSV Journal Description"));
 
                         LsvJournal."Credit Date" := CollectionDate;
-                        LsvJournal.Modify;
+                        LsvJournal.Modify();
 
                         if NoOfCustWithCreditMemo > 0 then
                             if not Confirm(Text009, true, NoOfCustWithCreditMemo, CustCreditMemoTxt) then
@@ -91,7 +91,7 @@ report 3010831 "LSV Suggest Collection"
 
                 LsvSetup.TestField("LSV Payment Method Code");
                 LsvSetup.TestField("LSV Currency Code");
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }
@@ -152,7 +152,7 @@ report 3010831 "LSV Suggest Collection"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
         if not TempCustLedgEntry.IsEmpty then
             if Confirm(Text036) then
                 PAGE.RunModal(0, TempCustLedgEntry);
@@ -162,7 +162,7 @@ report 3010831 "LSV Suggest Collection"
     begin
         if LsvJournal."LSV Bank Code" = '' then
             Error(Text020);
-        TempCustLedgEntry.DeleteAll;
+        TempCustLedgEntry.DeleteAll();
     end;
 
     var
@@ -245,7 +245,7 @@ report 3010831 "LSV Suggest Collection"
                 EntriesPerCust := EntriesPerCust + 1;
             end else begin
                 TempCustLedgEntry := CustLedgEntry;
-                TempCustLedgEntry.Insert;
+                TempCustLedgEntry.Insert();
             end;
     end;
 }

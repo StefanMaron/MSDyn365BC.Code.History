@@ -38,7 +38,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
         with CostJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable;
+            LockTable();
 
             CostJnlTemplate.Get("Journal Template Name");
             CostJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -46,7 +46,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
             if not Find('=><') then begin
                 "Line No." := 0;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
                 exit;
             end;
 
@@ -68,7 +68,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
             // CheckBalance
             CheckBalance;
 
-            CostReg.LockTable;
+            CostReg.LockTable();
             if CostReg.FindLast then
                 CostRegNo := CostReg."No." + 1
             else
@@ -91,10 +91,10 @@ codeunit 1103 "CA Jnl.-Post Batch"
             OnAfterAssignCostRegNo(CostJnlLine, CostReg, CostRegNo);
 
             if CostJnlBatch."Delete after Posting" then
-                DeleteAll;
+                DeleteAll();
 
             if not SuppressCommit then
-                Commit;
+                Commit();
         end;
 
         OnAfterCode(CostJnlLine);

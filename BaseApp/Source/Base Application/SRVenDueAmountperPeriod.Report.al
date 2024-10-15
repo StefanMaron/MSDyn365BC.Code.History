@@ -152,11 +152,11 @@ report 11553 "SR Ven. Due Amount per Period"
                         Currency2.FindSet
                     else
                         if Currency2.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     Currency2.CalcFields("Vendor Ledg. Entries in Filter");
                     if not Currency2."Vendor Ledg. Entries in Filter" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     PrintLine := false;
                     LineTotalVendorBalance := 0;
@@ -177,8 +177,8 @@ report 11553 "SR Ven. Due Amount per Period"
                 trigger OnPreDataItem()
                 begin
                     if ShowAmtInLCY or not PrintLine then
-                        CurrReport.Break;
-                    Currency2.Reset;
+                        CurrReport.Break();
+                    Currency2.Reset();
                     Currency2.SetRange("Vendor Filter", Vendor."No.");
                     Vendor.CopyFilter("Currency Filter", Currency2.Code);
                 end;
@@ -211,11 +211,11 @@ report 11553 "SR Ven. Due Amount per Period"
             trigger OnPreDataItem()
             begin
                 Currency2.Code := '';
-                Currency2.Insert;
+                Currency2.Insert();
                 if Currency.FindSet then
                     repeat
                         Currency2 := Currency;
-                        Currency2.Insert;
+                        Currency2.Insert();
                     until Currency.Next = 0;
             end;
         }

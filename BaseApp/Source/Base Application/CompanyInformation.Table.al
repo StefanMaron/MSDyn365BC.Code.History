@@ -375,10 +375,6 @@ table 79 "Company Information"
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
         }
-        field(95; "Use GLN in Electronic Document"; Boolean)
-        {
-            Caption = 'Use GLN in Electronic Documents';
-        }
         field(96; "Picture - Last Mod. Date Time"; DateTime)
         {
             Caption = 'Picture - Last Mod. Date Time';
@@ -629,6 +625,11 @@ table 79 "Company Information"
         field(11501; "BUR Number"; Text[30])
         {
             Caption = 'BUR Number';
+        }
+        field(11502; "Swiss QRBill IBAN"; Code[50])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11511 Swiss QR-Bill Company Info';
         }
     }
 

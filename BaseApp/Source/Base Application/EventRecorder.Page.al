@@ -141,7 +141,7 @@ page 9845 "Event Recorder"
                             exit;
 
                         // Delete events from the current table.
-                        DeleteAll;
+                        DeleteAll();
 
                         LogRecordedEvents.Start;
                         EventLoggingRunning := true;

@@ -73,7 +73,7 @@ codeunit 11503 CHMgt
         _AmtTxt := '';
         _CodingLine := '';
 
-        GlSetup.Get;
+        GlSetup.Get();
 
         if _EsrBank."Bank Code" <> '' then
             ReqESRBankCode := _EsrBank."Bank Code";
@@ -112,7 +112,7 @@ codeunit 11503 CHMgt
 
 
         if _EsrBank."Bank Code" = '' then begin
-            _EsrBank.Reset;
+            _EsrBank.Reset();
             _EsrBank.SetRange("ESR Main Bank", true);
             if not _EsrBank.FindFirst then
                 Error(Text000);  // ESR Bank not found
@@ -402,25 +402,6 @@ codeunit 11503 CHMgt
                         if FindFirstVendLedgEntryWithAppliesToDocNo(VendorLedgerEntry, AccNo, "Applies-to Doc. Type", "Applies-to Doc. No.") then
                             CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry, GenJournalLine);
             end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesLineSetFilters', '', false, false)]
-    local procedure HandleOnAfterSalesLineSetFilters(var TotalSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
-    begin
-        TotalSalesLine.SetFilter("Quote Variant", '<>%1', TotalSalesLine."Quote Variant"::Variant);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesCheckIfDocumentChanged', '', false, false)]
-    local procedure HandleOnAfterSalesCheckIfDocumentChanged(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TotalsUpToDate: Boolean)
-    begin
-        if SalesLine."Quote Variant" <> xSalesLine."Quote Variant" then
-            TotalsUpToDate := false;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 57, 'OnCalculateSalesSubPageTotalsOnAfterSetFilters', '', false, false)]
-    local procedure HandleOnCalculateSalesSubPageTotalsOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
-    begin
-        SalesLine.SetFilter("Quote Variant", '<>%1', SalesLine."Quote Variant"::Variant);
     end;
 }
 

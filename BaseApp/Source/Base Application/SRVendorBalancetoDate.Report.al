@@ -184,13 +184,13 @@ report 11559 "SR Vendor - Balance to Date"
                     begin
                         if not PrintUnappliedEntries then
                             if Unapplied then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         AmtLCY := "Amount (LCY)";
                         Amt := Amount;
                         CurrencyCode := "Currency Code";
 
                         if (Amt = 0) and (AmtLCY = 0) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if CurrencyCode = '' then begin
                             CurrencyCode := GLSetup."LCY Code";
@@ -292,7 +292,7 @@ report 11559 "SR Vendor - Balance to Date"
                     else
                         OK := CurrencyTotalBuffer.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CurrencyTotalBuffer2.UpdateTotal(
                       CurrencyTotalBuffer."Currency Code",
@@ -303,12 +303,12 @@ report 11559 "SR Vendor - Balance to Date"
                     if (CurrencyTotalBuffer."Total Amount" = 0) and
                        (CurrencyTotalBuffer."Total Amount (LCY)" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll;
+                    CurrencyTotalBuffer.DeleteAll();
                 end;
             }
 
@@ -323,7 +323,7 @@ report 11559 "SR Vendor - Balance to Date"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 outputno := 1
             end;
         }
@@ -357,19 +357,19 @@ report 11559 "SR Vendor - Balance to Date"
                 else
                     OK := CurrencyTotalBuffer2.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 TotalReportLCY := TotalReportLCY + CurrencyTotalBuffer2."Total Amount (LCY)";
 
                 if (CurrencyTotalBuffer2."Total Amount" = 0) and
                    (CurrencyTotalBuffer2."Total Amount (LCY)" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll;
+                CurrencyTotalBuffer2.DeleteAll();
 
                 Vendor.SetRange("Date Filter");
                 if CheckGLPayables and (Vendor.GetFilters = '') then
@@ -501,7 +501,7 @@ report 11559 "SR Vendor - Balance to Date"
                    (VendPostGroup."Payables Account" <> '')
                 then begin
                     TmpGLAcc."No." := VendPostGroup."Payables Account";
-                    TmpGLAcc.Insert;
+                    TmpGLAcc.Insert();
                 end;
             until VendPostGroup.Next = 0;
 

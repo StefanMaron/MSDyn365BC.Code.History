@@ -33,7 +33,7 @@ codeunit 1233 "SEPA DD-Check Line"
         SwissExport: Boolean;
     begin
         SwissExport := CHMgt.IsSwissSEPADDExport(DirectDebitCollectionEntry."Direct Debit Collection No.");
-        GLSetup.Get;
+        GLSetup.Get();
         with DirectDebitCollectionEntry do begin
             if "Transfer Amount" <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);

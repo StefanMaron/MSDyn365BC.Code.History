@@ -22,6 +22,8 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         VendorNo: Code[20];
@@ -233,7 +235,7 @@ codeunit 137400 "SCM Inventory - Orders"
         PostValueEntrytoGL: Record "Post Value Entry to G/L";
     begin
         // Setup : Get Inventory Setup.
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(ExpectedCostPostingToGL);
 
         // Exercise : Set Value of Expected Cost Posting to G/L.
@@ -1142,17 +1144,21 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // Test and verify Sales Unit Price update from Customer Sales Price.
 
         // Setup: Create Item and Customer with Customer Price Group. Create and release Sales Order.
         Initialize;
+        PriceListLine.DeleteAll();
         CreateItem(Item);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         CreateCustomer(Customer, false, CustomerPriceGroup.Code);
         CreateSalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::Customer, Customer."No.", Item."Base Unit of Measure",
           LibraryRandom.RandDec(100, 2), WorkDate);  // Use random Quantity.
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", SalesPrice."Minimum Quantity" / 2);  // Use SalesPrice."Minimum Quantity" / 2 required for test.
 
         // Exercise: Reopen Sales Order and update Quantity.
@@ -1175,17 +1181,60 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesPrice: Record "Sales Price";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
     begin
         // Test and verify Sales Unit Price update from Customer Price Group.
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
 
         // Setup: Create Item and Customer with Customer Price Group. Create and release Sales Order. Reopen Sales Order and update Order Date.
-        Initialize;
+        PriceListLine.DeleteAll();
         CreateItem(Item);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         CreateCustomer(Customer, false, CustomerPriceGroup.Code);
         CreateSalesPrice(
           SalesPrice, Item, SalesPrice."Sales Type"::"Customer Price Group", Customer."Customer Price Group", Item."Base Unit of Measure",
           0, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
+        // Use random Starting Date.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        UpdateOrderDateOnSalesOrder(SalesHeader, SalesPrice."Starting Date");
+
+        // Exercise: Get Sales Price.
+        GetSalesPrice(SalesHeader."No.");
+
+        // Verify: Verify Unit Price on Sales Line.
+        VerifyUnitPriceOnSalesLine(SalesLine, SalesPrice."Unit Price");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetSalesPriceHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesUnitPriceFromCustomerPriceLineGroup()
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+    begin
+        // Test and verify Sales Unit Price update from Customer Price Group.
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+
+        // Setup: Create Item and Customer with Customer Price Group. Create and release Sales Order. Reopen Sales Order and update Order Date.
+        PriceListLine.DeleteAll();
+        CreateItem(Item);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CreateCustomer(Customer, false, CustomerPriceGroup.Code);
+        CreateSalesPrice(
+          SalesPrice, Item, SalesPrice."Sales Type"::"Customer Price Group", Customer."Customer Price Group", Item."Base Unit of Measure",
+          0, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // Use random Starting Date.
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
@@ -1211,16 +1260,19 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesLine: Record "Sales Line";
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PriceListLine: Record "Price List Line";
     begin
         // Test and verify Sales Unit Price update from Customer Sales Price for multiple Unit of Measure.
 
         // Setup: Create Item with two Item Unit of Measure. Create Sales Price for Item with different Unit of Measure Code. Create and release Sales Order.
         Initialize;
+        PriceListLine.DeleteAll();
         CreateItem(Item);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
         CreateSalesPrice(SalesPrice, Item, SalesPrice."Sales Type"::"All Customers", '', Item."Base Unit of Measure", 0, WorkDate);
         CreateSalesPrice(SalesPrice2, Item, SalesPrice2."Sales Type"::"All Customers", '', UnitOfMeasure.Code, 0, WorkDate);
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
         CreateCustomer(Customer, false, '');
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", LibraryRandom.RandDec(100, 2));  // Use random Quantity.
 
@@ -2093,7 +2145,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory - Orders");
     end;
 
@@ -2299,7 +2351,7 @@ codeunit 137400 "SCM Inventory - Orders"
 
     local procedure CreateItemVendorWithVariantCode(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
     begin
-        ItemVendor.Init;
+        ItemVendor.Init();
         ItemVendor.Validate("Vendor No.", VendorNo);
         ItemVendor.Validate("Item No.", ItemNo);
         ItemVendor.Validate("Variant Code", VariantCode);
@@ -2523,7 +2575,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         InventoryPostingGroup.FindFirst;
-        TempItem.Init;
+        TempItem.Init();
         TempItem.Insert(true);
         TempItem.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         TempItem.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -2699,7 +2751,7 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        Commit; // Commit required before invoke Move Negative Lines.
+        Commit(); // Commit required before invoke Move Negative Lines.
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.MoveNegativeLines.Invoke;
@@ -2709,7 +2761,7 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2743,7 +2795,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         SalesHeader.SetRange("No.", SalesHeaderNo);
         Clear(BatchPostSalesReturnOrders);
-        Commit;  // Commit is required to run Batch Post Sales Return Order report.
+        Commit();  // Commit is required to run Batch Post Sales Return Order report.
         BatchPostSalesReturnOrders.SetTableView(SalesHeader);
         BatchPostSalesReturnOrders.Run;
     end;
@@ -2778,7 +2830,7 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
 
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, false, false);
@@ -2802,7 +2854,7 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         SalesHeader.SetRange("No.", SalesHeaderNo);
         SalesHeader.FindFirst;
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         Clear(CreateRetRelatedDocuments);
         CreateRetRelatedDocuments.SetSalesHeader(SalesHeader);
         CreateRetRelatedDocuments.UseRequestPage(true);
@@ -2898,7 +2950,7 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Expected Cost Posting to G/L", Value);
         InventorySetup.Modify(true);
     end;
@@ -3354,7 +3406,14 @@ codeunit 137400 "SCM Inventory - Orders"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")
+    procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // Native
+    begin
+        GetSalesPrice.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetPriceLineHandler(var GetSalesPrice: TestPage "Get Price Line")
     begin
         GetSalesPrice.OK.Invoke;
     end;

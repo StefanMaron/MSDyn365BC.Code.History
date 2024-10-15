@@ -200,7 +200,7 @@ report 11561 "SR Vendor Payment Advice"
                     begin
                         if Number > 1 then
                             if TempVendLedgEntry.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if TempVendLedgEntry."Currency Code" = '' then
                             TempVendLedgEntry."Currency Code" := GlSetup."LCY Code";
@@ -210,9 +210,9 @@ report 11561 "SR Vendor Payment Advice"
 
                     trigger OnPreDataItem()
                     begin
-                        TempVendLedgEntry.Reset;
+                        TempVendLedgEntry.Reset();
                         if not TempVendLedgEntry.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(RelatedPmtVendEntryLoop; "Integer")
@@ -247,7 +247,7 @@ report 11561 "SR Vendor Payment Advice"
                     begin
                         if Number > 1 then
                             if TempRelatedVendLedgEntry.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         if TempRelatedVendLedgEntry."Currency Code" = '' then
                             TempRelatedVendLedgEntry."Currency Code" := GlSetup."LCY Code";
@@ -257,9 +257,9 @@ report 11561 "SR Vendor Payment Advice"
 
                     trigger OnPreDataItem()
                     begin
-                        TempRelatedVendLedgEntry.Reset;
+                        TempRelatedVendLedgEntry.Reset();
                         if not TempRelatedVendLedgEntry.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -274,7 +274,7 @@ report 11561 "SR Vendor Payment Advice"
                         Error(Text002, "Recipient Bank Account", "Account No.");
 
                         if VendBank."Payment Form" in [VendBank."Payment Form"::ESR, VendBank."Payment Form"::"ESR+"] then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     // Rechnungsposten für Rech. Betrag
@@ -288,7 +288,7 @@ report 11561 "SR Vendor Payment Advice"
                         VendEntry.SetRange("Document No.", "Applies-to Doc. No.");
                         VendEntry.SetRange("Vendor No.", "Account No.");
                         if not VendEntry.Find('-') then
-                            VendEntry.Init;
+                            VendEntry.Init();
 
                         VendEntry.CalcFields(Amount, "Remaining Amount");
 
@@ -367,7 +367,7 @@ report 11561 "SR Vendor Payment Advice"
                     if not ShowEsrPayments then
                         SetEsrFilter(TempGenJourLine);
                     if TempGenJourLine.Count < PrintFromNoOfVendorInvoices then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -453,10 +453,10 @@ report 11561 "SR Vendor Payment Advice"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAdr.Company(CompanyAdr, CompanyInformation);
 
-        GlSetup.Get;
+        GlSetup.Get();
         if GlSetup."LCY Code" = '' then
             GlSetup."LCY Code" := Text000;
     end;
@@ -536,10 +536,10 @@ report 11561 "SR Vendor Payment Advice"
         if EntryNo = 0 then
             exit;
 
-        TempVendLedgEntry.Reset;
-        TempVendLedgEntry.DeleteAll;
-        TempRelatedVendLedgEntry.Reset;
-        TempRelatedVendLedgEntry.DeleteAll;
+        TempVendLedgEntry.Reset();
+        TempVendLedgEntry.DeleteAll();
+        TempRelatedVendLedgEntry.Reset();
+        TempRelatedVendLedgEntry.DeleteAll();
 
         UpdateVendLedgEntryBufferRecursively(TempVendLedgEntry, TempRelatedVendLedgEntry, EntryNo);
     end;
@@ -552,7 +552,7 @@ report 11561 "SR Vendor Payment Advice"
         if VendLedgEntry.FindSet then
             repeat
                 VendLedgEntryBuffer := VendLedgEntry;
-                if VendLedgEntryBuffer.Insert then;
+                if VendLedgEntryBuffer.Insert() then;
                 UpdateVendLedgEntryBufferRecursively(
                   RelatedVendLedgEntryBuffer, RelatedVendLedgEntryBuffer, VendLedgEntry."Entry No.");
             until VendLedgEntry.Next = 0;

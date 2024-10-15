@@ -15,10 +15,10 @@ codeunit 131320 "Library - ERM Vendor Watch"
     procedure Init()
     begin
         Tolerance := 0.0;
-        WatchVendor.Reset;
-        WatchVendor.DeleteAll;
-        WatchVendorLedgerEntry.Reset;
-        WatchVendorLedgerEntry.DeleteAll;
+        WatchVendor.Reset();
+        WatchVendor.DeleteAll();
+        WatchVendorLedgerEntry.Reset();
+        WatchVendorLedgerEntry.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -280,7 +280,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry.Reset;
+        VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         if VendorLedgerEntry.FindFirst then
             exit(VendorLedgerEntry.Count);
@@ -291,7 +291,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendorLedgEntry.Reset;
+        DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         if DtldVendorLedgEntry.FindFirst then
             exit(DtldVendorLedgEntry.Count);
@@ -328,7 +328,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendorLedgEntry.Reset;
+        DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DtldVendorLedgEntry.SetRange("Entry Type", LineType);
         if DtldVendorLedgEntry.FindFirst then
@@ -340,7 +340,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     var
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendorLedgEntry.Reset;
+        DtldVendorLedgEntry.Reset();
         DtldVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DtldVendorLedgEntry.SetRange("Entry Type", LineType);
         if DtldVendorLedgEntry.FindSet then

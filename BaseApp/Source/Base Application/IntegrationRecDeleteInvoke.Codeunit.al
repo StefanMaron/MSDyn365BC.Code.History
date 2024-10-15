@@ -54,7 +54,7 @@ codeunit 5347 "Integration Rec. Delete Invoke"
             LogSynchError(DestinationRecordRef, GetLastErrorText, JobId);
 
         OnAfterDeleteRecord(IntegrationTableMapping, DestinationRecordRef);
-        Commit;
+        Commit();
     end;
 
     local procedure LogSynchError(var DestinationRecordRef: RecordRef; ErrorMessage: Text; JobId: Guid)

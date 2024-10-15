@@ -62,7 +62,6 @@ report 11568 "SR Cust. Paymt List Standard"
             }
             column(DocType_TempCustLedgerEntry; TempCustLedgerEntry."Document Type")
             {
-                OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
             }
             column(DocNo_TempCustLedgerEntry; TempCustLedgerEntry."Document No.")
             {
@@ -125,8 +124,6 @@ report 11568 "SR Cust. Paymt List Standard"
                 }
                 column(DocType_TempCustLedgerEntry1; TempCustLedgerEntry."Document Type")
                 {
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-                    OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                 }
 
                 trigger OnAfterGetRecord()
@@ -148,7 +145,7 @@ report 11568 "SR Cust. Paymt List Standard"
             trigger OnAfterGetRecord()
             begin
                 if not ("Document Type" in ["Document Type"::Payment]) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalcFields("Original Amt. (LCY)");
 
@@ -185,7 +182,7 @@ report 11568 "SR Cust. Paymt List Standard"
                 if Sorting = Sorting::Chronological then
                     "Cust. Ledger Entry".SetCurrentKey("Entry No.");
 
-                GlSetup.Get;
+                GlSetup.Get();
                 Clear(PmtDiscLCY);
                 Clear(PaymentLCY);
                 Clear(NoOfRSPG);
@@ -287,11 +284,11 @@ report 11568 "SR Cust. Paymt List Standard"
         CustLedgerEntryNo: Integer;
         SumAmount: Decimal;
     begin
-        TempCustLedgerEntry.DeleteAll;
-        TempCustLedgerEntry.Init;
+        TempCustLedgerEntry.DeleteAll();
+        TempCustLedgerEntry.Init();
         Counter := 0;
 
-        DetailedCustLedgerEntry.Reset;
+        DetailedCustLedgerEntry.Reset();
         DetailedCustLedgerEntry.SetCurrentKey("Applied Cust. Ledger Entry No.");
         DetailedCustLedgerEntry.SetRange("Applied Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
         DetailedCustLedgerEntry.SetFilter("Cust. Ledger Entry No.", '<>%1&<>%2', 0, "Cust. Ledger Entry"."Entry No.");
@@ -306,7 +303,7 @@ report 11568 "SR Cust. Paymt List Standard"
                         Counter := Counter + 1;
                         TempCustLedgerEntry := CustLedgerEntry;
                         TempCustLedgerEntry."Entry No." := Counter;
-                        TempCustLedgerEntry.Insert;
+                        TempCustLedgerEntry.Insert();
                         SumAmount := 0;
                     end;
                 end;
@@ -318,11 +315,11 @@ report 11568 "SR Cust. Paymt List Standard"
                 Counter := Counter + 1;
                 TempCustLedgerEntry := CustLedgerEntry;
                 TempCustLedgerEntry."Entry No." := Counter;
-                TempCustLedgerEntry.Insert;
+                TempCustLedgerEntry.Insert();
             end;
         end;
 
-        DetailedCustLedgerEntry.Reset;
+        DetailedCustLedgerEntry.Reset();
         DetailedCustLedgerEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DetailedCustLedgerEntry.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
         DetailedCustLedgerEntry.SetFilter("Applied Cust. Ledger Entry No.", '<>%1&<>%2', 0, "Cust. Ledger Entry"."Entry No.");
@@ -337,7 +334,7 @@ report 11568 "SR Cust. Paymt List Standard"
                         Counter := Counter + 1;
                         TempCustLedgerEntry := CustLedgerEntry;
                         TempCustLedgerEntry."Entry No." := Counter;
-                        TempCustLedgerEntry.Insert;
+                        TempCustLedgerEntry.Insert();
                         SumAmount := 0;
                     end;
                 end;
@@ -349,7 +346,7 @@ report 11568 "SR Cust. Paymt List Standard"
                 Counter := Counter + 1;
                 TempCustLedgerEntry := CustLedgerEntry;
                 TempCustLedgerEntry."Entry No." := Counter;
-                TempCustLedgerEntry.Insert;
+                TempCustLedgerEntry.Insert();
             end;
         end;
     end;

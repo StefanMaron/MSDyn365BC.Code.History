@@ -100,7 +100,7 @@ codeunit 1240 "Read Data Exch. from File"
             OrigPmtXmlDocument := OrigPaymentXMLNodeList.Item(PaymentIndex);
             NewPmtTemplateXMLNode := OrigPmtXmlDocument.Clone;
             OrigInvoiceXMLNodeList := OrigPmtXmlDocument.GetElementsByTagName(InvoiceNodeName);
-            InvoiceCount := OrigInvoiceXMLNodeList.Count;
+            InvoiceCount := OrigInvoiceXMLNodeList.Count();
             ValidPmtInfo :=
               XMLReadAmountNodeWithAttributeText(
                 PaymentAmount, PaymentCurrency, OrigPmtXmlDocument, AmountNodeName, CurrencyAttributeName);
@@ -148,7 +148,7 @@ codeunit 1240 "Read Data Exch. from File"
         InvoiceAmount: Decimal;
         InvoiceCurrency: Text;
     begin
-        InvoiceCount := InvoiceXMLNodeList.Count;
+        InvoiceCount := InvoiceXMLNodeList.Count();
         InvoiceIndex := 0;
         repeat
             InvoiceXMLNode := InvoiceXMLNodeList.Item(InvoiceIndex);

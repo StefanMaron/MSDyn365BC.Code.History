@@ -47,7 +47,7 @@ codeunit 136212 "Marketing Contacts Search II"
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Contacts Search II");
     end;
 
@@ -64,7 +64,7 @@ codeunit 136212 "Marketing Contacts Search II"
         // 1. Setup: Update Marketing Setup, Create a new Contact of company type. Take 10 as Hit percent to match only one field's
         // value while searching duplicate. Value important for test. Assign Contact Nos. to global variables.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         UpdateMarketingSetup(true, 10);
         DuplicateContactNo := CreateContactCard(Contact.Type::Company, ContactCompany);
 
@@ -91,7 +91,7 @@ codeunit 136212 "Marketing Contacts Search II"
         // 1. Setup: Update Marketing Setup, Create a new Contact of company type. Take 10 as Hit percent to match only one field's
         // value while searching duplicate. Value important for test. Assign Duplicate Contact No. to global variable.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         UpdateMarketingSetup(false, 10);
         DuplicateContactNo := CreateContactCard(Contact.Type::Company, ContactCompany);
 
@@ -144,9 +144,9 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] Marketing Setup with disabled duplicate search setup
         UpdateMarketingDuplicateSearchSetup(false, false);
-        Commit;
+        Commit();
         // [WHEN] User sets "Maintain Dupl. Search Strings" = TRUE
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Maintain Dupl. Search Strings", true);
         // [THEN] Confirmation dialog to run report "Generate Dupl. Search String"
         // [THEN] Report "Generate Dupl. Search String" run (GenerateDuplSearchStringReportHandler)
@@ -168,9 +168,9 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] Marketing Setup with disabled duplicate search setup
         UpdateMarketingDuplicateSearchSetup(false, false);
-        Commit;
+        Commit();
         // [WHEN] User sets "Autosearch for Duplicates" = TRUE
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Autosearch for Duplicates", true);
         // [THEN] Confirmation dialog to run report "Generate Dupl. Search String"
         // [THEN] Report "Generate Dupl. Search String" run (GenerateDuplSearchStringReportHandler)
@@ -191,9 +191,9 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] Marketing Setup with enabled "Maintain Dupl. Search Strings"
         UpdateMarketingDuplicateSearchSetup(true, false);
-        Commit;
+        Commit();
         // [WHEN] User sets "Autosearch for Duplicates" = TRUE
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Autosearch for Duplicates", true);
         // [THEN] No confirmation dialog
         // [THEN] No report run
@@ -216,7 +216,7 @@ codeunit 136212 "Marketing Contacts Search II"
         Initialize;
 
         // [GIVEN] Duplicate Search String Setup
-        DuplicateSearchStringSetup.DeleteAll;
+        DuplicateSearchStringSetup.DeleteAll();
         // [WHEN] Run "Duplicate Search String Setup" page
         DuplicateSearchStringSetupPage.OpenNew;
         // [WHEN] Look up in the "Field Name" field and select any from suggested (FieldListPageHandler)
@@ -239,7 +239,7 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] "Contact Duplicates" page
         ContactDuplicates.OpenEdit;
-        Commit;
+        Commit();
         // [WHEN] Click "Generate Duplicate Search String" action
         ContactDuplicates.GenerateDuplicateSearchString.Invoke;
         // [THEN] Report "Generate Dupl. Search String" run (GenerateDuplSearchStringReportHandler)
@@ -283,7 +283,7 @@ codeunit 136212 "Marketing Contacts Search II"
         // [GIVEN] "Contact Duplicates" page with duplicate contacts C1 and C2
         ContactDuplicates.OpenView;
         // [GIVEN] Empty "Duplicate Search String Setup" table
-        DuplicateSearchStringSetup.DeleteAll;
+        DuplicateSearchStringSetup.DeleteAll();
         // [WHEN] Click "Contact Duplicate Details" action
         asserterror ContactDuplicates.ContactDuplicateDetails.Invoke;
         // [THEN] "Contact Duplicate Details" page failed to open with error message
@@ -296,7 +296,7 @@ codeunit 136212 "Marketing Contacts Search II"
     begin
         // 1. Setup: Update Marketing Setup, Create a new Contact. Assign Duplicate Contact No. to global variable.
         Initialize;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         UpdateMarketingSetup(true, SearchHitPct);
         DuplicateContactNo := CreateContactCard(Type, ContactName);
 
@@ -326,7 +326,7 @@ codeunit 136212 "Marketing Contacts Search II"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Autosearch for Duplicates", AutosearchForDuplicates);
         MarketingSetup.Validate("Search Hit %", SearchHitPct);
         MarketingSetup.Modify(true);
@@ -336,10 +336,10 @@ codeunit 136212 "Marketing Contacts Search II"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Maintain Dupl. Search Strings" := MaintainDuplicateSearch;
         MarketingSetup."Autosearch for Duplicates" := AutosearchDuplicates;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure MockDuplicateContactsAndSetup()
@@ -351,10 +351,10 @@ codeunit 136212 "Marketing Contacts Search II"
     begin
         UpdateMarketingDuplicateSearchSetup(false, false);
 
-        DuplicateSearchStringSetup.DeleteAll;
-        DuplicateSearchStringSetup.Init;
+        DuplicateSearchStringSetup.DeleteAll();
+        DuplicateSearchStringSetup.Init();
         DuplicateSearchStringSetup.Validate("Field No.", Contact.FieldNo(Name));
-        DuplicateSearchStringSetup.Insert;
+        DuplicateSearchStringSetup.Insert();
         LibraryVariableStorage.Enqueue(DuplicateSearchStringSetup."Field Name");
 
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -362,11 +362,11 @@ codeunit 136212 "Marketing Contacts Search II"
         LibraryMarketing.CreateCompanyContact(DuplicateContact);
         LibraryVariableStorage.Enqueue(DuplicateContact.Name);
 
-        ContactDuplicate.DeleteAll;
-        ContactDuplicate.Init;
+        ContactDuplicate.DeleteAll();
+        ContactDuplicate.Init();
         ContactDuplicate."Contact No." := Contact."No.";
         ContactDuplicate."Duplicate Contact No." := DuplicateContact."No.";
-        ContactDuplicate.Insert;
+        ContactDuplicate.Insert();
     end;
 
     local procedure VerifyNoContactExists(ContactNo: Code[20])

@@ -281,8 +281,8 @@ report 11535 "SR Cust. Orders per Period"
     begin
         CustFilter := Customer.GetFilters;
 
-        SalesSetup.Get;
-        GLSetup.Get;
+        SalesSetup.Get();
+        GLSetup.Get();
 
         if ShowAmtInLCY then
             AmtFilterTxt := StrSubstNo(Text000, GLSetup."LCY Code")

@@ -265,7 +265,7 @@ codeunit 138007 "O365 Shipping Agent"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure PostSalesQuoteAsSalesOrderWithShippingAgent()
     var
@@ -296,7 +296,7 @@ codeunit 138007 "O365 Shipping Agent"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure PostSalesQuoteAsSalesOrderWithShippingAgentService()
     var
@@ -330,7 +330,7 @@ codeunit 138007 "O365 Shipping Agent"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,SalesOrderPageHandler,ShipAndInvoiceSalesOrderStrMenuHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure PostSalesQuoteAsSalesOrderForCustomerWithShippingAgentService()
     var
@@ -357,7 +357,6 @@ codeunit 138007 "O365 Shipping Agent"
         // Verify
         VerifyShippingDetailsOnPostedSalesInvoice(SalesHeaderCopy, ShippingAgent.Code);
         VerifySalesShipmentExists(SalesHeaderCopy, ShippingAgent.Code, ShippingAgentServiceCode, '');
-
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
@@ -376,12 +375,12 @@ codeunit 138007 "O365 Shipping Agent"
 
         LibraryERMCountryData.CreateVATData;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Shipping Agent");
     end;
 
@@ -585,6 +584,18 @@ codeunit 138007 "O365 Shipping Agent"
     procedure SalesOrderPageHandler(var SalesOrder: TestPage "Sales Order")
     begin
         SalesOrder.Post.Invoke;
+    end;
+
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

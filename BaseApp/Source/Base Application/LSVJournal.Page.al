@@ -168,7 +168,7 @@ page 3010834 "LSV Journal"
                     trigger OnAction()
                     begin
                         Clear(LsvCloseCollection);
-                        LSVJournal.Reset;
+                        LSVJournal.Reset();
                         LSVJournal.Get("LSV Journal No.");
                         LsvCloseCollection.SetGlobals(LSVJournal);
                         LsvCloseCollection.Run;
@@ -204,7 +204,7 @@ page 3010834 "LSV Journal"
     begin
         LSVJournal.Get("LSV Journal No.");
         LSVJournal.Validate("LSV Status");
-        LSVJournal.Modify;
+        LSVJournal.Modify();
     end;
 
     trigger OnInit()
@@ -260,7 +260,7 @@ page 3010834 "LSV Journal"
     [Scope('OnPrem')]
     procedure UpdateForm()
     begin
-        LSVJournal.Reset;
+        LSVJournal.Reset();
         LSVJournal.Get(CurrJourNumber);
         if LSVJournal."LSV Status" <> LSVJournal."LSV Status"::Edit then
             if LSVJournal."LSV Status" = LSVJournal."LSV Status"::Finished then
@@ -281,7 +281,7 @@ page 3010834 "LSV Journal"
     procedure UpdateBalance()
     begin
         TotalAmount := 0;
-        TempLSVJournalLine.Reset;
+        TempLSVJournalLine.Reset();
 
         TempLSVJournalLine.Copy(Rec);
 

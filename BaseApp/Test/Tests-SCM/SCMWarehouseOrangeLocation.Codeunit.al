@@ -53,7 +53,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         WhseActivityLine.FindFirst;
         Assert.AreEqual('', WhseActivityLine."Bin Code", StrSubstNo(BinError, '', WhseActivityLine.TableCaption));
         // validate: registering put-away should throw error
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         asserterror CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
     end;
 
@@ -117,7 +117,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         // Validate : BIN1 should be assigned to Put-away/Place line
         Assert.AreEqual(Bin.Code, WhseActivityLine."Bin Code", StrSubstNo(BinError, Bin.Code, WhseActivityLine.TableCaption));
         // validate : Registering put-away should not throw any error
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
     end;
 
@@ -204,7 +204,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         Assert.AreNotEqual(Location."Shipment Bin Code", WhseActivityLine."Bin Code", StrSubstNo(BinError2,
             Location."Shipment Bin Code", WhseActivityLine.TableCaption));
         // validate : Registering put-away should not throw any error
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Register (Yes/No)", WhseActivityLine);
     end;
 
@@ -215,7 +215,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
             exit;
 
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.Validate("Location Code", Locationcode);
         Bin.Validate(Code, Code);
         Bin.Validate(Empty, true);
@@ -296,7 +296,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
     [Normal]
     local procedure FilterWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option; LineNo: Integer)
     begin
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         Clear(WhseActivityLine);
         with WhseActivityLine do begin
             SetRange("Activity Type", ActivityType);
@@ -339,7 +339,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst));
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Orange Location");
     end;

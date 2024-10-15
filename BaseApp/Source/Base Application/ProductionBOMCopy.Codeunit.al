@@ -53,11 +53,11 @@ codeunit 99000768 "Production BOM-Copy"
         if not SkipBOMDeletion then begin
             ToProdBOMLine.SetRange("Production BOM No.", CurrentBOMHeader."No.");
             ToProdBOMLine.SetRange("Version Code", ToVersionCode);
-            ToProdBOMLine.DeleteAll;
+            ToProdBOMLine.DeleteAll();
 
             ToProdBOMCompComment.SetRange("Production BOM No.", CurrentBOMHeader."No.");
             ToProdBOMCompComment.SetRange("Version Code", ToVersionCode);
-            ToProdBOMCompComment.DeleteAll;
+            ToProdBOMCompComment.DeleteAll();
         end;
 
         FromProdBOMLine.SetRange("Production BOM No.", BOMHeaderNo);
@@ -70,7 +70,7 @@ codeunit 99000768 "Production BOM-Copy"
                 if SkipBOMDeletion then
                     ToProdBOMLine."Line No." := LineNo;
                 OnBeforeInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine);
-                ToProdBOMLine.Insert;
+                ToProdBOMLine.Insert();
                 OnAfterInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine, CurrentBOMHeader, SkipBOMDeletion, LineNo);
             until FromProdBOMLine.Next = 0;
 
@@ -84,7 +84,7 @@ codeunit 99000768 "Production BOM-Copy"
                 ToProdBOMCompComment := FromProdBOMCompComment;
                 ToProdBOMCompComment."Production BOM No." := CurrentBOMHeader."No.";
                 ToProdBOMCompComment."Version Code" := ToVersionCode;
-                ToProdBOMCompComment.Insert;
+                ToProdBOMCompComment.Insert();
             until FromProdBOMCompComment.Next = 0;
     end;
 
@@ -95,7 +95,7 @@ codeunit 99000768 "Production BOM-Copy"
     begin
         OldProdBOMVersionList := ProdBOMVersionList2;
 
-        ProdBOMHeader.Init;
+        ProdBOMHeader.Init();
         ProdBOMHeader."No." := ProdBOMVersionList2."Production BOM No.";
         if PAGE.RunModal(0, ProdBOMVersionList2) = ACTION::LookupOK then begin
             if OldProdBOMVersionList.Status = OldProdBOMVersionList.Status::Certified then

@@ -71,14 +71,14 @@ codeunit 6 "Fiscal Year-Close"
         if not AccountingPeriod2.FindFirst then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Allow Posting From" < AccountingPeriod2."Starting Date" then begin
             GLSetup."Allow Posting From" := AccountingPeriod2."Starting Date";
             if (GLSetup."Allow Posting To" <> 0D) and
                (GLSetup."Allow Posting To" < GLSetup."Allow Posting From")
             then
                 GLSetup."Allow Posting To" := 0D;
-            GLSetup.Modify;
+            GLSetup.Modify();
         end;
     end;
 }

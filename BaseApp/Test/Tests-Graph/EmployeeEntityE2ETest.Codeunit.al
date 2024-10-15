@@ -31,7 +31,7 @@ codeunit 135527 "Employee Entity E2E Test"
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -151,7 +151,7 @@ codeunit 135527 "Employee Entity E2E Test"
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyEmployeeSimpleProperties(EmployeeJSON: Text; Employee: Record Employee)

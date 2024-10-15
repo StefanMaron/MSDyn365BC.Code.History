@@ -75,11 +75,11 @@ codeunit 1328 "Top Customers By Sales Job"
         end;
 
         if TempTopCustomersBySalesBuffer.FindSet then begin
-            TopCustomersBySalesBuffer.LockTable;
-            TopCustomersBySalesBuffer.DeleteAll;
+            TopCustomersBySalesBuffer.LockTable();
+            TopCustomersBySalesBuffer.DeleteAll();
             repeat
                 TopCustomersBySalesBuffer.TransferFields(TempTopCustomersBySalesBuffer);
-                TopCustomersBySalesBuffer.Insert;
+                TopCustomersBySalesBuffer.Insert();
             until TempTopCustomersBySalesBuffer.Next = 0
         end;
     end;
@@ -92,7 +92,7 @@ codeunit 1328 "Top Customers By Sales Job"
         TempTopCustomersBySalesBuffer.SalesLCY := SalesLCY;
         TempTopCustomersBySalesBuffer.LastCustLedgerEntryNo := LastCustLedgEntryNo;
         TempTopCustomersBySalesBuffer.DateTimeUpdated := DTUpdated;
-        TempTopCustomersBySalesBuffer.Insert;
+        TempTopCustomersBySalesBuffer.Insert();
     end;
 }
 

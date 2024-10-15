@@ -48,7 +48,7 @@ codeunit 3010831 LSVMgt
     procedure ReleaseCustLedgEntries(GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Document No.");
             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -66,20 +66,20 @@ codeunit 3010831 LSVMgt
                     Error(EntryNotFoundErr, LsvJournalLine.TableCaption);
 
                 LsvJournalLine."LSV Status" := LsvJournalLine."LSV Status"::Open;
-                LsvJournalLine.Modify;
+                LsvJournalLine.Modify();
 
                 LsvJour.Get(LsvJournalLine."LSV Journal No.");
                 LsvJour.Validate("LSV Status");
-                LsvJour.Modify;
+                LsvJour.Modify();
 
                 // Adjust balance posting in G/L Line if matching Total Amount
-                GlLine.Reset;
+                GlLine.Reset();
                 GlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if GlLine.FindLast then
                     if GlLine.Amount = LsvJour.Amount then begin  // Amount before Corr.
                         GlLine.Validate(Amount, LsvJour.Amount);
-                        GlLine.Modify;
+                        GlLine.Modify();
                     end;
             end;
         end;
@@ -106,7 +106,7 @@ codeunit 3010831 LSVMgt
             exit;
 
         LsvJour."Credit Date" := NewDate;
-        LsvJour.Modify;
+        LsvJour.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -136,7 +136,7 @@ codeunit 3010831 LSVMgt
         if LsvLine.Find('-') then
             repeat
                 LastEntryNo := LastEntryNo + 10000;
-                GenJournalLine.Init;
+                GenJournalLine.Init();
                 GenJournalLine."Journal Template Name" := GenJournalLine."Journal Template Name";
                 GenJournalLine."Journal Batch Name" := GenJournalLine."Journal Batch Name";
                 GenJournalLine."Line No." := LastEntryNo;
@@ -147,21 +147,21 @@ codeunit 3010831 LSVMgt
                 GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
                 GenJournalLine.Validate("Applies-to Doc. No.", LsvLine."Applies-to Doc. No.");
                 GenJournalLine.Validate("Credit Amount", LsvLine."Collection Amount");
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."LCY Code" <> LsvLine."Currency Code" then
                     GenJournalLine.Validate("Currency Code", LsvLine."Currency Code");
-                GenJournalLine.Insert;
+                GenJournalLine.Insert();
                 LsvLine."LSV Status" := LsvLine."LSV Status"::"Transferred to Pmt. Journal";
-                LsvLine.Modify;
+                LsvLine.Modify();
             until LsvLine.Next = 0;
         LsvJournal.Validate("LSV Status");
-        LsvJournal.Modify;
+        LsvJournal.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure ClosedByESR(InvoiceNo: Code[20])
     begin
-        LsvJournalLine.Reset;
+        LsvJournalLine.Reset();
         LsvJournalLine.SetCurrentKey("Applies-to Doc. No.");
         LsvJournalLine.SetRange("Applies-to Doc. No.", InvoiceNo);
         LsvJournalLine.SetRange("LSV Status", LsvJournalLine."LSV Status"::"Closed by Import File",
@@ -181,24 +181,24 @@ codeunit 3010831 LSVMgt
             CustLedgEntry.Get(LsvJournalLine."Cust. Ledg. Entry No.");
             CustLedgEntry."On Hold" := 'LSV';
             CustLedgEntry."LSV No." := LsvJournalLine."LSV Journal No.";
-            CustLedgEntry.Modify;
+            CustLedgEntry.Modify();
             LsvJournalLine."LSV Status" := LsvJournalLine."LSV Status"::"Closed by Import File";
-            LsvJournalLine.Modify;
+            LsvJournalLine.Modify();
 
             // Switch the open to rejected
             LsvJournalLine.SetRange("LSV Status", LsvJournalLine."LSV Status"::Open);
             if not LsvJournalLine.FindFirst then
                 Error(InvoiceDuplicateErr, InvoiceNo);
             LsvJournalLine."LSV Status" := LsvJournalLine."LSV Status"::Rejected;
-            LsvJournalLine.Modify;
+            LsvJournalLine.Modify();
         end else begin
             LsvJournalLine."LSV Status" := LsvJournalLine."LSV Status"::"Closed by Import File";
-            LsvJournalLine.Modify;
+            LsvJournalLine.Modify();
         end;
 
         LsvJour.Get(LsvJournalLine."LSV Journal No.");
         LsvJour.Validate("LSV Status");
-        LsvJour.Modify;
+        LsvJour.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -216,7 +216,7 @@ codeunit 3010831 LSVMgt
             exit;
 
         ActLSVJour."LSV Status" := ActLSVJour."LSV Status"::Edit;
-        ActLSVJour.Modify;
+        ActLSVJour.Modify();
     end;
 
     local procedure CheckLSVSetup(ActLSVSetup: Record "LSV Setup")
@@ -310,8 +310,8 @@ codeunit 3010831 LSVMgt
                     SetValuesDueToTransaction(GenJournalLine, Transaction, InvoiceAmt, InInvoiceNo, IsCancellationExist);
                     GenJournalLine."Source Code" := 'DD';
                     GenJournalLine."Reason Code" := GlBatchName."Reason Code";
-                    GenJournalLine.Insert;
-                    Commit;
+                    GenJournalLine.Insert();
+                    Commit();
 
                     // All lines same credit date? (one/multiple balance postings)
                     if FirstPostingDate = 0D then  // Save first
@@ -363,9 +363,9 @@ codeunit 3010831 LSVMgt
     var
         BackupFilename: Text[300];
     begin
-        LSVSetup.LockTable;
+        LSVSetup.LockTable();
         LSVSetup."Last Backup No." := IncStr(LSVSetup."Last Backup No.");
-        LSVSetup.Modify;
+        LSVSetup.Modify();
         BackupFilename := LSVSetup."Backup Folder" + 'DD' + LSVSetup."Last Backup No." + '.BAK';
         if Exists(LSVSetup."DebitDirect Import Filename") and (not Exists(BackupFilename)) then
             FileMgt.CopyClientFile(LSVSetup."DebitDirect Import Filename", BackupFilename, true);
@@ -430,7 +430,7 @@ codeunit 3010831 LSVMgt
                     Transaction := Transaction::Credit;
                     LSVJournalLine."LSV Status" := LSVJournalLine."LSV Status"::Open;
                     LSVJournalLine."DD Rejection Reason" := LSVJournalLine."DD Rejection Reason"::" ";
-                    LSVJournalLine.Modify;
+                    LSVJournalLine.Modify();
 
                     if LSVSetup.ReadPermission then
                         ClosedByESR(InvoiceNo);
@@ -444,7 +444,7 @@ codeunit 3010831 LSVMgt
 
                     LSVJournalLine."LSV Status" := LSVJournalLine."LSV Status"::Rejected;
                     LSVJournalLine."DD Rejection Reason" := RejectionCode;
-                    LSVJournalLine.Modify;
+                    LSVJournalLine.Modify();
                 end;
             else
                 Error(TransactionErr);
@@ -535,7 +535,7 @@ codeunit 3010831 LSVMgt
                 "Document Type" := "Document Type"::Payment;
             "Document No." := DocumentNo;
 
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             if GeneralLedgerSetup."LCY Code" <> Currency then
                 "Currency Code" := Currency;
         end;
