@@ -1125,6 +1125,9 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader.Validate("No. Printed", LibraryRandom.RandInt(10));
         SalesShipmentHeader.Modify(true);
 
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(SalesShipmentHeader."Posting Date" + 1);
+
         // exercise
         SalesShipmentHeader.Delete(true);
 
@@ -1180,6 +1183,9 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         ReturnShipmentHeader.Validate("No. Printed", LibraryRandom.RandInt(10));
         ReturnShipmentHeader.Modify(true);
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(ReturnShipmentHeader."Posting Date" + 1);
 
         // exercise
         ReturnShipmentHeader.Delete(true);
