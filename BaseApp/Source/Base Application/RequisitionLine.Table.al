@@ -195,6 +195,7 @@
                         Validate("Currency Code", Vend."Currency Code");
                         "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
+                        SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
                     end else begin
                         if ValidateFields then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
@@ -489,6 +490,16 @@
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(43; "Purchaser Code"; Code[20])
+        {
+            Caption = 'Purchaser Code';
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+
+            trigger OnValidate()
+            begin
+                CreateDimFromDefaultDim();
+            end;
         }
         field(73; "Drop Shipment"; Boolean)
         {
@@ -3695,8 +3706,41 @@
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.ReqLineTypeToTableID(Rec.Type), Rec."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Vendor No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Purchaser Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetPurchaserCode(Rec, PurchaserCodeToCheck, PurchaserCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchaserCodeToCheck = '' then
+            PurchaserCodeToCheck := GetUserSetupPurchaserCode();
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
+        UserSetup: Record "User Setup";
+    begin
+        UserSetup.SetLoadFields("Salespers./Purch. Code");
+        if not UserSetup.Get(UserId) then
+            exit('');
+
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
 #if not CLEAN20
@@ -4225,6 +4269,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcTransferShipmentDate(var Rec: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaserCode(var RequisitionLine: Record "Requisition Line"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

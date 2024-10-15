@@ -421,12 +421,12 @@
                     Type::Item:
                         ValidateItemDescription();
                     else begin
-                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                            if ReturnValue <> '' then begin
-                                CurrFieldNo := FieldNo("No.");
-                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                            end;
+                        ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                        if ReturnValue <> '' then begin
+                            CurrFieldNo := FieldNo("No.");
+                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                         end;
+                    end;
                 end;
 
                 ShouldErrorForFindDescription := ("No." = '') and GuiAllowed() and ApplicationAreaMgmtFacade.IsFoundationEnabled() and ("Document Type" = "Document Type"::Order);
@@ -5551,26 +5551,26 @@
                     LocalGLAcc.Get(FAPostingGr.GetAppreciationAccount);
                 "FA Posting Type"::Maintenance:
 #if not CLEAN18
-                begin
-                    // NAVCZ
-                    if (not FAPostingGr.UseStandardMaintenance()) and ("Maintenance Code" <> '') then begin
-                        FAExtPostingGr.Get(FADeprBook."FA Posting Group", 2, "Maintenance Code");
-                        FAExtPostingGr.TestField("Maintenance Expense Account");
-                        LocalGLAcc.Get(FAExtPostingGr."Maintenance Expense Account");
-                    end else
+                    begin
                         // NAVCZ
-                        LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
-                end;
+                        if (not FAPostingGr.UseStandardMaintenance()) and ("Maintenance Code" <> '') then begin
+                            FAExtPostingGr.Get(FADeprBook."FA Posting Group", 2, "Maintenance Code");
+                            FAExtPostingGr.TestField("Maintenance Expense Account");
+                            LocalGLAcc.Get(FAExtPostingGr."Maintenance Expense Account");
+                        end else
+                            // NAVCZ
+                            LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
+                    end;
 #else
                     LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
 #endif
-            "FA Posting Type"::"Custom 2":
-                begin
-                    // NAVCZ
-                    FAPostingGr.TestField("Custom 2 Account");
-                    LocalGLAcc.Get(FAPostingGr."Custom 2 Account");
-                    // NAVCZ
-                end;
+                "FA Posting Type"::"Custom 2":
+                    begin
+                        // NAVCZ
+                        FAPostingGr.TestField("Custom 2 Account");
+                        LocalGLAcc.Get(FAPostingGr."Custom 2 Account");
+                        // NAVCZ
+                    end;
             end;
 
         LocalGLAcc.CheckGLAcc;
@@ -5979,9 +5979,9 @@
                 '', "No.":
                     Description := xRec.Description;
                 else begin
-                        CurrFieldNo := FieldNo("No.");
-                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                    end;
+                    CurrFieldNo := FieldNo("No.");
+                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                end;
             end;
     end;
 
@@ -6804,9 +6804,9 @@
                                                 VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                             end;
                                         else begin
-                                                QtyToHandle := "Qty. to Invoice";
-                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                            end;
+                                            QtyToHandle := "Qty. to Invoice";
+                                            VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                        end;
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
@@ -8966,6 +8966,10 @@
 #endif
     procedure UpdatePrepmtAmounts()
     begin
+        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+            if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
+                exit;
+
 #if CLEAN19
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
 #else
@@ -8998,6 +9002,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
 #if CLEAN19
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));

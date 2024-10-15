@@ -10,17 +10,24 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
         {
             Editable = IsPostingGroupEditableCZL;
         }
-#else
+#endif
         addlast(General)
         {
+#if CLEAN20
             field("Posting Description CZL"; Rec."Posting Description")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies a description of the purchase receipt. The posting description also appers on vendor and G/L entries.';
                 Visible = false;
             }
-        }
 #endif
+            field("Your Reference CZL"; Rec."Your Reference")
+            {
+                ApplicationArea = Basic, Suite;
+                Importance = Additional;
+                ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+            }
+        }
         addafter("Posting Date")
         {
             field("VAT Date CZL"; Rec."VAT Date CZL")

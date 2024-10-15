@@ -1,4 +1,4 @@
-report 25 "Account Schedule"
+﻿report 25 "Account Schedule"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AccountSchedule.rdlc';
@@ -973,6 +973,11 @@ report 25 "Account Schedule"
     procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text)
     begin
         DateFilterHidden := NewDateFilter;
+        if DateFilterHidden <> '' then begin
+            "Acc. Schedule Line".SetFilter("Date Filter", DateFilterHidden);
+            StartDate := "Acc. Schedule Line".GetRangeMin("Date Filter");
+            EndDate := "Acc. Schedule Line".GetRangeMax("Date Filter");
+        end;
         GLBudgetFilterHidden := NewBudgetFilter;
         CostBudgetFilterHidden := NewCostBudgetFilter;
         BusinessUnitFilterHidden := NewBusUnitFilter;

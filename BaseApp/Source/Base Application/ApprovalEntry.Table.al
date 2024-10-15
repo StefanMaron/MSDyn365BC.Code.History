@@ -311,8 +311,8 @@ table 454 "Approval Entry"
                     RecRef.SetTable(PurchHeader);
                     PurchHeader.CalcFields(Amount);
                     Details :=
-                      StrSubstNo(
-                        '%1 ; %2: %3', PurchHeader."Buy-from Vendor Name", PurchHeader.FieldCaption(Amount), PurchHeader.Amount);
+                    StrSubstNo(
+                        '%1 ; %2: %3', PurchHeader."Buy-from Vendor Name", PurchHeader.FieldCaption(Amount), Rec.Amount);
                 end;
             // NAVCZ
             DATABASE::"Payment Order Header":

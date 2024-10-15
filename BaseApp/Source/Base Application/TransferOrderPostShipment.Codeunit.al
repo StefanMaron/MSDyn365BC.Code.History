@@ -99,7 +99,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     WhseRqst.LockTable();
                 TransShptLine.LockTable();
                 TransLine.SetRange(Quantity);
-                TransLine.SetFilter("Qty. to Ship", '<>0');
+                TransLine.SetRange("Qty. to Ship");
                 OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
                 if TransLine.Find('-') then
                     repeat
@@ -107,7 +107,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                         if GuiAllowed then
                             Window.Update(2, LineCount);
 
-                        if TransLine."Item No." <> '' then begin
+                        if (TransLine."Item No." <> '') and (TransLine."Qty. to Ship" <> 0) then begin
                             Item.Get(TransLine."Item No.");
                             CheckItemNotBlocked(Item);
                         end;

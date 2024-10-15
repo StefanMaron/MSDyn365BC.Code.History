@@ -1369,7 +1369,13 @@ table 31008 "Purch. Adv. Letter Header CZZ"
     local procedure DoPrintToDocumentAttachment(PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ")
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(PurchAdvLetterHeaderCZZ, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchAdvLetterHeaderCZZ.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"Purchase Advance Letter CZZ".AsInteger(), PurchAdvLetterHeaderCZZ, PurchAdvLetterHeaderCZZ."No.", PurchAdvLetterHeaderCZZ."Pay-to Vendor No.", true);
@@ -1537,4 +1543,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ"; var IsHandled: Boolean)
+    begin
+    end;
 }

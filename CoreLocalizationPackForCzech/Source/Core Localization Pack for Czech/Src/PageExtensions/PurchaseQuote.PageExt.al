@@ -3,6 +3,15 @@ pageextension 11737 "Purchase Quote CZL" extends "Purchase Quote"
     layout
     {
         movelast(General; "Posting Description")
+        addlast(General)
+        {
+            field("Your Reference CZL"; Rec."Your Reference")
+            {
+                ApplicationArea = Basic, Suite;
+                Importance = Additional;
+                ToolTip = 'Specifies the vendor''s reference. The contents will be printed on purchase documents.';
+            }
+        }
         addlast("Invoice Details")
         {
             field("Last Unreliab. Check Date CZL"; Rec."Last Unreliab. Check Date CZL")
