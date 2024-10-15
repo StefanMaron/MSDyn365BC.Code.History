@@ -754,12 +754,15 @@ page 5933 "Service Invoice"
                     var
                         InstructionMgt: Codeunit "Instruction Mgt.";
                         PreAssignedNo: Code[20];
+                        xLastPostingNo: Code[20];
                     begin
-                        PreAssignedNo := "No.";
+                        PreAssignedNo := Rec."No.";
+                        xLastPostingNo := Rec."Last Posting No.";
+
                         DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                            ShowPostedConfirmationMessage(PreAssignedNo);
+                            ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
                     end;
                 }
                 action(Preview)
@@ -1050,13 +1053,17 @@ page 5933 "Service Invoice"
         CurrPage.Update();
     end;
 
-    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        ServiceInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
-        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            ServiceInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+        else begin
+            ServiceInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+            ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        end;
         if ServiceInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceInvQst, ServiceInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

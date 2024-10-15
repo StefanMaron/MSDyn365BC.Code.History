@@ -9968,6 +9968,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType CannotAssignNumbersAutoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3810126422 - NamedType 628523983" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong Sales Line Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType CommentCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3810126422 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document No. are not equal.]]></Val>
