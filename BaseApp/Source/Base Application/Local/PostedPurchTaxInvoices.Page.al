@@ -55,7 +55,7 @@ page 28079 "Posted Purch. Tax Invoices"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value on the original document.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value on the original document.';

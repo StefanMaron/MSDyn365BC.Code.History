@@ -12,7 +12,7 @@ page 11606 "BAS Calc. Sheet Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type that is on the business activity statement (BAS) calculation sheet.';
@@ -46,7 +46,7 @@ page 11606 "BAS Calc. Sheet Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount type that is on the business activity statement (BAS) calculation sheet.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';

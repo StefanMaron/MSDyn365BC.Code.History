@@ -347,7 +347,7 @@ codeunit 132200 "Library - Costing"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         PurchasePrice.Init();
@@ -391,7 +391,7 @@ codeunit 132200 "Library - Costing"
         CalcInvtValue.RunModal();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesPrice.Init();
@@ -536,7 +536,7 @@ codeunit 132200 "Library - Costing"
         SuggestCapacityStandardCost.Run();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure SuggestSalesPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Enum "Sales Price Type"; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
     var
         SalesPrice: Record "Sales Price";

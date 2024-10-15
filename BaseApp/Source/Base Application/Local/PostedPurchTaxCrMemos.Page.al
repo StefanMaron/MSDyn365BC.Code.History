@@ -40,7 +40,7 @@ page 28080 "Posted Purch. Tax Cr. Memos"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the document.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value on the original document.';

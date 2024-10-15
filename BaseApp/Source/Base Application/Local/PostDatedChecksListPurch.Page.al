@@ -30,7 +30,7 @@ page 28093 "Post Dated Checks List-Purch."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the post-dated check.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Amount of the post-dated check.';

@@ -18,7 +18,7 @@ page 28040 "WHT Business Posting Group"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for the group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the WHT business posting group.';

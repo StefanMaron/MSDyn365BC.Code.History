@@ -281,7 +281,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Part of the name for the confguration package, stands for Row Definition]D;]A;{MaxLength=10}]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AccSchedPrefixTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Part of the name for the configuration package, stands for Row Definition]D;]A;{MaxLength=10}]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AccSchedPrefixTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 685312924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -300,6 +300,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - name of the row definition.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AlreadyExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 126201079" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Financial report %1 will be overwritten.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - name of the financial report.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType AlreadyExistsFinRepErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2715861462" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -354,6 +363,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 834051234" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Column definition %1 will be overwritten.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - name of the column definition.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType ColDefinitionAlreadyExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 1180786219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Column layout %1 will be overwritten.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - name of the column layout.]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType ColLayoutAlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 418649963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -455,6 +482,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType ExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 1330272586" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[FIN.REP.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Part of the name for the configuration package, stands for Financial Report]D;]A;{MaxLength=10}]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType FinRepPrefixTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2065877029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are more left parentheses than right parentheses.]]></Val>
@@ -525,15 +561,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType LookupCostObjectFilterErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2859947066 - NamedType 2429275625" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Function LookupDimFilter returned wrong value.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType LookupDimFilterErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2915374373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4786,11 +4813,11 @@
   </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 1517548793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The purchase line order date is (%1), but it should be (%2).]]></Val>
+      <Val><![CDATA[The purchase order date (%1) should be the same as the purchase line order date (%2).]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Actual Purchase Line Order Date; %2 - Expected Purchase Line Order Date]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType OrderDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Purchase Header Order Date; %2 - Purchase Line Order Date]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType OrderDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 4187336553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14297,6 +14324,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Adv. Intrastat Checklist - NamedType FilterStringParseErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1280817851 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Assembly Order Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 313154776 - NamedType 3308798032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The end date %1 is not valid. You must keep at least %2 years uncompressed.]]></Val>
@@ -14349,6 +14385,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Error message]D;]A;(LookupHint=Codeunit Test Gen. Jnl. Post Preview - NamedType UnexpectedMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3400168546 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invt. Pick Post Preview - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 219211031 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invt. PutAway Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3524229329 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invty. Doc. Pst Preview - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3003914412 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Journal Post Preview - NamedType WrongPostPreviewErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2805650360 - NamedType 1421259837" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14576,6 +14648,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Service Post Preview - NamedType NoRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2229874424 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Transfer Order Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2430598660 - NamedType 4019219904" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must select an existing vendor.]]></Val>
@@ -14583,6 +14664,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Vendor Lookup - NamedType SelectVendErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3079842503 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Whse. Rcpt. Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2658618222 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected empty error from Preview. Actual error: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Whse. Shpt. Post Preview - NamedType WrongPostPreviewErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1162487677 - NamedType 2551612333" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

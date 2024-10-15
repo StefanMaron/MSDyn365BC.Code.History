@@ -1,14 +1,14 @@
 ﻿codeunit 442 "Sales-Post Prepayments"
 {
-    Permissions = TableData "Sales Line" = imd,
+    Permissions = TableData "Sales Line" = rimd,
 #if not CLEAN20
-                  TableData "Invoice Post. Buffer" = imd,
+                  TableData "Invoice Post. Buffer" = rimd,
 #endif
-                  TableData "Sales Invoice Header" = imd,
-                  TableData "Sales Invoice Line" = imd,
-                  TableData "Sales Cr.Memo Header" = imd,
-                  TableData "Sales Cr.Memo Line" = imd,
-                  TableData "General Posting Setup" = imd;
+                  TableData "Sales Invoice Header" = rimd,
+                  TableData "Sales Invoice Line" = rimd,
+                  TableData "Sales Cr.Memo Header" = rimd,
+                  TableData "Sales Cr.Memo Line" = rimd,
+                  TableData "General Posting Setup" = rimd;
     TableNo = "Sales Header";
 
     trigger OnRun()
@@ -1237,7 +1237,7 @@
         NewAmount: Decimal;
         NewPrepmtVATDiffAmt: Decimal;
         FullGST: Boolean;
-        IsHandled: Boolean;
+	IsHandled: Boolean;
     begin
         GLSetup.GetRecordOnce();
         Currency.Initialize(SalesHeader."Currency Code");
@@ -1844,7 +1844,7 @@
             SalesInvHeader."No." := GenJnlLineDocNo;
             SalesInvHeader."Pre-Assigned No. Series" := '';
             SalesInvHeader."Source Code" := SrcCode;
-            SalesInvHeader."User ID" := UserId;
+            SalesInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeader."User ID"));
             SalesInvHeader."No. Printed" := 0;
             SalesInvHeader."Prepayment Invoice" := true;
             SalesInvHeader."Prepayment Order No." := "No.";
@@ -1940,7 +1940,7 @@
             SalesCrMemoHeader."No." := GenJnlLineDocNo;
             SalesCrMemoHeader."Pre-Assigned No. Series" := '';
             SalesCrMemoHeader."Source Code" := SrcCode;
-            SalesCrMemoHeader."User ID" := UserId;
+            SalesCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeader."User ID"));
             SalesCrMemoHeader."No. Printed" := 0;
             SalesCrMemoHeader."Prepayment Credit Memo" := true;
             SalesCrMemoHeader."Prepayment Order No." := "No.";

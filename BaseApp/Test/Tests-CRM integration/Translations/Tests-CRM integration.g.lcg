@@ -268,7 +268,7 @@
   </Item>
   <Item ItemId=";Codeunit 3981235901 - NamedType 1846235690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You are about to couple Business Central records to Dataverse entities from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?]]></Val>
+      <Val><![CDATA[You are about to couple records in Business Central table with records in the integration table from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

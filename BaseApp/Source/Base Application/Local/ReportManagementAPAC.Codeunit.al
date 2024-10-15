@@ -13,7 +13,6 @@ codeunit 28020 "Report Management APAC"
         Text005: Label 'Amounts are in whole 1,000,000s';
         Text006: Label 'Amounts are not rounded';
 
-    [Scope('OnPrem')]
     procedure RoundAmount(Amount: Decimal; Rounding: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions): Decimal
     begin
         case Rounding of
@@ -32,7 +31,6 @@ codeunit 28020 "Report Management APAC"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RoundDescription(Rounding: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions): Text[50]
     begin
         case Rounding of
@@ -51,4 +49,3 @@ codeunit 28020 "Report Management APAC"
         end;
     end;
 }
-

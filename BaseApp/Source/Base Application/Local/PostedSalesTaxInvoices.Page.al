@@ -40,7 +40,7 @@ page 28081 "Posted Sales Tax Invoices"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the document.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales tax invoice line amount that is on the sales tax invoice.';

@@ -116,7 +116,6 @@ report 28001 "BarCode Batch Job"
     var
         Text1500001: Label 'Checking Table No.    #1######\Checking Address Type #2######\\@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
         AddressID: Record "Address ID";
-        PostCodeCheck: Codeunit "Post Code Check";
         CheckMasterCard: Boolean;
         CheckContactCard: Boolean;
         CheckDocument: Boolean;
@@ -125,6 +124,7 @@ report 28001 "BarCode Batch Job"
 
     local procedure BrowseTable(TableNo: Integer; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; AddressFieldNo: Integer; Address2FieldNo: Integer; CityFieldNo: Integer; PostCodeFieldNo: Integer; CountryCodeFieldNo: Integer)
     var
+        PostCodeCheck: Codeunit "Post Code Check";
         RecordRef: RecordRef;
         AddressFieldRef: FieldRef;
         Address2FieldRef: FieldRef;
@@ -134,6 +134,15 @@ report 28001 "BarCode Batch Job"
         TotalRec: Integer;
         CurrentRec: Integer;
         SkipRec: Boolean;
+        Name: Text[100];
+        Name2: Text[50];
+        Contact: Text[100];
+        Address: Text[100];
+        Address2: Text[50];
+        City: Text[30];
+        PostCode: Code[20];
+        County: Text[30];
+        CountryCode: Code[10];
     begin
         Window.Update(1, TableNo);
         Window.Update(2, AddressType);
@@ -149,31 +158,25 @@ report 28001 "BarCode Batch Job"
             repeat
                 SkipRec := false;
                 Window.Update(3, Round((CurrentRec / TotalRec) * 10000, 1));
-                GetAddressID(
-                  TableNo,
-                  RecordRef.GetPosition(),
-                  AddressType,
-                  Format(AddressFieldRef.Value),
-                  Format(Address2FieldRef.Value),
-                  Format(CityFieldRef.Value),
-                  Format(PostCodeFieldRef.Value));
+                Address := Format(AddressFieldRef.Value);
+                Address2 := Format(Address2FieldRef.Value);
+                City := Format(CityFieldRef.Value);
+                PostCode := Format(PostCodeFieldRef.Value);
+                PostCodeCheck.VerifyAddress(1, TableNo, RecordRef.GetPosition(), AddressType, 
+                    Name, 
+                    Name2, 
+                    Contact, 
+                    Address, 
+                    Address2, 
+                    City, 
+                    PostCode, 
+                    County, 
+                    CountryCode);
                 CurrentRec := CurrentRec + 1;
             until RecordRef.Next() = 0;
 
         RecordRef.Close();
     end;
-
-    local procedure GetAddressID(TableNo: Integer; TableKey: Text[1024]; AddressType: Option Main,"Bill-to","Ship-to","Sell-to","Pay-to","Buy-from","Transfer-from","Transfer-to"; Address: Text[90]; Address2: Text[90]; City: Text[90]; PostCode: Code[20])
-    var
-        Name: Text[90];
-        Name2: Text[90];
-        Contact: Text[90];
-        County: Text[50];
-        CountryCode: Code[10];
-    begin
-        PostCodeCheck.ValidateAddress(
-          1, TableNo, TableKey, AddressType,
-          Name, Name2, Contact, Address, Address2, City, PostCode, County, CountryCode);
-    end;
+    
 }
 

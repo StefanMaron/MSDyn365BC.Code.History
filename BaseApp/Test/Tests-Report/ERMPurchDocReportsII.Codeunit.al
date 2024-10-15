@@ -1,4 +1,4 @@
-﻿codeunit 134336 "ERM Purch. Doc. Reports - II"
+codeunit 134336 "ERM Purch. Doc. Reports - II"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;

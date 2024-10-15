@@ -18,7 +18,7 @@ page 28041 "WHT Product Posting Group"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for the posting group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the WHT Product posting group.';

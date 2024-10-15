@@ -39,6 +39,18 @@ codeunit 131003 "Library - Text File Validation"
             Line := '';  // If value is not found in the file, this will return an empty line.
     end;
 
+    procedure FindLineWithValue(FileInStream: InStream; StartingPosition: Integer; FieldLength: Integer; Value: Text) Line: Text
+    var
+        FieldValue: Text;
+    begin
+        while (not FileInStream.EOS) and (FieldValue <> Value) do begin
+            FileInStream.ReadText(Line);
+            FieldValue := CopyStr(Line, StartingPosition, FieldLength);
+        end;
+        if FieldValue <> Value then
+            Line := '';  // If value is not found in the file, this will return an empty line.
+    end;
+
     procedure FindLineContainingValue(FileName: Text; StartingPosition: Integer; FieldLength: Integer; Value: Text) Line: Text
     var
         File: File;
@@ -51,6 +63,18 @@ codeunit 131003 "Library - Text File Validation"
         File.CreateInStream(InStr);
         while (not InStr.EOS) and (StrPos(FieldValue, Value) = 0) do begin
             InStr.ReadText(Line);
+            FieldValue := CopyStr(Line, StartingPosition, FieldLength);
+        end;
+        if StrPos(FieldValue, Value) = 0 then
+            Line := '';  // If value is not found in the file, this will return an empty line.
+    end;
+
+    procedure FindLineContainingValue(FileInStream: InStream; StartingPosition: Integer; FieldLength: Integer; Value: Text) Line: Text
+    var
+        FieldValue: Text;
+    begin
+        while (not FileInStream.EOS) and (StrPos(FieldValue, Value) = 0) do begin
+            FileInStream.ReadText(Line);
             FieldValue := CopyStr(Line, StartingPosition, FieldLength);
         end;
         if StrPos(FieldValue, Value) = 0 then

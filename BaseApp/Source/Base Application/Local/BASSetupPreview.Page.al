@@ -13,13 +13,13 @@ page 11609 "BAS Setup Preview"
             group(General)
             {
                 Caption = 'General';
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies a name according to the requirements for setting up the BAS configuration rules.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the descriptive term for the Business Activity Statement (BAS) Name.';

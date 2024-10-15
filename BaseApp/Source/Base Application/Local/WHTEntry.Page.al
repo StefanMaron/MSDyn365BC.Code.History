@@ -52,7 +52,7 @@ page 28044 "WHT Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the calculated withholding tax base amount.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the calculated withholding tax amount.';

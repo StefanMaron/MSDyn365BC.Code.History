@@ -649,6 +649,121 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.AreEqual(JobQueueEntry."Object ID to Run", JobQueueLogEntry."Object ID to Run", 'Wrong object type to run');
     end;
 
+    [Test]
+    procedure RunAsDelegatedAdminWithoutSettingUpWorkflow()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        AzureADUserTestLibrary: Codeunit "Azure AD User Test Library";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        // [SCENARIO] The delegated admin wants to set a job queue to ready without setting up the workflow
+
+        // [GIVEN] Is Delegated admin
+        BindSubscription(AzureADUserTestLibrary);
+        AzureADUserTestLibrary.SetIsUserDelegatedtAdmin(true);
+
+        // [GIVEN] An existing job queue entry
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := Report::"Customer - Top 10 List";
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Description := copystr(format(CreateGuid()), 1, MaxStrLen(JobQueueEntry.Description)); // so we can find the correct log entry afterwards
+        JobQueueEntry.Insert(true);
+
+        // [WHEN] The delegated admin clicks Run in foreground
+        // [THEN] Error that the workflow has not been setup
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        asserterror JobQueueEntryCard."Set Status to Ready".Invoke();
+        Assert.ExpectedError('The Job Queue approval workflow has not been setup.');
+
+        UnbindSubscription(AzureADUserTestLibrary);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApprovalRequestSentHandler')]
+    procedure RunAsDelegatedAdmin()
+    var
+        AzureADUserTestLibrary: Codeunit "Azure AD User Test Library";
+    begin
+        // [SCENARIO] The delegated admin wants to set a job queue to ready without setting up the workflow
+
+        // [GIVEN] Is Delegated admin
+        BindSubscription(AzureADUserTestLibrary);
+        AzureADUserTestLibrary.SetIsUserDelegatedtAdmin(true);
+
+        TestDelegatedJQ();
+
+        UnbindSubscription(AzureADUserTestLibrary);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApprovalRequestSentHandler')]
+    procedure RunAsDelegatedHelpdesk()
+    var
+        AzureADUserTestLibrary: Codeunit "Azure AD User Test Library";
+    begin
+        // [SCENARIO] The delegated helpdesk wants to set a job queue to ready without setting up the workflow
+
+        // [GIVEN] Is Delegated admin
+        BindSubscription(AzureADUserTestLibrary);
+        AzureADUserTestLibrary.SetIsUserDelegatedtHelpdesk(true);
+
+        TestDelegatedJQ();
+
+        UnbindSubscription(AzureADUserTestLibrary);
+    end;
+
+    local procedure TestDelegatedJQ()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        UserSetup: Record "User Setup";
+        ApprovalEntry: Record "Approval Entry";
+        Workflow: Record Workflow;
+        EmailAccount: Record "Email Account";
+        ConnectorMock: Codeunit "Connector Mock";
+        ApprovalMgmt: Codeunit "Approvals Mgmt.";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        JobQueueEntryCard: TestPage "Job Queue Entry Card";
+    begin
+        // [GIVEN] An existing job queue entry
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := Report::"Customer - Top 10 List";
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Description := copystr(format(CreateGuid()), 1, MaxStrLen(JobQueueEntry.Description)); // so we can find the correct log entry afterwards
+        JobQueueEntry."User ID" := 'DA';
+        JobQueueEntry.Insert(true);
+
+        // [GIVEN] Setup JQ workflow
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.JobQueueEntryWorkflowCode());
+        Workflow.Enabled := true;
+        Workflow.Modify();
+
+        // [GIVEN] Approval users setup
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(EmailAccount);
+
+        LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
+        UserSetup."E-Mail" := EmailAccount."Email Address";
+        UserSetup.Modify();
+        ApprovalEntry.DeleteAll();
+
+        // [WHEN] The delegated admin clicks Run in foreground
+        // [THEN] Error that the workflow has not been setup
+        JobQueueEntryCard.OpenView();
+        JobQueueEntryCard.GoToRecord(JobQueueEntry);
+        JobQueueEntryCard."Set Status to Ready".Invoke();
+        JobQueueEntryCard.Close();
+
+        // [THEN] Approval Entry is created with correct details
+        Assert.RecordCount(ApprovalEntry, 1);
+        ApprovalEntry.FindFirst();
+        Assert.AreEqual(JobQueueEntry.RecordId(), ApprovalEntry."Record ID to Approve", 'Approval Entry created for wrong JQ');
+        Assert.AreEqual(UserSetup."Approver ID", ApprovalEntry."Approver ID", 'Wrong Approver ID assigned to Approval Entry');
+    end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; InitialStatus: Option)
     begin
@@ -715,6 +830,12 @@ codeunit 139018 "Job Queue Entry Tests"
           'Notification contained wrong job queue entry ID');
         Assert.AreEqual(JobQueueEntryCard.GetChooseSetOnHoldMsg, Notification.Message, 'Notification contained wrong message');
         JobQueueSendNotification.SetJobQueueEntryStatusToOnHold(Notification);
+    end;
+
+    [MessageHandler]
+    procedure ApprovalRequestSentHandler(Message: Text[1024])
+    begin
+        Assert.IsSubstring('An approval request has been sent.', Message);
     end;
 }
 

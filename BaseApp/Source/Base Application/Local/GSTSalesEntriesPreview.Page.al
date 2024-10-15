@@ -96,7 +96,7 @@ page 28167 "GST Sales Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the GST amount (the amount shown in the Amount field) is calculated from.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the GST entry in LCY.';

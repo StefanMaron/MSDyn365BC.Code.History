@@ -163,7 +163,7 @@ page 9900 "Import Data"
                             end;
                         end;
                     }
-                    field(Name; Name)
+                    field(Name; Rec.Name)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Company Name';

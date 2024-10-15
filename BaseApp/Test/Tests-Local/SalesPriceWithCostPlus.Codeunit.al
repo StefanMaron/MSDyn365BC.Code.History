@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 141051 "Sales Price With Cost Plus"
 {
     Subtype = Test;

@@ -1,4 +1,4 @@
-﻿table 28043 "WHT Posting Setup"
+table 28043 "WHT Posting Setup"
 {
     Caption = 'WHT Posting Setup';
 

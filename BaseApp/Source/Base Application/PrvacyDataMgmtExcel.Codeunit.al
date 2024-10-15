@@ -21,7 +21,7 @@ codeunit 1181 "Prvacy Data Mgmt Excel"
                 ReportInbox."Report Output".CreateOutStream(OutStr);
                 CopyStream(OutStr, InStr);
 
-                ReportInbox."User ID" := UserId;
+                ReportInbox."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReportInbox."User ID"));
                 ReportInbox.Validate("Output Type", ReportInbox."Output Type"::Excel);
                 ReportInbox.Description := StrSubstNo(PrivacyDataTxt, "Package Code");
                 ReportInbox."Report Name" := StrSubstNo(PrivacyDataTxt, "Package Code");

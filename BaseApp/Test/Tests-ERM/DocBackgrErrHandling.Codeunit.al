@@ -24,39 +24,12 @@
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        FeatureDisabled: Boolean;
         EmptyJournalTemplNameErr: Label 'Journal Template Name must have a value';
         EmptyDocumentDateErr: Label 'Document Date must have a value';
         EmptyUnitOfMeasureCodeErr: Label 'Unit of Measure Code must have a value';
         ReturnQtyToReceiveErr: Label 'Return Qty. to Receive must be equal to ''0''';
         InvalidDimensionsErr: Label 'The dimensions used in %1 %2 are invalid', Comment = '%1 = Document Type, %2 = Document No, %3 = Error text';
         CheckUnhandledErrorTxt: Label 'Check unhandled error', Locked = true;
-
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLSetupFieldFeatureDisabled()
-    var
-        GLSetupPage: TestPage "General Ledger Setup";
-        DocBackgrErrorHandling: Codeunit "Doc. Backgr. Error Handling";
-    begin
-        // [FEATURE] [Sales] [UT]
-        // [SCENARIO 411158] General Ledger Setup "Enable Data Check" field is invisible if feature "Feature: Check documents and journals while you work" is off
-        Initialize();
-
-        // [GIVEN] Disable feature "Feature: Check documents and journals while you work"
-        BindSubscription(DocBackgrErrorHandling);
-        DocBackgrErrorHandling.SetFeatureDisabled(true);
-
-        // [WHEN] Open General Ledger Setup page
-        GLSetupPage.OpenEdit();
-
-        // [THEN] "Enable Data Check" field is invisible
-        Assert.IsFalse(GLSetupPage.EnableDataCheck.Visible(), 'Enable Data Check must be invisible');
-
-        UnBindSubscription(DocBackgrErrorHandling);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('BackgroundValidationShowSetupNotificationHandler')]
@@ -630,39 +603,6 @@
         VerifyNotificationsCreated();
     end;
 
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLSetupUpdatedWhenFeatureKeyEnabled()
-    var
-        MyNotifications: Record "My Notifications";
-        FeatureKey: Record "Feature Key";
-        GLSetup: Record "General Ledger Setup";
-        MyNotificationsPage: TestPage "My Notifications";
-        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 425845] When feature key is being enabled the GLSetup."Enable Data Check" became Yes automatically
-        Initialize();
-
-        // [GIVEN] Feature key is disabled
-        FeatureKey.Get(BackgroundErrorHandlingMgt.GetFeatureKey());
-        FeatureKey.Enabled := FeatureKey.Enabled::None;
-        FeatureKey.Modify();
-        // [GIVEN] "General Ledger Setup"."Enable Data Check" = No
-        EnableBackgroundValidation(false);
-
-        // [WHEN] Feature key is being enabled
-        FeatureKey.Validate(Enabled, FeatureKey.Enabled::"All Users");
-        FeatureKey.Modify();
-
-        // [THEN] GLSetup."Enable Data Check" = Yes
-        GLSetup.Get();
-        GLSetup.TestField("Enable Data Check", true);
-    end;
-#endif
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -747,16 +687,6 @@
         PrepareFullSalesDocCheckArgs(SalesHeader, Args);
         Commit();
         CheckSalesDocBackgr.RunCheck(Args, TempErrorMessage);
-    end;
-
-    procedure SetFeatureDisabled(NewFeatureDisabled: Boolean)
-    begin
-        FeatureDisabled := NewFeatureDisabled;
-    end;
-
-    procedure GetFeatureDisabled(): Boolean
-    begin
-        exit(FeatureDisabled);
     end;
 
     local procedure EnableBackgroundValidation(Enabled: Boolean)
@@ -941,12 +871,6 @@
     begin
         if SalesHeader."Posting Description" = CheckUnhandledErrorTxt then
             Error(CheckUnhandledErrorTxt);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Background Error Handling Mgt.", 'OnAfterIsEnabled', '', false, false)]
-    local procedure OnAfterIsFeatureDisabled(var Result: Boolean)
-    begin
-        Result := not GetFeatureDisabled();
     end;
 
     [SendNotificationHandler]

@@ -1570,6 +1570,71 @@ codeunit 141011 "ERM WHT - AU"
           GLEntry, VATPostingSetup.GetPurchAccount(false), -VATAmount);
     end;
 
+    [Test]
+    procedure WHTRevenueTypesPageTest()
+    var
+        WHTRevenueTypesPage: TestPage "WHT Revenue Types";
+    begin
+
+        // [SCENARIO 448166] Code in WHT Revenue Type must be filled out
+        Initialize();
+
+        // [WHEN] adding new entry in page
+        WHTRevenueTypesPage.OpenNew();
+        WHTRevenueTypesPage.Description.SetValue('TEST');
+        WHTRevenueTypesPage.New();
+        // [THEN] if code is left empty, we have validation error
+        Assert.AreEqual(1, WHTRevenueTypesPage.ValidationErrorCount(), ValueMustBeSameMsg);
+        
+        WHTRevenueTypesPage.Close();
+
+        // [WHEN] adding new entry in page
+        WHTRevenueTypesPage.OpenNew();
+        WHTRevenueTypesPage.Description.SetValue('TEST');
+        WHTRevenueTypesPage.Code.SetValue('TEST');
+        WHTRevenueTypesPage.New();
+        // [THEN] if code is not left empty, we have no validation error
+        Assert.AreEqual(0, WHTRevenueTypesPage.ValidationErrorCount(), ValueMustBeSameMsg);
+        WHTRevenueTypesPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalPageHandlerForWHTRevenueType')]
+    procedure WHTPostingSetupPageTest()
+    var
+        WHTPostingSetup: Record "WHT Posting Setup";
+        WHTRevenueTypes: Record "WHT Revenue Types";
+        WHTPostingSetupPageTest: TestPage "WHT Posting Setup";
+    begin
+
+        // [SCENARIO 448166] Code in WHT Posting Setup must be filled out
+        Initialize();
+        WHTPostingSetup.DeleteAll();
+        WHTRevenueTypes.DeleteAll();
+        WHTRevenueTypes.Init();
+        WHTRevenueTypes.Description := 'TEST';
+        WHTRevenueTypes.Code := 'TEST';
+        WHTRevenueTypes.Insert();
+
+        // [WHEN] adding new entry in page
+        WHTPostingSetupPageTest.OpenNew();
+        WHTPostingSetupPageTest."Realized WHT Type".SetValue('Invoice');
+        WHTPostingSetupPageTest.New();
+
+        // [THEN] if code is left empty, we have validation error
+        Assert.AreEqual(1, WHTPostingSetupPageTest.ValidationErrorCount(), ValueMustBeSameMsg);
+        WHTPostingSetupPageTest.Close();
+
+        // [WHEN] adding new entry in page
+        WHTPostingSetupPageTest.OpenNew();
+        WHTPostingSetupPageTest."Revenue Type".Lookup();
+        WHTPostingSetupPageTest.New();
+
+        // [THEN] if code is not left empty, we have no validation error
+        Assert.AreEqual(0, WHTPostingSetupPageTest.ValidationErrorCount(), ValueMustBeSameMsg);
+        WHTPostingSetupPageTest.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2385,6 +2450,16 @@ codeunit 141011 "ERM WHT - AU"
     begin
         PostPmtsAndRecBankAcc."Statement Ending Balance".SetValue(LibraryVariableStorage.DequeueDecimal());
         PostPmtsAndRecBankAcc.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalPageHandlerForWHTRevenueType(var WHTRevenueTypes: TestPage "WHT Revenue Types")
+    var
+        WhenDescription: Variant;
+    begin
+        WHTRevenueTypes.First();
+        WHTRevenueTypes.OK().Invoke();
     end;
 }
 
