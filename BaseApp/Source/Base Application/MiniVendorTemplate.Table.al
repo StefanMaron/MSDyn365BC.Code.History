@@ -181,7 +181,7 @@ table 1303 "Mini Vendor Template"
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
-            Caption = 'Validate EU Vat Reg. No.';
+            Caption = 'Validate EU VAT Reg. No.';
         }
     }
 

@@ -330,15 +330,6 @@ page 76 "Resource Card"
                     RunPageLink = "Resource No." = FIELD("No.");
                     ToolTip = 'View or edit the units of measure that are set up for the resource.';
                 }
-                action("Unit Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Unit Group';
-                    Image = UnitOfMeasure;
-                    RunObject = Page "Resource Unit Group List";
-                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Resource);
-                    ToolTip = 'View unit group associated with the resource.';
-                }
                 action("S&kills")
                 {
                     ApplicationArea = Basic, Suite;
@@ -432,6 +423,15 @@ page 76 "Resource Card"
                     begin
                         CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
                     end;
+                }
+                action("Unit Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Unit Group';
+                    Image = UnitOfMeasure;
+                    RunObject = Page "Resource Unit Group List";
+                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Resource);
+                    ToolTip = 'View unit group associated with the resource.';
                 }
                 action(CRMSynchronizeNow)
                 {

@@ -507,7 +507,7 @@ page 9229 "Res. Avail. (Service) Matrix"
                     trigger OnAction()
                     begin
                         if PeriodType <> PeriodType::Day then
-                            Error(Text000, SelectStr(PeriodType.AsInteger() + 1, Text001));
+                            Error(Text000, PeriodType);
 
                         Clear(ServOrderAllocMgt);
                         ServOrderAllocMgt.AllocateDate(
@@ -621,7 +621,6 @@ page 9229 "Res. Avail. (Service) Matrix"
         QtytoAllocate: Decimal;
         Qualified: Boolean;
         PreferredResource: Boolean;
-        Text001: Label 'Day,Week,Month,Quarter,Year,Accounting Period';
         MATRIX_CellData: array[32] of Decimal;
         MatrixColumnCaptions: array[32] of Text[100];
         [InDataSet]

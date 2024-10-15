@@ -2030,6 +2030,8 @@
             ServLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
             ServLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+
+        OnAfterSortLines(ServLine);
     end;
 
     local procedure UpdateServiceLedgerEntry(ServLedgEntryNo: Integer)
@@ -2121,7 +2123,13 @@
     end;
 
     local procedure UseLegacyInvoicePosting(): Boolean
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
+        if EnvironmentInfo.IsProduction() then
+            exit(true);
+
+        ServMgtSetup.Get();
         exit(ServMgtSetup."Invoice Posting Setup" = "Service Invoice Posting"::"Invoice Posting (Default)");
     end;
 
@@ -2222,6 +2230,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterServCrMemoLineInsert(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSortLines(var ServiceLine: Record "Service Line")
     begin
     end;
 

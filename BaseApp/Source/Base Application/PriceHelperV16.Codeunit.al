@@ -175,6 +175,20 @@ codeunit 7006 "Price Helper - V16"
             PriceWorksheetLine.ModifyAll("Source No.", SourceNo);
     end;
 
+    local procedure RenameUnitOfMeasureInPrices(xUnitOfMeasureCode: Code[20]; UnitOfMeasureCode: Code[20])
+    var
+        PriceListLine: Record "Price List Line";
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        PriceListLine.SetRange("Unit of Measure Code", xUnitOfMeasureCode);
+        if not PriceListLine.IsEmpty() then
+            PriceListLine.ModifyAll("Unit of Measure Code", UnitOfMeasureCode);
+
+        PriceWorksheetLine.SetRange("Unit of Measure Code", xUnitOfMeasureCode);
+        if not PriceWorksheetLine.IsEmpty() then
+            PriceWorksheetLine.ModifyAll("Unit of Measure Code", UnitOfMeasureCode);
+    end;
+
     local procedure RenameParentSourceInPrices(SourceType: Enum "Price Source Type"; xSourceNo: Code[20]; SourceNo: Code[20])
     var
         PriceListHeader: Record "Price List Header";
@@ -603,6 +617,16 @@ codeunit 7006 "Price Helper - V16"
 
         if RunTrigger then
             RenameSourceInPrices(SourceType::"Job Task", xRec."Job Task No.", Rec."Job Task No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Unit of Measure", 'OnAfterRenameEvent', '', false, false)]
+    local procedure AfterRenameUnitOfMeasure(var Rec: Record "Unit of Measure"; var xRec: Record "Unit of Measure"; RunTrigger: Boolean);
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if RunTrigger then
+            RenameUnitOfMeasureInPrices(xRec.Code, Rec.Code);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Job", 'OnBeforeCopyJobPrices', '', false, false)]

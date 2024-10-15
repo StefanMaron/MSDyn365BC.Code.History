@@ -13,7 +13,11 @@ codeunit 104046 "Upgrade Monitored Field"
         ChangeEntry: Record "Change Log Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradeMonitorNotificationUpgradeTag()) then
             exit;
 

@@ -45,7 +45,7 @@ page 1218 "Generic Data Exch Fld Mapping"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field in the target table that the value in the Column Caption field is mapped to, when you are using an intermediate table for data import.';
                 }
-                field("Target Field Caption"; "Target Field Caption")
+                field("Target Field Caption"; "Target Table Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field Caption';
@@ -83,7 +83,7 @@ page 1218 "Generic Data Exch Fld Mapping"
 
     trigger OnInit()
     begin
-        SetAutoCalcFields("Target Table Caption", "Target Field Caption")
+        SetAutoCalcFields("Target Table Caption", "Target Table Field Caption")
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
