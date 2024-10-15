@@ -1,4 +1,4 @@
-page 954 "Manager Time Sheet by Job"
+﻿page 954 "Manager Time Sheet by Job"
 {
     ApplicationArea = Jobs;
     AutoSplitKey = true;
@@ -380,7 +380,7 @@ page 954 "Manager Time Sheet by Job"
     begin
         if InitialStartingDateBase = 0D then
             InitialStartingDateBase := Workdate();
-        StartingDate := CalcStartingDate(Which, InitialStartingDateBase);
+        CalcStartingDate(Which, InitialStartingDateBase, StartingDate);
         EndingDate := CalcDate('<1W>', StartingDate) - 1;
         FilterGroup(2);
         SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
@@ -390,14 +390,14 @@ page 954 "Manager Time Sheet by Job"
         CurrPage.Update(false);
     end;
 
-    local procedure CalcStartingDate(Which: Option Initial,Previous,Next; InitialDate: Date) StartingDate: Date
+    local procedure CalcStartingDate(Which: Option Initial,Previous,Next; InitialDate: Date; var StartingDate: Date)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCalcStartingDate(Rec, Which, InitialDate, StartingDate, IsHandled);
         if IsHandled then
-            exit(StartingDate);
+            exit;
 
         case Which of
             Which::Initial:
@@ -521,8 +521,13 @@ page 954 "Manager Time Sheet by Job"
     end;
 
     local procedure ShowDialog(ActionType: Option Approve,Reopen,Reject): Integer
+    var
+        DefaultValue: Integer;
     begin
-        exit(StrMenu(GetDialogText(ActionType), 1, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
+        DefaultValue := 1;
+        OnShowDialogOnAfterSetDefaultValue(ActionType, DefaultValue);
+
+        exit(StrMenu(GetDialogText(ActionType), DefaultValue, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]
@@ -532,6 +537,11 @@ page 954 "Manager Time Sheet by Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessOnAfterTimeSheetLinesFiltered(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDialogOnAfterSetDefaultValue(ActionType: Option; var DefaultValue: Integer)
     begin
     end;
 

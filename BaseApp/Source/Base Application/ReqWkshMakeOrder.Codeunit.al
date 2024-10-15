@@ -560,7 +560,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         if IsHandled then
             exit;
 
-        RequisitionLine.Validate("Order Date", PurchOrderHeader."Order Date");
+        if PurchOrderLine.CountPrice(true) > 0 then
+            RequisitionLine.Validate("Order Date", PurchOrderHeader."Order Date");
     end;
 
     procedure InsertPurchOrderLine(var ReqLine2: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")
@@ -667,6 +668,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
                     SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
                 end;
+                OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(SalesOrderLine, ReqLine2, PurchOrderLine);
                 SalesOrderLine.Modify();
             end;
 
@@ -1232,12 +1234,18 @@ codeunit 333 "Req. Wksh.-Make Order"
         exit(false);
     end;
 
-    local procedure CheckSpecOrderAddressDetails(LocationCode: Code[10]; UpdateAddressDetails: Boolean): Boolean
+    local procedure CheckSpecOrderAddressDetails(LocationCode: Code[10]; UpdateAddressDetails: Boolean) Result: Boolean
     var
         Location: Record Location;
         CompanyInfo: Record "Company Information";
         SpecOrderNameAddressDetails: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSpecOrderAddressDetails(LocationCode, UpdateAddressDetails, NameAddressDetails, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Location.Get(LocationCode) then
             SpecOrderNameAddressDetails :=
               Location.Name + Location."Name 2" +
@@ -1578,6 +1586,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnBeforeSalesOrderLineModify(var SalesOrderLine: Record "Sales Line"; var RequisitionLine: Record "Requisition Line"; var PurchOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnProcessReqLineActionsOnAfterSetFailedReqLine(var RequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -1589,6 +1602,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSpecOrderAddressDetails(LocationCode: Code[10]; UpdateAddressDetails: Boolean; var NameAddressDetails: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

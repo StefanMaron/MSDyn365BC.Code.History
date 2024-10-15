@@ -2451,6 +2451,36 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     end;
 
     [Test]
+    procedure ItemTemplateNonDefaultCostingMethod()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        InventorySetup: Record "Inventory Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 426157] Creation item from template with "Costing Method" different from the inventory setup "Default Costing Method"
+        Initialize();
+
+        // Inventory setup with "Default Costing Method" = "CM1"
+        InventorySetup.Get();
+        InventorySetup."Default Costing Method" := InventorySetup."Default Costing Method"::Standard;
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Item template with "Costing Method" = "CM2"
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Costing Method", ItemTempl."Costing Method"::Average);
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I" has "Costing Method" = "CM2"
+        Item.TestField("Costing Method", Item."Costing Method"::Average);
+    end;
+
+    [Test]
     procedure ItemTemplateReorderingPolicyValidation()
     var
         ItemTempl: Record "Item Templ.";
@@ -2488,6 +2518,163 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [THEN] "Reorder Point" control is enabled
         Assert.IsTrue(ItemTemplCard."Reorder Point".Enabled(), 'Control should be enabled');
+    end;
+
+    [Test]
+    procedure ItemTemplateZeroRoundingPrecision()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 431385] Create item from template with "Rounding Precision" = 0
+        Initialize();
+
+        // [GIVEN] Item template "IT" with "Rounding Precision" = 0
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl."Rounding Precision" := 0;
+        ItemTempl.Modify();
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Rounding Precision" = 1
+        Item.TestField("Rounding Precision", 1);
+
+        // [THEN] "IT"."Rounding Precision" = 1
+        ItemTempl.Get(ItemTempl.Code);
+        ItemTempl.TestField("Rounding Precision", 1);
+    end;
+
+    [Test]
+    procedure ItemTemplateServiceTypeWithReserve()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 431385] Create item from template with "Type" = 'Service' and "Reserve" = 'Optional'
+        Initialize();
+
+        // [GIVEN] Item template "IT" with "Type" = Service and "Reserve" = Optional
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl."Inventory Posting Group" := '';
+        ItemTempl.Type := ItemTempl.Type::Service;
+        ItemTempl.Reserve := ItemTempl.Reserve::Optional;
+        ItemTempl.Modify();
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I"."Reserve" = 'Never'
+        Item.TestField(Reserve, Item.Reserve::Never);
+
+        // [THEN] "IT"."Reserve" = 'Never'
+        ItemTempl.Get(ItemTempl.Code);
+        ItemTempl.TestField(Reserve, ItemTempl.Reserve::Never);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CreateCustomerFromContactWithNoSeries()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        NoSeriesLine: Record "No. Series Line";
+        CustomerTempl: Record "Customer Templ.";
+        NoSeriesCode: Code[20];
+        CustomerCode: Code[20];
+    begin
+        // [SCENARIO 430622] Create customer from contact using template with filled number series "NS"
+        Initialize();
+
+        // [GIVEN] Customer template with "No Series"
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CustomerTempl."No. Series" := NoSeriesCode;
+        CustomerTempl.Modify(true);
+
+        // [WHEN] Create customer from contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+        CustomerCode := Contact.CreateCustomerFromTemplate(CustomerTempl.Code);
+
+        // [THEN] Customer has number equal to last used from "NS" number series
+        Customer.Get(CustomerCode);
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        Customer.TestField("No.", NoSeriesLine."Last No. Used");
+        NoSeriesLine.TestField("Last No. Used");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CreateVendorFromContactWithNoSeries()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        NoSeriesLine: Record "No. Series Line";
+        VendorTempl: Record "Vendor Templ.";
+        NoSeriesCode: Code[20];
+        VendorCode: Code[20];
+    begin
+        // [SCENARIO 430622] Create Vendor from contact using template with filled number series "NS"
+        Initialize();
+
+        // [GIVEN] Vendor template with "No Series"
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        VendorTempl."No. Series" := NoSeriesCode;
+        VendorTempl.Modify(true);
+
+        // [WHEN] Create Vendor from contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+        VendorCode := Contact.CreateVendorFromTemplate(VendorTempl.Code);
+
+        // [THEN] Vendor has number equal to last used from "NS" number series
+        Vendor.Get(VendorCode);
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        Vendor.TestField("No.", NoSeriesLine."Last No. Used");
+        NoSeriesLine.TestField("Last No. Used");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,SelectEmployeeTemplListHandler')]
+    procedure CreateEmployeeFromContactWithNoSeries()
+    var
+        Employee: Record Employee;
+        Contact: Record Contact;
+        NoSeriesLine: Record "No. Series Line";
+        EmployeeTempl: Record "Employee Templ.";
+        NoSeriesCode: Code[20];
+        EmployeeCode: Code[20];
+    begin
+        // [SCENARIO 430622] Create Employee from contact using template with filled number series "NS"
+        Initialize();
+
+        // [GIVEN] Employee template with "No Series"
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl);
+        EmployeeTempl."No. Series" := NoSeriesCode;
+        EmployeeTempl.Modify(true);
+        LibraryVariableStorage.Enqueue(EmployeeTempl.Code);
+
+        // [WHEN] Create Employee from contact
+        LibraryMarketing.CreatePersonContact(Contact);
+        EmployeeCode := Contact.CreateEmployee();
+
+        // [THEN] Employee has number equal to last used from "NS" number series
+        Employee.Get(EmployeeCode);
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        Employee.TestField("No.", NoSeriesLine."Last No. Used");
+        NoSeriesLine.TestField("Last No. Used");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()

@@ -20,14 +20,12 @@ codeunit 1430 "Role Center Notification Mgt."
         ChangeToPremiumExpNotificationIdTxt: Label '58982418-e1d1-4879-bda2-6033ca151b83', Locked = true;
         TrialNotificationDaysSinceStartTxt: Label '15', Locked = true;
         EvaluationNotificationLinkTxt: Label 'Set up a company';
-        TrialNotificationLinkTxt: Label 'Subscribe now...';
+        TrialNotificationLinkTxt: Label 'Request partner contact...';
         TrialNotificationExtendLinkTxt: Label 'Extend trial...';
-        TrialSuspendedNotificationLinkTxt: Label 'Subscribe now...';
+        TrialSuspendedNotificationLinkTxt: Label 'Request partner contact...';
         TrialSuspendedNotificationExtendLinkTxt: Label 'Extend trial...';
-        TrialExtendedNotificationSubscribeLinkTxt: Label 'Subscribe now...';
-        TrialExtendedNotificationPartnerLinkTxt: Label 'Contact a partner...';
-        TrialExtendedSuspendedNotificationSubscribeLinkTxt: Label 'Subscribe now...';
-        TrialExtendedSuspendedNotificationPartnerLinkTxt: Label 'Contact a partner...';
+        TrialExtendedNotificationSubscribeLinkTxt: Label 'Request partner contact...';
+        TrialExtendedSuspendedNotificationSubscribeLinkTxt: Label 'Request partner contact...';
         PaidWarningNotificationLinkTxt: Label 'Renew subscription...';
         PaidSuspendedNotificationLinkTxt: Label 'Renew subscription...';
         EvaluationNotificationMsg: Label 'Ready to try Business Central with your own company data? We’ll walk you through the setup.';
@@ -35,9 +33,9 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
         TrialSuspendedNotificationPreviewMsg: Label 'Your trial period has expired. You can extend the period to get more time.';
-        TrialExtendedNotificationMsg: Label 'Your extended trial period will expire in %1 days. If it expires you can subscribe or contact a partner to get more time.', Comment = '%1=Count of days until trial expires';
+        TrialExtendedNotificationMsg: Label 'Your extended trial period will expire in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialExtendedNotificationPreviewMsg: Label 'Your extended trial period will expire in %1 days. If it expires you contact a partner to get more time.', Comment = '%1=Count of days until trial expires';
-        TrialExtendedSuspendedNotificationMsg: Label 'Your extended trial period has expired. You can subscribe or contact a partner to get more time.';
+        TrialExtendedSuspendedNotificationMsg: Label 'Your extended trial period has expired.';
         TrialExtendedSuspendedNotificationPreviewMsg: Label 'Your extended trial period has expired. You can contact a partner to get more time.';
         PaidWarningNotificationMsg: Label 'Your subscription expires in %1 days. Renew soon to keep your work.', Comment = '%1=Count of days until block of access';
         PaidSuspendedNotificationMsg: Label 'Your subscription has expired. Unless you renew, we will delete your data in %1 days.', Comment = '%1=Count of days until data deletion';
@@ -55,11 +53,8 @@ codeunit 1430 "Role Center Notification Mgt."
     local procedure CreateAndSendEvaluationNotification()
     var
         EvaluationNotification: Notification;
-        TrialTotalDays: Integer;
     begin
-        TrialTotalDays := GetTrialTotalDays;
         EvaluationNotification.Id := GetEvaluationNotificationId;
-        //EvaluationNotification.Message := StrSubstNo(EvaluationNotificationMsg, TrialTotalDays);
         EvaluationNotification.Message := EvaluationNotificationMsg; // current message is not meant to reference the trial duration
         EvaluationNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         EvaluationNotification.AddAction(
@@ -117,10 +112,6 @@ codeunit 1430 "Role Center Notification Mgt."
                 TrialExtendedNotificationSubscribeLinkTxt,
                 CODEUNIT::"Role Center Notification Mgt.",
                 'TrialExtendedNotificationSubscribeAction');
-        TrialExtendedNotification.AddAction(
-          TrialExtendedNotificationPartnerLinkTxt,
-          CODEUNIT::"Role Center Notification Mgt.",
-          'TrialExtendedNotificationPartnerAction');
         TrialExtendedNotification.Send;
     end;
 
@@ -136,10 +127,6 @@ codeunit 1430 "Role Center Notification Mgt."
                 TrialExtendedSuspendedNotificationSubscribeLinkTxt,
                 CODEUNIT::"Role Center Notification Mgt.",
                 'TrialExtendedNotificationSubscribeAction');
-        TrialExtendedSuspendedNotification.AddAction(
-          TrialExtendedSuspendedNotificationPartnerLinkTxt,
-          CODEUNIT::"Role Center Notification Mgt.",
-          'TrialExtendedNotificationPartnerAction');
         TrialExtendedSuspendedNotification.Send;
     end;
 
@@ -459,8 +446,8 @@ codeunit 1430 "Role Center Notification Mgt."
         OnBeforeShowNotifications;
         IsRunningPreviewEvent();
 
-        ResultEvaluation := ShowEvaluationNotification;
         if UserPermissions.IsSuper(UserSecurityId) then begin
+            ResultEvaluation := ShowEvaluationNotification;
             ResultTrial := ShowTrialNotification;
             ResultTrialSuspended := ShowTrialSuspendedNotification;
             ResultTrialExtended := ShowTrialExtendedNotification;

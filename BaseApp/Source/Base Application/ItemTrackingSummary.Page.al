@@ -164,7 +164,7 @@ page 6500 "Item Tracking Summary"
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
                             Caption = 'Undefined';
-                            DecimalPlaces = 2 : 5;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ToolTip = 'Specifies the difference between the quantity that can be selected for the document line, and the quantity selected in this window.';
                         }

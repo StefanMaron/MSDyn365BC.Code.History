@@ -28,7 +28,7 @@ report 699 "Calculate Plan - Req. Wksh."
                 ActionMessageEntry.LockTable();
 
                 IsHandled := false;
-                OnBeforeDeleteReqLines(Item, PurchReqLine, ReqLineExtern, IsHandled);
+                OnBeforeDeleteReqLines(Item, PurchReqLine, ReqLineExtern, IsHandled, InvtProfileOffsetting);
                 if not IsHandled then begin
                     PurchReqLine.SetRange("No.", "No.");
                     PurchReqLine.ModifyAll("Accept Action Message", false);
@@ -71,7 +71,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
             trigger OnPostDataItem()
             begin
-                OnAfterItemOnPostDataItem(Item);
+                OnAfterItemOnPostDataItem(Item, CurrTemplateName, CurrWorksheetName, FromDate, ToDate);
             end;
 
             trigger OnPreDataItem()
@@ -182,8 +182,12 @@ report 699 "Calculate Plan - Req. Wksh."
     trigger OnPreReport()
     var
         ProductionForecastEntry: Record "Production Forecast Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeOnPreReport(CurrTemplateName, CurrWorksheetName);
+        IsHandled := false;
+        OnBeforeOnPreReport(CurrTemplateName, CurrWorksheetName, ReqLine, FromDate, ToDate);
+        if IsHandled then
+            exit;
 
         Counter := 0;
         if FromDate = 0D then
@@ -288,7 +292,7 @@ report 699 "Calculate Plan - Req. Wksh."
         IsHandled := false;
         SkipPlanning := false;
 
-        OnBeforeSkipPlanningForItemOnReqWksh(Item, SkipPlanning, IsHandled);
+        OnBeforeSkipPlanningForItemOnReqWksh(Item, SkipPlanning, IsHandled, SKU, CurrWorksheetType);
         if IsHandled then
             exit(SkipPlanning);
 
@@ -328,7 +332,7 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterItemOnPostDataItem(var Item: Record Item)
+    local procedure OnAfterItemOnPostDataItem(var Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date; ToDate: Date)
     begin
     end;
 
@@ -338,12 +342,12 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSkipPlanningForItemOnReqWksh(Item: Record Item; var SkipPlanning: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSkipPlanningForItemOnReqWksh(Item: Record Item; var SkipPlanning: Boolean; var IsHandled: Boolean; StockkeepingUnit: Record "Stockkeeping Unit"; CurrWorksheetType: Option)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteReqLines(Item: Record Item; var PurchReqLine: Record "Requisition Line"; var ReqLineExtern: Record "Requisition Line"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteReqLines(Item: Record Item; var PurchReqLine: Record "Requisition Line"; var ReqLineExtern: Record "Requisition Line"; var IsHandled: Boolean; InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting")
     begin
     end;
 
@@ -353,12 +357,12 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10])
+    local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10]; var RequistionLine: Record "Requisition Line"; var FromDate: Date; var ToDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemOnAfterGetRecordOnBeforeCommit(var ReqLine: Record "Requisition Line"; Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date)
+    local procedure OnItemOnAfterGetRecordOnBeforeCommit(var ReqLine: Record "Requisition Line"; var Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date)
     begin
     end;
 

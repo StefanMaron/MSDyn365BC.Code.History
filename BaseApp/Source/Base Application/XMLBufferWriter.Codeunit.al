@@ -1,4 +1,4 @@
-codeunit 1235 "XML Buffer Writer"
+﻿codeunit 1235 "XML Buffer Writer"
 {
 
     trigger OnRun()
@@ -372,6 +372,7 @@ codeunit 1235 "XML Buffer Writer"
             Namespace := CopyStr(ElementNamespace, 1, MaxStrLen(Namespace));
             "Import ID" := ParentXMLBuffer."Import ID";
 
+            OnInsertElementOnBeforeInsertXMLBuffer(XMLBuffer, ParentXMLBuffer, ElementNumber, ElementDepth, ElementNameAndNamespace, ElementValue);
             Insert;
         end;
     end;
@@ -451,6 +452,11 @@ codeunit 1235 "XML Buffer Writer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; var ElementNameAndNamespace: Text; var ElementValue: Text; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertElementOnBeforeInsertXMLBuffer(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; var ElementNameAndNamespace: Text; var ElementValue: Text);
     begin
     end;
 }

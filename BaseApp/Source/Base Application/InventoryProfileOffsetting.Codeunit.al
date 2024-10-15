@@ -220,6 +220,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             InventoryProfile.ChangeSign;
                         InventoryProfile."MPS Order" := true;
                         InventoryProfile.Insert();
+                        OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromOrder(Item, SalesLine, InventoryProfile);
                     end;
                 end;
             until SalesLine.Next() = 0;
@@ -238,6 +239,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         if InventoryProfile.IsSupply then
                             InventoryProfile.ChangeSign;
                         InventoryProfile.Insert();
+                        OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromReturnOrder(Item, SalesLine, InventoryProfile);
                     end;
                 end;
             until SalesLine.Next() = 0;
@@ -410,7 +412,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure TransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     begin
-        OnBeforeTransItemLedgEntryToProfile(InventoryProfile, Item);
+        OnBeforeTransItemLedgEntryToProfile(InventoryProfile, Item, ItemLedgEntry);
         if ItemLedgEntry.FindLinesWithItemToPlan(Item, false) then
             repeat
                 InventoryProfile.Init();
@@ -760,6 +762,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                                 CustomCalendarChange[1].SetSource(CustomizedCalendarChange."Source Type"::Location, DemandInvtProfile."Location Code", '', '');
                                 CustomCalendarChange[2].SetSource(CustomizedCalendarChange."Source Type"::Location, DemandInvtProfile."Location Code", '', '');
                                 DemandInvtProfile."Due Date" := CalendarManagement.CalcDateBOC2('<0D>', ForecastEntry."Forecast Date", CustomCalendarChange, false);
+                                OnForecastConsumptionOnAfterCalcDueDate(DemandInvtProfile, TotalForecastQty, ForecastEntry, NextForecast, Item, OrderDate, ToDate);
                                 if DemandInvtProfile."Due Date" < UpdatedOrderDate then
                                     UpdatedOrderDate := DemandInvtProfile."Due Date";
                                 DemandInvtProfile.Insert();
@@ -1203,7 +1206,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 SupplyInvtProfile.SetRange("Primary Order No.", DemandInvtProfile."Primary Order No.");
                 SupplyInvtProfile.SetRange("Primary Order Line", DemandInvtProfile."Primary Order Line");
                 SupplyInvtProfile.SetRange("Source Prod. Order Line");
-                if (DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::Assembly) and
+                if ((DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::Assembly) or
+                    ((DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::"Prod. Order") and
+                     (DemandInvtProfile."Source Type" = DATABASE::"Planning Component"))) and
                    (DemandInvtProfile.Binding = DemandInvtProfile.Binding::"Order-to-Order") and
                    (DemandInvtProfile."Primary Order No." = '')
                 then
@@ -5114,7 +5119,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    local procedure OnBeforeTransItemLedgEntryToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -5339,6 +5344,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnForecastConsumptionOnAfterCalcDueDate(var DemandInventoryProfile: Record "Inventory Profile"; TotalForecastQty: Decimal; ForecastEntry: Record "Production Forecast Entry"; NextForecastEntry: Record "Production Forecast Entry"; var Item: Record Item; OrderDate: Date; ToDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindReplishmentLocationOnBeforeFindSKU(var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
@@ -5540,6 +5550,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransSalesLineToProfileOnAfterTransferFromSalesLineOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromReturnOrder(var Item: Record Item; var SalesLine: Record "Sales Line"; var InventoryProfile: Record "Inventory Profile")
     begin
     end;
 
