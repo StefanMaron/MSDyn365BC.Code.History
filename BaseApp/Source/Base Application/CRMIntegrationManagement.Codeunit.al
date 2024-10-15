@@ -2752,7 +2752,8 @@ codeunit 5330 "CRM Integration Management"
             exit;
         if not UserCanRescheduleJob() then
             exit;
-        JobQueueEntry.FindSet();
+        if not JobQueueEntry.FindSet() then
+            exit;
         repeat
             // Restart only those jobs whose time to re-execute has nearly arrived.
             // This postpones locking of the Job Queue Entries when restarting.

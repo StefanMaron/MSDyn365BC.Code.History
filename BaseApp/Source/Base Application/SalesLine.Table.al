@@ -3726,7 +3726,8 @@
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        Validate("Purchasing Code", Item."Purchasing Code");
+        if "Document Type" = "Document Type"::Order then
+            Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
 
         InitDeferralCode();

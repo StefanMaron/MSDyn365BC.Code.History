@@ -770,7 +770,7 @@ table 5766 "Warehouse Activity Header"
         until WarehouseActivityLineLocal.Next = 0;
         case SortOrder of
             SortOrder::Bin:
-                TempWarehouseActivityLine.SetCurrentKey("Activity Type", "No.", "Bin Code");
+                TempWarehouseActivityLine.SetCurrentKey("Activity Type", "No.", "Bin Code", "Shelf No.");
             SortOrder::Shelf:
                 TempWarehouseActivityLine.SetCurrentKey("Activity Type", "No.", "Shelf No.");
         end;
