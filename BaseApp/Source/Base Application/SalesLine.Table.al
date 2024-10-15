@@ -504,22 +504,22 @@
                                     "No.":
                                         Description := xRec.Description;
                                     else begin
-                                            CurrFieldNo := FieldNo("No.");
-                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                                        end;
+                                        CurrFieldNo := FieldNo("No.");
+                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    end;
                                 end;
                         end;
                     else begin
-                            IsHandled := false;
-                            OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
-                            if not IsHandled then begin
-                                ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                                if ReturnValue <> '' then begin
-                                    CurrFieldNo := FieldNo("No.");
-                                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                                end;
+                        IsHandled := false;
+                        OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then begin
+                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                            if ReturnValue <> '' then begin
+                                CurrFieldNo := FieldNo("No.");
+                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                             end;
                         end;
+                    end;
                 end;
 
                 IsHandled := false;
@@ -4555,11 +4555,10 @@
                 if not CalculateFullGST("Prepmt. Line Amount") then begin
                     IsHandled := false;
                     OnBeforeCalcPrepaymentLineAmount(Rec, Currency, IsHandled);
-                    if not IsHandled then begin
-                        "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                        if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                            "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
-                    end;
+                    if not IsHandled then
+                        "Prepmt. Line Amount" := Round(
+                            ("Line Amount" - "Inv. Discount Amount") * "Prepayment %" / 100,
+                            Currency."Amount Rounding Precision");
                 end;
             PrePaymentLineAmountEntered := false;
         end;
@@ -6088,9 +6087,9 @@
                                                     VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                                 end;
                                             else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
+                                                QtyToHandle := "Qty. to Invoice";
+                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                            end;
                                         end;
 
                                     OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
@@ -10483,7 +10482,7 @@
     local procedure OnBeforeUpdateICPartner(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldUpdateICPartner: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
     begin
