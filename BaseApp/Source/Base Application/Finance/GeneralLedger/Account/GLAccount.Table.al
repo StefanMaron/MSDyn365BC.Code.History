@@ -803,7 +803,7 @@ table 15 "G/L Account"
         OnBeforeOnDelete(Rec, IsHandled);
         if IsHandled then
             exit;
-	        
+
         if ("Account Type" = "Account Type"::Heading) then begin
             GLAcc := Rec;
             if GLAcc.Next() <> 0 then

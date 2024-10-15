@@ -30,6 +30,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedOrderErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
+        DocumentNoMustBeBlankErr: Label 'Document No. must be blank.';
 
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandlerYes,MessageVerifyHandler')]
@@ -1857,6 +1858,39 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.AreEqual(-VendorLedgerEntry."Remaining Amt. (LCY)", CarteraDoc."Remaining Amt. (LCY)", 'Amount must be equal');
     end;
 #endif
+
+    [Test]
+    [HandlerFunctions('CarteraDocumentsModalHandler')]
+    [Scope('OnPrem')]
+    procedure BlockedVendorCarteraDocsAreNotShownForSelectionInPaymentOrder()
+    var
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+        PaymentOrders: TestPage "Payment Orders";
+    begin
+        // [SCENARIO 489966] Cartera Docs having blocked Vendors are not shown for selection when stan runs Insert action from Payment Order.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        PrepareVendorRelatedRecords(Vendor, '');
+
+        // [GIVEN] Create a Cartera Doc.
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+
+        // [GIVEN] Validate Blocked in Vendor.
+        Vendor.Validate(Blocked, Vendor.Blocked::All);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Payment Order.
+        PaymentOrders.OpenNew();
+        LibraryVariableStorage.Enqueue(DocumentNo);
+
+        // [WHEN] Run Insert action in Payment Order.
+        TryToInsertPaymentOrder(PaymentOrders);
+
+        // [VERIFY] No Cartera Doc is inserted in Payment Order.
+        Assert.AreNotEqual(DocumentNo, Format(PaymentOrders.Docs."Document No."), DocumentNoMustBeBlankErr);
+    end;
 
     local procedure Initialize()
     begin

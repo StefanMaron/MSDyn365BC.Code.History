@@ -1407,7 +1407,12 @@ page 132 "Posted Sales Invoice"
         IncomingDocument: Record "Incoming Document";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         SIIManagement: Codeunit "SII Management";
+        IsHandled: Boolean;	
     begin
+        IsHandled := false;
+        OnBeforeOnAfterGetCurrRecord(Rec, IsHandled, CRMIsCoupledToRecord, CRMIntegrationEnabled);
+        if IsHandled then
+            exit;
         if GuiAllowed() then begin
             HasIncomingDocument := IncomingDocument.PostedDocExists(Rec."No.", Rec."Posting Date");
             DocExchStatusStyle := Rec.GetDocExchStatusStyle();
@@ -1510,6 +1515,11 @@ page 132 "Posted Sales Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCreditMemoOnAction(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetCurrRecord(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean; var CRMIsCoupledToRecord: Boolean; var CRMIntegrationEnabled: Boolean)
     begin
     end;
 }

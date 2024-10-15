@@ -572,6 +572,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - document type and number]D;]A;(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType CheckBillSituationPostedOrderErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1376994288 - NamedType 2966266163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. must be blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Payment Basic Scenario - NamedType DocumentNoMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1376994288 - NamedType 3489919711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.]]></Val>

@@ -1822,6 +1822,8 @@ page 41 "Sales Quote"
         SellToContact.GetOrClear(Rec."Sell-to Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2049,6 +2051,11 @@ page 41 "Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageOnAfterSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -1400,6 +1400,8 @@ table 751 "Standard General Journal Line"
         if GLAcc."Direct Posting" or ("Journal Template Name" = '') then
             exit;
         GLAcc.TestField("Direct Posting", true);
+
+        OnAfterCheckGLAcc(Rec, GLAcc);
     end;
 
     local procedure CheckAccount(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -1967,6 +1969,11 @@ table 751 "Standard General Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var StandardGeneralJournalLine: Record "Standard General Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGLAcc(var StandardGeneralJournalLine: Record "Standard General Journal Line"; GLAccount: Record "G/L Account")
     begin
     end;
 }

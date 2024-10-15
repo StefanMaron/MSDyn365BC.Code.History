@@ -280,6 +280,7 @@ codeunit 7000000 CarteraManagement
         CarteraSetup: Record "Cartera Setup";
         VendLedgEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
         CarteraDocuments: Page "Cartera Documents";
         GroupNo: Code[20];
         Vend: Record Vendor;
@@ -307,9 +308,17 @@ codeunit 7000000 CarteraManagement
             SetFilter(Accepted, '<>%1', Accepted::No);
             SetRange("Collection Agent", "Collection Agent"::Bank);
             SetRange("On Hold", false);
-            OnInsertPayableDocsOnAfterSetFilters(CarteraDoc, CarteraDoc2);
+            if FindSet() then
+            repeat
+                if Vendor.Get("Account No.") then
+                    if Vendor.Blocked = Vendor.Blocked::" " then
+                        Mark(true);
+            until Next() = 0;
+            MarkedOnly(true);
+        OnInsertPayableDocsOnAfterSetFilters(CarteraDoc, CarteraDoc2);
             CarteraDocuments.SetTableView(CarteraDoc);
-            CarteraDocuments.LookupMode(true);
+            MarkedOnly(false);
+        CarteraDocuments.LookupMode(true);
             if CarteraDocuments.RunModal() <> ACTION::LookupOK then
                 exit;
             CarteraDocuments.GetSelected(CarteraDoc);

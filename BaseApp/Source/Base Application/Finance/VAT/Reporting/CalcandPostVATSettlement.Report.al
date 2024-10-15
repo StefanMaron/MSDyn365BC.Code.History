@@ -25,7 +25,7 @@ report 20 "Calc. and Post VAT Settlement"
     AdditionalSearchTerms = 'settle vat value added tax,report vat value added tax';
     ApplicationArea = Basic, Suite;
     Caption = 'Calculate and Post VAT Settlement';
-    Permissions = TableData "VAT Entry" = rimd, 
+    Permissions = TableData "VAT Entry" = rimd,
                   TableData "No Taxable Entry" = rimd;
     UsageCategory = ReportsAndAnalysis;
 
@@ -536,7 +536,7 @@ report 20 "Calc. and Post VAT Settlement"
                     column(Type_NoTaxableEntry; Type)
                     {
                     }
-                    column(Base_NoTaxableEntry; Base)
+                    column(Base_NoTaxableEntry; "Base (LCY)")
                     {
                     }
                     column(Amount_NoTaxableEntry; NoTaxableAmount)

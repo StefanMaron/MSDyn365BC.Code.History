@@ -227,6 +227,8 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                             end;
                         end;
                     end;
+
+                    OnPostDataItemPostedDocOnBeforePostSettlement(GenJnlLine, PostedBillGr, PostingDate);
                     DocPost.PostSettlement(GenJnlLine);
                     GenJnlLine.DeleteAll();
 
@@ -548,6 +550,11 @@ report 7000086 "Batch Settl. Posted Bill Grs."
 
     [IntegrationEvent(false, false)]
     local procedure OnReadPostedBillGroupOnAfterGetBankAcc(BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemPostedDocOnBeforePostSettlement(var GenJournalLine: Record "Gen. Journal Line"; PostedBillGroup: Record "Posted Bill Group"; PostingDate: Date);
     begin
     end;
 }
