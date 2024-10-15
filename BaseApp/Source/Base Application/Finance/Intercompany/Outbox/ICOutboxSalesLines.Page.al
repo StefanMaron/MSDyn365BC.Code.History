@@ -94,6 +94,12 @@ page 637 "IC Outbox Sales Lines"
                     ToolTip = 'Specifies the date that your customer has asked the items on this order line to be delivered.';
                     Visible = false;
                 }
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
+                    Visible = false;
+                }
             }
         }
     }

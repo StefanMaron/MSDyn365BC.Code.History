@@ -480,7 +480,7 @@ report 11108 "VAT - VIES Declaration XML"
     begin
         if Reportingtype = Reportingtype::"Normal transmission" then begin
             XMLFile.Write('<ZM>');
-            XMLFile.Write(StrSubstNo('<UID_MS>%1</UID_MS>', DelChr(Format(DelChr(VATRegNo, '<>', ' '), 15), '<>', ' ')));
+            XMLFile.Write(StrSubstNo('<UID_MS>%1</UID_MS>', DelChr(Format(DelChr(VATRegNo, '<>', ' '), 20), '<>', ' ')));
             XMLFile.Write(StrSubstNo('<SUM_BGL type="kz">%1</SUM_BGL>',
                 DelChr(Format(Round(Amount * -100, 100) / 100, 11, '<Sign><integer>'), '<>', ' ')));
             case ColumnNo of

@@ -1120,8 +1120,6 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntries: TestPage "Job Queue Entries";
     begin
         CreateFailingJobQueueEntry(JobQueueEntry);
-        // The message does not matter, it is replaced when JQE page is opened
-        // Replaced to "Something went wrong and the job has stopped." and status becomes error
         JobQueueEntry."Error Message" := 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4';
         JobQueueEntry.Modify(true);
 
@@ -1401,7 +1399,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueDispatcher.MockTaskScheduler();
         JobQueueDispatcher.Run(JobQueueEntryB);
 
-        JobQueueEntryB.TestField(Status, JobQueueEntryB.Status::Ready);
+        JobQueueEntryB.TestField(Status, JobQueueEntryB.Status::Waiting);
         UnbindSubscription(LibraryJobQueue);
     end;
 
@@ -1462,7 +1460,7 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure CanShowErrorMessageHandler(Message: Text)
     begin
         Assert.IsTrue(Message <> 'There is no error message.', 'Expected error message but found ''' + Message + '''');
-        Assert.IsTrue(Message = 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.', 'Expected a different error message. Found: ''' + Message + '''');
+        Assert.IsTrue(Message = 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4', 'Expected a different error message. Found: ''' + Message + '''');
     end;
 
     [Normal]

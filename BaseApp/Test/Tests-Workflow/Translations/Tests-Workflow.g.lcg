@@ -1922,6 +1922,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Event Response Tests - NamedType UserEmailAddressTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2489833564 - Method 2898745965 - NamedType 3675990074" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User01]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Imp./Exp. Tests - Method ExportImportWorkflowWithSendingNotification2 - NamedType UserIDLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2489833564 - Method 2366706599 - NamedType 3522975969" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[InvalidUserID]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Imp./Exp. Tests - Method ImportWorkflowWithNotificationUserID - NamedType InvalidUserIDLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 2614059161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The current value of the field is different from the value before the change.]]></Val>

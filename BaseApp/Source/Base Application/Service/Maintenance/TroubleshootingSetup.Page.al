@@ -76,7 +76,8 @@ page 5993 "Troubleshooting Setup"
                         Clear(Tblshtg);
                         if TblshtgHeader.Get(Rec."Troubleshooting No.") then
                             if Rec."No." <> '' then begin
-                                Tblshtg.SetCaption(Format(Rec.Type), Rec."No.");
+                                if Format(Rec.Type) <> '' then
+                                    Tblshtg.SetPageCaptionPrefix(Format(Rec.Type) + ' ' + Rec."No.");
                                 Tblshtg.SetRecord(TblshtgHeader);
                             end;
 
