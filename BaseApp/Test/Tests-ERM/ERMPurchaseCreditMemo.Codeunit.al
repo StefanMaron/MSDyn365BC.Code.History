@@ -1229,6 +1229,44 @@ codeunit 134330 "ERM Purchase Credit Memo"
           'The caption for PurchaseCreditMemoPage.PurchLines."Direct Unit Cost" is incorrect');
     end;
 
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostAndNew()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+        PurchaseCreditMemo2: TestPage "Purchase Credit Memo";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NextDocNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 293548] Action "Post and new" opens new credit memo after posting the current one
+        Initialize;
+
+        // [GIVEN] Purchase Credit Memo card is opened with credit memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Action "Post and new" is being clicked
+        PurchaseCreditMemo2.trap;
+        PurchSetup.get;
+        NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Credit Memo Nos.", WorkDate(), false);
+        PurchaseCreditMemo.PostAndNew.Invoke();
+
+        // [THEN] Purchase credit memo page opened with new credit memo
+        PurchaseCreditMemo2."No.".AssertEquals(NextDocNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1651,6 +1689,13 @@ codeunit 134330 "ERM Purchase Credit Memo"
     procedure ConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(StrPos(Message, LibraryVariableStorage.DequeueText) > 0, Message);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Message: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

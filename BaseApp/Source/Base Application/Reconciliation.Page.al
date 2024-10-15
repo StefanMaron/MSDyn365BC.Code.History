@@ -189,6 +189,7 @@ page 345 Reconciliation
         "No." := GLAcc."No.";
         Name := GLAcc.Name;
         "Balance after Posting" := GLAcc."Balance at Date";
+        OnBeforeGLAccountNetChange(Rec);
         Insert;
     end;
 
@@ -228,6 +229,10 @@ page 345 Reconciliation
         SrcGenJnlLine."Bal. Account No." := '';
         SrcGenJnlLine."System-Created Entry" := false;
         // NAVCZ
+    end;
+
+    local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    begin
     end;
 }
 

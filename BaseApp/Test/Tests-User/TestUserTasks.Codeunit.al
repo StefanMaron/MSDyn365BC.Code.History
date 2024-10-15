@@ -150,61 +150,6 @@
         Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription, 'Unexpected value in the Task Description');
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [TestPermissions(TestPermissions::Restrictive)]
-    procedure TestRenameUser()
-    var
-        // WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
-        User: Record User;
-        FieldRec: Record "Field";
-        Company: Record Company;
-        TableInformation: Record "Table Information";
-        RecRef: RecordRef;
-        FldRef: FieldRef;
-        UserMgt: Codeunit "User Management";
-    begin
-        // [GIVEN] Create data for tables with fields having relation with User table
-        Company.FindFirst();
-        FieldRec.SetFilter(ObsoleteState, '<>%1', FieldRec.ObsoleteState::Removed);
-        FieldRec.SetRange(RelationTableNo, DATABASE::User);
-        FieldRec.SetRange(RelationFieldNo, User.FieldNo("User Name"));
-        FieldRec.SetFilter(Type, '%1|%2', FieldRec.Type::Code, FieldRec.Type::Text);
-        if FieldRec.FindSet() then
-            repeat
-                TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
-                TableInformation.SetRange("Table No.", FieldRec.TableNo);
-                if TableInformation.FindFirst then begin
-                    RecRef.Open(FieldRec.TableNo, false, Company.Name);
-                    RecRef.DeleteAll();
-                    RecRef.Init();
-                    FldRef := RecRef.Field(FieldRec."No.");
-                    FldRef.Value('OLD');
-                    RecRef.Insert();
-                    RecRef.Close();
-                end;
-            until FieldRec.Next() = 0;
-
-        // [WHEN] RenameUser is invoked
-        LibraryLowerPermissions.SetO365BusFull();
-        UserMgt.RenameUser('OLD', 'NEW');
-
-        // [THEN] The data in the table fields has been updated
-        if FieldRec.FindSet() then
-            repeat
-                TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
-                TableInformation.SetRange("Table No.", FieldRec.TableNo);
-                if TableInformation.FindFirst then begin
-                    RecRef.Open(FieldRec.TableNo, false, Company.Name);
-                    FldRef := RecRef.Field(FieldRec."No.");
-                    FldRef.SetRange('NEW');
-                    Assert.AreEqual(1, RecRef.Count(), 'Records with new username should exist.');
-                    RecRef.Close();
-                end;
-            until FieldRec.Next() = 0;
-    end;
-
     [Scope('OnPrem')]
     procedure Init()
     var

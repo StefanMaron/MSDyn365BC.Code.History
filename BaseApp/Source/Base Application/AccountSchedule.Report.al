@@ -951,6 +951,8 @@ report 25 "Account Schedule"
             AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
             AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
         end;
+
+        OnAfterTransferValues(StartDate, EndDate, DateFilterHidden);
     end;
 
     local procedure UpdateFilters()
@@ -1034,6 +1036,11 @@ report 25 "Account Schedule"
         Dim4FilterEnable := AnalysisView."Dimension 4 Code" <> '';
         RequestOptionsPage.Caption := AccScheduleName.Description;
         RequestOptionsPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferValues(var StartDate: Date; var EndDate: Date; var DateFilterHidden: Text);
+    begin
     end;
 }
 

@@ -127,7 +127,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
             EntryNoBeforeApplication := FindLastApplDtldVendLedgEntry;
 
-            OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry);
+            OnBeforePostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
             GenJnlPostLine.VendPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry);
             OnAfterPostApplyVendLedgEntry(GenJnlLine, VendLedgEntry, GenJnlPostLine);
 
@@ -333,7 +333,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             GenJnlLine."Source Currency Code" := "Currency Code";
             GenJnlLine."System-Created Entry" := true;
             Window.Open(UnapplyingMsg);
-            OnBeforePostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2);
+            OnBeforePostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine);
             CollectAffectedLedgerEntries(TempVendorLedgerEntry, DtldVendLedgEntry2);
             GenJnlPostLine.UnapplyVendLedgEntry(GenJnlLine, DtldVendLedgEntry2);
             AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
@@ -554,12 +554,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostApplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnBeforePostApplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 }

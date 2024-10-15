@@ -55,12 +55,9 @@ codeunit 137502 "SCM Dedicated Bins"
         WhseEmployee: Record "Warehouse Employee";
     begin
         WhseEmployee.DeleteAll(true);
-        if DirectedPickPutAway then begin
-            Location.SetRange("Directed Put-away and Pick", true);
-            Location.SetFilter(Code, '<>%1', 'GU*'); // Do not pick locations created by GUID No. Series
-            Location.FindLast;
-            LibraryInventory.UpdateInventoryPostingSetup(Location);
-        end else
+        if DirectedPickPutAway then
+            LibraryWarehouse.CreateFullWMSLocation(Location, 2)
+        else
             LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
         LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location.Code, DirectedPickPutAway);
     end;
@@ -83,11 +80,12 @@ codeunit 137502 "SCM Dedicated Bins"
         FindItemJournal(ItemJournalTemplate, ItemJournalBatch);
         Location.Get(LocationCode);
         if Location."Directed Put-away and Pick" then begin
-            FindWhseJournal(WhseJournalTemplate, WhseJournalBatch, LocationCode);
+            LibraryWarehouse.WarehouseJournalSetup(LocationCode, WhseJournalTemplate, WhseJournalBatch);
             LibraryWarehouse.CreateWhseJournalLine(
               WarehouseJournalLine, WhseJournalTemplate.Name, WhseJournalBatch.Name,
               LocationCode, '', BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
             LibraryWarehouse.PostWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code);
+            Item.SetRange("Location Filter", LocationCode);
             LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
         end else begin
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
@@ -894,7 +892,6 @@ codeunit 137502 "SCM Dedicated Bins"
     end;
 
     [Test]
-    [HandlerFunctions('VSTF190342WMSConfirmHndl')]
     [Scope('OnPrem')]
     procedure VSTF190342WMS()
     var
@@ -917,26 +914,16 @@ codeunit 137502 "SCM Dedicated Bins"
         WarehouseRequest: Record "Warehouse Request";
         WhseActivityHeader: Record "Warehouse Activity Header";
         WhseActivityLine: Record "Warehouse Activity Line";
-        BinType: Record "Bin Type";
         Zone: Record Zone;
     begin
         MessageCounter := 0;
 
         // create two bins- one of them being dedicated. Assign dedicated bin to To-Production Bin Code
         if Location."Directed Put-away and Pick" then begin
-            BinType.SetRange(Receive, false);
-            BinType.SetRange(Ship, false);
-            BinType.SetRange("Put Away", false);
-            BinType.SetRange(Pick, true);
-            BinType.FindFirst;
-            Zone.SetRange("Location Code", Location.Code);
-            Zone.SetRange("Bin Type Code", BinType.Code);
-            Zone.FindLast; // PICK ZONE
+            LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
             CreateBin(Bin, Location.Code, Zone.Code, Zone."Bin Type Code");
-            BinType.SetRange(Pick, false);
-            BinType.FindFirst;
-            Zone.SetRange("Bin Type Code", BinType.Code);
-            Zone.FindLast; // PRODUCTION ZONE
+
+            LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, false, false), false);
             CreateBin(BinDedicated, Location.Code, Zone.Code, Zone."Bin Type Code");
         end else begin
             CreateBin(Bin, Location.Code, '', '');
@@ -1018,15 +1005,6 @@ codeunit 137502 "SCM Dedicated Bins"
             1:
                 Assert.IsTrue(StrPos(Message, VSTF190324Msg1) > 0, 'Unexpected message: ' + Message);
         end;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure VSTF190342WMSConfirmHndl(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // NAVCZ
-        Assert.IsTrue((StrPos(Question, ChangeValueEntriesQst) > 0), 'Incorrect confirm dialog: ' + Question);
-        Reply := true;
     end;
 }
 

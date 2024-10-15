@@ -1065,7 +1065,9 @@ xmlport 31100 "VAT Control Report"
     local procedure CalcTotalAmountsBuffer(var TempVATCtrlRptBuf: Record "VAT Control Report Buffer" temporary)
     begin
         TempVATCtrlRptBuf.Reset;
-        TempVATCtrlRptBuf.SetRange("Corrections for Bad Receivable", TempVATCtrlRptBuf."Corrections for Bad Receivable"::" ");
+        TempVATCtrlRptBuf.SetFilter("Corrections for Bad Receivable", '%1|%2',
+            TempVATCtrlRptBuf."Corrections for Bad Receivable"::" ",
+            TempVATCtrlRptBuf."Corrections for Bad Receivable"::"Bad Receivable (p.46 resp. 74a)");
         TempVATCtrlRptBuf.CalcSums("Base 1", "Base 2", "Base 3");
     end;
 

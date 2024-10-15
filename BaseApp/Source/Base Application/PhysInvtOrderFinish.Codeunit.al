@@ -7,6 +7,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         PhysInvtOrderHeader.Copy(Rec);
         Code;
         Rec := PhysInvtOrderHeader;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -86,6 +88,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
                         PhysInvtOrderLine.Validate("Whse. Net Change Template", GetWhseNetChangeTemplateName(PhysInvtOrderLine)); // NAVCZ
                         PhysInvtOrderLine.CalcCosts;
+
+                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
                         PhysInvtOrderLine.Modify;
                     end;
                 until PhysInvtOrderLine.Next = 0;
@@ -175,15 +179,21 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     local procedure CheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item)
+    var
+        IsHandled: Boolean;
     begin
         with PhysInvtOrderLine do begin
             CheckLine;
             Item.Get("Item No.");
             Item.TestField(Blocked, false);
-            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                 "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
-            then
-                Error(ErrorText);
+
+            IsHandled := false;
+            OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader, IsHandled);
+            if not IsHandled then
+                if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                     "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
+                then
+                    Error(ErrorText);
         end;
     end;
 
@@ -359,6 +369,21 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         if PhysInvtOrderLine."Neg. Qty. (Base)" > 0 then
             exit(InventorySetup."Def.Template for Phys.Neg.Adj");
         exit('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

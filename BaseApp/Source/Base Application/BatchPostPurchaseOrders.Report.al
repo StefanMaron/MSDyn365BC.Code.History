@@ -16,6 +16,8 @@ report 496 "Batch Post Purchase Orders"
                 BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
+                OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq);
+
                 if ReplaceVATDate and (VATDateReq = 0D) then
                     Error(EnterVATDateErr);
 
@@ -189,6 +191,11 @@ report 496 "Batch Post Purchase Orders"
         // NAVCZ
         GLSetup.Get;
         UseVATDate := GLSetup."Use VAT Date";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseBatchPostMgt(var PurchaseHeader: Record "Purchase Header"; var ReceiveReq: Boolean; var InvReq: Boolean)
+    begin
     end;
 }
 

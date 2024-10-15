@@ -449,12 +449,13 @@ page 161 "Purchase Statistics"
         exit('2,0,' + FieldCaption);
     end;
 
-    local procedure UpdateVATOnPurchLines()
+    procedure UpdateVATOnPurchLines()
     var
         PurchLine: Record "Purchase Line";
     begin
         GetVATSpecification;
         if TempVATAmountLine.GetAnyLineModified then begin
+            PurchLine.SetPurchHeader(Rec); // NAVCZ
             PurchLine.UpdateVATOnLines(0, Rec, PurchLine, TempVATAmountLine);
             PurchLine.UpdateVATOnLines(1, Rec, PurchLine, TempVATAmountLine);
         end;

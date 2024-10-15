@@ -16,6 +16,8 @@ report 296 "Batch Post Sales Orders"
                 BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
+                OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq);
+
                 if ReplaceVATDate and (VATDateReq = 0D) then
                     Error(EnterVATDateErr);
 
@@ -185,6 +187,11 @@ report 296 "Batch Post Sales Orders"
         // NAVCZ
         GLSetup.Get;
         UseVATDate := GLSetup."Use VAT Date";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean)
+    begin
     end;
 }
 

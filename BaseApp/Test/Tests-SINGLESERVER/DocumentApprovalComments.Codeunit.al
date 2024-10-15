@@ -1132,6 +1132,55 @@ codeunit 134201 "Document Approval - Comments"
         PostedApprovalCommentLine.TestField(Comment, Comment);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler,ApprovalCommentsModalHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ApprovalCommentCreatedFromPendingApprovalFactBoxShouldHaveNonZeroGUID()
+    var
+        Workflow: Record "Workflow";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        PurchaseHeader: Record "Purchase Header";
+        UserSetup: Record "User Setup";
+        ApprovalCommentLine: Record "Approval Comment Line";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        PurchaseOrder: TestPage "Purchase Order";
+        BlankDateFormula: DateFormula;
+    begin
+        // [SCENARIO 326154] Approval comment for Purchase Document should be saved when created from Pending Approval FactBox
+        Initialize();
+        SetupUsers(UserSetup);
+        SetApprovalAdmin(UserSetup."Approver ID");
+        LibraryWorkflow.DeleteAllExistingWorkflows();
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(
+            Workflow, PurchaseHeader."Document Type"::Order,
+            WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+            WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
+        Workflow.Validate(Template, false);
+        Workflow.Validate(Enabled, true);
+        Workflow.Modify(true);
+
+        // [GIVEN] Purchase Order pending for approval
+        CreatePurchDocumentWithPurchaserCode(PurchaseHeader, PurchaseHeader."Document Type"::Order, UserSetup."Salespers./Purch. Code");
+        ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
+        UpdateApprovalEntryWithTempUser(UserSetup, Database::"Purchase Header", PurchaseHeader."Document Type"::Order, PurchaseHeader."No.");
+
+        // [GIVEN] Approver opens approving record's card (Purchase Order)        
+        PurchaseOrder.OpenView();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+
+        // [WHEN] Approval Comment created from Pending Approval FactBox
+        PurchaseOrder.Control23.Comment.DrillDown();
+
+        // [THEN] Approval Comment Line created with non-zero Workflow Step Instance ID
+        ApprovalCommentLine.SetRange("Record ID to Approve", PurchaseHeader.RecordId);
+        ApprovalCommentLine.FindFirst();
+        Assert.IsFalse(
+            IsNullGuid(ApprovalCommentLine."Workflow Step Instance ID"),
+            'Workflow Step Instance ID has wrong value');
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -1553,6 +1602,14 @@ codeunit 134201 "Document Approval - Comments"
     [PageHandler]
     [Scope('OnPrem')]
     procedure ApprovalCommentsHandler(var ApprovalComments: TestPage "Approval Comments")
+    begin
+        ApprovalComments.Comment.SetValue(LibraryUtility.GenerateGUID);
+        ApprovalComments.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApprovalCommentsModalHandler(var ApprovalComments: TestPage "Approval Comments")
     begin
         ApprovalComments.Comment.SetValue(LibraryUtility.GenerateGUID);
         ApprovalComments.OK.Invoke;

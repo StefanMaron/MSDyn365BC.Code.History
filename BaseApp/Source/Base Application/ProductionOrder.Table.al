@@ -1029,11 +1029,12 @@ table 5405 "Production Order"
 
         if "Location Code" <> '' then begin
             GetLocation("Location Code");
-            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
                 "Bin Code" := Location."From-Production Bin Code";
+                if ("Bin Code" = '') and ("Source No." <> '') then
+                    WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
+            end;
         end;
-        if ("Bin Code" = '') and ("Source No." <> '') then
-            WMSManagement.GetDefaultBin("Source No.", '', "Location Code", "Bin Code");
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -1132,7 +1133,14 @@ table 5405 "Production Order"
     end;
 
     local procedure UpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEndingDate(ProdOrderLine, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ProdOrderLine.FindSet(true) then
             repeat
                 ProdOrderLine."Due Date" := "Due Date";
@@ -1274,6 +1282,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMultiLevelMessage(var IsHandled: Boolean; var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line"; ProdOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 

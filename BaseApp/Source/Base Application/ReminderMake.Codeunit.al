@@ -56,7 +56,7 @@ codeunit 392 "Reminder-Make"
             ReminderTerms.Get(Cust."Reminder Terms Code");
         end;
         if HeaderExists then
-            MakeReminder(ReminderHeader."Currency Code")
+            RetVal := MakeReminder(ReminderHeader."Currency Code")
         else begin
             Currency.DeleteAll;
             CustLedgEntry2.CopyFilters(CustLedgEntry);
@@ -309,10 +309,7 @@ codeunit 392 "Reminder-Make"
 
     local procedure InitReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Integer; Description: Text[100]; var NextLineNo: Integer)
     begin
-        if NextLineNo = 0 then
-            NextLineNo := GetLastLineNo(ReminderHeader."No.") + 10000
-        else
-            NextLineNo := NextLineNo + 10000;
+        NextLineNo := GetLastLineNo(ReminderHeader."No.") + 10000;
 
         ReminderLine.Init;
         ReminderLine."Reminder No." := ReminderNo;

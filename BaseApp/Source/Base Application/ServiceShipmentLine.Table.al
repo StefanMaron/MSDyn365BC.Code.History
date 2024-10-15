@@ -626,6 +626,8 @@ table 5991 "Service Shipment Line"
             NextLineNo := NextLineNo + 10000;
         end;
 
+        OnBeforeInsertInvLineFromShptLineOnAfterInsertTextLine(ServiceLine, Rec, NextLineNo);
+
         TransferOldExtLines.ClearLineNumbers;
 
         repeat
@@ -828,6 +830,11 @@ table 5991 "Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInvLineFromShptLineOnAfterInsertTextLine(var ServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line"; var NextLineNo: Integer)
     begin
     end;
 }

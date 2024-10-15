@@ -27,6 +27,7 @@
                 begin
                     CurrPage.SaveRecord;
                     GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch;
                     CurrPage.Update(false);
                 end;
 
@@ -102,6 +103,7 @@
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         EnableApplyEntriesAction;
+                        CurrPage.SaveRecord;
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -113,6 +115,7 @@
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord;
                     end;
                 }
                 field("Posting Group"; "Posting Group")
@@ -173,13 +176,13 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
@@ -1085,6 +1088,7 @@
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
     end;
 
     trigger OnInit()
@@ -1094,6 +1098,11 @@
         AmountVisible := true;
         GeneralLedgerSetup.Get();
         SetJobQueueVisibility();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

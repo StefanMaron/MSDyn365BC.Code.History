@@ -3977,10 +3977,15 @@ codeunit 99000845 "Reservation Management"
     local procedure IsSpecialOrderOrDropShipment(ReservationEntry: Record "Reservation Entry"): Boolean
     var
         SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
     begin
         if ReservationEntry."Source Type" = DATABASE::"Sales Line" then
             if SalesLine.Get(ReservationEntry."Source Subtype", ReservationEntry."Source ID", ReservationEntry."Source Ref. No.") then
                 if SalesLine."Special Order" or SalesLine."Drop Shipment" then
+                    exit(true);
+        if ReservationEntry."Source Type" = DATABASE::"Purchase Line" then
+            if PurchaseLine.Get(ReservationEntry."Source Subtype", ReservationEntry."Source ID", ReservationEntry."Source Ref. No.") then
+                if PurchaseLine."Special Order" or PurchaseLine."Drop Shipment" then
                     exit(true);
         exit(false);
     end;

@@ -41,6 +41,7 @@ page 2511 "Extension Settings"
                 {
                     ApplicationArea = All;
                     Caption = 'Allow HttpClient Requests';
+                    Editable = HasExtensionManagementPermissions;
                     ToolTip = 'Specifies whether the runtime should allow this extension to make HTTP requests through the HttpClient data type when running in a non-production environment.';
                 }
             }
@@ -65,6 +66,8 @@ page 2511 "Extension Settings"
     end;
 
     trigger OnOpenPage()
+    var
+        NAVAppObjectMetadata: Record "NAV App Object Metadata";
     begin
         if GetFilter("App ID") = '' then
             exit;
@@ -74,11 +77,14 @@ page 2511 "Extension Settings"
             Init();
             Insert();
         end;
+
+        HasExtensionManagementPermissions := NAVAppObjectMetadata.ReadPermission();
     end;
 
     var
         AppName: Text;
         AppPublisher: Text;
         AppId: Text;
+        HasExtensionManagementPermissions: Boolean;
 }
 

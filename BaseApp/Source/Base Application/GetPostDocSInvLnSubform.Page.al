@@ -404,7 +404,15 @@
     end;
 
     local procedure IsShowRec(SalesInvLine2: Record "Sales Invoice Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsShowRec(Rec, SalesInvLine2, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         with SalesInvLine2 do begin
             QtyNotReturned := 0;
             if "Document No." <> SalesInvHeader."No." then
@@ -471,6 +479,11 @@
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsShowRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesInvoiceLine2: Record "Sales Invoice Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

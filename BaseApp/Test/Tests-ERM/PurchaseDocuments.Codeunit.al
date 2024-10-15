@@ -864,6 +864,29 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader.TestField("Purchaser Code", SalespersonPurchaser.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderDateOnPurchaseDocumentIsInitializedWithWorkDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocType: Option;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 327504] Order Date on purchase documents is initialized with WORKDATE. This is required to pick the current purchase price.
+        Initialize;
+
+        for DocType := PurchaseHeader."Document Type"::Quote to PurchaseHeader."Document Type"::"Return Order" do begin
+            Clear(PurchaseHeader);
+            CreatePurchaseDocument(PurchaseHeader, DocType, '');
+
+            PurchaseHeader.TestField("Order Date", WorkDate);
+
+            LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+            PurchaseLine.TestField("Order Date", WorkDate);
+        end;
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";

@@ -412,6 +412,8 @@ table 297 "Issued Reminder Header"
             DocumentSendingProfile.TrySendToPrinter(
               DummyReportSelections.Usage::Reminder, Rec,
               IssuedReminderHeaderToSend.FieldNo("Customer No."), ShowRequestForm);
+
+        OnAfterPrintRecords(Rec, ShowRequestForm, SendAsEmail, HideDialog);
     end;
 
     procedure Navigate()
@@ -451,6 +453,11 @@ table 297 "Issued Reminder Header"
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"Line Fee");
         IssuedReminderLine.CalcSums("VAT Amount");
         exit(IssuedReminderLine."VAT Amount");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintRecords(var IssuedReminderHeader: Record "Issued Reminder Header"; ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

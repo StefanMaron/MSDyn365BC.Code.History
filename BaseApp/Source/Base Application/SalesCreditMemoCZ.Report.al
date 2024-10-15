@@ -445,7 +445,7 @@ report 31097 "Sales - Credit Memo CZ"
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                             CurrReport.Skip;
-                        VATClause.TranslateDescription("Sales Cr.Memo Header"."Language Code");
+                        VATClause.GetDescription("Sales Cr.Memo Header");
                     end;
 
                     trigger OnPreDataItem()

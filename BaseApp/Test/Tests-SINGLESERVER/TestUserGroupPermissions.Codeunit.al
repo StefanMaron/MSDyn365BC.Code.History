@@ -805,6 +805,71 @@ codeunit 134610 "Test User Group Permissions"
     end;
 
     [Test]
+    [HandlerFunctions('AddSubractPermissionSetHandlerAdd,PermissionSetListHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestAddTenantPermissionSetToSystemPermissionSet()
+    var
+        SourceTenantPermissionSet: Record "Tenant Permission Set";
+        DestPermissionSet: Record "Permission Set";
+        TenantPermission: Record "Tenant Permission";
+        Permission: Record Permission;
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        AddSubtractPermissionSet: Report "Add/Subtract Permission Set";
+        ZeroGuid: Guid;
+    begin
+        // [SCENARIO 292106] Add tenant permission set to system permission set via report 9000 "Add/Subtract Permission Set"
+        // [GIVEN] System permission set "PS1"
+        LibraryPermissions.CreatePermissionSet(DestPermissionSet, '');
+        // [GIVEN] Tenant permission set "PS2" with permissions "PS2_1", "PS2_2", "PS2_3"
+        LibraryPermissions.CreateTenantPermissionSet(SourceTenantPermissionSet, '', ZeroGuid);
+        LibraryPermissions.AddTenantPermission(
+          ZeroGuid, SourceTenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Header");
+        LibraryPermissions.AddTenantPermission(
+          ZeroGuid, SourceTenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", DATABASE::"Purchase Header");
+        // [WHEN] Run "Add/Substract Permission Set" report
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGuid, DestPermissionSet."Role ID");
+        GlobalSourcePermissionSetRoleID := SourceTenantPermissionSet."Role ID";
+        AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
+        AddSubtractPermissionSet.RunModal; // triggers AddSubractPermissionSetHandler
+        // [THEN] "PS1" has permissions "PS1_1", "PS1_2", "PS1_3" equal to "PS2_1", "PS2_2", "PS2_3"
+        Permission.SetRange("Role ID", DestPermissionSet."Role ID");
+        Assert.AreEqual(2, Permission.Count, '');
+        TestCleanup;
+    end;
+
+    [Test]
+    [HandlerFunctions('AddSubractPermissionSetHandlerAdd,PermissionSetListHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestAddSystemPermissionSetToSystemPermissionSet()
+    var
+        SourcePermissionSet: Record "Permission Set";
+        DestPermissionSet: Record "Permission Set";
+        Permission: Record Permission;
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        AddSubtractPermissionSet: Report "Add/Subtract Permission Set";
+        ZeroGuid: Guid;
+    begin
+        // [SCENARIO 292106] Add system permission set to system permission set via report 9000 "Add/Subtract Permission Set"
+        // [GIVEN] System permission set "PS1"
+        LibraryPermissions.CreatePermissionSet(DestPermissionSet, '');
+        // [GIVEN] System permission set "PS2" with permissions "PS2_1", "PS2_2", "PS2_3"
+        LibraryPermissions.CreatePermissionSet(SourcePermissionSet, '');
+        LibraryPermissions.AddPermission(SourcePermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"Sales Header");
+        LibraryPermissions.AddPermission(SourcePermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"Purchase Header");
+        // [WHEN] Run "Add/Substract Permission Set" report
+        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGuid, DestPermissionSet."Role ID");
+        GlobalSourcePermissionSetRoleID := SourcePermissionSet."Role ID";
+        AddSubtractPermissionSet.SetDestination(AggregatePermissionSet);
+        AddSubtractPermissionSet.RunModal; // triggers AddSubractPermissionSetHandler
+        // [THEN] "PS1" has permissions "PS1_1", "PS1_2", "PS1_3" equal to "PS2_1", "PS2_2", "PS2_3"
+        Permission.SetRange("Role ID", DestPermissionSet."Role ID");
+        Assert.AreEqual(2, Permission.Count, '');
+        TestCleanup;
+    end;
+
+    [Test]
     [HandlerFunctions('AddSubractPermissionSetHandlerSubtract,PermissionSetListHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -1062,6 +1127,8 @@ codeunit 134610 "Test User Group Permissions"
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[1]."Role ID");
 
         // [WHEN] Add user group "B"
+        UserCard.UserGroups.LAST;
+        UserCard.UserGroups.NEXT;
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[2].Code);
         UserCard.UserGroups.Next;
 

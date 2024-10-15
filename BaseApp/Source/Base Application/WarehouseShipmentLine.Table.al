@@ -869,7 +869,14 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     procedure InitOutstandingQtys()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitOutstandingQtys(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         Validate("Qty. Outstanding", Quantity - "Qty. Shipped");
         "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Shipped (Base)";
     end;
@@ -985,6 +992,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompareShipAndPickQty(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitOutstandingQtys(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

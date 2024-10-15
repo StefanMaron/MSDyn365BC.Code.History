@@ -33,7 +33,7 @@ codeunit 230 GenJnlManagement
         // NAVCZ
         if not RecurringJnl then
             GenJnlTemplate.SetRange(Type, PageTemplate);
-        OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate);
+        OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate, RecurringJnl);
 
         case GenJnlTemplate.Count of
             0:
@@ -368,7 +368,11 @@ codeunit 230 GenJnlManagement
         TempGenJnlLine: Record "Gen. Journal Line";
     begin
         TempGenJnlLine.CopyFilters(GenJnlLine);
-        ShowTotalBalance := TempGenJnlLine.CalcSums("Balance (LCY)");
+        if CurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api] then
+            ShowTotalBalance := false
+        else
+            ShowTotalBalance := TempGenJnlLine.CalcSums("Balance (LCY)");
+
         if ShowTotalBalance then begin
             TotalBalance := TempGenJnlLine."Balance (LCY)";
             if GenJnlLine."Line No." = 0 then
@@ -434,7 +438,7 @@ codeunit 230 GenJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option)
+    local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option; var RecurringJnl: Boolean)
     begin
     end;
 }

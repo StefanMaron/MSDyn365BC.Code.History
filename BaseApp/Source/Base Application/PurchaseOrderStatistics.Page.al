@@ -1020,8 +1020,10 @@ page 403 "Purchase Order Statistics"
         PurchLine: Record "Purchase Line";
     begin
         GetVATSpecification(ActiveTab);
-        if TempVATAmountLine1.GetAnyLineModified then
+        if TempVATAmountLine1.GetAnyLineModified then begin
+            PurchLine.SetPurchHeader(Rec); // NAVCZ
             PurchLine.UpdateVATOnLines(0, Rec, PurchLine, TempVATAmountLine1);
+        end;
         if TempVATAmountLine2.GetAnyLineModified then
             PurchLine.UpdateVATOnLines(1, Rec, PurchLine, TempVATAmountLine2);
         PrevNo := '';

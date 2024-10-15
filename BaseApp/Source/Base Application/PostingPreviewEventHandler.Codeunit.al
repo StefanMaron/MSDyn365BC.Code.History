@@ -293,6 +293,18 @@ codeunit 20 "Posting Preview Event Handler"
         TempCustLedgEntry.Insert;
     end;
 
+    [EventSubscriber(ObjectType::Table, 21, 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyCustLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        TempCustLedgEntry := Rec;
+        TempCustLedgEntry."Document No." := '***';
+        if TempCustLedgEntry.Modify then
+            PreventCommit;
+    end;
+
     [EventSubscriber(ObjectType::Table, 379, 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertDetailedCustLedgEntry(var Rec: Record "Detailed Cust. Ledg. Entry"; RunTrigger: Boolean)
     begin
@@ -315,6 +327,18 @@ codeunit 20 "Posting Preview Event Handler"
         TempVendLedgEntry := Rec;
         TempVendLedgEntry."Document No." := '***';
         TempVendLedgEntry.Insert;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 25, 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnModifyVendorLedgerEntry(var Rec: Record "Vendor Ledger Entry"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        TempVendLedgEntry := Rec;
+        TempVendLedgEntry."Document No." := '***';
+        if TempVendLedgEntry.Modify then
+            PreventCommit;
     end;
 
     [EventSubscriber(ObjectType::Table, 380, 'OnAfterInsertEvent', '', false, false)]

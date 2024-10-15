@@ -7,10 +7,10 @@ codeunit 2002 "Azure AI Tracing"
     end;
 
     var
-        AzureAICategoryTxt: Label 'AL Azure AI', Comment = 'Locked';
-        TraceImageAnalysisSuccessTagsTxt: Label 'Number of Image Analysis calls: %1;Limit: %2;Period type: %3;Execution time: %4 ms;Confidence: %5.', Comment = 'Locked';
+        AzureAICategoryTxt: Label 'AL Azure AI', Locked = true;
+        TraceImageAnalysisSuccessTagsTxt: Label 'Number of Image Analysis calls: %1;Limit: %2;Period type: %3;Execution time: %4 ms;Confidence: %5.', Locked = true;
         AnalysisStartTime: DateTime;
-        TraceImageAnalysisSuccessTxt: Label 'Number of Image Analysis calls: %1;Limit: %2;Period type: %3;Execution time: %4 ms.', Comment = 'Locked';
+        TraceImageAnalysisSuccessTxt: Label 'Number of Image Analysis calls: %1;Limit: %2;Period type: %3;Execution time: %4 ms.', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, 2020, 'OnBeforeImageAnalysis', '', false, false)]
     local procedure TraceImageAnalysisStart(var Sender: Codeunit "Image Analysis Management")

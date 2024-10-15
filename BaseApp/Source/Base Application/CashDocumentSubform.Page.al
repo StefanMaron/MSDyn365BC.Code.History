@@ -56,6 +56,11 @@ page 11731 "Cash Document Subform"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = AccountTypeIsFilled;
                     ToolTip = 'Specifies the number of the account that the entry on the journal line will be posted to.';
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field(Description; Description)
                 {

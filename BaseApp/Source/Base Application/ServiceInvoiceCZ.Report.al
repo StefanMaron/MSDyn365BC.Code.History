@@ -424,7 +424,7 @@ report 31088 "Service - Invoice CZ"
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                             CurrReport.Skip;
-                        VATClause.TranslateDescription("Service Invoice Header"."Language Code");
+                        VATClause.GetDescription("Service Invoice Header");
                     end;
 
                     trigger OnPreDataItem()

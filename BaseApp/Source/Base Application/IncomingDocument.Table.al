@@ -1122,6 +1122,7 @@ table 130 "Incoming Document"
             DocumentType::"Credit Memo":
                 SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         end;
+        OnBeforeCreateSalesHeaderFromIncomingDoc(SalesHeader);
         SalesHeader.Insert(true);
         OnAfterCreateSalesHeaderFromIncomingDoc(SalesHeader);
         if GetURL <> '' then
@@ -2076,7 +2077,7 @@ table 130 "Incoming Document"
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2255,6 +2256,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDocumentFields(var IncomingDocument: Record "Incoming Document"; var DocExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCreateSalesHeaderFromIncomingDoc(var SalesHeader: Record "Sales Header")
     begin
     end;
 

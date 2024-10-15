@@ -901,6 +901,8 @@ report 594 "Get Item Ledger Entries"
             end;
             TotalCostAmt2 := TotalCostAmt; // NAVCZ
         end;
+
+        OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
 
     local procedure IsJobService(JobLedgEntry: Record "Job Ledger Entry"): Boolean
@@ -1302,6 +1304,11 @@ report 594 "Get Item Ledger Entries"
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetFilter("Invoiced Quantity", '<>%1', 0);
         exit(ValueEntry.FindFirst);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

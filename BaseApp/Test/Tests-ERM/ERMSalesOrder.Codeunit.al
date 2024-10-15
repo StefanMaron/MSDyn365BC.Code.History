@@ -2,6 +2,7 @@ codeunit 134378 "ERM Sales Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -53,6 +54,7 @@ codeunit 134378 "ERM Sales Order"
         SalesLineGetLineAmountToHandleErr: Label 'Incorrect amount returned by SalesLine.GetLineAmountToHandle().';
         QuoteNoMustBeVisibleErr: Label 'Quote No. must be visible.';
         QuoteNoMustNotBeVisibleErr: Label 'Quote No. must not be visible.';
+        ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -106,6 +108,36 @@ codeunit 134378 "ERM Sales Order"
 
         // Tear Down: Cleanup of Setup Done.
         LibrarySales.SetStockoutWarning(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWhileModifyingLineDuringPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        ERMSalesOrder: Codeunit "ERM Sales Order";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 315920] Line is getting refreshed inside posting of Invoice.
+
+        Initialize;
+        // [GIVEN] Create Order, where Description is 'A' in the line.
+        CreateSalesOrder(SalesHeader, SalesLine);
+        SalesLine.validate(Quantity, 2);
+        SalesLine.validate("Unit Price", 10);
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine."Description 2" := 'A';
+        SalesLine.Modify(true);
+
+        // [GIVEN] Subscribe to COD80.OnBeforePostUpdateOrderLineModifyTempLine to set Description to 'X'
+        BindSubscription(ERMSalesOrder);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Description is still 'A', not changed
+        SalesInvoiceLine.Get(PostedDocumentNo, SalesLine."Line No.");
+        SalesInvoiceLine.TestField("Description 2", 'A');
     end;
 
     [Test]
@@ -1416,7 +1448,7 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
 
         // Verify: Verify Quantity after Undo Shipment on Posted Sales Shipment And Quantity to Ship is blank on Sales Line.
-        VerifyUndoShipmentLineOnPostedShipment(SalesLine."Document No.", SalesLine."Qty. to Ship");
+        VerifyUndoShipmentLineOnPostedShipment(SalesLine);
         VerifyQuantitytoShipOnSalesLine(SalesHeader."No.", SalesHeader."Document Type");
     end;
 
@@ -3595,6 +3627,355 @@ codeunit 134378 "ERM Sales Order"
         ItemChargeSalesLine.TestField("Qty. Assigned", ItemChargeSalesLine.Quantity);
     end;
 
+    [Scope('OnPrem')]
+    procedure CheckNotHandlerCreationSalesOrderForResource()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        // [FEATURE] [Sales Order]
+        // [SCENARIO 320976] For Inventoriable item type changing Location Code to new one in Sales Order should not send notification
+
+        Initialize;
+
+        // [GIVEN] My Notification for Posting Setup is created and enabled
+        SetupMyNotificationsForPostingSetup;
+
+        // [GIVEN] New Location is created
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Sales Order is created with Type = Resource
+        CreateSalesOrder(SalesHeader, SalesLine);
+        SalesLine.Validate(Type, SalesLine.Type::Resource);
+
+        // [WHEN] Change Location Code to Location.Code value
+        SalesLine.Validate("Location Code", Location.Code);
+
+        // [THEN] The Massage handled successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CheckNotHandlerCreationSalesOrderForItem()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        // [FEATURE] [Sales Order]
+        // [SCENARIO 320976] For inventoriable item type changing Location Code to new one in Sales Order should send notification
+
+        Initialize;
+
+        // [GIVEN] My Notification for Posting Setup is created and enabled
+        SetupMyNotificationsForPostingSetup;
+
+        // [GIVEN] New Location is created
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Sales Order is created with Type = Item
+        CreateSalesOrder(SalesHeader, SalesLine);
+
+        // [WHEN] Change Location Code to Location.Code value
+        SalesLine.Validate("Location Code", Location.Code);
+
+        // [THEN] The Massage handled successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesShipmentLineResource()
+    var
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Undo shipment] [Resource]
+        // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of Recource type
+        Initialize;
+
+        // [GIVEN] Create and post shipment of sales order with Resource type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
+        CreatePostSalesOrderForUndoShipment(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::Resource,
+            Resource."No.");
+
+        FindSalesShipmentLine(SalesShipmentLine, SalesLine."Document No.");
+
+        // [WHEN] Undo sales shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment
+        VerifyUndoShipmentLineOnPostedShipment(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesShipmentLineChargeItem()
+    var
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: Record "Item Charge";
+    begin
+        // [FEATURE] [Undo shipment] [Item charge]
+        // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of Charge (Item) type
+        Initialize;
+
+        // [GIVEN] Create and post shipment of sales order with Charge (Item) type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        CreatePostSalesOrderForUndoShipment(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::"Charge (Item)",
+            ItemCharge."No.");
+
+        FindSalesShipmentLine(SalesShipmentLine, SalesLine."Document No.");
+
+        // [WHEN] Undo sales shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment
+        VerifyUndoShipmentLineOnPostedShipment(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesShipmentLineGLAccount()
+    var
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DummyGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Undo shipment] [Item charge]
+        // [SCENARIO 289385] Stan is able to undo shipment for sales shipment line of G/L Account type
+        Initialize;
+
+        // [GIVEN] Create and post shipment of sales order with G/L Account type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        CreatePostSalesOrderForUndoShipment(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale));
+
+        FindSalesShipmentLine(SalesShipmentLine, SalesLine."Document No.");
+
+        // [WHEN] Undo sales shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] Verify Quantity after Undo Shipment
+        VerifyUndoShipmentLineOnPostedShipment(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesReceiptLineResource()
+    var
+        SalesLine: Record "Sales Line";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Undo receipt] [Resource]
+        // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of Recource type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of sales return order with Resource type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
+        CreatePostSalesReturnOrderForUndoReceipt(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::Resource,
+            Resource."No.");
+
+        FindReturnReceiptLine(ReturnReceiptLine, SalesLine."Document No.");
+
+        // [WHEN] Undo return receipt.
+        LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesReceiptLineChargeItem()
+    var
+        SalesLine: Record "Sales Line";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemCharge: Record "Item Charge";
+    begin
+        // [FEATURE] [Undo receipt] [Item charge]
+        // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of Charge (Item) type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of sales return order with Charge (Item) type line
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        CreatePostSalesReturnOrderForUndoReceipt(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::"Charge (Item)",
+            ItemCharge."No.");
+
+        FindReturnReceiptLine(ReturnReceiptLine, SalesLine."Document No.");
+
+        // [WHEN] Undo return receipt
+        LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoSalesReceiptLineGLAccount()
+    var
+        SalesLine: Record "Sales Line";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DummyGLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Undo receipt] [G/L Account]
+        // [SCENARIO 289385] Stan is able to undo receipt for return receipt line of G/L Account type
+        Initialize;
+
+        // [GIVEN] Create and post receipt of sales return order with G/L Account line type
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        CreatePostSalesReturnOrderForUndoReceipt(
+            SalesLine,
+            VATPostingSetup,
+            SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale));
+
+        FindReturnReceiptLine(ReturnReceiptLine, SalesLine."Document No.");
+
+        // [WHEN] Undo return receipt.
+        LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
+
+        // [THEN] Verify Quantity after Undo Receipt
+        VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure SalesOrderSellToEmailIsChangedWhenChangingSellToContactNo()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Contact] [UT]
+        // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's not empty.
+        Initialize;
+
+        // [GIVEN] Sales order for Customer with Contact with non-empty E-mail.
+        CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, LibraryUtility.GenerateRandomEmail);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Sell-to Contact No. is changed.
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+
+        // [THEN] Sell-to Email is changed.
+        Assert.AreEqual(Contact."E-Mail", SalesHeader."Sell-to E-Mail", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure SalesOrderSellToEmailIsChangedWhenChangingSellToContactNoToEmptyEmail()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Contact] [UT]
+        // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's empty and Stan accepts the change..
+        Initialize;
+
+        // [GIVEN] Sales order for Customer with Contact with empty E-mail.
+        CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, '');
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Sell-to Contact No. is changed and Stan accepts the change.
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+
+        // [THEN] Sell-to Email is changed to blank.
+        Assert.AreEqual(Contact."E-Mail", SalesHeader."Sell-to E-Mail", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNoToChangingEmail')]
+    [Scope('OnPrem')]
+    procedure SalesOrderSellToEmailIsNotChangedWhenChangingSellToContactNoToEmptyEmail()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Contact] [UT]
+        // [SCENARIO 323845] Changing Sell-to Contact No. on Sales Order changes Sell-to Email when it's empty and Stan rejects the change..
+        Initialize;
+
+        // [GIVEN] Sales order for Customer with Contact with empty E-mail.
+        CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, '');
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Sell-to Contact No. is changed and Stan rejects the change.
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+
+        // [THEN] Sell-to Email is not changed.
+        Assert.AreEqual(Customer."E-Mail", SalesHeader."Sell-to E-Mail", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure SalesOrderSellToPhoneNoIsChangedWhenChangingSellToContactNo()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Contact] [UT]
+        // [SCENARIO 323845] Changing Sell-to Contact No on Sales Order changes Sell-to Phone No.
+        Initialize;
+
+        // [GIVEN] Sales order for Customer with Contact with Phone No.
+        CreateCustomerWithContactWithEmailAndPhone(Customer, Contact, LibraryUtility.GenerateRandomEmail);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Sell-to Contact No. is changed.
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+
+        // [THEN] Sell-to Phone No. is changed.
+        Assert.AreEqual(Contact."Phone No.", SalesHeader."Sell-to Phone No.", '');
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -3716,6 +4097,33 @@ codeunit 134378 "ERM Sales Order"
         Customer.Validate("Currency Code", CurrencyCode);
         Customer.Modify(true);
         exit(Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithContactWithEmailAndPhone(var Customer: Record Customer; var Contact: Record Contact; Email: Text)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer."No.");
+        ContactBusinessRelation.FindFirst;
+        with Contact do begin
+            Get(ContactBusinessRelation."Contact No.");
+            Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+            Validate("Phone No.", LibraryUtility.GenerateRandomNumericText(MaxStrLen("Phone No.")));
+            Modify(true);
+            Customer.Contact := Name;
+            Customer."E-Mail" := "E-Mail";
+            Customer."Phone No." := "Phone No.";
+            Customer.Modify;
+
+            Type := Type::Person;
+            "No." := '';
+            Name := LibraryUtility.GenerateGUID;
+            "E-Mail" := CopyStr(Email, 1, StrLen("E-Mail"));
+            "Phone No." := CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen("Phone No.")), 1, MaxStrLen("Phone No."));
+            Insert(true);
+        end;
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -3940,6 +4348,50 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
+    local procedure CreatePostSalesOrderForUndoShipment(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            AccountType,
+            AccountNo,
+            LibraryRandom.RandDec(20, 2),
+            LibraryRandom.RandDec(100, 2));
+
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / LibraryRandom.RandIntInRange(2, 4)); // To make sure Qty. to ship must be less than Quantity.
+        SalesLine.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreatePostSalesReturnOrderForUndoReceipt(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::"Return Order",
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            AccountType,
+            AccountNo,
+            LibraryRandom.RandDec(20, 2),
+            LibraryRandom.RandDec(100, 2));
+
+        SalesLine.Validate("Return Qty. to Receive", SalesLine.Quantity / LibraryRandom.RandIntInRange(2, 4));
+        SalesLine.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
     local procedure EnableFindRecordByNo()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -3959,6 +4411,12 @@ codeunit 134378 "ERM Sales Order"
     begin
         SalesShipmentLine.SetRange("Order No.", OrderNo);
         SalesShipmentLine.FindFirst;
+    end;
+
+    local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; ReturnOrderNo: Code[20])
+    begin
+        ReturnReceiptLine.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnReceiptLine.FindFirst;
     end;
 
     local procedure SalesLinesWithMinimumQuantity(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
@@ -5053,13 +5511,26 @@ codeunit 134378 "ERM Sales Order"
         until SalesLine.Next = 0;
     end;
 
-    local procedure VerifyUndoShipmentLineOnPostedShipment(DocumentNo: Code[20]; QtyToShip: Decimal)
+    local procedure VerifyUndoShipmentLineOnPostedShipment(SalesLine: Record "Sales Line")
     var
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        SalesShipmentLine.SetRange("Order No.", DocumentNo);
+        SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
+        SalesShipmentLine.SetRange(Type, SalesLine.Type);
+        SalesShipmentLine.SetRange("No.", SalesLine."No.");
         SalesShipmentLine.FindLast;
-        SalesShipmentLine.TestField(Quantity, -1 * QtyToShip);
+        SalesShipmentLine.TestField(Quantity, -1 * SalesLine."Qty. to Ship");
+    end;
+
+    local procedure VerifyUndoReceiptLineOnPostedReturnReceipt(SalesLine: Record "Sales Line")
+    var
+        ReturnReceiptLine: Record "Return Receipt Line";
+    begin
+        ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
+        ReturnReceiptLine.SetRange(Type, SalesLine.Type);
+        ReturnReceiptLine.SetRange("No.", SalesLine."No.");
+        ReturnReceiptLine.FindLast;
+        ReturnReceiptLine.TestField(Quantity, -1 * SalesLine."Return Qty. to Receive");
     end;
 
     local procedure VerifyDimSetIDOnItemLedgEntry(ExpectedDimSetID: Integer)
@@ -5163,6 +5634,19 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
+    local procedure SetupMyNotificationsForPostingSetup()
+    var
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        MyNotifications.InsertDefaultWithTableNum(
+          PostingSetupManagement.GetPostingSetupNotificationID,
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
+          DATABASE::"G/L Account");
+        MyNotifications.Enabled := true;
+        MyNotifications.Modify;
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: Page Navigate)
@@ -5194,6 +5678,13 @@ codeunit 134378 "ERM Sales Order"
     procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNoToChangingEmail(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := Question <> ConfirmEmptyEmailQst;
     end;
 
     [StrMenuHandler]
@@ -5270,6 +5761,16 @@ codeunit 134378 "ERM Sales Order"
         Commit;
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.RunModal;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
+    local procedure OnBeforePostUpdateOrderLineModifyTempLineHandler(var TempSalesLine: Record "Sales Line" temporary; WhseShip: Boolean; WhseReceive: Boolean; CommitIsSuppressed: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Get(TempSalesLine.RecordId);
+        SalesLine."Description 2" := 'x';
+        SalesLine.Modify();
     end;
 
     [ModalPageHandler]

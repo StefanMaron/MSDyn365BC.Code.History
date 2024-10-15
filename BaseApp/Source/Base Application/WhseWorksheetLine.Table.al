@@ -615,11 +615,13 @@ table 7326 "Whse. Worksheet Line"
             LockTable;
             if Find('-') then
                 repeat
-                    Validate("Qty. to Handle", "Qty. Outstanding");
-                    Modify;
-                    if not NotEnough then
-                        if "Qty. to Handle" < "Qty. Outstanding" then
-                            NotEnough := true;
+                    if "Qty. to Handle" <> "Qty. Outstanding" then begin
+                        Validate("Qty. to Handle", "Qty. Outstanding");
+                        Modify;
+                        if not NotEnough then
+                            if "Qty. to Handle" < "Qty. Outstanding" then
+                                NotEnough := true;
+                    end;
                 until Next = 0;
             SetHideValidationDialog(false);
             if NotEnough then

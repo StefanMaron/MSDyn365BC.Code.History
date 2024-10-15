@@ -143,7 +143,9 @@ table 210 "Job Journal Line"
                 ItemUoM: Record "Item Unit of Measure";
                 IntegerText: Label 'must be integral number';
             begin
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 UpdateAllAmounts;
 
                 if "Job Planning Line No." <> 0 then
@@ -890,7 +892,9 @@ table 210 "Job Journal Line"
                             "Remaining Qty." := 0;
                     end;
                 end;
-                "Remaining Qty. (Base)" := UOMMgt.CalcBaseQty("Remaining Qty.", "Qty. per Unit of Measure");
+                "Remaining Qty. (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "No.", "Variant Code", "Unit of Measure Code", "Remaining Qty.", "Qty. per Unit of Measure");
 
                 CheckItemAvailable;
             end;

@@ -52,8 +52,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
-                        PAGE.RunModal(PAGE::"Posted Sales Credit Memo", Rec)
+                        DoDrillDown;
                     end;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
@@ -63,8 +62,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        SetRange("No.");
-                        PAGE.RunModal(PAGE::"Posted Sales Credit Memo", Rec)
+                        DoDrillDown;
                     end;
                 }
                 field("Remaining Amount"; "Remaining Amount")
@@ -520,6 +518,15 @@
         SalesCrMemoHeader.CopyFilters(Rec);
         SalesCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not SalesCrMemoHeader.IsEmpty;
+    end;
+
+    local procedure DoDrillDown()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        SalesCrMemoHeader.Copy(Rec);
+        SalesCrMemoHeader.SetRange("No.");
+        PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
     end;
 
     var
