@@ -183,6 +183,11 @@
                     ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
                 }
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the location that the entry is linked to.';
+                }
             }
             group(Control40)
             {
@@ -278,7 +283,7 @@
                         IntrastatJnlLine.CopyFilters(Rec);
                         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        REPORT.RunModal(REPORT::"Create Intrastat Decl. Disk", false, false, IntrastatJnlLine);
+                        REPORT.RunModal(REPORT::"Create Intrastat Decl. Disk", true, false, IntrastatJnlLine);
                     end;
                 }
             }

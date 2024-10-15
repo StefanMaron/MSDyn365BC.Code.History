@@ -685,6 +685,44 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         VerifyBeginningOfXMLFile(ExportFileName, '<?xml');
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySEPAPmtInfGenerateChecksumFalse()
+    var
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 363158] Report 11000013 SEPA ISO20022 Pain 008.001.0 does not contain generate Checksum 
+        // in Payment History if Generate Checksum is set to false
+
+        Initialize;
+
+        // [WHEN] Report 11000013 SEPA ISO20022 Pain 008.001.02 is exported to file
+        ExportMultilinePayment(BankAccountNo, 2, false, true);
+        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, false, false);
+        ExportSEPAFile(BankAccountNo);
+
+        // [THEN] Checksum field in the Payment History is left empty 
+        LibraryNLLocalization.VerifyPaymentHistoryChecksum(BankAccountNo, false, ExportProtocol.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySEPAPmtInfGenerateChecksumTrue()
+    var
+        BankAccountNo: code[20];
+    begin
+        // [SCENARIO 363159] Report SEPA ISO20022 Pain 008.001.02 generates Checksum
+        // in Payment History if Generate Checksum is set to true
+        Initialize;
+        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, true, false);
+        ExportMultilinePayment(BankAccountNo, 1, false, false);
+
+        // [THEN] Checksum field in the Payment History is populated
+        LibraryNLLocalization.VerifyPaymentHistoryChecksum(BankAccountNo, true, ExportProtocol.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
@@ -1255,7 +1293,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PaymentHistoryLine: Record "Payment History Line";
     begin
         FindPaymentHistoryLines(BankAccountNo, PaymentHistoryLine);
-        PaymentHistoryLine.FindSet;
+        PaymentHistoryLine.FindSet();
         repeat
             Assert.AreEqual(PaymentHistoryLine.Status::Rejected, PaymentHistoryLine.Status, PaymentHistoryLine.FieldCaption(Status));
             Assert.AreEqual(

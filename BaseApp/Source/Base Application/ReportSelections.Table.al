@@ -755,7 +755,7 @@
                 end;
 
         EmailAddress := GetEmailAddressForCust(CustNo, ReportUsage);
-        OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage, RecordVariant, TempBodyReportSelections, EmailAddress);
+        OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage, RecordVariant, TempBodyReportSelections, EmailAddress, CustNo);
         if EmailAddress <> '' then
             exit(EmailAddress);
 
@@ -1438,6 +1438,7 @@
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FilePath := CopyStr(FileMgt.ServerTempFileName('html'), 1, 250);
 
+        OnSaveReportAsHTMLOnBeforeSetTempLayoutSelected(RecordVariant, ReportUsage, ReportID, LayoutCode);
         ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
         REPORT.SaveAsHtml(ReportID, FilePath, RecordVariant);
         ReportLayoutSelection.SetTempLayoutSelected('');
@@ -1864,7 +1865,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250])
+    local procedure OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250]; CustNo: Code[20])
     begin
     end;
 
@@ -1900,6 +1901,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailToVendorOnAfterSetParameterString(var RecRef: RecordRef; var ParameterString: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveReportAsHTMLOnBeforeSetTempLayoutSelected(RecordVariant: Variant; ReportUsage: Enum "Report Selection Usage"; var ReportID: Integer; var LayoutCode: Code[20])
     begin
     end;
 }

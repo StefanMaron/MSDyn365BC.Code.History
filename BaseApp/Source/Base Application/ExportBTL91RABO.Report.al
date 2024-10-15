@@ -109,7 +109,7 @@ report 11000010 "Export BTL91-RABO"
                             TotalrecordInfo(
                               TempfileAccumulatives."Currency Code", TempfileAccumulatives.Amount, TempfileAccumulatives."No. of Net Change");
                             CurrencyCounter := CurrencyCounter + 1;
-                        until TempfileAccumulatives.Next = 0;
+                        until TempfileAccumulatives.Next() = 0;
                     ClosingrecordInfo((Paymenthistorylinecounter * 4) + 2 + CurrencyCounter, Paymenthistorylinecounter);
                     Closefile(Currfile);
                 end;
@@ -119,7 +119,7 @@ report 11000010 "Export BTL91-RABO"
             begin
                 Paymenthistorylinecounter := 0;
                 TotAmount := 0;
-
+                ExportProtocolCode := "Export Protocol";
                 ClientFileName := GenerateExportfilename(NewFilenames);
                 Openfile(Currfile);
                 Exported := true;
@@ -234,6 +234,7 @@ report 11000010 "Export BTL91-RABO"
         CurrencyCounter: Integer;
         RBMgt: Codeunit "File Management";
         ClientFileName: Text;
+        ExportProtocolCode: Code[20];
 
     [Scope('OnPrem')]
     procedure HeaderInfo(AcctHolder: Text[100]; Address: Text[100]; City: Text[50]; "Country Code": Code[50]; "Exchange bank": Text[30])
@@ -385,11 +386,13 @@ report 11000010 "Export BTL91-RABO"
     [Scope('OnPrem')]
     procedure Closefile(var CFile: File)
     var
+        ReportChecksum: Codeunit "Report Checksum";
         ServerFileName: Text[1024];
     begin
         ServerFileName := CFile.Name;
         CFile.Trunc;
         CFile.Close;
+        ReportChecksum.GenerateChecksum("Payment History", ServerFileName, ExportProtocolCode);
 
         if RBMgt.IsLocalFileSystemAccessible then
             RBMgt.DownloadToFile(ServerFileName, ClientFileName)

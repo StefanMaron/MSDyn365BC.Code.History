@@ -131,6 +131,11 @@ page 11000005 "Payment History Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the payment history was last exported.';
                 }
+                field("Checksum"; rec.Checksum)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the checksum of the payment history that was exported.';
+                }
             }
         }
         area(factboxes)
@@ -170,7 +175,7 @@ page 11000005 "Payment History Card"
                     trigger OnAction()
                     begin
                         ExportToPaymentFile;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(PrintDocket)
@@ -195,7 +200,7 @@ page 11000005 "Payment History Card"
                         PaymHist.SetRange("Our Bank", "Our Bank");
                         PaymHist.SetRange("Run No.", "Run No.");
                         REPORT.RunModal(SentProtocol."Docket ID", true, true, PaymHist);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Dimensions)

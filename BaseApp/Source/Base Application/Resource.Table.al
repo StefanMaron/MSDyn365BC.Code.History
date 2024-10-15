@@ -172,7 +172,13 @@
             var
                 UnitOfMeasure: Record "Unit of Measure";
                 ResUnitOfMeasure: Record "Resource Unit of Measure";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBaseUnitOfMeasure(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
                     TestNoEntriesExist(FieldCaption("Base Unit of Measure"));
 
@@ -934,6 +940,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNo(var Resource: Record Resource; xResource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBaseUnitOfMeasure(var Resource: Record Resource; xResource: Record Resource; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -53,7 +53,6 @@ page 392 "Phys. Inventory Journal"
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
                 field("Document No."; "Document No.")

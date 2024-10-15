@@ -1,4 +1,4 @@
-table 11401 "CBG Statement Line"
+﻿table 11401 "CBG Statement Line"
 {
     Caption = 'CBG Statement Line';
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -959,6 +959,8 @@ table 11401 "CBG Statement Line"
             else
                 if ("Credit VAT" <> 0) and (-"Credit VAT" <> GenJnlLine."VAT Amount") then
                     GenJnlLine.Validate("VAT Amount", -"Credit VAT");
+
+        OnAfterCreateGenJournalLine(GenJnlLine, Rec);
     end;
 
     procedure ReadGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1589,6 +1591,11 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatementLine: Record "CBG Statement Line"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; CBGStatementLine: Record "CBG Statement Line");
     begin
     end;
 

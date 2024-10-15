@@ -249,7 +249,7 @@
             end else begin
                 ToSalesLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
-                    if not ToSalesLine.IsEmpty then begin
+                    if not ToSalesLine.IsEmpty() then begin
                         Commit();
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(DeleteLinesQst, "Document Type", "No."), true)
@@ -346,6 +346,7 @@
                and not IncludeHeader and not RecalculateLines
             then
                 if FromSalesHeader.Status = FromSalesHeader.Status::Released then begin
+                    ReleaseSalesDocument.SetSkipCheckReleaseRestrictions();
                     ReleaseSalesDocument.Run(ToSalesHeader);
                     ReleaseSalesDocument.Reopen(ToSalesHeader);
                 end;
@@ -397,7 +398,7 @@
                         if CopySalesDocLine(
                              ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
                              NextLineNo, LinesNotCopied, false,
-                             "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc(FromSalesHeader."Document Type".AsInteger())),
+                             "Sales Document Type From".FromInteger(DeferralTypeForSalesDoc(ConvertToSalesDocumentTypeFrom(FromSalesHeader."Document Type"))),
                              CopyPostedDeferral, FromSalesLine."Line No.")
                         then begin
                             OnCopySalesDocSalesLineOnBeforeCopyFromSalesDocAssgntToLine(FromSalesLine, ToSalesLine, RecalculateLines, NextLineNo);
@@ -409,10 +410,28 @@
                               ToSalesHeader, ToSalesLine, FromSalesLine, IncludeHeader, RecalculateLines);
                         end;
                     end;
-                until FromSalesLine.Next = 0;
+                until FromSalesLine.Next() = 0;
         end;
 
         OnAfterCopySalesDocSalesLine(ToSalesLine);
+    end;
+
+    local procedure ConvertToSalesDocumentTypeFrom(DocType: Enum "Sales Document Type"): Integer;
+    begin
+        case DocType of
+            DocType::Quote:
+                exit("Sales Document Type From"::Quote.AsInteger());
+            DocType::Order:
+                exit("Sales Document Type From"::Order.AsInteger());
+            DocType::Invoice:
+                exit("Sales Document Type From"::Invoice.AsInteger());
+            DocType::"Credit Memo":
+                exit("Sales Document Type From"::"Credit Memo".AsInteger());
+            DocType::"Blanket Order":
+                exit("Sales Document Type From"::"Blanket Order".AsInteger());
+            DocType::"Return Order":
+                exit("Sales Document Type From"::"Return Order".AsInteger());
+        end;
     end;
 
     local procedure CopySalesDocShptLine(FromSalesShptHeader: Record "Sales Shipment Header"; ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -500,7 +519,7 @@
                               ItemChargeAssgntNextLineNo);
                         OnAfterCopyArchSalesLine(ToSalesHeader, ToSalesLine, FromSalesLineArchive, IncludeHeader, RecalculateLines);
                     end;
-                until FromSalesLineArchive.Next = 0;
+                until FromSalesLineArchive.Next() = 0;
         end;
     end;
 
@@ -826,6 +845,7 @@
                and not IncludeHeader and not RecalculateLines
             then
                 if FromPurchHeader.Status = FromPurchHeader.Status::Released then begin
+                    ReleasePurchaseDocument.SetSkipCheckReleaseRestrictions();
                     ReleasePurchaseDocument.Run(ToPurchHeader);
                     ReleasePurchaseDocument.Reopen(ToPurchHeader);
                 end;
@@ -867,7 +887,7 @@
                                     ItemChargeAssgntNextLineNo);
                             OnCopyPurchDocPurchLineOnAfterCopyPurchLine(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, IncludeHeader, RecalculateLines);
                         end;
-                until FromPurchLine.Next = 0;
+                until FromPurchLine.Next() = 0;
         end;
     end;
 
@@ -956,7 +976,7 @@
                               ItemChargeAssgntNextLineNo);
                         OnAfterCopyArchPurchLine(ToPurchHeader, ToPurchLine, FromPurchLineArchive, IncludeHeader, RecalculateLines);
                     end;
-                until FromPurchLineArchive.Next = 0;
+                until FromPurchLineArchive.Next() = 0;
         end;
     end;
 
@@ -1069,6 +1089,11 @@
     local procedure CopyPurchHeaderFromPostedInvoice(FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
     begin
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchInvHeader."Buy-from Vendor No.");
+
+        FromPurchInvHeader.CalcFields("Amount Including VAT", Amount);
+        ToPurchHeader.Validate("Doc. Amount Incl. VAT", FromPurchInvHeader."Amount Including VAT");
+        ToPurchHeader.Validate("Doc. Amount VAT", FromPurchInvHeader."Amount Including VAT" - FromPurchInvHeader.Amount);
+
         ToPurchHeader.TransferFields(FromPurchInvHeader, false);
         OnAfterCopyPostedPurchInvoice(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
     end;
@@ -1196,7 +1221,7 @@
                       FromSalesLine, ToPurchLine, FromSalesHeader."Prices Including VAT",
                       ToPurchHeader."Prices Including VAT");
                 OnAfterCopySalesToPurchDoc(ToPurchLine, FromSalesLine);
-            until FromSalesLine.Next = 0;
+            until FromSalesLine.Next() = 0;
         end;
 
         OnAfterCopyFromSalesToPurchDoc(FromSalesHeader, ToPurchHeader);
@@ -1257,7 +1282,7 @@
                     TestField("Return Receipt No.", '');
                     TestField("Quantity Shipped", 0);
                     TestField("Quantity Invoiced", 0);
-                until Next = 0;
+                until Next() = 0;
             end else
                 DeleteAll(true);
         end;
@@ -1279,7 +1304,7 @@
                     TestField("Return Shipment No.", '');
                     TestField("Quantity Received", 0);
                     TestField("Quantity Invoiced", 0);
-                until Next = 0;
+                until Next() = 0;
             end else
                 DeleteAll(true);
         end;
@@ -1388,6 +1413,7 @@
 
         if MoveNegLines and (ToSalesLine.Type <> ToSalesLine.Type::" ") then begin
             ToSalesLine.Validate(Quantity, -FromSalesLine.Quantity);
+            OnCopySalesDocLineOnAfterValidateQuantityMoveNegLines(ToSalesLine, FromSalesLine);
             ToSalesLine.Validate("Unit Price", FromSalesLine."Unit Price");
             ToSalesLine.Validate("Line Discount %", FromSalesLine."Line Discount %");
             ToSalesLine."Appl.-to Item Entry" := FromSalesLine."Appl.-to Item Entry";
@@ -1740,6 +1766,7 @@
 
         if MoveNegLines and (ToPurchLine.Type <> ToPurchLine.Type::" ") then begin
             ToPurchLine.Validate(Quantity, -FromPurchLine.Quantity);
+            OnCopyPurchLineOnAfterValidateQuantityMoveNegLines(ToPurchLine, FromPurchLine);
             ToPurchLine."Appl.-to Item Entry" := FromPurchLine."Appl.-to Item Entry"
         end;
 
@@ -1960,7 +1987,7 @@
                       ToItemChargeAssgntSales, ToItemChargeAssgntSales."Applies-to Doc. Type",
                       ToItemChargeAssgntSales."Applies-to Doc. No.", ToItemChargeAssgntSales."Applies-to Doc. Line No.",
                       ToItemChargeAssgntSales."Item No.", ToItemChargeAssgntSales.Description, ItemChargeAssgntNextLineNo);
-            until FromItemChargeAssgntSales.Next = 0;
+            until FromItemChargeAssgntSales.Next() = 0;
 
         OnAfterCopyFromSalesDocAssgntToLine(ToSalesLine, RecalculateLines);
     end;
@@ -1991,7 +2018,7 @@
                       ToItemChargeAssgntPurch, ToItemChargeAssgntPurch."Applies-to Doc. Type",
                       ToItemChargeAssgntPurch."Applies-to Doc. No.", ToItemChargeAssgntPurch."Applies-to Doc. Line No.",
                       ToItemChargeAssgntPurch."Item No.", ToItemChargeAssgntPurch.Description, ItemChargeAssgntNextLineNo);
-            until FromItemChargeAssgntPurch.Next = 0;
+            until FromItemChargeAssgntPurch.Next() = 0;
 
         OnAfterCopyFromPurchDocAssgntToLine(ToPurchLine, RecalculateLines);
     end;
@@ -2063,7 +2090,7 @@
                 repeat
                     AddRemainingQtyToPurchItemCharge(ToItemChargeAssignmentPurch, RemainingQty);
                     SumQtyToAssign += ToItemChargeAssignmentPurch."Qty. to Assign";
-                until ToItemChargeAssignmentPurch.Next = 0;
+                until ToItemChargeAssignmentPurch.Next() = 0;
 
                 RemainingQty := FromPurchLine.Quantity - SumQtyToAssign;
                 if RemainingQty <> 0 then
@@ -2112,7 +2139,7 @@
                             Currency.InitRoundingPrecision;
                         end;
 
-                        QtyToAssign := ValueEntry."Cost Amount (Actual)" * CurrencyFactor / ToSalesLine."Unit Price";
+                        QtyToAssign := ValueEntry."Sales Amount (Actual)" * CurrencyFactor / ToSalesLine."Unit Price";
                         SumQtyToAssign += QtyToAssign;
 
                         ItemChargeAssgntSales.InsertItemChargeAssignmentWithValuesTo(
@@ -2123,7 +2150,7 @@
                 OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(
                     FromSalesHeader, ToSalesLine, ValueEntry, TempToItemChargeAssignmentSales, ToItemChargeAssignmentSales,
                     ItemChargeAssgntNextLineNo, SumQtyToAssign);
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
             ItemChargeAssgntSales.Summarize(TempToItemChargeAssignmentSales, ToItemChargeAssignmentSales);
 
             // Use 2 passes to correct rounding issues
@@ -2136,7 +2163,7 @@
                 repeat
                     AddRemainingQtyToSalesItemCharge(ToItemChargeAssignmentSales, RemainingQty);
                     SumQtyToAssign += ToItemChargeAssignmentSales."Qty. to Assign";
-                until ToItemChargeAssignmentSales.Next = 0;
+                until ToItemChargeAssignmentSales.Next() = 0;
 
                 RemainingQty := FromSalesLine.Quantity - SumQtyToAssign;
                 if RemainingQty <> 0 then
@@ -2276,7 +2303,7 @@
                                 end;
                             end;
                         end;
-                    until FromSalesLine.Next = 0;
+                    until FromSalesLine.Next() = 0;
             end;
     end;
 
@@ -2311,7 +2338,7 @@
                                 CheckPostedATOItemAvailable(FromSalesShptLine, ToSalesLine);
                             end;
                     end;
-                until FromSalesShptLine.Next = 0;
+                until FromSalesShptLine.Next() = 0;
         end;
     end;
 
@@ -2338,7 +2365,7 @@
                         OnCheckCopyFromSalesInvoiceAvailOnAfterCheckItemAvailability(
                           ToSalesHeader, ToSalesLine, FromSalesInvHeader, IncludeHeader, FromSalesInvLine);
                     end;
-                until FromSalesInvLine.Next = 0;
+                until FromSalesInvLine.Next() = 0;
         end;
     end;
 
@@ -2363,7 +2390,7 @@
                         OnCheckCopyFromSalesRetRcptAvailOnAfterCheckItemAvailability(
                           ToSalesHeader, ToSalesLine, FromReturnRcptHeader, IncludeHeader, FromReturnRcptLine);
                     end;
-                until FromReturnRcptLine.Next = 0;
+                until FromReturnRcptLine.Next() = 0;
         end;
     end;
 
@@ -2389,7 +2416,7 @@
                         OnCheckCopyFromSalesCrMemoAvailOnAfterCheckItemAvailability(
                           ToSalesHeader, ToSalesLine, FromSalesCrMemoHeader, IncludeHeader, FromSalesCrMemoLine);
                     end;
-                until FromSalesCrMemoLine.Next = 0;
+                until FromSalesCrMemoLine.Next() = 0;
         end;
     end;
 
@@ -2536,7 +2563,7 @@
                     FromServContractLine.Mark(true)
                 end else
                     LineNo := LineNo + 10000
-            until FromServContractLine.Next = 0;
+            until FromServContractLine.Next() = 0;
 
         OnAfterCopyServContractLines(ToServContractHeader, FromDocType, FromDocNo, FromServContractLine);
     end;
@@ -2569,7 +2596,7 @@
             ExistingServContractLine.SetRange("Service Item No.", FromServContractLine."Service Item No.");
             ExistingServContractLine.SetRange("Contract Type", ToServContractHeader."Contract Type");
             ExistingServContractLine.SetRange("Contract No.", ToServContractHeader."Contract No.");
-            if not ExistingServContractLine.IsEmpty then
+            if not ExistingServContractLine.IsEmpty() then
                 exit(false);
         end;
 
@@ -2704,9 +2731,9 @@
                                 OnAfterCopySalesLineFromSalesShptLineBuffer(
                                   ToSalesLine, FromSalesShptLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf);
                             end;
-                        until FromSalesLineBuf.Next = 0;
+                        until FromSalesLineBuf.Next() = 0;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;
@@ -2816,7 +2843,7 @@
                           ToSalesHeader, TempDocSalesLine, "Document No.", NextLineNo);
 
                     OnAfterCopySalesInvLine(TempDocSalesLine, ToSalesHeader, TempSalesLineBuf, FromSalesInvLine);
-                until Next = 0;
+                until Next() = 0;
 
         // Create sales line from buffer
         Window.Update(1, FromLineCounter);
@@ -2830,7 +2857,7 @@
                 repeat
                     if Type = Type::Item then
                         SalesLineCount += 1;
-                until Next = 0;
+                until Next() = 0;
             if FindSet then begin
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                 repeat
@@ -2904,7 +2931,7 @@
                           FromSalesLine2, FromSalesLine);
                     end;
                     OnCopySalesInvLinesToDocOnAfterCopySalesDocLine(ToSalesLine);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
         Window.Close;
@@ -2989,7 +3016,7 @@
                         CopySalesLinesToBuffer(
                           FromSalesHeader, FromSalesLine, FromSalesLine2, FromSalesLineBuf,
                           ToSalesHeader, TempDocSalesLine, "Document No.", NextLineNo);
-                until Next = 0;
+                until Next() = 0;
 
         // Create sales line from buffer
         Window.Update(1, FromLineCounter);
@@ -3064,7 +3091,7 @@
                         OnAfterCopySalesLineFromSalesCrMemoLineBuffer(
                           ToSalesLine, FromSalesCrMemoLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf);
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -3175,9 +3202,9 @@
                                   ToSalesLine, FromReturnRcptLine, IncludeHeader, RecalculateLines,
                                   TempDocSalesLine, ToSalesHeader, FromSalesLineBuf, CopyItemTrkg);
                             end;
-                        until FromSalesLineBuf.Next = 0
+                        until FromSalesLineBuf.Next() = 0
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;
@@ -3259,7 +3286,7 @@
             exit(false);
 
         with ItemLedgEntry do begin
-            FindSet;
+            FindSet();
             if Quantity >= 0 then begin
                 TempSalesLineBuf."Document No." := "Document No.";
                 if GetSalesDocTypeForItemLedgEntry(ItemLedgEntry) in
@@ -3310,7 +3337,7 @@
                     TempSalesLineBuf.Insert();
                     AddSalesDocLine(TempDocSalesLine, TempSalesLineBuf."Line No.", "Document No.", TempSalesLineBuf."Line No.");
                 end;
-            until (Next = 0) or (FromSalesLine."Quantity (Base)" = 0);
+            until (Next() = 0) or (FromSalesLine."Quantity (Base)" = 0);
 
             if (FromSalesLine."Quantity (Base)" <> 0) and FillExactCostRevLink then
                 MissingExCostRevLink := true;
@@ -3342,10 +3369,11 @@
             SignFactor := -1
         else
             SignFactor := 1;
+        OnSplitSalesDocLinesPerItemTrkgOnAfterCalcSignFactor(FromSalesLine, SignFactor);
 
         with ItemLedgEntry do begin
             SetCurrentKey("Document No.", "Document Type", "Document Line No.");
-            FindSet;
+            FindSet();
             repeat
                 SalesLineBuf[1] := FromSalesLine;
                 SalesLineBuf[1]."Line No." := NextLineNo;
@@ -3381,7 +3409,7 @@
                           SalesLineBuf[i]."Line No.", NextItemTrkgEntryNo, true);
                         Tracked := true;
                     end;
-                until (Next = 0) or (FromSalesLine."Quantity (Base)" = 0);
+                until (Next() = 0) or (FromSalesLine."Quantity (Base)" = 0);
 
                 for i := 1 to 2 do
                     if SalesLineBuf[i]."Quantity (Base)" <> 0 then begin
@@ -3396,7 +3424,7 @@
                     SetRange("Document Type");
                     SetRange("Document Line No.");
                 end;
-            until (Next = 0) or FromShptOrRcpt;
+            until (Next() = 0) or FromShptOrRcpt;
 
             if (FromSalesLine."Quantity (Base)" <> 0) and not Tracked then
                 MissingExCostRevLink := true;
@@ -3571,10 +3599,10 @@
                                   ToPurchLine, FromPurchRcptLine, IncludeHeader, RecalculateLines,
                                   TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf, CopyItemTrkg);
                             end;
-                        until FromPurchLineBuf.Next = 0;
+                        until FromPurchLineBuf.Next() = 0;
                         OnAfterCopyPurchRcptLine(FromPurchRcptLine, ToPurchLine);
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;
@@ -3673,7 +3701,7 @@
                           "Document No.", NextLineNo);
 
                     OnAfterCopyPurchInvLines(TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf, FromPurchInvLine);
-                until Next = 0;
+                until Next() = 0;
 
         // Create purchase line from buffer
         Window.Update(1, FromLineCounter);
@@ -3755,7 +3783,7 @@
                           ToPurchLine, FromPurchInvLine, IncludeHeader, RecalculateLines, TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf);
                     end;
                     OnAfterCopyPurchInvLine(FromPurchInvLine, ToPurchLine);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -3841,7 +3869,7 @@
                         CopyPurchLinesToBuffer(
                           FromPurchHeader, FromPurchLine, FromPurchLine2, FromPurchLineBuf, ToPurchHeader, TempDocPurchaseLine,
                           "Document No.", NextLineNo);
-                until Next = 0;
+                until Next() = 0;
 
         // Create purchase line from buffer
         Window.Update(1, FromLineCounter);
@@ -3921,7 +3949,7 @@
                           ToPurchLine, FromPurchCrMemoLine, IncludeHeader, RecalculateLines, TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf);
                     end;
                     OnAfterCopyPurchCrMemoLine(FromPurchCrMemoLine, ToPurchLine);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -4040,10 +4068,10 @@
                                   ToPurchLine, FromReturnShptLine, IncludeHeader, RecalculateLines,
                                   TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf, CopyItemTrkg);
                             end;
-                        until FromPurchLineBuf.Next = 0;
+                        until FromPurchLineBuf.Next() = 0;
                     end;
                     OnAfterCopyReturnShptLine(FromReturnShptLine, ToPurchLine);
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;
@@ -4149,7 +4177,7 @@
             exit(false);
 
         with ItemLedgEntry do begin
-            FindSet;
+            FindSet();
             if Quantity <= 0 then begin
                 FromPurchLineBuf."Document No." := "Document No.";
                 if GetPurchDocTypeForItemLedgEntry(ItemLedgEntry) in
@@ -4170,7 +4198,7 @@
                     if ApplyRec.Find('-') then
                         repeat
                             SomeAreFixed := SomeAreFixed or ApplyRec.Fixed;
-                        until ApplyRec.Next = 0;
+                        until ApplyRec.Next() = 0;
                 end;
 
                 if AskApply and ("Item Tracking" = "Item Tracking"::None) then
@@ -4220,7 +4248,7 @@
                 end else
                     if "Remaining Quantity" = 0 then
                         SkippedLine := true;
-            until (Next = 0) or (FromPurchLine."Quantity (Base)" = 0);
+            until (Next() = 0) or (FromPurchLine."Quantity (Base)" = 0);
 
             if (FromPurchLine."Quantity (Base)" <> 0) and FillExactCostRevLink then
                 MissingExCostRevLink := true;
@@ -4257,7 +4285,7 @@
 
         with ItemLedgEntry do begin
             SetCurrentKey("Document No.", "Document Type", "Document Line No.");
-            FindSet;
+            FindSet();
             repeat
                 PurchLineBuf[1] := FromPurchLine;
                 PurchLineBuf[1]."Line No." := NextLineNo;
@@ -4331,7 +4359,7 @@
                         Tracked := true;
                     end else
                         SkippedLine := true;
-                until (Next = 0) or (FromPurchLine."Quantity (Base)" = 0);
+                until (Next() = 0) or (FromPurchLine."Quantity (Base)" = 0);
 
                 for i := 1 to 2 do
                     if PurchLineBuf[i]."Quantity (Base)" <> 0 then begin
@@ -4346,7 +4374,7 @@
                     SetRange("Document Type");
                     SetRange("Document Line No.");
                 end;
-            until (Next = 0) or FromShptOrRcpt;
+            until (Next() = 0) or FromShptOrRcpt;
             if (FromPurchLine."Quantity (Base)" <> 0) and not Tracked then
                 MissingExCostRevLink := true;
         end;
@@ -4464,16 +4492,13 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with OrgItemLedgEntry do begin
-            ItemLedgEntry.SetCurrentKey("Document No.");
-            ItemLedgEntry.SetRange("Document No.", "Document No.");
-            ItemLedgEntry.SetRange("Document Type", "Document Type");
-            ItemLedgEntry.SetRange("Document Line No.", "Document Line No.");
-            ItemLedgEntry.SetRange("Lot No.", "Lot No.");
-            ItemLedgEntry.SetRange("Serial No.", "Serial No.");
-            ItemLedgEntry.SetFilter("Entry No.", '<%1', "Entry No.");
-            exit(not ItemLedgEntry.IsEmpty);
-        end;
+        ItemLedgEntry.SetCurrentKey("Document No.");
+        ItemLedgEntry.SetRange("Document No.", OrgItemLedgEntry."Document No.");
+        ItemLedgEntry.SetRange("Document Type", OrgItemLedgEntry."Document Type");
+        ItemLedgEntry.SetRange("Document Line No.", OrgItemLedgEntry."Document Line No.");
+        ItemLedgEntry.SetTrackingFilterFromItemLedgEntry(OrgItemLedgEntry);
+        ItemLedgEntry.SetFilter("Entry No.", '<%1', OrgItemLedgEntry."Entry No.");
+        exit(not ItemLedgEntry.IsEmpty());
     end;
 
     local procedure IsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; var CopyItemTrkg: Boolean; FillExactCostRevLink: Boolean) Result: Boolean
@@ -4485,24 +4510,27 @@
         If IsHandled then
             exit(Result);
 
-        with ItemLedgEntry do begin
-            if IsEmpty then
-                exit(true);
-            SetFilter("Lot No.", '<>''''');
-            if not IsEmpty then begin
-                if FillExactCostRevLink then
-                    CopyItemTrkg := true;
-                exit(true);
-            end;
-            SetRange("Lot No.");
-            SetFilter("Serial No.", '<>''''');
-            if not IsEmpty then begin
-                if FillExactCostRevLink then
-                    CopyItemTrkg := true;
-                exit(true);
-            end;
-            SetRange("Serial No.");
+        if ItemLedgEntry.IsEmpty() then
+            exit(true);
+        ItemLedgEntry.SetFilter("Serial No.", '<>%1', '');
+        if not ItemLedgEntry.IsEmpty() then begin
+            if FillExactCostRevLink then
+                CopyItemTrkg := true;
+            exit(true);
         end;
+        ItemLedgEntry.SetRange("Serial No.");
+        ItemLedgEntry.SetFilter("Lot No.", '<>%1', '');
+        if not ItemLedgEntry.IsEmpty() then begin
+            if FillExactCostRevLink then
+                CopyItemTrkg := true;
+            exit(true);
+        end;
+        ItemLedgEntry.SetRange("Lot No.");
+
+        OnAfterIsCopyItemTrkg(ItemLedgEntry, FillExactCostRevLink, CopyItemTrkg, IsHandled);
+        if IsHandled then
+            exit(true);
+
         exit(false);
     end;
 
@@ -4661,8 +4689,15 @@
         ToPurchLine2.Insert();
     end;
 
-    procedure IsSalesFillExactCostRevLink(ToSalesHeader: Record "Sales Header"; FromDocType: Option "Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo"; CurrencyCode: Code[10]): Boolean
+    procedure IsSalesFillExactCostRevLink(ToSalesHeader: Record "Sales Header"; FromDocType: Option "Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo"; CurrencyCode: Code[10]) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsSalesFillExactCostRevLink(ToSalesHeader, FromDocType, CurrencyCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ToSalesHeader do
             case FromDocType of
                 FromDocType::"Sales Shipment":
@@ -4681,8 +4716,15 @@
         exit(false);
     end;
 
-    procedure IsPurchFillExactCostRevLink(ToPurchHeader: Record "Purchase Header"; FromDocType: Option "Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo"; CurrencyCode: Code[10]): Boolean
+    procedure IsPurchFillExactCostRevLink(ToPurchHeader: Record "Purchase Header"; FromDocType: Option "Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo"; CurrencyCode: Code[10]) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsPurchFillExactCostRevLink(ToPurchHeader, FromDocType, CurrencyCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ToPurchHeader do
             case FromDocType of
                 FromDocType::"Purchase Receipt":
@@ -5078,7 +5120,7 @@
                 JobPlanningLine.Modify();
                 OnLinkJobPlanningLineOnAfterJobPlanningLineModify(JobPlanningLineInvoice, JobPlanningLine);
             end;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure GetQtyOfPurchILENotShipped(ItemLedgerEntryNo: Integer): Decimal
@@ -5109,7 +5151,7 @@
                     (ItemLedgerEntryLocal."Job No." = ''))
                 then
                     QtyNotShipped += Quantity;
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(QtyNotShipped);
     end;
@@ -5206,7 +5248,7 @@
             repeat
                 TempAsmLine := AsmLine;
                 TempAsmLine.Insert();
-            until AsmLine.Next = 0;
+            until AsmLine.Next() = 0;
     end;
 
     local procedure GenerateAsmDataFromPosted(PostedAsmHeader: Record "Posted Assembly Header"; DocType: Enum "Assembly Document Type")
@@ -5225,7 +5267,7 @@
                 TempAsmLine."Document No." := TempAsmHeader."No.";
                 TempAsmLine."Cost Amount" := PostedAsmLine.Quantity * PostedAsmLine."Unit Cost";
                 TempAsmLine.Insert();
-            until PostedAsmLine.Next = 0;
+            until PostedAsmLine.Next() = 0;
     end;
 
     local procedure GetAsmDataFromSalesInvLine(DocType: Enum "Sales Document Type"): Boolean
@@ -5263,7 +5305,7 @@
                        (ItemLedgerEntry2."Document Line No." <> ItemLedgerEntry."Document Line No.")
                     then
                         Error(Text032, TempSalesInvLine."Document No.");
-                until ValueEntry2.Next = 0;
+                until ValueEntry2.Next() = 0;
         end;
         GenerateAsmDataFromPosted(PostedAsmHeader, DocType);
         exit(true);
@@ -5283,7 +5325,7 @@
     begin
         if not LineCountsEqual then
             exit(false);
-        TempSalesInvLine.FindSet;
+        TempSalesInvLine.FindSet();
         if PosNo > 1 then
             TempSalesInvLine.Next(PosNo - 1);
         exit((SalesLine.Type = TempSalesInvLine.Type) and (SalesLine."No." = TempSalesInvLine."No."));
@@ -5418,7 +5460,7 @@
                 CopyFromAsmOrderDimToLine(ToAssemblyLine, FromAsmLine, BasicAsmOrderCopy);
                 OnCreateToAsmLinesOnBeforeToAssemblyLineModify(ToAsmHeader, ToAssemblyLine, FromAsmLine, ToSalesLine, BasicAsmOrderCopy, AvailabilityCheck);
                 ToAssemblyLine.Modify(not AvailabilityCheck);
-            until FromAsmLine.Next = 0;
+            until FromAsmLine.Next() = 0;
     end;
 
     local procedure CheckAsmOrderAvailability(ToAsmHeader: Record "Assembly Header"; var FromAsmLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line")
@@ -5447,7 +5489,7 @@
                 LineNo += 10000;
                 TempToAsmLine."Line No." := LineNo;
                 TempToAsmLine.Insert();
-            until AsmLineOnDestinationOrder.Next = 0;
+            until AsmLineOnDestinationOrder.Next() = 0;
         if AssemblyLineMgt.ShowAvailability(false, TempToAsmHeader, TempToAsmLine) then
             ItemCheckAvail.RaiseUpdateInterruptedError;
         TempToAsmLine.DeleteAll();
@@ -5633,6 +5675,7 @@
 
         if MoveNegLines and (ToSalesLine.Type <> ToSalesLine.Type::" ") then begin
             ToSalesLine.Validate(Quantity, -FromSalesLineArchive.Quantity);
+            OnCopyArchSalesLineOnAfterValidateQuantityMoveNegLines(ToSalesLine, FromSalesLineArchive);
             ToSalesLine.Validate("Line Discount %", FromSalesLineArchive."Line Discount %");
             ToSalesLine."Appl.-to Item Entry" := FromSalesLineArchive."Appl.-to Item Entry";
             ToSalesLine."Appl.-from Item Entry" := FromSalesLineArchive."Appl.-from Item Entry";
@@ -5757,6 +5800,7 @@
 
         if MoveNegLines and (ToPurchLine.Type <> ToPurchLine.Type::" ") then begin
             ToPurchLine.Validate(Quantity, -FromPurchLineArchive.Quantity);
+            OnCopyArchPurchLineOnAfterValidateQuantityMoveNegLines(ToPurchLine, FromPurchLineArchive);
             ToPurchLine."Appl.-to Item Entry" := FromPurchLineArchive."Appl.-to Item Entry"
         end;
 
@@ -5946,7 +5990,7 @@
             if FindSet then
                 repeat
                     AddItemLedgerEntry(TempItemLedgerEntry, "Lot No.", "Serial No.", "Entry No.");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -6175,7 +6219,7 @@
                     ToDeferralLine."Document No." := ToDocNo;
                     ToDeferralLine."Line No." := ToLineNo;
                     ToDeferralLine.Insert();
-                until FromDeferralLine.Next = 0;
+                until FromDeferralLine.Next() = 0;
             if ToDocType = SalesCommentLine."Document Type"::"Return Order".AsInteger() then
                 StartDate := FromDeferralHeader."Start Date"
         end;
@@ -6222,7 +6266,7 @@
                         InitialAmountToDefer := InitialAmountToDefer + PostedDeferralLine.Amount;
                     OnCopyPostedDeferralsOnBeforeDeferralLineInsert(DeferralLine, PostedDeferralLine);
                     DeferralLine.Insert();
-                until PostedDeferralLine.Next = 0;
+                until PostedDeferralLine.Next() = 0;
             if ToDocType = SalesCommentLine."Document Type"::"Return Order".AsInteger() then
                 StartDate := PostedDeferralHeader."Start Date";
             if DeferralHeader.Get(DeferralDocType, '', '', ToDocType, ToDocNo, ToLineNo) then begin
@@ -7347,7 +7391,7 @@
         QtyToAddAsBlank: Decimal;
     begin
         TempItemLedgerEntry.SetFilter("Lot No.", '<>%1', '');
-        if TempItemLedgerEntry.IsEmpty then
+        if TempItemLedgerEntry.IsEmpty() then
             exit;
 
         ReservationEntry.SetRange("Source Type", DATABASE::"Assembly Header");
@@ -7359,7 +7403,7 @@
             repeat
                 TempReservationEntry := ReservationEntry;
                 TempReservationEntry.Insert();
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
 
         if TempItemLedgerEntry.FindSet then
             repeat
@@ -7372,7 +7416,7 @@
                 TempTrackingSpecification."Expiration Date" := TempItemLedgerEntry."Expiration Date";
                 OnSetTrackingOnAssemblyReservationOnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempItemLedgerEntry);
                 TempTrackingSpecification.Insert();
-            until TempItemLedgerEntry.Next = 0;
+            until TempItemLedgerEntry.Next() = 0;
 
         if TempTrackingSpecification.FindSet then
             repeat
@@ -7380,7 +7424,7 @@
                     ReservationEngineMgt.AddItemTrackingToTempRecSet(
                         TempReservationEntry, TempTrackingSpecification, TempTrackingSpecification."Quantity (Base)",
                         QtyToAddAsBlank, ItemTrackingCode);
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
     end;
 
     local procedure GetItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; ItemNo: Code[20]): Boolean
@@ -8091,6 +8135,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsPurchFillExactCostRevLink(ToPurchHeader: Record "Purchase Header"; FromDocType: Option "Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo"; CurrencyCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSalesFillExactCostRevLink(ToSalesHeader: Record "Sales Header"; FromDocType: Option "Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo"; CurrencyCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean)
     begin
     end;
@@ -8196,7 +8250,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyArchSalesLineOnAfterValidateQuantityMoveNegLines(var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyArchSalesLineOnBeforeCleanSpecialOrderDropShipmentInSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; CreateToHeader: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyArchPurchLineOnAfterValidateQuantityMoveNegLines(var ToPurchLine: Record "Purchase Line"; FromPurchLineArchive: Record "Purchase Line Archive")
     begin
     end;
 
@@ -8566,6 +8630,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyPurchLineOnAfterValidateQuantityMoveNegLines(var ToPurchLine: Record "Purchase Line"; FromPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyPurchLineOnBeforeValidateQuantity(var ToPurchLine: Record "Purchase Line"; RecalculateLines: Boolean)
     begin
     end;
@@ -8591,6 +8660,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSplitSalesDocLinesPerItemTrkgOnAfterCalcSignFactor(FromSalesLine: Record "Sales Line"; var SignFactor: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetTrackingOnAssemblyReservationOnBeforeTempTrackingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
@@ -8612,6 +8686,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocLineOnAfterAssignCopiedFromPostedDoc(var ToSalesLine: Record "Sales Line"; ToSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySalesDocLineOnAfterValidateQuantityMoveNegLines(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8661,6 +8740,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetProperties(var IncludeHeader: Boolean; var RecalculateLines: Boolean; var MoveNegLines: Boolean; var CreateToHeader: Boolean; var HideDialog: Boolean; var ExactCostRevMandatory: Boolean; var ApplyFully: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
@@ -8681,7 +8765,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetProperties(var IncludeHeader: Boolean; var RecalculateLines: Boolean; var MoveNegLines: Boolean; var CreateToHeader: Boolean; var HideDialog: Boolean; var ExactCostRevMandatory: Boolean; var ApplyFully: Boolean)
+    local procedure OnAfterIsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; FillExactCostRevLink: Boolean; var CopyItemTrkg: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

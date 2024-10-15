@@ -13,18 +13,18 @@ codeunit 5342 "CRM Synch. Helper"
         TempCRMUomschedule: Record "CRM Uomschedule" temporary;
         CRMProductName: Codeunit "CRM Product Name";
         CRMBaseCurrencyNotFoundInNAVErr: Label 'The currency with the ISO code ''%1'' cannot be found. Therefore, the exchange rate between ''%2'' and ''%3'' cannot be calculated.', Comment = '%1,%2,%3=the ISO code of a currency (example: DKK);';
-        DynamicsCRMTransactionCurrencyRecordNotFoundErr: Label 'Cannot find the currency with the value ''%1'' in Common Data Service.', Comment = '%1=the currency code';
-        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any unit of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CDS service name';
-        DynamicsCRMUoMFoundMultipleInGroupErr: Label 'Multiple units of measure were found in the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CDS service name';
+        DynamicsCRMTransactionCurrencyRecordNotFoundErr: Label 'Cannot find the currency with the value ''%1'' in Dataverse.', Comment = '%1=the currency code';
+        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any units of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = Dataverse service name';
+        DynamicsCRMUoMFoundMultipleInGroupErr: Label 'Multiple units of measure were found in the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = Dataverse service name';
         IncorrectCRMUoMNameErr: Label 'The unit of measure in the unit group ''%1'' has an incorrect name: expected name ''%2'', found name ''%3''.', Comment = '%1=Unit Group name (ex: NAV PIECE), %2=Expected name (ex: PIECE), %3=Actual name (ex: BOX)';
         IncorrectCRMUoMQuantityErr: Label 'The quantity on the unit of measure ''%1'' should be 1.', Comment = '%1=unit of measure name (ex: PIECE).';
-        DynamicsCRMUomscheduleNotFoundErr: Label 'Cannot find the unit group ''%1'' in %2.', Comment = '%1 = unit group name, %2 = CDS service name';
+        DynamicsCRMUomscheduleNotFoundErr: Label 'Cannot find the unit group ''%1'' in %2.', Comment = '%1 = unit group name, %2 = Dataverse service name';
         IncorrectCRMUoMStatusErr: Label 'The unit of measure ''%1'' is not the base unit of measure of the unit group ''%2''.', Comment = '%1=value of the unit of measure, %2=value of the unit group';
         InvalidDestinationRecordNoErr: Label 'Invalid destination record number.';
         NavTxt: Label 'NAV', Locked = true;
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
         RecordNotFoundErr: Label '%1 could not be found in %2.', Comment = '%1=value;%2=table name in which the value was searched';
-        CanOnlyUseSystemUserOwnerTypeErr: Label 'Only %1 Owner of Type SystemUser can be mapped to Salespeople.', Comment = 'CDS entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = CDS service name';
+        CanOnlyUseSystemUserOwnerTypeErr: Label 'You can only map %1 owners of the SystemUser type to salespeople.', Comment = 'Dataverse entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = Dataverse service name';
         DefaultNAVPriceListNameTxt: Label '%1 Default Price List', Comment = '%1 - product name';
         BaseCurrencyIsNullErr: Label 'The base currency is not defined. Disable and enable CRM connection to initialize setup properly.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
@@ -1207,6 +1207,7 @@ codeunit 5342 "CRM Synch. Helper"
         DestinationRecRef := DestinationFieldRef.Record();
         IntegrationTableMapping.SetRange("Table ID", SourceRecRef.Number());
         IntegrationTableMapping.SetRange("Integration Table ID", DestinationRecRef.Number());
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         exit(IntegrationTableMapping.FindFirst());
     end;
 

@@ -13,6 +13,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             trigger OnAfterGetRecord()
             begin
                 ExportFileName := GenerateExportfilename(AlwaysNewFileName);
+                ExportProtocolCode := "Export Protocol";
                 ExportSEPAFile;
 
                 Export := false;
@@ -67,11 +68,13 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         ExportFileName: Text[250];
         AlwaysNewFileName: Boolean;
         Worldpayment: Boolean;
+        ExportProtocolCode: Code[20];
 
     local procedure ExportSEPAFile()
     var
         FileMgt: Codeunit "File Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
+        ReportChecksum: Codeunit "Report Checksum";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -94,6 +97,8 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         OnBeforeXMLDomDocSave(XMLDomDoc);
         XMLDomDoc.Save(StreamWriter);
         StreamWriter.Close;
+
+        ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
         FileMgt.DownloadToFile(ServerTempFileName, ExportFileName);
 
         Clear(XMLDomDoc);
@@ -163,7 +168,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
                         AddPaymentInformation(XMLNodeCurr, PaymentHistoryLine, BankAcc);
                     end;
                     AddTrxInformation(XMLNodeCurr, PaymentHistoryLine);
-                until Next = 0;
+                until Next() = 0;
 
             XMLNodeCurr := XMLParent;
         end;

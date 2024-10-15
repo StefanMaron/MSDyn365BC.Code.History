@@ -682,7 +682,7 @@
                     EnqueueCannotBeHandledReason(
                         GetMessageForUnhandledQtyDueToBin(
                             BinIsForPick, BinIsForReplenishment, WhseSource = WhseSource::"Movement Worksheet",
-                            AvailableQtyBase, FromBinContent."Bin Code"));
+                            AvailableQtyBase, FromBinContent));
             until (FromBinContent.Next() = 0) or (TotalQtytoPickBase = 0);
         end;
     end;
@@ -3271,14 +3271,21 @@
         exit(false);
     end;
 
-    local procedure GetMessageForUnhandledQtyDueToBin(BinIsForPick: Boolean; BinIsForReplenishment: Boolean; IsMoveWksh: Boolean; AvailableQtyBase: Decimal; BinCode: Code[20]): Text[100]
+    local procedure GetMessageForUnhandledQtyDueToBin(BinIsForPick: Boolean; BinIsForReplenishment: Boolean; IsMoveWksh: Boolean; AvailableQtyBase: Decimal; var FromBinContent: Record "Bin Content") Result: Text[100]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetMessageForUnhandledQtyDueToBin(BinIsForPick, BinIsForReplenishment, IsMoveWksh, AvailableQtyBase, FromBinContent, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if AvailableQtyBase <= 0 then
             exit('');
         if not BinIsForPick and not IsMoveWksh then
-            exit(StrSubstNo(BinIsNotForPickTxt, BinCode));
+            exit(StrSubstNo(BinIsNotForPickTxt, FromBinContent."Bin Code"));
         if not BinIsForReplenishment and IsMoveWksh then
-            exit(StrSubstNo(BinIsForReceiveOrShipTxt, BinCode));
+            exit(StrSubstNo(BinIsForReceiveOrShipTxt, FromBinContent."Bin Code"));
     end;
 
     local procedure GetMessageForUnhandledQtyDueToReserv(): Text
@@ -3462,6 +3469,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempItemTrkgLines(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; var TotalQtytoPickBase: Decimal; HasExpiryDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMessageForUnhandledQtyDueToBin(var BinIsForPick: Boolean; var BinIsForReplenishment: Boolean; var IsMoveWksh: Boolean; var AvailableQtyBase: Decimal; FromBinContent: Record "Bin Content"; var Result: Text[100]; var IsHandled: Boolean)
     begin
     end;
 

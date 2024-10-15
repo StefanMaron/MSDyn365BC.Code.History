@@ -100,7 +100,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 end;
                 IsHandled := false;
                 OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(IsHandled);
-                if IsHandled then
+                if IsHandled or (not GeneralLedgerSetup."Local SEPA Instr. Priority") then
                     Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL)
                 else
                     CollectDataFromLocalSource(TempGenJnlLine);
@@ -142,7 +142,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         end;
     end;
 
-    local procedure GetAppliesToDocEntryNumbers(GenJournalLine: Record "Gen. Journal Line"; var TempInteger: Record "Integer" temporary)
+    internal procedure GetAppliesToDocEntryNumbers(GenJournalLine: Record "Gen. Journal Line"; var TempInteger: Record "Integer" temporary)
     var
         AccNo: Code[20];
         AccType: Enum "Gen. Journal Account Type";

@@ -13,6 +13,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
             trigger OnAfterGetRecord()
             begin
                 ExportFileName := GenerateExportfilename(AlwaysNewFileName);
+                ExportProtocolCode := "Export Protocol";
                 ExportSEPAFile;
 
                 Export := false;
@@ -69,6 +70,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
     var
         FileMgt: Codeunit "File Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
+        ReportChecksum: Codeunit "Report Checksum";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -91,9 +93,12 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         OnBeforeXMLDomDocSave(XMLDomDoc);
         XMLDomDoc.Save(StreamWriter);
         StreamWriter.Close;
+
+        ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
         FileMgt.DownloadToFile(ServerTempFileName, ExportFileName);
 
         Clear(XMLDomDoc);
+        FileMgt.DeleteServerFile(ServerTempFileName);
     end;
 
     local procedure ExportGroupHeader(XMLNodeCurr: DotNet XmlNode)
@@ -441,6 +446,9 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         PaymentHistoryLine.SetFilter("Sequence Type", '>%1', PaymentHistoryLine."Sequence Type"::" ");
         LocalFunctionalityMgt.GetPmtHistLineCountAndAmt(PaymentHistoryLine, TotalAmount, LineCount, "Payment History");
     end;
+
+    var
+        ExportProtocolCode: Code[20];
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddPaymentInformation(PaymentHistoryLine: Record "Payment History Line"; var BankAccount: Record "Bank Account"; var Customer: Record Customer; var BatchBookg: Text)

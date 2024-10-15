@@ -25,69 +25,6 @@ codeunit 139165 "Integration Table Synch. Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure IntegrationSynchJobEntryIsCreated()
-    var
-        IntegrationSynchJob: Record "Integration Synch. Job";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationTableSynch: Codeunit "Integration Table Synch.";
-    begin
-        // [FEATURE] [Integration Synch. Job]
-        // [SCENARIO] BeginIntegrationSynchJob() should fail if integration parameters are not defined
-        Initialize;
-        // [GIVEN] Integration services are not enabled
-        // [GIVEN] No Integration Table Mapping have been defined
-        // [GIVEN] Source and Destination records have not been opened
-        IntegrationTableMapping.Init();
-        Clear(IntegrationTableMapping);
-
-        // [WHEN] Starting the Table Sync
-        Assert.IsTrue(
-          IsNullGuid(IntegrationTableSynch.BeginIntegrationSynchJob(TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, 0)),
-          'Expected the begin integration synch job task to fail');
-
-        // [THEN] An Integration Synch. Job record is created
-        Assert.AreNotEqual(0, IntegrationSynchJob.Count, 'Expected an Integration Synch Job to be created despite of fatal error');
-        IntegrationSynchJob.FindFirst;
-        // [THEN] Job Info finish time is set
-        Assert.AreNotEqual(0DT, IntegrationSynchJob."Finish Date/Time", 'Expected finish time to be set');
-        // [THEN] Finish time is >= Start time
-        Assert.IsTrue(IntegrationSynchJob."Finish Date/Time" - IntegrationSynchJob."Start Date/Time" >= 0,
-          'Expected finish time to be later than start time');
-        // [THEN] Message is set (error)
-        Assert.AreNotEqual('', IntegrationSynchJob.Message, 'Expected message to be set');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ProcessFailsIfNavTableIsNotRegisteredAsIntegrationTable()
-    var
-        IntegrationSynchJob: Record "Integration Synch. Job";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationTableSynch: Codeunit "Integration Table Synch.";
-    begin
-        // [FEATURE] [Integration Synch. Job]
-        // [SCENARIO] BeginIntegrationSynchJob() should fail if a table is not registered as a Integration Table
-        Initialize;
-
-        ResetDefaultCRMSetupConfiguration;
-        // [GIVEN] The normal table is not registered as a Integration Table (integration records will not be created)
-        IntegrationTableMapping.Get('CUSTOMER');
-        IntegrationTableMapping."Table ID" := DATABASE::"License Agreement";
-
-        // [WHEN] Starting the Table Sync with Source NOT participating in integration records
-        Assert.IsTrue(
-          IsNullGuid(
-            IntegrationTableSynch.BeginIntegrationSynchJob(
-              TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Table ID")),
-          'Expected the begin integration synch job task to fail when Table ID is not registered and participating in integration records');
-
-        // [THEN] The process should fail with a message
-        IntegrationSynchJob.FindFirst;
-        Assert.AreNotEqual('', IntegrationSynchJob.Message, 'Expected sync process to fail with message');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure MissingFieldMappingFailsHard()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -1220,7 +1157,7 @@ codeunit 139165 "Integration Table Synch. Test"
           LatestModifiedOnAfter - 120000, IntegrationTableMapping."Synch. Modified On Filter",
           'Expected the synch. modified on filter to be updated');
         Assert.AreEqual(
-          LatestModifiedOnAfter, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.",
+          LatestModifiedOnAfter + 1000, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.",
           'Expected the int. tbl. synch. modified on filter to be updated');
     end;
 

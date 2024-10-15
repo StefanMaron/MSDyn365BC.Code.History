@@ -23,6 +23,7 @@ report 11000011 "Export SEPA ISO20022"
             trigger OnAfterGetRecord()
             begin
                 ExportFileName := GenerateExportfilename(AlwaysNewFileName);
+                ExportProtocolCode := "Export Protocol";
                 ExportSEPAFile;
 
                 Export := false;
@@ -76,10 +77,12 @@ report 11000011 "Export SEPA ISO20022"
         XMLDOMMgt: Codeunit "XML DOM Management";
         ExportFileName: Text[250];
         AlwaysNewFileName: Boolean;
+        ExportProtocolCode: Code[20];
 
     [Scope('OnPrem')]
     procedure ExportSEPAFile()
     var
+        ReportChecksum: Codeunit "Report Checksum";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -104,6 +107,7 @@ report 11000011 "Export SEPA ISO20022"
         FileNameOnServer := FileMgt.ServerTempFileName('');
 
         XMLDoc.Save(FileNameOnServer);
+        ReportChecksum.GenerateChecksum("Payment History", FileNameOnServer, ExportProtocolCode);
 
         FileMgt.DownloadToFile(FileNameOnServer, ExportFileName);
 
@@ -338,7 +342,7 @@ report 11000011 "Export SEPA ISO20022"
                                         BreakRemitInfoLoop := true;
                                 end;
                         end;
-                    until BreakRemitInfoLoop or (DetailLine.Next = 0);
+                    until BreakRemitInfoLoop or (DetailLine.Next() = 0);
 
                 if UnstructuredRemitInfo <> '' then begin
                     XMLDOMMgt.AddElement(XMLNodeCurr, 'RmtInf', '', '', XMLNewChild);
@@ -355,7 +359,7 @@ report 11000011 "Export SEPA ISO20022"
 
                 XMLNodeCurr := XMLNodeCurr.ParentNode;
                 XMLNodeCurr := XMLNodeCurr.ParentNode;
-            until PaymentHistoryLine.Next = 0;
+            until PaymentHistoryLine.Next() = 0;
     end;
 }
 

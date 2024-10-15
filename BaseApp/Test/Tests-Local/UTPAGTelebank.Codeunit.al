@@ -71,6 +71,7 @@ codeunit 144036 "UT PAG Telebank"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNLLocalization: Codeunit "Library - NL Localization";
 
     [Test]
     [HandlerFunctions('ObjectListHandler')]
@@ -1322,6 +1323,62 @@ codeunit 144036 "UT PAG Telebank"
         Assert.AreEqual(
           1, CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Page, PAGE::"Telebank Proposal", 'Bnk.GET'),
           'Unnecessary Bnk.GET found');
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExportBTL91ABNAMROChecksumFalse()
+    var
+        PaymentHistory: Record "Payment History";
+        ExportProtocol: Record "Export Protocol";
+        PaymentHistoryList: TestPage "Payment History List";
+    begin
+        // [GIVEN] Purpose of the test is to validate checksum after Exporting Payment History List page ID - 11000007.
+        // Setup: Create Payment History, open Payment History List page.
+        OpenPaymentHistoryList(PaymentHistoryList, 0);
+
+        // [WHEN]: Call action Export on Payment History List page.
+        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
+        PaymentHistory.TestField(Export, true);
+        ExportProtocol.Get(PaymentHistory."Export Protocol");
+        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, false, false);
+        PaymentHistoryList.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
+
+        PaymentHistory.Find;
+        PaymentHistoryList.Close;
+
+        // [THEN] Checksum field in the Payment History is left empty 
+        LibraryNLLocalization.VerifyPaymentHistoryChecksum(PaymentHistory."Our Bank", false, ExportProtocol.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExportBTL91ABNAMROGenerateChecksumTrue()
+    var
+        PaymentHistory: Record "Payment History";
+        ExportProtocol: Record "Export Protocol";
+        PaymentHistoryList: TestPage "Payment History List";
+    begin
+        // [GIVEN] Purpose of the test is to validate checksum after Exporting Payment History List page ID - 11000007.
+        // Setup: Create Payment History, open Payment History List page.
+        OpenPaymentHistoryList(PaymentHistoryList, 0);
+
+        // [WHEN]: Call action Export on Payment History List page.
+        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
+        PaymentHistory.TestField(Export, true);
+        ExportProtocol.Get(PaymentHistory."Export Protocol");
+        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, true, false);
+        PaymentHistoryList.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
+
+        PaymentHistory.Find;
+        PaymentHistoryList.Close;
+
+        // [THEN] Checksum field in the Payment History is populated
+        LibraryNLLocalization.VerifyPaymentHistoryChecksum(PaymentHistory."Our Bank", true, ExportProtocol.Code);
     end;
 
     local procedure CreateBankAccount(): Code[20]

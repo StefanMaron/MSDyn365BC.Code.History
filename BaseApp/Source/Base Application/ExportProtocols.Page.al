@@ -69,6 +69,27 @@ page 11000012 "Export Protocols"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the file locations to export payment and collection data to.';
                 }
+                field("Generate Checksum"; Rec."Generate Checksum")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether to generate a checksum and store it in the payment history.';
+
+                }
+                field("Checksum Algorithm"; Rec."Checksum Algorithm")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the checksum algorithm.';
+                    Enabled = Rec."Generate Checksum";
+
+                }
+                field("Append Checksum to File"; Rec."Append Checksum to File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether to append the checksum to the report file.';
+                    Enabled = Rec."Generate Checksum";
+                }
+
+
             }
         }
     }

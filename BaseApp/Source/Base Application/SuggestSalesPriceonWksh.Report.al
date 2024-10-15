@@ -125,10 +125,17 @@ report 7052 "Suggest Sales Price on Wksh."
                     end;
                 end;
 
-                SalesPriceWksh."Price Includes VAT" := "Price Includes VAT";
-                SalesPriceWksh."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
-                SalesPriceWksh."Allow Invoice Disc." := "Allow Invoice Disc.";
-                SalesPriceWksh."Allow Line Disc." := "Allow Line Disc.";
+                if ToSalesType = ToSalesType::"Customer Price Group" then begin
+                    SalesPriceWksh."Price Includes VAT" := ToCustPriceGr."Price Includes VAT";
+                    SalesPriceWksh."VAT Bus. Posting Gr. (Price)" := ToCustPriceGr."VAT Bus. Posting Gr. (Price)";
+                    SalesPriceWksh."Allow Invoice Disc." := ToCustPriceGr."Allow Invoice Disc.";
+                    SalesPriceWksh."Allow Line Disc." := ToCustPriceGr."Allow Line Disc.";
+                end else begin
+                    SalesPriceWksh."Price Includes VAT" := "Price Includes VAT";
+                    SalesPriceWksh."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
+                    SalesPriceWksh."Allow Invoice Disc." := "Allow Invoice Disc.";
+                    SalesPriceWksh."Allow Line Disc." := "Allow Line Disc.";
+                end;
                 SalesPriceWksh.CalcCurrentPrice(PriceAlreadyExists);
 
                 OnBeforeModifyOrInsertSalesPriceWksh(

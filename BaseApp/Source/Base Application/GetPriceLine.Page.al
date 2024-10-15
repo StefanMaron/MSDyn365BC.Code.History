@@ -17,7 +17,7 @@ page 7010 "Get Price Line"
                 field("Unit Price"; Rec."Unit Price")
                 {
                     AccessByPermission = tabledata "Sales Price Access" = R;
-                    Visible = PriceVisible;
+                    Visible = PriceVisible and IsSalesPrice;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the price of one unit of the selected product.';
                 }
@@ -38,20 +38,20 @@ page 7010 "Get Price Line"
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     AccessByPermission = tabledata "Purchase Price Access" = R;
-                    Visible = false;
+                    Visible = PriceVisible and not IsSalesPrice;
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cost of one unit of the selected product.';
                 }
                 field("Price List Code"; Rec."Price List Code")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the price list code.';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
                 }
                 field("Amount Type"; Rec."Amount Type")
                 {
                     Visible = false;
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the type of data, either price or discount, or both.';
+                    ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                 }
                 field("Source Type"; Rec."Source Type")
                 {
@@ -61,7 +61,7 @@ page 7010 "Get Price Line"
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the number of the entity who offers the price or the line discount on the product.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -71,13 +71,13 @@ page 7010 "Get Price Line"
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
-                    Visible = false;
+                    Visible = not HideProductControls;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the product that the price applies to.';
                 }
                 field("Asset No."; Rec."Asset No.")
                 {
-                    Visible = false;
+                    Visible = not HideProductControls;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the product that the price applies to.';
                 }
@@ -133,14 +133,33 @@ page 7010 "Get Price Line"
         DataCaptionExpr: Text;
         DataCaptionExprTok: Label 'Pick %1 for %2 of %3 %4',
             Comment = '%1 - Price or Discount, %2 - Sale or Purchase, %3 - the product type, %4 - the product no., e.g. Pick price for sale of Item 1000.';
+        DataCaptionAssetTok: Label '%1 %2 %3', Locked = true, Comment = '%1 %2 %3 - Product Type, Product No, Description';
 
     protected var
         AmountType: Enum "Price Amount Type";
         DiscountVisible: Boolean;
+        HideProductControls: Boolean;
         ItemVariantVisible: Boolean;
         WorkTypeCodeVisible: Boolean;
         PriceVisible: Boolean;
         IsSalesPrice: Boolean;
+
+    procedure SetDataCaptionExpr(PriceAssetList: Codeunit "Price Asset List")
+    var
+        TempPriceAsset: Record "Price Asset" temporary;
+        FirstEntryNo: Integer;
+    begin
+        if PriceAssetList.GetList(TempPriceAsset) then begin
+            FirstEntryNo := TempPriceAsset."Entry No.";
+            if TempPriceAsset.FindLast() then begin
+                TempPriceAsset.ValidateAssetNo();
+                DataCaptionExpr :=
+                    StrSubstNo(DataCaptionAssetTok,
+                        TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
+                HideProductControls := FirstEntryNo = TempPriceAsset."Entry No.";
+            end;
+        end;
+    end;
 
     procedure SetForLookup(LineWithPrice: Interface "Line With Price"; NewAmountType: Enum "Price Amount Type"; var TempPriceListLine: Record "Price List Line" temporary)
     var
@@ -153,7 +172,8 @@ page 7010 "Get Price Line"
         AssetType := LineWithPrice.GetAssetType();
         PriceType := LineWithPrice.GetPriceType();
         IsSalesPrice := PriceType = "Price Type"::Sale;
-        DataCaptionExpr := StrSubstNo(DataCaptionExprTok, AmountType, PriceType, AssetType, Rec."Asset No.");
+        if DataCaptionExpr = '' then
+            DataCaptionExpr := StrSubstNo(DataCaptionExprTok, AmountType, PriceType, AssetType, Rec."Asset No.");
         PriceVisible := AmountType in [AmountType::Price, AmountType::Any];
         DiscountVisible := AmountType in [AmountType::Discount, AmountType::Any];
         ItemVariantVisible := AssetType = AssetType::Item;

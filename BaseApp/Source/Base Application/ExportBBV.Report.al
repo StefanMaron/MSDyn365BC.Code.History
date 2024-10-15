@@ -144,7 +144,7 @@ report 11000008 "Export BBV"
                             CloseWriteField(Currfile, TempfileAccumulatives."Currency Code", TempfileAccumulatives."No. of Net Change",
                               TempfileAccumulatives.Amount, NextClose);
                             NextClose := true;
-                        until TempfileAccumulatives.Next = 0;
+                        until TempfileAccumulatives.Next() = 0;
                     // WriteHex(Currfile, 3);
                     Closefile(Currfile);
                 end;
@@ -158,6 +158,7 @@ report 11000008 "Export BBV"
                     EmptyFileName := true;
 
                 ClientFileName := GenerateExportfilename(NewFilenames);
+                ExportProtocolCode := "Export Protocol";
                 "File on Disk" := CopyStr(ClientFileName, 1, MaxStrLen("File on Disk"));
                 Modify;
 
@@ -266,6 +267,7 @@ report 11000008 "Export BBV"
         NextClose: Boolean;
         RBMgt: Codeunit "File Management";
         ClientFileName: Text;
+        ExportProtocolCode: Code[20];
 
     [Scope('OnPrem')]
     procedure Genpaymentorderinfo_32A(Currency: Code[3]; Amount: Text[15])
@@ -406,6 +408,7 @@ report 11000008 "Export BBV"
     [Scope('OnPrem')]
     procedure Closefile(var CFile: File)
     var
+        ReportChecksum: Codeunit "Report Checksum";
         ServerFileName: Text[1024];
     begin
         // Closes en opens to delete last 2 <ODOA> characters
@@ -415,7 +418,7 @@ report 11000008 "Export BBV"
         CFile.Seek(CFile.Len - 2);
         CFile.Trunc;
         CFile.Close;
-
+        ReportChecksum.GenerateChecksum("Payment History", ServerFileName, ExportProtocolCode);
         if RBMgt.IsLocalFileSystemAccessible then
             RBMgt.DownloadToFile(ServerFileName, ClientFileName)
         else

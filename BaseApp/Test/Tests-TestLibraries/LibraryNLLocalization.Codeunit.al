@@ -83,5 +83,57 @@ codeunit 143000 "Library - NL Localization"
         TransactionMode.Validate(Code, LibraryUtility.GenerateRandomCode(TransactionMode.FieldNo(Code), DATABASE::"Transaction Mode"));
         TransactionMode.Insert(true);
     end;
+
+    [Scope('OnPrem')]
+    procedure VerifyPaymentHistoryChecksum(BankAccountNo: Code[20]; GenerateChecksum: Boolean; ExportProtocolCode: Code[20])
+    var
+        PaymentHistory: Record "Payment History";
+        Assert: Codeunit Assert;
+    begin
+        FindPaymentHistory(BankAccountNo, PaymentHistory, ExportProtocolCode);
+        If GenerateChecksum then
+            Assert.IsTrue(PaymentHistory.Checksum <> '', 'Cheksum field is filled in in the Payment History')
+        else
+            Assert.IsTrue(PaymentHistory.Checksum = '', 'Cheksum field is not filled in in the Payment History');
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerifyExportedFileChecksum(BankAccountNo: Code[20]; AppendChecksum: Boolean)
+    var
+        PaymentHistory: Record "Payment History";
+        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        Assert: Codeunit Assert;
+        FileContent: BigText;
+        TextPosition: Integer;
+    begin
+        PaymentHistory.SetRange("Our Bank", BankAccountNo);
+        PaymentHistory.FindFirst;
+
+        LibraryTextFileValidation.ReadTextFile(PaymentHistory."File on Disk", FileContent);
+
+        TextPosition := FileContent.TextPos(PaymentHistory.Checksum);
+        If AppendChecksum then
+            Assert.IsTrue(TextPosition > 1, 'The exported file doesn''t contain checksum')
+        else
+            Assert.IsTrue(TextPosition = 0, 'The exported file contains checksum')
+
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetupExportProtocolChecksum(var ExportProtocol: Record "Export Protocol"; GenerateChecksum: Boolean; AppendChecksumToFile: Boolean)
+    var
+    begin
+        ExportProtocol.Validate("Append Checksum to File", AppendChecksumToFile);
+        ExportProtocol.Validate("Generate Checksum", GenerateChecksum);
+        ExportProtocol.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindPaymentHistory(BankAccountNo: Code[20]; var PaymentHistory: Record "Payment History"; ExportProtocolCode: Code[20])
+    begin
+        PaymentHistory.SetRange("Export Protocol", ExportProtocolCode);
+        PaymentHistory.SetRange("Our Bank", BankAccountNo);
+        PaymentHistory.FindLast;
+    end;
 }
 

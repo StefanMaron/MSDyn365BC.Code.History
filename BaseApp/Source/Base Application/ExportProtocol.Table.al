@@ -71,7 +71,7 @@ table 11000005 "Export Protocol"
         }
         field(30; "Check Name"; Text[30])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Check ID")));
             Caption = 'Check Name';
             Editable = false;
@@ -84,11 +84,35 @@ table 11000005 "Export Protocol"
         }
         field(32; "Docket Name"; Text[30])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Docket ID")));
             Caption = 'Docket Name';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(33; "Generate Checksum"; Boolean)
+        {
+            Caption = 'Generate Checksum';
+            InitValue = false;
+            trigger OnValidate()
+
+            begin
+                if not rec."Generate Checksum" then begin
+                    Rec."Append Checksum to File" := false;
+                    Rec.Modify();
+                end;
+            end;
+        }
+        field(34; "Checksum Algorithm"; Option)
+        {
+            Caption = 'Checksum Algorithm';
+            OptionMembers = MD5,SHA1,SHA256,SHA384,SHA512;
+
+        }
+        field(35; "Append Checksum to File"; Boolean)
+        {
+            Caption = 'Append Checksum to File';
+            InitValue = false;
         }
     }
 

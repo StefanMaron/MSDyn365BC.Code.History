@@ -115,6 +115,7 @@ report 11000009 "Export PAYMUL"
                 TotalNumberOfMessages := TotalNumberOfMessages + 1;
 
                 ClientFileName := GenerateExportfilename(NewFilenames);
+                ExportProtocolCode := "Export Protocol";
                 Openfile;
                 Exported := true;
 
@@ -233,6 +234,7 @@ report 11000009 "Export PAYMUL"
         LINCounter: Integer;
         RBMgt: Codeunit "File Management";
         ClientFileName: Text;
+        ExportProtocolCode: Code[20];
 
     [Scope('OnPrem')]
     procedure InterchangeHeader()
@@ -564,12 +566,13 @@ report 11000009 "Export PAYMUL"
 
     local procedure Closefile()
     var
+        ReportChecksum: Codeunit "Report Checksum";
         ServerFileName: Text[1024];
     begin
         ServerFileName := Curfile.Name;
         Curfile.Trunc;
         Curfile.Close;
-
+        ReportChecksum.GenerateChecksum("Payment History", ServerFileName, ExportProtocolCode);
         if RBMgt.IsLocalFileSystemAccessible then
             RBMgt.DownloadToFile(ServerFileName, ClientFileName)
         else

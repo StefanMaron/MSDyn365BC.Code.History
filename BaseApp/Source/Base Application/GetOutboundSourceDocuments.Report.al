@@ -55,6 +55,7 @@ report 7304 "Get Outbound Source Documents"
                     trigger OnPreDataItem()
                     begin
                         SetFilter("Qty. Outstanding", '>0');
+                        OnAfterWarehouseShipmentLineOnPreDataItem("Warehouse Shipment Line");
                     end;
                 }
 
@@ -280,6 +281,11 @@ report 7304 "Get Outbound Source Documents"
         if IsPickToBeMadeForAsmLine(AsmLine) then
             if WhsePickWkshCreate.FromAssemblyLineInATOWhseShpt(PickWkshTemplate, PickWkshName, AsmLine, WhseShptLine) then
                 LineCreated := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWarehouseShipmentLineOnPreDataItem(var WhseShipmentLine: record "Warehouse Shipment Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

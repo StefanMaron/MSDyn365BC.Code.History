@@ -2,8 +2,8 @@ table 5340 "CRM Systemuser"
 {
     // Dynamics CRM Version: 7.1.0.2040
 
-    Caption = 'CDS Systemuser';
-    Description = 'Person with access to the Microsoft CDS system and who owns objects in the Microsoft CDS database.';
+    Caption = 'Dataverse Systemuser';
+    Description = 'Person with access to the Microsoft Dataverse system and who owns objects in the Microsoft Dataverse database.';
     ExternalName = 'systemuser';
     TableType = CRM;
 

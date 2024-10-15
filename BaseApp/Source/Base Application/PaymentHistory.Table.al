@@ -74,7 +74,7 @@ table 11000001 "Payment History"
         }
         field(13; "Remaining Amount"; Decimal)
         {
-            CalcFormula = Sum ("Payment History Line".Amount WHERE("Run No." = FIELD("Run No."),
+            CalcFormula = Sum("Payment History Line".Amount WHERE("Run No." = FIELD("Run No."),
                                                                    Order = FIELD("Order Filter"),
                                                                    Date = FIELD("Date Filter"),
                                                                    "Our Bank" = FIELD("Our Bank"),
@@ -109,6 +109,11 @@ table 11000001 "Payment History"
         {
             Caption = 'Print Docket';
             InitValue = false;
+        }
+        field(19; Checksum; Text[256])
+        {
+            Caption = 'Checksum';
+            Editable = false;
         }
         field(50; "Account No."; Text[30])
         {
