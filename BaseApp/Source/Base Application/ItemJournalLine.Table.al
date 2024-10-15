@@ -1352,6 +1352,7 @@ table 83 "Item Journal Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5791; "Planned Delivery Date"; Date)
         {
@@ -2293,7 +2294,7 @@ table 83 "Item Journal Line"
                 PositiveFilterValue := (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation);
                 ItemLedgEntry.SetRange(Positive, PositiveFilterValue);
             end;
-            
+
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                 ItemLedgEntry.SetCurrentKey("Item No.", Open);
                 ItemLedgEntry.SetRange(Open, true);
@@ -3491,7 +3492,14 @@ table 83 "Item Journal Line"
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestItemFields(Rec, ItemNo, VariantCode, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.", ItemNo);
         TestField("Variant Code", VariantCode);
         TestField("Location Code", LocationCode);
@@ -3817,6 +3825,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestItemFields(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

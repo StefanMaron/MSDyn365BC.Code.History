@@ -228,21 +228,24 @@ codeunit 134163 "Company Init Unit Test"
     procedure TestCompanyInitialize()
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Company Init Unit Test");
+
         BindSubscription(LibraryJobQueue);
 
         // Setup
-        DeleteAllDataInSetupTables;
-        DeleteAllDataInSourceCodeTable;
-        DeleteAllStandardTexts;
-        DeleteReportSelections;
+        DeleteAllDataInSetupTables();
+        DeleteAllDataInSourceCodeTable();
+        DeleteAllStandardTexts();
+        DeleteReportSelections();
         DeleteDACHReportSelection;
-        DeleteJobWIPMethods;
-        DeleteBankExportImportSetup;
-        DeleteBankClearingStandard;
-        DeleteBankPmtApplRules;
-        DeleteAndInitApplicationArea;
+        DeleteJobWIPMethods();
+        DeleteBankExportImportSetup();
+        DeleteBankClearingStandard();
+        DeleteBankPmtApplRules();
+        DeleteAndInitApplicationArea();
 
         // Exercise
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -250,17 +253,17 @@ codeunit 134163 "Company Init Unit Test"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // Verify
-        CheckAllSetupTables;
-        CheckSourceCodeTable;
-        CheckStandardTexts;
-        CheckReportSelections;
+        CheckAllSetupTables();
+        CheckSourceCodeTable();
+        CheckStandardTexts();
+        CheckReportSelections();
         CheckDACHReportSelection;
-        CheckJobWIPMethods;
-        CheckBankExportImportSetup;
-        CheckVATRegNrValidation;
-        CheckBankPmtApplRules;
-        CheckApplicationAreaEntry;
-        CheckDachReportSelectionsVATStatement;
+        CheckJobWIPMethods();
+        CheckBankExportImportSetup();
+        CheckVATRegNrValidation();
+        CheckBankPmtApplRules();
+        CheckApplicationAreaEntry();
+        CheckDachReportSelectionsVATStatement();
     end;
 
     local procedure DeleteAllDataInSetupTables()
@@ -399,26 +402,26 @@ codeunit 134163 "Company Init Unit Test"
         CompanyInfo: Record "Company Information";
         MfgSetup: Record "Manufacturing Setup";
     begin
-        GLSetup.FindFirst;
-        SalesSetup.FindFirst;
-        MarketingSetup.FindFirst;
-        InteractionTemplateSetup.FindFirst;
-        ServiceMgtSetup.FindFirst;
-        PurchSetup.FindFirst;
-        InvtSetup.FindFirst;
-        ResourcesSetup.FindFirst;
-        JobsSetup.FindFirst;
-        FASetup.FindFirst;
-        HumanResourcesSetup.FindFirst;
-        WhseSetup.FindFirst;
-        NonstockItemSetup.FindFirst;
-        CashFlowSetup.FindFirst;
-        CostAccSetup.FindFirst;
-        AssemblySetup.FindFirst;
-        VATReportSetup.FindFirst;
-        ConfigSetup.FindFirst;
-        CompanyInfo.FindFirst;
-        MfgSetup.FindFirst;
+        GLSetup.FindFirst();
+        SalesSetup.FindFirst();
+        MarketingSetup.FindFirst();
+        InteractionTemplateSetup.FindFirst();
+        ServiceMgtSetup.FindFirst();
+        PurchSetup.FindFirst();
+        InvtSetup.FindFirst();
+        ResourcesSetup.FindFirst();
+        JobsSetup.FindFirst();
+        FASetup.FindFirst();
+        HumanResourcesSetup.FindFirst();
+        WhseSetup.FindFirst();
+        NonstockItemSetup.FindFirst();
+        CashFlowSetup.FindFirst();
+        CostAccSetup.FindFirst();
+        AssemblySetup.FindFirst();
+        VATReportSetup.FindFirst();
+        ConfigSetup.FindFirst();
+        CompanyInfo.FindFirst();
+        MfgSetup.FindFirst();
     end;
 
     local procedure CheckSourceCodeTable()
@@ -499,7 +502,7 @@ codeunit 134163 "Company Init Unit Test"
         SourceCode: Record "Source Code";
     begin
         SourceCode.SetRange(Code, RecCode);
-        SourceCode.FindFirst;
+        SourceCode.FindFirst();
         Assert.AreEqual(Value, SourceCode.Description, ValuesAreNotEqualErr);
     end;
 
@@ -516,7 +519,7 @@ codeunit 134163 "Company Init Unit Test"
         StandardText: Record "Standard Text";
     begin
         StandardText.SetRange(Code, RecCode);
-        StandardText.FindFirst;
+        StandardText.FindFirst();
         Assert.AreEqual(Value, StandardText.Description, ValuesAreNotEqualErr);
     end;
 
@@ -535,7 +538,7 @@ codeunit 134163 "Company Init Unit Test"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange(Code, RecCode);
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         Assert.AreEqual(Name, BankExportImportSetup.Name, ValuesAreNotEqualErr);
         Assert.AreEqual(Direction, BankExportImportSetup.Direction, ValuesAreNotEqualErr);
         Assert.AreEqual(CodeunitId, BankExportImportSetup."Processing Codeunit ID", ValuesAreNotEqualErr);
@@ -618,7 +621,7 @@ codeunit 134163 "Company Init Unit Test"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.SetRange(Usage, RecUsage);
-        ReportSelections.FindFirst;
+        ReportSelections.FindFirst();
         Assert.AreEqual(Sequence, ReportSelections.Sequence, ValuesAreNotEqualErr);
         Assert.AreEqual(ReportId, ReportSelections."Report ID", ValuesAreNotEqualErr);
     end;
@@ -644,7 +647,7 @@ codeunit 134163 "Company Init Unit Test"
         JobWIPMethod: Record "Job WIP Method";
     begin
         JobWIPMethod.SetRange(Code, RecCode);
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         Assert.AreEqual(Value, JobWIPMethod.Description, ValuesAreNotEqualErr);
         Assert.AreEqual(true, JobWIPMethod."WIP Cost", ValuesAreNotEqualErr);
         Assert.AreEqual(true, JobWIPMethod."WIP Sales", ValuesAreNotEqualErr);
@@ -659,7 +662,7 @@ codeunit 134163 "Company Init Unit Test"
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
-        VATRegNoSrvConfig.FindFirst;
+        VATRegNoSrvConfig.FindFirst();
         Assert.AreEqual('http://ec.europa.eu/taxation_customs/vies/services/checkVatService',
           VATRegNoSrvConfig."Service Endpoint", ValuesAreNotEqualErr);
     end;
@@ -861,7 +864,7 @@ codeunit 134163 "Company Init Unit Test"
         BankPmtApplRule.SetRange("Doc. No./Ext. Doc. No. Matched", DocMatch);
         BankPmtApplRule.SetRange("Amount Incl. Tolerance Matched", AmountMatch);
         BankPmtApplRule.SetRange("Direct Debit Collect. Matched", DirectDebitCollectionMatch);
-        BankPmtApplRule.FindFirst;
+        BankPmtApplRule.FindFirst();
     end;
 
     local procedure CheckApplicationAreaEntry()

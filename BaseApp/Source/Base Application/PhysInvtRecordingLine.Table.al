@@ -3,6 +3,7 @@ table 5005353 "Phys. Invt. Recording Line"
     Caption = 'Phys. Invt. Recording Line';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

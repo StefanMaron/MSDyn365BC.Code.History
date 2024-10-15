@@ -1757,6 +1757,30 @@
         VerifyElementCountInIndexXML(FolderName, Format(DataExportRecordDefinition."File Encoding"), 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportBusinessDataSameTableWithSameFieldsIndexXml()
+    var
+        DataExportRecordDefinition: Record "Data Export Record Definition";
+        DataExportRecordSource: Record "Data Export Record Source";
+        FolderName: Text;
+    begin
+        // [FEATURE] [Digital Audit]
+        // [SCENARIO 341876] Exporting same table with the same fields doesn't lead to duplication of the said fields in index.xml.
+
+        // [GIVEN] Data Export Record Definiton with Customer Table added twice with one primary field and two non-primary.
+        CreateRecDefinition(DataExportRecordDefinition);
+        AddCustRecordSourceWithSameFields(DataExportRecordDefinition,DataExportRecordSource);
+        AddCustRecordSourceWithSameFields(DataExportRecordDefinition,DataExportRecordSource);
+
+        // [WHEN] Data exported using report 11015 "Export Business Data".
+        FolderName := ExportBusinessData(DataExportRecordDefinition);
+
+        // [THEN] index.xml has exactly 2 'VariablePrimaryKey' tags and 4 'VariableColumn' tags.
+        VerifyElementCountInIndexXML(FolderName, 'VariablePrimaryKey', 2);
+        VerifyElementCountInIndexXML(FolderName, 'VariableColumn', 4);
+    end;
+
     local procedure GetPKFieldIndex(): Integer
     begin
         exit(1);

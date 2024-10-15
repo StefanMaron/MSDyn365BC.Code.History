@@ -641,6 +641,7 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
@@ -678,6 +679,7 @@ table 98 "General Ledger Setup"
             Caption = 'Post Pmt.Disc Tol. to Pmt.Disc';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11011; "Sales VAT Advance Notif. Nos."; Code[20])
         {
@@ -685,6 +687,7 @@ table 98 "General Ledger Setup"
             ObsoleteReason = 'Moved to Elster extension, new field Sales VAT Adv. Notif. Nos.';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -582,6 +582,7 @@ codeunit 144044 "Test LSV DD Payment Import"
 
         DDFile.Close;
 
+        FileMgt.DeleteClientDirectory(LSVSetup."DebitDirect Import Filename");
         FileMgt.CopyClientFile(OutputFileName, LSVSetup."DebitDirect Import Filename", true);
     end;
 

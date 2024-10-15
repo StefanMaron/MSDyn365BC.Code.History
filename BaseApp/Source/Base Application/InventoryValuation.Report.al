@@ -1,4 +1,4 @@
-report 1001 "Inventory Valuation"
+﻿report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -175,7 +175,14 @@ report 1001 "Inventory Valuation"
             }
 
             trigger OnAfterGetRecord()
+            var
+                SkipItem: Boolean;
             begin
+                SkipItem := false;
+                OnBeforeOnAfterItemGetRecord(Item, SkipItem);
+                if SkipItem then
+                    CurrReport.Skip();
+
                 CalcFields("Assembly BOM");
 
                 if EndDate = 0D then
@@ -427,6 +434,11 @@ report 1001 "Inventory Valuation"
         // use filter Item.SETFILTER("No.",'=%1',ItemNumber);.
         exit(GetUrl(ClientTypeManagement.GetCurrentClientType, CompanyName, OBJECTTYPE::Report, REPORT::"Invt. Valuation - Cost Spec.") +
           StrSubstNo('&filter=Item.Field1:%1', ItemNumber));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterItemGetRecord(var Item: Record Item; var SkipItem: Boolean)
+    begin
     end;
 }
 

@@ -413,6 +413,7 @@ table 254 "VAT Entry"
             ObsoleteReason = '"The field is no longer needed"';
             ObsoleteState = Pending;
             TableRelation = "G/L Account";
+            ObsoleteTag = '15.0';
         }
         field(11500; "VAT %"; Decimal)
         {

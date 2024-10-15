@@ -39,7 +39,7 @@ page 228 "Res. Gr. Allocated per Job"
                     begin
                         DateControl;
                         SetColumns(SetWanted::Initial);
-                        PeriodTypeOnAfterValidate;
+                        CurrPage.Update();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -52,7 +52,7 @@ page 228 "Res. Gr. Allocated per Job"
                     begin
                         DateControl;
                         SetColumns(SetWanted::Initial);
-                        DateFilterOnAfterValidate;
+                        CurrPage.Update();
                     end;
                 }
                 field(ColumnsSet; ColumnsSet)
@@ -82,13 +82,19 @@ page 228 "Res. Gr. Allocated per Job"
 
                 trigger OnAction()
                 var
-                    HorizontalRecord: Record "Job Planning Line";
+                    JobPlanningLine: Record "Job Planning Line";
                     ResGrpPerJobFormWithMatrix: Page "ResGrp. Alloc. per Job Matrix";
+                    IsHandled: Boolean;
                 begin
-                    HorizontalRecord.SetRange("Resource Group No.", ResourceGrFilter);
-                    HorizontalRecord.SetRange(Type, HorizontalRecord.Type::Resource);
+                    IsHandled := false;
+                    OnActionShowMatrix(JobRec, ResourceGrFilter, MatrixColumnCaptions, MatrixRecords, IsHandled);
+                    If IsHandled then
+                        exit;
+
+                    JobPlanningLine.SetRange("Resource Group No.", ResourceGrFilter);
+                    JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
                     JobRec.SetRange("Resource Gr. Filter", ResourceGrFilter);
-                    ResGrpPerJobFormWithMatrix.Load(JobRec, HorizontalRecord, MatrixColumnCaptions, MatrixRecords);
+                    ResGrpPerJobFormWithMatrix.Load(JobRec, JobPlanningLine, MatrixColumnCaptions, MatrixRecords);
                     ResGrpPerJobFormWithMatrix.RunModal;
                 end;
             }
@@ -157,18 +163,14 @@ page 228 "Res. Gr. Allocated per Job"
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
-          ColumnsSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            SetWanted, 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
+            ColumnsSet, CurrSetLength, MatrixRecords);
     end;
 
-    local procedure PeriodTypeOnAfterValidate()
+    [IntegrationEvent(false, false)]
+    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceGrFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; var IsHandled: Boolean)
     begin
-        CurrPage.Update;
-    end;
-
-    local procedure DateFilterOnAfterValidate()
-    begin
-        CurrPage.Update;
     end;
 }
 

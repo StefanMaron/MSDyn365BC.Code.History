@@ -3,6 +3,7 @@ table 5005355 "Posted Phys. Invt. Order Line"
     Caption = 'Posted Phys. Invt. Order Line';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {
@@ -201,6 +202,7 @@ table 5005355 "Posted Phys. Invt. Order Line"
             ObsoleteState = Pending;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {

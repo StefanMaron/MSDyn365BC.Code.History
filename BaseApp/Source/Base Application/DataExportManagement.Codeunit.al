@@ -93,7 +93,7 @@ codeunit 11000 "Data Export Management"
                             if RelDataExportRecordSource.Indentation > OldIndentation then begin
                                 RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + Indentation - OldIndentation;
                                 Indented := true;
-                                RelDataExportRecordSource.Modify;
+                                RelDataExportRecordSource.Modify();
                             end;
                         until (not Indented) or (RelDataExportRecordSource.Next = 0);
                     end else
@@ -106,7 +106,7 @@ codeunit 11000 "Data Export Management"
                             RelDataExportRecordSource."Relation To Table No." := "Relation To Table No.";
                             RelDataExportRecordSource."Relation To Line No." := "Relation To Line No.";
                         end;
-                        RelDataExportRecordSource.Modify;
+                        RelDataExportRecordSource.Modify();
                         Indented := true;
                     end;
                         until (not Indented) or (RelDataExportRecordSource.Next = 0);
@@ -124,11 +124,11 @@ codeunit 11000 "Data Export Management"
     var
         DataExportTableRelation: Record "Data Export Table Relation";
     begin
-        DataExportTableRelation.Reset;
+        DataExportTableRelation.Reset();
         DataExportTableRelation.SetRange("Data Export Code", DataExportCode);
         DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", RecordCode);
         DataExportTableRelation.SetRange("To Table No.", TableNo);
-        DataExportTableRelation.DeleteAll;
+        DataExportTableRelation.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -164,7 +164,7 @@ codeunit 11000 "Data Export Management"
         XMLMediaNode: DotNet XmlElement;
         Symbol: array[2] of Text[1];
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         if IsNull(XMLDocOut) then
             XMLDocOut := XMLDocOut.XmlDocument;
@@ -174,7 +174,7 @@ codeunit 11000 "Data Export Management"
         if XMLDocOut.OuterXml = '' then
             Error(IndexNotCreatedErr);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         XMLCurrNode := XMLDocOut.DocumentElement;
         XMLDOMManagement.AddNode(XMLCurrNode, 'Version', '');
         XMLDOMManagement.AddGroupNode(XMLCurrNode, 'DataSupplier');
@@ -239,6 +239,7 @@ codeunit 11000 "Data Export Management"
             SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
             SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
             SetRange("Table No.", DataExportRecordSource."Table No.");
+            SetRange("Source Line No.", DataExportRecordSource."Line No.");
         end;
     end;
 
@@ -247,8 +248,8 @@ codeunit 11000 "Data Export Management"
         RecRef: RecordRef;
         KeyRef: KeyRef;
     begin
-        TempPKDataExportRecordField.DeleteAll;
-        TempNonPKDataExportRecordField.DeleteAll;
+        TempPKDataExportRecordField.DeleteAll();
+        TempNonPKDataExportRecordField.DeleteAll();
         with DataExportRecField do
             if FindSet then begin
                 RecRef.Open("Table No.");

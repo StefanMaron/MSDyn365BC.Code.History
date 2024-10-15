@@ -210,6 +210,8 @@ codeunit 1006 "Copy Job"
         TargetJobResourcePrice: Record "Job Resource Price";
         TargetJobGLAccountPrice: Record "Job G/L Account Price";
     begin
+        OnBeforeCopyJobPrices(SourceJob, TargetJob);
+
         SourceJobItemPrice.SetRange("Job No.", SourceJob."No.");
         SourceJobItemPrice.SetRange("Currency Code", SourceJob."Currency Code");
 
@@ -381,6 +383,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyJobTask(var TargetJobTask: Record "Job Task"; SourceJobTask: Record "Job Task"; CopyPrices: Boolean; CopyQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJobPrices(var SourceJob: Record Job; var TargetJob: Record Job)
     begin
     end;
 }

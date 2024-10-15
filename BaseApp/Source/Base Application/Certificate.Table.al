@@ -3,6 +3,7 @@ table 11014 Certificate
     Caption = 'Certificate';
     ObsoleteReason = 'Moved to Elster extension, new table Elster-Certificate.';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

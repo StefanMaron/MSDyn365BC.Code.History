@@ -252,7 +252,9 @@ codeunit 99000831 "Reservation Engine Mgt."
             ReservEntry.Validate("Quantity (Base)", NewQuantity);
             ReservEntry.Description := NewDescription;
             ReservEntry."Changed By" := UserId;
-            ReservEntry.Modify;
+            OnModifyReservEntryOnBeforeExistingReservEntryModify(ReservEntry);
+            ReservEntry.Modify();
+            OnModifyReservEntryOnAfterExistingReservEntryModify(ReservEntry);
             if Item."Order Tracking Policy" > Item."Order Tracking Policy"::None then begin
                 TotalQty := ReservMgt.SourceQuantity(ReservEntry, true);
                 ReservMgt.AutoTrack(TotalQty);
@@ -269,6 +271,8 @@ codeunit 99000831 "Reservation Engine Mgt."
                 end;
             end;
         end;
+
+        OnAfterModifyReservEntry(ReservEntry);
     end;
 
     procedure CreateForText(ReservEntry: Record "Reservation Entry"): Text[80]
@@ -1308,6 +1312,11 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyReservEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterModifyShipmentDate(var ReservationEntry2: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -1323,7 +1332,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCloseReservEntry(ReservEntry: Record "Reservation Entry"; ReTrack: Boolean; DeleteAll: Boolean)
+    local procedure OnBeforeCloseReservEntry(var ReservEntry: Record "Reservation Entry"; ReTrack: Boolean; DeleteAll: Boolean)
     begin
     end;
 
@@ -1339,6 +1348,16 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelReservationOnBeforeDoCancel(ReservationEntry3: Record "Reservation Entry"; ReservationEntry: Record "Reservation Entry"; var DoCancel: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyReservEntryOnAfterExistingReservEntryModify(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyReservEntryOnBeforeExistingReservEntryModify(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

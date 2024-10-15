@@ -278,6 +278,7 @@ table 32 "Item Ledger Entry"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5800; "Completely Invoiced"; Boolean)
         {

@@ -162,7 +162,7 @@ table 1518 "My Notifications"
         RequestPageParametersHelper.ConvertParametersToFilters(RecordRef, TempBlob);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetFiltersAsDisplayText(): Text
     var
         RecordRef: RecordRef;
@@ -212,7 +212,7 @@ table 1518 "My Notifications"
         exit(XmlDoc.InnerXml);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure OpenFilterSettings() Changed: Boolean
     var
         DummyMyNotifications: Record "My Notifications";

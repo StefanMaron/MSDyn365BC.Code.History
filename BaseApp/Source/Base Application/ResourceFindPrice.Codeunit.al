@@ -28,7 +28,7 @@ codeunit 221 "Resource-Find Price"
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindResPrice(ResPrice, IsHandled, Result);
+        OnBeforeFindResPrice(ResPrice, IsHandled, Result, ResPrice2);
         if IsHandled then
             exit(Result);
 
@@ -62,7 +62,7 @@ codeunit 221 "Resource-Find Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindResPrice(var ResourcePrice: Record "Resource Price"; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeFindResPrice(var ResourcePrice: Record "Resource Price"; var IsHandled: Boolean; var Result: Boolean; var ResourcePrice2: Record "Resource Price")
     begin
     end;
 }

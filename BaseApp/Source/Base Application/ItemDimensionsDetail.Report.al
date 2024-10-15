@@ -581,7 +581,7 @@ report 7150 "Item Dimensions - Detail"
         FindFirstValueEntry: array[4] of Boolean;
         DimCode: array[4] of Text[30];
         DimValCode: array[4] of Code[20];
-        DimValName: array[4] of Text[50];
+        DimValName: array[4] of Text[100];
         LevelFilter: array[3] of Text[250];
         SalesAmtTotal: array[3] of Decimal;
         CostAmtTotal: array[3] of Decimal;

@@ -19,7 +19,7 @@ table 1301 "Item Template"
             var
                 InventorySetup: Record "Inventory Setup";
             begin
-                InventorySetup.Get;
+                InventorySetup.Get();
                 "Costing Method" := InventorySetup."Default Costing Method";
             end;
         }
@@ -213,10 +213,10 @@ table 1301 "Item Template"
         TempItemTemplate.SetRange(Code, ConfigTemplateHeader.Code);
         TempItemTemplate.SetRange("Template Name", ConfigTemplateHeader.Description);
         if not TempItemTemplate.FindFirst then begin
-            TempItemTemplate.Init;
+            TempItemTemplate.Init();
             TempItemTemplate.Code := ConfigTemplateHeader.Code;
             TempItemTemplate."Template Name" := ConfigTemplateHeader.Description;
-            TempItemTemplate.Insert;
+            TempItemTemplate.Insert();
         end;
 
         // Remove the filters added for the previous FINDFIRST
@@ -355,6 +355,7 @@ table 1301 "Item Template"
         ConfigTemplateHeader: Record "Config. Template Header";
         DimensionsTemplate: Record "Dimensions Template";
         ConfigTemplates: Page "Config Templates";
+        FldRef: FieldRef;
         ItemRecRef: RecordRef;
     begin
         if GuiAllowed then begin
@@ -368,7 +369,8 @@ table 1301 "Item Template"
                 if ItemRecRef.FindSet then
                     repeat
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, ItemRecRef);
-                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Item."No.", DATABASE::Item);
+                        FldRef := ItemRecRef.Field(1);
+                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Item);
                     until ItemRecRef.Next = 0;
                 ItemRecRef.SetTable(Item);
             end;

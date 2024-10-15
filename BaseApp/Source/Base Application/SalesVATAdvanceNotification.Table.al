@@ -4,6 +4,7 @@ table 11011 "Sales VAT Advance Notification"
     DataCaptionFields = "No.", Description;
     ObsoleteReason = 'Moved to Elster extension, new table Sales VAT Advance Notif.';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -55,7 +55,7 @@ codeunit 392 "Reminder-Make"
             CustLedgEntry.SetRange("Customer No.", Cust."No.");
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange(Positive, true);
-            OnBeforeCustLedgerEntryFind(CustLedgEntry, ReminderHeader, Cust);
+            OnBeforeCustLedgerEntryFind(CustLedgEntry, ReminderHeaderReq, Cust);
             if CustLedgEntry.FindSet then
                 repeat
                     if CustLedgEntry."On Hold" = '' then begin

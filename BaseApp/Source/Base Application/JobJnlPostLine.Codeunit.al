@@ -70,6 +70,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             if "Document Date" = 0D then
                 "Document Date" := "Posting Date";
 
+            OnBeforeCreateJobRegister(JobJnlLine);
             if JobReg."No." = 0 then begin
                 JobReg.LockTable;
                 if (not JobReg.FindLast) or (JobReg."To Entry No." <> 0) then begin
@@ -172,29 +173,32 @@ codeunit 1012 "Job Jnl.-Post Line"
         JobLedgEntry.Init;
         JobTransferLine.FromJnlLineToLedgEntry(JobJnlLine2, JobLedgEntry);
 
-        if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then begin
-            JobLedgEntry.Quantity := -JobJnlLine2.Quantity;
-            JobLedgEntry."Quantity (Base)" := -JobJnlLine2."Quantity (Base)";
-            JobLedgEntry."Total Cost (LCY)" := -JobJnlLine2."Total Cost (LCY)";
-            JobLedgEntry."Total Cost" := -JobJnlLine2."Total Cost";
-            JobLedgEntry."Total Price (LCY)" := -JobJnlLine2."Total Price (LCY)";
-            JobLedgEntry."Total Price" := -JobJnlLine2."Total Price";
-            JobLedgEntry."Line Amount (LCY)" := -JobJnlLine2."Line Amount (LCY)";
-            JobLedgEntry."Line Amount" := -JobJnlLine2."Line Amount";
-            JobLedgEntry."Line Discount Amount (LCY)" := -JobJnlLine2."Line Discount Amount (LCY)";
-            JobLedgEntry."Line Discount Amount" := -JobJnlLine2."Line Discount Amount";
-        end else begin
-            JobLedgEntry.Quantity := JobJnlLine2.Quantity;
-            JobLedgEntry."Quantity (Base)" := JobJnlLine2."Quantity (Base)";
-            JobLedgEntry."Total Cost (LCY)" := JobJnlLine2."Total Cost (LCY)";
-            JobLedgEntry."Total Cost" := JobJnlLine2."Total Cost";
-            JobLedgEntry."Total Price (LCY)" := JobJnlLine2."Total Price (LCY)";
-            JobLedgEntry."Total Price" := JobJnlLine2."Total Price";
-            JobLedgEntry."Line Amount (LCY)" := JobJnlLine2."Line Amount (LCY)";
-            JobLedgEntry."Line Amount" := JobJnlLine2."Line Amount";
-            JobLedgEntry."Line Discount Amount (LCY)" := JobJnlLine2."Line Discount Amount (LCY)";
-            JobLedgEntry."Line Discount Amount" := JobJnlLine2."Line Discount Amount";
-        end;
+        IsHandled := false;
+        OnCreateJobLedgEntryOnBeforeAssignQtyCostPrice(JobLedgEntry, JobJnlLine2, IsHandled);
+        if not IsHandled then
+            if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then begin
+                JobLedgEntry.Quantity := -JobJnlLine2.Quantity;
+                JobLedgEntry."Quantity (Base)" := -JobJnlLine2."Quantity (Base)";
+                JobLedgEntry."Total Cost (LCY)" := -JobJnlLine2."Total Cost (LCY)";
+                JobLedgEntry."Total Cost" := -JobJnlLine2."Total Cost";
+                JobLedgEntry."Total Price (LCY)" := -JobJnlLine2."Total Price (LCY)";
+                JobLedgEntry."Total Price" := -JobJnlLine2."Total Price";
+                JobLedgEntry."Line Amount (LCY)" := -JobJnlLine2."Line Amount (LCY)";
+                JobLedgEntry."Line Amount" := -JobJnlLine2."Line Amount";
+                JobLedgEntry."Line Discount Amount (LCY)" := -JobJnlLine2."Line Discount Amount (LCY)";
+                JobLedgEntry."Line Discount Amount" := -JobJnlLine2."Line Discount Amount";
+            end else begin
+                JobLedgEntry.Quantity := JobJnlLine2.Quantity;
+                JobLedgEntry."Quantity (Base)" := JobJnlLine2."Quantity (Base)";
+                JobLedgEntry."Total Cost (LCY)" := JobJnlLine2."Total Cost (LCY)";
+                JobLedgEntry."Total Cost" := JobJnlLine2."Total Cost";
+                JobLedgEntry."Total Price (LCY)" := JobJnlLine2."Total Price (LCY)";
+                JobLedgEntry."Total Price" := JobJnlLine2."Total Price";
+                JobLedgEntry."Line Amount (LCY)" := JobJnlLine2."Line Amount (LCY)";
+                JobLedgEntry."Line Amount" := JobJnlLine2."Line Amount";
+                JobLedgEntry."Line Discount Amount (LCY)" := JobJnlLine2."Line Discount Amount (LCY)";
+                JobLedgEntry."Line Discount Amount" := JobJnlLine2."Line Discount Amount";
+            end;
 
         JobLedgEntry."Additional-Currency Total Cost" := -JobLedgEntry."Additional-Currency Total Cost";
         JobLedgEntry."Add.-Currency Total Price" := -JobLedgEntry."Add.-Currency Total Price";
@@ -234,6 +238,9 @@ codeunit 1012 "Job Jnl.-Post Line"
                         end;
                     end;
             end;
+
+        OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(JobLedgEntry, JobJnlLine2);
+
         if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then begin
             JobLedgEntry."Serial No." := JobJnlLine2."Serial No.";
             JobLedgEntry."Lot No." := JobJnlLine2."Lot No.";
@@ -317,7 +324,9 @@ codeunit 1012 "Job Jnl.-Post Line"
                     if ApplyToJobContractEntryNo then
                         ItemJnlLine."Job Contract Entry No." := JobPlanningLine."Job Contract Entry No.";
 
-                    ItemLedgEntry.LockTable;
+                    OnPostItemOnBeforeAssignItemJnlLine(JobJnlLine, JobJnlLine2, ItemJnlLine);
+
+                    ItemLedgEntry.LockTable();
                     ItemJnlLine2 := ItemJnlLine;
                     ItemJnlPostLine.RunWithCheck(ItemJnlLine);
                     ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
@@ -588,6 +597,11 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateJobRegister(var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobLedgEntryInsert(var JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
     begin
     end;
@@ -599,6 +613,16 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckJobOnBeforeTestJobTaskType(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobLedgEntryOnBeforeAssignQtyCostPrice(var JobLedgEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(var JobLedgEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
@@ -619,6 +643,11 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemOnBeforeUpdateTotalAmounts(var JobJournalLine: Record "Job Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnBeforeAssignItemJnlLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 }

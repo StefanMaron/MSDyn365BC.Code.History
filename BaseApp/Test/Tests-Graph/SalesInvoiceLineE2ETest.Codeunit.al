@@ -19,6 +19,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         InvoiceServiceLinesNameTxt: Label 'salesInvoiceLines';
         LineTypeFieldNameTxt: Label 'lineType';
@@ -28,15 +29,20 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Sales Invoice Line E2E Test");
+
         if IsInitialized then
             exit;
 
-        LibrarySales.SetStockoutWarning(false);
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Sales Invoice Line E2E Test");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibrarySales.SetStockoutWarning(false);
+        LibraryApplicationArea.EnableFoundationSetup();
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Sales Invoice Line E2E Test");
     end;
 
     [Test]
@@ -48,14 +54,11 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the lines without providing a parent Invoice ID.
         // [GIVEN] the invoice API exposed
-        Initialize;
+        Initialize();
 
         // [WHEN] we GET all the lines without an ID from the web service
-        TargetURL := LibraryGraphMgt
-          .CreateTargetURLWithSubpage('',
-            PAGE::"Sales Invoice Entity",
-            InvoiceServiceNameTxt,
-            InvoiceServiceLinesNameTxt);
+        TargetURL :=
+            LibraryGraphMgt.CreateTargetURLWithSubpage('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt, InvoiceServiceLinesNameTxt);
         asserterror LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the response text should be empty
@@ -76,14 +79,14 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a unposted Invoice
         // [GIVEN] An invoice with lines.
-        Initialize;
+        Initialize();
         InvoiceId := CreateSalesInvoiceWithLines(SalesHeader);
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo1 := Format(SalesLine."Line No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         LineNo2 := Format(SalesLine."Line No.");
 
         // [WHEN] we GET all the lines with the unposted invoice ID from the web service
@@ -113,13 +116,13 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a posted Invoice
         // [GIVEN] A posted invoice with lines.
-        Initialize;
+        Initialize();
         PostedInvoiceId := CreatePostedSalesInvoiceWithLines(SalesInvoiceHeader);
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         LineNo1 := Format(SalesInvoiceLine."Line No.");
-        SalesInvoiceLine.FindLast;
+        SalesInvoiceLine.FindLast();
         LineNo2 := Format(SalesInvoiceLine."Line No.");
 
         // [WHEN] we GET all the lines with the posted invoice ID from the web service
@@ -151,7 +154,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Invoice
         // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line
-        Initialize;
+        Initialize();
         InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -195,7 +198,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Invoice with a sequence number
         // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line
-        Initialize;
+        Initialize();
         InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -241,7 +244,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an unposted Invoice with a unit of measure id and complex type
         // [GIVEN] an existing unposted invoice and 2 valid JSONs describing the new invoice lines
-        Initialize;
+        Initialize();
         InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -293,12 +296,12 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreateSalesInvoiceWithLines(SalesHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         SalesQuantity := 4;
@@ -345,12 +348,12 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an unposted Invoice will fail if sequence is modified
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreateSalesInvoiceWithLines(SalesHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         NewSequence := SalesLine."Line No." + 1;
@@ -383,14 +386,14 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a line to an unposted Invoice with a unit of measure id and complex type
         // [GIVEN] an existing unposted invoice with lines and 2 valid JSONs describing the new invoice lines
-        Initialize;
+        Initialize();
         InvoiceLineID := CreateSalesInvoiceWithLines(SalesHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo[1] := SalesLine."Line No.";
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         LineNo[2] := SalesLine."Line No.";
 
         // [GIVEN] a unit of measure
@@ -440,12 +443,12 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] DELETE a line from an unposted Invoice
         // [GIVEN] An unposted invoice with lines
-        Initialize;
+        Initialize();
         InvoiceId := CreateSalesInvoiceWithLines(SalesHeader);
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         Commit;
@@ -480,11 +483,11 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Call DELETE on a line of a posted Invoice
         // [GIVEN] A posted invoice with lines
-        Initialize;
+        Initialize();
         PostedInvoiceId := CreatePostedSalesInvoiceWithLines(SalesInvoiceHeader);
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         LineNo := SalesInvoiceLine."Line No.";
 
         // [WHEN] we DELETE the first line through the API
@@ -528,7 +531,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Create an invoice both through the client UI and through the API and compare their final values.
         // [GIVEN] An unposted invoice and a JSON describing the line we want to create
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
@@ -595,7 +598,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Creating a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for customer with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -637,7 +640,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for customer with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -684,7 +687,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for customer with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -731,7 +734,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for customer with invoice discount pct
-        Initialize;
+        Initialize();
         CreateInvoiceWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -772,7 +775,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Adding an invoice through API will keep Discount Amount
         // [GIVEN] An unposted invoice for customer with invoice discount amount
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
@@ -807,7 +810,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should keep existing Discount Amount
         // [GIVEN] An unposted invoice for customer with invoice discount amt
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
@@ -845,7 +848,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An unposted invoice for customer with invoice discount pct
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         Commit;
 
@@ -879,7 +882,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Getting a line through API lists all possible types
         // [GIVEN] An invoice with lines of different types
-        Initialize;
+        Initialize();
         CreateInvoiceWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
 
         Commit;
@@ -916,7 +919,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] Posting a line with description only will get a type item
         // [GIVEN] A post request with description only
-        Initialize;
+        Initialize();
         CreateSalesInvoiceWithLines(SalesHeader);
 
         Commit;
@@ -934,7 +937,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual('', SalesLine."No.", 'No should be blank');
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::Item, 'Wrong type is set');
 
@@ -958,7 +961,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [FEATURE] [Comment]
         // [SCENARIO] Posting a line with Type Comment and description will make a comment line
         // [GIVEN] A post request with type and description
-        Initialize;
+        Initialize();
         CreateSalesInvoiceWithLines(SalesHeader);
 
         InvoiceLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
@@ -976,7 +979,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::" ", 'Wrong type is set');
         Assert.AreEqual('test', SalesLine.Description, 'Wrong description is set');
 
@@ -1004,7 +1007,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreateSalesInvoiceWithLines(SalesHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -1052,13 +1055,13 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreateInvoiceWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
         InvoiceLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
         SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.SetRange(Type);
 
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
@@ -1104,7 +1107,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Invoice
         // [GIVEN] An unposted invoice with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         InvoiceLineID := CreateSalesInvoiceWithLines(SalesHeader);
         Assert.AreNotEqual('', InvoiceLineID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -1176,7 +1179,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         SalesInvoiceHeader.Reset;
         SalesInvoiceHeader.SetFilter("No.", NewNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         exit(PostedSalesInvoiceID);
     end;
@@ -1226,7 +1229,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure VerifyInvoiceLines(ResponseText: Text; LineNo1: Text; LineNo2: Text)
@@ -1342,7 +1345,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SetupAmountDiscountTest(var SalesHeader: Record "Sales Header"; var DiscountAmount: Decimal)

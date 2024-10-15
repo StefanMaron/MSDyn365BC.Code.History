@@ -3,6 +3,7 @@ table 5005360 "Phys. Invt. Tracking Buffer"
     Caption = 'Phys. Invt. Tracking Buffer';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

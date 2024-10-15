@@ -3,6 +3,7 @@ table 5005356 "Posted Phys. Invt. Rec. Header"
     Caption = 'Posted Phys. Invt. Rec. Header';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

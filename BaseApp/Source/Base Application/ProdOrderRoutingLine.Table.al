@@ -24,9 +24,9 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
-                GetLine;
+                GetProdOrderLine();
                 "Starting Time" := ProdOrderLine."Starting Time";
                 "Ending Time" := ProdOrderLine."Ending Time";
                 "Starting Date" := ProdOrderLine."Starting Date";
@@ -41,13 +41,13 @@ table 5409 "Prod. Order Routing Line"
             var
                 IsHandled: Boolean;
             begin
-                GetLine;
+                GetProdOrderLine();
                 OnBeforeTerminationProcessesErr(IsHandled);
                 if not IsHandled then
                     if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist then
                         Error(NoTerminationProcessesErr);
 
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(6; "Previous Operation No."; Code[30])
@@ -56,7 +56,7 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(7; Type; Option)
@@ -67,13 +67,13 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
 
                 "No." := '';
                 "Work Center No." := '';
                 "Work Center Group Code" := '';
 
-                ModifyCapNeedEntries;
+                ModifyCapNeedEntries();
             end;
         }
         field(8; "No."; Code[20])
@@ -91,7 +91,7 @@ table 5409 "Prod. Order Routing Line"
                           Text007,
                           FieldCaption("No."), PurchLine.TableCaption, Status, TableCaption, "Operation No.");
 
-                SetRecalcStatus;
+                SetRecalcStatus();
 
                 if "No." = '' then
                     exit;
@@ -110,9 +110,9 @@ table 5409 "Prod. Order Routing Line"
                             MachineCtrTransferFields;
                         end;
                 end;
-                ModifyCapNeedEntries;
+                ModifyCapNeedEntries();
 
-                GetLine;
+                GetProdOrderLine();
                 if (ProdOrderLine."Routing Type" = ProdOrderLine."Routing Type"::Serial) or (xRec."No." <> '') then
                     CalcStartingEndingDates(Direction::Forward);
 
@@ -187,7 +187,7 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(17; "Lot Size"; Decimal)
@@ -203,7 +203,7 @@ table 5409 "Prod. Order Routing Line"
 
             trigger OnValidate()
             begin
-                SetRecalcStatus;
+                SetRecalcStatus();
             end;
         }
         field(19; "Setup Time Unit of Meas. Code"; Code[10])
@@ -299,6 +299,10 @@ table 5409 "Prod. Order Routing Line"
                 StdTaskPersonnel: Record "Standard Task Personnel";
                 StdTaskQltyMeasure: Record "Standard Task Quality Measure";
                 StdTaskComment: Record "Standard Task Description";
+                ProdOrderRoutingTool: Record "Prod. Order Routing Tool";
+                ProdOrderRoutingPersonnel: Record "Prod. Order Routing Personnel";
+                ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
+                ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
             begin
                 if "Standard Task Code" = '' then
                     exit;
@@ -306,37 +310,37 @@ table 5409 "Prod. Order Routing Line"
                 StandardTask.Get("Standard Task Code");
                 Description := StandardTask.Description;
 
-                DeleteRelations;
+                DeleteRelations();
 
                 StdTaskTool.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskTool.Find('-') then
                     repeat
-                        ProdOrderRoutTool.Status := Status;
-                        ProdOrderRoutTool."Prod. Order No." := "Prod. Order No.";
-                        ProdOrderRoutTool."Routing Reference No." := "Routing Reference No.";
-                        ProdOrderRoutTool."Routing No." := "Routing No.";
-                        ProdOrderRoutTool."Operation No." := "Operation No.";
-                        ProdOrderRoutTool."Line No." := StdTaskTool."Line No.";
-                        ProdOrderRoutTool."No." := StdTaskTool."No.";
-                        ProdOrderRoutTool.Description := StdTaskTool.Description;
-                        ProdOrderRoutTool.Insert;
-                        OnAfterTransferFromStdTaskTool(ProdOrderRoutTool, StdTaskTool);
-                    until StdTaskTool.Next = 0;
+                        ProdOrderRoutingTool.Status := Status;
+                        ProdOrderRoutingTool."Prod. Order No." := "Prod. Order No.";
+                        ProdOrderRoutingTool."Routing Reference No." := "Routing Reference No.";
+                        ProdOrderRoutingTool."Routing No." := "Routing No.";
+                        ProdOrderRoutingTool."Operation No." := "Operation No.";
+                        ProdOrderRoutingTool."Line No." := StdTaskTool."Line No.";
+                        ProdOrderRoutingTool."No." := StdTaskTool."No.";
+                        ProdOrderRoutingTool.Description := StdTaskTool.Description;
+                        ProdOrderRoutingTool.Insert();
+                        OnAfterTransferFromStdTaskTool(ProdOrderRoutingTool, StdTaskTool);
+                    until StdTaskTool.Next() = 0;
 
                 StdTaskPersonnel.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskPersonnel.Find('-') then
                     repeat
-                        ProdOrderRtngPersonnel.Status := Status;
-                        ProdOrderRtngPersonnel."Prod. Order No." := "Prod. Order No.";
-                        ProdOrderRtngPersonnel."Routing Reference No." := "Routing Reference No.";
-                        ProdOrderRtngPersonnel."Routing No." := "Routing No.";
-                        ProdOrderRtngPersonnel."Operation No." := "Operation No.";
-                        ProdOrderRtngPersonnel."Line No." := StdTaskPersonnel."Line No.";
-                        ProdOrderRtngPersonnel."No." := StdTaskPersonnel."No.";
-                        ProdOrderRtngPersonnel.Description := StdTaskPersonnel.Description;
-                        ProdOrderRtngPersonnel.Insert;
-                        OnAfterTransferFromStdTaskPersonnel(ProdOrderRtngPersonnel, StdTaskPersonnel);
-                    until StdTaskPersonnel.Next = 0;
+                        ProdOrderRoutingPersonnel.Status := Status;
+                        ProdOrderRoutingPersonnel."Prod. Order No." := "Prod. Order No.";
+                        ProdOrderRoutingPersonnel."Routing Reference No." := "Routing Reference No.";
+                        ProdOrderRoutingPersonnel."Routing No." := "Routing No.";
+                        ProdOrderRoutingPersonnel."Operation No." := "Operation No.";
+                        ProdOrderRoutingPersonnel."Line No." := StdTaskPersonnel."Line No.";
+                        ProdOrderRoutingPersonnel."No." := StdTaskPersonnel."No.";
+                        ProdOrderRoutingPersonnel.Description := StdTaskPersonnel.Description;
+                        ProdOrderRoutingPersonnel.Insert();
+                        OnAfterTransferFromStdTaskPersonnel(ProdOrderRoutingPersonnel, StdTaskPersonnel);
+                    until StdTaskPersonnel.Next() = 0;
 
                 StdTaskQltyMeasure.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskQltyMeasure.Find('-') then
@@ -354,21 +358,21 @@ table 5409 "Prod. Order Routing Line"
                         ProdOrderRtngQltyMeas."Mean Tolerance" := StdTaskQltyMeasure."Mean Tolerance";
                         ProdOrderRtngQltyMeas.Insert;
                         OnAfterTransferFromStdTaskQltyMeasure(ProdOrderRtngQltyMeas, StdTaskQltyMeasure);
-                    until StdTaskQltyMeasure.Next = 0;
+                    until StdTaskQltyMeasure.Next() = 0;
 
                 StdTaskComment.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskComment.Find('-') then
                     repeat
-                        ProdOrderRtngComment.Status := Status;
-                        ProdOrderRtngComment."Prod. Order No." := "Prod. Order No.";
-                        ProdOrderRtngComment."Routing Reference No." := "Routing Reference No.";
-                        ProdOrderRtngComment."Routing No." := "Routing No.";
-                        ProdOrderRtngComment."Operation No." := "Operation No.";
-                        ProdOrderRtngComment."Line No." := StdTaskComment."Line No.";
-                        ProdOrderRtngComment.Comment := StdTaskComment.Text;
-                        ProdOrderRtngComment.Insert;
-                        OnAfterTransferFromStdTaskComment(ProdOrderRtngComment, StdTaskComment);
-                    until StdTaskComment.Next = 0;
+                        ProdOrderRtngCommentLine.Status := Status;
+                        ProdOrderRtngCommentLine."Prod. Order No." := "Prod. Order No.";
+                        ProdOrderRtngCommentLine."Routing Reference No." := "Routing Reference No.";
+                        ProdOrderRtngCommentLine."Routing No." := "Routing No.";
+                        ProdOrderRtngCommentLine."Operation No." := "Operation No.";
+                        ProdOrderRtngCommentLine."Line No." := StdTaskComment."Line No.";
+                        ProdOrderRtngCommentLine.Comment := StdTaskComment.Text;
+                        ProdOrderRtngCommentLine.Insert();
+                        OnAfterTransferFromStdTaskComment(ProdOrderRtngCommentLine, StdTaskComment);
+                    until StdTaskComment.Next() = 0;
             end;
         }
         field(40; "Unit Cost per"; Decimal)
@@ -528,11 +532,17 @@ table 5409 "Prod. Order Routing Line"
             trigger OnValidate()
             var
                 ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+                IsHandled: Boolean;
             begin
                 if (xRec."Routing Status" = xRec."Routing Status"::Finished) and (xRec."Routing Status" <> "Routing Status") then
                     Error(Text008, FieldCaption("Routing Status"), xRec."Routing Status", "Routing Status");
 
                 if ("Routing Status" = "Routing Status"::Finished) and (xRec."Routing Status" <> "Routing Status") then begin
+                    IsHandled := false;
+                    OnValidateRoutingStatusOnBeforeConfirm(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     if not Confirm(Text009, false, FieldCaption("Routing Status"), "Routing Status") then
                         Error('');
 
@@ -740,11 +750,6 @@ table 5409 "Prod. Order Routing Line"
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
         ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ProdOrderRoutTool: Record "Prod. Order Routing Tool";
-        ProdOrderRtngPersonnel: Record "Prod. Order Routing Personnel";
-        ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
-        ProdOrderRtngComment: Record "Prod. Order Rtng Comment Line";
         GLSetup: Record "General Ledger Setup";
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
         PurchLine: Record "Purchase Line";
@@ -759,6 +764,7 @@ table 5409 "Prod. Order Routing Line"
         Text008: Label 'You cannot change the %1 from %2 to %3.';
         Text009: Label 'If you change the %1 to %2, then all related allocated capacity will be deleted, and you will not be able to change the %1 of the operation again.\\Are you sure that you want to continue?';
         SkipUpdateOfCompBinCodes: Boolean;
+        ProdOrderLineRead: Boolean;
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         NoTerminationProcessesErr: Label 'On the last operation, the Next Operation No. field must be empty.';
 
@@ -777,16 +783,19 @@ table 5409 "Prod. Order Routing Line"
             "Prod. Order No.", ProdOrder.Description, "Routing No."));
     end;
 
-    local procedure GetLine()
+    local procedure GetProdOrderLine()
     begin
+        if ProdOrderLineRead then
+            exit;
+
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderLine.SetRange("Routing No.", "Routing No.");
         ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
         ProdOrderLine.Find('-');
+        ProdOrderLineRead := true;
     end;
 
-    [Scope('OnPrem')]
     procedure CopyFromPlanningRoutingLine(PlanningRoutingLine: Record "Planning Routing Line")
     begin
         "Operation No." := PlanningRoutingLine."Operation No.";
@@ -836,7 +845,6 @@ table 5409 "Prod. Order Routing Line"
         "Expected Capacity Need" := PlanningRoutingLine."Expected Capacity Need";
     end;
 
-    [Scope('OnPrem')]
     procedure CopyFromRoutingLine(RoutingLine: Record "Routing Line")
     begin
         "Operation No." := RoutingLine."Operation No.";
@@ -871,28 +879,33 @@ table 5409 "Prod. Order Routing Line"
         "Fixed Scrap Qty. (Accum.)" := RoutingLine."Fixed Scrap Qty. (Accum.)";
         "Scrap Factor % (Accumulated)" := RoutingLine."Scrap Factor % (Accumulated)";
         "Unit Cost per" := RoutingLine."Unit Cost per";
-        FillDefaultLocationAndBins;
+        FillDefaultLocationAndBins();
 
         OnAfterCopyFromRoutingLine(Rec, RoutingLine);
     end;
 
     local procedure DeleteRelations()
+    var
+        ProdOrderRoutingTool: Record "Prod. Order Routing Tool";
+        ProdOrderRoutingPersonnel: Record "Prod. Order Routing Personnel";
+        ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
+        ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
     begin
         OnBeforeDeleteRelations(Rec);
 
-        ProdOrderRoutTool.SetRange(Status, Status);
-        ProdOrderRoutTool.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRoutTool.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRoutTool.SetRange("Routing No.", "Routing No.");
-        ProdOrderRoutTool.SetRange("Operation No.", "Operation No.");
-        ProdOrderRoutTool.DeleteAll;
+        ProdOrderRoutingTool.SetRange(Status, Status);
+        ProdOrderRoutingTool.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderRoutingTool.SetRange("Routing Reference No.", "Routing Reference No.");
+        ProdOrderRoutingTool.SetRange("Routing No.", "Routing No.");
+        ProdOrderRoutingTool.SetRange("Operation No.", "Operation No.");
+        ProdOrderRoutingTool.DeleteAll();
 
-        ProdOrderRtngPersonnel.SetRange(Status, Status);
-        ProdOrderRtngPersonnel.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngPersonnel.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngPersonnel.SetRange("Routing No.", "Routing No.");
-        ProdOrderRtngPersonnel.SetRange("Operation No.", "Operation No.");
-        ProdOrderRtngPersonnel.DeleteAll;
+        ProdOrderRoutingPersonnel.SetRange(Status, Status);
+        ProdOrderRoutingPersonnel.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderRoutingPersonnel.SetRange("Routing Reference No.", "Routing Reference No.");
+        ProdOrderRoutingPersonnel.SetRange("Routing No.", "Routing No.");
+        ProdOrderRoutingPersonnel.SetRange("Operation No.", "Operation No.");
+        ProdOrderRoutingPersonnel.DeleteAll();
 
         ProdOrderRtngQltyMeas.SetRange(Status, Status);
         ProdOrderRtngQltyMeas.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -901,12 +914,12 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderRtngQltyMeas.SetRange("Operation No.", "Operation No.");
         ProdOrderRtngQltyMeas.DeleteAll;
 
-        ProdOrderRtngComment.SetRange(Status, Status);
-        ProdOrderRtngComment.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngComment.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngComment.SetRange("Routing No.", "Routing No.");
-        ProdOrderRtngComment.SetRange("Operation No.", "Operation No.");
-        ProdOrderRtngComment.DeleteAll;
+        ProdOrderRtngCommentLine.SetRange(Status, Status);
+        ProdOrderRtngCommentLine.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderRtngCommentLine.SetRange("Routing Reference No.", "Routing Reference No.");
+        ProdOrderRtngCommentLine.SetRange("Routing No.", "Routing No.");
+        ProdOrderRtngCommentLine.SetRange("Operation No.", "Operation No.");
+        ProdOrderRtngCommentLine.DeleteAll();
 
         ProdOrderCapNeed.SetRange(Status, Status);
         ProdOrderCapNeed.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -933,7 +946,7 @@ table 5409 "Prod. Order Routing Line"
         "Indirect Cost %" := WorkCenter."Indirect Cost %";
         "Overhead Rate" := WorkCenter."Overhead Rate";
         "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
-        FillDefaultLocationAndBins;
+        FillDefaultLocationAndBins();
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
     end;
 
@@ -962,7 +975,7 @@ table 5409 "Prod. Order Routing Line"
         "Direct Unit Cost" := MachineCenter."Direct Unit Cost";
         "Indirect Cost %" := MachineCenter."Indirect Cost %";
         "Overhead Rate" := MachineCenter."Overhead Rate";
-        FillDefaultLocationAndBins;
+        FillDefaultLocationAndBins();
         OnAfterMachineCtrTransferFields(Rec, WorkCenter, MachineCenter);
     end;
 
@@ -970,7 +983,7 @@ table 5409 "Prod. Order Routing Line"
     begin
         OnBeforeFillDefaultLocationAndBins(Rec);
 
-        GetLine;
+        GetProdOrderLine();
         "Location Code" := ProdOrderLine."Location Code";
         case Type of
             Type::"Work Center":
@@ -1008,32 +1021,37 @@ table 5409 "Prod. Order Routing Line"
         OnAfterFillDefaultLocationAndBins(Rec);
     end;
 
-    procedure CalcStartingEndingDates(Direction1: Option Forward,Backward)
+    procedure CalcStartingEndingDates(PlanningDirection: Option Forward,Backward)
     var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcStartingEndingDates(Rec, Direction1);
+        OnBeforeCalcStartingEndingDates(Rec, PlanningDirection);
 
         if "Routing Status" = "Routing Status"::Finished then
             FieldError("Routing Status");
 
         Modify(true);
 
-        ProdOrderRtngLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
+        ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
 
-        ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRtngLine, Direction1);
-        ProdOrderRtngLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-        ProdOrderRtngLine.SetCurrentKey(
+        ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRoutingLine, PlanningDirection);
+        ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
+        ProdOrderRoutingLine.SetCurrentKey(
           Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Sequence No. (Actual)");
-        CalcProdOrder.CalculateRoutingFromActual(ProdOrderRtngLine, Direction1, false);
+        CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, PlanningDirection, false);
 
-        CalculateRoutingBack;
-        CalculateRoutingForward;
+        IsHandled := false;
+        OnCalcStartingEndingDatesOnBeforeCalculateRouting(ProdOrderRoutingLine, IsHandled);
+        if not IsHandled then begin
+            CalculateRoutingBack();
+            CalculateRoutingForward();
+        end;
 
         Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-        GetLine;
-
-        if Direction1 = Direction1::Forward then
+        GetProdOrderLine();
+        if PlanningDirection = PlanningDirection::Forward then
             ShiftTimeForwardOnParentProdOrderLines(ProdOrderLine);
 
         ReservationCheckDateConfl.ProdOrderLineCheck(ProdOrderLine, true);
@@ -1059,47 +1077,47 @@ table 5409 "Prod. Order Routing Line"
     local procedure CalculateRoutingBack()
     var
         ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         if "Previous Operation No." <> '' then begin
-            ProdOrderRtngLine.SetRange(Status, Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            ProdOrderRtngLine.SetFilter("Operation No.", "Previous Operation No.");
-            ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
+            ProdOrderRoutingLine.SetRange(Status, Status);
+            ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+            ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
+            ProdOrderRoutingLine.SetFilter("Operation No.", "Previous Operation No.");
+            ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
 
-            if ProdOrderRtngLine.Find('-') then
+            if ProdOrderRoutingLine.Find('-') then
                 repeat
-                    ProdOrderRtngLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
+                    ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Sequence No. (Actual)");
-                    WorkCenter.Get(ProdOrderRtngLine."Work Center No.");
+                    WorkCenter.Get(ProdOrderRoutingLine."Work Center No.");
                     case WorkCenter."Simulation Type" of
                         WorkCenter."Simulation Type"::Moves:
                             begin
-                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRtngLine, Direction::Backward);
-                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRtngLine, Direction::Backward, true);
+                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRoutingLine, Direction::Backward);
+                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Backward, true);
                             end;
                         WorkCenter."Simulation Type"::"Moves When Necessary":
-                            if (ProdOrderRtngLine."Ending Date" > "Starting Date") or
-                               ((ProdOrderRtngLine."Ending Date" = "Starting Date") and
-                                (ProdOrderRtngLine."Ending Time" > "Starting Time"))
+                            if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
+                               ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
+                                (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
                             then begin
-                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRtngLine, Direction::Backward);
-                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRtngLine, Direction::Backward, true);
+                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRoutingLine, Direction::Backward);
+                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Backward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
                             begin
-                                if (ProdOrderRtngLine."Ending Date" > "Starting Date") or
-                                   ((ProdOrderRtngLine."Ending Date" = "Starting Date") and
-                                    (ProdOrderRtngLine."Ending Time" > "Starting Time"))
+                                if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
+                                   ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
+                                    (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
                                 then
                                     Error(Text002);
                             end;
                     end;
-                    ProdOrderRtngLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
+                    ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
-                until ProdOrderRtngLine.Next = 0;
+                until ProdOrderRoutingLine.Next() = 0;
         end;
 
         ProdOrderLine.SetRange(Status, Status);
@@ -1110,53 +1128,53 @@ table 5409 "Prod. Order Routing Line"
             repeat
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
                 AdjustComponents(ProdOrderLine);
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure CalculateRoutingForward()
     var
         ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         if "Next Operation No." <> '' then begin
-            ProdOrderRtngLine.SetRange(Status, Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            ProdOrderRtngLine.SetFilter("Operation No.", "Next Operation No.");
-            ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
+            ProdOrderRoutingLine.SetRange(Status, Status);
+            ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+            ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
+            ProdOrderRoutingLine.SetFilter("Operation No.", "Next Operation No.");
+            ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
 
-            if ProdOrderRtngLine.Find('-') then
+            if ProdOrderRoutingLine.Find('-') then
                 repeat
-                    ProdOrderRtngLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
+                    ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Sequence No. (Actual)");
-                    WorkCenter.Get(ProdOrderRtngLine."Work Center No.");
+                    WorkCenter.Get(ProdOrderRoutingLine."Work Center No.");
                     case WorkCenter."Simulation Type" of
                         WorkCenter."Simulation Type"::Moves:
                             begin
-                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRtngLine, Direction::Forward);
-                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRtngLine, Direction::Forward, true);
+                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRoutingLine, Direction::Forward);
+                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Forward, true);
                             end;
                         WorkCenter."Simulation Type"::"Moves When Necessary":
-                            if (ProdOrderRtngLine."Starting Date" < "Ending Date") or
-                               ((ProdOrderRtngLine."Starting Date" = "Ending Date") and
-                                (ProdOrderRtngLine."Starting Time" < "Ending Time"))
+                            if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
+                               ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
+                                (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
                             then begin
-                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRtngLine, Direction::Forward);
-                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRtngLine, Direction::Forward, true);
+                                ProdOrderRouteMgt.CalcSequenceFromActual(ProdOrderRoutingLine, Direction::Forward);
+                                CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Forward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
                             begin
-                                if (ProdOrderRtngLine."Starting Date" < "Ending Date") or
-                                   ((ProdOrderRtngLine."Starting Date" = "Ending Date") and
-                                    (ProdOrderRtngLine."Starting Time" < "Ending Time"))
+                                if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
+                                   ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
+                                    (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
                                 then
                                     Error(Text003);
                             end;
                     end;
-                    ProdOrderRtngLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
+                    ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
-                until ProdOrderRtngLine.Next = 0;
+                until ProdOrderRoutingLine.Next() = 0;
         end;
 
         ProdOrderLine.SetRange(Status, Status);
@@ -1167,7 +1185,7 @@ table 5409 "Prod. Order Routing Line"
             repeat
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
                 AdjustComponents(ProdOrderLine);
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
         CalcProdOrder.CalculateComponents;
     end;
 
@@ -1184,8 +1202,8 @@ table 5409 "Prod. Order Routing Line"
                 ProdOrderCapNeed."No." := "No.";
                 ProdOrderCapNeed."Work Center No." := "Work Center No.";
                 ProdOrderCapNeed."Work Center Group Code" := "Work Center Group Code";
-                ProdOrderCapNeed.Modify;
-            until ProdOrderCapNeed.Next = 0;
+                ProdOrderCapNeed.Modify();
+            until ProdOrderCapNeed.Next() = 0;
     end;
 
     local procedure AdjustComponents(var ProdOrderLine: Record "Prod. Order Line")
@@ -1199,8 +1217,8 @@ table 5409 "Prod. Order Routing Line"
         if ProdOrderComp.Find('-') then
             repeat
                 ProdOrderComp.Validate("Routing Link Code");
-                ProdOrderComp.Modify;
-            until ProdOrderComp.Next = 0;
+                ProdOrderComp.Modify();
+            until ProdOrderComp.Next() = 0;
     end;
 
     procedure UpdateDatetime()
@@ -1220,75 +1238,76 @@ table 5409 "Prod. Order Routing Line"
 
     procedure CheckPreviousAndNext()
     var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        TempDeletedProdOrderRtngLine: Record "Prod. Order Routing Line" temporary;
-        TempRemainingProdOrderRtngLine: Record "Prod. Order Routing Line" temporary;
-        ProdOrderRoutingForm: Page "Prod. Order Routing";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        TempDeletedProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+        TempRemainingProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+        ProdOrderRoutingPage: Page "Prod. Order Routing";
         ErrorOnNext: Boolean;
         ErrorOnPrevious: Boolean;
     begin
         if IsSerial then
-            SetPreviousAndNext
+            SetPreviousAndNext()
         else begin
-            TempDeletedProdOrderRtngLine := Rec;
-            TempDeletedProdOrderRtngLine.Insert;
+            TempDeletedProdOrderRoutingLine := Rec;
+            TempDeletedProdOrderRoutingLine.Insert();
 
-            ProdOrderRtngLine.SetRange(Status, Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            ProdOrderRtngLine.SetFilter("Operation No.", '<>%1', "Operation No.");
-            ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
-
-            if ProdOrderRtngLine.Find('-') then
+            ProdOrderRoutingLine.SetRange(Status, Status);
+            ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+            ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
+            ProdOrderRoutingLine.SetFilter("Operation No.", '<>%1', "Operation No.");
+            ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
+            if ProdOrderRoutingLine.Find('-') then
                 repeat
-                    if ProdOrderRtngLine."Next Operation No." <> '' then begin
-                        TempDeletedProdOrderRtngLine.SetFilter("Operation No.", ProdOrderRtngLine."Next Operation No.");
-                        ErrorOnNext := TempDeletedProdOrderRtngLine.FindFirst;
+                    if ProdOrderRoutingLine."Next Operation No." <> '' then begin
+                        TempDeletedProdOrderRoutingLine.SetFilter("Operation No.", ProdOrderRoutingLine."Next Operation No.");
+                        ErrorOnNext := TempDeletedProdOrderRoutingLine.FindFirst();
                     end else
                         ErrorOnNext := false;
 
-                    if ProdOrderRtngLine."Previous Operation No." <> '' then begin
-                        TempDeletedProdOrderRtngLine.SetFilter("Operation No.", ProdOrderRtngLine."Previous Operation No.");
-                        ErrorOnPrevious := TempDeletedProdOrderRtngLine.FindFirst;
+                    if ProdOrderRoutingLine."Previous Operation No." <> '' then begin
+                        TempDeletedProdOrderRoutingLine.SetFilter("Operation No.", ProdOrderRoutingLine."Previous Operation No.");
+                        ErrorOnPrevious := TempDeletedProdOrderRoutingLine.FindFirst();
                     end else
                         ErrorOnPrevious := false;
 
                     if ErrorOnNext or ErrorOnPrevious then begin
-                        TempRemainingProdOrderRtngLine := ProdOrderRtngLine;
-                        TempRemainingProdOrderRtngLine.Insert;
+                        TempRemainingProdOrderRoutingLine := ProdOrderRoutingLine;
+                        TempRemainingProdOrderRoutingLine.Insert();
                     end
-                until ProdOrderRtngLine.Next = 0;
+                until ProdOrderRoutingLine.Next() = 0;
 
-            if TempRemainingProdOrderRtngLine.Find('-') then begin
-                Commit;
+            if TempRemainingProdOrderRoutingLine.Find('-') then begin
+                Commit();
                 if not Confirm(
                      StrSubstNo(Text004, FieldCaption("Next Operation No."), FieldCaption("Previous Operation No.")),
                      true)
                 then
                     exit;
-                ProdOrderRoutingForm.Initialize(StrSubstNo(Text005, "Operation No."));
+                ProdOrderRoutingPage.Initialize(StrSubstNo(Text005, "Operation No."));
                 repeat
-                    TempRemainingProdOrderRtngLine.Mark(true);
-                until TempRemainingProdOrderRtngLine.Next = 0;
-                TempRemainingProdOrderRtngLine.MarkedOnly(true);
-                ProdOrderRoutingForm.SetTableView(TempRemainingProdOrderRtngLine);
-                ProdOrderRoutingForm.RunModal;
+                    TempRemainingProdOrderRoutingLine.Mark(true);
+                until TempRemainingProdOrderRoutingLine.Next() = 0;
+                TempRemainingProdOrderRoutingLine.MarkedOnly(true);
+                ProdOrderRoutingPage.SetTableView(TempRemainingProdOrderRoutingLine);
+                ProdOrderRoutingPage.RunModal;
+                OnCheckPreviousAndNextOnAfterProdOrderRoutingPageRunModal(TempRemainingProdOrderRoutingLine);
+                Clear(ProdOrderRoutingPage);
             end;
         end;
     end;
 
     local procedure SetPreviousAndNext()
     var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        if ProdOrderRtngLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Previous Operation No.") then begin
-            ProdOrderRtngLine."Next Operation No." := "Next Operation No.";
-            ProdOrderRtngLine.Modify;
+        if ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Previous Operation No.") then begin
+            ProdOrderRoutingLine."Next Operation No." := "Next Operation No.";
+            ProdOrderRoutingLine.Modify();
         end;
-        if ProdOrderRtngLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Next Operation No.") then begin
-            ProdOrderRtngLine."Previous Operation No." := "Previous Operation No.";
-            ProdOrderRtngLine.Modify;
+        if ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Next Operation No.") then begin
+            ProdOrderRoutingLine."Previous Operation No." := "Previous Operation No.";
+            ProdOrderRoutingLine.Modify();
         end;
     end;
 
@@ -1335,14 +1354,14 @@ table 5409 "Prod. Order Routing Line"
                 PurchLine.SetRange("Operation No.", "Operation No.");
                 if not PurchLine.IsEmpty then
                     exit(true);
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         exit(false);
     end;
 
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
     var
-        TempProdOrderRtngLine: Record "Prod. Order Routing Line" temporary;
+        TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
     begin
         if SkipUpdateOfCompBinCodes then
             exit;
@@ -1350,8 +1369,8 @@ table 5409 "Prod. Order Routing Line"
         if not UpdateOfComponentsBinRequired(FromTrigger) then
             exit;
 
-        PopulateNewRoutingLineSet(TempProdOrderRtngLine, FromTrigger);
-        ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRtngLine, false);
+        PopulateNewRoutingLineSet(TempProdOrderRoutingLine, FromTrigger);
+        ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
     end;
 
     local procedure UpdateOfComponentsBinRequired(FromTrigger: Option Insert,Modify,Delete): Boolean
@@ -1373,32 +1392,32 @@ table 5409 "Prod. Order Routing Line"
         end;
     end;
 
-    local procedure PopulateNewRoutingLineSet(var ProdOrderRtngLineTmp: Record "Prod. Order Routing Line"; FromTrigger: Option Insert,Modify,Delete)
+    local procedure PopulateNewRoutingLineSet(var ProdOrderRoutingLineTmp: Record "Prod. Order Routing Line"; FromTrigger: Option Insert,Modify,Delete)
     var
-        ProdOrderRtngLine2: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
     begin
         // copy existing routings for this prod. order to temporary table
-        ProdOrderRtngLineTmp.DeleteAll;
-        ProdOrderRtngLine2.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-        ProdOrderRtngLine2.SetRange(Status, Status);
-        ProdOrderRtngLine2.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngLine2.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngLine2.SetRange("Routing No.", "Routing No.");
-        if ProdOrderRtngLine2.FindSet(false) then
+        ProdOrderRoutingLineTmp.DeleteAll();
+        ProdOrderRoutingLine2.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
+        ProdOrderRoutingLine2.SetRange(Status, Status);
+        ProdOrderRoutingLine2.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderRoutingLine2.SetRange("Routing Reference No.", "Routing Reference No.");
+        ProdOrderRoutingLine2.SetRange("Routing No.", "Routing No.");
+        if ProdOrderRoutingLine2.FindSet(false) then
             repeat
-                ProdOrderRtngLineTmp := ProdOrderRtngLine2;
-                ProdOrderRtngLineTmp.Insert;
-            until ProdOrderRtngLine2.Next = 0;
+                ProdOrderRoutingLineTmp := ProdOrderRoutingLine2;
+                ProdOrderRoutingLineTmp.Insert();
+            until ProdOrderRoutingLine2.Next() = 0;
 
         // update the recordset with the current change
-        ProdOrderRtngLineTmp := Rec;
+        ProdOrderRoutingLineTmp := Rec;
         case FromTrigger of
             FromTrigger::Insert:
-                ProdOrderRtngLineTmp.Insert;
+                ProdOrderRoutingLineTmp.Insert();
             FromTrigger::Modify:
-                ProdOrderRtngLineTmp.Modify;
+                ProdOrderRoutingLineTmp.Modify();
             FromTrigger::Delete:
-                ProdOrderRtngLineTmp.Delete;
+                ProdOrderRoutingLineTmp.Delete();
         end;
     end;
 
@@ -1431,7 +1450,7 @@ table 5409 "Prod. Order Routing Line"
                     ParentProdOrderLine.Modify(true);
                     ShiftTimeForwardOnParentProdOrderLines(ParentProdOrderLine);
                 end;
-            until ParentProdOrderLine.Next = 0;
+            until ParentProdOrderLine.Next() = 0;
     end;
 
     local procedure ShowMessage(MessageText: Text)
@@ -1459,7 +1478,7 @@ table 5409 "Prod. Order Routing Line"
     [Scope('OnPrem')]
     procedure IsSerial(): Boolean
     begin
-        GetLine;
+        GetProdOrderLine();
         exit(ProdOrderLine."Routing Type" = ProdOrderLine."Routing Type"::Serial)
     end;
 
@@ -1554,6 +1573,21 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTerminationProcessesErr(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcStartingEndingDatesOnBeforeCalculateRouting(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPreviousAndNextOnAfterProdOrderRoutingPageRunModal(var TempRemainingProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRoutingStatusOnBeforeConfirm(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 }
