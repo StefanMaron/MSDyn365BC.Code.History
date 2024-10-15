@@ -41,7 +41,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJnlTemplateDescRecJnl: Label 'Recurring Fixed Asset Journal';
         FAJnlTemplateNameAssets: Label 'ASSETS', Comment = 'ASSETS is the name of FA Journal Template.';
         FAJnlTemplateDescFAJnl: Label 'Fixed Asset Journal';
-        CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
+        CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         ExtDocNoTok: Label 'ExtDocNo';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
@@ -63,7 +63,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryLowerPermissions.AddO365Setup;
 
         // Exercise
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
 
         // Veryfication happens inside the notification handler
 
@@ -115,7 +115,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddO365FASetup;
         LibraryLowerPermissions.AddJournalsEdit;
@@ -157,7 +157,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddO365FASetup;
@@ -2607,6 +2607,99 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Assert.AreEqual('', InsuranceNoSeries, 'Wrong Insurance No Series');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FAJournalLineAmountCanNotHaveMoreDecimalPlacesThanInRoundingPrescision()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalLine: Record "FA Journal Line";
+        FAJournalLineAmount: Decimal;
+    begin
+        // [SCENARIO] Amount is rounded in FA Journal Line during the validation
+        Initialize();
+
+        // [GIVEN] Created FA Journal Line
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+        CreateFAJournalLine(
+          FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+          FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [GIVEN] Generated Amount with 1 decimal place more than in Amount Rounding Precision
+        FAJournalLineAmount := LibraryERM.GetAmountRoundingPrecision() * 0.01 + LibraryRandom.RandIntInRange(3, 5);
+
+        // [WHEN] Validate Amount for FAJournalLine
+        FAJournalLine.Validate(Amount, FAJournalLineAmount);
+        FAJournalLine.Modify(true);
+
+        // [THEN] Generated amount is rounded
+        Assert.AreNotEqual(FAJournalLine.Amount, FAJournalLineAmount, '');
+        FAJournalLine.TestField(Amount, Round(FAJournalLineAmount, LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FAJournalLineAmountCanNotHaveMoreDecimalPlacesThanInRoundingPrescisionForFAwithFCYVendor()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalLine: Record "FA Journal Line";
+        Vendor: Record Vendor;
+        FAJournalLineAmount: Decimal;
+    begin
+        // [SCENARIO] Amount is rounded in FA Journal Line during the validation
+        Initialize();
+
+        // [GIVEN] Created FA Journal Line For FA with Vendor with FCY
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateVendorWithCurrencyExchangeRate(Vendor);
+        FixedAsset.Validate("Vendor No.", Vendor."No.");
+        FixedAsset.Modify(true);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+        CreateFAJournalLine(
+          FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+          FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [GIVEN] Generated Amount with 1 decimal place more than in Amount Rounding Precision
+        FAJournalLineAmount := LibraryERM.GetAmountRoundingPrecision() * 0.01 + LibraryRandom.RandIntInRange(3, 5);
+
+        // [WHEN] Validate Amount for FAJournalLine
+        FAJournalLine.Validate(Amount, FAJournalLineAmount);
+        FAJournalLine.Modify(true);
+
+        // [THEN] Generated amount is rounded
+        Assert.AreNotEqual(FAJournalLine.Amount, FAJournalLineAmount, '');
+        FAJournalLine.TestField(Amount, Round(FAJournalLineAmount, LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [HandlerFunctions('ConfirmHandler')]
+    [Test]
+    procedure AcquireFixedAssetNoNotificationForBudgeted()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DefaultDepreciationBookCode: Code[10];
+    begin
+        // [FEATURE] [UI] [Notification]
+        // [SCENARIO 389630] The fixed asset acquisition wizard is not shown for budgeted assets
+        Initialize;
+
+        // [GIVEN] A depreciation book
+        DefaultDepreciationBookCode := GetDefaultDepreciationBook;
+
+        // [WHEN] Create a new budgeted Fixed Asset in the Fixed Asset Card
+        CreateFAAcquisitionSetupForWizard(FixedAsset, true);
+
+        // [THEN] No notification pops up
+
+        // Cleanup
+        SetDefaultDepreciationBook(DefaultDepreciationBookCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3778,7 +3871,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FASetup.Modify();
     end;
 
-    local procedure CreateFAAcquisitionSetupForWizard(var FixedAsset: Record "Fixed Asset")
+    local procedure CreateFAAcquisitionSetupForWizard(var FixedAsset: Record "Fixed Asset"; Budgeted: Boolean)
     var
         FASubclass: Record "FA Subclass";
         DepreciationBook: Record "Depreciation Book";
@@ -3787,6 +3880,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFASubclass(FASubclass);
+        FixedAsset.Validate("Budgeted Asset", Budgeted);
+        FixedAsset.Modify(true);
         CreateJournalSetupDepreciation(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         IndexationAndIntegrationInBook(DepreciationBook.Code);
@@ -3819,7 +3914,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
 
         RunFAAcquire(FixedAsset."No.", BalAccountType, BalAccountNo);
 
@@ -3928,7 +4023,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         FindFAPostingGroup(FAPostingGroup, FixedAsset."No.");
         CreateFAAllocationAcquisitions(FAPostingGroup.Code, FAPostingGroup."Acquisition Cost Account");
         exit(FAPostingGroup."Acquisition Cost Account");
@@ -3952,6 +4047,38 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAAllocation.Validate("Allocation %", AllocPerCent);
         FAAllocation.Validate("Account No.", FAAccount);
         FAAllocation.Modify(true);
+    end;
+
+    local procedure CreateVendorWithCurrencyExchangeRate(var Vendor: Record Vendor): Decimal
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
+        Vendor.Modify(true);
+        exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount"); // Value required for calculating Currency factor.
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
+        Currency.Modify();
+
+        CreateCurrencyExchangeRate(
+          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+    end;
+
+    local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(100, 2));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(50, 2));
+        CurrencyExchangeRate.Modify(true);
     end;
 
     [ConfirmHandler]

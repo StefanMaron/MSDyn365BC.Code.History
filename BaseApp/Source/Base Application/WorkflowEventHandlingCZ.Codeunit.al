@@ -221,18 +221,21 @@ codeunit 31110 "Workflow Event Handling CZ"
         exit(UpperCase('RunWorkflowOnAfterReleaseCashDoc'));
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCreditDocForApprovalCode(): Code[128]
     begin
         exit(UpperCase('RunWorkflowOnSendCreditDocForApproval'));
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCreditApprovalRequestCode(): Code[128]
     begin
         exit(UpperCase('RunWorkflowOnCancelCreditApprovalRequest'));
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleaseCreditDocCode(): Code[128]
     begin
@@ -318,6 +321,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseCashDocCode, CashDocHdr);
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCreditDocForApproval', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCreditDocForApproval(var CreditHdr: Record "Credit Header")
@@ -325,6 +329,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnSendCreditDocForApprovalCode, CreditHdr);
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCreditApprovalRequest', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCreditApprovalRequest(var CreditHdr: Record "Credit Header")
@@ -332,6 +337,7 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelCreditApprovalRequestCode, CreditHdr);
     end;
 
+    [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Credit Document", 'OnAfterReleaseCreditDoc', '', false, false)]
     local procedure RunWorkflowOnAfterReleaseCreditDoc(var CreditHdr: Record "Credit Header")
     begin

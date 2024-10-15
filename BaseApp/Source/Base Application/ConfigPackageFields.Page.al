@@ -56,7 +56,6 @@ page 8624 "Config. Package Fields"
                 field("Validate Field"; "Validate Field")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = ValidateEditable;
                     ToolTip = 'Specifies whether the information in a field is to be validated during migration. Select the check box if you want to enable validation for the field. This is useful when you want to limit data to a prescribed set of options.';
                 }
                 field("Processing Order"; "Processing Order")
@@ -285,12 +284,10 @@ page 8624 "Config. Package Fields"
     trigger OnAfterGetRecord()
     begin
         IncludedEditable := not "Primary Key";
-        ValidateEditable := not "Primary Key";
     end;
 
     var
         IncludedEditable: Boolean;
-        ValidateEditable: Boolean;
         ChangeTableRelationEnabled: Boolean;
 
     local procedure FormCaption(): Text[1024]
@@ -317,4 +314,3 @@ page 8624 "Config. Package Fields"
         ConfigPackageField2.Modify();
     end;
 }
-

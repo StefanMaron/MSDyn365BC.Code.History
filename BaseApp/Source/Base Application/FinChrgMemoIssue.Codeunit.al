@@ -12,8 +12,11 @@ codeunit 395 "FinChrgMemo-Issue"
         FinChrgMemoLine: Record "Finance Charge Memo Line";
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+#if not CLEAN18
         BankAccount: Record "Bank Account";
         BankOperationsFunctions: Codeunit "Bank Operations Functions";
+#endif        
     begin
         OnBeforeIssueFinChargeMemo(FinChrgMemoHeader);
 
@@ -100,6 +103,7 @@ codeunit 395 "FinChrgMemo-Issue"
                                 FinChrgMemoInterestVATAmount := FinChrgMemoInterestVATAmount + FinChrgMemoLine."VAT Amount";
                             end;
                     end;
+                    OnAfterGetFinChrgMemoLine(FinChrgMemoLine, DocNo, CurrencyExchangeRate.ExchangeRate(FinChrgMemoHeader."Posting Date", FinChrgMemoHeader."Currency Code"));
                 until FinChrgMemoLine.Next() = 0;
 
             if (FinChrgMemoInterestAmount <> 0) and "Post Interest" then begin
@@ -381,11 +385,13 @@ codeunit 395 "FinChrgMemo-Issue"
     local procedure InsertIssuedFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; IssuedDocNo: Code[20])
     var
         IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         IssuedFinChrgMemoLine.Init();
         IssuedFinChrgMemoLine.TransferFields(FinChrgMemoLine);
         IssuedFinChrgMemoLine."Finance Charge Memo No." := IssuedDocNo;
         IssuedFinChrgMemoLine.Insert();
+        OnAfterInsertIssuedFinChrgMemoLine(FinChrgMemoLine, IssuedFinChrgMemoLine, CurrencyExchangeRate.ExchangeRate(FinChrgMemoHeader."Posting Date", FinChrgMemoHeader."Currency Code"));
     end;
 
     local procedure InsertFinChargeEntry(IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header"; FinChrgMemoLine: Record "Finance Charge Memo Line")
@@ -492,6 +498,16 @@ codeunit 395 "FinChrgMemo-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(var CustLedgEntry2: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertIssuedFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; var IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line"; CurrencyFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; DocNo: Code[20]; CurrencyFactor: Decimal)
     begin
     end;
 }

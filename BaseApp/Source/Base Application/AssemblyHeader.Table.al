@@ -1,4 +1,4 @@
-table 900 "Assembly Header"
+﻿table 900 "Assembly Header"
 {
     Caption = 'Assembly Header';
     DataCaptionFields = "No.", Description;
@@ -161,11 +161,16 @@ table 900 "Assembly Header"
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 CheckIsNotAsmToOrder;
                 TestStatusOpen;
                 SetCurrentFieldNum(FieldNo("Location Code"));
-                ValidateDates(FieldNo("Due Date"), true);
+                IsHandled := false;
+                OnValidateLocationCodeOnBeforeValidateDates(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    ValidateDates(FieldNo("Due Date"), true);
                 AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Location Code"), false, CurrFieldNo, CurrentFieldNum);
                 AssemblyHeaderReserve.VerifyChange(Rec, xRec);
                 GetDefaultBin;
@@ -1187,32 +1192,40 @@ table 900 "Assembly Header"
         ActCost[RowIdx::AsmOvhd] := TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
     end;
 
-    local procedure CalcStartDateFromEndDate(EndingDate: Date): Date
+    local procedure CalcStartDateFromEndDate(EndingDate: Date) Result: Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcStartDateFromEndDate(Rec);
+        IsHandled := false;
+        OnBeforeCalcStartDateFromEndDate(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
-        exit(
+        Result :=
           LeadTimeMgt.PlannedStartingDate(
             "Item No.", "Location Code", "Variant Code", '',
             LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
-            ReqLine."Ref. Order Type"::Assembly, EndingDate));
+            ReqLine."Ref. Order Type"::Assembly, EndingDate);
+
+        OnAfterCalcStartDateFromEndDate(Rec, Result);
     end;
 
-    local procedure CalcEndDateFromStartDate(StartingDate: Date): Date
+    local procedure CalcEndDateFromStartDate(StartingDate: Date) Result: Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
         OnBeforeCalcEndDateFromStartDate(Rec);
 
-        exit(
+        Result :=
           LeadTimeMgt.PlannedEndingDate(
             "Item No.", "Location Code", "Variant Code", '',
             LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
-            ReqLine."Ref. Order Type"::Assembly, StartingDate));
+            ReqLine."Ref. Order Type"::Assembly, StartingDate);
+
+        OnAfterCalcEndDateFromStartDate(Rec, Result);
     end;
 
     local procedure CalcEndDateFromDueDate(DueDate: Date): Date
@@ -1254,7 +1267,13 @@ table 900 "Assembly Header"
         NewDueDate: Date;
         NewEndDate: Date;
         NewStartDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateDates(Rec, FieldNumToCalculateFrom, DoNotValidateButJustAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         case FieldNumToCalculateFrom of
             FieldNo("Due Date"):
                 begin
@@ -1569,7 +1588,14 @@ table 900 "Assembly Header"
     end;
 
     procedure CheckIsNotAsmToOrder()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIsNotAsmToOrder(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("Assemble to Order");
         TestField("Assemble to Order", false);
     end;
@@ -1708,6 +1734,16 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcEndDateFromStartDate(var AssemblyHeader: Record "Assembly Header"; var Result: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcStartDateFromEndDate(var AssemblyHeader: Record "Assembly Header"; var Result: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -1763,6 +1799,11 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValiateQuantityOnAfterCalcBaseQty(var AssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer)
     begin
     end;
@@ -1788,7 +1829,7 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStartDateFromEndDate(var AssemblyHeader: Record "Assembly Header")
+    local procedure OnBeforeCalcStartDateFromEndDate(var AssemblyHeader: Record "Assembly Header"; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -1798,7 +1839,17 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIsNotAsmToOrder(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReservation(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; DoNotValidateButJustAssign: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

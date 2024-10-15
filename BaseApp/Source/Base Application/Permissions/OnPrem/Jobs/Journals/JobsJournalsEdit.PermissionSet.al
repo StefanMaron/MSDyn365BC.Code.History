@@ -44,6 +44,7 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Reason Code" = R,
                   tabledata Resource = R,
                   tabledata "Resource Cost" = R,

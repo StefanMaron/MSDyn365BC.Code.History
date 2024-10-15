@@ -55,6 +55,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             LineCount := 0;
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
+            OnCodeOnAfterSetFilters(PhysInvtOrderLine);
             if PhysInvtOrderLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
@@ -105,6 +106,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             PhysInvtOrderLine.SetCurrentKey("Document No.", "Item No.", "Variant Code", "Location Code");
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             PhysInvtOrderLine.SetRange("Use Item Tracking", true);
+            OnCodeOnAfterSetFilters(PhysInvtOrderLine);
             if PhysInvtOrderLine.FindSet then
                 repeat
                     if (PhysInvtOrderLine."Item No." <> LastItemNo) or
@@ -189,6 +191,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         with PhysInvtOrderLine do begin
             CheckLine;
             Item.Get("Item No.");
@@ -397,6 +404,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSamePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
     begin
     end;
@@ -408,6 +420,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 

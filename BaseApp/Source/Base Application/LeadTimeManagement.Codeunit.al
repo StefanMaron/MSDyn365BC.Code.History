@@ -15,7 +15,7 @@ codeunit 5404 "Lead-Time Management"
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         CalendarMgmt: Codeunit "Calendar Management";
 
-    procedure PurchaseLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]): Code[20]
+    procedure PurchaseLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]) Result: Code[20]
     var
         ItemVend: Record "Item Vendor";
     begin
@@ -25,7 +25,9 @@ codeunit 5404 "Lead-Time Management"
         ItemVend."Vendor No." := VendorNo;
         ItemVend."Variant Code" := VariantCode;
         Item.FindItemVend(ItemVend, LocationCode);
-        exit(Format(ItemVend."Lead Time Calculation"));
+        Result := Format(ItemVend."Lead Time Calculation");
+
+        OnAfterPurchaseLeadTime(ItemVend, Result);
     end;
 
     procedure ManufacturingLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]): Code[20]
@@ -70,7 +72,7 @@ codeunit 5404 "Lead-Time Management"
         exit(Format(SKU."Safety Lead Time"));
     end;
 
-    procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly): Date
+    procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
     var
         CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
@@ -78,8 +80,13 @@ codeunit 5404 "Lead-Time Management"
         DateFormula: DateFormula;
         OrgDateExpression: Text[30];
         CheckBothCalendars: Boolean;
+        IsHandled: Boolean;
     begin
         // Returns Ending Date calculated backward from Due Date
+        IsHandled := false;
+        OnBeforePlannedEndingDate(ItemNo, LocationCode, VariantCode, DueDate, VendorNo, RefOrderType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
 
@@ -176,7 +183,7 @@ codeunit 5404 "Lead-Time Management"
         exit(CalendarMgmt.CalcDateBOC(LeadTime, StartingDate, CustomCalendarChange, CheckBothCalendars));
     end;
 
-    procedure PlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly): Date
+    procedure PlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
     var
         CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
@@ -184,8 +191,13 @@ codeunit 5404 "Lead-Time Management"
         DateFormula: DateFormula;
         OrgDateExpression: Text[30];
         CheckBothCalendars: Boolean;
+        IsHandled: Boolean;
     begin
         // Returns Due Date calculated forward from Ending Date
+        IsHandled := false;
+        OnBeforePlannedDueDate(ItemNo, LocationCode, VariantCode, EndingDate, VendorNo, RefOrderType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
         OnPlannedDueDateOnBeforeFormatDateFormula(SKU, RefOrderType, EndingDate, ItemNo, LocationCode);
@@ -258,12 +270,27 @@ codeunit 5404 "Lead-Time Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPlannedDueDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; ItemNo: Code[20]; LocationCode: Code[10]);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPlannedEndingDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; ItemNo: code[20]; DueDate: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchaseLeadTime(ItemVend: Record "Item Vendor"; var Result: Code[20])
     begin
     end;
 }

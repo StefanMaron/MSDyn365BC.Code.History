@@ -284,6 +284,7 @@ table 5405 "Production Order"
                         AdjustStartEndingDate;
                         Modify;
                     end;
+                    OnValidateDueDateOnAfterModify(Rec);
                 end;
             end;
         }
@@ -1411,6 +1412,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ProductionOrder: Record "Production Order"; var xProductionOrder: Record "Production Order"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDueDateOnAfterModify(ProductionOrder: Record "Production Order")
     begin
     end;
 

@@ -43,7 +43,7 @@ table 5876 "Phys. Invt. Order Line"
 
                 GetPhysInvtOrderHeader;
                 GetItem;
-                Item.TestField(Blocked, false);
+                TestItemNotBlocked();
 
                 Validate(Description, Item.Description);
                 Validate("Description 2", Item."Description 2");
@@ -439,6 +439,18 @@ table 5876 "Phys. Invt. Order Line"
         TestField("Item No.");
         if "Item No." <> Item."No." then
             Item.Get("Item No.");
+    end;
+
+    local procedure TestItemNotBlocked()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestItemNotBlocked(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        Item.TestField(Blocked, false);
     end;
 
     procedure TestStatusOpen()
@@ -928,6 +940,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPhysInvtLedgerEntries(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestItemNotBlocked(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

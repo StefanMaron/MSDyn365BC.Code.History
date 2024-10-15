@@ -86,6 +86,7 @@ codeunit 1550 "Record Restriction Mgt."
             exit;
 
         RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
+        RestrictedRecord.LockTable(true);
         RestrictedRecord.DeleteAll(true);
     end;
 

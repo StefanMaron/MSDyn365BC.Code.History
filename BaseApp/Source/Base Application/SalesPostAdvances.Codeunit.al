@@ -3175,6 +3175,7 @@ codeunit 31000 "Sales-Post Advances"
         TempSalesAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempSalesAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
         TempSalesAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
+        OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(TempSalesAdvanceLetterEntry, VATEntry);
         TempSalesAdvanceLetterEntry.Modify();
     end;
 
@@ -5618,6 +5619,11 @@ codeunit 31000 "Sales-Post Advances"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillTempVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(var TempSalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; VATEntry: Record "VAT Entry")
     begin
     end;
 

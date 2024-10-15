@@ -6,6 +6,7 @@ Codeunit 7009 CopyFromToPriceListLine
 
     var
         GenerateHeader: Boolean;
+        UseDefaultPriceLists: Boolean;
         NotMatchSalesLineDiscTypeErr: Label 'does not match sales line discount type.';
         PlaceHolderBracketTok: Label ' (%1)', Locked = true;
         PlaceHolderTok: Label ' %1', Locked = true;
@@ -13,7 +14,13 @@ Codeunit 7009 CopyFromToPriceListLine
 
     procedure SetGenerateHeader()
     begin
+        SetGenerateHeader(false);
+    end;
+
+    procedure SetGenerateHeader(UseDefault: Boolean)
+    begin
         GenerateHeader := true;
+        UseDefaultPriceLists := UseDefault;
     end;
 
     procedure CopyFrom(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
@@ -367,17 +374,21 @@ Codeunit 7009 CopyFromToPriceListLine
                             PriceListLine."Cost Factor" := JobGLAccountPrice."Unit Cost Factor";
                             PriceListLine."Allow Invoice Disc." := false;
                             PriceListLine."Allow Line Disc." := true;
-                            if PriceListLine."Line Discount %" = 0 then
-                                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price
-                            else
-                                if (PriceListLine."Unit Price" = 0) and (PriceListLine."Cost Factor" = 0) then begin
-                                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
-                                    PriceListLine."Allow Line Disc." := false;
-                                end;
-                            PriceListLine.Status := PriceListLine.Status::Active;
-                            PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-                            OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
-                            InsertPriceListLine(PriceListLine);
+                            if (PriceListLine."Line Discount %" <> 0) or
+                                (PriceListLine."Unit Price" <> 0) or (PriceListLine."Cost Factor" <> 0)
+                            then begin
+                                if PriceListLine."Line Discount %" = 0 then
+                                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price
+                                else
+                                    if (PriceListLine."Unit Price" = 0) and (PriceListLine."Cost Factor" = 0) then begin
+                                        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+                                        PriceListLine."Allow Line Disc." := false;
+                                    end;
+                                PriceListLine.Status := PriceListLine.Status::Active;
+                                PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
+                                OnCopyFromJobGLAccountPrice(JobGLAccountPrice, PriceListLine);
+                                InsertPriceListLine(PriceListLine);
+                            end;
 
                             if JobGLAccountPrice."Unit Cost" <> 0 then begin
                                 PriceListLine."Price List Code" := '';
@@ -514,8 +525,8 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Init();
                 PriceListLine."Price List Code" := '';
                 PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                 case ResourceCost.Type of
                     ResourceCost.Type::All,
                     ResourceCost.Type::Resource:
@@ -596,8 +607,8 @@ Codeunit 7009 CopyFromToPriceListLine
                     PriceListLine.Init();
                     PriceListLine."Price List Code" := '';
                     PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                     PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Jobs");
+                    PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
                     PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
                     PriceListLine.Validate("Asset No.", Resource."No.");
                     if PriceListLine."Asset No." = Resource."No." then
@@ -819,12 +830,18 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure SetPriceListCode(var PriceListLine: Record "Price List Line")
     var
         PriceListHeader: Record "Price List Header";
+        PriceListManagement: Codeunit "Price List Management";
     begin
-        if GenerateHeader then begin
-            if not FindHeader(PriceListLine, PriceListHeader) then
-                InsertHeader(PriceListLine, PriceListHeader);
-            PriceListLine."Price List Code" := PriceListHeader.Code;
-        end;
+        if GenerateHeader then
+            if UseDefaultPriceLists then
+                PriceListLine."Price List Code" :=
+                    PriceListManagement.GetDefaultPriceListCode(
+                        PriceListLine."Price Type", PriceListLine."Source Group", true)
+            else begin
+                if not FindHeader(PriceListLine, PriceListHeader) then
+                    InsertHeader(PriceListLine, PriceListHeader);
+                PriceListLine."Price List Code" := PriceListHeader.Code;
+            end
     end;
 
     local procedure FindHeader(PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header"): Boolean;

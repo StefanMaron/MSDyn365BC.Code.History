@@ -36,6 +36,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = rm,
                   tabledata "Purch. Cr. Memo Line" = rm,
                   tabledata "Purch. Inv. Header" = rm,

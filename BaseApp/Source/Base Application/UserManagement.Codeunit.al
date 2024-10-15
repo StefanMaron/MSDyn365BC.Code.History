@@ -115,7 +115,7 @@ codeunit 418 "User Management"
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
         UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2 and %3 are supported in the online environment.', Comment = '%1= license type, %2= license type, %3= license type';
-        DisableUserMsg: Label 'To permanently disable a user, go to your Office 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Office 365.';
+        DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
 
     procedure DisplayUserInformation(Username: Text)
     var

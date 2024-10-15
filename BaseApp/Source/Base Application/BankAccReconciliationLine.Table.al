@@ -920,6 +920,8 @@
 
         AppliedPmtEntry.FilterAppliedPmtEntry(Rec);
         AppliedPmtEntry.DeleteAll(true);
+
+        OnAfterRemoveAppliedPaymentEntries(Rec);
     end;
 
     local procedure DeletePaymentMatchingDetails()
@@ -1003,14 +1005,13 @@
         exit("Account No.")
     end;
 
-    local procedure GetAccountName(AccountType: Option; AccountNo: Code[20]): Text
+    local procedure GetAccountName(AccountType: Option; AccountNo: Code[20]) Name: Text
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
         Employee: Record Employee;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
-        Name: Text;
     begin
         case AccountType of
             "Account Type"::Customer.AsInteger():
@@ -1030,7 +1031,7 @@
                     Name := BankAccount.Name;
         end;
 
-        exit(Name);
+        OnAfterGetAccountName(AccountType, AccountNo, Name);
     end;
 
     local procedure SetAppliedPaymentEntryFromRec(var AppliedPaymentEntry: Record "Applied Payment Entry")
@@ -1089,6 +1090,8 @@
                     PAGE.Run(PAGE::"Bank Account Card", BankAccount);
                 end;
         end;
+
+        OnAfterOpenAccountPage(AccountType, AccountNo);
     end;
 
     procedure DrillDownOnNoOfLedgerEntriesWithinAmountTolerance()
@@ -1136,6 +1139,8 @@
                 end;
         // NAVCZ
         end;
+
+        OnAfterDrillDownOnNoOfLedgerEntriesBasedOnAmount(Rec, AmountFilter);
     end;
 
     local procedure GetCustomerLedgerEntriesInAmountRange(var CustLedgerEntry: Record "Cust. Ledger Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
@@ -2024,6 +2029,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountName(AccountType: Option; AccountNo: Code[20]; var Name: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenAccountPage(AccountType: Option; AccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRemoveAppliedPaymentEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDrillDownOnNoOfLedgerEntriesBasedOnAmount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AmountFilter: Text)
     begin
     end;
 

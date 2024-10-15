@@ -1,4 +1,4 @@
-table 156 Resource
+﻿table 156 Resource
 {
     Caption = 'Resource';
     DataCaptionFields = "No.", Name;
@@ -703,7 +703,7 @@ table 156 Resource
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnInsert(Rec, IsHandled);
+        OnBeforeOnInsert(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -922,7 +922,7 @@ table 156 Resource
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnInsert(var Resource: Record Resource; var IsHandled: Boolean)
+    local procedure OnBeforeOnInsert(var Resource: Record Resource; var IsHandled: Boolean; var xResource: Record Resource)
     begin
     end;
 

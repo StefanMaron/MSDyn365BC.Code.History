@@ -188,7 +188,13 @@ codeunit 5638 FAJnlManagement
     procedure GetFA(FANo: Code[20]; var FADescription: Text[100])
     var
         FA: Record "Fixed Asset";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFA(FANo, FADescription, IsHandled);
+        if IsHandled then
+            exit;
+
         if FANo <> OldFANo then begin
             FADescription := '';
             if FANo <> '' then
@@ -196,6 +202,11 @@ codeunit 5638 FAJnlManagement
                     FADescription := FA.Description;
             OldFANo := FANo;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFA(var FANo: Code[20]; var FADescription: Text[100]; var IsHandled: Boolean)
+    begin
     end;
 }
 

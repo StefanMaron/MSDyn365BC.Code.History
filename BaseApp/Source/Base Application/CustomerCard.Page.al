@@ -96,6 +96,10 @@ page 21 "Customer Card"
                     Editable = false;
                     Enabled = BalanceOfVendEnable;
                     ToolTip = 'Specifies the vendor''s balance which is connected with certain customer';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '18.1';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     var
@@ -157,6 +161,7 @@ page 21 "Customer Card"
                     Caption = 'Total Sales';
                     Style = Strong;
                     StyleExpr = TRUE;
+                    Editable = false;
                     ToolTip = 'Specifies your total sales turnover with the customer in the current fiscal year. It is calculated from amounts excluding VAT on all completed and open invoices and credit memos.';
                 }
                 field("CustSalesLCY - CustProfit - AdjmtCostLCY"; CustSalesLCY - CustProfit - AdjmtCostLCY)
@@ -2419,6 +2424,17 @@ page 21 "Customer Card"
             else
                 OpenApprovalEntriesExistCurrUser := false;
         end;
+
+        // NAVCZ
+        if Vend.Get(GetLinkedVendor) then begin
+            Vend.CalcFields("Balance (LCY)");
+            BalanceAsVend := Vend."Balance (LCY)";
+            BalanceOfVendEnable := true;
+        end else begin
+            BalanceAsVend := 0;
+            BalanceOfVendEnable := false;
+        end;
+        // NAVCZ
     end;
 
     trigger OnInit()

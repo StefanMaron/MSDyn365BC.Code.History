@@ -76,12 +76,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Invoice Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                InvPostingBuffer[1].CalcDiscountNoVAT(
-                  -ServiceLine."Inv. Discount Amount", -ServiceLineACY."Inv. Discount Amount")
-            else
-                InvPostingBuffer[1].CalcDiscount(
-                  ServiceHeader."Prices Including VAT", -ServiceLine."Inv. Discount Amount", -ServiceLineACY."Inv. Discount Amount");
+            InvPostingBufferCalcInvoiceDiscountAmount(InvPostingBuffer[1], ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvPostingBuffer[1].Amount <> 0) or (InvPostingBuffer[1]."Amount (ACY)" <> 0) then begin
                 InvPostingBuffer[1].SetAccount(
                   GenPostingSetup.GetSalesInvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
@@ -99,12 +94,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         if SalesSetup."Discount Posting" in
            [SalesSetup."Discount Posting"::"Line Discounts", SalesSetup."Discount Posting"::"All Discounts"]
         then begin
-            if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                InvPostingBuffer[1].CalcDiscountNoVAT(
-                  -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount")
-            else
-                InvPostingBuffer[1].CalcDiscount(
-                  ServiceHeader."Prices Including VAT", -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount");
+            InvPostingBufferCalcLineDiscountAmount(InvPostingBuffer[1], ServiceLine, ServiceLineACY, ServiceHeader);
             if (InvPostingBuffer[1].Amount <> 0) or (InvPostingBuffer[1]."Amount (ACY)" <> 0) then begin
                 InvPostingBuffer[1].SetAccount(
                   GenPostingSetup.GetSalesLineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
@@ -134,9 +124,43 @@ codeunit 5986 "Serv-Amounts Mgt."
         end;
         InvPostingBuffer[1].UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
-        OnAfterFillInvoicePostBuffer(InvPostingBuffer[1], ServiceLine, InvPostingBuffer[2], SuppressCommit);
+        OnAfterFillInvoicePostBuffer(InvPostingBuffer[1], ServiceLine, InvPostingBuffer[2], SuppressCommit, ServiceLineACY);
 
         UpdInvPostingBuffer(InvPostingBuffer, ServiceLine);
+    end;
+
+    local procedure InvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInvPostingBufferCalcInvoiceDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Reverse Charge VAT" then
+            InvoicePostBuffer.CalcDiscountNoVAT(
+              -ServiceLine."Inv. Discount Amount", -ServiceLineACY."Inv. Discount Amount")
+        else
+            InvoicePostBuffer.CalcDiscount(
+              ServiceHeader."Prices Including VAT", -ServiceLine."Inv. Discount Amount", -ServiceLineACY."Inv. Discount Amount");
+    end;
+
+    local procedure InvPostingBufferCalcLineDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInvPostingBufferCalcLineDiscountAmount(InvoicePostBuffer, ServiceLine, ServiceLineACY, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Reverse Charge VAT" then
+            InvoicePostBuffer.CalcDiscountNoVAT(
+              -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount")
+        else
+            InvoicePostBuffer.CalcDiscount(
+              ServiceHeader."Prices Including VAT", -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount");
     end;
 
     local procedure UpdInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line")
@@ -754,7 +778,7 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvoicePostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; SuppressCommit: Boolean)
+    local procedure OnAfterFillInvoicePostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceLine: Record "Service Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; SuppressCommit: Boolean; ServiceLineACY: Record "Service Line")
     begin
     end;
 
@@ -785,6 +809,16 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvoiceRoundingAmount(var ServiceHeader: Record "Service Header"; var AmountIncludingVAT: Decimal; UseTempData: Boolean; var InvoiceRoundingAmount: Decimal; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvPostingBufferCalcInvoiceDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvPostingBufferCalcLineDiscountAmount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

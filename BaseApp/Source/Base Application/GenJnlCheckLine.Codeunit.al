@@ -95,7 +95,7 @@
                             VATDateNeeded := true;
                 if VATDateNeeded then
                     CheckVATDate(GenJnlLine);
-                if ("Account Type" = "Account Type"::Vendor) and ("Document Type" <> "Document Type"::" ") then
+                if ("Account Type" = "Account Type"::Vendor) and ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice]) then
                     LogTestField(GenJnlLine, FieldNo("Original Document VAT Date"));
                 if "Original Document VAT Date" > "VAT Date" then
                     LogFieldError(GenJnlLine, GenJnlLine.FieldNo("Original Document VAT Date"), StrSubstNo(MustBeLessOrEqualErr, FieldCaption("VAT Date")));

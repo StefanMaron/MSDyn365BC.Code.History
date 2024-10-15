@@ -67,6 +67,7 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine2.SetRange("Document Type", "Document Type");
             SalesLine2.SetRange("Document No.", "Document No.");
             SalesLine2.SetFilter(Type, '<>0');
+            OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
             if SalesLine2.FindFirst then;
             SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             InvDiscBase :=
@@ -317,6 +318,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; var UpdateHeader: Boolean; var InvDiscBase: Decimal; var ChargeBase: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(var SalesLine2: Record "Sales Line")
     begin
     end;
 }

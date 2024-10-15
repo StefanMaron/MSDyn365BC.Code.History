@@ -547,6 +547,12 @@ codeunit 6516 "Package Management"
         ItemLedgerEntry.SetRange("Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Ledger Entry", 'OnAfterSetTrackingFilterBlank', '', false, false)]
+    local procedure ItemLedgerEntryOnAfterSetTrackingFilterBlank(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        ItemLedgerEntry.SetRange("Package No.", '');
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Ledger Entry", 'OnAfterTestTrackingEqualToTrackingSpec', '', false, false)]
     local procedure ItemLedgerEntryTestTrackingEqualToTrackingSpec(ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
@@ -558,6 +564,15 @@ codeunit 6516 "Package Management"
     begin
         if ItemTrackingSetup."Package No. Required" then
             ItemLedgerEntry.SetRange("Package No.", ItemTrackingSetup."Package No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Ledger Entry", 'OnAfterFilterLinesForTracking', '', false, false)]
+    local procedure ItemLedgerEntryFilterLinesForTracking(var ItemLedgerEntry: Record "Item Ledger Entry"; CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
+    var
+        FieldFilter: Text;
+    begin
+        if CalcReservEntry.FieldFilterNeeded(FieldFilter, Positive, "Item Tracking Type"::"Package No.") then
+            ItemLedgerEntry.SetFilter("Package No.", FieldFilter);
     end;
 
     // Job Ledger Entry subscribers
@@ -1141,6 +1156,13 @@ codeunit 6516 "Package Management"
         BinContent.SetRange("Package No. Filter", WhseItemTrackingSetup."Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Bin Content", 'OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank', '', false, false)]
+    local procedure BinContentSetTrackingFilterFromItemTrackingSetupIfBlank(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Package No." <> '' then
+            BinContent.SetRange("Package No. Filter", WhseItemTrackingSetup."Package No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Bin Content", 'OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired', '', false, false)]
     local procedure BinContentSetTrackingFilterFromItemTrackingSetupIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
@@ -1470,6 +1492,13 @@ codeunit 6516 "Package Management"
     local procedure WhseItemTrackingLineSetTrackingFilterFromPostedWhseReceiptLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
         WhseItemTrackingLine.SetRange("Package No.", PostedWhseReceiptLine."Package No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Whse. Item Tracking Line", 'OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank', '', false, false)]
+    local procedure WhseItemTrackingLineOnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Package No." <> '' then
+            WhseItemTrackingLine.SetRange("Package No.", ItemTrackingSetup."Package No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Whse. Item Tracking Line", 'OnAfterHasSameNewTracking', '', false, false)]

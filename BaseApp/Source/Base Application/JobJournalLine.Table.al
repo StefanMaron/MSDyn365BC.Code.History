@@ -95,6 +95,8 @@ table 210 "Job Journal Line"
             IF (Type = CONST("G/L Account")) "G/L Account";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if ("No." = '') or ("No." <> xRec."No.") then begin
                     Description := '';
@@ -131,7 +133,10 @@ table 210 "Job Journal Line"
                         CopyFromGLAccount;
                 end;
 
-                Validate(Quantity);
+                IsHandled := false;
+                OnValidateNoOnBeforeValidateQuantity(Rec, IsHandled);
+                if not IsHandled then
+                    Validate(Quantity);
                 UpdateDimensions;
             end;
         }
@@ -246,6 +251,7 @@ table 210 "Job Journal Line"
             trigger OnValidate()
             var
                 Resource: Record Resource;
+                IsHandled: Boolean;
             begin
                 GetGLSetup;
                 case Type of
@@ -279,7 +285,10 @@ table 210 "Job Journal Line"
                             OnAfterAssignGLAccountUoM(Rec);
                         end;
                 end;
-                Validate(Quantity);
+                IsHandled := false;
+                OnValidateUnitOfMeasureCodeOnBeforeOnBeforeValidateQuantity(Rec, IsHandled);
+                if not IsHandled then
+                    Validate(Quantity);
             end;
         }
         field(21; "Location Code"; Code[10])
@@ -1282,7 +1291,7 @@ table 210 "Job Journal Line"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        OnBeforeCheckItemAvailable(Rec, ItemJnlLine);
+        OnBeforeCheckItemAvailable(Rec, ItemJnlLine, CheckedAvailability);
 
         if (CurrFieldNo <> 0) and (Type = Type::Item) and (Quantity > 0) and not CheckedAvailability then begin
             ItemJnlLine."Item No." := "No.";
@@ -1417,6 +1426,8 @@ table 210 "Job Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 #endif
 
@@ -1664,8 +1675,13 @@ table 210 "Job Journal Line"
     end;
 
     procedure UpdateAllAmounts()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateAllAmounts(Rec, xRec, CurrFieldNo);
+        IsHandled := false;
+        OnBeforeUpdateAllAmounts(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
         InitRoundingPrecisions;
 
         UpdateUnitCost;
@@ -2221,7 +2237,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemAvailable(var JobJournalLine: Record "Job Journal Line"; var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeCheckItemAvailable(var JobJournalLine: Record "Job Journal Line"; var ItemJournalLine: Record "Item Journal Line"; var CheckedAvailability: Boolean)
     begin
     end;
 
@@ -2267,7 +2283,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CallingFieldNo: Integer)
+    local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2343,6 +2359,21 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

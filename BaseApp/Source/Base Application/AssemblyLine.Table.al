@@ -465,6 +465,7 @@ table 901 "Assembly Line"
                 if Type = Type::" " then
                     Error(Text99000002, FieldCaption("Quantity per"), FieldCaption(Type), Type::" ");
                 RoundQty("Quantity per");
+                OnValidateQuantityPerOnAfterRoundQty(Rec);
 
                 GetHeader;
                 Validate(Quantity, CalcQuantity("Quantity per", AssemblyHeader.Quantity));
@@ -1689,6 +1690,8 @@ table 901 "Assembly Line"
     var
         MaxDate: Date;
     begin
+        OnBeforeValidateDueDate(Rec, AsmHeader, NewDueDate, ShowDueDateBeforeWorkDateMsg);
+
         "Due Date" := NewDueDate;
         TestStatusOpen;
 
@@ -1898,7 +1901,17 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDueDate(var AsmLine: Record "Assembly Line"; AsmHeader: Record "Assembly Header"; NewDueDate: Date; var ShowDueDateBeforeWorkDateMsg: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnAfterCalcBaseQty(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityPerOnAfterRoundQty(var AssemblyLine: Record "Assembly Line")
     begin
     end;
 }

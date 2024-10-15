@@ -98,6 +98,9 @@ codeunit 5330 "CRM Integration Management"
         RecordMarkedAsSkippedTxt: Label 'The %1 record was marked as skipped before.', Comment = '%1 = table caption';
         RecordAlreadyCoupledTxt: Label 'The %1 record is already coupled.', Comment = '%1 = table caption';
         DetailedNotificationMessageTxt: Label '%1 %2', Comment = '%1 - notification message, %2 - details', Locked = true;
+        BrokenCouplingsFoundAndMarkedAsSkippedForMappingTxt: Label 'Broken couplings were found and marked as skipped. Mapping: %1 - %2. Direction: %3. Count: %4.', Locked = true;
+        BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt: Label 'Broken couplings were found and marked as skipped. Total count: %1.', Locked = true;
+        NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -609,6 +612,51 @@ codeunit 5330 "CRM Integration Management"
         SendSyncNotification(RecordCounter);
     end;
 
+    internal procedure MarkLocalDeletedAsSkipped()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        TableFilter: Text;
+        Count: Integer;
+        TotalCount: Integer;
+    begin
+        IntegrationTableMapping.SetFilter(Direction, '<>%1', IntegrationTableMapping.Direction::Bidirectional);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if not IntegrationTableMapping.FindSet() then
+            exit;
+
+        repeat
+            Count := 0;
+            TableFilter := IntegrationTableMapping.GetTableFilter();
+            CRMIntegrationRecord.SetRange("Table ID", IntegrationTableMapping."Table ID");
+            CRMIntegrationRecord.SetRange(Skipped, false);
+            if CRMIntegrationRecord.FindSet() then
+                repeat
+                    RecordRef.Open(IntegrationTableMapping."Table ID");
+                    RecordRef.SetView(TableFilter);
+                    FieldRef := RecordRef.Field(RecordRef.SystemIdNo());
+                    FieldRef.SetRange(CRMIntegrationRecord."Integration ID");
+                    if RecordRef.IsEmpty() then begin
+                        CRMIntegrationRecord.Skipped := true;
+                        CRMIntegrationRecord.Modify();
+                        Count += 1;
+                    end;
+                    RecordRef.Close();
+                until CRMIntegrationRecord.Next() = 0;
+            TotalCount += Count;
+            if Count > 0 then
+                Session.LogMessage('0000F26', StrSubstNo(BrokenCouplingsFoundAndMarkedAsSkippedForMappingTxt,
+                    GetTableCaption(IntegrationTableMapping."Table ID"), GetTableCaption(IntegrationTableMapping."Integration Table ID"), IntegrationTableMapping.Direction, Count),
+                    Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        until IntegrationTableMapping.Next() = 0;
+        if TotalCount > 0 then
+            Session.LogMessage('0000F27', StrSubstNo(BrokenCouplingsFoundAndMarkedAsSkippedTotalTxt, TotalCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+        else
+            Session.LogMessage('0000F28', NoBrokenCouplingsFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
     [Scope('OnPrem')]
     procedure RepairBrokenCouplings()
     begin
@@ -817,7 +865,7 @@ codeunit 5330 "CRM Integration Management"
         IntRecUncoupleInvoke.SetContext(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified, JobId, TableConnectionType::CRM);
         IntRecUncoupleInvoke.Run();
         IntRecUncoupleInvoke.GetContext(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified);
-        IntegrationTableMapping.Delete();
+        IntegrationTableMapping.Delete(true);
         exit(SynchAction <> SynchAction::Fail);
     end;
 
@@ -2227,6 +2275,8 @@ codeunit 5330 "CRM Integration Management"
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
         RecordRef: RecordRef;
         NotificationMessage: Text;
         FailedOptionFields: Text;
@@ -2240,13 +2290,20 @@ codeunit 5330 "CRM Integration Management"
 
             CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
             CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
-            if CDSFailedOptionMapping.FindSet() then begin
-                repeat
-                    FailedOptionFields += RecordRef.Field(CDSFailedOptionMapping."Field No.").Name() + ', ';
-                until CDSFailedOptionMapping.Next() = 0;
-                FailedOptionFields := FailedOptionFields.TrimEnd(', ');
-                SendFailedOptionMappingNotification(StrSubstNo(OptionMappingFailedNotificationTxt, FailedOptionFields));
-            end;
+            if CDSFailedOptionMapping.FindSet() then
+                if IntegrationTableMapping.FindMappingForTable(CRMIntegrationRecord."Table ID") then begin
+                    IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+                    repeat
+                        IntegrationFieldMapping.SetRange("Field No.", CDSFailedOptionMapping."Field No.");
+                        if IntegrationFieldMapping.FindFirst() then
+                            if IntegrationFieldMapping.Status = IntegrationFieldMapping.Status::Enabled then
+                                FailedOptionFields += RecordRef.Field(CDSFailedOptionMapping."Field No.").Name() + ', ';
+                    until CDSFailedOptionMapping.Next() = 0;
+                    if FailedOptionFields <> '' then begin
+                        FailedOptionFields := FailedOptionFields.TrimEnd(', ');
+                        SendFailedOptionMappingNotification(StrSubstNo(OptionMappingFailedNotificationTxt, FailedOptionFields));
+                    end;
+                end;
 
             if CRMIntegrationRecord."Last Synch. CRM Result" = CRMIntegrationRecord."Last Synch. CRM Result"::Failure then
                 GetNotificationDetailsFromIntegrationSyncJobEntry(
@@ -2666,7 +2723,7 @@ codeunit 5330 "CRM Integration Management"
     [Scope('OnPrem')]
     procedure IsCRMIntegrationRecord(TableID: Integer): Boolean
     var
-        IntegrationManagement: Codeunit "Integration Management";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         isIntegrationRecord: Boolean;
     begin
         // this is the new event that partners who have integration to custom entities should subscribe to
@@ -2674,7 +2731,7 @@ codeunit 5330 "CRM Integration Management"
         if isIntegrationRecord then
             exit(true);
 
-        exit(IntegrationManagement.IsIntegrationRecord(TableID));
+        exit(IntegrationTableMapping.FindMappingForTable(TableID));
     end;
 
     [Scope('OnPrem')]

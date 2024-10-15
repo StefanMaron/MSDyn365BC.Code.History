@@ -861,6 +861,8 @@ table 753 "Standard Item Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     local procedure GetItem()
@@ -968,6 +970,10 @@ table 753 "Standard Item Journal Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var StandardItemJournalLine: Record "Standard Item Journal Line"; CallingFieldNo: Integer);
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var StandardItemJournalLine: Record "Standard Item Journal Line"; var xStandardItemJournalLine: Record "Standard Item Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])

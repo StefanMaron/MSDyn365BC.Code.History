@@ -1,4 +1,4 @@
-table 83 "Item Journal Line"
+﻿table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -75,7 +75,7 @@ table 83 "Item Journal Line"
                 then begin
                     if "Item No." <> xRec."Item No." then begin
                         TestField("Partial Revaluation", false);
-                        RetrieveCosts;
+                        RetrieveCosts();
                         "Indirect Cost %" := 0;
                         "Overhead Rate" := 0;
                         "Inventory Value Per" := "Inventory Value Per"::" ";
@@ -83,10 +83,11 @@ table 83 "Item Journal Line"
                         "Partial Revaluation" := false;
                     end;
                 end else begin
+                    OnValidateItemNoOnBeforeAssignIndirectCostPct(Rec, Item);
                     "Indirect Cost %" := Item."Indirect Cost %";
                     "Overhead Rate" := Item."Overhead Rate";
                     if not "Phys. Inventory" or (Item."Costing Method" = Item."Costing Method"::Standard) then begin
-                        RetrieveCosts;
+                        RetrieveCosts();
                         "Unit Cost" := UnitCost;
                     end else
                         UnitCost := "Unit Cost";
@@ -120,7 +121,7 @@ table 83 "Item Journal Line"
                             Amount := 0;
                         end;
                 end;
-                OnValidateItemNoOnAfterCalcUnitAmount(Rec);
+                OnValidateItemNoOnAfterCalcUnitAmount(Rec, WorkCenter, MachineCenter);
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
@@ -152,17 +153,11 @@ table 83 "Item Journal Line"
                                 "Unit of Measure Code" := Item."Base Unit of Measure";
                         end;
                     "Entry Type"::Consumption:
-                        begin
-                            ProdOrderComp.SetFilterByReleasedOrderNo("Order No.");
-                            ProdOrderComp.SetRange("Item No.", "Item No.");
-                            OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComp);
-                            if ProdOrderComp.Count = 1 then begin
-                                ProdOrderComp.FindFirst;
-                                CopyFromProdOrderComp(ProdOrderComp);
-                            end else begin
-                                "Unit of Measure Code" := Item."Base Unit of Measure";
-                                Validate("Prod. Order Comp. Line No.", 0);
-                            end;
+                        if FindProdOrderComponent(ProdOrderComp) then
+                            CopyFromProdOrderComp(ProdOrderComp)
+                        else begin
+                            "Unit of Measure Code" := Item."Base Unit of Measure";
+                            Validate("Prod. Order Comp. Line No.", 0);
                         end;
                 end;
 
@@ -973,9 +968,9 @@ table 83 "Item Journal Line"
                             if "Order No." = '' then begin
                                 case "Order Type" of
                                     "Order Type"::Production:
-                                        CreateProdDim;
+                                        CreateProdDim();
                                     "Order Type"::Assembly:
-                                        CreateAssemblyDim;
+                                        CreateAssemblyDim();
                                 end;
                                 exit;
                             end;
@@ -1202,6 +1197,7 @@ table 83 "Item Journal Line"
             trigger OnValidate()
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+                IsHandled: Boolean;
             begin
                 if "Bin Code" <> xRec."Bin Code" then begin
                     TestField("Location Code");
@@ -1220,13 +1216,16 @@ table 83 "Item Journal Line"
                     end;
                     SetNewBinCodeForSameLocationTransfer();
 
-                    if ("Entry Type" = "Entry Type"::Consumption) and
-                       ("Bin Code" <> '') and ("Prod. Order Comp. Line No." <> 0)
-                    then begin
-                        TestField("Order Type", "Order Type"::Production);
-                        TestField("Order No.");
-                        CheckProdOrderCompBinCode();
-                    end;
+                    IsHandled := false;
+                    OnBinCodeOnCheckProdOrderCompBinCodeCheckNeeded(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Entry Type" = "Entry Type"::Consumption) and
+                        ("Bin Code" <> '') and ("Prod. Order Comp. Line No." <> 0)
+                        then begin
+                            TestField("Order Type", "Order Type"::Production);
+                            TestField("Order No.");
+                            CheckProdOrderCompBinCode();
+                        end;
                 end;
 
                 ItemJnlLineReserve.VerifyChange(Rec, xRec);
@@ -1828,7 +1827,7 @@ table 83 "Item Journal Line"
                 TestField("Starting Time");
                 TestField("Ending Time");
                 TotalTime := CalendarMgt.CalcTimeDelta("Ending Time", "Starting Time");
-                OnvalidateConcurrentCapacityOnAfterCalcTotalTime(Rec, TotalTime);
+                OnvalidateConcurrentCapacityOnAfterCalcTotalTime(Rec, TotalTime, xRec);
                 if "Ending Time" < "Starting Time" then
                     TotalTime := TotalTime + 86400000;
                 TestField("Work Center No.");
@@ -2661,7 +2660,7 @@ table 83 "Item Journal Line"
         ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if ItemJnlLine.FindFirst then begin
-            OnSetUpNewLineOnAfterFindItemJnlLine(Rec, ItemJnlLine);
+            OnSetUpNewLineOnAfterFindItemJnlLine(Rec, ItemJnlLine, LastItemJnlLine);
             "Posting Date" := LastItemJnlLine."Posting Date";
             "Document Date" := LastItemJnlLine."Posting Date";
             if (ItemJnlTemplate.Type in
@@ -2953,6 +2952,7 @@ table 83 "Item Journal Line"
         ProdOrderComp: Record "Prod. Order Component";
         DimSetIDArr: array[10] of Integer;
         i: Integer;
+        IsHandled: Boolean;
     begin
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -2967,11 +2967,15 @@ table 83 "Item Journal Line"
             ProdOrderLine.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.");
             DimSetIDArr[i] := ProdOrderLine."Dimension Set ID";
         end;
-        if "Prod. Order Comp. Line No." <> 0 then begin
-            i := i + 1;
-            ProdOrderComp.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
-            DimSetIDArr[i] := ProdOrderComp."Dimension Set ID";
-        end;
+
+        IsHandled := false;
+        OnCreateProdDimOnBeforeCreateDimSetIDArr(Rec, DimSetIDArr, IsHandled);
+        if not IsHandled then
+            if "Prod. Order Comp. Line No." <> 0 then begin
+                i := i + 1;
+                ProdOrderComp.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
+                DimSetIDArr[i] := ProdOrderComp."Dimension Set ID";
+            end;
 
         OnCreateProdDimOnAfterCreateDimSetIDArr(Rec, DimSetIDArr, i);
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -3508,7 +3512,14 @@ table 83 "Item Journal Line"
     end;
 
     local procedure CopyFromProdOrderComp(ProdOrderComp: Record "Prod. Order Component")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromProdOrderComp(Rec, ProdOrderComp, IsHandled);
+        if IsHandled then
+            exit;
+
         Validate("Order Line No.", ProdOrderComp."Prod. Order Line No.");
         Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
         "Unit of Measure Code" := ProdOrderComp."Unit of Measure Code";
@@ -3867,6 +3878,7 @@ table 83 "Item Journal Line"
     var
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderCompLineList: Page "Prod. Order Comp. Line List";
+        IsHandled: Boolean;
     begin
         ProdOrderComp.SetFilterByReleasedOrderNo("Order No.");
         if "Order Line No." <> 0 then
@@ -3880,6 +3892,11 @@ table 83 "Item Journal Line"
         ProdOrderCompLineList.LookupMode(true);
         ProdOrderCompLineList.SetTableView(ProdOrderComp);
         ProdOrderCompLineList.SetRecord(ProdOrderComp);
+
+        IsHandled := false;
+        OnLookupProdOrderCompBeforeRunModal(ProdOrderComp, IsHandled);
+        if IsHandled then
+            exit;
 
         if ProdOrderCompLineList.RunModal = ACTION::LookupOK then begin
             ProdOrderCompLineList.GetRecord(ProdOrderComp);
@@ -3969,6 +3986,8 @@ table 83 "Item Journal Line"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     procedure ShowReclasDimensions()
@@ -4329,6 +4348,28 @@ table 83 "Item Journal Line"
         OnAfterIsDefaultBin(Location, Result);
     end;
 
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        ProdOrderComponent.SetFilterByReleasedOrderNo("Order No.");
+        ProdOrderComponent.SetRange("Line No.", "Prod. Order Comp. Line No.");
+        IsHandled := false;
+        OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComponent, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderComponent.SetRange("Item No.", "Item No.");
+        if ProdOrderComponent.FindFirst() then
+            exit(true);
+
+        ProdOrderComponent.SetRange("Line No.");
+        if ProdOrderComponent.Count() = 1 then
+            exit(ProdOrderComponent.FindFirst());
+
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template")
     begin
@@ -4520,7 +4561,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckProdOrderCompBinCode(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckProdOrderCompBinCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4661,7 +4702,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnAfterFindItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var FirstItemJournalLine: Record "Item Journal Line")
+    local procedure OnSetUpNewLineOnAfterFindItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var FirstItemJournalLine: Record "Item Journal Line"; var LastItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -4671,7 +4712,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnvalidateConcurrentCapacityOnAfterCalcTotalTime(var ItemJournalLine: Record "Item Journal Line"; var TotalTime: Integer)
+    local procedure OnvalidateConcurrentCapacityOnAfterCalcTotalTime(var ItemJournalLine: Record "Item Journal Line"; var TotalTime: Integer; xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -4766,7 +4807,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     begin
     end;
 
@@ -4776,7 +4817,7 @@ table 83 "Item Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterProdOrderCompSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnValidateItemNoOnAfterProdOrderCompSetFilters(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4822,6 +4863,36 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateUnitAmountOnAfterCalcQtyPerUnitOfMeasure(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupProdOrderCompBeforeRunModal(var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProdDimOnBeforeCreateDimSetIDArr(var ItemJournalLine: Record "Item Journal Line"; var DimSetIDArr: array[10] of Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromProdOrderComp(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinCodeOnCheckProdOrderCompBinCodeCheckNeeded(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeAssignIndirectCostPct(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
 }

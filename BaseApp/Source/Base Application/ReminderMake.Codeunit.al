@@ -308,6 +308,7 @@ codeunit 392 "Reminder-Make"
             if CustLedgEntry.FindSet then
                 repeat
                     CustLedgEntry.CalcFields("Amount on Credit (LCY)");
+                    OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(CustLedgEntry, ReminderHeaderReq);
                     if (CustLedgEntry."On Hold" = '') and (CustLedgEntry."Amount on Credit (LCY)" = 0) then 
                         MarkReminderCandidate(CustLedgEntry, ReminderLevel, CustAmount, MakeDoc, MaxReminderLevel, MaxLineLevel)
                     else // The customer ledger entry is on hold
@@ -671,6 +672,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCurrencyLoop(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; HeaderExists: Boolean; CustLedgEntryLastIssuedReminderLevelFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header")
     begin
     end;
 

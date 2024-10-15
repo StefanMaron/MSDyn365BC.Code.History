@@ -676,7 +676,6 @@
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TempItemLedgEntry.Reset();
         if not TempItemLedgEntry.IsEmpty() then
@@ -693,12 +692,22 @@
                               DATABASE::"Transfer Shipment Line"] // NAVCZ
             then
                 BaseQty := BaseQty * -1;
-            if not
-               ItemTrackingMgt.CollectItemEntryRelation(
-                 TempItemLedgEntry, SourceType, 0, DocumentNo, '', 0, LineNo, BaseQty)
-            then
-                Error(Text013, LineNo);
+            CheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty);
         end;
+    end;
+
+    local procedure CheckMissingItemLedgers(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal)
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not ItemTrackingMgt.CollectItemEntryRelation(TempItemLedgEntry, SourceType, 0, DocumentNo, '', 0, LineNo, BaseQty) then
+            Error(Text013, LineNo);
     end;
 
     local procedure UndoValuePostingFromJob(ItemJnlLine: Record "Item Journal Line"; ItemApplicationEntry: Record "Item Application Entry"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
@@ -723,7 +732,6 @@
     var
         xPurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         PurchSetup.Get();
         with PurchLine do begin
@@ -757,9 +765,9 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Expected Receipt Date");
+            RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
             xPurchLine."Quantity (Base)" := 0;
-            PurchLineReserve.VerifyQuantity(PurchLine, xPurchLine);
+            PurchLineReserveVerifyQuantity(PurchLine, xPurchLine);
 
             UpdateWarehouseRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
@@ -767,11 +775,35 @@
         end;
     end;
 
+    local procedure RevertPostedItemTrackingFromPurchLine(PurchLine: Record "Purchase Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        RevertPostedItemTracking(TempUndoneItemLedgEntry, PurchLine."Expected Receipt Date", false);
+    end;
+
+    local procedure PurchLineReserveVerifyQuantity(PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line")
+    var
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchLineReserveVerifyQuantity(PurchLine, xPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLineReserve.VerifyQuantity(PurchLine, xPurchLine);
+    end;
+
     procedure UpdateSalesLine(SalesLine: Record "Sales Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
         xSalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
         SalesSetup.Get();
         with SalesLine do begin
@@ -805,9 +837,9 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Shipment Date");
+            RevertPostedItemTrackingFromSalesLine(SalesLine, TempUndoneItemLedgEntry);
             xSalesLine."Quantity (Base)" := 0;
-            SalesLineReserve.VerifyQuantity(SalesLine, xSalesLine);
+            SalesLineReserveVerifyQuantity(SalesLine, xSalesLine);
 
             UpdateWarehouseRequest(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
@@ -815,10 +847,34 @@
         end;
     end;
 
+    local procedure RevertPostedItemTrackingFromSalesLine(SalesLine: Record "Sales Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRevertPostedItemTrackingFromSalesLine(SalesLine, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        RevertPostedItemTracking(TempUndoneItemLedgEntry, SalesLine."Shipment Date", false);
+    end;
+
+    local procedure SalesLineReserveVerifyQuantity(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    var
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSalesLineReserveVerifyQuantity(SalesLine, xSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLineReserve.VerifyQuantity(SalesLine, xSalesLine);
+    end;
+
     procedure UpdateServLine(ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
         xServLine: Record "Service Line";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         with ServLine do begin
             xServLine := ServLine;
@@ -836,9 +892,9 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
+            RevertPostedItemTrackingFromServiceLine(ServLine, TempUndoneItemLedgEntry);
             xServLine."Quantity (Base)" := 0;
-            ServiceLineReserve.VerifyQuantity(ServLine, xServLine);
+            ServiceLineReserveVerifyQuantity(ServLine, xServLine);
 
             UpdateWarehouseRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Location Code");
 
@@ -846,12 +902,36 @@
         end;
     end;
 
+    local procedure RevertPostedItemTrackingFromServiceLine(ServiceLine: Record "Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        RevertPostedItemTracking(TempUndoneItemLedgEntry, ServiceLine."Posting Date", false);
+    end;
+
+    local procedure ServiceLineReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
+    var
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeServiceLineReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceLineReserve.VerifyQuantity(ServiceLine, xServiceLine);
+    end;
+
     procedure UpdateServLineCnsm(var ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
         ServHeader: Record "Service Header";
         xServLine: Record "Service Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServCalcDiscount: Codeunit "Service-Calc. Discount";
     begin
         with ServLine do begin
@@ -881,13 +961,26 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
+            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date", false);
             xServLine."Quantity (Base)" := 0;
-            ServiceLineReserve.VerifyQuantity(ServLine, xServLine);
+            ServiceLineCnsmReserveVerifyQuantity(ServLine, xServLine);
         end;
     end;
 
-    local procedure RevertPostedItemTracking(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; AvailabilityDate: Date)
+    local procedure ServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
+    var
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceLineReserve.VerifyQuantity(ServiceLine, xServiceLine);
+    end;
+
+    procedure RevertPostedItemTracking(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; AvailabilityDate: Date; RevertInvoiced: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
@@ -902,6 +995,8 @@
                         ReservEntry.Init();
                         ReservEntry.TransferFields(TrackingSpecification);
                         ReservEntry.Validate("Quantity (Base)");
+                        if RevertInvoiced then
+                            ReservEntry."Quantity Invoiced (Base)" -= TrackingSpecification."Quantity Invoiced (Base)";
                         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
                         if ReservEntry.Positive then
                             ReservEntry."Expected Receipt Date" := AvailabilityDate
@@ -1205,6 +1300,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMissingItemLedgers(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
@@ -1216,6 +1316,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReapplyJobConsumption(ItemRcptEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRevertPostedItemTrackingFromPurchLine(PurchLine: Record "Purchase Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchLineReserveVerifyQuantity(PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRevertPostedItemTrackingFromSalesLine(SalesLine: Record "Sales Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineReserveVerifyQuantity(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine: Record "Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1314,4 +1449,3 @@
     begin
     end;
 }
-

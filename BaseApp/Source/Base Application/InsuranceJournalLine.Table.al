@@ -204,6 +204,7 @@ table 5635 "Insurance Journal Line"
         "Source Code" := InsuranceJnlTempl."Source Code";
         "Reason Code" := InsuranceJnlBatch."Reason Code";
         "Posting No. Series" := InsuranceJnlBatch."Posting No. Series";
+        OnAfterSetUpNewLine(Rec, InsuranceJnlTempl, InsuranceJnlBatch, LastInsuranceJnlLine);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
@@ -220,6 +221,7 @@ table 5635 "Insurance Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -269,6 +271,11 @@ table 5635 "Insurance Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var InsuranceJournalLine: Record "Insurance Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var InsuranceJournalLine: Record "Insurance Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -281,6 +288,11 @@ table 5635 "Insurance Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckInsuranceJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var InsuranceJnlLine: Record "Insurance Journal Line"; InsuranceJnlTempl: Record "Insurance Journal Template"; InsuranceJnlBatch: Record "Insurance Journal Batch"; LastInsuranceJnlLine: Record "Insurance Journal Line")
     begin
     end;
 

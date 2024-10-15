@@ -1,4 +1,4 @@
-codeunit 1011 "Job Jnl.-Check Line"
+﻿codeunit 1011 "Job Jnl.-Check Line"
 {
     TableNo = "Job Journal Line";
 
@@ -22,11 +22,9 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
     var
-        Job: Record Job;
 #if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
 #endif
-        IsHandled: Boolean;
     begin
         OnBeforeRunCheck(JobJnlLine);
 
@@ -36,11 +34,7 @@ codeunit 1011 "Job Jnl.-Check Line"
 
             TestJobJnlLine(JobJnlLine);
 
-            Job.Get("Job No.");
-            IsHandled := false;
-            OnRunCheckOnBeforeTestFieldJobStatus(IsHandled);
-            if not IsHandled then
-                Job.TestField(Status, Job.Status::Open);
+            TestJobStatusOpen(JobJnlLine);
 
             CheckPostingDate(JobJnlLine);
 
@@ -62,11 +56,7 @@ codeunit 1011 "Job Jnl.-Check Line"
                         TestField("Bin Code");
             end;
 
-            IsHandled := false;
-            OnBeforeTestChargeable(JobJnlLine, IsHandled);
-            if not IsHandled then
-                if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
-                    TestField(Chargeable, true);
+            TestJobJnlLineChargeable(JobJnlLine);
 #if not CLEAN18
             // NAVCZ
             GLSetup.Get();
@@ -77,6 +67,34 @@ codeunit 1011 "Job Jnl.-Check Line"
         end;
 
         OnAfterRunCheck(JobJnlLine);
+    end;
+
+    local procedure TestJobStatusOpen(var JobJnlLine: Record "Job Journal Line")
+    var
+        Job: Record Job;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnRunCheckOnBeforeTestFieldJobStatus(IsHandled, JobJnlLine);
+        if IsHandled then
+            exit;
+
+        Job.Get(JobJnlLine."Job No.");
+        Job.TestField(Status, Job.Status::Open);
+    end;
+
+    local procedure TestJobJnlLineChargeable(JobJnlLine: Record "Job Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestChargeable(JobJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with JobJnlLine do
+            if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
+                TestField(Chargeable, true);
     end;
 
     local procedure CheckDocumentDate(JobJnlLine: Record "Job Journal Line")
@@ -245,7 +263,7 @@ codeunit 1011 "Job Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunCheckOnBeforeTestFieldJobStatus(var IsHandled: Boolean)
+    local procedure OnRunCheckOnBeforeTestFieldJobStatus(var IsHandled: Boolean; var JobJnlLine: Record "Job Journal Line")
     begin
     end;
 }

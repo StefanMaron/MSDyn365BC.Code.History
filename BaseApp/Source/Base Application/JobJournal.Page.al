@@ -104,15 +104,13 @@ page 201 "Job Journal"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
                 }
                 field("Cost Calculation Method"; "Cost Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for cost calculation in the item journal line.';
                 }
@@ -786,26 +784,19 @@ page 201 "Job Journal"
 
     trigger OnOpenPage()
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ServerSetting: Codeunit "Server Setting";
-        JnlSelected: Boolean;
     begin
         OnBeforeOpenPage(Rec, CurrentJnlBatchName);
 
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
         SetDimensionsVisibility;
 
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-            exit;
-        end;
-        JobJnlManagement.TemplateSelection(PAGE::"Job Journal", false, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
-        JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+        OpenJournal();
     end;
 
     var
@@ -817,6 +808,7 @@ page 201 "Job Journal"
         AccName: Text[100];
         NumberOfRecords: Integer;
         CurrentJnlBatchName: Code[10];
+        ExtendedPriceEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
@@ -835,6 +827,27 @@ page 201 "Job Journal"
         CurrPage.SaveRecord;
         JobJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure OpenJournal()
+    var
+        JnlSelected: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenJournal(Rec, JobJnlManagement, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IsOpenedFromBatch then begin
+            CurrentJnlBatchName := "Journal Batch Name";
+            JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            exit;
+        end;
+        JobJnlManagement.TemplateSelection(PAGE::"Job Journal", false, Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
+        JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
     end;
 
     local procedure SetDimensionsVisibility()
@@ -863,6 +876,11 @@ page 201 "Job Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenPage(var JobJournalLine: Record "Job Journal Line"; var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var JobJournalLine: Record "Job Journal Line"; var JobJnlManagement: Codeunit JobJnlManagement; CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

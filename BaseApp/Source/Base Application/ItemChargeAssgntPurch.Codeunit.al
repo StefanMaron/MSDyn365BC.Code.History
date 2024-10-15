@@ -711,7 +711,7 @@
                     TempItemChargeAssgntPurch."Qty. to Assign" := 0;
                 AssignPurchItemCharge(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, Currency, QtyRemainder, AmountRemainder);
             until TempItemChargeAssgntPurch.Next() = 0;
-        OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(ItemChargeAssgntPurch, QtyRemainder, TotalQtyToAssign);
+        OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(ItemChargeAssgntPurch, QtyRemainder, TotalQtyToAssign, Currency);
         TempItemChargeAssgntPurch.DeleteAll();
     end;
 
@@ -945,7 +945,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; QtyRemainder: Decimal; QtyToAssign: Decimal)
+    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntPurchDelete(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; QtyRemainder: Decimal; QtyToAssign: Decimal; Currency: Record Currency)
     begin
     end;
 

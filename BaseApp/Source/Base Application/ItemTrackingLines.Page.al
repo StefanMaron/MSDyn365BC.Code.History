@@ -180,8 +180,12 @@
                     trigger OnAssistEdit()
                     var
                         MaxQuantity: Decimal;
+                        IsHandled: Boolean;
                     begin
-                        OnBeforeSerialNoAssistEdit(Rec, xRec);
+                        IsHandled := false;
+                        OnBeforeSerialNoAssistEdit(Rec, xRec, CurrentSignFactor, IsHandled);
+                        if IsHandled then
+                            exit;
 
                         MaxQuantity := UndefinedQtyArray[1];
 
@@ -1193,11 +1197,7 @@
             ShipmentDate := 0D;
         end;
 
-        SourceQuantityArray[1] := TrackingSpecification."Quantity (Base)";
-        SourceQuantityArray[2] := TrackingSpecification."Qty. to Handle (Base)";
-        SourceQuantityArray[3] := TrackingSpecification."Qty. to Invoice (Base)";
-        SourceQuantityArray[4] := TrackingSpecification."Quantity Handled (Base)";
-        SourceQuantityArray[5] := TrackingSpecification."Quantity Invoiced (Base)";
+        FillSourceQuantityArray(TrackingSpecification);
         QtyPerUOM := TrackingSpecification."Qty. per Unit of Measure";
 
         ReservEntry.SetSourceFilter(
@@ -1380,10 +1380,7 @@
                     if not ItemTrackingCode."Use Expiration Dates" then
                         Rec."Buffer Status2" := Rec."Buffer Status2"::"ExpDate blocked"
                     else begin
-                        ExpDate :=
-                            ItemTrackingMgt.ExistingExpirationDate(
-                                Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
-
+                        ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
                         if ExpDate <> 0D then begin
                             Rec."Expiration Date" := ExpDate;
                             Rec."Buffer Status2" := Rec."Buffer Status2"::"ExpDate blocked";
@@ -2488,6 +2485,7 @@
 
     procedure SynchronizeLinkedSources(DialogText: Text[250]): Boolean
     begin
+        OnBeforeSynchronizeLinkedSources(CurrentRunMode.AsInteger(), CurrentSourceType, CurrentSourceRowID, SecondSourceRowID, DialogText);
         if CurrentSourceRowID = '' then
             exit(false);
         if SecondSourceRowID = '' then
@@ -2968,6 +2966,22 @@
         Copy(TempTrackingSpecification);
     end;
 
+    local procedure FillSourceQuantityArray(TrackingSpecification: Record "Tracking Specification")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFillSourceQuantityArray(SourceQuantityArray, TrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceQuantityArray[1] := TrackingSpecification."Quantity (Base)";
+        SourceQuantityArray[2] := TrackingSpecification."Qty. to Handle (Base)";
+        SourceQuantityArray[3] := TrackingSpecification."Qty. to Invoice (Base)";
+        SourceQuantityArray[4] := TrackingSpecification."Quantity Handled (Base)";
+        SourceQuantityArray[5] := TrackingSpecification."Quantity Invoiced (Base)";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingSpec(var SourceTrackingSpec: Record "Tracking Specification"; var DestTrkgSpec: Record "Tracking Specification")
     begin
@@ -3074,7 +3088,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSerialNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
+    local procedure OnBeforeSerialNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -3090,6 +3104,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecondSourceQuantity(var SecondSourceQuantityArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronizeLinkedSources(FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; CurrentSourceType: Integer; CurrentSourceRowID: Text[250]; SecondSourceRowID: Text[250]; var DialogText: Text[250])
     begin
     end;
 
@@ -3200,6 +3219,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillSourceQuantityArray(var SourceQuantityArray: array[5] of Decimal; TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1024,6 +1024,7 @@ table 302 "Finance Charge Memo Header"
             FinChrgMemoLine."Line No." := 10000;
 
         FinanceChargeRounding(FinanceChargeHeader);
+        OnAfterFinanceChargeRounding(FinanceChargeHeader);
     end;
 
     procedure SetAllowSelectNoSeries()
@@ -1122,6 +1123,11 @@ table 302 "Finance Charge Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var xFinanceChargeMemoHeader: Record "Finance Charge Memo Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFinanceChargeRounding(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 }

@@ -1047,6 +1047,7 @@
         RemainingOutbnd: Integer;
         Restart: Boolean;
         EndOfValuationDateReached: Boolean;
+        IsHandled: Boolean;
     begin
         if not IsAvgCostItem() then
             exit;
@@ -1058,7 +1059,7 @@
         DeleteAvgBuffers(TempOutbndValueEntry, TempExcludedValueEntry);
 
         with AvgCostAdjmtEntryPoint do
-            while AvgCostAdjmtEntryPointExist(TempAvgCostAdjmtEntryPoint) do
+            while AvgCostAdjmtEntryPointExist(TempAvgCostAdjmtEntryPoint) do begin
                 repeat
                     Restart := false;
                     AvgCostAdjmtEntryPoint := TempAvgCostAdjmtEntryPoint;
@@ -1092,12 +1093,19 @@
 
                         SetAvgCostAjmtFilter(AvgCostAdjmtEntryPoint);
                         Restart := FindFirst and not "Cost Is Adjusted";
+                        OnAdjustItemAvgCostOnAfterCalcRestart(TempExcludedValueEntry, Restart);
                         if "Valuation Date" >= PeriodFormMgt.EndOfPeriod() then
                             EndOfValuationDateReached := true
                         else
                             "Valuation Date" := GetNextDate("Valuation Date");
                     end;
                 until (TempAvgCostAdjmtEntryPoint.Next() = 0) or Restart;
+
+                IsHandled := false;
+                OnAdjustItemAvgCostOnAfterLastTempAvgCostAdjmtEntryPoint(TempAvgCostAdjmtEntryPoint, Restart, IsHandled);
+                if IsHandled then
+                    break;
+            end;
     end;
 
     local procedure AvgCostAdjmtEntryPointExist(var ToAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"): Boolean
@@ -2815,6 +2823,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries(var OutbndItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustItemAvgCostOnAfterLastTempAvgCostAdjmtEntryPoint(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var Restart: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustItemAvgCostOnAfterCalcRestart(var TempExcludedValueEntry: Record "Value Entry" temporary; var Restart: Boolean)
     begin
     end;
 

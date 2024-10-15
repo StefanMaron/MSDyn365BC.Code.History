@@ -679,6 +679,7 @@ page 403 "Purchase Order Statistics"
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
         PurchPostAdv: Codeunit "Purchase-Post Advances";
         OptionValueOutOfRange: Integer;
+        IsHandled: Boolean;
     begin
         CurrPage.Caption(StrSubstNo(Text000, "Document Type"));
 
@@ -721,14 +722,18 @@ page 403 "Purchase Order Statistics"
             PurchPost.SumPurchLinesTemp(
               Rec, TempPurchLine, i - 1, TotalPurchLine[i], TotalPurchLineLCY[i],
               VATAmount[i], VATAmountText[i]);
-            if "Prices Including VAT" then begin
-                TotalAmount2[i] := TotalPurchLine[i].Amount;
-                TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
-                TotalPurchLine[i]."Line Amount" := TotalAmount1[i] + TotalPurchLine[i]."Inv. Discount Amount";
-            end else begin
-                TotalAmount1[i] := TotalPurchLine[i].Amount;
-                TotalAmount2[i] := TotalPurchLine[i]."Amount Including VAT";
-            end;
+
+            IsHandled := false;
+            OnRefreshOnAfterGetRecordAfterSumPurchLinesTemp(TempPurchLine, IsHandled);
+            If not IsHandled then
+                if "Prices Including VAT" then begin
+                    TotalAmount2[i] := TotalPurchLine[i].Amount;
+                    TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
+                    TotalPurchLine[i]."Line Amount" := TotalAmount1[i] + TotalPurchLine[i]."Inv. Discount Amount";
+                end else begin
+                    TotalAmount1[i] := TotalPurchLine[i].Amount;
+                    TotalAmount2[i] := TotalPurchLine[i]."Amount Including VAT";
+                end;
         end;
         TempPurchLine.DeleteAll();
         Clear(TempPurchLine);
@@ -821,6 +826,8 @@ page 403 "Purchase Order Statistics"
               TotalAmount1[IndexNo] + TotalPurchLine[IndexNo]."Inv. Discount Amount";
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
+
+        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec);
 
         if "Prices Including VAT" then
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
@@ -1190,6 +1197,16 @@ page 403 "Purchase Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtTotalAmount2(PurchaseHeader: Record "Purchase Header"; var PrepmtTotalAmount: Decimal; var PrepmtTotalAmount2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnRefreshOnAfterGetRecordAfterSumPurchLinesTemp(var TempPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

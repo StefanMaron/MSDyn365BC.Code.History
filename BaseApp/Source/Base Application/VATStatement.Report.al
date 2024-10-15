@@ -576,6 +576,7 @@ report 12 "VAT Statement"
     end;
 
 #endif
+    [Obsolete('Function overload to facilitate the transition to W1', '18.1')]
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
@@ -590,15 +591,15 @@ report 12 "VAT Statement"
             EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Row Filter");
             EndDate1 := EndDateReq1;
         end else
-        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
-            StartDate1 := NewVATStatementLine.GetRangeMin("Date Filter");
-            EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Filter");
-            EndDate1 := EndDateReq1;
-        end else begin
-            StartDate1 := 0D;
-            EndDateReq1 := 0D;
-            EndDate1 := DMY2Date(31, 12, 9999);
-        end;
+            if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
+                StartDate1 := NewVATStatementLine.GetRangeMin("Date Filter");
+                EndDateReq1 := NewVATStatementLine.GetRangeMax("Date Filter");
+                EndDate1 := EndDateReq1;
+            end else begin
+                StartDate1 := 0D;
+                EndDateReq1 := 0D;
+                EndDate1 := DMY2Date(31, 12, 9999);
+            end;
         if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
             StartDate2 := NewVATStatementLine.GetRangeMin("Date Filter");
             EndDateReq2 := NewVATStatementLine.GetRangeMax("Date Filter");

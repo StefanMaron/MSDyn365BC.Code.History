@@ -115,7 +115,13 @@ codeunit 5063 ArchiveManagement
     procedure ArchivePurchDocument(var PurchHeader: Record "Purchase Header")
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchivePurchDocument(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ConfirmManagement.GetResponseOrDefault(
              StrSubstNo(Text007, PurchHeader."Document Type", PurchHeader."No."), true)
         then begin
@@ -803,6 +809,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoArchivePurchDocument(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchivePurchDocument(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

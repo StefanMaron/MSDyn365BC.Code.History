@@ -14,6 +14,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Date Order Invt. Change CZL - Method PostItemWithOlderDateDisabled - NamedType WrongItemEntryApplicationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 322256283 - NamedType 1888892564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Inventory Movement Template must be equal to %1  in Item Document Header]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = expected value of template]D;]A;(LookupHint=Codeunit Invt. Mvmt. Templates CZL - NamedType TemplateMustBeEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 322256283 - NamedType 1069379362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field Inventory Movement Template of table Item Document Header contains a value (%1) that cannot be found in the related table (Inventory Movement Template).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = name of Invt. Movement Template]D;]A;(LookupHint=Codeunit Invt. Mvmt. Templates CZL - NamedType TemplateNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3558610481 - NamedType 3407409923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[For commodity %1 and limit %2 not allowed VAT type %3 posting.\\Item List:\%4.]]></Val>
@@ -57,6 +75,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Vendor No.;%2=VAT Registration No.]D;]A;(LookupHint=Codeunit Unreliable Payer CZL - NamedType VendUnrVATPayerStatusNotCheckedQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3753419350 - NamedType 1949149976" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original Document VAT Date must have a value in Gen. Journal Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Date CZL - NamedType EmptyOrigDocVATDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3753419350 - Method 1030885232 - NamedType 3598109445" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">

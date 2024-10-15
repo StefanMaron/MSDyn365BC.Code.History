@@ -1246,7 +1246,7 @@
     local procedure CalculateExchangeAmount(Amount: Decimal; DocumentCurrencyFactor: Decimal; IntrastatCurrencyFactor: Decimal): Decimal
     begin
         // NAVCZ
-        if IntrastatCurrencyFactor <> 0 then
+        if (IntrastatCurrencyFactor <> 0) and (DocumentCurrencyFactor <> 0) then
             exit(Amount * DocumentCurrencyFactor / IntrastatCurrencyFactor);
         exit(Amount);
     end;

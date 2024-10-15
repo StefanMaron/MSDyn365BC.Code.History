@@ -12,7 +12,7 @@ codeunit 5814 "Undo Return Shipment Line"
     begin
         IsHandled := false;
         SkipTypeCheck := false;
-        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck);
+        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, HideDialog);
         if IsHandled then
             exit;
 
@@ -350,7 +350,7 @@ codeunit 5814 "Undo Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean)
+    local procedure OnBeforeOnRun(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean; var SkipTypeCheck: Boolean; var HideDialog: Boolean)
     begin
     end;
 

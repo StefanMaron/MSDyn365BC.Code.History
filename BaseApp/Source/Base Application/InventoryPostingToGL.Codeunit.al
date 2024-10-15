@@ -1094,16 +1094,41 @@ codeunit 5802 "Inventory Posting To G/L"
             if not FindSet then
                 exit;
 
-            GenJnlLine.Init();
-            GenJnlLine."Document No." := DocNo;
-            GenJnlLine."External Document No." := ExternalDocNo;
-            GenJnlLine.Description := Desc;
-            GetSourceCodeSetup;
-            GenJnlLine."Source Code" := SourceCodeSetup."Inventory Post Cost";
-            GenJnlLine."System-Created Entry" := true;
-            GenJnlLine."Job No." := ValueEntry."Job No.";
-            GenJnlLine."Reason Code" := ValueEntry."Reason Code";
-            OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
+            PostInvtPostBufInitGenJnlLine(GenJnlLine, ValueEntry, DocNo, ExternalDocNo, Desc);
+            
+            PostInvtPostBufProcessGlobalInvtPostBuf(GenJnlLine, ValueEntry, PostPerPostGrp);
+            
+            RunOnlyCheck := RunOnlyCheckSaved;
+            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
+
+            DeleteAll();
+        end;
+    end;
+
+    local procedure PostInvtPostBufInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100])
+    begin
+        GenJnlLine.Init();
+        GenJnlLine."Document No." := DocNo;
+        GenJnlLine."External Document No." := ExternalDocNo;
+        GenJnlLine.Description := Desc;
+        GetSourceCodeSetup;
+        GenJnlLine."Source Code" := SourceCodeSetup."Inventory Post Cost";
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Job No." := ValueEntry."Job No.";
+        GenJnlLine."Reason Code" := ValueEntry."Reason Code";
+        OnPostInvtPostBufOnAfterInitGenJnlLine(GenJnlLine, ValueEntry);
+    end;
+
+    local procedure PostInvtPostBufProcessGlobalInvtPostBuf(var GenJnlLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; PostPerPostGrp: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostInvtPostBufProcessGlobalInvtPostBuf(GlobalInvtPostBuf, GenJnlLine, ValueEntry, GenJnlPostLine, CalledFromItemPosting, PostPerPostGrp, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GlobalInvtPostBuf do
             repeat
                 GenJnlLine.Validate("Posting Date", "Posting Date");
                 // NAVCZ
@@ -1117,6 +1142,7 @@ codeunit 5802 "Inventory Posting To G/L"
                     if PostPerPostGrp then
                         // NAVCZ
                         SetDesc(GenJnlLine, GlobalInvtPostBuf);
+                    OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(GenJnlLine, GlobalInvtPostBuf);
                     GenJnlLine."Account No." := "Account No.";
                     GenJnlLine."Dimension Set ID" := "Dimension Set ID";
                     DimMgt.UpdateGlobalDimFromDimSetID(
@@ -1145,11 +1171,6 @@ codeunit 5802 "Inventory Posting To G/L"
                 if not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
             until Next() = 0;
-            RunOnlyCheck := RunOnlyCheckSaved;
-            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
-
-            DeleteAll();
-        end;
     end;
 
     local procedure GetSourceCodeSetup()
@@ -1390,7 +1411,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer; var CostToPost: Decimal; var CostToPostACY: Decimal)
+    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer; var CostToPost: Decimal; var CostToPostACY: Decimal)
     begin
     end;
 
@@ -1405,7 +1426,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
+    local procedure OnAfterBufferSalesPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
     begin
     end;
 
@@ -1425,7 +1446,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
+    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
     begin
     end;
 
@@ -1515,6 +1536,11 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostInvtPostBufProcessGlobalInvtPostBuf(var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CalledFromItemPosting: Boolean; PostPerPostGroup: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; AccType: Option; BalAccType: Option; CalledFromItemPosting: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1556,6 +1582,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvtPostBufOnBeforeSetAmt(var GenJournalLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; var GlobalInvtPostingBuffer: Record "Invt. Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(var GenJournalLine: Record "Gen. Journal Line"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary)
     begin
     end;
 

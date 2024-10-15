@@ -145,7 +145,14 @@ table 5404 "Item Unit of Measure"
         CannotModifyUOMWithWhseEntriesErr: Label 'You cannot modify %1 %2 for item %3 because there are one or more warehouse adjustment entries for the item.', Comment = '%1 = Item Unit of Measure %2 = Code %3 = Item No.';
 
     local procedure CalcCubage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCubage(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cubage := Length * Width * Height;
 
         OnAfterCalcCubage(Rec);
@@ -365,6 +372,11 @@ table 5404 "Item Unit of Measure"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestItemSetup(var Rec: Record "Item Unit of Measure"; xRec: Record "Item Unit of Measure")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCubage(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var xItemUnitOfMeasure: Record "Item Unit of Measure"; var IsHandled: Boolean)
     begin
     end;
 }
