@@ -1,6 +1,6 @@
 page 318 "VAT Statement Templates"
 {
-    ApplicationArea = VAT;
+    ApplicationArea = Basic, Suite;
     Caption = 'VAT Statement Templates';
     PageType = List;
     SourceTable = "VAT Statement Template";
@@ -15,12 +15,12 @@ page 318 "VAT Statement Templates"
                 ShowCaption = false;
                 field(Name; Name)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the VAT statement template you are about to create.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
                 }
             }
@@ -50,7 +50,7 @@ page 318 "VAT Statement Templates"
                 Image = Template;
                 action("Statement Names")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Statement Names';
                     Image = List;
                     RunObject = Page "VAT Statement Names";
