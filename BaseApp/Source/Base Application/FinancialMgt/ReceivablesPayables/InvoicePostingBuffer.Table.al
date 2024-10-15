@@ -413,6 +413,8 @@
             CurrencyACY."Amount Rounding Precision",
             CurrencyACY.VATRoundingDirection());
 
+        OnCalcDiscountOnAfterUpdateVATAmount(Rec, PricesInclVAT, DiscountAmount, DiscountAmountACY);
+
         if PricesInclVAT and ("VAT %" <> 0) then begin
             "VAT Base Amount" := DiscountAmount - "VAT Amount";
             "VAT Base Amount (ACY)" := DiscountAmountACY - "VAT Amount (ACY)";
@@ -963,6 +965,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildPrimaryKeyAfterDeferralCode(var GroupID: Text; InvoicePostingBuffer: Record "Invoice Posting Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDiscountOnAfterUpdateVATAmount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; PricesInclVAT: Boolean; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     begin
     end;
 }

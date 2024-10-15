@@ -501,6 +501,7 @@ page 379 "Bank Acc. Reconciliation"
             if BankAccount.Next() = 0 then begin
                 Rec."Statement Type" := BankAccReconciliation."Statement Type"::"Bank Reconciliation";
                 Rec.Validate("Bank Account No.", BankAccountNumber);
+                BankAccountNoIsEditable := false;
             end;
         end;
     end;

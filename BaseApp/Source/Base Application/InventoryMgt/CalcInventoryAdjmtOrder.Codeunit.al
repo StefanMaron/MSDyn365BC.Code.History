@@ -103,6 +103,9 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                             CalcActualOutputCosts(OldActInvtAdjmtEntryOrder, "Entry No.");
 
                             NewActInvtAdjmtEntryOrder := RemActInvtAdjmtEntryOrder;
+
+                            OnCalcOutputEntryCostAdjmtsOnBeforeCalculateCostForGrossOutput(NewActInvtAdjmtEntryOrder, RemOutputQty, OutputQty);
+
                             if RemOutputQty * (Quantity + ReversedQty) <> 0 then begin
                                 // Calculate cost for gross output
                                 NewActInvtAdjmtEntryOrder.RoundCosts((Quantity + ReversedQty) / RemOutputQty);
@@ -480,6 +483,11 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnOutputItemLedgEntryExistOnAfterSetFilters(var FromItemLedgEntry: Record "Item Ledger Entry"; var SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcOutputEntryCostAdjmtsOnBeforeCalculateCostForGrossOutput(var NewActInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; RemOutputQty: Decimal; OutputQty: Decimal)
     begin
     end;
 }

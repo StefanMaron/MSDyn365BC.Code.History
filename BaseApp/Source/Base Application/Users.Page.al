@@ -435,10 +435,15 @@ page 9800 Users
                 AboutText = 'When licenses or user accounts change in the Microsoft 365 admin center, you must sync the changes back to this list.';
 
                 trigger OnAction()
+                var
+                    UserCountBeforeUpdate: Integer;
                 begin
+                    UserCountBeforeUpdate := Rec.Count();
+
                     Page.RunModal(Page::"Azure AD User Update Wizard");
-                    CurrPage."User Security Groups".Page.Refresh();
-                    CurrPage."Inherited Permission Sets".Page.Refresh();
+
+                    if Rec.Count() > UserCountBeforeUpdate then
+                        RefreshParts();
                 end;
             }
             action(Email)
@@ -601,6 +606,8 @@ page 9800 Users
 #endif
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
+        RefreshParts();
+
         if UserWithWebServiceKeyExist() then begin
             Usermanagement.BasicAuthDepricationNotificationDefault(true);
             if (not NavTenantSettingsHelper.IsWSKeyAllowed()) and EnvironmentInfo.IsSaaS() then
@@ -668,6 +675,16 @@ page 9800 Users
     procedure GetSelectionFilter(var User: Record User)
     begin
         CurrPage.SetSelectionFilter(User);
+    end;
+
+    local procedure RefreshParts()
+    var
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
+        SecurityGroup: Codeunit "Security Group";
+    begin
+        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        CurrPage."User Security Groups".Page.Refresh(SecurityGroupMemberBuffer);
+        CurrPage."Inherited Permission Sets".Page.Refresh(SecurityGroupMemberBuffer);
     end;
 
     local procedure UserWithWebServiceKeyExist(): Boolean

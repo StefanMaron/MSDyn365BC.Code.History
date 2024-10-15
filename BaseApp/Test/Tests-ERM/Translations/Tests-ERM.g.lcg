@@ -1571,6 +1571,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Batch Job - NamedType UnpaidPrepaymentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3401192251 - NamedType 3345205943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Batch Job - NamedType WrongValErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3401192251 - NamedType 581102963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot change Buy-from Vendor No. because the order is associated with one or more sales orders.]]></Val>
@@ -11615,6 +11624,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType CannotAssignNumbersAutoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3810126422 - NamedType 628523983" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong Sales Line Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Correct Invoice - NamedType CommentCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3810126422 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document No. are not equal.]]></Val>
@@ -11694,6 +11712,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchase Correct Invoice - NamedType CannotAssignNumbersAutoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 642181707 - NamedType 628523983" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong Purchase Line Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchase Correct Invoice - NamedType CommentCountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 642181707 - NamedType 1864455598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14754,6 +14781,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Invt. Pick Post Preview - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3400168546 - Method 3766919869 - NamedType 1945968095" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description]D;]A;(LookupHint=Codeunit Test Invt. Pick Post Preview - Method InventoryPickPostWithLotAndBin_ProdConsumption - NamedType CannotMatchItemTrackingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 219211031 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -275,6 +275,7 @@
                     end;
                 if "Fin. Charge Terms Code" <> '' then begin
                     FinChrgTerms.Get("Fin. Charge Terms Code");
+                    OnValidateFinChrgTermsCodeOnAfterFinChrgTermsGet(Rec, FinChrgTerms);
                     "Post Interest" := FinChrgTerms."Post Interest";
                     "Post Additional Fee" := FinChrgTerms."Post Additional Fee";
                     if "Document Date" <> 0D then
@@ -648,6 +649,7 @@
     begin
         TestField("Fin. Charge Terms Code");
         FinChrgTerms.Get("Fin. Charge Terms Code");
+        OnInsertLinesOnAfterFinChrgTermsGet(Rec, FinChrgTerms);
         FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         FinChrgMemoLine."Finance Charge Memo No." := "No.";
@@ -787,6 +789,8 @@
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Ending Text");
             if not FinChrgTerms.Get(FinChrgMemoHeader2."Fin. Charge Terms Code") then
                 FinChrgTerms.Init();
+
+            OnInsertTextLinesOnAfterFinChrgTermsGetOrInit(FinChrgMemoHeader2, FinChrgTerms);
 
             FinChrgMemoHeader2.CalcFields(
               "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount");
@@ -984,6 +988,7 @@
                     Currency."Amount Rounding Precision"));
                 "VAT Amount" := FinanceChargeRoundingAmount - Amount;
                 "Line Type" := "Line Type"::Rounding;
+                OnFinanceChargeRoundingOnBeforeInsertFinanceMemoHeader(FinanceChargeHeader, FinChrgMemoLine);
                 Insert();
             end;
         end;
@@ -1250,6 +1255,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CallingFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinanceChargeRoundingOnBeforeInsertFinanceMemoHeader(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeMemoLine: Record "Finance Charge Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTextLinesOnAfterFinChrgTermsGetOrInit(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFinChrgTermsCodeOnAfterFinChrgTermsGet(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLinesOnAfterFinChrgTermsGet(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; var FinChrgTerms: Record "Finance Charge Terms")
     begin
     end;
 }

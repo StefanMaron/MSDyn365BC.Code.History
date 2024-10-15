@@ -1075,6 +1075,7 @@
     local procedure InsertWhseItemEntryRelation(var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary)
     var
         WhseItemEntryRelation: Record "Whse. Item Entry Relation";
+        IsHandled: Boolean;
     begin
         if ItemEntryRelationCreated then begin
             if TempWhseItemEntryRelation.Find('-') then begin
@@ -1082,8 +1083,10 @@
                     WhseItemEntryRelation := TempWhseItemEntryRelation;
                     WhseItemEntryRelation.SetSource(
                       DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", PostedWhseRcptLine."Line No.");
-                    OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseItemEntryRelation(WhseItemEntryRelation);
-                    WhseItemEntryRelation.Insert();
+                    IsHandled := false;
+                    OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseItemEntryRelation(WhseItemEntryRelation, IsHandled);
+                    if not IsHandled then
+                        WhseItemEntryRelation.Insert();
                 until TempWhseItemEntryRelation.Next() = 0;
                 ItemEntryRelationCreated := false;
             end;
@@ -1095,8 +1098,10 @@
                 WhseItemEntryRelation.InitFromTrackingSpec(TempWhseSplitSpecification);
                 WhseItemEntryRelation.SetSource(
                   DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", PostedWhseRcptLine."Line No.");
-                OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseSplitSpecification(WhseItemEntryRelation, TempWhseSplitSpecification);
-                WhseItemEntryRelation.Insert();
+                IsHandled := false;
+                OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseSplitSpecification(WhseItemEntryRelation, TempWhseSplitSpecification, IsHandled);
+                if not IsHandled then
+                    WhseItemEntryRelation.Insert();
             until TempWhseSplitSpecification.Next() = 0;
     end;
 
@@ -1236,9 +1241,9 @@
         TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
         TempPostedWhseRcptLine2: Record "Posted Whse. Receipt Line" temporary;
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
-                                      ItemTrackingMgt: Codeunit "Item Tracking Management";
-                                      RemQtyToHandleBase: Decimal;
-                                      IsHandled: Boolean;
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        RemQtyToHandleBase: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeCreatePutAwayDocProcedure(PostedWhseRcptLine);
 
@@ -1796,12 +1801,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseItemEntryRelation(var WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    local procedure OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseItemEntryRelation(var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseSplitSpecification(var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary)
+    local procedure OnInsertWhseItemEntryRelationOnBeforeInsertFromTempWhseSplitSpecification(var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 

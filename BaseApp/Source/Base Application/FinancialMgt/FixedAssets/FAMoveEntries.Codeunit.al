@@ -82,7 +82,14 @@ codeunit 5623 "FA MoveEntries"
     end;
 
     local procedure DeleteNo(var FADeprBook: Record "FA Depreciation Book")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteNo(FADeprBook, IsHandled);
+        if IsHandled then
+            exit;
+
         FALedgEntry.ModifyAll("FA No.", '');
         FALedgEntry.SetRange("FA No.");
         FALedgEntry.SetCurrentKey("Canceled from FA No.");
@@ -166,6 +173,11 @@ codeunit 5623 "FA MoveEntries"
                   Text003,
                   FA.FieldCaption("Budgeted Asset"));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteNo(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
     end;
 }
 

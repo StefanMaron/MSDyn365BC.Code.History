@@ -2302,6 +2302,7 @@
                                                 ContractServDisc.Type := ContractServDisc.Type::"Resource Group";
                                                 ContractServDisc."No." := Res."Resource Group No.";
                                                 ContractServDisc."Starting Date" := "Posting Date";
+                                                OnValidateContractNoOnBeforeContractDiscountFind(Rec, ContractServDisc, ServItem);
                                                 CODEUNIT.Run(CODEUNIT::"ContractDiscount-Find", ContractServDisc);
                                                 "Contract Disc. %" := ContractServDisc."Discount %";
                                             end;
@@ -2314,6 +2315,7 @@
                                                 ContractServDisc.Type := ContractServDisc.Type::Cost;
                                                 ContractServDisc."No." := "No.";
                                                 ContractServDisc."Starting Date" := "Posting Date";
+                                                OnValidateContractNoOnBeforeContractDiscountFind(Rec, ContractServDisc, ServItem);
                                                 CODEUNIT.Run(CODEUNIT::"ContractDiscount-Find", ContractServDisc);
                                                 "Contract Disc. %" := ContractServDisc."Discount %";
                                             end;
@@ -3189,7 +3191,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalculateDiscount(Rec, IsHandled);
+        OnBeforeCalculateDiscount(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -4599,7 +4601,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnUpdateCalcVATAmountLines(ServHeader, ServiceLine, VATAmountLine, QtyType, isShip);
+        OnUpdateCalcVATAmountLines(ServHeader, ServiceLine, VATAmountLine, QtyType, isShip, IsHandled);
         if IsHandled then
             exit;
 
@@ -6598,7 +6600,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateCalcVATAmountLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping,Consuming; isShip: Boolean)
+    local procedure OnUpdateCalcVATAmountLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping,Consuming; isShip: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6688,7 +6690,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateDiscount(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateDiscount(var ServiceLine: Record "Service Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 }

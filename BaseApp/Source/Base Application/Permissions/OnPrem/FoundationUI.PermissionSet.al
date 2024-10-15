@@ -135,6 +135,7 @@
                   tabledata "VAT Posting Setup" = Rim,
                   tabledata "VAT Rate Change Setup" = Rim,
                   tabledata "VAT Report Setup" = Rim,
+                  tabledata "VAT Reporting Code" = Rim,
                   tabledata "VAT Setup Posting Groups" = Rim,
                   tabledata "VAT Setup" = Rim,
                   tabledata "VAT Posting Parameters" = Rim,

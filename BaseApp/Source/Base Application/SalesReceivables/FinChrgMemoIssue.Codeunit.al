@@ -452,7 +452,13 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCustLedgEntriesCalculateInterest(EntryNo, DocumentDate, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgerEntry.Get(EntryNo);
         CustLedgerEntry.SetFilter("Date Filter", '..%1', DocumentDate);
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -625,6 +631,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterGenJnlPostLineRunWithCheck(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCustLedgEntriesCalculateInterest(EntryNo: Integer; DocumentDate: Date; var IsHandled: Boolean)
     begin
     end;
 }
