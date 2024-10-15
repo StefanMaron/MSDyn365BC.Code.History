@@ -4,6 +4,7 @@ codeunit 4706 "VAT Group Submit To Represent."
 
     var
         VATGroupSubmissionsEndPointTxt: Label '/vatGroupSubmissions?$expand=vatGroupSubmissionLines', Locked = true;
+        VATGroupSubmissionEndPoint2017Txt: Label '/vatGroupSubmissions?$format=json', Locked = true;
         NoVATReportSetupErr: Label 'The VAT report setup was not found. You can create one on the VAT Report Setup page.';
         SubmitMembersOnlyErr: Label 'You must be configured as a VAT Group member in order to submit VAT returns to the group representative.';
 
@@ -15,7 +16,7 @@ codeunit 4706 "VAT Group Submit To Represent."
         VATGroupCommunication: Codeunit "VAT Group Communication";
         HttpResponseBodyText: Text;
         ContentJsonText: Text;
-
+        EndPoint: Text;
     begin
         if not VATReportSetup.Get() then
             Error(NoVATReportSetupErr);
@@ -27,10 +28,22 @@ codeunit 4706 "VAT Group Submit To Represent."
 
         ErrorMessage.SetContext(Rec);
         ErrorMessage.ClearLog();
-        if not VATGroupCommunication.Send('POST', VATGroupSubmissionsEndPointTxt, ContentJsonText, HttpResponseBodyText, false) then begin
+
+        case VATReportSetup."VAT Group BC Version" of
+            VATReportSetup."VAT Group BC Version"::NAV2017:
+                EndPoint := VATGroupSubmissionEndPoint2017Txt;
+            VATReportSetup."VAT Group BC Version"::NAV2018,
+            VATReportSetup."VAT Group BC Version"::BC:
+                EndPoint := VATGroupSubmissionsEndPointTxt;
+        end;
+
+        if not VATGroupCommunication.Send('POST', EndPoint, ContentJsonText, HttpResponseBodyText, false) then begin
             ErrorMessage.LogLastError();
-            if HttpResponseBodyText <> '' then
-                ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, HttpResponseBodyText);
+            while HttpResponseBodyText <> '' do begin
+                ErrorMessage.LogSimpleMessage(
+                    ErrorMessage."Message Type"::Error, CopyStr(HttpResponseBodyText, 1, MaxStrLen(ErrorMessage.Description)));
+                HttpResponseBodyText := CopyStr(HttpResponseBodyText, MaxStrLen(ErrorMessage.Description) + 1);
+            end;
         end;
 
         if ErrorMessage.HasErrors(true) then

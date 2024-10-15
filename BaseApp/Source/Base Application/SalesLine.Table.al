@@ -3904,8 +3904,11 @@
 
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
+            if not PrePaymentLineAmountEntered then begin
                 "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
+                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+            end;
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -4934,7 +4937,9 @@
             LockTable;
             if FindSet then
                 repeat
-                    if not ZeroAmountLine(QtyType) then begin
+                    if not ZeroAmountLine(QtyType) and
+                       ((SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
+                    then begin
                         DeferralAmount := GetDeferralAmount();
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
@@ -6958,10 +6963,6 @@
         Amount := NewAmount;
         "Amount Including VAT" := NewAmountIncludingVAT;
         "VAT Base Amount" := NewVATBaseAmount;
-        if not SalesHeader."Prices Including VAT" and (Amount > 0) and (Amount < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := Amount;
-        if SalesHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := "Amount Including VAT";
 
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
     end;

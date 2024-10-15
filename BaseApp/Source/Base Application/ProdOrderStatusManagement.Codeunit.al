@@ -116,6 +116,7 @@ codeunit 5407 "Prod. Order Status Management"
             ToProdOrder."Starting Date" := "Starting Date";
             ToProdOrder."Ending Time" := "Ending Time";
             ToProdOrder."Ending Date" := "Ending Date";
+            ToProdOrder.UpdateDatetime();
             ToProdOrder."Due Date" := "Due Date";
             ToProdOrder."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             ToProdOrder."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";

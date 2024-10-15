@@ -13,7 +13,7 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Group Included';
-                    ToolTip = 'Specified whether this is a VAT group return.';
+                    ToolTip = 'Specifies whether this is a VAT group return.';
                     Editable = false;
                 }
             }
@@ -26,6 +26,19 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the VAT return on the group representative side. If this VAT return was used in a VAT group return by the group representative, the status is shown here.';
+                    Editable = false;
+                }
+            }
+            group(VATGroupSettlementPostedControl)
+            {
+                ShowCaption = false;
+                Visible = IsGroupRepresentative and "VAT Group Return";
+
+                field("VAT Group Settlement Posted"; "VAT Group Settlement Posted")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'VAT Group Settlement Posted';
+                    ToolTip = 'Specifies whether the VAT settlement has been posted for the group members.';
                     Editable = false;
                 }
             }
@@ -71,14 +84,33 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 PromotedOnly = true;
                 Caption = 'Update Status';
                 Image = ReOpen;
-                ToolTip = 'Manually update the status of this VAT return to mirror the status of the VAT Group return in the group representative company. ';
-                Visible = IsVATReportValid;
+                ToolTip = 'Give the VAT return the same status as the return for the VAT group in the group representative company.';
+                Visible = IsGroupMember and IsVATReportValid;
 
                 trigger OnAction()
                 var
                     VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
                 begin
                     VATGroupSubmissionStatus.UpdateSingleVATReportStatus(Rec."No.");
+                end;
+            }
+        }
+        addafter("Calc. and Post VAT Settlement")
+        {
+            action("Post VAT Group Settlement")
+            {
+                ApplicationArea = Basic, Suite;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedOnly = true;
+                Caption = 'Post VAT Group Settlement';
+                Image = Report2;
+                ToolTip = 'Post the VAT amount that is due to the VAT settlement account for each group member, and balance the amounts in the account for VAT group settlements.';
+                Visible = VATGroupSettlementVisible;
+
+                trigger OnAction()
+                begin
+                    ConfirmAndRunVATGroupSettlement();
                 end;
             }
         }
@@ -95,11 +127,14 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
         {
             trigger OnAfterAction()
             var
+                ErrorMessage: Record "Error Message";
                 VATGroupHelperFunctions: Codeunit "VAT Group Helper Functions";
                 VATGroupRetrievefromSubmission: Codeunit "VAT Group Retrieve From Sub.";
                 ValuesChanged: Notification;
             begin
-                if IsGroupRepresentative then begin
+                ErrorMessage.SetRange("Context Record ID", Rec.RecordId());
+
+                if IsGroupRepresentative and Rec."VAT Group Return" and ErrorMessage.IsEmpty() then begin
                     VATGroupRetrievefromSubmission.Run(Rec);
                     VATGroupHelperFunctions.MarkReleasedVATSubmissions(Rec);
                     if VATGroupRetrievefromSubmission.IsNotificationNeeded() then begin
@@ -116,8 +151,20 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 VATGroupHelperFunctions: Codeunit "VAT Group Helper Functions";
                 VATGroupRetrievefromSubmission: Codeunit "VAT Group Retrieve From Sub.";
             begin
-                VATGroupHelperFunctions.MarkReopenedVATSubmissions(Rec);
-                VATGroupRetrievefromSubmission.Run(Rec);
+                if IsGroupRepresentative and Rec."VAT Group Return" then begin
+                    VATGroupHelperFunctions.MarkReopenedVATSubmissions(Rec);
+                    VATGroupRetrievefromSubmission.Run(Rec);
+                end;
+            end;
+        }
+        modify("Calc. and Post VAT Settlement")
+        {
+            trigger OnAfterAction()
+            begin
+                if not IsVATGroupSettlementTriggered() then
+                    exit;
+
+                ConfirmAndRunVATGroupSettlement();
             end;
         }
     }
@@ -127,9 +174,13 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
         IsGroupRepresentative: Boolean;
         IsVATReportValid: Boolean;
         IsGroupMember: Boolean;
+        VATGroupSettlementVisible: Boolean;
         ValuesChangedMsg: Label 'The amounts submitted by group members have changed. Please review the new values.';
         NewerSubmissionsMsg: Label 'There are newer VAT Group submissions from members for this period. Click Reopen to incorporate the new values.';
-        NotAllMembersSubmittedErr: Label 'Some VAT Group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\n You can see the current submission on the VAT Group Submision page.';
+        NotAllMembersSubmittedErr: Label 'One or more VAT group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\\You can see the current submissions on the VAT Group Submission page.';
+        VATGroupSettlementQst: Label 'Do you want to post the VAT settlement for the group members?';
+        VATGroupSettlementErr: Label 'Could not post the VAT group settlement because the following error occurred. %1', Comment = '%1 is the error itself';
+        VatGroupSettlementMsg: Label 'The VAT group settlement was posted successfully.';
 
     trigger OnAfterGetRecord()
     var
@@ -143,6 +194,7 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
         IsGroupRepresentative := VATReportSetup.IsGroupRepresentative();
         IsGroupMember := VATReportSetup.IsGroupMember();
         IsVATReportValid := VATGroupSubmissionStatus.IsVATReportValid(Rec);
+        VATGroupSettlementVisible := IsVATGroupSettlementTriggered() and (Rec.Status = Rec.Status::Accepted);
 
         if IsGroupRepresentative and (Rec.Status = Rec.Status::Released) then
             if VATGroupHelperFunctions.NewerVATSubmissionsExist(Rec) then begin
@@ -151,5 +203,29 @@ pageextension 4701 "VAT Report Extension" extends "VAT Report"
                 NewerSubmissions.Scope(NotificationScope::LocalScope);
                 NewerSubmissions.Send();
             end;
+    end;
+
+    local procedure IsVATGroupSettlementTriggered(): Boolean
+    begin
+        if not IsGroupRepresentative then
+            exit(false);
+        if not Rec."VAT Group Return" then
+            exit(false);
+        if Rec."VAT Group Settlement Posted" then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure ConfirmAndRunVATGroupSettlement()
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        VATGroupSettlement: Codeunit "VAT Group Settlement";
+    begin
+        if ConfirmManagement.GetResponse(VATGroupSettlementQst, false) then
+            if not VATGroupSettlement.Run(Rec) then
+                Error(VATGroupSettlementErr, GetLastErrorText())
+            else
+                Message(VatGroupSettlementMsg);
     end;
 }
