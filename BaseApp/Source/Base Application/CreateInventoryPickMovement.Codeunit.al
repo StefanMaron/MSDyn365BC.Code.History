@@ -793,6 +793,7 @@
         if RemQtyToPickBase <= 0 then
             exit;
 
+        HasExpiredItems := false;
         OriginalRemQtyToPickBase := RemQtyToPickBase;
 
         QtyAvailToPickBase := CalcInvtAvailability(NewWhseActivLine, WhseItemTrackingSetup);

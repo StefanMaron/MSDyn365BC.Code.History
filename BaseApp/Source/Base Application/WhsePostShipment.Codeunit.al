@@ -42,6 +42,9 @@
         InventorySetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        TransferOrderPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        TransferOrderPostShipment: Codeunit "TransferOrder-Post Shipment";
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         WMSMgt: Codeunit "WMS Management";
         LastShptNo: Code[20];
@@ -427,7 +430,6 @@
         WhseShptHeader: Record "Warehouse Shipment Header";
         SalesPost: Codeunit "Sales-Post";
         PurchPost: Codeunit "Purch.-Post";
-        TransferPostShipment: Codeunit "TransferOrder-Post Shipment";
         ServicePost: Codeunit "Service-Post";
         IsHandled: Boolean;
     begin
@@ -518,14 +520,12 @@
                 DATABASE::"Transfer Line":
                     begin
                         OnPostSourceDocumentOnBeforeCaseTransferLine(TransHeader, WhseShptLine);
-                        TransferPostShipment.SetWhseShptHeader(WhseShptHeader);
-                        TransferPostShipment.SetSuppressCommit(SuppressCommit);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
-                                TryPostSourceTransferDocument(TransferPostShipment);
+                                TryPostSourceTransferDocument();
 
                             WhseSetup."Shipment Posting Policy"::"Stop and show the first posting error":
-                                PostSourceTransferDocument(TransferPostShipment);
+                                PostSourceTransferDocument();
                         end;
 
                         if Print then begin
@@ -538,7 +538,6 @@
                         end;
 
                         OnAfterTransferPostShipment(WhseShptLine, TransHeader);
-                        Clear(TransferPostShipment);
                     end;
                 DATABASE::"Service Line":
                     begin
@@ -637,84 +636,107 @@
         OnAfterPostSourcePurchDocument(CounterSourceDocOK, PurchPost, PurchHeader);
     end;
 
-    local procedure TryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    local procedure TryPostSourceTransferDocument()
     var
         Result: Boolean;
         IsHandled: Boolean;
     begin
+        Clear(TransferOrderPostShipment);
         IsHandled := false;
-        OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader, IsHandled);
+        OnBeforeTryPostSourceTransferDocument(TransferOrderPostShipment, TransHeader, IsHandled);
         if not IsHandled then begin
             Result := false;
             InventorySetup.Get();
             if TransHeader."Direct Transfer" then
-                Result := TryPostDirectTransferDocument(TransferPostShipment)
-            else
-                if TransferPostShipment.Run(TransHeader) then begin
+                Result := TryPostDirectTransferDocument()
+            else begin
+                TransferOrderPostShipment.SetWhseShptHeader(WhseShptHeader);
+                TransferOrderPostShipment.SetSuppressCommit(SuppressCommit);
+                if TransferOrderPostShipment.Run(TransHeader) then begin
                     CounterSourceDocOK := CounterSourceDocOK + 1;
                     Result := true;
                 end;
+            end;
         end;
 
-        OnAfterTryPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader, Result);
+        OnAfterTryPostSourceTransferDocument(CounterSourceDocOK, TransferOrderPostShipment, TransHeader, Result);
     end;
 
-    local procedure TryPostDirectTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment") Posted: Boolean
+    local procedure TryPostDirectTransferDocument() Posted: Boolean
     var
-        TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
         Posted := false;
         case InventorySetup."Direct Transfer Posting" of
             InventorySetup."Direct Transfer Posting"::"Direct Transfer":
-                if TransferPostTransfer.Run(TransHeader) then begin
-                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                    Posted := true;
-                end;
-            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
-                if TransferPostShipment.Run(TransHeader) then
-                    if TransferPostReceipt.Run(TransHeader) then begin
+                begin
+                    Clear(TransferOrderPostTransfer);
+                    TransferOrderPostTransfer.SetWhseShptHeader(WhseShptHeader);
+                    TransferOrderPostTransfer.SetSuppressCommit(SuppressCommit);
+                    if TransferOrderPostTransfer.Run(TransHeader) then begin
                         CounterSourceDocOK := CounterSourceDocOK + 1;
                         Posted := true;
                     end;
+                end;
+            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
+                begin
+                    Clear(TransferOrderPostShipment);
+                    TransferOrderPostShipment.SetWhseShptHeader(WhseShptHeader);
+                    TransferOrderPostShipment.SetSuppressCommit(SuppressCommit);
+                    if TransferOrderPostShipment.Run(TransHeader) then begin
+                        Clear(TransferOrderPostReceipt);
+                        TransferOrderPostReceipt.SetSuppressCommit(SuppressCommit);
+                        if TransferOrderPostReceipt.Run(TransHeader) then begin
+                            CounterSourceDocOK := CounterSourceDocOK + 1;
+                            Posted := true;
+                        end;
+                    end;
+                end;
         end;
     end;
 
-    local procedure PostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    local procedure PostSourceTransferDocument()
     var
         IsHandled: Boolean;
     begin
+        Clear(TransferOrderPostShipment);
         IsHandled := false;
-        OnBeforePostSourceTransferDocument(TransferPostShipment, TransHeader, CounterSourceDocOK, IsHandled);
+        OnBeforePostSourceTransferDocument(TransferOrderPostShipment, TransHeader, CounterSourceDocOK, IsHandled);
         if IsHandled then
             exit;
 
         InventorySetup.Get();
         if TransHeader."Direct Transfer" then
-            PostSourceDirectTransferDocument(TransferPostShipment)
+            PostSourceDirectTransferDocument()
         else begin
-            TransferPostShipment.Run(TransHeader);
+            TransferOrderPostShipment.SetWhseShptHeader(WhseShptHeader);
+            TransferOrderPostShipment.SetSuppressCommit(SuppressCommit);
+            TransferOrderPostShipment.Run(TransHeader);
             CounterSourceDocOK := CounterSourceDocOK + 1;
         end;
 
-        OnAfterPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader);
+        OnAfterPostSourceTransferDocument(CounterSourceDocOK, TransferOrderPostShipment, TransHeader);
     end;
 
-    local procedure PostSourceDirectTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
-    var
-        TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
+    local procedure PostSourceDirectTransferDocument()
     begin
         case InventorySetup."Direct Transfer Posting" of
             InventorySetup."Direct Transfer Posting"::"Direct Transfer":
                 begin
-                    TransferPostTransfer.Run(TransHeader);
+                    Clear(TransferOrderPostTransfer);
+                    TransferOrderPostTransfer.SetWhseShptHeader(WhseShptHeader);
+                    TransferOrderPostTransfer.SetSuppressCommit(SuppressCommit);
+                    TransferOrderPostTransfer.Run(TransHeader);
                     CounterSourceDocOK := CounterSourceDocOK + 1;
                 end;
             InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
                 begin
-                    TransferPostShipment.Run(TransHeader);
-                    TransferPostReceipt.Run(TransHeader);
+                    Clear(TransferOrderPostShipment);
+                    TransferOrderPostShipment.SetWhseShptHeader(WhseShptHeader);
+                    TransferOrderPostShipment.SetSuppressCommit(SuppressCommit);
+                    TransferOrderPostShipment.Run(TransHeader);
+                    Clear(TransferOrderPostReceipt);
+                    TransferOrderPostReceipt.SetSuppressCommit(SuppressCommit);
+                    TransferOrderPostReceipt.Run(TransHeader);
                     CounterSourceDocOK := CounterSourceDocOK + 1;
                 end;
         end;
