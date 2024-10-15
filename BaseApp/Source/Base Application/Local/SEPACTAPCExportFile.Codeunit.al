@@ -39,7 +39,7 @@ codeunit 11100 "SEPA CT APC-Export File"
 
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, XMLDoc);
         XMLNsMgr := XMLNsMgr.XmlNamespaceManager(XMLDoc.NameTable);
-        XMLNsMgr.AddNamespace('ns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
+        XMLNsMgr.AddNamespace('ns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
 
         ApplyApcRequirements(XMLDoc, XMLNsMgr);
 
