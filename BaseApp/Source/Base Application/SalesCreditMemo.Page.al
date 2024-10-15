@@ -274,7 +274,7 @@ page 44 "Sales Credit Memo"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1420,6 +1420,8 @@ page 44 "Sales Credit Memo"
     begin
         JobQueueUsed := SalesReceivablesSetup.JobQueueActive;
         SetExtDocNoMandatoryCondition;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1496,10 +1498,21 @@ page 44 "Sales Credit Memo"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
 
+    protected var
+        IsActivityCodeMandatory: Boolean;
+
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)

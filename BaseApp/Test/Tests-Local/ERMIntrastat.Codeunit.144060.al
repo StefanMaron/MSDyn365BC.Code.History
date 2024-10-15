@@ -2373,14 +2373,15 @@ codeunit 144060 "ERM Intrastat"
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
 
         // [THEN] Number of rows details of section 5 = 0 on the header line
-        LibrarySpesometro.VerifyValue(TextFile, FormatNum('0', 5), 1, 131, 5, 0);
+        // Bug id 430404: The length of purchase export entry is 131
+        LibrarySpesometro.VerifyValue(TextFile, FormatNum('0', 5), 1, 126, 5, 0);
 
         // [THEN] Transaction Type codes A and B are exported
-        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 1, 1), 1, GetLineOffset(0) + 69, 1, 0);
-        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 2, 1), 1, GetLineOffset(0) + 119, 1, 0);
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 1, 1), 1, GetPurchLineOffset(0) + 69, 1, 0);
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 2, 1), 1, GetPurchLineOffset(0) + 119, 1, 0);
 
         // [THEN] Code of the country of origin is exported
-        LibrarySpesometro.VerifyValue(TextFile, IntrastatJnlLine."Country/Region of Origin Code", 1, GetLineOffset(0) + 115, 2, 0);
+        LibrarySpesometro.VerifyValue(TextFile, IntrastatJnlLine."Country/Region of Origin Code", 1, GetPurchLineOffset(0) + 115, 2, 0);
 
         LibraryVariableStorage.AssertEmpty();
     END;
@@ -3137,10 +3138,20 @@ codeunit 144060 "ERM Intrastat"
     end;
 
     local procedure GetLineOffset(LineType: Integer): Integer
+    begin
+        exit(GetLineOffsetByType(LineType, GetSalesEndingPosition));
+    end;
+
+    local procedure GetPurchLineOffset(LineType: Integer): Integer
+    begin
+        exit(GetLineOffsetByType(LineType, GetPurchEndingPosition));
+    end;
+
+    local procedure GetLineOffsetByType(LineType: Integer; EndingPosition: Integer): Integer
     var
         Offset: Integer;
     begin
-        Offset := 137;
+        Offset := EndingPosition;
 
         case LineType of
             1:
@@ -3154,6 +3165,16 @@ codeunit 144060 "ERM Intrastat"
         end;
 
         exit(Offset);
+    end;
+
+    local procedure GetSalesEndingPosition(): Integer
+    begin
+        exit(137);
+    end;
+
+    local procedure GetPurchEndingPosition(): Integer
+    begin
+        exit(132);
     end;
 
     local procedure MockIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; CorrectedDocNo: Code[20]; CorrectedJnlBatchName: Code[10])

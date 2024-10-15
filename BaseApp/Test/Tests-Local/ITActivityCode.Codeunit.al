@@ -16,6 +16,7 @@ codeunit 144003 "IT - Activity Code"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         IncorrectFieldLengthErr: Label '%1 should be of length %2 only';
@@ -161,7 +162,7 @@ codeunit 144003 "IT - Activity Code"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Document is posted and VAT Entry has activity code
-        VerifyVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
+        VerifyActivityCodeOnVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
     end;
 
     [Test]
@@ -183,7 +184,7 @@ codeunit 144003 "IT - Activity Code"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Line is posted and VAT Entry has activity code
-        VerifyVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
+        VerifyActivityCodeOnVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
     end;
 
     [Test]
@@ -206,7 +207,8 @@ codeunit 144003 "IT - Activity Code"
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Document is posted and VAT Entry has activity code
-        VerifyVATEntry(PostedDocumentNo, PurchaseHeader."Activity Code");
+        VerifyActivityCodeOnVATEntry(PostedDocumentNo, PurchaseHeader."Activity Code");
+        VerifyActivityCodeOnPostedPurchaseInvoice(PostedDocumentNo, PurchaseHeader."Activity Code");
     end;
 
     [Test]
@@ -229,7 +231,8 @@ codeunit 144003 "IT - Activity Code"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Document is posted and VAT Entry has activity code
-        VerifyVATEntry(PostedDocumentNo, SalesHeader."Activity Code");
+        VerifyActivityCodeOnVATEntry(PostedDocumentNo, SalesHeader."Activity Code");
+        VerifyActivityCodeOnPostedSalesInvoice(PostedDocumentNo, SalesHeader."Activity Code");
     end;
 
     [Test]
@@ -254,17 +257,93 @@ codeunit 144003 "IT - Activity Code"
         CustLedgerEntry.FindFirst();
 
         // [THEN] Document is posted and VAT Entry has activity code
-        VerifyVATEntry(CustLedgerEntry."Document No.", ServiceHeader."Activity Code");
+        VerifyActivityCodeOnVATEntry(CustLedgerEntry."Document No.", ServiceHeader."Activity Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATEntryHasActivityCodeWhenUseActivityCodeOptionDisabled()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [General Journal] [Post]
+        // [SCENARIO 405435] VAT Entry has activity code even when "Use Activity Code" option is disabled
+
+        Initialize();
+
+        // [GIVEN] "Use Activity Code" is disabled in General Ledger Setup
+        SetUseActivityCodeOnGLSetup(false);
+
+        // [GIVEN] General journal line was created with an activity code
+        CreateGenJournalLine(GenJournalLine);
+        GenJournalLine.Validate("Activity Code", CreateActivityCode());
+        GenJournalLine.Modify();
+
+        // [WHEN] Post Gen. Journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Document is posted and VAT Entry has activity code
+        VerifyActivityCodeOnVATEntry(GenJournalLine."Document No.", GenJournalLine."Activity Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPossibleWithActivityCodeForPurchaseDocumentsNotMandatory()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 423162] xxxxxx
+        Initialize();
+
+        SetUseActivityCodeOnGLSetup(false);
+
+        CreatePurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Validate("Activity Code", CreateActivityCode());
+        PurchaseHeader.Modify(true);
+
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyActivityCodeOnPostedPurchaseInvoice(PostedDocumentNo, PurchaseHeader."Activity Code");
+        VerifyActivityCodeOnVATEntry(PostedDocumentNo, PurchaseHeader."Activity Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPossibleWithActivityCodeForSalesDocumentsNotMandatory()
+    var
+        SalesHeader: Record "Sales Header";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 423162] xxxxxx
+        Initialize();
+
+        SetUseActivityCodeOnGLSetup(false);
+
+        CreateSalesDocument(SalesHeader);
+        SalesHeader.Validate("Activity Code", CreateActivityCode());
+        SalesHeader.Modify();
+
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifyActivityCodeOnPostedSalesInvoice(PostedDocumentNo, SalesHeader."Activity Code");
+        VerifyActivityCodeOnVATEntry(PostedDocumentNo, SalesHeader."Activity Code");
     end;
 
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
 
-        SetUseActivityCode(true);
-        IsInitialized := true;
+        SetUseActivityCodeOnGLSetup(true);
 
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
+        IsInitialized := true;
     end;
 
     local procedure CreateGenJnlAllocation(GenJournalLine: Record "Gen. Journal Line"; AllocationPercent: Decimal)
@@ -394,24 +473,40 @@ codeunit 144003 "IT - Activity Code"
         ServiceLine.Modify(true);
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; ActivityCode: Code[6])
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet();
-        REPEAT
-            VATEntry.TestField("Activity Code", ActivityCode);
-        UNTIL VATEntry.Next() = 0;
-    end;
-
-    local procedure SetUseActivityCode(NewActivityCode: Boolean)
+    local procedure SetUseActivityCodeOnGLSetup(NewActivityCode: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Use Activity Code", NewActivityCode);
         GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure VerifyActivityCodeOnVATEntry(DocumentNo: Code[20]; ExpectedActivityCode: Code[6])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindSet();
+        REPEAT
+            VATEntry.TestField("Activity Code", ExpectedActivityCode);
+        UNTIL VATEntry.Next() = 0;
+    end;
+
+    local procedure VerifyActivityCodeOnPostedPurchaseInvoice(DocumentNo: Code[20]; ExpectedActivityCode: Code[6])
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.TestField("Activity Code", ExpectedActivityCode);
+    end;
+
+    local procedure VerifyActivityCodeOnPostedSalesInvoice(DocumentNo: Code[20]; ExpectedActivityCode: Code[6])
+    var
+        PurchInvHeader: Record "Sales Invoice Header";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.TestField("Activity Code", ExpectedActivityCode);
     end;
 }
 

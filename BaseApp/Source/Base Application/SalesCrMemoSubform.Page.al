@@ -256,6 +256,8 @@
                     begin
                         QuantityOnAfterValidate();
                         UpdateSplitVATLinesPage(CopyStr(FieldCaption(Quantity), 1, 100));
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")

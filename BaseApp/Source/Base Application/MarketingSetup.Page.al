@@ -239,6 +239,7 @@ page 5094 "Marketing Setup"
             group("Email Logging")
             {
                 Caption = 'Email Logging';
+                Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
                 field("Autodiscovery E-Mail Address"; "Autodiscovery E-Mail Address")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -552,6 +553,7 @@ page 5094 "Marketing Setup"
                     Image = Setup;
                     ToolTip = 'Runs Email Logging Setup Wizard.';
                     Enabled = not EmailLoggingEnabled;
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -572,6 +574,7 @@ page 5094 "Marketing Setup"
                     Caption = 'Validate Email Logging Setup';
                     Image = ValidateEmailLoggingSetup;
                     ToolTip = 'Test that email logging is set up correctly.';
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -590,11 +593,25 @@ page 5094 "Marketing Setup"
                     Image = ClearLog;
                     ToolTip = 'Clear what is currently set up for email logging.';
                     Enabled = not EmailLoggingEnabled;
+                    Visible = not EmailLoggingUsingGraphApiFeatureEnabled;
 
                     trigger OnAction()
                     begin
                         if Confirm(Text009, true) then
                             ClearEmailLoggingSetup(Rec);
+                    end;
+                }
+                action("Email Logging Using Graph API")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Email Logging Setup';
+                    Image = Setup;
+                    ToolTip = 'Open the Email Logging Setup window.';
+                    Visible = EmailLoggingUsingGraphApiFeatureEnabled;
+
+                    trigger OnAction()
+                    begin
+                        OnRunEmailLoggingSetup();
                     end;
                 }
                 action("Generate Integration IDs for Connector for Microsoft Dynamics")
@@ -622,7 +639,9 @@ page 5094 "Marketing Setup"
     trigger OnInit()
     var
         EnvironmentInformation: Codeunit "Environment Information";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
+        EmailLoggingUsingGraphApiFeatureEnabled := SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled();
         SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
         ClientCredentialsVisible := not SoftwareAsAService;
         BasicAuthVisible := not SoftwareAsAService;
@@ -703,6 +722,7 @@ page 5094 "Marketing Setup"
         ClientCredentialsVisible: Boolean;
         BasicAuthVisible: Boolean;
         EmailLoggingEnabled: Boolean;
+        EmailLoggingUsingGraphApiFeatureEnabled: Boolean;
         AuthenticationType: Option OAuth2,Basic;
 
     procedure SetAttachmentStorageType()
@@ -915,6 +935,11 @@ page 5094 "Marketing Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMarketingSetupEmailLoggingCompleted()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunEmailLoggingSetup()
     begin
     end;
 }

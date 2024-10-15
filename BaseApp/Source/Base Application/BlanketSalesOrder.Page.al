@@ -203,6 +203,7 @@ page 507 "Blanket Sales Order"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Assigned User ID"; "Assigned User ID")
@@ -1144,6 +1145,11 @@ page 507 "Blanket Sales Order"
         UpdateShipToBillToGroupVisibility;
     end;
 
+    trigger OnInit()
+    begin
+        SetIsActivityCodeMandatory();
+    end;
+
     trigger OnOpenPage()
     begin
         if UserMgt.GetSalesFilter <> '' then begin
@@ -1176,10 +1182,19 @@ page 507 "Blanket Sales Order"
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ApproveCalcInvDisc()
     begin
         CurrPage.SalesLines.PAGE.ApproveCalcInvDisc;
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     local procedure SaveInvoiceDiscountAmount()

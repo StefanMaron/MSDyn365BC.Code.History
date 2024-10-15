@@ -297,7 +297,7 @@ page 52 "Purchase Credit Memo"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Check Total"; "Check Total")
@@ -1552,6 +1552,8 @@ page 52 "Purchase Credit Memo"
     begin
         JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
         SetExtDocNoMandatoryCondition;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1626,12 +1628,21 @@ page 52 "Purchase Credit Memo"
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")

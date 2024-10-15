@@ -244,6 +244,7 @@ page 6640 "Purchase Return Order"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = PurchReturnOrder;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Check Total"; "Check Total")
@@ -1492,6 +1493,8 @@ page 6640 "Purchase Return Order"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1552,12 +1555,21 @@ page 6640 "Purchase Return Order"
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)

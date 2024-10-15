@@ -882,11 +882,19 @@ report 1307 "Standard Sales - Credit Memo"
                 column(TotalText; TotalText)
                 {
                 }
+                column(CurrencyCode; CurrCode)
+                {
+                }
+                column(CurrencySymbol; CurrSymbol)
+                {
+                }
             }
 
             trigger OnAfterGetRecord()
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
+                Currency: Record Currency;
+                GeneralLedgerSetup: Record "General Ledger Setup";
             begin
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
@@ -908,8 +916,15 @@ report 1307 "Standard Sales - Credit Memo"
                     CalculatedExchRate :=
                       Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.000001);
                     ExchangeRateText := StrSubstNo(ExchangeRateTxt, CalculatedExchRate, CurrencyExchangeRate."Exchange Rate Amount");
-                end;
-
+                    CurrCode := "Currency Code";
+                    if Currency.Get("Currency Code") then
+                        CurrSymbol := Currency.GetCurrencySymbol();
+                end else
+                    if GeneralLedgerSetup.Get() then begin
+                        CurrCode := GeneralLedgerSetup."LCY Code";
+                        CurrSymbol := GeneralLedgerSetup.GetCurrencySymbol();
+                    end;
+                    
                 TotalSubTotal := 0;
                 TotalInvDiscAmount := 0;
                 TotalAmount := 0;
@@ -1119,6 +1134,8 @@ report 1307 "Standard Sales - Credit Memo"
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your credit memo is attached to this message.';
+        CurrCode: Text[10];
+        CurrSymbol: Text[10];
 
     local procedure InitLogInteraction()
     begin
