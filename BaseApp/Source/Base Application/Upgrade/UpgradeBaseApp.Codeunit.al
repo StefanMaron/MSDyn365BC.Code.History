@@ -2571,11 +2571,22 @@
         Customer: Record Customer;
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
         UpgradeTag: Codeunit "Upgrade Tag";
+        CustomerDataTransfer: DataTransfer;
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag()) THEN
             exit;
 
-        Customer.ModifyAll("VAT Liable", true, false);
+        Customer.SetRange("VAT liable", true);
+        if not Customer.IsEmpty() then
+            exit;
+
+        CustomerDataTransfer.SetTables(Database::Customer, Database::Customer);
+        CustomerDataTransfer.AddConstantValue(true, Customer.FieldNo("VAT Liable"));
+        CustomerDataTransfer.UpdateAuditFields := false;
+        CustomerDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag());
     end;

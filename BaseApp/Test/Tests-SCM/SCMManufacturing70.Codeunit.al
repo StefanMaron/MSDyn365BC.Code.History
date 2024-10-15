@@ -1266,8 +1266,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     [Scope('OnPrem')]
     procedure B29289_ReplanProductionOrderWithVariant()
     var
-        Item: Record Item;
-        Item2: Record Item;
+        Parent: Record Item;
+        Component: Record Item;
         Item3: Record Item;
         ItemVariant: Record "Item Variant";
         ProductionBOMHeader: Record "Production BOM Header";
@@ -1281,27 +1281,30 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Setup: Create Items, Production BOM and Production Order.
         Initialize();
         CreateMultipleItems(
-          Item, Item2, Item3, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
-          Item."Reordering Policy"::" ", false);
-        LibraryInventory.CreateItemVariant(ItemVariant, Item2."No.");
+          Parent, Component, Item3, Parent."Replenishment System"::"Prod. Order", Parent."Replenishment System"::Purchase,
+          Parent."Reordering Policy"::" ", false);
+        LibraryInventory.CreateItemVariant(ItemVariant, Component."No.");
 
         CreateProductionBOMAndCertify(
-          ProductionBOMHeader, Item."Base Unit of Measure", ProductionBOMLine.Type::Item, Item2."No.", LibraryRandom.RandInt(5));  // Using Random for Quantity Per.
-        UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
+          ProductionBOMHeader, Parent."Base Unit of Measure", ProductionBOMLine.Type::Item, Component."No.", LibraryRandom.RandInt(5));  // Using Random for Quantity Per.
+        UpdateItem(Parent, Parent.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
 
         CreateAndRefreshProdOrder(
-          ProductionOrder, ProductionOrder.Status::"Firm Planned", Item."No.", LibraryRandom.RandInt(5),
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", Parent."No.", LibraryRandom.RandInt(5),
           ProductionOrder."Source Type"::Item, false);
-        UpdateVariantCodeOnProdOrderComponent(Item2."No.", ItemVariant.Code);
+        UpdateVariantCodeOnProdOrderComponent(Component."No.", ItemVariant.Code);
 
         // Exercise: Replan Production Order.
         LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All levels");
 
-        // Verify: Verify Variant Code on Production Order Line.
-        ProdOrderLine.SetRange("Item No.", Item2."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLine.TestField(Status, ProdOrderLine.Status::"Firm Planned");
-        ProdOrderLine.TestField("Variant Code", ItemVariant.Code)
+        // Verify: Verify Variant Code on Production Order Line and Production Order
+        VerifyVarinetOfProdOrderLineAndProductionOrder(ProdOrderLine, Component, ProductionOrder, ItemVariant);
+
+        // Refresh the Production Order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // Verify: Verify Variant Code on Production Order Line and Production Order after refreshing
+        VerifyVarinetOfProdOrderLineAndProductionOrder(ProdOrderLine, Component, ProductionOrder, ItemVariant);
     end;
 
     [Test]
@@ -5092,6 +5095,20 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
         ShopCalendarWorkingDays.SetRange(Day, Date."Period No." - 1);
         exit(not ShopCalendarWorkingDays.IsEmpty());
+    end;
+
+    local procedure VerifyVarinetOfProdOrderLineAndProductionOrder(ProdOrderLine: Record "Prod. Order Line"; Component: Record Item; ProductionOrder: Record "Production Order"; ItemVariant: Record "Item Variant")
+    begin
+        // Verify: Verify Variant Code on Production Order Line.
+        ProdOrderLine.SetRange("Item No.", Component."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.TestField(Status, ProdOrderLine.Status::"Firm Planned");
+        ProdOrderLine.TestField("Variant Code", ItemVariant.Code);
+
+        // Verify: Verify Variant Code on Production Order.
+        ProductionOrder.SetRange("Source No.", Component."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Variant Code", ItemVariant.Code);
     end;
 }
 

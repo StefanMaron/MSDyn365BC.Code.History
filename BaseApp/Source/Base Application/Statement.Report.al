@@ -743,8 +743,8 @@ report 116 Statement
                         field(PrintMissingAddresses; PrintIfEmailIsMissing)
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Print Although Email is Missing';
-                            ToolTip = 'Specifies if you want to print also the statements for customers that have not been set up with a send-to email address.';
+                            Caption = 'Print Although Email is Missing or Invalid';
+                            ToolTip = 'Specifies if you want to print also the statements for customers that have not been set up with a send-to email address or defined send-to email address is invalid.';
                         }
                     }
                 }

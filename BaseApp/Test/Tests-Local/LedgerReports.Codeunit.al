@@ -1160,6 +1160,7 @@ codeunit 144044 "Ledger Reports"
             Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             "Journal Templ. Name" := GenJournalTemplate.Name;
             "G/L Account No." := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(100, 2);

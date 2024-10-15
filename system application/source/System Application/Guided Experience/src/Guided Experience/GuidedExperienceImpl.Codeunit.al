@@ -176,7 +176,6 @@ codeunit 1991 "Guided Experience Impl."
 
         TempGuidedExperienceItem.SetRange("Extension ID", AppId);
         TempGuidedExperienceItem.SetFilter("Guided Experience Type", '%1|%2', TempGuidedExperienceItem."Guided Experience Type"::"Assisted Setup", TempGuidedExperienceItem."Guided Experience Type"::"Manual Setup");
-        TempGuidedExperienceItem.SetRange("Object Type to Run", TempGuidedExperienceItem."Object Type to Run"::Page);
         GuidedExperienceImpl.GetContentForAllSetups(TempGuidedExperienceItem);
 
         if TempGuidedExperienceItem.IsEmpty then begin
@@ -467,7 +466,7 @@ codeunit 1991 "Guided Experience Impl."
     begin
         GuidedExperienceItem.CopyFilters(GuidedExperienceItemTemp);
         GuidedExperienceItemTemp.Reset();
-        GuidedExperienceItem.SetCurrentKey("Guided Experience Type", "Object Type to Run", "Object ID to Run", Link, Version);
+        GuidedExperienceItem.SetCurrentKey("Guided Experience Type", "Object Type to Run", "Object ID to Run", "Manual Setup Category", Link, Version);
         GuidedExperienceItem.SetRange("Guided Experience Type", GuidedExperienceItem."Guided Experience Type"::"Assisted Setup");
         GuidedExperienceItem.SetAscending(Version, false);
 
@@ -518,7 +517,7 @@ codeunit 1991 "Guided Experience Impl."
     var
         GuidedExperienceItem: Record "Guided Experience Item";
     begin
-        GuidedExperienceItem.SetCurrentKey("Guided Experience Type", "Object Type to Run", "Object ID to Run", Link, Version);
+        GuidedExperienceItem.SetCurrentKey("Guided Experience Type", "Object Type to Run", "Object ID to Run", "Manual Setup Category", Link, Version);
         GuidedExperienceItem.SetAscending(Version, false);
 
         GuidedExperienceItem.SetRange("Guided Experience Type", GuidedExperienceType);
@@ -544,14 +543,21 @@ codeunit 1991 "Guided Experience Impl."
                 (GuidedExperienceItem."Guided Experience Type" = PrevGuidedExperienceItem."Guided Experience Type")
             then
                 if (GuidedExperienceItem."Title" <> PrevGuidedExperienceItem."Title")
-                or (GuidedExperienceItem.Description <> PrevGuidedExperienceItem.Description)
-                or (GuidedExperienceItem."Video Url" <> PrevGuidedExperienceItem."Video Url")
-                or (GuidedExperienceItem."Video Category" <> PrevGuidedExperienceItem."Video Category")
-            then
+                    or (GuidedExperienceItem.Description <> PrevGuidedExperienceItem.Description)
+                    or (GuidedExperienceItem."Video Url" <> PrevGuidedExperienceItem."Video Url")
+                    or (GuidedExperienceItem."Video Category" <> PrevGuidedExperienceItem."Video Category")
+                then
                     InsertItem := true;
 
-            if InsertItem then
+            if (GuidedExperienceItem."Guided Experience Type" = GuidedExperienceItem."Guided Experience Type"::"Manual Setup") and
+               (GuidedExperienceItem."Manual Setup Category" <> PrevGuidedExperienceItem."Manual Setup Category")
+            then
+                InsertItem := true;
+
+            if InsertItem then begin
                 InsertGuidedExperienceItemIfValid(GuidedExperienceItemTemp, GuidedExperienceItem);
+                InsertItem := false;
+            end;
 
             PrevGuidedExperienceItem := GuidedExperienceItem;
         until GuidedExperienceItem.Next() = 0;
