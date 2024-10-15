@@ -17,7 +17,7 @@ codeunit 10102 "Manage Sales Tax Journal"
     procedure CreateGenJnlLines(var GeneralJnlLine: Record "Gen. Journal Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
-        BalanceAccNo: Code[10];
+        BalanceAccNo: Code[20];
     begin
         BalanceAccNo := GeneralJnlLine."Bal. Account No.";
         GeneralJnlLine.ModifyAll("Bal. Account No.", '');
@@ -39,7 +39,7 @@ codeunit 10102 "Manage Sales Tax Journal"
 
     procedure CreateTempGenJnlLines(GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
     var
-        BalanceAccNo: Code[10];
+        BalanceAccNo: Code[20];
     begin
         BalanceAccNo := GenJnlLine."Bal. Account No.";
 

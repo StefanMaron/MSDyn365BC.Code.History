@@ -848,7 +848,11 @@
         {
             Caption = 'Disable CFDI Payment Details';
         }
-
+        field(10123; "USD Currency Code"; Code[10])
+        {
+            Caption = 'USD Currency Code';
+            TableRelation = Currency;
+        }
     }
 
     keys

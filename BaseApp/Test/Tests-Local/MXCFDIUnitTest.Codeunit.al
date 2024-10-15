@@ -893,22 +893,54 @@
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
         // [FEATURE] [UI] [Sales]
-        // [SCENARIO 304691] CFDI Purpose and CFDI Relation fields are enabled for Sales Documents
+        // [SCENARIO 449449] CFDI related fields are enabled for Sales Documents
         LibraryApplicationArea.EnableFoundationSetup();
 
         SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesOrder."CFDI Relation".Enabled, '');
+        Assert.IsTrue(SalesOrder."CFDI Export Code".Enabled, '');
+        Assert.IsTrue(SalesOrder."CFDI Export Code".Editable, '');
+        Assert.IsTrue(SalesOrder.Control1310005.Enabled, ''); // Foreign Trade
+        Assert.IsTrue(SalesOrder.Control1310005.Editable, ''); // Foreign Trade
+        Assert.IsTrue(SalesOrder."Transit-to Location".Enabled, '');
+        Assert.IsTrue(SalesOrder."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesOrder."SAT International Trade Term".Enabled, '');
+        Assert.IsTrue(SalesOrder."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesOrder."Exchange Rate USD".Enabled, '');
+        Assert.IsTrue(SalesOrder."Exchange Rate USD".Editable, '');
         SalesOrder.Close;
 
         SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesInvoice."CFDI Relation".Enabled, '');
+        Assert.IsTrue(SalesInvoice."CFDI Export Code".Enabled, '');
+        Assert.IsTrue(SalesInvoice."CFDI Export Code".Editable, '');
+        Assert.IsTrue(SalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
+        Assert.IsTrue(SalesInvoice.Control1310005.Editable, ''); // Foreign Trade
+        Assert.IsTrue(SalesInvoice."Transit-to Location".Enabled, '');
+        Assert.IsTrue(SalesInvoice."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Enabled, '');
+        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Enabled, '');
+        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Editable, '');
         SalesInvoice.Close;
 
         SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Editable, '');
+        Assert.IsTrue(SalesCreditMemo.Control1310005.Enabled, ''); // Foreign Trade
+        Assert.IsTrue(SalesCreditMemo.Control1310005.Editable, ''); // Foreign Trade
+        Assert.IsTrue(SalesCreditMemo."Transit-to Location".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Editable, '');
         SalesCreditMemo.Close;
 
         PostedSalesInvoice.OpenView;
@@ -916,12 +948,24 @@
         Assert.IsTrue(PostedSalesInvoice."CFDI Relation".Enabled, '');
         Assert.IsFalse(PostedSalesInvoice."CFDI Purpose".Editable, '');
         Assert.IsFalse(PostedSalesInvoice."CFDI Relation".Editable, '');
+        Assert.IsTrue(PostedSalesInvoice."CFDI Export Code".Enabled, '');
+        Assert.IsTrue(PostedSalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
+        Assert.IsTrue(PostedSalesInvoice."Transit-to Location".Enabled, '');
+        Assert.IsTrue(PostedSalesInvoice."SAT International Trade Term".Enabled, '');
+        Assert.IsTrue(PostedSalesInvoice."Exchange Rate USD".Enabled, '');
+        PostedSalesInvoice.Close;
 
         PostedSalesCreditMemo.OpenView;
         Assert.IsTrue(PostedSalesCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(PostedSalesCreditMemo."CFDI Relation".Enabled, '');
         Assert.IsFalse(PostedSalesCreditMemo."CFDI Purpose".Editable, '');
         Assert.IsFalse(PostedSalesCreditMemo."CFDI Relation".Editable, '');
+        Assert.IsTrue(PostedSalesCreditMemo."CFDI Export Code".Enabled, '');
+        Assert.IsTrue(PostedSalesCreditMemo."Foreign Trade".Enabled, '');
+        Assert.IsTrue(PostedSalesCreditMemo."Transit-to Location".Enabled, '');
+        Assert.IsTrue(PostedSalesCreditMemo."SAT International Trade Term".Enabled, '');
+        Assert.IsTrue(PostedSalesCreditMemo."Exchange Rate USD".Enabled, '');
+        PostedSalesCreditMemo.Close;
 
         SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."CFDI Purpose".Enabled, '');
@@ -2161,6 +2205,24 @@
         Assert.IsTrue(CustomerCard."CFDI General Public".Editable, '');
         CustomerCard.Close();
     end;
+    
+    [Test]
+    [Scope('OnPrem')]    
+    procedure FixedAssetCardFields()
+    var
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 449447] MX CFDI fields enabled on Fixed Asset Card
+        UpdateGLSetupPACEnvironment(true);
+
+        FixedAssetCard.OpenEdit();
+        Assert.IsTrue(FixedAssetCard."SCT Permission Number".Enabled, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission Number".Editable, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Enabled, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Editable, '');
+        FixedAssetCard.Close();
+    end;
 
     [Test]
     [HandlerFunctions('RequestStampMenuHandler')]
@@ -2202,6 +2264,38 @@
         CFDIRelationDocuments.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDocumentFieldsValidation()
+    var
+        SalesHeader: Record "Sales Header";
+        CFDIExportCode: Record "CFDI Export Code";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+        ExchRateAmount: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 449449] Validate CFDI Export Code with Foreign Trade
+        CFDIExportCode.Code := Format(LibraryRandom.RandIntInRange(10, 20));
+        CFDIExportCode."Foreign Trade" := true;
+        CFDIExportCode.Insert();
+        GeneralLedgerSetup.Get();
+        LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Validate("USD Currency Code", Currency.Code);
+        GeneralLedgerSetup.Modify(true);
+        ExchRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(
+          GeneralLedgerSetup."USD Currency Code", WorkDate, 1 / ExchRateAmount, 1 / ExchRateAmount);
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+
+        SalesHeader.Validate("CFDI Export Code", CFDIExportCode.Code);
+        SalesHeader.TestField("Foreign Trade", true);
+        SalesHeader.TestField("Exchange Rate USD", ExchRateAmount);
+
+        CFDIExportCode.Delete();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2219,10 +2313,15 @@
     end;
 
     local procedure CreateCustomerWithCFDIFields(var Customer: Record Customer)
+    var
+        SATUseCode: Record "SAT Use Code";
+        SATRelationshipType: Record "SAT Relationship Type";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer."CFDI Purpose" := LibraryUtility.GenerateRandomCode(Customer.FieldNo("CFDI Purpose"), DATABASE::Customer);
-        Customer."CFDI Relation" := LibraryUtility.GenerateRandomCode(Customer.FieldNo("CFDI Relation"), DATABASE::Customer);
+        SATUseCode.Next(LibraryRandom.RandInt(SATUseCode.Count));
+        SATRelationshipType.Next(LibraryRandom.RandInt(SATRelationshipType.Count));
+        Customer."CFDI Purpose" := SATUseCode."SAT Use Code";
+        Customer."CFDI Relation" := SATRelationshipType."SAT Relationship Type";
         Customer.Modify();
     end;
 
@@ -2558,8 +2657,8 @@
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
             StrSubstNo(
-                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
-                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
+            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13',
+            3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
@@ -2628,8 +2727,8 @@
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
             StrSubstNo(
-                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
-                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
+            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13',
+            3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();

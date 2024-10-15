@@ -46,6 +46,7 @@ codeunit 73 "Purch.-Explode BOM"
             TransferExtendedText.InsertPurchExtText(ToPurchLine);
 
         ExplodeBOMCompLines(Rec);
+        ClearSpecialSalesOrderLineValuesOnExplodeBOM(Rec);
 
         OnAfterOnRun(ToPurchLine, Rec);
     end;
@@ -179,6 +180,22 @@ codeunit 73 "Purch.-Explode BOM"
 
             if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
                 TransferExtendedText.InsertPurchExtText(ToPurchLine);
+        end;
+    end;
+
+    local procedure ClearSpecialSalesOrderLineValuesOnExplodeBOM(PurchLine: Record "Purchase Line")
+    var
+        SalesOrderLine: Record "Sales Line";
+    begin
+        if PurchLine."Special Order" then begin
+            SalesOrderLine.LockTable();
+            if SalesOrderLine.Get(
+                 SalesOrderLine."Document Type"::Order, PurchLine."Special Order Sales No.", PurchLine."Special Order Sales Line No.")
+            then begin
+                SalesOrderLine."Special Order Purchase No." := '';
+                SalesOrderLine."Special Order Purch. Line No." := 0;
+                SalesOrderLine.Modify();
+            end;
         end;
     end;
 

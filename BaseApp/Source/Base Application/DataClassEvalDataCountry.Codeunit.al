@@ -85,6 +85,8 @@
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Locality");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Suburb");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Weight Unit of Measure");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT International Trade Term");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Customs Unit");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Manager Cue");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();

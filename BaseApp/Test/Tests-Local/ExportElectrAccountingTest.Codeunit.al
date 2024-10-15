@@ -395,7 +395,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         BankAccountType: Option Customer,Vendor,Company;
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
-        // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
+        // [SCENARIO 452794] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
         Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
@@ -417,7 +417,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         BankAccountType: Option Customer,Vendor,Company;
     begin
         // [FEATURE] [Export Electr. Accounting - Auxiliary Accounts]
-        // [SCENARIO 251784] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
+        // [SCENARIO 452794] Export Electr. Accounting in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
         Initialize();
 
         CreateGLEntry(GLEntry, BankAccountType::Customer);
@@ -543,7 +543,7 @@ codeunit 142096 "Export Electr. Accounting Test"
           FormatDecimal(GLEntry."Credit Amount"), Node.Attributes.GetNamedItem('Haber').Value, StrSubstNo(ValueMistmatchErr, 'Haber'));
         Assert.AreEqual(
           FormatDecimal(GLEntry."Debit Amount"), Node.Attributes.GetNamedItem('Debe').Value, StrSubstNo(ValueMistmatchErr, 'Debe'));
-        Assert.AreEqual(GLEntry."Source Code", Node.Attributes.GetNamedItem('Concepto').Value, StrSubstNo(ValueMistmatchErr, 'Concepto'));
+        Assert.AreEqual(GLEntry.Description, Node.Attributes.GetNamedItem('Concepto').Value, StrSubstNo(ValueMistmatchErr, 'Concepto'));
         Assert.AreEqual(
           Format(GLEntry."Posting Date", 0, 9), Node.Attributes.GetNamedItem('Fecha').Value, StrSubstNo(ValueMistmatchErr, 'Fecha'));
     end;

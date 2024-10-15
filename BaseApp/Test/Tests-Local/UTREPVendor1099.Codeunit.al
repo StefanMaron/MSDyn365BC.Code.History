@@ -908,7 +908,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     [Test]
-    [HandlerFunctions('Vendor1099Misc2021DoNothingRPH')]
+    [HandlerFunctions('Vendor1099Misc2022DoNothingRPH')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure Vendor1099MiscReportRunsFromTheVendorCard()
@@ -1590,9 +1590,9 @@ codeunit 142055 "UT REP Vendor 1099"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure Vendor1099Misc2021DoNothingRPH(var Vendor1099Misc2021: TestRequestPage "Vendor 1099 Misc 2021")
+    procedure Vendor1099Misc2022DoNothingRPH(var Vendor1099Misc2022: TestRequestPage "Vendor 1099 Misc 2022")
     begin
-        Vendor1099Misc2021.Cancel().Invoke();
+        Vendor1099Misc2022.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

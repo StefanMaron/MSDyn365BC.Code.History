@@ -325,6 +325,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSFooter."File Hash Total" := EFTValues.GetFileHashTotal;
         ACHUSFooter."Total File Debit Amount" := EFTValues.GetTotalFileDebit;
         ACHUSFooter."Total File Credit Amount" := EFTValues.GetTotalFileCredit;
+        OnEndExportFileOnBeforeACHUSFooterModify(ACHUSFooter, BankAccount);
         ACHUSFooter.Modify();
 
         exit(true);
@@ -486,6 +487,11 @@ codeunit 10094 "Export EFT (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnEndExportBatchOnBeforeACHUSFooterModify(var ACHUSFooter: Record "ACH US Footer"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndExportFileOnBeforeACHUSFooterModify(var ACHUSFooter: Record "ACH US Footer"; BankAccount: Record "Bank Account")
     begin
     end;
 
