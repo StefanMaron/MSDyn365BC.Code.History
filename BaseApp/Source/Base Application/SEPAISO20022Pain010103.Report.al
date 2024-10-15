@@ -199,17 +199,18 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         XMLParent := XMLNodeCurr;
         AddElement(XMLNodeCurr, 'PmtInf', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
+        TransactionMode.Get(PaymentHistoryLine."Account Type", PaymentHistoryLine."Transaction Mode");
 
         Worldpayment :=
-          (GLSetup."Local Currency" = GLSetup."Local Currency"::Euro) and
-          (PaymentHistoryLine."Currency Code" <> '') or
-          (GLSetup."Local Currency" = GLSetup."Local Currency"::Other) and
-          (PaymentHistoryLine."Currency Code" <> GLSetup."Currency Euro") or
-          (PaymentHistoryLine."Foreign Amount" <> 0);
+            TransactionMode.WorldPayment or
+            (GLSetup."Local Currency" = GLSetup."Local Currency"::Euro) and
+            (PaymentHistoryLine."Currency Code" <> '') or
+            (GLSetup."Local Currency" = GLSetup."Local Currency"::Other) and
+            (PaymentHistoryLine."Currency Code" <> GLSetup."Currency Euro") or
+            (PaymentHistoryLine."Foreign Amount" <> 0);
 
         if Worldpayment then begin
             ServiceLevelCode := 'SDVA';
-            TransactionMode.Get(PaymentHistoryLine."Account Type", PaymentHistoryLine."Transaction Mode");
             case true of
                 (TransactionMode."Transfer Cost Domestic" = TransactionMode."Transfer Cost Domestic"::Principal) and
                 (TransactionMode."Transfer Cost Foreign" = TransactionMode."Transfer Cost Foreign"::Principal):

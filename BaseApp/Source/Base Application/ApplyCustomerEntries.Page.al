@@ -670,6 +670,8 @@ page 232 "Apply Customer Entries"
             Rec."Applying Entry" := false;
             Rec."Applies-to ID" := '';
             Rec."Amount to Apply" := 0;
+
+            OnOnQueryClosePageOnBeforeRunCustEntryEdit(Rec);
             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
         end;
     end;
@@ -701,7 +703,6 @@ page 232 "Apply Customer Entries"
         CannotSetAppliesToIDErr: Label 'You cannot set Applies-to ID while selecting Applies-to Doc. No.';
         OK: Boolean;
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.';
-        PostingDone: Boolean;
         [InDataSet]
         AppliesToIDVisible: Boolean;
         Text012: Label 'The application was successfully posted.';
@@ -727,6 +728,7 @@ page 232 "Apply Customer Entries"
         PmtDiscAmount: Decimal;
         ApplnCurrencyCode: Code[10];
         DifferentCurrenciesInAppln: Boolean;
+        PostingDone: Boolean;
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
         CalcType: Enum "Customer Apply Calculation Type";
@@ -893,6 +895,7 @@ page 232 "Apply Customer Entries"
                         ApplnDate := ApplyingCustLedgEntry."Posting Date";
                         ApplnCurrencyCode := ApplyingCustLedgEntry."Currency Code";
                     end;
+                    OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, ApplyingCustLedgEntry);
                     CalcApplnAmount();
                 end;
             CalcType::"Gen. Jnl. Line":
@@ -965,6 +968,8 @@ page 232 "Apply Customer Entries"
                             CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
                 end;
 
+                OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry);
+
                 if ApplyingCustLedgEntry."Entry No." <> 0 then
                     GenJnlApply.CheckAgainstApplnCurrency(
                         ApplnCurrencyCode, CustLedgerEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
@@ -981,6 +986,7 @@ page 232 "Apply Customer Entries"
             CalcType::"Service Header":
                 AppliesToID := ServHeader."Applies-to ID";
         end;
+        OnAfterGetAppliesToID(CalcType, AppliesToID);
     end;
 
     procedure CalcApplnAmount()
@@ -1112,7 +1118,7 @@ page 232 "Apply Customer Entries"
                 end;
         end;
 
-        OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount, CalcType, AppliedCustLedgEntry);
+        OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount, CalcType, AppliedCustLedgEntry, GenJnlLine);
     end;
 
     local procedure CalcApplnRemainingAmount(Amount: Decimal): Decimal
@@ -1224,6 +1230,7 @@ page 232 "Apply Customer Entries"
                 ApplnDate := CustLedgEntry."Posting Date";
                 ApplnCurrencyCode := CustLedgEntry."Currency Code";
             end;
+            OnFindApplyingEntryOnBeforeCalcApplnAmount(Rec);
             CalcApplnAmount();
         end;
     end;
@@ -1240,7 +1247,7 @@ page 232 "Apply Customer Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandledChosenEntries(Type.AsInteger(), CurrentAmount, CurrencyCode, PostingDate, AppliedCustLedgEntry, IsHandled);
+        OnBeforeHandledChosenEntries(Type.AsInteger(), CurrentAmount, CurrencyCode, PostingDate, AppliedCustLedgEntry, IsHandled, CustLedgEntry);
         if IsHandled then
             exit;
 
@@ -1354,6 +1361,8 @@ page 232 "Apply Customer Entries"
     local procedure LookupOKOnPush()
     begin
         OK := true;
+
+        OnAfterLookupOKOnPush(OK);
     end;
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
@@ -1476,7 +1485,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcApplnAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var CalcType: Enum "Customer Apply Calculation Type"; var AppliedCustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnAfterCalcApplnAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var CalcType: Enum "Customer Apply Calculation Type"; var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -1504,6 +1513,16 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterGetAppliesToID(CalcType: Enum "Customer Apply Calculation Type"; var AppliesToID: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupOKOnPush(var OK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage(var GenJnlLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -1523,8 +1542,8 @@ page 232 "Apply Customer Entries"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,SalesHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,SalesHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -1554,6 +1573,11 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnAfterSetAppliedAmount(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; var AppliedAmount: Decimal)
     begin
     end;
@@ -1568,6 +1592,11 @@ page 232 "Apply Customer Entries"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnFindApplyingEntryOnBeforeCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnHandleChosenEntriesOnBeforeDeleteTempAppliedCustLedgEntry(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary; CurrencyCode: Code[10])
     begin
@@ -1575,6 +1604,16 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ServHeader: Record "Service Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingAmount: Decimal; var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnQueryClosePageOnBeforeRunCustEntryEdit(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

@@ -76,6 +76,11 @@ page 11000011 "Transaction Mode Card"
                     Caption = 'Partner Type';
                     ToolTip = 'Specifies if the transaction mode is for a person or a company.';
                 }
+                field(WorldPayment; Rec.WorldPayment)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the payment will be processed as WorldPayment in the SEPA file export.';
+                }
             }
             group("Paym./Rcpts. in Process")
             {

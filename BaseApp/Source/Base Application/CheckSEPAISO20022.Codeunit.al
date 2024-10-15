@@ -12,15 +12,8 @@ codeunit 11000010 "Check SEPA ISO20022"
             exit;
         end;
 
-        if "SWIFT Code" = '' then begin
-            "Error Message" := StrSubstNo(Text001, FieldCaption("SWIFT Code"), TableCaption);
+        if not CheckSWIFTCode(Rec) then
             exit;
-        end;
-
-        if StrLen("SWIFT Code") > 11 then begin
-            "Error Message" := StrSubstNo(Text002, FieldCaption("SWIFT Code"), TableCaption);
-            exit;
-        end;
 
         if "Bank Country/Region Code" = '' then begin
             "Error Message" := StrSubstNo(Text001, FieldCaption("Bank Country/Region Code"), TableCaption);
@@ -54,10 +47,8 @@ codeunit 11000010 "Check SEPA ISO20022"
             exit;
         end;
 
-        if BankAcc."SWIFT Code" = '' then begin
-            "Error Message" := StrSubstNo(Text004, BankAcc.FieldCaption("SWIFT Code"), FieldCaption("Our Bank No."), "Our Bank No.");
+        if not CheckBankSWIFTCode(Rec) then
             exit;
-        end;
 
         if Country.Code <> BankAcc."Country/Region Code" then
             Country.Get(BankAcc."Country/Region Code");
@@ -70,11 +61,8 @@ codeunit 11000010 "Check SEPA ISO20022"
         end;
 
         // Check Company Information
-        CompanyInfo.Get();
-        if CompanyInfo."VAT Registration No." = '' then begin
-            "Error Message" := StrSubstNo(Text001, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption);
+        if not CheckCompanyInfoVATRegistrationNo(Rec) then
             exit;
-        end;
 
         // Check Freely Tranferable Maximum
         FreelyTransferableMaximum.Get("Bank Country/Region Code", "Currency Code");
@@ -131,6 +119,78 @@ codeunit 11000010 "Check SEPA ISO20022"
         Text007: Label '%1 is invisible- and capital transactions, %2 must be filled in.';
         Text008: Label '%1 is transfer or sundry, %2 and %3 must be filled in.';
         Text009: Label '%1 cannot be %2 for %3:%4.';
+
+    local procedure CheckCompanyInfoVATRegistrationNo(var ProposalLine: Record "Proposal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCompanyInfoVATRegistrationNo(ProposalLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        CompanyInfo.Get();
+        if CompanyInfo."VAT Registration No." = '' then begin
+            ProposalLine."Error Message" := StrSubstNo(Text001, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption);
+            exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure CheckBankSWIFTCode(var ProposalLine: Record "Proposal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBankSWIFTCode(ProposalLine, BankAcc, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if BankAcc."SWIFT Code" = '' then begin
+            ProposalLine."Error Message" := StrSubstNo(Text004, BankAcc.FieldCaption("SWIFT Code"), ProposalLine.FieldCaption("Our Bank No."), ProposalLine."Our Bank No.");
+            exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure CheckSWIFTCode(var ProposalLine: Record "Proposal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSWIFTCode(ProposalLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if ProposalLine."SWIFT Code" = '' then begin
+            ProposalLine."Error Message" := StrSubstNo(Text001, ProposalLine.FieldCaption("SWIFT Code"), ProposalLine.TableCaption);
+            exit(false);
+        end;
+
+        if StrLen(ProposalLine."SWIFT Code") > 11 then begin
+            ProposalLine."Error Message" := StrSubstNo(Text002, ProposalLine.FieldCaption("SWIFT Code"), ProposalLine.TableCaption);
+            exit;
+        end;
+
+        exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBankSWIFTCode(var ProposalLine: Record "Proposal Line"; BankAcc: Record "Bank Account"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCompanyInfoVATRegistrationNo(var ProposalLine: Record "Proposal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSWIFTCode(var ProposalLine: Record "Proposal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ProposalLine: Record "Proposal Line")

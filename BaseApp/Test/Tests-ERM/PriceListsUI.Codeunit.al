@@ -27,6 +27,7 @@ codeunit 134117 "Price Lists UI"
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
         AllLinesVerifiedMsg: Label 'All price list lines are verified.';
+        AmountTypeNotAlowedErr: Label '%1 is not allowed for %2.', Comment = '%1 - Amount type, %2 - source type';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -149,14 +150,18 @@ codeunit 134117 "Price Lists UI"
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
 
-        // [GIVEN] Price List #1, where "Source Type" is 'All Customers'
+        // [GIVEN] Price List #1, where "Source Type" is 'All Customers', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader[1].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[1].Modify();
         // [GIVEN] Price List #2, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Customer, Customer[1]."No.");
         PriceListHeader[2]."Amount Type" := PriceListHeader[4]."Amount Type"::Discount;
         PriceListHeader[2].Modify();
-        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B'
+        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[3], "Price Type"::Sale, "Price Source Type"::Customer, Customer[2]."No.");
+        PriceListHeader[3].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[3].Modify();
         // [GIVEN] Price List #4, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Price'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[4], "Price Type"::Sale, "Price Source Type"::Customer, Customer[1]."No.");
         PriceListHeader[4]."Amount Type" := PriceListHeader[4]."Amount Type"::Price;
@@ -1063,6 +1068,142 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T035_AmountTypeValidationCustPriceGroupInSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO] Only "Amount Type" 'Price' is allowed for "Customer Price Group", if "Allow Editing Defaults" is No
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where "Customer Price Group", "Allow Editing Defaults" is No
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", '');
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Open price list card, where "Amount Type" is 'Price'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
+
+        // [WHEN] Change "Amount Type" to 'Discount'
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Discount);
+        // [THEN] Error: 'Discount is not allowed ..'
+        Assert.ExpectedError(
+            StrSubstNo(AmountTypeNotAlowedErr, "Price Amount Type"::Discount, "Price Source Type"::"Customer Price Group"));
+
+        // [WHEN] Change "Amount Type" to 'Price&Discount'
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] Error: 'Price&Discount is not allowed ..'
+        Assert.ExpectedError(
+            StrSubstNo(AmountTypeNotAlowedErr, "Price Amount Type"::Any, "Price Source Type"::"Customer Price Group"));
+    end;
+
+    [Test]
+    procedure T036_AmountTypeValidationCustPriceGroupInSalesPriceListAllowEditing()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO] All "Amount Type" valies are allowed for "Customer Price Group", if "Allow Editing Defaults" is Yes
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where "Customer Price Group", "Allow Editing Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card, where "Amount Type" is 'Price'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
+
+        // [WHEN] Change "Amount Type" to 'Discount'
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Discount);
+        // [THEN] "Amount Type" is 'Discount'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
+
+        // [WHEN] Change "Amount Type" to 'Price&Discount'
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Price&Discount'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+    end;
+
+    [Test]
+    procedure T037_AmountTypeValidationCustDiscGroupInSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO] Only "Amount Type" 'Discount' is allowed for "Customer Disc. Group", if "Allow Editing Defaults" is No
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where "Customer Disc. Group", "Allow Editing Defaults" is No
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Disc. Group", '');
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Open price list card, where "Amount Type" is 'Discount'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
+
+        // [WHEN] Change "Amount Type" to 'Price'
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
+        // [THEN] Error: 'Discount is not allowed ..'
+        Assert.ExpectedError(
+            StrSubstNo(AmountTypeNotAlowedErr, "Price Amount Type"::Price, "Price Source Type"::"Customer Disc. Group"));
+
+        // [WHEN] Change "Amount Type" to 'Price&Discount'
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] Error: 'Price&Discount is not allowed ..'
+        Assert.ExpectedError(
+            StrSubstNo(AmountTypeNotAlowedErr, "Price Amount Type"::Any, "Price Source Type"::"Customer Disc. Group"));
+    end;
+
+    [Test]
+    procedure T038_AmountTypeValidationCustDiscGroupInSalesPriceListAllowEditing()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO] All "Amount Type" valies are allowed for "Customer Disc. Group", if "Allow Editing Defaults" is Yes
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where "Customer Disc. Group", "Allow Editing Defaults" is Yes
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Disc. Group", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card, where "Amount Type" is 'Discount'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
+
+        // [WHEN] Change "Amount Type" to 'Price'
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
+        // [THEN] "Amount Type" is 'Price'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
+
+        // [WHEN] Change "Amount Type" to 'Price&Discount'
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Price&Discount'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+    end;
+
+    [Test]
     procedure T040_ValidateCurrencyCodeDifferentFromSource()
     var
         Currency: Record Currency;
@@ -1440,14 +1581,18 @@ codeunit 134117 "Price Lists UI"
         LibraryPurchase.CreateVendor(Vendor[1]);
         LibraryPurchase.CreateVendor(Vendor[2]);
 
-        // [GIVEN] Price List #1, where "Source Type" is 'All Vendors'
+        // [GIVEN] Price List #1, where "Source Type" is 'All Vendors', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        PriceListHeader[1].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[1].Modify();
         // [GIVEN] Price List #2, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor[1]."No.");
         PriceListHeader[2]."Amount Type" := PriceListHeader[4]."Amount Type"::Discount;
         PriceListHeader[2].Modify();
-        // [GIVEN] Price List #3, where "Source Type" is 'Vendor' 'B'
+        // [GIVEN] Price List #3, where "Source Type" is 'Vendor' 'B', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[3], "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor[2]."No.");
+        PriceListHeader[3].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[3].Modify();
         // [GIVEN] Price List #4, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Price'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[4], "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor[1]."No.");
         PriceListHeader[4]."Amount Type" := PriceListHeader[4]."Amount Type"::Price;
@@ -2140,14 +2285,18 @@ codeunit 134117 "Price Lists UI"
         LibraryJob.CreateJob(Job[1]);
         LibraryJob.CreateJob(Job[2]);
 
-        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader[1].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[1].Modify();
         // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, Job[1]."No.");
         PriceListHeader[2]."Amount Type" := PriceListHeader[4]."Amount Type"::Discount;
         PriceListHeader[2].Modify();
-        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[3], "Price Type"::Sale, "Price Source Type"::Job, Job[2]."No.");
+        PriceListHeader[3].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[3].Modify();
         // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[4], "Price Type"::Sale, "Price Source Type"::Job, Job[1]."No.");
         PriceListHeader[4]."Amount Type" := PriceListHeader[4]."Amount Type"::Price;
@@ -2611,14 +2760,18 @@ codeunit 134117 "Price Lists UI"
         LibraryJob.CreateJob(Job[1]);
         LibraryJob.CreateJob(Job[2]);
 
-        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Purchase, "Price Source Type"::"All Jobs", '');
+        PriceListHeader[1].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[1].Modify();
         // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Purchase, "Price Source Type"::Job, Job[1]."No.");
         PriceListHeader[2]."Amount Type" := PriceListHeader[4]."Amount Type"::Discount;
         PriceListHeader[2].Modify();
-        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B', "Amount Type" is 'Price&Discount'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[3], "Price Type"::Purchase, "Price Source Type"::Job, Job[2]."No.");
+        PriceListHeader[3].Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListHeader[3].Modify();
         // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[4], "Price Type"::Purchase, "Price Source Type"::Job, Job[1]."No.");
         PriceListHeader[4]."Amount Type" := PriceListHeader[4]."Amount Type"::Price;

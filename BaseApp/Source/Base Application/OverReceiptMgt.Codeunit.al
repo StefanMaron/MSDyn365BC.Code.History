@@ -53,7 +53,13 @@ codeunit 8510 "Over-Receipt Mgt."
         OverReceiptQtyBase: Decimal;
         LineBaseQty: Decimal;
         MaxOverReceiptQtyAllowed: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyOverReceiptQuantity(PurchaseLine, xPurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsOverReceiptAllowed() then
             exit;
         OverReceiptCode.Get(PurchaseLine."Over-Receipt Code");
@@ -145,6 +151,11 @@ codeunit 8510 "Over-Receipt Mgt."
     local procedure GetOverReceiptNotificationId(): Guid
     begin
         exit('ea49207f-4275-45d1-804e-508dea5ae8dc');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyOverReceiptQuantity(PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
