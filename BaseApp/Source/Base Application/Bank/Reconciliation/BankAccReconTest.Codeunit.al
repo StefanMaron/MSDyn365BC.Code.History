@@ -5,6 +5,7 @@
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Statement;
 using Microsoft.Bank.Ledger;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -40,11 +41,10 @@ codeunit 380 "Bank Acc. Recon. Test"
     internal procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-        BankAccountLedgerEntry.SetFilter("Closed at Date", '%1 | > %2', 0D, BankAccReconciliation."Statement Date");
-        BankAccountLedgerEntry.SetFilter("Statement No.", '<> %1', BankAccReconciliation."Statement No.");
         BankAccountLedgerEntry.SetRange(Reversed, false);
         if BankAccReconciliation."Statement Date" <> 0D then
             BankAccountLedgerEntry.SetRange("Posting Date", 0D, BankAccReconciliation."Statement Date");
+        BankAccountLedgerEntry.SetFilter("Statement No.", '<> %1', BankAccReconciliation."Statement No.");
     end;
 
     local procedure TotalOfClosedEntriesWithNoClosedAtDate(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Decimal
@@ -55,15 +55,19 @@ codeunit 380 "Bank Acc. Recon. Test"
         exit(BankAccountLedgerEntry.Amount);
     end;
 
-    procedure TotalOutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
+    procedure TotalOutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation") Total: Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Total: Decimal;
         DocNo: Text;
     begin
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
+        if BankAccountLedgerEntry.IsEmpty() then
+            exit;
+
+        FilterOutstandingBankAccLedgerEntry(BankAccountLedgerEntry, BankAccReconciliation."Statement No.", BankAccReconciliation."Statement Date");
+        BankAccountLedgerEntry.MarkedOnly(true);
 
         BankAccountLedgerEntry.CalcSums(Amount);
         Total := BankAccountLedgerEntry.Amount;
@@ -92,18 +96,71 @@ codeunit 380 "Bank Acc. Recon. Test"
         exit(Total);
     end;
 
-    procedure TotalOutstandingPayments(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
+    local procedure FilterOutstandingBankAccLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementNo: Code[20]; StatementDate: Date)
+    begin
+        if BankAccountLedgerEntry.FindSet() then
+            repeat
+                if CheckBankAccountLedgerEntryFilters(BankAccountLedgerEntry, StatementNo, StatementDate) then
+                    BankAccountLedgerEntry.Mark(true);
+            until BankAccountLedgerEntry.Next() = 0;
+    end;
+
+    internal procedure CheckBankAccountLedgerEntryFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementNo: Code[20]; StatementDate: Date): Boolean
+    begin
+        if (not BankAccountLedgerEntry.Open) and (BankAccountLedgerEntry."Closed at Date" = 0D) then
+            exit(false);
+        if BankAccountLedgerEntry."Statement No." = '' then begin
+            if CheckBankLedgerEntryIsOpen(BankAccountLedgerEntry, StatementDate) then
+                exit(true);
+        end else
+            if CheckBankLedgerEntryOnStatement(BankAccountLedgerEntry, StatementDate) then
+                exit(true);
+        exit(false);
+    end;
+
+    local procedure CheckBankLedgerEntryOnStatement(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementDate: Date): Boolean
+    var
+        BankAccountReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        if not BankAccountLedgerEntry.Open then
+            exit(false);
+
+        if BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::Closed then
+            exit(false);
+
+        if not BankAccountReconciliation.Get(BankAccountReconciliation."Statement Type"::"Bank Reconciliation", BankAccountLedgerEntry."Bank Account No.", BankAccountLedgerEntry."Statement No.") then
+            exit(false);
+
+        exit(BankAccountReconciliation."Statement Date" > StatementDate);
+    end;
+
+    local procedure CheckBankLedgerEntryIsOpen(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementDate: Date): Boolean
+    begin
+        if BankAccountLedgerEntry.Open then
+            exit(true);
+        if (BankAccountLedgerEntry."Closed at Date" = 0D) then
+            exit(true);
+        if BankAccountLedgerEntry."Closed at Date" > StatementDate then
+            exit(true);
+    end;
+
+    procedure TotalOutstandingPayments(BankAccReconciliation: Record "Bank Acc. Reconciliation") Total: Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        Total: Decimal;
         DocNo: Text;
     begin
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
+        if BankAccountLedgerEntry.IsEmpty() then
+            exit;
+
+        FilterOutstandingBankAccLedgerEntry(BankAccountLedgerEntry, BankAccReconciliation."Statement No.", BankAccReconciliation."Statement Date");
+        BankAccountLedgerEntry.MarkedOnly(true);
 
         BankAccountLedgerEntry.CalcSums(Amount);
         Total := BankAccountLedgerEntry.Amount;
+
         Total -= TotalOfClosedEntriesWithNoClosedAtDate(BankAccountLedgerEntry);
 
         if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
@@ -129,6 +186,29 @@ codeunit 380 "Bank Acc. Recon. Test"
         exit(Total);
     end;
 
+    local procedure SetGLAccountBalanceFilters(BankAccountPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date; var GLEntry: Record "G/L Entry")
+    begin
+        GLEntry.SetRange("G/L Account No.", BankAccountPostingGroup."G/L Account No.");
+        if (StatementDate <> 0D) then
+            GLEntry.SetFilter("Posting Date", '<= %1', StatementDate);
+    end;
+
+    procedure GetGLAccountBalanceLCYForBankStatement(BankAccountStatement: Record "Bank Account Statement"): Decimal
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        GLEntry: Record "G/L Entry";
+    begin
+        if not BankAccount.Get(BankAccountStatement."Bank Account No.") then
+            exit(0);
+        if not BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group") then
+            exit(0);
+        SetGLAccountBalanceFilters(BankAccountPostingGroup, BankAccountStatement."Statement Date", GLEntry);
+        GLEntry.SetFilter(SystemCreatedAt, '< %1', BankAccountStatement.SystemCreatedAt);
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
+    end;
+
     procedure GetGLAccountBalanceLCY(BankAcc: Record "Bank Account"; BankAccPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date): Decimal
     var
         GLAccount: Record "G/L Account";
@@ -140,12 +220,7 @@ codeunit 380 "Bank Acc. Recon. Test"
         if not GLAccount.Get(BankAccPostingGroup."G/L Account No.") then
             exit(0);
 
-        GLEntries.SetRange("G/L Account No.", BankAccPostingGroup."G/L Account No.");
-        if (StatementDate <> 0D) then
-            GLEntries.SetFilter("Posting Date", '<= %1', StatementDate);
-
-        if GLEntries.IsEmpty() then
-            exit(0);
+        SetGLAccountBalanceFilters(BankAccPostingGroup, StatementDate, GLEntries);
 
         GLEntries.CalcSums(Amount);
         exit(GLEntries.Amount);

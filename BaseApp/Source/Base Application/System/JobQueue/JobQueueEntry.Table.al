@@ -696,7 +696,6 @@ table 472 "Job Queue Entry"
     begin
         Status := Status::Error;
         "Error Message" := DeletedEntryErr;
-        Modify();
     end;
 
     procedure FinalizeRun()
