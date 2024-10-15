@@ -1,4 +1,4 @@
-table 79 "Company Information"
+﻿table 79 "Company Information"
 {
     Caption = 'Company Information';
 
@@ -751,6 +751,9 @@ table 79 "Company Information"
         PostCode: Record "Post Code";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ATVATTok: Label 'AT VAT Statement', Locked = true;
+        PictureUpdated: Boolean;
+        RecordHasBeenRead: Boolean;
+
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
@@ -759,7 +762,6 @@ table 79 "Company Information"
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
         ContactUsFullTxt: Label 'Questions? Contact us at %1 or %2.', Comment = '%1 = phone number, %2 = email';
         ContactUsShortTxt: Label 'Questions? Contact us at %1.', Comment = '%1 = phone number or email';
-        PictureUpdated: Boolean;
         AlTelemetryCategoryTxt: Label 'AL CompanyInfo', Locked = true;
         EmptyCountryRegionErr: Label 'Country/Region code is not set, falling back to application default: %1.', Locked = true;
 
@@ -931,6 +933,14 @@ table 79 "Company Information"
     procedure GetCustomGiroLbl(): Text
     begin
         exit('');
+    end;
+
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
     end;
 
     procedure VerifyAndSetPaymentInfo()

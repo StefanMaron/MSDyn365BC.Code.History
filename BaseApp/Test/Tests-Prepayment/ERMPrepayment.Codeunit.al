@@ -50,7 +50,7 @@
         PrepmtInvErr: Label 'Prepayment Invoice must be equal to ''No''';
         PrepmtCrMemoErr: Label 'Prepayment Credit Memo must be equal to ''No''';
         CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 - "sales order 1001".';
-       CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
+        CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
         CustomerNo: Code[20];
 
     [Test]
@@ -472,6 +472,7 @@
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LineGLAccount: Record "G/L Account";
+        VATClauseCode: Code[20];
     begin
         // [FEATURE] [Sales] [Series No] [Credit Memo]
         // [SCENARIO] Setting up the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales Setup with Posted Invoice Nos and Posted Credit Memo Nos.
@@ -484,6 +485,7 @@
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
+        VATClauseCode := UpdateVATClauseCode(LineGLAccount);
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
         // [WHEN] Create Setup for Sales Prepayment Account and Post the Prepayment Sales Invoice and Prepayment Credit Memo.
@@ -491,8 +493,9 @@
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
         // [THEN] Verify the Posted Prepmt Sales Invoice No and Posted Prepmt Cr Memo Nos with No Series.
-        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.");
-        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.");
+        // [THEN] VAT Clause Code is updated in posted document line from VAT Posting Setup (TFS 443665)        
+        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.", VATClauseCode);
+        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.", VATClauseCode);
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -525,8 +528,8 @@
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
         // [THEN] Verify the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos with No Series.
-        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.");
-        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.");
+        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.", '');
+        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.", '');
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -3562,6 +3565,62 @@
                 CannotChangePrepmtAccErr, PurchaseHeader.RecordId, GeneralPostingSetup.FieldCaption("Purch. Prepayments Account")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentMethodCodeOnCustomerLedgerEntriesForPrepaymentInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [Sales] [Prepayment %]
+        // [SCENARIO 449090] Payment Method Code is not populated on the Customer Ledger Entries for Prepayment Invoices
+        Initialize();
+
+        // [GIVEN] Create a payment method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Sales Header, Sales Line
+        CreateSalesDocument(SalesHeader, SalesLine);
+        SalesHeader."Prepayment %" := LibraryRandom.RandDec(99, 5);
+        SalesHeader."Payment Method Code" := PaymentMethod.Code;
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post Sales Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Verify customer ledger entry
+        VerifyCustomerLedgerEntryForSalesPrepayment(SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentMethodCodeOnVendorLedgerEntriesForPrepaymentInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PaymentMethod: Record "Payment Method";
+    begin
+        // [FEATURE] [Purchase] [Prepayment %]
+        // [SCENARIO 449090] Payment Method Code is not populated on the Vendor Ledger Entries for Prepayment Invoices
+        Initialize();
+
+        // [GIVEN] Create a payment method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+
+        // [GIVEN] Create Purchase Header, Purchase Line
+        CreatePurchDocument(PurchaseHeader, PurchaseLine, 1);
+        PurchaseHeader."Prepayment %" := LibraryRandom.RandDec(99, 5);
+        PurchaseHeader."Payment Method Code" := PaymentMethod.Code;
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Prepayment Invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Verify vendor ledger entry
+        VerifyVendLedgerEntryForPurchPrepayment(PurchaseHeader."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5069,6 +5128,18 @@
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure UpdateVATClauseCode(LineGLAccount: Record "G/L Account"): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+    begin
+        VATPostingSetup.GET(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        LibraryERM.CreateVATClause(VATClause);
+        VATPostingSetup.VALIDATE("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.modify(true);
+        exit(VATClause.Code);
+    end;
+
     local procedure ApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -5361,21 +5432,30 @@
         until SalesLine.Next() = 0;
     end;
 
-    local procedure VerifyPrepaymentCreditMemo(PrepaymentOrderNo: Code[20]; PostedPrepmtCrMemoNos: Code[20])
+    local procedure VerifyPrepaymentCreditMemo(PrepaymentOrderNo: Code[20]; PostedPrepmtCrMemoNos: Code[20]; VATClauseCode: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
         SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("No.", GetLastNoUsed(PostedPrepmtCrMemoNos));
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("VAT Clause Code", VATClauseCode);
     end;
 
-    local procedure VerifyPrepaymentInvoice(PrepaymentOrderNo: Code[20]; PostedPrepmtInvNos: Code[20])
+    local procedure VerifyPrepaymentInvoice(PrepaymentOrderNo: Code[20]; PostedPrepmtInvNos: Code[20]; VATClauseCode: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+
     begin
         FindSalesPrepmtInvoice(SalesInvoiceHeader, PrepaymentOrderNo);
         SalesInvoiceHeader.TestField("No.", GetLastNoUsed(PostedPrepmtInvNos));
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField("VAT Clause Code", VATClauseCode);
     end;
 
     local procedure GetLastNoUsed(NoSeriesCode: Code[20]): Code[20]
@@ -5920,6 +6000,30 @@
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
+    end;
+
+    local procedure VerifyCustomerLedgerEntryForSalesPrepayment(OrderNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        FindSalesPrepmtInvoice(SalesInvoiceHeader, OrderNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Payment Method Code");
+    end;
+
+    local procedure VerifyVendLedgerEntryForPurchPrepayment(OrderNo: Code[20])
+    var
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+    begin
+        FindPurchPrepmtInvoice(PurchInvoiceHeader, OrderNo);
+        VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
+        VendLedgerEntry.SetRange("Document No.", PurchInvoiceHeader."No.");
+        VendLedgerEntry.FindFirst();
+        VendLedgerEntry.TestField("Payment Method Code");
     end;
 
     [ConfirmHandler]

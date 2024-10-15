@@ -903,6 +903,9 @@ table 121 "Purch. Rcpt. Line"
                   Round(
                     PurchOrderLine."Line Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
                     Currency."Amount Rounding Precision");
+
+                OnInsertInvLineFromRcptLineOnAfterRoundLineDiscountAmount(Rec, PurchLine, PurchOrderLine, Currency);
+
                 if PurchInvHeader."Prices Including VAT" then begin
                     if not PurchOrderHeader."Prices Including VAT" then
                         PurchOrderLine."Line Discount Amount" :=
@@ -1310,6 +1313,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnAfterTransferOldExtLinesClearLineNumbers(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnAfterRoundLineDiscountAmount(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseOrderLine: Record "Purchase Line"; Currency: Record Currency)
     begin
     end;
 }

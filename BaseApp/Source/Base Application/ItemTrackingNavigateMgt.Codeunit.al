@@ -996,7 +996,14 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     local procedure FindJobLedgEntry(var ItemFilters: Record Item)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindJobLedgEntry(TempJobLedgEntry, ItemFilters, IsHandled);
+        if IsHandled then
+            exit;
+
         if not JobLedgEntry.ReadPermission then
             exit;
 
@@ -1407,8 +1414,13 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterFindTrackingRecords(var TempRecordBuffer: Record "Record Buffer" temporary; var ItemFilters: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindJobLedgEntry(var TempJobLedgerEntry: Record "Job Ledger Entry" temporary; var ItemFilters: Record Item; var IsHandled: Boolean)
     begin
     end;
 

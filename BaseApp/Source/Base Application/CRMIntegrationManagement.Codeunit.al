@@ -60,7 +60,7 @@
         CRMSolutionFileNotFoundErr: Label 'A file for a CRM solution could not be found.';
         MicrosoftDynamicsNavIntegrationTxt: Label 'MicrosoftDynamicsNavIntegration', Locked = true;
         AdminEmailPasswordWrongErr: Label 'Enter valid %1 administrator credentials.', Comment = '%1 = CRM product name';
-        OrganizationServiceFailureErr: Label 'The import of the integration solution failed. This may be because the solution file is broken, or because the solution upgrade failed or because the specified administrator does not have sufficient privileges. If you have upgraded to Business Central 16, follow this document to upgrade your integration solution: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
+        OrganizationServiceFailureErr: Label 'The import of the integration solution failed. This may be because the solution file is broken, or because the solution upgrade failed or because the specified administrator does not have sufficient privileges. If you have upgraded to Business Central 16, follow this document to upgrade your integration solution: https://go.microsoft.com/fwlink/?linkid=2206171';
         InvalidUriErr: Label 'The value entered is not a valid URL.';
         MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to %1 only. You cannot use HTTP.', Comment = '%1 = CRM product name';
         MustUseHttpOrHttpsErr: Label '%1 is not a valid URI scheme for %2 connections. You can only use HTTPS or HTTP as the scheme in the URL.', Comment = '%1 is a URI scheme, such as FTP, HTTP, chrome or file, %2 = CRM product name';
@@ -1528,6 +1528,7 @@
         CustomerTypeCodeFieldRef: FieldRef;
         CustomerTypeCode: Text;
     begin
+        OnBeforeGetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecRef);
         if RecRef.Number <> Database::"CRM Account" then begin
             GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
             exit;
@@ -3702,9 +3703,7 @@
         CDSConnectionSetup: Record "CDS Connection Setup";
         JobQueueEntry: Record "Job Queue Entry";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
-        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
-        MomentForJobToBeReady: DateTime;
-        EarliestStartDateTime: DateTime;
+        NewEarliestStartDateTime: DateTime;
         Enabled: Boolean;
     begin
         if CDSConnectionSetup.Get() then
@@ -3721,7 +3720,8 @@
 
         if DataUpgradeMgt.IsUpgradeInProgress() then
             exit;
-        JobQueueEntry.FilterInactiveOnHoldEntries();
+        JobQueueEntry.Reset();
+        JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.IsEmpty() then
             exit;
@@ -3730,20 +3730,17 @@
         if not JobQueueEntry.FindSet() then
             exit;
         repeat
-            // Restart only those jobs whose time to re-execute has nearly arrived.
-            // This postpones locking of the Job Queue Entries when restarting.
             // The rescheduled task might start while the current transaction is not committed yet.
             // Therefore the task will restart with a delay to lower a risk of use of "old" data.
-            MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
-            EarliestStartDateTime := CurrentDateTime() + 5000; // five seconds delay
-            if EarliestStartDateTime > MomentForJobToBeReady then
+            NewEarliestStartDateTime := CurrentDateTime() + 2000;
+            if (NewEarliestStartDateTime + 5000) < JobQueueEntry."Earliest Start Date/Time" then
                 if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
                     JobQueueEntry.RefreshLocked();
                     JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."Earliest Start Date/Time" := EarliestStartDateTime;
+                    JobQueueEntry."Earliest Start Date/Time" := NewEarliestStartDateTime;
                     JobQueueEntry.Modify();
-                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", EarliestStartDateTime) then;
-                end
+                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then;
+                end;
         until JobQueueEntry.Next() = 0;
     end;
 
@@ -3963,6 +3960,7 @@
     begin
         IntegrationTableMapping.SetRange("Table ID", TableId);
         IntegrationTableMapping.SetRange("Integration Table ID", IntTableId);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if IntegrationTableMapping.FindSet() then
             repeat
                 JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
@@ -4140,6 +4138,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetIntegrationTableMappingFromCRMRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; RecRef: RecordRef)
     begin
     end;
 

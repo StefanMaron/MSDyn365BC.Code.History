@@ -873,7 +873,14 @@ table 125 "Purch. Cr. Memo Line"
     end;
 
     procedure ShowDeferrals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
             GetDocumentType(), "Document No.", "Line No.");
@@ -903,6 +910,11 @@ table 125 "Purch. Cr. Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
     begin
     end;
 
