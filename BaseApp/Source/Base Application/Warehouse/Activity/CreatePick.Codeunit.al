@@ -2743,7 +2743,7 @@ codeunit 7312 "Create Pick"
         MaxPickableQtyInWhse := CalcMaxQtyAvailToPickInWhseForDirectedPutAwayPick(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
         MaxPickableQtyInWhse -= ExcludeQtyAssignedOnPickWorksheetLines; //Exclude the quantity assigned on other active worksheet lines as they are considered to be already picked (Scenario: Available to Pick field in Pick Worksheet)
 
-        if MaxPickableQtyInWhse = 0 then
+        if MaxPickableQtyInWhse <= 0 then //MaxPickableQtyInWhse can be negative when ExcludeQtyAssignedOnPickWorksheetLines > MaxPickableQtyInWhse
             exit(0);
 
         TempWhseItemTrackingLine2.Copy(TempWhseItemTrackingLine);

@@ -7870,11 +7870,12 @@ table 36 "Sales Header"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
+        OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if "Sell-to Customer No." <> '' then
             if Contact.Get("Sell-to Contact No.") then
@@ -8588,7 +8589,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupSellToContactNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeLookupSellToContactNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 

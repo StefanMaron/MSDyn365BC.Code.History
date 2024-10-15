@@ -311,7 +311,7 @@ codeunit 7321 "Create Inventory Put-away"
 
     local procedure CreatePutawayWithPutawayTemplateBinPolicy(var PurchaseLineToPutaway: Record "Purchase Line")
     begin
-        CreatePutawayWithPutawayTemplateBinPolicy(Database::"Purchase Line", PurchaseLineToPutaway."Document Type".AsInteger(), PurchaseLineToPutaway."Document No.", PurchaseLineToPutaway."Line No.",
+        CreatePutawayWithPutawayTemplateBinPolicy(Database::"Purchase Line", PurchaseLineToPutaway."Document Type".AsInteger(), PurchaseLineToPutaway."Document No.", PurchaseLineToPutaway."Line No.", 0,
                                                             PurchaseLineToPutaway."Location Code", PurchaseLineToPutaway."Bin Code", PurchaseLineToPutaway."No.", PurchaseLineToPutaway."Variant Code", PurchaseLineToPutaway."Quantity (Base)",
                                                             PurchaseLineToPutaway."Unit of Measure Code", PurchaseLineToPutaway."Qty. per Unit of Measure", PurchaseLineToPutaway."Qty. Rounding Precision",
                                                             PurchaseLineToPutaway."Qty. Rounding Precision (Base)", PurchaseLineToPutaway.Description, PurchaseLineToPutaway."Description 2", PurchaseLineToPutaway."Expected Receipt Date");
@@ -443,7 +443,7 @@ codeunit 7321 "Create Inventory Put-away"
     local procedure CreatePutawayWithPutawayTemplateBinPolicy(var SalesLineToPutaway: Record "Sales Line")
     begin
         CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Sales Line", SalesLineToPutaway."Document Type".AsInteger(), SalesLineToPutaway."Document No.", SalesLineToPutaway."Line No.",
+            Database::"Sales Line", SalesLineToPutaway."Document Type".AsInteger(), SalesLineToPutaway."Document No.", SalesLineToPutaway."Line No.", 0,
             SalesLineToPutaway."Location Code", SalesLineToPutaway."Bin Code", SalesLineToPutaway."No.", SalesLineToPutaway."Variant Code", SalesLineToPutaway."Quantity (Base)",
             SalesLineToPutaway."Unit of Measure Code", SalesLineToPutaway."Qty. per Unit of Measure", SalesLineToPutaway."Qty. Rounding Precision",
             SalesLineToPutaway."Qty. Rounding Precision (Base)", SalesLineToPutaway.Description, SalesLineToPutaway."Description 2", SalesLineToPutaway."Planned Shipment Date");
@@ -571,7 +571,7 @@ codeunit 7321 "Create Inventory Put-away"
     local procedure CreatePutawayWithPutawayTemplateBinPolicy(var TransferLineToPutaway: Record "Transfer Line")
     begin
         CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Transfer Line", 1, TransferLineToPutaway."Document No.", TransferLineToPutaway."Line No.",
+            Database::"Transfer Line", 1, TransferLineToPutaway."Document No.", TransferLineToPutaway."Line No.", 0,
             TransferLineToPutaway."Transfer-to Code", TransferLineToPutaway."Transfer-from Bin Code", TransferLineToPutaway."Item No.", TransferLineToPutaway."Variant Code", TransferLineToPutaway."Quantity (Base)",
             TransferLineToPutaway."Unit of Measure Code", TransferLineToPutaway."Qty. per Unit of Measure", TransferLineToPutaway."Qty. Rounding Precision",
             TransferLineToPutaway."Qty. Rounding Precision (Base)", TransferLineToPutaway.Description, TransferLineToPutaway."Description 2", TransferLineToPutaway."Receipt Date");
@@ -693,7 +693,7 @@ codeunit 7321 "Create Inventory Put-away"
     begin
 
         CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Prod. Order Line", ProdOrderLineToPutaway.Status.AsInteger(), ProdOrderLineToPutaway."Prod. Order No.", ProdOrderLineToPutaway."Line No.",
+            Database::"Prod. Order Line", ProdOrderLineToPutaway.Status.AsInteger(), ProdOrderLineToPutaway."Prod. Order No.", ProdOrderLineToPutaway."Line No.", 0,
             ProdOrderLineToPutaway."Location Code", ProdOrderLineToPutaway."Bin Code", ProdOrderLineToPutaway."Item No.", ProdOrderLineToPutaway."Variant Code", ProdOrderLineToPutaway."Quantity (Base)",
             ProdOrderLineToPutaway."Unit of Measure Code", ProdOrderLineToPutaway."Qty. per Unit of Measure", ProdOrderLineToPutaway."Qty. Rounding Precision",
             ProdOrderLineToPutaway."Qty. Rounding Precision (Base)", ProdOrderLineToPutaway.Description, ProdOrderLineToPutaway."Description 2", ProdOrderLineToPutaway."Due Date");
@@ -811,7 +811,7 @@ codeunit 7321 "Create Inventory Put-away"
     begin
 
         CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Line No.",
+            Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
             ProdOrderComponent."Location Code", ProdOrderComponent."Bin Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Quantity (Base)",
             ProdOrderComponent."Unit of Measure Code", ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision",
             ProdOrderComponent."Qty. Rounding Precision (Base)", ProdOrderComponent.Description, '', ProdOrderComponent."Due Date");
@@ -922,7 +922,7 @@ codeunit 7321 "Create Inventory Put-away"
             InsertWhseActivLine(NewWarehouseActivityLine, RemQtyToPutAway);
     end;
 
-    local procedure CreateWarehouseActivityLine(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
+    local procedure CreateWarehouseActivityLine(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
                                 ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
                                 QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date; var QtyToPutAwayBase: Decimal)
     var
@@ -942,7 +942,7 @@ codeunit 7321 "Create Inventory Put-away"
             NewWarehouseActivityLine."Activity Type" := CurrWarehouseActivityHeader.Type;
             NewWarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
             NewWarehouseActivityLine."Line No." := NextLineNo;
-            NewWarehouseActivityLine.SetSource(SourceType, DocumentType, DocumentNo, LineNo, 0);
+            NewWarehouseActivityLine.SetSource(SourceType, DocumentType, DocumentNo, LineNo, SublineNo);
             NewWarehouseActivityLine."Location Code" := LocationCode;
             NewWarehouseActivityLine."Item No." := ItemNo;
             NewWarehouseActivityLine."Variant Code" := VariantCode;
@@ -996,7 +996,7 @@ codeunit 7321 "Create Inventory Put-away"
         end
     end;
 
-    local procedure CreatePutawayWithPutawayTemplateBinPolicy(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
+    local procedure CreatePutawayWithPutawayTemplateBinPolicy(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
                                 ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
                                 QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date)
     var
@@ -1040,7 +1040,7 @@ codeunit 7321 "Create Inventory Put-away"
                                 end;
 
                                 GetBin(LocationCode, BinContent."Bin Code");
-                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, LocationCode, BinContent."Bin Code", ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
+                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, SublineNo, LocationCode, BinContent."Bin Code", ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
                                                             QtyPerUnitMeasure, QtyRndingPrecision, QtyRndingPrecisionBase, Description, Description2, DueDate, QtyToPutAwayBase);
                             end;
                         end;
@@ -1064,7 +1064,7 @@ codeunit 7321 "Create Inventory Put-away"
                                     if QtyToPutAwayBase > RemQtyToPutAway then
                                         QtyToPutAwayBase := RemQtyToPutAway;
                                 end;
-                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, LocationCode, CurrBin.Code, ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
+                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, SublineNo, LocationCode, CurrBin.Code, ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
                                                             QtyPerUnitMeasure, QtyRndingPrecision, QtyRndingPrecisionBase, Description, Description2, DueDate, QtyToPutAwayBase);
 
                                 BinContentQtyBase := BinContent.CalcQtyBase();
@@ -1075,7 +1075,7 @@ codeunit 7321 "Create Inventory Put-away"
                                         QtyToPutAwayBase := RemQtyToPutAway;
                                 end;
                             end else
-                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, LocationCode, CurrBin.Code, ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
+                                CreateWarehouseActivityLine(SourceType, DocumentType, DocumentNo, LineNo, SublineNo, LocationCode, CurrBin.Code, ItemNo, VariantCode, QuantityBase, UnitOfMeasureCode,
                                                             QtyPerUnitMeasure, QtyRndingPrecision, QtyRndingPrecisionBase, Description, Description2, DueDate, QtyToPutAwayBase);
 
                         end;

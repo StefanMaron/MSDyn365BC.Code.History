@@ -4280,6 +4280,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType PrintedToAttachmentTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2785749549 - Method 4031811529 - NamedType 836342478" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[image/png]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - Method GetContentType - NamedType ImageFormatLabel)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 4204627623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Customers on the selected documents might use different document sending profiles. Choose one of the following options: ]]></Val>

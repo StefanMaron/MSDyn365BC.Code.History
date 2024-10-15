@@ -2564,6 +2564,72 @@ codeunit 134776 "Document Attachment Tests"
         CheckDocAttachmentAttachedDate(SalesHeaderQuoteNo, SalesQuoteAttachedDate);
     end;
 
+    [Test]
+    procedure ImportGetAttachmentAsTempBlob()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        ImageBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
+        FileName: Text;
+    begin
+        // [GIVEN] image is created
+        CreateImage(ImageBlob);
+
+        //[WHEN] image is imported into the table
+        DocumentAttachment.Init();
+        DocumentAttachment.ImportFromStream(ImageBlob.CreateInStream(), FileName);
+
+        // [THEN] check if it is imported correctly
+        Assert.IsTrue(DocumentAttachment."Document Reference ID".HasValue(), 'The ImportFromStream procedure has failed');
+
+        // [THEN] check if attachment is get
+        DocumentAttachment.GetAsTempBlob(TempBlob);
+        Assert.IsTrue(TempBlob.HasValue(), 'The GetAsTempBlob procedure has failed');
+    end;
+
+    [Test]
+    procedure Export()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        ImageBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        FileName: Text;
+    begin
+        // [GIVEN] image is created
+        CreateImage(ImageBlob);
+
+        // [GIVEN] image is imported as attachment
+        DocumentAttachment.Init();
+        DocumentAttachment.ImportFromStream(ImageBlob.CreateInStream(), FileName);
+
+        //[WHEN] image is exported
+        OutStr := TempBlob.CreateOutStream();
+        DocumentAttachment.ExportToStream(OutStr);
+
+        // [THEN] check if the blob where it was exported is filled
+        Assert.IsTrue(TempBlob.HasValue(), 'The Export procedure has failed.');
+    end;
+
+    [Test]
+    procedure GetContentType()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        ImageBlob: Codeunit "Temp Blob";
+        ImageFormatLabel: Label 'image/png';
+        FileName: Text;
+    begin
+        // [GIVEN] image is created
+        CreateImage(ImageBlob);
+
+        // [WHEN] image is imported as attachment
+        DocumentAttachment.Init();
+        DocumentAttachment.ImportFromStream(ImageBlob.CreateInStream(), FileName);
+
+        // [THEN] check if it has the correct attachment
+        Assert.IsTrue(DocumentAttachment.GetContentType() = ImageFormatLabel, 'Procedure GetContentType failed.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2866,6 +2932,16 @@ codeunit 134776 "Document Attachment Tests"
         ReportSelections.Sequence := '1';
         ReportSelections."Report ID" := ReportId;
         ReportSelections.Insert(true);
+    end;
+
+    local procedure CreateImage(var ImageBlob: Codeunit "Temp Blob")
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        ImageAsBase64Txt: Label 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', Locked = true;
+        OutStream: OutStream;
+    begin
+        ImageBlob.CreateOutStream(OutStream);
+        Base64Convert.FromBase64(ImageAsBase64Txt, OutStream);
     end;
 
     [ModalPageHandler]

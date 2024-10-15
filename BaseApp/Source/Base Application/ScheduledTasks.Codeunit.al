@@ -46,7 +46,7 @@ codeunit 3846 "Scheduled Tasks"
                 CancelTask := true;
 
             if CancelTask then begin
-                if JobQueue.TryCheckRequiredPermissions() then begin
+                if JobQueue.HasRequiredPermissions() then begin
                     JobQueue.ChangeCompany(ScheduledTasks.Company);
                     JobQueue.SetRange("System Task ID", ScheduledTasks.ID);
                     if JobQueue.FindFirst() then
