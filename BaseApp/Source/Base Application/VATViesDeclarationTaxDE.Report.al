@@ -365,7 +365,7 @@ report 11007 "VAT-Vies Declaration Tax - DE"
             column(Note_according_to_the_regulations_of_data_protection_laws_Caption; Note_according_to_the_regulations_of_data_protection_laws_CaptionLbl)
             {
             }
-            column(DataItem1140154; The_data_that_is_required_in_this_summary_according_to_the_149_etc_German_Fiscal_Code_AO_and_Lbl)
+            column(The_data_that_is_required_in_this_summary_notification_are_required; The_data_that_is_required_in_this_summary_according_to_the_149_etc_German_Fiscal_Code_AO_and_Lbl)
             {
             }
             column(Microsoft_Deutschland_GmbH___BfF___8__April_1998___S7427_a__ZU_23___SW_191Caption_Control1140178; Microsoft_Deutschland_GmbH___BfF___8__April_1998___S7427_a__ZU_23___SW_191Caption_Control1140178Lbl)

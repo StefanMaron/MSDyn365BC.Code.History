@@ -189,6 +189,27 @@ codeunit 359 PeriodFormManagement
         exit(Period.GetFilter("Period Start"));
     end;
 
+    procedure FindPeriod(var Item: Record Item; SearchText: Text[3]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; AmountType: Option "Net Change","Balance at Date")
+    var
+        Calendar: Record Date;
+    begin
+        with Item do begin
+            if GetFilter("Date Filter") <> '' then begin
+                Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
+                if not FindDate('+', Calendar, PeriodType) then
+                    FindDate('+', Calendar, PeriodType::Day);
+                Calendar.SetRange("Period Start");
+            end;
+            FindDate(SearchText, Calendar, PeriodType);
+            if AmountType = AmountType::"Net Change" then begin
+                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+                if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
+                    SetRange("Date Filter", GetRangeMin("Date Filter"));
+            end else
+                SetRange("Date Filter", 0D, Calendar."Period End");
+        end;
+    end;
+
     procedure FindPeriodOnMatrixPage(var DateFilter: Text; var InternalDateFilter: Text; SearchText: Text[3]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; UpdateDateFilter: Boolean)
     var
         Item: Record Item;

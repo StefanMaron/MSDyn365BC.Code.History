@@ -621,6 +621,7 @@ table 5802 "Value Entry"
         GLItemLedgRelation.SetRange("Value Entry No.", "Entry No.");
         if GLItemLedgRelation.FindSet then
             repeat
+                OnShowGLOnBeforeCopyToTempGLEntry(GLEntry, GLItemLedgRelation);
                 GLEntry.Get(GLItemLedgRelation."G/L Entry No.");
                 TempGLEntry.Init;
                 TempGLEntry := GLEntry;
@@ -730,6 +731,11 @@ table 5802 "Value Entry"
         then
             exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowGLOnBeforeCopyToTempGLEntry(var GLEntry: Record "G/L Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation");
+    begin
     end;
 }
 

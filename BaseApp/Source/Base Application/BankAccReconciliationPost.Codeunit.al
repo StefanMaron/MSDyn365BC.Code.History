@@ -161,6 +161,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             Find;
             Delete;
         end;
+        OnAfterFinalizePost(BankAccRecon);
     end;
 
     local procedure CheckLinesMatchEndingBalance(BankAccRecon: Record "Bank Acc. Reconciliation"; var Difference: Decimal)
@@ -595,6 +596,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinalizePost(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFinalizePost(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
     end;
 

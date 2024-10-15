@@ -737,6 +737,53 @@ codeunit 142039 "UT REP Intrastat DE"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure IntrastatDiskTaxAuthDEManualStatisticalValueInReceiptLine()
+    var
+        Item: Record Item;
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        TempBlob: Codeunit "Temp Blob";
+        ExtractedFileOutStream: OutStream;
+        ExtractedFileInStream: InStream;
+        FileName: Text;
+        ZipFileName: Text;
+        LineTxt: Text;
+        StatValueTxt: Text;
+        DummyFileLength: Integer;
+    begin
+        // [FEATURE] [Intrastat - Disk Tax Auth DE]
+        // [SCENARIO 331036] Export "Intrastat - Disk Tax Auth DE" when Intrastat Journal Line has Amount = 0 and Statistical value updated manually
+        Initialize;
+        UpdateCompanyInformation;
+
+        // [GIVEN] Intrastat Journal Line with Amount = 0, Statistical Value = 100, no item specified
+        CreateItemWithTariffNumber(Item);
+        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Item No." := '';
+        IntrastatJnlLine.Amount := 0;
+        IntrastatJnlLine."Statistical Value" := LibraryRandom.RandIntInRange(100, 200);
+        IntrastatJnlLine.Modify;
+
+        // [WHEN] Intrastat - Disk Tax Auth DE report run
+        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
+
+        // [THEN] File is created with Amount = 0, Statistical Value = 100
+        FileName := GetReceiptFileName();
+        TempBlob.CreateOutStream(ExtractedFileOutStream);
+        ExtractEntryFromZipFile(ZipFileName, FileName, ExtractedFileOutStream, DummyFileLength);
+        TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
+
+        LineTxt := LibraryTextFileValidation.ReadLineFromStream(ExtractedFileInStream, 1);
+        StatValueTxt := Format(IntrastatJnlLine."Statistical Value");
+        StatValueTxt := PadStr('', 11 - StrLen(StatValueTxt)) + StatValueTxt;
+        Assert.AreEqual(
+          StatValueTxt, CopyStr(LineTxt, 106, 11), IntrastatJnlLine.FieldCaption("Statistical Value"));
+        Assert.AreEqual(
+          PadStr('', 10) + '0', CopyStr(LineTxt, 95, 11), IntrastatJnlLine.FieldCaption(Amount));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure IntrastatExportMgtDACH_GetOriginCountryCode()
     var

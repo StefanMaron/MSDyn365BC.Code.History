@@ -101,9 +101,9 @@ codeunit 5802 "Inventory Posting To G/L"
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled);
+        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled, RunOnlyCheck);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with ValueEntry do begin
             GetGLSetup;
@@ -650,9 +650,8 @@ codeunit 5802 "Inventory Posting To G/L"
             "Account Type" := AccType;
             "Bal. Account Type" := BalAccType;
             "Location Code" := ValueEntry."Location Code";
-            //"Inventory Posting Group" :=
-            //  GetInvPostingGroupCode(ValueEntry,AccType = "Account Type"::"WIP Inventory",ValueEntry."Inventory Posting Group");
-            "Inventory Posting Group" := ValueEntry."Inventory Posting Group";
+            "Inventory Posting Group" :=
+              GetInvPostingGroupCode(ValueEntry, AccType = "Account Type"::"WIP Inventory", ValueEntry."Inventory Posting Group");
             "Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
             "Posting Date" := ValueEntry."Posting Date";
@@ -943,12 +942,14 @@ codeunit 5802 "Inventory Posting To G/L"
                             GenJnlCheckLine.RunCheck(GenJnlLine)
                         end
                     else
-                        InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry."Entry No.");
+                        InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
                 end;
                 if not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
             until Next = 0;
             RunOnlyCheck := RunOnlyCheckSaved;
+            OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting);
+
             DeleteAll;
         end;
     end;
@@ -996,7 +997,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 1, MaxStrLen(GenJnlLine.Description));
     end;
 
-    local procedure InsertTempInvtPostToGLTestBuf(GenJnlLine: Record "Gen. Journal Line"; ValueEntryNo: Integer)
+    local procedure InsertTempInvtPostToGLTestBuf(GenJnlLine: Record "Gen. Journal Line"; ValueEntry: Record "Value Entry")
     begin
         with GenJnlLine do begin
             TempInvtPostToGLTestBuf.Init;
@@ -1008,8 +1009,7 @@ codeunit 5802 "Inventory Posting To G/L"
             TempInvtPostToGLTestBuf.Amount := Amount;
             TempInvtPostToGLTestBuf."Source Code" := "Source Code";
             TempInvtPostToGLTestBuf."System-Created Entry" := true;
-            //TempInvtPostToGLTestBuf."Value Entry No." := ValueEntry."Entry No.";
-            TempInvtPostToGLTestBuf."Value Entry No." := ValueEntryNo;
+            TempInvtPostToGLTestBuf."Value Entry No." := ValueEntry."Entry No.";
             TempInvtPostToGLTestBuf."Additional-Currency Posting" := "Additional-Currency Posting";
             TempInvtPostToGLTestBuf."Source Currency Code" := "Source Currency Code";
             TempInvtPostToGLTestBuf."Source Currency Amount" := "Source Currency Amount";
@@ -1017,13 +1017,11 @@ codeunit 5802 "Inventory Posting To G/L"
             TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
             if GlobalInvtPostBuf.UseInvtPostSetup then begin
                 TempInvtPostToGLTestBuf."Location Code" := GlobalInvtPostBuf."Location Code";
-                //TempInvtPostToGLTestBuf."Invt. Posting Group Code" :=
-                //  GetInvPostingGroupCode(
-                //    ValueEntry,
-                //    TempInvtPostToGLTestBuf."Inventory Account Type" = TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory",
-                //     GlobalInvtPostBuf."Inventory Posting Group")
-                TempInvtPostToGLTestBuf."Invt. Posting Group Code" := GlobalInvtPostBuf."Inventory Posting Group";
-
+                TempInvtPostToGLTestBuf."Invt. Posting Group Code" :=
+                  GetInvPostingGroupCode(
+                    ValueEntry,
+                    TempInvtPostToGLTestBuf."Inventory Account Type" = TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory",
+                    GlobalInvtPostBuf."Inventory Posting Group")
             end else begin
                 TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := GlobalInvtPostBuf."Gen. Bus. Posting Group";
                 TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := GlobalInvtPostBuf."Gen. Prod. Posting Group";
@@ -1130,6 +1128,20 @@ codeunit 5802 "Inventory Posting To G/L"
             until GlobalInvtPostBuf.Next = 0;
     end;
 
+    local procedure GetInvPostingGroupCode(ValueEntry: Record "Value Entry"; WIPInventory: Boolean; InvPostingGroupCode: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        if WIPInventory then begin
+            OnBeforeGetInvPostingGroupCode(ValueEntry, InvPostingGroupCode);
+            if ValueEntry."Source No." <> ValueEntry."Item No." then
+                if Item.Get(ValueEntry."Source No.") then
+                    exit(Item."Inventory Posting Group");
+        end;
+
+        exit(InvPostingGroupCode);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer);
     begin
@@ -1176,7 +1188,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean; RunOnlyCheck: Boolean)
     begin
     end;
 
@@ -1207,6 +1219,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetInvPostingGroupCode(var ValueEntry: Record "Value Entry"; var InvPostingGroupCode: Code[20])
     begin
     end;
 
@@ -1247,6 +1264,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvtPostBufOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvtPostBufferOnAfterPostInvtPostBuf(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var ValueEntry: Record "Value Entry"; CalledFromItemPosting: Boolean);
     begin
     end;
 

@@ -61,16 +61,16 @@ codeunit 1239 "XML Buffer Reader"
     var
         TempElementXMLBuffer: Record "XML Buffer" temporary;
         ChildElement: DotNet XmlNode;
-        Namespace: Text;
+        NamespaceURI: Text;
         ElementValue: Text;
     begin
         if TempParentElementXMLBuffer.FindChildElements(TempElementXMLBuffer) then
             repeat
                 if TempElementXMLBuffer.Namespace = '' then
-                    Namespace := DefaultNamespace
+                    NamespaceURI := DefaultNamespace
                 else
-                    Namespace := TempElementXMLBuffer.Namespace;
-                ChildElement := XmlDocument.CreateNode('element', TempElementXMLBuffer.GetElementName, Namespace);
+                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempElementXMLBuffer.Namespace);
+                ChildElement := XmlDocument.CreateElement(TempElementXMLBuffer.GetElementName, NamespaceURI);
                 ElementValue := TempElementXMLBuffer.GetValue;
                 if ElementValue <> '' then
                     ChildElement.InnerText := ElementValue;

@@ -261,7 +261,7 @@ page 35517 "Payment Journal FactBox"
         DueDays := 0;
         OeRemainAmountFC := 0;
         PaymDiscDeductAmount := 0;
-        RemainAfterPayment := 0;
+        RemainAfterPayment := -Amount * Factor;
         PmtDiscount := 0;
         AcceptedPaymentTol := 0;
         RemainAfterPaymentCaption := Text001;
@@ -297,6 +297,7 @@ page 35517 "Payment Journal FactBox"
         PaymentTerms := Vend."Payment Terms Code";
         IsAppliedToOneEntry := VendLedgEntry.Count = 1;
         repeat
+            CurrRemainAfterPayment := 0;
             // Calculate Days for Age, Payment Discount
             if ("Posting Date" > 0D) and IsAppliedToOneEntry then begin
                 PostingDate := VendLedgEntry."Posting Date";
@@ -346,8 +347,7 @@ page 35517 "Payment Journal FactBox"
                     "Posting Date", VendLedgEntry."Currency Code", "Currency Code", CurrAcceptedPaymentTol);
             CurrAcceptedPaymentTol := Round(CurrAcceptedPaymentTol, Currency."Amount Rounding Precision");
 
-            CurrRemainAfterPayment :=
-              CurrOeRemainAmountFC - (Amount * Factor) - CurrPaymDiscDeductAmount - CurrAcceptedPaymentTol;
+            CurrRemainAfterPayment := CurrOeRemainAmountFC - CurrPaymDiscDeductAmount - CurrAcceptedPaymentTol;
 
             if ("Currency Code" <> VendLedgEntry."Currency Code") and
                (("Currency Code" <> '') and (VendLedgEntry."Currency Code" <> ''))

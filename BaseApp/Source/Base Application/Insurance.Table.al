@@ -233,9 +233,11 @@ table 5628 Insurance
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::Insurance, "No.", FieldNumber, ShortcutDimCode);
-        Modify(true);
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::Insurance, "No.", FieldNumber, ShortcutDimCode);
+            Modify(true);
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

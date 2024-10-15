@@ -94,6 +94,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         ReqLine2: Record "Requisition Line";
         ReqLine3: Record "Requisition Line";
         NewReqWkshName: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeCode(ReqLine, PlanningResiliency, SuppressCommit, PrintPurchOrders);
 
@@ -179,12 +180,16 @@ codeunit 333 "Req. Wksh.-Make Order"
                     ReqLine2.Copy(ReqLine);
                     ReqLine2.SetFilter("Vendor No.", '<>%1', '');
                     if ReqLine2.FindFirst then; // Remember the last line
-                    if Find('-') then
-                        repeat
-                            TempFailedReqLine := ReqLine;
-                            if not TempFailedReqLine.Find then
-                                Delete(true);
-                        until Next = 0;
+
+                    IsHandled := false;
+                    OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled);
+                    if not IsHandled then
+                        if Find('-') then
+                            repeat
+                                TempFailedReqLine := ReqLine;
+                                if not TempFailedReqLine.Find then
+                                    Delete(true);
+                            until Next = 0;
 
                     ReqLine3.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     ReqLine3.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -654,6 +659,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         ReqLine2: Record "Requisition Line";
         CarryOutAction: Codeunit "Carry Out Action";
+        IsHandled: Boolean;
     begin
         if ReqTemplate.Recurring then begin
             // Recurring journal
@@ -663,31 +669,35 @@ codeunit 333 "Req. Wksh.-Make Order"
             ReqLine2.SetRange("Ship-to Code", PurchOrderHeader."Ship-to Code");
             ReqLine2.SetRange("Order Address Code", PurchOrderHeader."Order Address Code");
             ReqLine2.SetRange("Currency Code", PurchOrderHeader."Currency Code");
-            OnFinalizeOrderHeaderOnAfterSetFiltersForRecurringReqLine(ReqLine2, PurchOrderHeader);
-            ReqLine2.Find('-');
-            repeat
-                OrderLineCounter := OrderLineCounter + 1;
-                if not PlanningResiliency then
-                    Window.Update(5, OrderLineCounter);
-                if ReqLine2."Order Date" <> 0D then begin
-                    ReqLine2.Validate(
-                      "Order Date",
-                      CalcDate(ReqLine2."Recurring Frequency", ReqLine2."Order Date"));
-                    ReqLine2.Validate("Currency Code", PurchOrderHeader."Currency Code");
-                end;
-                if (ReqLine2."Recurring Method" = ReqLine2."Recurring Method"::Variable) and
-                   (ReqLine2."No." <> '')
-                then begin
-                    ReqLine2.Quantity := 0;
-                    ReqLine2."Line Discount %" := 0;
-                end;
-                ReqLine2.Modify;
-            until ReqLine2.Next = 0;
+            IsHandled := false;
+            OnFinalizeOrderHeaderOnAfterSetFiltersForRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled);
+            if not IsHandled then begin
+                ReqLine2.Find('-');
+                repeat
+                    OrderLineCounter := OrderLineCounter + 1;
+                    if not PlanningResiliency then
+                        Window.Update(5, OrderLineCounter);
+                    if ReqLine2."Order Date" <> 0D then begin
+                        ReqLine2.Validate(
+                        "Order Date",
+                        CalcDate(ReqLine2."Recurring Frequency", ReqLine2."Order Date"));
+                        ReqLine2.Validate("Currency Code", PurchOrderHeader."Currency Code");
+                    end;
+                    if (ReqLine2."Recurring Method" = ReqLine2."Recurring Method"::Variable) and
+                    (ReqLine2."No." <> '')
+                    then begin
+                        ReqLine2.Quantity := 0;
+                        ReqLine2."Line Discount %" := 0;
+                    end;
+                    ReqLine2.Modify;
+                until ReqLine2.Next = 0;
+            end;
         end else begin
             // Not a recurring journal
             OrderLineCounter := OrderLineCounter + LineCount;
             if not PlanningResiliency then
                 Window.Update(5, OrderLineCounter);
+
             ReqLine2.Copy(ReqLine);
             ReqLine2.SetRange("Vendor No.", PurchOrderHeader."Buy-from Vendor No.");
             ReqLine2.SetRange("Sell-to Customer No.", PurchOrderHeader."Sell-to Customer No.");
@@ -695,23 +705,25 @@ codeunit 333 "Req. Wksh.-Make Order"
             ReqLine2.SetRange("Order Address Code", PurchOrderHeader."Order Address Code");
             ReqLine2.SetRange("Currency Code", PurchOrderHeader."Currency Code");
             ReqLine2.SetRange("Purchasing Code", PrevPurchCode);
-            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader);
-            if ReqLine2.FindSet then begin
-                ReqLine2.BlockDynamicTracking(true);
-                ReservEntry.SetCurrentKey(
-                  "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-                  "Source Batch Name", "Source Prod. Order Line");
-                repeat
-                    if PurchaseOrderLineMatchReqLine(ReqLine2) then begin
-                        TempFailedReqLine := ReqLine2;
-                        if not TempFailedReqLine.Find then begin
-                            ReserveReqLine.FilterReservFor(ReservEntry, ReqLine2);
-                            ReservEntry.DeleteAll(true);
-                            ReqLine2.Delete(true);
+            IsHandled := false;
+            OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(ReqLine2, PurchOrderHeader, IsHandled);
+            if not IsHandled then
+                if ReqLine2.FindSet then begin
+                    ReqLine2.BlockDynamicTracking(true);
+                    ReservEntry.SetCurrentKey(
+                    "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
+                    "Source Batch Name", "Source Prod. Order Line");
+                    repeat
+                        if PurchaseOrderLineMatchReqLine(ReqLine2) then begin
+                            TempFailedReqLine := ReqLine2;
+                            if not TempFailedReqLine.Find then begin
+                                ReserveReqLine.FilterReservFor(ReservEntry, ReqLine2);
+                                ReservEntry.DeleteAll(true);
+                                ReqLine2.Delete(true);
+                            end;
                         end;
-                    end;
-                until ReqLine2.Next = 0;
-            end;
+                    until ReqLine2.Next = 0;
+                end;
         end;
         OnAfterFinalizeOrderHeader(PurchOrderHeader, ReqLine);
         if not SuppressCommit then
@@ -1104,6 +1116,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteReqLines(var ReqLine: Record "Requisition Line"; var TempFailedReqLine: Record "Requisition Line" temporary; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertHeader(RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var OrderDateReq: Date; var PostingDateReq: Date; var ReceiveDateReq: Date; var ReferenceReq: Text[35])
     begin
     end;
@@ -1214,12 +1231,12 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -399,13 +399,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Provisional Trial Balance';
-                            RunObject = Report "Provisional Trial Balance";
+                            RunObject = report "Provisional Trial Balance";
                         }
                         action("G/L Total-Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Total-Balance';
-                            RunObject = Report "G/L Total-Balance";
+                            RunObject = report "G/L Total-Balance";
                         }
                     }
                     group("Group10")
@@ -421,13 +421,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form DE';
-                            RunObject = Report "Intrastat - Form DE";
+                            RunObject = report "Intrastat - Form DE";
                         }
                         action("Intrastat - Item List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Item List';
-                            RunObject = Report "Intrastat - Item List";
+                            RunObject = report "Intrastat - Item List";
                         }
                         action("Foreign Currency Balance")
                         {
@@ -479,7 +479,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Setup Information';
-                            RunObject = Report "G/L Setup Information";
+                            RunObject = report "G/L Setup Information";
                         }
                     }
                 }
@@ -721,6 +721,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection - Bank Acc.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Bank Account';
                         RunObject = page "Report Selection - Bank Acc.";
                     }
@@ -878,6 +879,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Cost Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Cost Journal Templates';
                         RunObject = page "Cost Journal Templates";
                     }
@@ -1075,7 +1077,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Total-Balance';
-                        RunObject = Report "Customer Total-Balance";
+                        RunObject = report "Customer Total-Balance";
                     }
                     action("Customer - List")
                     {
@@ -1185,6 +1187,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection Reminder and")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                     }
@@ -1362,13 +1365,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Total-Balance';
-                        RunObject = Report "Vendor Total-Balance";
+                        RunObject = report "Vendor Total-Balance";
                     }
                     action("Vendor Detailed Aging")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Detailed Aging';
-                        RunObject = Report "Vendor Detailed Aging";
+                        RunObject = report "Vendor Detailed Aging";
                     }
                     action("Vendor - Labels")
                     {
@@ -1404,7 +1407,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Payments List';
-                        RunObject = Report "Vendor Payments List";
+                        RunObject = report "Vendor Payments List";
                     }
                     action("Vendor - Summary Aging")
                     {
@@ -1561,7 +1564,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Book Value 03';
-                            RunObject = Report "Fixed Asset - Book Value 03";
+                            RunObject = report "Fixed Asset - Book Value 03";
                         }
                         action("Details")
                         {
@@ -1894,7 +1897,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Value (Help Report)';
-                        RunObject = Report "Inventory Value (Help Report)";
+                        RunObject = report "Inventory Value (Help Report)";
                     }
                     action("Cost Shares Breakdown")
                     {
@@ -1930,31 +1933,31 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Order Diff. List';
-                        RunObject = Report "Phys. Invt. Order Diff. List";
+                        RunObject = report "Phys. Invt. Order Diff. List";
                     }
                     action("Posted Phys. Invt. Order Diff.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Phys. Invt. Order Diff.';
-                        RunObject = Report "Posted Phys. Invt. Order Diff.";
+                        RunObject = report "Posted Phys. Invt. Order Diff.";
                     }
                     action("Phys. Invt. Order - Test")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Order - Test';
-                        RunObject = Report "Phys. Invt. Order - Test";
+                        RunObject = report "Phys. Invt. Order - Test";
                     }
                     action("Phys. Invt. Recording")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Recording';
-                        RunObject = Report "Phys. Invt. Recording";
+                        RunObject = report "Phys. Invt. Recording";
                     }
                     action("Posted Phys. Invt. Recording")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Phys. Invt. Recording';
-                        RunObject = Report "Posted Phys. Invt. Recording";
+                        RunObject = report "Posted Phys. Invt. Recording";
                     }
                 }
                 group("Group54")
@@ -2034,6 +2037,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Incoming Documents Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Documents Setup';
                     RunObject = page "Incoming Documents Setup";
                 }
@@ -2090,6 +2094,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selections VAT")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections VAT';
                         RunObject = page "Report Selection - VAT";
                     }

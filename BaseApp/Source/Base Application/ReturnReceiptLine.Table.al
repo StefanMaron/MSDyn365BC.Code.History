@@ -797,7 +797,7 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -315,8 +315,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
     var
         BestSalesPrice: Record "Sales Price";
         BestSalesPriceFound: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcBestUnitPrice(SalesPrice);
+        OnBeforeCalcBestUnitPrice(SalesPrice, IsHandled);
+        if IsHandled then
+            exit;
 
         with SalesPrice do begin
             FoundSalesPrice := FindSet;
@@ -372,7 +375,13 @@ codeunit 7000 "Sales Price Calc. Mgt."
     procedure CalcBestLineDisc(var SalesLineDisc: Record "Sales Line Discount")
     var
         BestSalesLineDisc: Record "Sales Line Discount";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBestLineDisc(SalesLineDisc, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLineDisc do begin
             if FindSet then
                 repeat
@@ -669,7 +678,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     procedure GetSalesLinePrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesLinePrice(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLinePriceExists(SalesHeader, SalesLine, true);
 
         with SalesLine do
@@ -723,8 +739,13 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     procedure GetSalesLineLineDisc(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeGetSalesLineLineDisc(SalesHeader, SalesLine);
+        IsHandled := false;
+        OnBeforeGetSalesLineLineDisc(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
 
         SalesLineLineDiscExists(SalesHeader, SalesLine, true);
 
@@ -1356,6 +1377,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         JobItemPrice.SetRange("Unit of Measure Code", "Unit of Measure Code");
                         JobItemPrice.SetRange("Currency Code", "Currency Code");
                         JobItemPrice.SetRange("Job Task No.", "Job Task No.");
+                        OnJobJnlLineFindJTPriceOnAfterSetJobItemPriceFilters(JobItemPrice, JobJnlLine);
                         if JobItemPrice.FindFirst then
                             CopyJobItemPriceToJobJnlLine(JobJnlLine, JobItemPrice)
                         else begin
@@ -1662,7 +1684,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBestUnitPrice(var SalesPrice: Record "Sales Price")
+    local procedure OnBeforeCalcBestLineDisc(var SalesLineDisc: Record "Sales Line Discount"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBestUnitPrice(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1727,7 +1754,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSalesLineLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeGetSalesLinePrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesLineLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1778,6 +1810,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindSalesLineLineDiscOnBeforeCalcLineDisc(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var TempSalesLineDiscount: Record "Sales Line Discount" temporary; Qty: Decimal; QtyPerUOM: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobJnlLineFindJTPriceOnAfterSetJobItemPriceFilters(var JobItemPrice: Record "Job Item Price"; JobJnlLine: Record "Job Journal Line");
     begin
     end;
 

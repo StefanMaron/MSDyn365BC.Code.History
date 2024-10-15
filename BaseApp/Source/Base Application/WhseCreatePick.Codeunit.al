@@ -3,7 +3,14 @@ codeunit 5778 "Whse. Create Pick"
     TableNo = "Whse. Worksheet Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WkshPickLine.Copy(Rec);
         WhseCreatePick.SetWkshPickLine(WkshPickLine);
         WhseCreatePick.RunModal;
@@ -23,5 +30,10 @@ codeunit 5778 "Whse. Create Pick"
     var
         WkshPickLine: Record "Whse. Worksheet Line";
         WhseCreatePick: Report "Create Pick";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean);
+    begin
+    end;
 }
 

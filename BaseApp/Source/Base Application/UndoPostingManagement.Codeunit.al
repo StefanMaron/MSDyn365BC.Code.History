@@ -553,14 +553,7 @@ codeunit 5817 "Undo Posting Management"
             OnBeforePostItemJnlLine(ItemJnlLine, TempApplyToItemLedgEntry);
             PostItemJnlLine(ItemJnlLine);
 
-            if ItemJnlLine."Job No." <> '' then begin
-                Clear(ItemJnlPostLine);
-                FindItemReceiptApplication(ItemApplicationEntry, TempApplyToItemLedgEntry."Entry No.");
-                ItemJnlPostLine.UndoValuePostingWithJob(TempApplyToItemLedgEntry."Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
-
-                FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
-                ItemJnlPostLine.UndoValuePostingWithJob(ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
-            end;
+            UndoValuePostingFromJob(ItemJnlLine, ItemApplicationEntry, TempApplyToItemLedgEntry);
 
             TempItemEntryRelation."Item Entry No." := ItemJnlLine."Item Shpt. Entry No.";
             TempItemEntryRelation."Serial No." := ItemJnlLine."Serial No.";
@@ -596,6 +589,24 @@ codeunit 5817 "Undo Posting Management"
                  TempItemLedgEntry, SourceType, 0, DocumentNo, '', 0, LineNo, BaseQty)
             then
                 Error(Text013, LineNo);
+        end;
+    end;
+
+    local procedure UndoValuePostingFromJob(ItemJnlLine: Record "Item Journal Line"; ItemApplicationEntry: Record "Item Application Entry"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUndoValuePostingFromJob(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJnlLine."Job No." <> '' then begin
+            Clear(ItemJnlPostLine);
+            FindItemReceiptApplication(ItemApplicationEntry, TempApplyToItemLedgEntry."Entry No.");
+            ItemJnlPostLine.UndoValuePostingWithJob(TempApplyToItemLedgEntry."Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+            FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
+            ItemJnlPostLine.UndoValuePostingWithJob(ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
         end;
     end;
 
@@ -794,30 +805,45 @@ codeunit 5817 "Undo Posting Management"
 
     procedure PostItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
     var
-        Job: Record Job;
         ItemJnlLine2: Record "Item Journal Line";
         PostJobConsumptionBeforePurch: Boolean;
     begin
         Clear(ItemJnlLine2);
         ItemJnlLine2 := ItemJnlLine;
-        if ItemJnlLine2."Job No." <> '' then begin
-            ItemJnlLine2."Entry Type" := ItemJnlLine2."Entry Type"::"Negative Adjmt.";
-            Job.Get(ItemJnlLine2."Job No.");
-            ItemJnlLine2."Source No." := Job."Bill-to Customer No.";
-            ItemJnlLine2."Source Type" := ItemJnlLine2."Source Type"::Customer;
-            ItemJnlLine2."Discount Amount" := 0;
-            PostJobConsumptionBeforePurch := ItemJnlLine2.IsPurchaseReturn;
-            if PostJobConsumptionBeforePurch then begin
-                ItemJnlPostLine.Run(ItemJnlLine2);
-                SetItemJnlLineAppliesToEntry(ItemJnlLine, ItemJnlLine2."Item Shpt. Entry No.");
-            end;
-        end;
+
+        if ItemJnlLine2."Job No." <> '' then
+            PostJobConsumptionBeforePurch := PostItemJnlLineForJob(ItemJnlLine, ItemJnlLine2);
+
         ItemJnlPostLine.Run(ItemJnlLine);
+
         if ItemJnlLine2."Job No." <> '' then
             if not PostJobConsumptionBeforePurch then begin
                 SetItemJnlLineAppliesToEntry(ItemJnlLine2, ItemJnlLine."Item Shpt. Entry No.");
                 ItemJnlPostLine.Run(ItemJnlLine2);
             end;
+    end;
+
+    local procedure PostItemJnlLineForJob(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine2: Record "Item Journal Line"): Boolean
+    var
+        Job: Record Job;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLineForJob(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemJnlLine2."Entry Type" := ItemJnlLine2."Entry Type"::"Negative Adjmt.";
+        Job.Get(ItemJnlLine2."Job No.");
+        ItemJnlLine2."Source No." := Job."Bill-to Customer No.";
+        ItemJnlLine2."Source Type" := ItemJnlLine2."Source Type"::Customer;
+        ItemJnlLine2."Discount Amount" := 0;
+        if ItemJnlLine2.IsPurchaseReturn then begin
+            ItemJnlPostLine.Run(ItemJnlLine2);
+            SetItemJnlLineAppliesToEntry(ItemJnlLine, ItemJnlLine2."Item Shpt. Entry No.");
+            exit(true);
+        end;
+        exit(false);
     end;
 
     local procedure SetItemJnlLineAppliesToEntry(var ItemJnlLine: Record "Item Journal Line"; AppliesToEntry: Integer)
@@ -872,7 +898,13 @@ codeunit 5817 "Undo Posting Management"
     var
         ItemApplnEntry: Record "Item Application Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReapplyJobConsumption(ItemRcptEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         // Purchase receipt and job consumption are reapplied with with fixed cost application
         FindItemReceiptApplication(ItemApplnEntry, ItemRcptEntryNo);
         ItemJnlPostLine.UnApply(ItemApplnEntry);
@@ -912,6 +944,16 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLineForJob(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReapplyJobConsumption(ItemRcptEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -962,6 +1004,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestWhseWorksheetLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUndoValuePostingFromJob(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
