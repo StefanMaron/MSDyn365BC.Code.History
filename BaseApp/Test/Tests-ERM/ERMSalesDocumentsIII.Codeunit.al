@@ -5399,6 +5399,50 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual(InitialUnitPrice, SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
     end;
 
+    [Test]
+    procedure SalesCreditMemoPopulateShipmentMethodCodeFromCust()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Credit Memo] [Shipment Method]
+        // [SCENARIO 394955] Shipment Method Code from customer in sales credit memo.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure SalesCreditMemoPopulateShipmentMethodCodeFromShipToAddress()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Credit Memo] [Shipment Method] [Ship-to Address]
+        // [SCENARIO 394955] Shipment Method Code from ship-to address in sales credit memo.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        ShipToAddress.Modify(true);
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5665,6 +5709,16 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.CalcInvDiscForHeader;
     end;
 
+    local procedure CreateShipmentMethodCode(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateGUID();
+        ShipmentMethod.Insert(true);
+        exit(ShipmentMethod.Code);
+    end;
+
     local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocumentGL(SalesHeader, DocumentType, LibraryERM.CreateGLAccountWithSalesSetup);
@@ -5844,6 +5898,8 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(
           SalesLineChargeItem, SalesHeaderOrder,
           SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        SalesLineChargeItem.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLineChargeItem.Modify(true);
 
         LibraryVariableStorage.Enqueue(QtyToAssign);
         SalesLineChargeItem.ShowItemChargeAssgnt();
@@ -5862,6 +5918,9 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(
           SalesLineChargeItem, SalesHeaderOrder,
           SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        SalesLineChargeItem.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLineChargeItem.Modify(true);
+
         LibrarySales.CreateSalesLine(
           SalesLineItem, SalesHeaderOrder, SalesLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
 
