@@ -21,7 +21,7 @@ report 501 "Intrastat - Form"
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
+                DataItemTableView = SORTING ("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID");
                 RequestFilterFields = Type;
                 column(IntraJnlBatchStaticPeriod; StrSubstNo(Text002, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
@@ -121,6 +121,12 @@ report 501 "Intrastat - Form"
                 column(NoOfRecordsCaption; NoOfRecordsCaptionLbl)
                 {
                 }
+                column(CountryRegionofOriginCode_IntrastatJnlLine; "Country/Region of Origin Code")
+                {
+                }
+                column(PartnerVATID_IntrastatJnlLine; "Partner VAT ID")
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 begin
@@ -152,16 +158,23 @@ report 501 "Intrastat - Form"
                        (PrevIntrastatJnlLine."Tariff No." <> "Tariff No.") or
                        (PrevIntrastatJnlLine."Country/Region Code" <> "Country/Region Code") or
                        (PrevIntrastatJnlLine."Transaction Type" <> "Transaction Type") or
-                       (PrevIntrastatJnlLine."Transport Method" <> "Transport Method")
+                       (PrevIntrastatJnlLine."Transport Method" <> "Transport Method") or
+                       (PrevIntrastatJnlLine."Country/Region of Origin Code" <> "Country/Region of Origin Code") or
+                       (PrevIntrastatJnlLine."Partner VAT ID" <> "Partner VAT ID")
                     then begin
                         SubTotalWeight := 0;
-                        PrevIntrastatJnlLine.SetCurrentKey(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
+                        PrevIntrastatJnlLine.SetCurrentKey(
+                          "Journal Template Name", "Journal Batch Name", Type, "Country/Region Code",
+                          "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID");
                         PrevIntrastatJnlLine.SetRange(Type, Type);
                         PrevIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                        PrevIntrastatJnlLine.FindFirst;
+                        PrevIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
+                        PrevIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
+                        PrevIntrastatJnlLine.FindFirst();
+                        NoOfRecords += 1;
                     end;
 
                     SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
@@ -243,6 +256,6 @@ report 501 "Intrastat - Form"
         TransportMethodCaptionLbl: Label 'Transport Method';
         TotalWeightCaptionLbl: Label 'Total Weight';
         TotalCaptionLbl: Label 'Total';
-        NoOfRecordsCaptionLbl: Label 'No. of Entries';
+        NoOfRecordsCaptionLbl: Label 'No. of Combined Entries';
 }
 

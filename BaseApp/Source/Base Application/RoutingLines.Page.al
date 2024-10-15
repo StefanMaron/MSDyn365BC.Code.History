@@ -39,6 +39,11 @@ page 99000765 "Routing Lines"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+
+                    trigger OnValidate()
+                    begin
+                        SetEditable();
+                    end;
                 }
                 field("Standard Task Code"; "Standard Task Code")
                 {
@@ -136,7 +141,8 @@ page 99000765 "Routing Lines"
                 field("Unit Cost per"; "Unit Cost per")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center or machine center card.';
+                    Editable = UnitCostPerEditable;
+                    ToolTip = 'Specifies the unit cost for this operation if it is different than the unit cost on the work center card.';
                 }
                 field("Lot Size"; "Lot Size")
                 {
@@ -207,8 +213,19 @@ page 99000765 "Routing Lines"
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetEditable();
+    end;
+
+    trigger OnInit()
+    begin
+        UnitCostPerEditable := true;
+    end;
+
     var
         RtngComment: Record "Routing Comment Line";
+        UnitCostPerEditable: Boolean;
 
     local procedure ShowComment()
     begin
@@ -250,6 +267,11 @@ page 99000765 "Routing Lines"
         RtngQltyMeasure.SetRange("Operation No.", "Operation No.");
 
         PAGE.Run(PAGE::"Routing Quality Measures", RtngQltyMeasure);
+    end;
+
+    local procedure SetEditable()
+    begin
+        UnitCostPerEditable := Rec.Type = "Capacity Type Routing"::"Work Center";
     end;
 }
 

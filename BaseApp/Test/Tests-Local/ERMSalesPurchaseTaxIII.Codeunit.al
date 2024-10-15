@@ -1703,6 +1703,55 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 500, 560);
     end;
 
+    //r01
+    [Test]
+    procedure SalesOrderWithLineDiscountAnd100PctPrepmtPartialPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 431075] Sales order with line discount and 100 % prepayment partial posting
+        Initialize();
+
+        // [GIVEN] Sales tax setup with 0 % tax rate
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_US();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0);
+
+        // [GIVEN] Partially posted sales order with 100 % prepayment and line discount
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesHeader(SalesHeader, LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", ''), TaxAreaCode, 100, false);
+        CreateSalesLineItem(SalesHeader, CreateItemNo(GeneralPostingSetup."Gen. Prod. Posting Group"), TaxGroupCode, 5917.55);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, 4);
+        SalesLine.Validate("Line Discount %", 5);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Finally posting sales order
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales order successfully posted
+        SalesInvoiceHeader.Get(DocNo);
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";

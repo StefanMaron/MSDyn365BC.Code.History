@@ -180,7 +180,7 @@ codeunit 10094 "Export EFT (ACH)"
         EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
-        AcctName: Text[16];
+        AcctName: Text[22];
         BankAcctNo: Text[30];
         TransitNo: Text[20];
         DemandCredit: Boolean;

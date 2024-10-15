@@ -198,6 +198,7 @@ codeunit 8612 "Config. Template Management"
         KeyFieldCount: Integer;
         MessageString: Text[250];
     begin
+        OnBeforeInsertRecordWithKeyFields(RecRef, ConfigTemplateHeader);
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
 
         KeyRef := RecRef.KeyIndex(1);
@@ -592,6 +593,11 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTemplateCaseElse(var ConfigTemplateLine: Record "Config. Template Line"; var ConfigTemplateHeader: Record "Config. Template Header"; FldRef: FieldRef; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipField: record Field; OldRecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertRecordWithKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 }
