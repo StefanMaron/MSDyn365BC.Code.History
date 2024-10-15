@@ -469,7 +469,7 @@ table 311 "Sales & Receivables Setup"
         }
         field(7103; "Freight G/L Acc. No."; Code[20])
         {
-            Caption = 'Freight G/L Acc. No.';
+            Caption = 'Freight G/L Account No.';
             TableRelation = "G/L Account";
 
             trigger OnValidate()
