@@ -82,6 +82,7 @@ page 9117 "Service Doc. Check Factbox"
         TempErrorMessage: Record "Error Message" temporary;
         ErrorHandlingParameters: Record "Error Handling Parameters";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        ServDocumentErrorsMgt: Codeunit "Serv. Document Errors Mgt.";
         TaskIdCountErrors: Integer;
         NumberOfErrors: Integer;
         TotalErrorsStyleTxt: Text;
@@ -115,7 +116,7 @@ page 9117 "Service Doc. Check Factbox"
         if TaskIdCountErrors <> 0 then
             CurrPage.CancelBackgroundTask(TaskIdCountErrors);
 
-        BackgroundErrorHandlingMgt.CollectServiceDocCheckParameters(ServiceHeader, ErrorHandlingParameters);
+        ServDocumentErrorsMgt.CollectServiceDocCheckParameters(ServiceHeader, ErrorHandlingParameters);
         ErrorHandlingParameters.ToArgs(Args);
 
         CurrPage.EnqueueBackgroundTask(TaskIdCountErrors, Codeunit::"Check Service Doc. Backgr.", Args);
@@ -125,7 +126,7 @@ page 9117 "Service Doc. Check Factbox"
     begin
         TempErrorMessage.Reset();
         TempErrorMessage.SetRange(Duplicate, false);
-        BackgroundErrorHandlingMgt.FeatureTelemetryLogUsageService(not TempErrorMessage.IsEmpty, Rec.TableName, Rec."Document Type");
+        ServDocumentErrorsMgt.FeatureTelemetryLogUsageService(not TempErrorMessage.IsEmpty, Rec.TableName, Rec."Document Type");
 
         Clear(ErrorText);
         NumberOfErrors := TempErrorMessage.Count();

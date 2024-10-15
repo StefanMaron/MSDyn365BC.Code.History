@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -28,12 +28,14 @@ codeunit 744 "VAT Report Validate"
         VATReportLine: Record "VAT Report Line";
         ErrorID: Integer;
 
+#pragma warning disable AA0470
         EmptyFieldErr: Label 'The %1 field in the %2 window must not be empty.';
         SpecifyFieldErr: Label 'You must specify the %1 field for the %2 %3.', Comment = 'You must specify the Fiscal Code No. for Vendor 10000.';
         SpecifyEitherFieldErr: Label 'You must specify the %1 or %2 field for %3 %4.', Comment = 'You must specify the Fiscal Code or VAT Registration No. for Vendor 10000.';
         LineNumberErr: Label 'The error is related to line no. %1.';
         PleaseFillFieldErr: Label 'You must specify the %1 field for the country/region code %2.';
         EmptyFieldOriginalReportErr: Label 'The field %1 must be filled out the original report %2. Original Report No.=%3';
+#pragma warning restore AA0470
 
     local procedure ClearErrorLog()
     begin
@@ -150,7 +152,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
             end;
 
-            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then begin
+            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then
                 if Vendor."Country/Region Code" = '' then
                     InsertErrorLog(
                       StrSubstNo('%1 %2',
@@ -162,9 +164,8 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else
                     CheckForeignCountryCode(Vendor."Country/Region Code");
-            end;
 
-            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NR') then begin
+            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NR') then
                 if (Vendor."VAT Registration No." = '') and (VATEntry."VAT Registration No." = '') then
                     InsertErrorLog(
                       StrSubstNo('%1 %2',
@@ -177,7 +178,6 @@ codeunit 744 "VAT Report Validate"
                 else
                     if VATReportLine."VAT Group Identifier" = '' then
                         VATReportLine."VAT Group Identifier" := Vendor."VAT Registration No.";
-            end;
             VATReportLine.Modify(false);
         end;
     end;
@@ -220,7 +220,7 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")));
             end;
 
-            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then begin
+            if VATEntry.Resident = VATEntry.Resident::"Non-Resident" then
                 if Cust."Country/Region Code" = '' then
                     InsertErrorLog(
                       StrSubstNo('%1 %2',
@@ -232,9 +232,8 @@ codeunit 744 "VAT Report Validate"
                         StrSubstNo(LineNumberErr, VATReportLine."Line No.")))
                 else
                     CheckForeignCountryCode(Cust."Country/Region Code");
-            end;
 
-            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NE') then begin
+            if (VATEntry.Resident = VATEntry.Resident::Resident) and (VATReportLine."VAT Group Identifier" = 'NE') then
                 if (Cust."Fiscal Code" = '') and (VATEntry."Fiscal Code" = '') and
                   (Cust."VAT Registration No." = '') and (VATEntry."VAT Registration No." = '') then
                     InsertErrorLog(
@@ -253,7 +252,6 @@ codeunit 744 "VAT Report Validate"
                         else
                             VATReportLine."VAT Group Identifier" := Cust."Fiscal Code";
 
-            end;
             VATReportLine.Modify(false);
         end;
     end;

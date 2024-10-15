@@ -258,7 +258,7 @@ codeunit 137089 "SCM Kitting - Planning"
     var
         AvailabilityMgt: Codeunit AvailabilityManagement;
     begin
-        AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(OrderPromisingLine);
     end;
 
@@ -890,7 +890,7 @@ codeunit 137089 "SCM Kitting - Planning"
         RequisitionLine: Record "Requisition Line";
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetAsmOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Assembly Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -1071,8 +1071,7 @@ codeunit 137089 "SCM Kitting - Planning"
         CarryOutActionMsgPlan.SetReqWkshLine(ReqLine);
         CarryOutActionMsgPlan.UseRequestPage := false;
         asserterror CarryOutActionMsgPlan.Run();
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, 'Demand Quantity (Base) must be equal to ') = 1, 'Carry out did not give the expected error message');
+        Assert.ExpectedTestFieldError(ReqLine.FieldCaption("Demand Quantity (Base)"), Format(1));
         ClearLastError();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -1261,7 +1260,7 @@ codeunit 137089 "SCM Kitting - Planning"
         AddToInventoryWithVariantCodeAndLocation(AssemblyItem, 5, '', Location.Code);
 
         // Exercise: Run Capable to Promise.
-        AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
 
         Assert.AreEqual(
@@ -1297,7 +1296,7 @@ codeunit 137089 "SCM Kitting - Planning"
         SalesLine.Modify(true);
 
         // Exercise: Run Capable to Promise.
-        AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
 
         Assert.AreEqual(
@@ -1339,7 +1338,7 @@ codeunit 137089 "SCM Kitting - Planning"
         CreateSalesOrder2(SalesLine, SalesHeader, AssemblyItem, WorkDate(), QtyOnSalesOrder, ItemVariant.Code);
 
         // Exercise: Run Capable to Promise.
-        AvailabilityMgt.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
 
         Assert.AreEqual(

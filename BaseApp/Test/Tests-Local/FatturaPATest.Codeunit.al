@@ -2285,35 +2285,31 @@ codeunit 144200 "FatturaPA Test"
         IsSplitPayment: Boolean;
         DocumentNo: Code[20];
     begin
-        with TempXMLBuffer do begin
-            // 2.2 DatiBeniServizi - Goods/Services data
-            DocumentNo := GetDocumentNo(HeaderRecRef);
-            GetLineRecord(LineRecRef, DocumentNo, DocumentType, ExportFromType);
-            LineRecRef.FindSet();
-            IsSplitPayment := ContainsSplitPayment(LineRecRef);
-            // fill in General, Order Data
-            repeat
-                if not IsSplitPaymentLine(LineRecRef) then
-                    VerifyOrderData(TempXMLBuffer, HeaderRecRef, OrderNo);
-            until LineRecRef.Next() = 0;
+        // 2.2 DatiBeniServizi - Goods/Services data
+        DocumentNo := GetDocumentNo(HeaderRecRef);
+        GetLineRecord(LineRecRef, DocumentNo, DocumentType, ExportFromType);
+        LineRecRef.FindSet();
+        IsSplitPayment := ContainsSplitPayment(LineRecRef);
+        // fill in General, Order Data
+        repeat
+            if not IsSplitPaymentLine(LineRecRef) then
+                VerifyOrderData(TempXMLBuffer, HeaderRecRef, OrderNo);
+        until LineRecRef.Next() = 0;
+        // fill in LineData
+        LineRecRef.FindFirst();
+        repeat
+            if not IsSplitPaymentLine(LineRecRef) then
+                VerifyLineData(TempXMLBuffer, LineRecRef, ItemGTIN, VATTransactionNature);
+        until LineRecRef.Next() = 0;
+        // fill in LineVATData
+        LineRecRef.FindFirst();
+        repeat
+            if not IsSplitPaymentLine(LineRecRef) then
+                VerifyLineVATData(TempXMLBuffer, LineRecRef, IsSplitPayment, VATTransactionNature);
+        until LineRecRef.Next() = 0;
 
-            // fill in LineData
-            LineRecRef.FindFirst();
-            repeat
-                if not IsSplitPaymentLine(LineRecRef) then
-                    VerifyLineData(TempXMLBuffer, LineRecRef, ItemGTIN, VATTransactionNature);
-            until LineRecRef.Next() = 0;
-
-            // fill in LineVATData
-            LineRecRef.FindFirst();
-            repeat
-                if not IsSplitPaymentLine(LineRecRef) then
-                    VerifyLineVATData(TempXMLBuffer, LineRecRef, IsSplitPayment, VATTransactionNature);
-            until LineRecRef.Next() = 0;
-
-            GetParent();
-            VerifyPaymentData(TempXMLBuffer, HeaderRecRef);
-        end;
+        TempXMLBuffer.GetParent();
+        VerifyPaymentData(TempXMLBuffer, HeaderRecRef);
     end;
 
     local procedure ContainsSplitPayment(LineRecRef: RecordRef): Boolean
@@ -2330,18 +2326,14 @@ codeunit 144200 "FatturaPA Test"
 
     local procedure VerifyXMLDefinitionPublicCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        with TempXMLBuffer do begin
-            Assert.AreEqual(GetElementName(), 'p:FatturaElettronica', '');
-            Assert.AreEqual(GetAttributeValue('versione'), 'FPA12', '');
-        end;
+        Assert.AreEqual(TempXMLBuffer.GetElementName(), 'p:FatturaElettronica', '');
+        Assert.AreEqual(TempXMLBuffer.GetAttributeValue('versione'), 'FPA12', '');
     end;
 
     local procedure VerifyXMLDefinitionPrivateCompany(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        with TempXMLBuffer do begin
-            Assert.AreEqual(GetElementName(), 'p:FatturaElettronica', '');
-            Assert.AreEqual(GetAttributeValue('versione'), 'FPR12', '');
-        end;
+        Assert.AreEqual(TempXMLBuffer.GetElementName(), 'p:FatturaElettronica', '');
+        Assert.AreEqual(TempXMLBuffer.GetAttributeValue('versione'), 'FPR12', '');
     end;
 
     local procedure VerifyFileName(ActualFileName: Text)
@@ -2434,15 +2426,13 @@ codeunit 144200 "FatturaPA Test"
         VATPostingSetup: Record "VAT Posting Setup";
         ReversedVATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            if Get(Format(LineRecRef.Field(VATBusPostingGroupCodeFieldNo).Value),
-                 Format(LineRecRef.Field(VATProdPostingGroupCodeFieldNo).Value))
+        if VATPostingSetup.Get(Format(LineRecRef.Field(VATBusPostingGroupCodeFieldNo).Value),
+             Format(LineRecRef.Field(VATProdPostingGroupCodeFieldNo).Value))
+        then
+            if (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Full VAT") and
+               ReversedVATPostingSetup.Get(VATPostingSetup."Reversed VAT Bus. Post. Group", VATPostingSetup."Reversed VAT Prod. Post. Group")
             then
-                if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and
-                   ReversedVATPostingSetup.Get("Reversed VAT Bus. Post. Group", "Reversed VAT Prod. Post. Group")
-                then
-                    exit(true);
-        end;
+                exit(true);
         exit(false);
     end;
 
@@ -2517,21 +2507,19 @@ codeunit 144200 "FatturaPA Test"
     begin
         CompanyInformation.Get();
         // Section 1.1 DatiTrasmissione
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/DatiTrasmissione');
-            AssertElementValue(TempXMLBuffer, 'IdTrasmittente', '');
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/DatiTrasmissione');
+        AssertElementValue(TempXMLBuffer, 'IdTrasmittente', '');
 
-            if not TransmissionIntermediaryVendor.Get(CompanyInformation."Transmission Intermediary No.") then begin
-                AssertElementValue(TempXMLBuffer, 'IdPaese', Format(CompanyInformation."Country/Region Code"));
-                AssertElementValue(TempXMLBuffer, 'IdCodice', Format(CompanyInformation."Fiscal Code"));
-            end else begin
-                AssertElementValue(TempXMLBuffer, 'IdPaese', TransmissionIntermediaryVendor."Country/Region Code");
-                AssertElementValue(TempXMLBuffer, 'IdCodice', TransmissionIntermediaryVendor."Fiscal Code");
-            end;
-
-            FindNextElement(TempXMLBuffer);
-            AssertElementValue(TempXMLBuffer, 'FormatoTrasmissione', FormatoTrasmissione);
+        if not TransmissionIntermediaryVendor.Get(CompanyInformation."Transmission Intermediary No.") then begin
+            AssertElementValue(TempXMLBuffer, 'IdPaese', Format(CompanyInformation."Country/Region Code"));
+            AssertElementValue(TempXMLBuffer, 'IdCodice', Format(CompanyInformation."Fiscal Code"));
+        end else begin
+            AssertElementValue(TempXMLBuffer, 'IdPaese', TransmissionIntermediaryVendor."Country/Region Code");
+            AssertElementValue(TempXMLBuffer, 'IdCodice', TransmissionIntermediaryVendor."Fiscal Code");
         end;
+
+        FindNextElement(TempXMLBuffer);
+        AssertElementValue(TempXMLBuffer, 'FormatoTrasmissione', FormatoTrasmissione);
     end;
 
     local procedure VerifyCompanyInformation(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2539,48 +2527,43 @@ codeunit 144200 "FatturaPA Test"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore');
-            // 1.2 CedentePrestatore - Seller
-            AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
-            AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
-            AssertElementValue(TempXMLBuffer, 'IdPaese', CompanyInformation."Country/Region Code");
-            AssertElementValue(TempXMLBuffer, 'IdCodice', CompanyInformation."VAT Registration No.");
-            AssertElementValue(TempXMLBuffer, 'CodiceFiscale', CompanyInformation."Fiscal Code");
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore');
+        // 1.2 CedentePrestatore - Seller
+        AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
+        AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
+        AssertElementValue(TempXMLBuffer, 'IdPaese', CompanyInformation."Country/Region Code");
+        AssertElementValue(TempXMLBuffer, 'IdCodice', CompanyInformation."VAT Registration No.");
+        AssertElementValue(TempXMLBuffer, 'CodiceFiscale', CompanyInformation."Fiscal Code");
 
-            AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
-            AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
-            AssertElementValue(TempXMLBuffer, 'RegimeFiscale', 'RF' + CompanyInformation."Company Type");
+        AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
+        AssertElementValue(TempXMLBuffer, 'Denominazione', CompanyInformation.Name);
+        AssertElementValue(TempXMLBuffer, 'RegimeFiscale', 'RF' + CompanyInformation."Company Type");
+        // 1.2.2 Sede
+        AssertElementValue(TempXMLBuffer, 'Sede', '');
+        AssertElementValue(TempXMLBuffer, 'Indirizzo', CompanyInformation.Address);
+        AssertElementValue(TempXMLBuffer, 'CAP', CompanyInformation."Post Code");
+        AssertElementValue(TempXMLBuffer, 'Comune', CompanyInformation.City);
+        AssertElementValue(TempXMLBuffer, 'Provincia', CompanyInformation.County);
+        AssertElementValue(TempXMLBuffer, 'Nazione', CompanyInformation."Country/Region Code");
+        // 1.2.4 IscrizioneREA
+        AssertElementValue(TempXMLBuffer, 'IscrizioneREA', '');
+        AssertElementValue(TempXMLBuffer, 'Ufficio', CompanyInformation."Registry Office Province");
+        AssertElementValue(TempXMLBuffer, 'NumeroREA', CompanyInformation."REA No.");
+        AssertElementValue(TempXMLBuffer, 'CapitaleSociale', FormatAmount(CompanyInformation."Paid-In Capital"));
+        if CompanyInformation."Shareholder Status" = CompanyInformation."Shareholder Status"::"One Shareholder" then
+            AssertElementValue(TempXMLBuffer, 'SocioUnico', 'SU')
+        else
+            AssertElementValue(TempXMLBuffer, 'SocioUnico', 'SM');
 
-            // 1.2.2 Sede
-            AssertElementValue(TempXMLBuffer, 'Sede', '');
-            AssertElementValue(TempXMLBuffer, 'Indirizzo', CompanyInformation.Address);
-            AssertElementValue(TempXMLBuffer, 'CAP', CompanyInformation."Post Code");
-            AssertElementValue(TempXMLBuffer, 'Comune', CompanyInformation.City);
-            AssertElementValue(TempXMLBuffer, 'Provincia', CompanyInformation.County);
-            AssertElementValue(TempXMLBuffer, 'Nazione', CompanyInformation."Country/Region Code");
-
-            // 1.2.4 IscrizioneREA
-            AssertElementValue(TempXMLBuffer, 'IscrizioneREA', '');
-            AssertElementValue(TempXMLBuffer, 'Ufficio', CompanyInformation."Registry Office Province");
-            AssertElementValue(TempXMLBuffer, 'NumeroREA', CompanyInformation."REA No.");
-            AssertElementValue(TempXMLBuffer, 'CapitaleSociale', FormatAmount(CompanyInformation."Paid-In Capital"));
-            if CompanyInformation."Shareholder Status" = CompanyInformation."Shareholder Status"::"One Shareholder" then
-                AssertElementValue(TempXMLBuffer, 'SocioUnico', 'SU')
-            else
-                AssertElementValue(TempXMLBuffer, 'SocioUnico', 'SM');
-
-            if CompanyInformation."Liquidation Status" = CompanyInformation."Liquidation Status"::"Not in Liquidation" then
-                AssertElementValue(TempXMLBuffer, 'StatoLiquidazione', 'LN')
-            else
-                AssertElementValue(TempXMLBuffer, 'StatoLiquidazione', 'LS');
-
-            // 1.2.5 Contatti
-            AssertElementValue(TempXMLBuffer, 'Contatti', '');
-            AssertElementValue(TempXMLBuffer, 'Telefono', DelChr(CompanyInformation."Phone No.", '=', '-'));
-            AssertElementValue(TempXMLBuffer, 'Fax', DelChr(CompanyInformation."Fax No.", '=', '-'));
-            AssertElementValue(TempXMLBuffer, 'Email', CompanyInformation."E-Mail");
-        end;
+        if CompanyInformation."Liquidation Status" = CompanyInformation."Liquidation Status"::"Not in Liquidation" then
+            AssertElementValue(TempXMLBuffer, 'StatoLiquidazione', 'LN')
+        else
+            AssertElementValue(TempXMLBuffer, 'StatoLiquidazione', 'LS');
+        // 1.2.5 Contatti
+        AssertElementValue(TempXMLBuffer, 'Contatti', '');
+        AssertElementValue(TempXMLBuffer, 'Telefono', DelChr(CompanyInformation."Phone No.", '=', '-'));
+        AssertElementValue(TempXMLBuffer, 'Fax', DelChr(CompanyInformation."Fax No.", '=', '-'));
+        AssertElementValue(TempXMLBuffer, 'Email', CompanyInformation."E-Mail");
     end;
 
     local procedure VerifyTaxRepresentative(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -2592,24 +2575,23 @@ codeunit 144200 "FatturaPA Test"
         // 1.3. RappresentanteFiscale - TAX REPRESENTATIVE
         if CompanyInformation."Tax Representative No." <> '' then begin
             TaxRepresentativeVendor.Get(CompanyInformation."Tax Representative No.");
-            with TempXMLBuffer do
-                if CompanyInformation."Tax Representative No." <> '' then begin
-                    AssertElementValue(TempXMLBuffer, 'RappresentanteFiscale', '');
-                    AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
-                    AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
-                    AssertElementValue(TempXMLBuffer, 'IdPaese', TaxRepresentativeVendor."Country/Region Code");
-                    AssertElementValue(TempXMLBuffer, 'IdCodice', TaxRepresentativeVendor."VAT Registration No.");
+            if CompanyInformation."Tax Representative No." <> '' then begin
+                AssertElementValue(TempXMLBuffer, 'RappresentanteFiscale', '');
+                AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
+                AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
+                AssertElementValue(TempXMLBuffer, 'IdPaese', TaxRepresentativeVendor."Country/Region Code");
+                AssertElementValue(TempXMLBuffer, 'IdCodice', TaxRepresentativeVendor."VAT Registration No.");
 
-                    AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
-                    if TaxRepresentativeVendor."Individual Person" then begin
-                        AssertElementValue(TempXMLBuffer, 'Nome', TaxRepresentativeVendor."First Name");
-                        AssertElementValue(TempXMLBuffer, 'Cognome', TaxRepresentativeVendor."Last Name");
-                    end else
-                        AssertElementValue(TempXMLBuffer, 'Denominazione', TaxRepresentativeVendor.Name);
+                AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
+                if TaxRepresentativeVendor."Individual Person" then begin
+                    AssertElementValue(TempXMLBuffer, 'Nome', TaxRepresentativeVendor."First Name");
+                    AssertElementValue(TempXMLBuffer, 'Cognome', TaxRepresentativeVendor."Last Name");
+                end else
+                    AssertElementValue(TempXMLBuffer, 'Denominazione', TaxRepresentativeVendor.Name);
 
-                    GetParent();
-                    GetParent();
-                end;
+                TempXMLBuffer.GetParent();
+                TempXMLBuffer.GetParent();
+            end;
         end;
     end;
 
@@ -2619,34 +2601,30 @@ codeunit 144200 "FatturaPA Test"
     begin
         Customer.Get(CustomerNo);
         // 1.4 CessionarioCommittente
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente');
-            AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
-            if not Customer."Individual Person" then begin
-                AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
-                AssertElementValue(TempXMLBuffer, 'IdPaese', Customer."Country/Region Code");
-                AssertElementValue(TempXMLBuffer, 'IdCodice', Customer."VAT Registration No.");
-            end;
-            AssertElementValue(TempXMLBuffer, 'CodiceFiscale', Customer."Fiscal Code");
-
-            // 1.4.1.3 Anagrafica
-            AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
-            if Customer."Individual Person" then begin
-                AssertElementValue(TempXMLBuffer, 'Nome', Customer."First Name");
-                AssertElementValue(TempXMLBuffer, 'Cognome', Customer."Last Name");
-            end else
-                AssertElementValue(TempXMLBuffer, 'Denominazione', Customer.Name);
-
-            // 1.4.2. Sede
-            AssertElementValue(TempXMLBuffer, 'Sede', '');
-            AssertElementValue(TempXMLBuffer, 'Indirizzo', Customer.Address);
-            AssertElementValue(TempXMLBuffer, 'CAP', Customer."Post Code");
-            AssertElementValue(TempXMLBuffer, 'Comune', Customer.City);
-            AssertElementValue(TempXMLBuffer, 'Provincia', Customer.County);
-            AssertElementValue(TempXMLBuffer, 'Nazione', Customer."Country/Region Code");
-            GetParent();
-            GetParent();
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente');
+        AssertElementValue(TempXMLBuffer, 'DatiAnagrafici', '');
+        if not Customer."Individual Person" then begin
+            AssertElementValue(TempXMLBuffer, 'IdFiscaleIVA', '');
+            AssertElementValue(TempXMLBuffer, 'IdPaese', Customer."Country/Region Code");
+            AssertElementValue(TempXMLBuffer, 'IdCodice', Customer."VAT Registration No.");
         end;
+        AssertElementValue(TempXMLBuffer, 'CodiceFiscale', Customer."Fiscal Code");
+        // 1.4.1.3 Anagrafica
+        AssertElementValue(TempXMLBuffer, 'Anagrafica', '');
+        if Customer."Individual Person" then begin
+            AssertElementValue(TempXMLBuffer, 'Nome', Customer."First Name");
+            AssertElementValue(TempXMLBuffer, 'Cognome', Customer."Last Name");
+        end else
+            AssertElementValue(TempXMLBuffer, 'Denominazione', Customer.Name);
+        // 1.4.2. Sede
+        AssertElementValue(TempXMLBuffer, 'Sede', '');
+        AssertElementValue(TempXMLBuffer, 'Indirizzo', Customer.Address);
+        AssertElementValue(TempXMLBuffer, 'CAP', Customer."Post Code");
+        AssertElementValue(TempXMLBuffer, 'Comune', Customer.City);
+        AssertElementValue(TempXMLBuffer, 'Provincia', Customer.County);
+        AssertElementValue(TempXMLBuffer, 'Nazione', Customer."Country/Region Code");
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure VerifyDocGeneralData(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef)
@@ -2655,32 +2633,26 @@ codeunit 144200 "FatturaPA Test"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         GeneralLedgerSetup.Get();
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody');
-            AssertElementValue(TempXMLBuffer, 'DatiGenerali', '');
-
-            // 2.1.1   DatiGeneraliDocumento - general details
-            AssertElementValue(TempXMLBuffer, 'DatiGeneraliDocumento', '');
-            case DocumentType of
-                CustLedgerEntry."Document Type"::Invoice:
-                    AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD01');
-                CustLedgerEntry."Document Type"::"Credit Memo":
-                    AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD04');
-                else
-                    AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD02');
-            end;
-
-            // 2.1.1.2 Divisa
-            AssertElementValue(TempXMLBuffer, 'Divisa', GeneralLedgerSetup."LCY Code");
-
-            // 2.1.1.3  Data
-            PostingDateFieldNo := 20;
-            AssertElementValue(TempXMLBuffer, 'Data', FormatAmountFromFieldRef(HeaderRecRef.Field(PostingDateFieldNo)));
-
-            // 2.1.1.4   Numero
-            DocNoFieldNo := 3;
-            AssertElementValue(TempXMLBuffer, 'Numero', Format(HeaderRecRef.Field(DocNoFieldNo).Value));
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody');
+        AssertElementValue(TempXMLBuffer, 'DatiGenerali', '');
+        // 2.1.1   DatiGeneraliDocumento - general details
+        AssertElementValue(TempXMLBuffer, 'DatiGeneraliDocumento', '');
+        case DocumentType of
+            CustLedgerEntry."Document Type"::Invoice:
+                AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD01');
+            CustLedgerEntry."Document Type"::"Credit Memo":
+                AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD04');
+            else
+                AssertElementValue(TempXMLBuffer, 'TipoDocumento', 'TD02');
         end;
+        // 2.1.1.2 Divisa
+        AssertElementValue(TempXMLBuffer, 'Divisa', GeneralLedgerSetup."LCY Code");
+        // 2.1.1.3  Data
+        PostingDateFieldNo := 20;
+        AssertElementValue(TempXMLBuffer, 'Data', FormatAmountFromFieldRef(HeaderRecRef.Field(PostingDateFieldNo)));
+        // 2.1.1.4   Numero
+        DocNoFieldNo := 3;
+        AssertElementValue(TempXMLBuffer, 'Numero', Format(HeaderRecRef.Field(DocNoFieldNo).Value));
     end;
 
     local procedure VerifyDocDiscountData(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef)
@@ -2690,30 +2662,27 @@ codeunit 144200 "FatturaPA Test"
         AmountInclVAT: Decimal;
         TotalAmount: Decimal;
     begin
-        with TempXMLBuffer do begin
-            // 2.1.1.8 - ScontoMaggiorazione - Discount - Extra charge
-            if ExportFromType = ExportFromType::Sales then begin
-                InvoiceDiscountAmountFieldNo := 1305;
-                InvoiceDiscountAmount := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo).Value
-            end else
-                InvoiceDiscountAmount := ServiceInvoiceDiscountAmount;
-            if InvoiceDiscountAmount <> 0 then begin
-                AssertElementValue(TempXMLBuffer, 'ScontoMaggiorazione', '');
-                AssertElementValue(TempXMLBuffer, 'Tipo', 'SC');
-                AssertElementValue(TempXMLBuffer, 'Importo', FormatAmount(InvoiceDiscountAmount));
-            end;
-
-            // 2.1.1.9   ImportoTotaleDocumento
-            GetLineRecord(LineRecRef, DocNo, DocumentType, ExportFromType);
-            repeat
-                if not IsSplitPaymentLine(LineRecRef) then
-                    if Evaluate(AmountInclVAT, Format(LineRecRef.Field(LineAmountIncludingVATFieldNo).Value)) then
-                        TotalAmount += AmountInclVAT;
-            until LineRecRef.Next() = 0;
-
-            AssertElementValue(TempXMLBuffer, 'ImportoTotaleDocumento', FormatAmount(TotalAmount));
-            GetParent();
+        // 2.1.1.8 - ScontoMaggiorazione - Discount - Extra charge
+        if ExportFromType = ExportFromType::Sales then begin
+            InvoiceDiscountAmountFieldNo := 1305;
+            InvoiceDiscountAmount := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo).Value
+        end else
+            InvoiceDiscountAmount := ServiceInvoiceDiscountAmount;
+        if InvoiceDiscountAmount <> 0 then begin
+            AssertElementValue(TempXMLBuffer, 'ScontoMaggiorazione', '');
+            AssertElementValue(TempXMLBuffer, 'Tipo', 'SC');
+            AssertElementValue(TempXMLBuffer, 'Importo', FormatAmount(InvoiceDiscountAmount));
         end;
+        // 2.1.1.9   ImportoTotaleDocumento
+        GetLineRecord(LineRecRef, DocNo, DocumentType, ExportFromType);
+        repeat
+            if not IsSplitPaymentLine(LineRecRef) then
+                if Evaluate(AmountInclVAT, Format(LineRecRef.Field(LineAmountIncludingVATFieldNo).Value)) then
+                    TotalAmount += AmountInclVAT;
+        until LineRecRef.Next() = 0;
+
+        AssertElementValue(TempXMLBuffer, 'ImportoTotaleDocumento', FormatAmount(TotalAmount));
+        TempXMLBuffer.GetParent();
     end;
 
     local procedure VerifyLineData(var TempXMLBuffer: Record "XML Buffer" temporary; LineRecRef: RecordRef; ItemGTIN: Boolean; VATTransactionNature: Code[20])
@@ -2724,51 +2693,49 @@ codeunit 144200 "FatturaPA Test"
         LineDiscountPct: Decimal;
         NoFieldNo: Integer;
     begin
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee');
-            Evaluate(LineAmount, Format(LineRecRef.Field(AmountFieldNo)));
-            if LineAmount = 0 then
-                exit;
-            // 2.2.1 DettaglioLinee
-            AssertElementValue(TempXMLBuffer, 'NumeroLinea', Format(1));
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee');
+        Evaluate(LineAmount, Format(LineRecRef.Field(AmountFieldNo)));
+        if LineAmount = 0 then
+            exit;
+        // 2.2.1 DettaglioLinee
+        AssertElementValue(TempXMLBuffer, 'NumeroLinea', Format(1));
 
-            if ExportFromType = ExportFromType::Service then
-                SumUpServiceDiscountAmount(LineRecRef);
+        if ExportFromType = ExportFromType::Service then
+            SumUpServiceDiscountAmount(LineRecRef);
 
-            NoFieldNo := 6;
-            Item.Get(LineRecRef.Field(NoFieldNo).Value);
-            if ItemGTIN then begin
-                AssertElementValue(TempXMLBuffer, 'CodiceArticolo', '');
-                AssertElementValue(TempXMLBuffer, 'CodiceTipo', 'GTIN');
-                AssertElementValue(TempXMLBuffer, 'CodiceValore', Item.GTIN);
-            end;
-
-            DescriptionFieldNo := 11;
-            QuantityFieldNo := 15;
-            AssertElementValue(TempXMLBuffer, 'Descrizione', Format(LineRecRef.Field(DescriptionFieldNo).Value));
-            AssertElementValue(TempXMLBuffer, 'Quantita', FormatAmountFromFieldRef(LineRecRef.Field(QuantityFieldNo)));
-
-            UnitOfMeasureFieldNo := 13;
-            UnitPriceFieldNo := 22;
-            AssertElementValue(TempXMLBuffer, 'UnitaMisura', Format(LineRecRef.Field(UnitOfMeasureFieldNo).Value));
-            AssertElementValue(TempXMLBuffer, 'PrezzoUnitario', FormatAmountFromFieldRef(LineRecRef.Field(UnitPriceFieldNo)));
-
-            LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value();
-            LineDiscountAmount :=
-              FatturaDocHelper.CalcInvDiscAmountDividedByQty(LineRecRef, QuantityFieldNo, LineInvDiscAmountFieldNo);
-            if (LineDiscountAmount <> 0) or (LineDiscountPct <> 0) then begin
-                AssertElementValue(TempXMLBuffer, 'ScontoMaggiorazione', '');
-                AssertElementValue(TempXMLBuffer, 'Tipo', 'SC');
-                AssertElementValue(TempXMLBuffer, 'Percentuale', FormatAmountFromFieldRef(LineRecRef.Field(LineDiscountPercFieldNo)));
-                if LineDiscountPct = 0 then
-                    AssertElementValue(TempXMLBuffer, 'Importo', FormatAmount(LineDiscountAmount));
-            end;
-
-            AssertElementValue(TempXMLBuffer, 'PrezzoTotale', FormatAmountFromFieldRef(LineRecRef.Field(AmountFieldNo)));
-            AssertElementValue(TempXMLBuffer, 'AliquotaIVA', FormatAmountFromFieldRef(LineRecRef.Field(VatPercFieldNo)));
-            if VATTransactionNature <> '' then
-                AssertElementValue(TempXMLBuffer, 'Natura', VATTransactionNature);
+        NoFieldNo := 6;
+        Item.Get(LineRecRef.Field(NoFieldNo).Value);
+        if ItemGTIN then begin
+            AssertElementValue(TempXMLBuffer, 'CodiceArticolo', '');
+            AssertElementValue(TempXMLBuffer, 'CodiceTipo', 'GTIN');
+            AssertElementValue(TempXMLBuffer, 'CodiceValore', Item.GTIN);
         end;
+
+        DescriptionFieldNo := 11;
+        QuantityFieldNo := 15;
+        AssertElementValue(TempXMLBuffer, 'Descrizione', Format(LineRecRef.Field(DescriptionFieldNo).Value));
+        AssertElementValue(TempXMLBuffer, 'Quantita', FormatAmountFromFieldRef(LineRecRef.Field(QuantityFieldNo)));
+
+        UnitOfMeasureFieldNo := 13;
+        UnitPriceFieldNo := 22;
+        AssertElementValue(TempXMLBuffer, 'UnitaMisura', Format(LineRecRef.Field(UnitOfMeasureFieldNo).Value));
+        AssertElementValue(TempXMLBuffer, 'PrezzoUnitario', FormatAmountFromFieldRef(LineRecRef.Field(UnitPriceFieldNo)));
+
+        LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value();
+        LineDiscountAmount :=
+          FatturaDocHelper.CalcInvDiscAmountDividedByQty(LineRecRef, QuantityFieldNo, LineInvDiscAmountFieldNo);
+        if (LineDiscountAmount <> 0) or (LineDiscountPct <> 0) then begin
+            AssertElementValue(TempXMLBuffer, 'ScontoMaggiorazione', '');
+            AssertElementValue(TempXMLBuffer, 'Tipo', 'SC');
+            AssertElementValue(TempXMLBuffer, 'Percentuale', FormatAmountFromFieldRef(LineRecRef.Field(LineDiscountPercFieldNo)));
+            if LineDiscountPct = 0 then
+                AssertElementValue(TempXMLBuffer, 'Importo', FormatAmount(LineDiscountAmount));
+        end;
+
+        AssertElementValue(TempXMLBuffer, 'PrezzoTotale', FormatAmountFromFieldRef(LineRecRef.Field(AmountFieldNo)));
+        AssertElementValue(TempXMLBuffer, 'AliquotaIVA', FormatAmountFromFieldRef(LineRecRef.Field(VatPercFieldNo)));
+        if VATTransactionNature <> '' then
+            AssertElementValue(TempXMLBuffer, 'Natura', VATTransactionNature);
     end;
 
     local procedure VerifyLineVATData(var TempXMLBuffer: Record "XML Buffer" temporary; LineRecRef: RecordRef; IsSplitPaymentDoc: Boolean; VATTransactionNature: Code[20])
@@ -2779,39 +2746,36 @@ codeunit 144200 "FatturaPA Test"
         VATRate: Decimal;
     begin
         // 2.2.2 DatiRiepilogo - summary data for every VAT rate
-        with TempXMLBuffer do begin
-            FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo');
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo');
 
-            Quantity := LineRecRef.Field(QuantityFieldNo).Value();
-            LineAmountIncludingVAT := LineRecRef.Field(LineAmountIncludingVATFieldNo).Value();
-            VATBaseAmount := LineRecRef.Field(VATBaseAmountFieldNo).Value();
+        Quantity := LineRecRef.Field(QuantityFieldNo).Value();
+        LineAmountIncludingVAT := LineRecRef.Field(LineAmountIncludingVATFieldNo).Value();
+        VATBaseAmount := LineRecRef.Field(VATBaseAmountFieldNo).Value();
 
-            if (Quantity <> 0) and (LineAmountIncludingVAT <> 0) then begin
-                VatPercFieldNo := 25;
-                AssertElementValue(TempXMLBuffer, 'AliquotaIVA', FormatAmountFromFieldRef(LineRecRef.Field(VatPercFieldNo)));
-                if VATTransactionNature <> '' then
-                    AssertElementValue(TempXMLBuffer, 'Natura', VATTransactionNature);
-                AssertElementValue(TempXMLBuffer,
-                  'ImponibileImporto', FormatAmountFromFieldRef(LineRecRef.Field(VATBaseAmountFieldNo)));
-                AssertElementValue(TempXMLBuffer, 'Imposta', FormatAmount(LineAmountIncludingVAT - VATBaseAmount));
-                Evaluate(VATRate, Format(LineRecRef.Field(VatPercFieldNo).Value));
-                if VATRate <> 0 then
-                    AssertElementValue(
-                      TempXMLBuffer, 'EsigibilitaIVA', GetVATType(1, 1, Format(LineRecRef.Field(LineNoFieldNo).Value), IsSplitPaymentDoc));
-            end;
+        if (Quantity <> 0) and (LineAmountIncludingVAT <> 0) then begin
+            VatPercFieldNo := 25;
+            AssertElementValue(TempXMLBuffer, 'AliquotaIVA', FormatAmountFromFieldRef(LineRecRef.Field(VatPercFieldNo)));
+            if VATTransactionNature <> '' then
+                AssertElementValue(TempXMLBuffer, 'Natura', VATTransactionNature);
+            AssertElementValue(TempXMLBuffer,
+              'ImponibileImporto', FormatAmountFromFieldRef(LineRecRef.Field(VATBaseAmountFieldNo)));
+            AssertElementValue(TempXMLBuffer, 'Imposta', FormatAmount(LineAmountIncludingVAT - VATBaseAmount));
+            Evaluate(VATRate, Format(LineRecRef.Field(VatPercFieldNo).Value));
+            if VATRate <> 0 then
+                AssertElementValue(
+                  TempXMLBuffer, 'EsigibilitaIVA', GetVATType(1, 1, Format(LineRecRef.Field(LineNoFieldNo).Value), IsSplitPaymentDoc));
         end;
     end;
 
     local procedure VerifyOrderData(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef; OrderNo: Code[20])
     begin
         // 2.1.2  DatiOrdineAcquisto
-        if OrderNo <> '' then
-            with TempXMLBuffer do begin
-                AssertElementValue(TempXMLBuffer, 'DatiOrdineAcquisto', '');
-                AssertElementValue(TempXMLBuffer, 'IdDocumento', OrderNo);
-                AssertElementValue(TempXMLBuffer, 'CodiceCUP', Format(HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value));
-                AssertElementValue(TempXMLBuffer, 'CodiceCIG', Format(HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value));
-            end;
+        if OrderNo <> '' then begin
+            AssertElementValue(TempXMLBuffer, 'DatiOrdineAcquisto', '');
+            AssertElementValue(TempXMLBuffer, 'IdDocumento', OrderNo);
+            AssertElementValue(TempXMLBuffer, 'CodiceCUP', Format(HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value));
+            AssertElementValue(TempXMLBuffer, 'CodiceCIG', Format(HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value));
+        end;
     end;
 
     local procedure VerifyPaymentData(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef)
@@ -2825,22 +2789,20 @@ codeunit 144200 "FatturaPA Test"
         // 2.4. DatiPagamento - Payment Data
         PaymentTerms.Get(HeaderRecRef.Field(PaymentTermsCodeFieldNo).Value);
         PaymentMethod.Get(HeaderRecRef.Field(PaymentMethodCodeFieldNo).Value);
-        with TempXMLBuffer do begin
-            CustLedgerEntry.SetRange("Document Type", DocumentType);
-            CustLedgerEntry.SetRange("Document No.", DocNo);
-            CustLedgerEntry.SetRange("Posting Date", PostingDate);
-            CustLedgerEntry.FindFirst();
-            CustLedgerEntry.CalcFields("Amount (LCY)");
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Document No.", DocNo);
+        CustLedgerEntry.SetRange("Posting Date", PostingDate);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Amount (LCY)");
 
-            FindNodesByXPath(TempXMLBuffer, 'p:FatturaElettronica/FatturaElettronicaBody/DatiPagamento');
-            AssertElementValue(TempXMLBuffer, 'CondizioniPagamento', PaymentTerms."Fattura Payment Terms Code");
-            AssertElementValue(TempXMLBuffer, 'DettaglioPagamento', '');
-            AssertElementValue(TempXMLBuffer, 'ModalitaPagamento', PaymentMethod."Fattura PA Payment Method");
-            AssertElementValue(TempXMLBuffer,
-              'DataScadenzaPagamento', Format(CustLedgerEntry."Due Date", 0, '<Standard Format,9>'));
-            AssertElementValue(TempXMLBuffer, 'ImportoPagamento', FormatAmount(CustLedgerEntry."Amount (LCY)"));
-            AssertElementValue(TempXMLBuffer, 'IBAN', CompanyInformation.IBAN);
-        end;
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, 'p:FatturaElettronica/FatturaElettronicaBody/DatiPagamento');
+        AssertElementValue(TempXMLBuffer, 'CondizioniPagamento', PaymentTerms."Fattura Payment Terms Code");
+        AssertElementValue(TempXMLBuffer, 'DettaglioPagamento', '');
+        AssertElementValue(TempXMLBuffer, 'ModalitaPagamento', PaymentMethod."Fattura PA Payment Method");
+        AssertElementValue(TempXMLBuffer,
+          'DataScadenzaPagamento', Format(CustLedgerEntry."Due Date", 0, '<Standard Format,9>'));
+        AssertElementValue(TempXMLBuffer, 'ImportoPagamento', FormatAmount(CustLedgerEntry."Amount (LCY)"));
+        AssertElementValue(TempXMLBuffer, 'IBAN', CompanyInformation.IBAN);
     end;
 
     local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; TempBlob: Codeunit "Temp Blob"; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")

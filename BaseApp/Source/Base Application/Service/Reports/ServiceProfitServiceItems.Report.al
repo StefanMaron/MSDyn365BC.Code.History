@@ -185,7 +185,9 @@ report 5938 "Service Profit (Service Items)"
         ServItemFilter: Text;
         ShowDetail: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Total for ';
+#pragma warning restore AA0074
         TotalLbl: Label 'Total:';
         ServiceProfitServItemsCaptionLbl: Label 'Service Profit (Service Items)';
         CurrReportPageNoCaptionLbl: Label 'Page';

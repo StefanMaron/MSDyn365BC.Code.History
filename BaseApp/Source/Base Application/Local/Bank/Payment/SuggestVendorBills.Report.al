@@ -18,7 +18,7 @@ report 12177 "Suggest Vendor Bills"
     {
         dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
         {
-            DataItemTableView = sorting("Entry No.") order(Ascending);
+            DataItemTableView = sorting("Entry No.") order(ascending);
             RequestFilterFields = "Vendor No.", "Due Date";
 
             trigger OnAfterGetRecord()

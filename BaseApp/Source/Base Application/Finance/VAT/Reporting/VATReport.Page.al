@@ -81,6 +81,11 @@ page 740 "VAT Report"
                     Importance = Additional;
                     ToolTip = 'Specifies whether the amounts are in the additional reporting currency.';
                 }
+                field("Country/Region Filter"; Rec."Country/Region Filter")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the country/region filter for the report.';
+                }
             }
             part(VATReportLines; "VAT Report Subform")
             {
@@ -90,10 +95,26 @@ page 740 "VAT Report"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"VAT Report Header"),
+                              "No." = field("No."),
+#pragma warning disable AL0603
+                              "VAT Report Config. Code" = field("VAT Report Config. Code");
+#pragma warning restore AL0603
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"VAT Report Header"),
                               "No." = field("No."),
 #pragma warning disable AL0603

@@ -9,7 +9,7 @@ using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -29,7 +29,7 @@ permissionset 1087 "Jobs - Read"
                   tabledata "Duplicate Price Line" = R,
                   tabledata Job = R,
                   tabledata "Job Archive" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -38,7 +38,7 @@ permissionset 1087 "Jobs - Read"
                   tabledata "Job Planning Line" = R,
                   tabledata "Job Planning Line Archive" = R,
                   tabledata "Job Planning Line Invoice" = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Task" = R,

@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -212,6 +212,10 @@ page 7004 "Sales Line Discounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use now the Column Sales Type';
+                    ObsoleteTag = '25.0';
 
                     trigger OnValidate()
                     begin
@@ -219,6 +223,26 @@ page 7004 "Sales Line Discounts"
                     end;
                 }
                 field(SalesCode; Rec."Sales Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = SalesCodeEditable;
+                    ToolTip = 'Specifies one of the following values, depending on the value in the Sales Type field.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use now the Column Sales Code';
+                    ObsoleteTag = '25.0';
+                }
+                field("Sales Type"; Rec."Sales Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the sales type of the sales line discount. The sales type defines whether the sales price is for an individual customer, customer discount group, all customers, or for a campaign.';
+
+                    trigger OnValidate()
+                    begin
+                        SetEditableFields();
+                    end;
+                }
+                field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesCodeEditable;
@@ -367,7 +391,9 @@ page 7004 "Sales Line Discounts"
         Item: Record Item;
         ItemDiscGr: Record "Item Discount Group";
         ClientTypeManagement: Codeunit "Client Type Management";
+#pragma warning disable AA0074
         Text000: Label 'All Customers';
+#pragma warning restore AA0074
         PageCaptionText: Text;
         SalesCodeEditable: Boolean;
         SalesCodeFilterCtrlEnable: Boolean;

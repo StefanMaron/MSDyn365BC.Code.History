@@ -33,7 +33,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(FEInvoicesIssued; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin
@@ -47,7 +47,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(FRInvoicesReceived; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin
@@ -61,7 +61,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(NECreditMemosIssued; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const(Resident), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const(Resident), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin
@@ -75,7 +75,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(NRCreditMemosReceived; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const(Resident), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const(Resident), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin
@@ -89,7 +89,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(FNNonResidentsSales; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Sale), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin
@@ -103,7 +103,7 @@ report 741 "VAT Report Suggest Lines"
         }
         dataitem(SENonResidentsPurchases; "VAT Entry")
         {
-            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
+            DataItemTableView = sorting("Posting Date", Type, "Document Type", "Document No.") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Purchase), "Unrealized VAT Entry No." = const(0));
 
             trigger OnAfterGetRecord()
             begin

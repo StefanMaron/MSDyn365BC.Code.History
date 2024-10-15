@@ -215,12 +215,10 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     local procedure CreateCustomerWithNameAndVATReg(var Customer: Record Customer): Code[20]
     begin
         Customer.Get(CreateCustomer());
-        with Customer do begin
-            Validate(Name, "No.");
-            Validate("VAT Registration No.", CreateVATRegister());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate(Name, Customer."No.");
+        Customer.Validate("VAT Registration No.", CreateVATRegister());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateNumberSeries(var NoSeries: Record "No. Series")
@@ -260,12 +258,10 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     local procedure CreateVendorWithNameAndVATReg(var Vendor: Record Vendor): Code[20]
     begin
         Vendor.Get(CreateVendor());
-        with Vendor do begin
-            Validate(Name, "No.");
-            Validate("VAT Registration No.", CreateVATRegister());
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate(Name, Vendor."No.");
+        Vendor.Validate("VAT Registration No.", CreateVATRegister());
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure EnqueueValuesForVATRegisterPrintRequestPageHandler(VATRegisterCode: Code[10]; PrintingTypeLocal: Option; PeriodEndingDate: Date)

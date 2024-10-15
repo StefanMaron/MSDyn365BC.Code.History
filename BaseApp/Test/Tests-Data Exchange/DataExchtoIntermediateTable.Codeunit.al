@@ -417,23 +417,19 @@ codeunit 139156 "DataExch to Intermediate Table"
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
         RecNo := 1;
-
         // Exercise / verify
-        with IntermediateDataImport do begin
-            // Insert
-            RandomValue := LibraryUtility.GenerateRandomCode(FieldNo(Value), DATABASE::"Intermediate Data Import");
-            InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-              ParentRecNo, RecNo, RandomValue);
-            Assert.AreEqual(1, Count, 'Wrong number of entries in the intermediate table');
-            Assert.AreEqual(RandomValue, Value, 'Wrong value for entry in the intermediate table');
-
-            // Update
-            RandomValue := LibraryUtility.GenerateRandomCode(FieldNo(Value), DATABASE::"Intermediate Data Import");
-            InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-              ParentRecNo, RecNo, RandomValue);
-            Assert.AreEqual(1, Count, 'Wrong number of entries in the intermediate table');
-            Assert.AreEqual(RandomValue, Value, 'Wrong value for entry in the intermediate table');
-        end;
+        // Insert
+        RandomValue := LibraryUtility.GenerateRandomCode(IntermediateDataImport.FieldNo(Value), DATABASE::"Intermediate Data Import");
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+          ParentRecNo, RecNo, RandomValue);
+        Assert.AreEqual(1, IntermediateDataImport.Count, 'Wrong number of entries in the intermediate table');
+        Assert.AreEqual(RandomValue, IntermediateDataImport.Value, 'Wrong value for entry in the intermediate table');
+        // Update
+        RandomValue := LibraryUtility.GenerateRandomCode(IntermediateDataImport.FieldNo(Value), DATABASE::"Intermediate Data Import");
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+          ParentRecNo, RecNo, RandomValue);
+        Assert.AreEqual(1, IntermediateDataImport.Count, 'Wrong number of entries in the intermediate table');
+        Assert.AreEqual(RandomValue, IntermediateDataImport.Value, 'Wrong value for entry in the intermediate table');
     end;
 
     [Test]
@@ -452,22 +448,18 @@ codeunit 139156 "DataExch to Intermediate Table"
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
         RecNo := 1;
-
-        with IntermediateDataImport do begin
-            // Init
-            RandomValue := LibraryUtility.GenerateRandomCode(FieldNo(Value), DATABASE::"Intermediate Data Import");
-            InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-              ParentRecNo, RecNo, RandomValue);
-            Assert.AreEqual(1, Count, 'Wrong number of entries in the intermediate table');
-            Assert.AreEqual(RandomValue, Value, 'Wrong value for entry in the intermediate table');
-
-            // Get Value - Exercise/verify
-            Assert.AreEqual(RandomValue, GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo), 'Wrong value for entry in the intermediate table');
-            Delete();
-            Assert.AreEqual('', GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo), 'Value for entry should have been deleted from the intermediate table');
-        end;
+        // Init
+        RandomValue := LibraryUtility.GenerateRandomCode(IntermediateDataImport.FieldNo(Value), DATABASE::"Intermediate Data Import");
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+          ParentRecNo, RecNo, RandomValue);
+        Assert.AreEqual(1, IntermediateDataImport.Count, 'Wrong number of entries in the intermediate table');
+        Assert.AreEqual(RandomValue, IntermediateDataImport.Value, 'Wrong value for entry in the intermediate table');
+        // Get Value - Exercise/verify
+        Assert.AreEqual(RandomValue, IntermediateDataImport.GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo), 'Wrong value for entry in the intermediate table');
+        IntermediateDataImport.Delete();
+        Assert.AreEqual('', IntermediateDataImport.GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo), 'Value for entry should have been deleted from the intermediate table');
     end;
 
     [Test]
@@ -485,34 +477,30 @@ codeunit 139156 "DataExch to Intermediate Table"
         EntryNo := LibraryRandom.RandInt(100);
         ParentRecNo := 0;
         RecNo := 1;
-
-        with IntermediateDataImport do begin
-            // Init
-            InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."), ParentRecNo, RecNo,
-              LibraryUtility.GenerateRandomCode(FieldNo(Value), DATABASE::"Intermediate Data Import"));
-            Assert.AreEqual(1, Count, 'Wrong number of entries in the intermediate table');
-            // insert new record no
-            RecNo += 1;
-            InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."), ParentRecNo, RecNo,
-              LibraryUtility.GenerateRandomCode(FieldNo(Value), DATABASE::"Intermediate Data Import"));
-            Assert.AreEqual(2, Count, 'Wrong number of entries in the intermediate table');
-
-            // Find entry - Exercise/verify
-            Assert.IsTrue(FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo - 1), 'Value for entry not found in the intermediate table');
-            Assert.IsTrue(FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo), 'Value for entry not found in the intermediate table');
-            Assert.IsFalse(FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo + 1, RecNo), 'Value for entry should not exist in the intermediate table');
-            Assert.IsFalse(FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo + 1), 'Value for entry should not exist in the intermediate table');
-            Assert.IsFalse(FindEntry(EntryNo + 1, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
-            Assert.IsFalse(FindEntry(EntryNo, DATABASE::"Purchase Line", PurchaseHeader.FieldNo("No."),
-                ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
-            Assert.IsFalse(FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"),
-                ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
-        end;
+        // Init
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."), ParentRecNo, RecNo,
+          LibraryUtility.GenerateRandomCode(IntermediateDataImport.FieldNo(Value), DATABASE::"Intermediate Data Import"));
+        Assert.AreEqual(1, IntermediateDataImport.Count, 'Wrong number of entries in the intermediate table');
+        // insert new record no
+        RecNo += 1;
+        IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."), ParentRecNo, RecNo,
+          LibraryUtility.GenerateRandomCode(IntermediateDataImport.FieldNo(Value), DATABASE::"Intermediate Data Import"));
+        Assert.AreEqual(2, IntermediateDataImport.Count, 'Wrong number of entries in the intermediate table');
+        // Find entry - Exercise/verify
+        Assert.IsTrue(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo - 1), 'Value for entry not found in the intermediate table');
+        Assert.IsTrue(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo), 'Value for entry not found in the intermediate table');
+        Assert.IsFalse(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo + 1, RecNo), 'Value for entry should not exist in the intermediate table');
+        Assert.IsFalse(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo + 1), 'Value for entry should not exist in the intermediate table');
+        Assert.IsFalse(IntermediateDataImport.FindEntry(EntryNo + 1, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
+        Assert.IsFalse(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Line", PurchaseHeader.FieldNo("No."),
+            ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
+        Assert.IsFalse(IntermediateDataImport.FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"),
+            ParentRecNo, RecNo), 'Value for entry should not exist in the intermediate table');
     end;
 
     local procedure CreateSalesHeaderAndSalesLinesSetup(var SalesHeaderDataExchLineDef: Record "Data Exch. Line Def"; var SalesLineDataExchLineDef: Record "Data Exch. Line Def"; var DataExchDef: Record "Data Exch. Def")

@@ -19,7 +19,7 @@ report 12190 "Update VAT Transaction Data"
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = sorting("Entry No.") where(Blacklisted = filter(false), Type = filter(<> Settlement));
+            DataItemTableView = sorting("Entry No.") where(Type = filter(<> Settlement));
             RequestFilterFields = "Entry No.", "Operation Occurred Date", "Document Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Identifier", Type, "Bill-to/Pay-to No.", "Include in VAT Transac. Rep.";
             column(USERID; UserId)
             {
@@ -150,7 +150,7 @@ report 12190 "Update VAT Transaction Data"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Set Include in VAT Transaction Report';
-                        Editable = NOT ShowListOnly;
+                        Editable = not ShowListOnly;
                         ToolTip = 'Specifies if you want to set the Include in VAT Transaction Report flag.';
                     }
                 }

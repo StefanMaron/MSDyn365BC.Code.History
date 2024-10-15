@@ -97,7 +97,6 @@ codeunit 144173 "ERM IT Prepayment II"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         AmountErr: Label 'Amount must be equal.';
-        PrepaymentDueDateErr: Label 'Prepayment Due Date must have a value in %1: Document Type=Order, No.=%2. It cannot be zero or empty.';
         ConfirmPurchaseChangeVATBusPostingGroupTxt: Label 'If you change VAT Bus. Posting Group, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.';
         ConfirmSalesChangeVATBusPostingGroupTxt: Label 'If you change VAT Bus. Posting Group, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
 
@@ -323,7 +322,7 @@ codeunit 144173 "ERM IT Prepayment II"
         asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // Verify: Verify error on while posting Prepayment Invoice.
-        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, SalesHeader.TableCaption(), SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Prepayment Due Date"), '');
     end;
 
     [Test]
@@ -526,7 +525,7 @@ codeunit 144173 "ERM IT Prepayment II"
         asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(PrepaymentDueDateErr, PurchaseHeader.TableCaption(), PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Prepayment Due Date"), '');
 
         // Tear Down.
         UpdateUnrealizedVATOnGeneralLedgerSetup(OldUnrealizedVAT);

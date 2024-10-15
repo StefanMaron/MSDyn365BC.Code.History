@@ -155,6 +155,8 @@ table 2672 "Allocation Line"
                 SalesAllocAccMgt.GetOrGenerateAllocationLines(AllocationLine, ParentSystemId, AmountToAllocate, PostingDate);
             database::"Purchase Line":
                 PurchaseAllocAccMgt.GetOrGenerateAllocationLines(AllocationLine, ParentSystemId, AmountToAllocate, PostingDate);
+            else
+                OnGetOrGenerateAllocationLines(ParentTableId, ParentSystemId, AllocationLine, AmountToAllocate, PostingDate);
         end;
     end;
 
@@ -242,6 +244,11 @@ table 2672 "Allocation Line"
     internal procedure GetQuantityPrecision(): Decimal
     begin
         exit(0.00001);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrGenerateAllocationLines(ParentTableId: Integer; ParentSystemId: Guid; var AllocationLine: Record "Allocation Line"; var AmountToAllocate: Decimal; var PostingDate: Date)
+    begin
     end;
 
     var

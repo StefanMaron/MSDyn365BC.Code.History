@@ -23,7 +23,7 @@ report 12180 "Issuing Customer Bill"
     {
         dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
         {
-            DataItemTableView = order(Ascending);
+            DataItemTableView = order(ascending);
             RequestFilterFields = "Customer No.", "Due Date";
 
             trigger OnAfterGetRecord()

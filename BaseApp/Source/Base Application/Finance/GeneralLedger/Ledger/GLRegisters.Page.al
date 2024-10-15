@@ -37,7 +37,7 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger register.';
                 }
-#if not CLEAN24                
+#if not CLEAN35                
                 field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;

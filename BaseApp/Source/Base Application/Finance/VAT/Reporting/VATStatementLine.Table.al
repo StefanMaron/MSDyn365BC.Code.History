@@ -187,8 +187,8 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Blacklisted Comm. Field';
             ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(12129; "Refers To Period"; Option)
         {
@@ -200,8 +200,8 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Blacklist Country/Region Transaction';
             ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
     }
 
@@ -221,7 +221,11 @@ table 256 "VAT Statement Line"
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure Export(var NewVATStatementLine: Record "VAT Statement Line")

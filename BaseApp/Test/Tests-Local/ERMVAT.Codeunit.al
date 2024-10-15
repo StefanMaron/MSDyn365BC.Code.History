@@ -1554,17 +1554,15 @@ codeunit 144139 "ERM VAT"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
         LibraryERM.CreateVATIdentifier(VATIdentifier);
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", VATIdentifier.Code);
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Validate("VAT %", LibraryRandom.RandInt(10));
-            Validate("Deductible %", 0);
-            Validate("Purchase VAT Account", CreateSimpleGLAccount());
-            Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount());
-            Validate("Sales VAT Account", CreateSimpleGLAccount());
-            Validate("Nondeductible VAT Account", CreateSimpleGLAccount());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Identifier", VATIdentifier.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        VATPostingSetup.Validate("Deductible %", 0);
+        VATPostingSetup.Validate("Purchase VAT Account", CreateSimpleGLAccount());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount());
+        VATPostingSetup.Validate("Sales VAT Account", CreateSimpleGLAccount());
+        VATPostingSetup.Validate("Nondeductible VAT Account", CreateSimpleGLAccount());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateItem(VATProdPostingGroup: Code[20]): Code[20]
@@ -1984,13 +1982,11 @@ codeunit 144139 "ERM VAT"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-            Assert.IsTrue(FindFirst(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
-            Assert.AreEqual(Abs(Amount), "Credit Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Credit Amount")));
-        end;
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        Assert.IsTrue(GLEntry.FindFirst(), StrSubstNo(EntryDoesNotExistErr, GLEntry.TableCaption(), GLEntry.GetFilters));
+        Assert.AreEqual(Abs(GLEntry.Amount), GLEntry."Credit Amount", StrSubstNo(WrongValueErr, GLEntry.TableCaption(), GLEntry.FieldCaption("Credit Amount")));
     end;
 
     local procedure VerifyReverseChargeDeductibleVATEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1999,26 +1995,24 @@ codeunit 144139 "ERM VAT"
         ExpectedVATBase: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Type, Type::Purchase);
-            FindFirst();
-            Assert.AreEqual(0, Base, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Base)));
-            Assert.AreEqual(0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount)));
-            Assert.IsTrue(
-              "Nondeductible Base" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Base")));
-            Assert.IsTrue(
-              "Nondeductible Amount" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Amount")));
-            ExpectedVATBase := -"Nondeductible Base";
-            ExpectedVATAmount := -"Nondeductible Amount";
-            SetRange(Type, Type::Sale);
-            FindFirst();
-            Assert.AreEqual(0, "Nondeductible Base", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Base")));
-            Assert.AreEqual(0, "Nondeductible Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Nondeductible Amount")));
-            Assert.AreEqual(ExpectedVATBase, Base, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Base)));
-            Assert.AreEqual(ExpectedVATAmount, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount)));
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.FindFirst();
+        Assert.AreEqual(0, VATEntry.Base, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Base)));
+        Assert.AreEqual(0, VATEntry.Amount, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Amount)));
+        Assert.IsTrue(
+          VATEntry."Nondeductible Base" <> 0, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Nondeductible Base")));
+        Assert.IsTrue(
+          VATEntry."Nondeductible Amount" <> 0, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Nondeductible Amount")));
+        ExpectedVATBase := -VATEntry."Nondeductible Base";
+        ExpectedVATAmount := -VATEntry."Nondeductible Amount";
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.FindFirst();
+        Assert.AreEqual(0, VATEntry."Nondeductible Base", StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Nondeductible Base")));
+        Assert.AreEqual(0, VATEntry."Nondeductible Amount", StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Nondeductible Amount")));
+        Assert.AreEqual(ExpectedVATBase, VATEntry.Base, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Base)));
+        Assert.AreEqual(ExpectedVATAmount, VATEntry.Amount, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Amount)));
     end;
 
     local procedure VerifyPostedPurchaseInvoiceLine(DocumentNo: Code[20]; No: Code[20]; ServiceTariffNo: Code[10])
@@ -2121,24 +2115,20 @@ codeunit 144139 "ERM VAT"
 
     local procedure CreateVateRegisterWithSalesType(var VATRegister: Record "VAT Register")
     begin
-        with VATRegister do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
-            Description := Code;
-            Type := Type::Sale;
-            Insert();
-        end;
+        VATRegister.Init();
+        VATRegister.Code := LibraryUtility.GenerateRandomCode(VATRegister.FieldNo(Code), DATABASE::"VAT Register");
+        VATRegister.Description := VATRegister.Code;
+        VATRegister.Type := VATRegister.Type::Sale;
+        VATRegister.Insert();
     end;
 
     local procedure CreateVateRegisterWithPurchaseType(var VATRegister: Record "VAT Register")
     begin
-        with VATRegister do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Register");
-            Description := Code;
-            Type := Type::Purchase;
-            Insert();
-        end;
+        VATRegister.Init();
+        VATRegister.Code := LibraryUtility.GenerateRandomCode(VATRegister.FieldNo(Code), DATABASE::"VAT Register");
+        VATRegister.Description := VATRegister.Code;
+        VATRegister.Type := VATRegister.Type::Purchase;
+        VATRegister.Insert();
     end;
 
     [RequestPageHandler]

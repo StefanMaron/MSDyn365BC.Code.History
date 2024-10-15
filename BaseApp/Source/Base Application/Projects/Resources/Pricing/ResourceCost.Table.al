@@ -6,7 +6,7 @@ using Microsoft.Utilities;
 table 202 "Resource Cost"
 {
     Caption = 'Resource Cost';
-#if not CLEAN23
+#if not CLEAN25
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -82,6 +82,10 @@ table 202 "Resource Cost"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'cannot be specified when %1 is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

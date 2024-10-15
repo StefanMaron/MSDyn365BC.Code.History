@@ -901,8 +901,10 @@ report 317 "Vendor Pre-Payment Journal"
         E051Err: Label '%1 must be identical to %2.', Comment = '%1=Posting Date field caption;%2=FA Posting Date field caption';
         E052Err: Label '%1 cannot be a closing date.', Comment = '%1=FA Posting Date field caption';
         E053Err: Label '%1 is not within your range of allowed posting dates.', Comment = '%1=FA Posting Date field caption';
+#pragma warning disable AA0470
         E054Err: Label 'Insurance integration is not activated for %1 %2.', Comment = 'Depreciation Book Code field caption;%2=Depreciation Book Code';
         E055Err: Label 'must not be specified when %1 is specified.', Comment = 'FA Error Entry No. field caption';
+#pragma warning restore AA0470
         E056Err: Label 'When G/L integration is not activated, %1 must not be posted in the general journal.', Comment = '%1=FA Posting Type';
         E057Err: Label 'When G/L integration is not activated, %1 must not be specified in the general journal.', Comment = '%1=Some field caption';
         E058Err: Label '%1 must not be specified.', Comment = '%1=Some field caption';
@@ -1843,40 +1845,6 @@ report 317 "Vendor Pre-Payment Journal"
         ICGLAccount: Record "IC G/L Account";
         ICBankAccount: Record "IC Bank Account";
     begin
-#if not CLEAN22
-        if "Gen. Journal Line"."IC Partner G/L Acc. No." = '' then
-            AddError(StrSubstNo(E002Err, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")))
-        else begin
-            if ICGLAccount.Get("Gen. Journal Line"."IC Partner G/L Acc. No.") then
-                if ICGLAccount.Blocked then
-                    AddError(StrSubstNo(E032Err, ICGLAccount.FieldCaption(Blocked), false,
-                        "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."), "Gen. Journal Line"."IC Partner G/L Acc. No."))
-                else
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then
-                        AddError(StrSubstNo(E009Err, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")))
-                    else
-                        if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then begin
-                            if "Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Incoming then
-                                AddError(StrSubstNo(E069Err, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."),
-                                    "Gen. Journal Line".FieldCaption("IC Direction"), Format("Gen. Journal Line"."IC Direction")));
-                            if CurrentICPartner = '' then
-                                AddError(StrSubstNo(E070Err, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-                        end;
-
-            if "Gen. Journal Line"."IC Account Type" = "Gen. Journal Line"."IC Account Type"::"Bank Account" then
-                if ICBankAccount.Get("Gen. Journal Line"."IC Account No.") then
-                    if ICBankAccount.Blocked then
-                        AddError(StrSubstNo(E032Err, ICBankAccount.FieldCaption(Blocked), false,
-                            "Gen. Journal Line".FieldCaption("IC Account No."), "Gen. Journal Line"."IC Account No."))
-                    else begin
-                        if "Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Incoming then
-                            AddError(StrSubstNo(E069Err, "Gen. Journal Line".FieldCaption("IC Account No."),
-                                "Gen. Journal Line".FieldCaption("IC Direction"), Format("Gen. Journal Line"."IC Direction")));
-                        if CurrentICPartner = '' then
-                            AddError(StrSubstNo(E070Err, "Gen. Journal Line".FieldCaption("IC Account No.")));
-                    end;
-        end;
-#else
         if "Gen. Journal Line"."IC Account No." = '' then
             AddError(StrSubstNo(E002Err, "Gen. Journal Line".FieldCaption("IC Account No.")))
         else begin
@@ -1911,7 +1879,6 @@ report 317 "Vendor Pre-Payment Journal"
                                 AddError(StrSubstNo(E070Err, "Gen. Journal Line".FieldCaption("IC Account No.")));
                         end;
         end;
-#endif
     end;
 
     local procedure CalcAppliesToIDTotals()

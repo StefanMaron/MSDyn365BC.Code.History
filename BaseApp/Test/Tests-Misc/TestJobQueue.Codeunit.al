@@ -161,14 +161,12 @@ codeunit 139026 "Test Job Queue"
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
         WaitForJobEntryStatus(JobQueueEntryID);
 
-        with JobQueueLogEntry do begin
-            SetRange(ID, JobQueueEntryID);
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
 
-            Assert.IsTrue(FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
-            Assert.AreEqual(Status::Error, Status, 'Unexpected status in the log');
-            ErrorMsg := "Error Message";
-            Assert.IsTrue(StrPos(ErrorMsg, 'System.Xml.XmlTextReader.Create') > 0, CopyStr('Unexpected error message:' + ErrorMsg, 1, 1024));
-        end;
+        Assert.IsTrue(JobQueueLogEntry.FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Unexpected status in the log');
+        ErrorMsg := JobQueueLogEntry."Error Message";
+        Assert.IsTrue(StrPos(ErrorMsg, 'System.Xml.XmlTextReader.Create') > 0, CopyStr('Unexpected error message:' + ErrorMsg, 1, 1024));
     end;
 
     [Test]
@@ -480,6 +478,89 @@ codeunit 139026 "Test Job Queue"
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'The second job queue log entry is not in error state.');
     end;
 
+    [Test]
+    procedure JobQueueErrorMessageDeleteByJQE()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        ErrorMessageRegister: Record "Error Message Register";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [Scenario] When a JQ runs and fails, once both JQE and JLE are deleted, the error message should be deleted as well.
+        // Delete JQE first, then JQLE
+
+        // [Given] A JQE that will fail and run it
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleSendNotificationEvent(false);
+        Initialize();
+        ErrorMessage.DeleteAll();
+        ErrorMessageRegister.DeleteAll();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Sales Post via Job Queue", JobQueueEntry.Status::Ready);
+
+        // [When] Run the JQE and delete it
+        asserterror Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'Job should be in error state');
+        JobQueueEntry.Delete();
+
+        // [Then] The JQE should be deleted, an error message should be created and the error message register should be created
+        Assert.IsFalse(ErrorMessage.IsEmpty(), 'Error message should have been created.');
+        Assert.IsFalse(ErrorMessageRegister.IsEmpty(), 'Error message register should have been created.');
+
+        // [When] Delete the JQLE
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.FindLast();
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Job log entry should be in error state');
+        JobQueueLogEntry.DeleteAll();
+
+        // [Then] The error message and register should be deleted
+        Assert.IsTrue(ErrorMessage.IsEmpty(), 'Error message should have been deleted.');
+        Assert.IsTrue(ErrorMessageRegister.IsEmpty(), 'Error message register should have been deleted.');
+
+        UnbindSubscription(LibraryJobQueue);
+    end;
+
+    [Test]
+    procedure JobQueueErrorMessageDeleteByJQLE()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        ErrorMessageRegister: Record "Error Message Register";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [Scenario] When a JQ runs and fails, once both JQE and JLE are deleted, the error message should be deleted as well.
+        // Delete JQLE first and then JQE
+
+        // [Given] A JQE that will fail and run it
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleSendNotificationEvent(false);
+        Initialize();
+        ErrorMessage.DeleteAll();
+        ErrorMessageRegister.DeleteAll();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Sales Post via Job Queue", JobQueueEntry.Status::Ready);
+
+        // [When] Run the JQE and delete the JQLE 
+        asserterror Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.DeleteAll();
+
+        // [Then] The JQE should be deleted, an error message should be created and the error message register should be created
+        Assert.IsFalse(ErrorMessage.IsEmpty(), 'Error message should have been created.');
+        Assert.IsFalse(ErrorMessageRegister.IsEmpty(), 'Error message register should have been created.');
+
+        // [When] Delete the JQE
+        JobQueueEntry.Delete();
+
+        // [Then] The error message and register should be deleted
+        Assert.IsTrue(ErrorMessage.IsEmpty(), 'Error message should have been deleted.');
+        Assert.IsTrue(ErrorMessageRegister.IsEmpty(), 'Error message register should have been deleted.');
+
+        UnbindSubscription(LibraryJobQueue);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -514,32 +595,28 @@ codeunit 139026 "Test Job Queue"
           CODEUNIT::"Job Queue Sleeping Sample",
           JobQueueEntry.Status::"On Hold");
 
-        with JobQueueEntry do begin
-            "Recurring Job" := true;
-            "Run on Mondays" := true;
-            "Run on Tuesdays" := true;
-            "Run on Wednesdays" := true;
-            "Run on Thursdays" := true;
-            "Run on Fridays" := true;
-            "Run on Saturdays" := true;
-            "Run on Sundays" := true;
-            "No. of Minutes between Runs" := Duration;
-            Modify(true);
-            SetStatus(JQEntryStatus);
-        end;
+        JobQueueEntry."Recurring Job" := true;
+        JobQueueEntry."Run on Mondays" := true;
+        JobQueueEntry."Run on Tuesdays" := true;
+        JobQueueEntry."Run on Wednesdays" := true;
+        JobQueueEntry."Run on Thursdays" := true;
+        JobQueueEntry."Run on Fridays" := true;
+        JobQueueEntry."Run on Saturdays" := true;
+        JobQueueEntry."Run on Sundays" := true;
+        JobQueueEntry."No. of Minutes between Runs" := Duration;
+        JobQueueEntry.Modify(true);
+        JobQueueEntry.SetStatus(JQEntryStatus);
     end;
 
     local procedure CreateTimeBasedRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; StartingTime: Time; EndingTime: Time; Duration: Integer; EarliestStartingDatetTime: DateTime; JQEntryStatus: Option)
     begin
         CreateRecurringJobQueueEntry(JobQueueEntry, Duration, JobQueueEntry.Status::"On Hold");
 
-        with JobQueueEntry do begin
-            "Starting Time" := StartingTime;
-            "Ending Time" := EndingTime;
-            "Earliest Start Date/Time" := EarliestStartingDatetTime;
-            Modify(true);
-            SetStatus(JQEntryStatus);
-        end;
+        JobQueueEntry."Starting Time" := StartingTime;
+        JobQueueEntry."Ending Time" := EndingTime;
+        JobQueueEntry."Earliest Start Date/Time" := EarliestStartingDatetTime;
+        JobQueueEntry.Modify(true);
+        JobQueueEntry.SetStatus(JQEntryStatus);
     end;
 
     local procedure WaitForJobEntryStatus(JobEntryId: Guid)
@@ -568,11 +645,10 @@ codeunit 139026 "Test Job Queue"
         // We won't be able to delete entries with Status = In Process.
         Commit();
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
-        if JobQueueEntry.FindSet() then begin
+        if JobQueueEntry.FindSet() then
             repeat
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
             until JobQueueEntry.Next() = 0;
-        end;
         JobQueueEntry.SetRange(Status);
 
         JobQueueEntry.DeleteAll(true);
@@ -584,12 +660,10 @@ codeunit 139026 "Test Job Queue"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-            FindFirst();
-            TestField("Record ID to Process", ExpectedRecID);
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField("Record ID to Process", ExpectedRecID);
     end;
 
     local procedure VerifyJobQueueEntryWithTearDown(CodeunitID: Integer; Recurring: Boolean; NoOfMinutes: Integer)

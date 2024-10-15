@@ -168,9 +168,8 @@ codeunit 131305 "Library - ERM Country Data"
     var
         FAJournalTemplate: Record "FA Journal Template";
     begin
-        if FAJournalTemplate.Get('ATTIVITA''') then begin
+        if FAJournalTemplate.Get('ATTIVITA''') then
             FAJournalTemplate.Rename('ATTIVITA');
-        end;
     end;
 
     procedure UpdateJournalTemplMandatory(Mandatory: Boolean)

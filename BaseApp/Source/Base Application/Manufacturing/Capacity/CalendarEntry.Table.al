@@ -251,8 +251,12 @@ table 99000757 "Calendar Entry"
         CalendarEntry: Record "Calendar Entry";
         CalendarMgt: Codeunit "Shop Calendar Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be higher than %2.';
         Text001: Label 'There is redundancy in %1 within the calendar of %2. From %3 to %4. Conflicting time from %5 to %6.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckRedundancy()
     var

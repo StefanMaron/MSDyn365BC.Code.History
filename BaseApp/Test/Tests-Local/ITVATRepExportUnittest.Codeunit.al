@@ -1,4 +1,4 @@
-codeunit 144019 "IT - VAT Rep - Export Unittest"
+﻿codeunit 144019 "IT - VAT Rep - Export Unittest"
 {
     // // [FEATURE] [VAT Report] [Export]
 
@@ -2760,72 +2760,68 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATEntry.FindLast();
         NewEntryNo := VATEntry."Entry No." + 1;
 
-        with VATEntry do begin
-            Init();
-            "Entry No." := NewEntryNo;
-            "Posting Date" := CalcDate('<-2D>', Today);
-            "Document Date" := "Posting Date";
-            if LineType in [ConstType::FE, ConstType::NE, ConstType::FN] then
-                Type := Type::Sale
-            else
-                Type := Type::Purchase;
-            "Document No." := Format(LibraryRandom.RandInt(999999));
-            "Bill-to/Pay-to No." := CustNo;
-            if Type = Type::Sale then begin
-                Customer.Get(CustNo);
-                "VAT Registration No." := Customer."VAT Registration No.";
-                "Country/Region Code" := Customer."Country/Region Code";
-                "First Name" := Customer."First Name";
-                "Last Name" := Customer."Last Name";
-                "Date of Birth" := Customer."Date of Birth";
-                "Individual Person" := Customer."Individual Person";
-                Resident := Customer.Resident;
-                "Fiscal Code" := Customer."Fiscal Code";
-                "Place of Birth" := Customer."Place of Birth";
-            end else begin
-                Vendor.Get(CustNo);
-                "VAT Registration No." := Vendor."VAT Registration No.";
-                "Country/Region Code" := Vendor."Country/Region Code";
-                "First Name" := Vendor."First Name";
-                "Last Name" := Vendor."Last Name";
-                "Date of Birth" := Vendor."Date of Birth";
-                "Individual Person" := Vendor."Individual Person";
-                Resident := Vendor.Resident;
-                "Fiscal Code" := Vendor."Fiscal Code";
-                "Place of Birth" := Vendor."Birth City";
-            end;
-            if NonDeductableVAT then
-                "Deductible %" := 0
-            else
-                "Deductible %" := 100;
-            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
-            Amount := (Base / 100 * LibraryRandom.RandIntInRange(1, 21)) / 100 * "Deductible %";
-            Insert(false);
+        VATEntry.Init();
+        VATEntry."Entry No." := NewEntryNo;
+        VATEntry."Posting Date" := CalcDate('<-2D>', Today);
+        VATEntry."Document Date" := VATEntry."Posting Date";
+        if LineType in [ConstType::FE, ConstType::NE, ConstType::FN] then
+            VATEntry.Type := VATEntry.Type::Sale
+        else
+            VATEntry.Type := VATEntry.Type::Purchase;
+        VATEntry."Document No." := Format(LibraryRandom.RandInt(999999));
+        VATEntry."Bill-to/Pay-to No." := CustNo;
+        if VATEntry.Type = VATEntry.Type::Sale then begin
+            Customer.Get(CustNo);
+            VATEntry."VAT Registration No." := Customer."VAT Registration No.";
+            VATEntry."Country/Region Code" := Customer."Country/Region Code";
+            VATEntry."First Name" := Customer."First Name";
+            VATEntry."Last Name" := Customer."Last Name";
+            VATEntry."Date of Birth" := Customer."Date of Birth";
+            VATEntry."Individual Person" := Customer."Individual Person";
+            VATEntry.Resident := Customer.Resident;
+            VATEntry."Fiscal Code" := Customer."Fiscal Code";
+            VATEntry."Place of Birth" := Customer."Place of Birth";
+        end else begin
+            Vendor.Get(CustNo);
+            VATEntry."VAT Registration No." := Vendor."VAT Registration No.";
+            VATEntry."Country/Region Code" := Vendor."Country/Region Code";
+            VATEntry."First Name" := Vendor."First Name";
+            VATEntry."Last Name" := Vendor."Last Name";
+            VATEntry."Date of Birth" := Vendor."Date of Birth";
+            VATEntry."Individual Person" := Vendor."Individual Person";
+            VATEntry.Resident := Vendor.Resident;
+            VATEntry."Fiscal Code" := Vendor."Fiscal Code";
+            VATEntry."Place of Birth" := Vendor."Birth City";
         end;
+        if NonDeductableVAT then
+            VATEntry."Deductible %" := 0
+        else
+            VATEntry."Deductible %" := 100;
+        VATEntry.Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
+        VATEntry.Amount := (VATEntry.Base / 100 * LibraryRandom.RandIntInRange(1, 21)) / 100 * VATEntry."Deductible %";
+        VATEntry.Insert(false);
 
-        with VATReportLine do begin
-            Init();
-            "VAT Report No." := VATReportHeader."No.";
-            "Posting Date" := VATEntry."Posting Date";
-            "Document No." := VATEntry."Document No.";
-            "Line No." := GetNextLineNo();
-            Type := VATEntry.Type;
-            Base := VATEntry.Base;
-            Amount := VATEntry.Amount;
-            "Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
-            "Country/Region Code" := VATEntry."Country/Region Code";
-            "VAT Registration No." := VATEntry."VAT Registration No.";
-            ConstType := LineType;
-            "Record Identifier" := Format(ConstType);
-            "Operation Occurred Date" := VATEntry."Operation Occurred Date";
-            "Amount Incl. VAT" := Base + Amount;
-            "VAT Entry No." := VATEntry."Entry No.";
-            "VAT Group Identifier" := VATEntry."VAT Registration No.";
-            if "VAT Group Identifier" = '' then
-                "VAT Group Identifier" := VATEntry."Fiscal Code";
-            "Incl. in Report" := true;
-            Insert(false);
-        end;
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportHeader."No.";
+        VATReportLine."Posting Date" := VATEntry."Posting Date";
+        VATReportLine."Document No." := VATEntry."Document No.";
+        VATReportLine."Line No." := GetNextLineNo();
+        VATReportLine.Type := VATEntry.Type;
+        VATReportLine.Base := VATEntry.Base;
+        VATReportLine.Amount := VATEntry.Amount;
+        VATReportLine."Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
+        VATReportLine."Country/Region Code" := VATEntry."Country/Region Code";
+        VATReportLine."VAT Registration No." := VATEntry."VAT Registration No.";
+        ConstType := LineType;
+        VATReportLine."Record Identifier" := Format(ConstType);
+        VATReportLine."Operation Occurred Date" := VATEntry."Operation Occurred Date";
+        VATReportLine."Amount Incl. VAT" := VATReportLine.Base + VATReportLine.Amount;
+        VATReportLine."VAT Entry No." := VATEntry."Entry No.";
+        VATReportLine."VAT Group Identifier" := VATEntry."VAT Registration No.";
+        if VATReportLine."VAT Group Identifier" = '' then
+            VATReportLine."VAT Group Identifier" := VATEntry."Fiscal Code";
+        VATReportLine."Incl. in Report" := true;
+        VATReportLine.Insert(false);
     end;
 
     local procedure AddGLAccountVATReportLine(var VATReportLine: Record "VAT Report Line"; var VATReportHeader: Record "VAT Report Header"; LineType: Option; VATRegNo: Code[20])
@@ -2836,53 +2832,49 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATEntry.FindLast();
         NewEntryNo := VATEntry."Entry No." + 1;
 
-        with VATEntry do begin
-            Init();
-            "Entry No." := NewEntryNo;
-            "Posting Date" := CalcDate('<-2D>', Today);
-            "Document Date" := "Posting Date";
-            "Operation Occurred Date" := "Document Date";
-            if LineType in [ConstType::FE, ConstType::NE, ConstType::FN] then
-                Type := Type::Sale
-            else
-                Type := Type::Purchase;
-            "Document No." := Format(LibraryRandom.RandInt(999999));
-            Resident := Resident::Resident;
-            "Include in VAT Transac. Rep." := true;
-            "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-            "Individual Person" := false;
-            "VAT %" := LibraryRandom.RandIntInRange(1, 21);
-            "Deductible %" := 100;
-            "VAT Registration No." := VATRegNo;
+        VATEntry.Init();
+        VATEntry."Entry No." := NewEntryNo;
+        VATEntry."Posting Date" := CalcDate('<-2D>', Today);
+        VATEntry."Document Date" := VATEntry."Posting Date";
+        VATEntry."Operation Occurred Date" := VATEntry."Document Date";
+        if LineType in [ConstType::FE, ConstType::NE, ConstType::FN] then
+            VATEntry.Type := VATEntry.Type::Sale
+        else
+            VATEntry.Type := VATEntry.Type::Purchase;
+        VATEntry."Document No." := Format(LibraryRandom.RandInt(999999));
+        VATEntry.Resident := VATEntry.Resident::Resident;
+        VATEntry."Include in VAT Transac. Rep." := true;
+        VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Normal VAT";
+        VATEntry."Individual Person" := false;
+        VATEntry."VAT %" := LibraryRandom.RandIntInRange(1, 21);
+        VATEntry."Deductible %" := 100;
+        VATEntry."VAT Registration No." := VATRegNo;
 
-            Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
-            Amount := Base * "VAT %" / 100;
-            Insert(false);
-        end;
+        VATEntry.Base := LibraryRandom.RandDec(LibrarySpesometro.GetThresholdAmount(), 2);
+        VATEntry.Amount := VATEntry.Base * VATEntry."VAT %" / 100;
+        VATEntry.Insert(false);
 
-        with VATReportLine do begin
-            Init();
-            "VAT Report No." := VATReportHeader."No.";
-            "Posting Date" := VATEntry."Posting Date";
-            "Document No." := VATEntry."Document No.";
-            "Line No." := GetNextLineNo();
-            Type := VATEntry.Type;
-            Base := VATEntry.Base;
-            Amount := VATEntry.Amount;
-            "Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
-            "Country/Region Code" := VATEntry."Country/Region Code";
-            "VAT Registration No." := VATEntry."VAT Registration No.";
-            ConstType := LineType;
-            "Record Identifier" := Format(ConstType);
-            "Operation Occurred Date" := VATEntry."Operation Occurred Date";
-            "Amount Incl. VAT" := Base + Amount;
-            "VAT Entry No." := VATEntry."Entry No.";
-            "VAT Group Identifier" := VATEntry."VAT Registration No.";
-            if "VAT Group Identifier" = '' then
-                "VAT Group Identifier" := VATEntry."Fiscal Code";
-            "Incl. in Report" := VATEntry."Include in VAT Transac. Rep.";
-            Insert(false);
-        end;
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportHeader."No.";
+        VATReportLine."Posting Date" := VATEntry."Posting Date";
+        VATReportLine."Document No." := VATEntry."Document No.";
+        VATReportLine."Line No." := GetNextLineNo();
+        VATReportLine.Type := VATEntry.Type;
+        VATReportLine.Base := VATEntry.Base;
+        VATReportLine.Amount := VATEntry.Amount;
+        VATReportLine."Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
+        VATReportLine."Country/Region Code" := VATEntry."Country/Region Code";
+        VATReportLine."VAT Registration No." := VATEntry."VAT Registration No.";
+        ConstType := LineType;
+        VATReportLine."Record Identifier" := Format(ConstType);
+        VATReportLine."Operation Occurred Date" := VATEntry."Operation Occurred Date";
+        VATReportLine."Amount Incl. VAT" := VATReportLine.Base + VATReportLine.Amount;
+        VATReportLine."VAT Entry No." := VATEntry."Entry No.";
+        VATReportLine."VAT Group Identifier" := VATEntry."VAT Registration No.";
+        if VATReportLine."VAT Group Identifier" = '' then
+            VATReportLine."VAT Group Identifier" := VATEntry."Fiscal Code";
+        VATReportLine."Incl. in Report" := VATEntry."Include in VAT Transac. Rep.";
+        VATReportLine.Insert(false);
     end;
 
     local procedure GLAcccountVATEntryExportDetailed(RecordType: Option; CheckFieldName: Text)
@@ -2956,12 +2948,10 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            if "Fiscal Code" <> '' then
-                exit("Fiscal Code");
-            exit("VAT Registration No.");
-        end;
+        CompanyInformation.Get();
+        if CompanyInformation."Fiscal Code" <> '' then
+            exit(CompanyInformation."Fiscal Code");
+        exit(CompanyInformation."VAT Registration No.");
     end;
 
     local procedure GetMaxRecordCount(): Integer
@@ -2989,10 +2979,10 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         FileName := FileNameBase + '.ccf';
         ExportVATTransactions.InitializeRequest(FileName, DetailedExport);
         ExportVATTransactions.RunModal();
-        if ExportVATTransactions.GetNoFiles() > 1 then begin
+        if ExportVATTransactions.GetNoFiles() > 1 then
             for Index := 1 to ExportVATTransactions.GetNoFiles() do
-                TransmissionFiles.Enqueue(FileNameBase + Format(Index) + '.ccf');
-        end else
+                TransmissionFiles.Enqueue(FileNameBase + Format(Index) + '.ccf')
+        else
             TransmissionFiles.Enqueue(FileName);
     end;
 
@@ -3062,11 +3052,9 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
 
     local procedure UpdateBaseAmountVATReportLine(var VATReportLine: Record "VAT Report Line"; NewBase: Decimal)
     begin
-        with VATReportLine do begin
-            Base := NewBase;
-            Amount := Base * LibraryRandom.RandIntInRange(1, 21) / 100;
-            Modify();
-        end;
+        VATReportLine.Base := NewBase;
+        VATReportLine.Amount := VATReportLine.Base * LibraryRandom.RandIntInRange(1, 21) / 100;
+        VATReportLine.Modify();
     end;
 
     local procedure VerifyExists(var TextFile: BigText; var VATReportLine: Record "VAT Report Line")
@@ -3125,7 +3113,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                 Error(InvalidRecordIdentifierErr, VATReportLine."Record Identifier");
         end;
 
-        for Index := 1 to Round(TextFile.Length / 1900, 1, '>') do begin
+        for Index := 1 to Round(TextFile.Length / 1900, 1, '>') do
             if LibrarySpesometro.ReadValue(TextFile, Index, 1, 1) = 'D' then
                 if LibrarySpesometro.VerifyBlockValue(TextFile, Index, BlockKey, Value, true, false) then
                     if BlockKey2 <> '' then begin
@@ -3133,7 +3121,6 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                             exit;
                     end else
                         exit;
-        end;
 
         Assert.Fail(StrSubstNo(RecordNotFoundErr, VATReportLine."Line No.", VATReportLine."Record Identifier", BlockKey, Value));
     end;
@@ -3240,14 +3227,13 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                                       ConstFormat::DT, LibrarySpesometro.FormatDate(Customer."Date of Birth", ConstFormat::DT), 16))
                                 then
                                     BlockKey := 'FN001016';
-                            end else begin
+                            end else
                                 if (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'FN001007'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(Customer.Name), '>', ' ')) and
                                    (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'FN001008'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(Customer.City), '>', ' '))
                                 then
                                     BlockKey := 'FN001016';
-                            end;
                             if BlockKey <> '' then
                                 SumTotal += SumBlockValue(TextFile, LineNo, BlockKey);
                         end;
@@ -3264,14 +3250,13 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                                       ConstFormat::DT, LibrarySpesometro.FormatDate(Vendor."Date of Birth", ConstFormat::DT), 16))
                                 then
                                     BlockKey := 'SE001016'
-                            end else begin
+                            end else
                                 if (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'SE001007'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(Vendor.Name), '>', ' ')) and
                                    (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'SE001008'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(Vendor.City), '>', ' '))
                                 then
                                     BlockKey := 'SE001016';
-                            end;
                             if BlockKey <> '' then
                                 SumTotal += SumBlockValue(TextFile, LineNo, BlockKey);
                         end;
@@ -3302,14 +3287,13 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
                                     LibrarySpesometro.FormatPadding(ConstFormat::DT, LibrarySpesometro.FormatDate(DOB, ConstFormat::DT), 16))
                                 then
                                     UseLine := true;
-                            end else begin
+                            end else
                                 if (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'BL001007'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(Name), '>', ' ')) and
                                    (DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNo, 'BL001008'), '>', ' ') =
                                     DelChr(LibrarySpesometro.EncodeString(City), '>', ' '))
                                 then
                                     UseLine := true;
-                            end;
 
                             if UseLine then begin
                                 SumTotal += SumBlockValue(TextFile, LineNo, 'BL003002');

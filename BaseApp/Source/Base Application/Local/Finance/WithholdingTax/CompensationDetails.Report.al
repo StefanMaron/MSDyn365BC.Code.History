@@ -21,7 +21,7 @@ report 12105 "Compensation Details"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(Name__________Name_2_; Name + ' ' + "Name 2")
@@ -298,7 +298,7 @@ report 12105 "Compensation Details"
             dataitem(INPS; Contributions)
             {
                 DataItemLink = "Vendor No." = field("No.");
-                DataItemTableView = sorting("Vendor No.", "Social Security Code") order(Ascending);
+                DataItemTableView = sorting("Vendor No.", "Social Security Code") order(ascending);
                 column(INPS__Document_No__; "Document No.")
                 {
                 }
@@ -475,7 +475,7 @@ report 12105 "Compensation Details"
             dataitem(INAIL; Contributions)
             {
                 DataItemLink = "Vendor No." = field("No.");
-                DataItemTableView = sorting("Vendor No.", "INAIL Code", "INAIL Per Mil") order(Ascending);
+                DataItemTableView = sorting("Vendor No.", "INAIL Code", "INAIL Per Mil") order(ascending);
                 column(INAIL__INAIL_Company_Amount_; "INAIL Company Amount")
                 {
                     AutoFormatType = 1;

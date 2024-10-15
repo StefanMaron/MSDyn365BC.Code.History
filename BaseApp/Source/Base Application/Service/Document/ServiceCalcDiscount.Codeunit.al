@@ -35,7 +35,9 @@ codeunit 5950 "Service-Calc. Discount"
         CurrencyDate: Date;
         TemporaryHeader: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Service Charge';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceLine2: Record "Service Line")
     var

@@ -303,7 +303,7 @@ codeunit 12152 SubcontractingManagement
                       TransferLine."Derived From Line No.", TransferLine."Line No.",
                       TransferLine."Qty. per Unit of Measure", -TempReservEntry.Quantity, -TempReservEntry."Quantity (Base)",
                       TempReservEntry);
-                    TrackingSpecification.InitFromProdOrderComp(ProdOrderComponent);
+                    ProdOrderCompReserve.InitFromProdOrderComp(TrackingSpecification, ProdOrderComponent);
                     TrackingSpecification."Source Subtype" := "Production Order Status"::Released.AsInteger();
                     TrackingSpecification.CopyTrackingFromReservEntry(TempReservEntry);
                     CreateReservEntry.CreateReservEntryFrom(TrackingSpecification);

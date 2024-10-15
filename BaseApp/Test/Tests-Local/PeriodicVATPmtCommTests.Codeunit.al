@@ -1283,30 +1283,26 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := VATType;
-            "VAT Calculation Type" := VATCalculationType;
-            Base := VATBase;
-            Amount := VATAmount;
-            "Operation Occurred Date" := OpOccuredDate;
-            Insert(true);
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATType;
+        VATEntry."VAT Calculation Type" := VATCalculationType;
+        VATEntry.Base := VATBase;
+        VATEntry.Amount := VATAmount;
+        VATEntry."Operation Occurred Date" := OpOccuredDate;
+        VATEntry.Insert(true);
     end;
 
     local procedure CreateVATEntryWithVATPostingSetupDeductPercent(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; DeductiblePercent: Decimal; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
         CreateVATEntry(VATEntry, VATType, VATBase, VATAmount, OpOccuredDate, VATCalculationType);
         UpdateVATEntryPostingGroups(VATEntry, VATPostingSetup);
-        with VATEntry do begin
-            "Deductible %" := DeductiblePercent * 100;
-            Base := VATBase * DeductiblePercent;
-            Amount := VATAmount * DeductiblePercent;
-            "Nondeductible Base" := VATBase * (1 - DeductiblePercent);
-            "Nondeductible Amount" := VATAmount * (1 - DeductiblePercent);
-            Modify(true);
-        end;
+        VATEntry."Deductible %" := DeductiblePercent * 100;
+        VATEntry.Base := VATBase * DeductiblePercent;
+        VATEntry.Amount := VATAmount * DeductiblePercent;
+        VATEntry."Nondeductible Base" := VATBase * (1 - DeductiblePercent);
+        VATEntry."Nondeductible Amount" := VATAmount * (1 - DeductiblePercent);
+        VATEntry.Modify(true);
     end;
 
     local procedure CreateVATEntryWithVATPostingSetupGetTotal(VATPostingSetup: Record "VAT Posting Setup"; VATBase: Decimal; VATAmount: Decimal; VATEntryType: Enum "General Posting Type"; OpOccuredDate: Date; var TotalSales: Decimal; var TotalSalesTax: Decimal; Sign: Integer)

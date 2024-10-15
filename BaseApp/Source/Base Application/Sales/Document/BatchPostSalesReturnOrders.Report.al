@@ -201,7 +201,9 @@ report 6655 "Batch Post Sales Return Orders"
 
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+#pragma warning disable AA0074
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
+#pragma warning restore AA0074
         PrintDoc: Boolean;
         PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';

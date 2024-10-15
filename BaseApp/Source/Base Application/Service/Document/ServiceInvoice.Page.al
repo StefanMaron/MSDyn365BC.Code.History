@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -190,8 +194,8 @@ page 5933 "Service Invoice"
                     Importance = Promoted;
                     ShowMandatory = ExternalDocNoMandatory;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
-                }                
-		field("Salesperson Code"; Rec."Salesperson Code")
+                }
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the salesperson assigned to this service document.';
@@ -336,6 +340,11 @@ page 5933 "Service Invoice"
                         ExtendedDatatype = EMail;
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
+                }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -547,6 +556,12 @@ page 5933 "Service Invoice"
                             IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
+                    field("Ship-to Phone"; Rec."Ship-to Phone")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
@@ -679,10 +694,24 @@ page 5933 "Service Invoice"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -902,9 +931,9 @@ page 5933 "Service Invoice"
 
                     trigger OnAction()
                     var
-                        TestReportPrint: Codeunit "Test Report-Print";
+                        ServTestReportPrint: Codeunit "Serv. Test Report Print";
                     begin
-                        TestReportPrint.PrintServiceHeader(Rec);
+                        ServTestReportPrint.PrintServiceHeader(Rec);
                     end;
                 }
                 action(Post)
@@ -1163,10 +1192,10 @@ page 5933 "Service Invoice"
 
     local procedure SetDocNoVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
         DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
     begin
-        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Invoice, Rec."No.");
+        DocNoVisible := ServDocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Invoice, Rec."No.");
     end;
 
     local procedure SetControlAppearance()

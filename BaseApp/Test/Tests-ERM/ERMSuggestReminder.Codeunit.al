@@ -327,17 +327,15 @@
     var
         FinanceChargeTerms: Record "Finance Charge Terms";
     begin
-        with FinanceChargeTerms do begin
-            LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-            Validate("Interest Rate", LibraryRandom.RandDec(10, 2));
-            Validate("Additional Fee (LCY)", LibraryRandom.RandDec(100, 2));
-            Validate("Interest Period (Days)", LibraryRandom.RandInt(30));
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
-            Validate("Post Additional Fee", true);
-            Validate("Post Interest", true);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+        FinanceChargeTerms.Validate("Interest Rate", LibraryRandom.RandDec(10, 2));
+        FinanceChargeTerms.Validate("Additional Fee (LCY)", LibraryRandom.RandDec(100, 2));
+        FinanceChargeTerms.Validate("Interest Period (Days)", LibraryRandom.RandInt(30));
+        Evaluate(FinanceChargeTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
+        FinanceChargeTerms.Validate("Post Additional Fee", true);
+        FinanceChargeTerms.Validate("Post Interest", true);
+        FinanceChargeTerms.Modify(true);
+        exit(FinanceChargeTerms.Code);
     end;
 
     local procedure GetReminderLevel(var GracePeriod: DateFormula; CustomerNo: Code[20])

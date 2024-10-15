@@ -221,7 +221,7 @@ codeunit 12132 "Withholding Tax Export"
         EntryNumber: Integer;
         VendorEntryNumber: Integer;
         LastVendorNo: Code[20];
-        LastReason: Option;
+        LastReason: Enum "Withholding Tax Reason";
     begin
         EntryNumber := 0;
         VendorEntryNumber := 0;
@@ -250,7 +250,7 @@ codeunit 12132 "Withholding Tax Export"
                     TempWithholdingTaxToExport."Total Amount" := 0;
                     TempWithholdingTaxToExport."Taxable Base" := 0;
                     TempWithholdingTaxToExport."Withholding Tax Amount" := 0;
-                    TempWithholdingTaxToExport.Reason := 0;
+                    TempWithholdingTaxToExport.Reason := TempWithholdingTaxToExport.Reason::" ";
                 end;
                 CreateRecordH(TempWithholdingTaxToExport, TempWithholdingTaxPrevYears, TempContributions, Year, EntryNumber, VendorEntryNumber);
             until TempWithholdingTax.Next() = 0;
@@ -532,7 +532,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.WritePositionalValue(64, 6, ConstFormat::NU, '', false); // H-7
         FlatFileManagement.WritePositionalValue(89, 1, ConstFormat::NU, '', false); // H-11
 
-        if TempWithholdingTax.Reason <> 0 then
+        if TempWithholdingTax.Reason <> TempWithholdingTax.Reason::" " then
             FlatFileManagement.WriteBlockValue('AU001001', ConstFormat::AN, Format(TempWithholdingTax.Reason));
         if TempWithholdingTax.Reason in [TempWithholdingTax.Reason::G, TempWithholdingTax.Reason::H, TempWithholdingTax.Reason::I] then
             FlatFileManagement.WriteBlockValue('AU001002', ConstFormat::DA, Format(TempWithholdingTax.Year - 1));
@@ -585,7 +585,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.EndFile();
     end;
 
-    local procedure FindWithholdingTaxEntry(var TempWithholdingTax: Record "Withholding Tax" temporary; VendorNo: Code[20]; Reason: Option)
+    local procedure FindWithholdingTaxEntry(var TempWithholdingTax: Record "Withholding Tax" temporary; VendorNo: Code[20]; Reason: Enum "Withholding Tax Reason")
     begin
         TempWithholdingTax.SetRange("Vendor No.", VendorNo);
         TempWithholdingTax.SetRange(Reason, Reason);

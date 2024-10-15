@@ -329,6 +329,7 @@ codeunit 144078 "ERM Extra VAT"
         GenJournalLine: Record "Gen. Journal Line";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
         AppliesToDocNo: Code[20];
     begin
         // Verify error while posting application transaction in closed VAT Period with Unrealized VAT.
@@ -348,8 +349,7 @@ codeunit 144078 "ERM Extra VAT"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
-        Assert.ExpectedError(
-          StrSubstNo(VATPeriodClosedErr, Date2DMY(WorkDate(), 3), ConvertStr(Format(Date2DMY(WorkDate(), 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
+        Assert.ExpectedTestFieldError(PeriodicSettlementVATEntry.FieldCaption("VAT Period Closed"), Format(false));
 
         // Tear Down.
         DeletePeriodicSettlementVATEntry();
@@ -1355,12 +1355,10 @@ codeunit 144078 "ERM Extra VAT"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            Get(SalesLine."Document Type", SalesLine."Document No.");
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := DocumentNo;
-            Modify(true);
-        end;
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        SalesHeader."Applies-to Doc. Type" := SalesHeader."Applies-to Doc. Type"::Invoice;
+        SalesHeader."Applies-to Doc. No." := DocumentNo;
+        SalesHeader.Modify(true);
         exit(PostSalesDocument(SalesLine));
     end;
 
@@ -1514,14 +1512,12 @@ codeunit 144078 "ERM Extra VAT"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup));
-            Validate("Payment Terms Code", PaymentTermsCode);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PricesIncludingVAT);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup));
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Prices Including VAT", PricesIncludingVAT);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
@@ -1754,13 +1750,11 @@ codeunit 144078 "ERM Extra VAT"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
-            Validate("Payment Terms Code", PaymentTermsCode);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
+        Vendor.Validate("Payment Terms Code", PaymentTermsCode);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreatePrepmtPurchOrder(var PurchaseHeader: Record "Purchase Header")
@@ -1850,12 +1844,10 @@ codeunit 144078 "ERM Extra VAT"
 
     local procedure FilterVATEntriesOnSalesDocument(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            Reset();
-            SetRange(Type, Type::Sale);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-        end;
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
     end;
 
     local procedure GetPaymentNosFromPaymentTerms(): Integer
@@ -1934,12 +1926,10 @@ codeunit 144078 "ERM Extra VAT"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            Get(SalesLine."Document Type", SalesLine."Document No.");
-            Validate("Applies-to Doc. Type", DocumentType);
-            Validate("Applies-to Doc. No.", DocumentNo);
-            Modify(true);
-        end;
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        SalesHeader.Validate("Applies-to Doc. Type", DocumentType);
+        SalesHeader.Validate("Applies-to Doc. No.", DocumentNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateBalAccountNoInGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1996,11 +1986,9 @@ codeunit 144078 "ERM Extra VAT"
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with SalesLine do begin
-            Validate("Unit Price", NewUnitPrice);
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", NewUnitPrice);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdatePrepmtOnReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2018,30 +2006,26 @@ codeunit 144078 "ERM Extra VAT"
     var
         PrepmtPct: Decimal;
     begin
-        with PurchaseHeader do begin
-            Find();
-            LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
-            PrepmtPct := "Prepayment %" + LibraryRandom.RandIntInRange(10, 20);
-            Validate("Prepayment %", PrepmtPct);
-            Validate("Vendor Invoice No.", IncStr("Vendor Invoice No."));
-            Validate("Check Total", UpdatePrepmtOnPurchLine(PurchaseHeader, PrepmtPct));
-            Modify(true);
-        end;
+        PrepmtPct := PurchaseHeader."Prepayment %" + LibraryRandom.RandIntInRange(10, 20);
+        PurchaseHeader.Validate("Prepayment %", PrepmtPct);
+        PurchaseHeader.Validate("Vendor Invoice No.", IncStr(PurchaseHeader."Vendor Invoice No."));
+        PurchaseHeader.Validate("Check Total", UpdatePrepmtOnPurchLine(PurchaseHeader, PrepmtPct));
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdatePrepmtOnPurchLine(PurchaseHeader: Record "Purchase Header"; PrepmtPct: Decimal): Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            Validate("Prepayment %", PrepmtPct);
-            Modify(true);
-            exit("Prepmt. Line Amount" - "Prepmt. Amount Inv. Incl. VAT");
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Prepayment %", PrepmtPct);
+        PurchaseLine.Modify(true);
+        exit(PurchaseLine."Prepmt. Line Amount" - PurchaseLine."Prepmt. Amount Inv. Incl. VAT");
     end;
 
     local procedure SetAppliestoIdVendor(InvoiceNo: Code[20])
@@ -2153,24 +2137,20 @@ codeunit 144078 "ERM Extra VAT"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            SetRange("Document No.", ExpectedDocumentNo);
-            Assert.RecordIsNotEmpty(VATEntry);
-        end;
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetRange("Document No.", ExpectedDocumentNo);
+        Assert.RecordIsNotEmpty(VATEntry);
     end;
 
     local procedure VerifyVATEntryNotExists(ExcludingDocumentNo: Code[20]; VendorNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            SetRange("Document No.", ExcludingDocumentNo);
-            Assert.RecordIsEmpty(VATEntry)
-        end;
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetRange("Document No.", ExcludingDocumentNo);
+        Assert.RecordIsEmpty(VATEntry)
     end;
 
     local procedure VerifyVATEntryWithVATPostingSetup(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
@@ -2217,14 +2197,13 @@ codeunit 144078 "ERM Extra VAT"
     begin
         FilterVATEntriesOnSalesDocument(VATEntryInvoice, VATEntryInvoice."Document Type"::Invoice, DocumentNo);
         VATEntryInvoice.FindSet();
-        with VATEntryPayment do
-            repeat
-                Reset();
-                SetRange("Unrealized VAT Entry No.", VATEntryInvoice."Entry No.");
-                FindFirst();
-                Assert.AreEqual(VATEntryInvoice."Unrealized Amount", Amount, StrSubstNo(VATFieldErr, FieldCaption(Amount)));
-                Assert.AreEqual(VATEntryInvoice."Unrealized Base", Base, StrSubstNo(VATFieldErr, FieldCaption(Base)));
-            until VATEntryInvoice.Next() = 0;
+        repeat
+            VATEntryPayment.Reset();
+            VATEntryPayment.SetRange("Unrealized VAT Entry No.", VATEntryInvoice."Entry No.");
+            VATEntryPayment.FindFirst();
+            Assert.AreEqual(VATEntryInvoice."Unrealized Amount", VATEntryPayment.Amount, StrSubstNo(VATFieldErr, VATEntryPayment.FieldCaption(Amount)));
+            Assert.AreEqual(VATEntryInvoice."Unrealized Base", VATEntryPayment.Base, StrSubstNo(VATFieldErr, VATEntryPayment.FieldCaption(Base)));
+        until VATEntryInvoice.Next() = 0;
     end;
 
     local procedure VerifyVATEntryForCreditMemo(DocumentNo: Code[20]; VATAmt: Decimal; BaseAmt: Decimal)
@@ -2233,63 +2212,55 @@ codeunit 144078 "ERM Extra VAT"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        with VATEntryInvoice do begin
-            FilterVATEntriesOnSalesDocument(VATEntryInvoice, "Document Type"::"Credit Memo", DocumentNo);
-            SetFilter(Base, '<>0');
-            FindSet();
-            repeat
-                Assert.AreNearlyEqual(
-                  Abs(Amount), VATAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, FieldCaption(Amount)));
-                Assert.AreNearlyEqual(
-                  Abs(Base), BaseAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, FieldCaption(Base)));
-            until Next() = 0;
-        end;
+        FilterVATEntriesOnSalesDocument(VATEntryInvoice, VATEntryInvoice."Document Type"::"Credit Memo", DocumentNo);
+        VATEntryInvoice.SetFilter(Base, '<>0');
+        VATEntryInvoice.FindSet();
+        repeat
+            Assert.AreNearlyEqual(
+              Abs(VATEntryInvoice.Amount), VATAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, VATEntryInvoice.FieldCaption(Amount)));
+            Assert.AreNearlyEqual(
+              Abs(VATEntryInvoice.Base), BaseAmt, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(VATFieldErr, VATEntryInvoice.FieldCaption(Base)));
+        until VATEntryInvoice.Next() = 0;
     end;
 
     local procedure VerifyPurchRevChargeDocNoOnVATEntry(VendorNo: Code[20]; ExtDocNo: Code[35]; PurchDocNo: Code[20]; ReverseSalesDocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            SetRange("External Document No.", ExtDocNo);
-            FindSet();
-            Assert.AreEqual(PurchDocNo, "Document No.", StrSubstNo(VATFieldErr, FieldCaption("Document No.")));
-            Assert.AreEqual(Type::Purchase, Type, StrSubstNo(VATFieldErr, FieldCaption(Type)));
-            Next();
-            Assert.AreEqual(ReverseSalesDocNo, "Document No.", StrSubstNo(VATFieldErr, FieldCaption("Document No.")));
-            Assert.AreEqual(Type::Sale, Type, StrSubstNo(VATFieldErr, FieldCaption(Type)));
-        end;
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetRange("External Document No.", ExtDocNo);
+        VATEntry.FindSet();
+        Assert.AreEqual(PurchDocNo, VATEntry."Document No.", StrSubstNo(VATFieldErr, VATEntry.FieldCaption("Document No.")));
+        Assert.AreEqual(VATEntry.Type::Purchase, VATEntry.Type, StrSubstNo(VATFieldErr, VATEntry.FieldCaption(Type)));
+        VATEntry.Next();
+        Assert.AreEqual(ReverseSalesDocNo, VATEntry."Document No.", StrSubstNo(VATFieldErr, VATEntry.FieldCaption("Document No.")));
+        Assert.AreEqual(VATEntry.Type::Sale, VATEntry.Type, StrSubstNo(VATFieldErr, VATEntry.FieldCaption(Type)));
     end;
 
     local procedure VerifyCustomerLedgerEntryAmounts(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentOccurrenceNo: Integer; ExpectedAmount: Decimal; ExpectedRemAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Occurrence", DocumentOccurrenceNo);
-            FindFirst();
-            CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Document Occurrence", DocumentOccurrenceNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(ExpectedAmount, CustLedgerEntry.Amount, CustLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedRemAmount, CustLedgerEntry."Remaining Amount", CustLedgerEntry.FieldCaption("Remaining Amount"));
     end;
 
     local procedure VerifyVendorLedgerEntryAmounts(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentOccurrenceNo: Integer; ExpectedAmount: Decimal; ExpectedRemAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Occurrence", DocumentOccurrenceNo);
-            FindFirst();
-            CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Occurrence", DocumentOccurrenceNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(ExpectedAmount, VendorLedgerEntry.Amount, VendorLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedRemAmount, VendorLedgerEntry."Remaining Amount", VendorLedgerEntry.FieldCaption("Remaining Amount"));
     end;
 
     local procedure VerifyThreeCustomerInvoiceLedgerEntryAmounts(CustomerNo: Code[20]; InvoiceNo: Code[20]; Amount: array[3] of Decimal)
@@ -2357,18 +2328,16 @@ codeunit 144078 "ERM Extra VAT"
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Sale);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            FindSet();
-            for i := ArrayLen(SalesLine) downto 1 do begin
-                VerifyUnrealizedVATEntryAmounts(
-                  VATEntry, -SalesLine[i].Amount, -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount), 0, 0);
-                VATEntryNo[ArrayLen(SalesLine) - i + 1] := "Entry No.";
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(SalesLine) downto 1 do begin
+            VerifyUnrealizedVATEntryAmounts(
+              VATEntry, -SalesLine[i].Amount, -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount), 0, 0);
+            VATEntryNo[ArrayLen(SalesLine) - i + 1] := VATEntry."Entry No.";
+            VATEntry.Next();
         end;
     end;
 
@@ -2377,23 +2346,21 @@ codeunit 144078 "ERM Extra VAT"
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Sale);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", PaymentNo);
-            FindSet();
-            for i := ArrayLen(SalesLine) downto 1 do begin
-                Assert.AreEqual(
-                  UnrealVATEntryNo[ArrayLen(SalesLine) - i + 1],
-                  "Unrealized VAT Entry No.",
-                  FieldCaption("Unrealized VAT Entry No."));
-                VerifyRealizedVATEntryAmounts(
-                  VATEntry,
-                  -SalesLine[i].Amount * VATPart,
-                  -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount) * VATPart);
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", PaymentNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(SalesLine) downto 1 do begin
+            Assert.AreEqual(
+              UnrealVATEntryNo[ArrayLen(SalesLine) - i + 1],
+              VATEntry."Unrealized VAT Entry No.",
+              VATEntry.FieldCaption("Unrealized VAT Entry No."));
+            VerifyRealizedVATEntryAmounts(
+              VATEntry,
+              -SalesLine[i].Amount * VATPart,
+              -(SalesLine[i]."Amount Including VAT" - SalesLine[i].Amount) * VATPart);
+            VATEntry.Next();
         end;
     end;
 
@@ -2402,18 +2369,16 @@ codeunit 144078 "ERM Extra VAT"
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            FindSet();
-            for i := ArrayLen(PurchaseLine) downto 1 do begin
-                VerifyUnrealizedVATEntryAmounts(
-                  VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
-                VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := "Entry No.";
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(PurchaseLine) downto 1 do begin
+            VerifyUnrealizedVATEntryAmounts(
+              VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
+            VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := VATEntry."Entry No.";
+            VATEntry.Next();
         end;
     end;
 
@@ -2422,23 +2387,21 @@ codeunit 144078 "ERM Extra VAT"
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", PaymentNo);
-            FindSet();
-            for i := ArrayLen(PurchaseLine) downto 1 do begin
-                Assert.AreEqual(
-                  UnrealVATEntryNo[ArrayLen(PurchaseLine) - i + 1],
-                  "Unrealized VAT Entry No.",
-                  FieldCaption("Unrealized VAT Entry No."));
-                VerifyRealizedVATEntryAmounts(
-                  VATEntry,
-                  PurchaseLine[i].Amount * VATPart,
-                  (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", PaymentNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(PurchaseLine) downto 1 do begin
+            Assert.AreEqual(
+              UnrealVATEntryNo[ArrayLen(PurchaseLine) - i + 1],
+              VATEntry."Unrealized VAT Entry No.",
+              VATEntry.FieldCaption("Unrealized VAT Entry No."));
+            VerifyRealizedVATEntryAmounts(
+              VATEntry,
+              PurchaseLine[i].Amount * VATPart,
+              (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
+            VATEntry.Next();
         end;
     end;
 

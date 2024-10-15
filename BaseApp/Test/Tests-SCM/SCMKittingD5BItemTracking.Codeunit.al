@@ -31,6 +31,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         SerialNoAvailabilityWarning: Label 'You have insufficient quantity of Item %1 on inventory.';
         WorkDate2: Date;
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
+        ExiprationDateErr: Label 'Expiration Date must be editable or uneditable based on Use Expiration Date in Item Tracking Code.';
 
     local procedure Initialize()
     var
@@ -1161,6 +1162,68 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
           'Unexpected navigate entry');
     end;
 
+    [Test]
+    procedure ExiprationDateMustBeEditableConditionally()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [SCENARIO 542207] Expiration dates for Item should be Editable Conditionally using Use Expiration Dates from Item Tracking Code.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code and Validate Use Expiration Dates.
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Assign Item Tracking Code to Item.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        // [GIVEN] Setup Item Journal.
+        LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [GIVEN] Clear all previous data.
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [GIVEN] Validate Item Tracking on Lines in Item Journal Batch.
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Create Item Journal Line.
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Purchase,
+          Item."No.",
+          LibraryRandom.RandInt(5));
+
+        // [WHEN] Go to Item Journal.
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+
+        // [THEN] Expiration Date must be Editable.
+        Assert.IsTrue(ItemJournal."Expiration Date".Editable(), ExiprationDateErr);
+
+        // [GIVEN] Close Item Journal and Validate Use Expiration Dates.
+        ItemJournal.Close();
+        ItemTrackingCode.Validate("Use Expiration Dates", false);
+        ItemTrackingCode.Modify(true);
+
+        // [WHEN] Go to Item Journal.
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+
+        // [THEN] Expiration Date must be Uneditable.
+        Assert.IsFalse(ItemJournal."Expiration Date".Editable(), ExiprationDateErr);
+    end;
+
     local procedure CreateTrackedItem(var Item: Record Item; TrackingType: Option)
     var
         ItemTrackingCode: Record "Item Tracking Code";
@@ -1336,12 +1399,11 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
 
         repeat
-            if (AssemblyOrderPage.Lines.Type.Value = 'Item') and (AssemblyOrderPage.Lines."No.".Value <> '') then begin
+            if (AssemblyOrderPage.Lines.Type.Value = 'Item') and (AssemblyOrderPage.Lines."No.".Value <> '') then
                 if ItemTrackingType(AssemblyOrderPage.Lines."No.".Value) <> Tracking::Untracked then begin
                     PrepareHandleSelectEntries(RowsExpected);
                     AssemblyOrderPage.Lines."Item Tracking Lines".Invoke();
                 end;
-            end
         until not AssemblyOrderPage.Lines.Next();
         AssemblyOrderPage.OK().Invoke();
     end;
@@ -1356,12 +1418,11 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyQuotePage.GotoRecord(AssemblyHeader);
 
         repeat
-            if (AssemblyQuotePage.Lines.Type.Value = 'Item') and (AssemblyQuotePage.Lines."No.".Value <> '') then begin
+            if (AssemblyQuotePage.Lines.Type.Value = 'Item') and (AssemblyQuotePage.Lines."No.".Value <> '') then
                 if ItemTrackingType(AssemblyQuotePage.Lines."No.".Value) <> Tracking::Untracked then begin
                     PrepareHandleSelectEntries(RowsExpected);
                     AssemblyQuotePage.Lines."Item Tracking Lines".Invoke();
                 end;
-            end
         until not AssemblyQuotePage.Lines.Next();
         AssemblyQuotePage.OK().Invoke();
     end;
@@ -1482,12 +1543,10 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     begin
         case GLB_ITPageHandler of
             GLB_ITPageHandler::AssignITSpec:
-                begin
-                    if PAR_ITPage_AssignSerial then
-                        HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
-                    else
-                        HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
-                end;
+                if PAR_ITPage_AssignSerial then
+                    HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
+                else
+                    HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
             GLB_ITPageHandler::SelectITSpec:
                 HNDL_ITPage_SelectEntries(ItemTrackingLinesPage);
             GLB_ITPageHandler::AssignITSpecPartial:

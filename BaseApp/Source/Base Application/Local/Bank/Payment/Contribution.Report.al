@@ -18,7 +18,7 @@ report 12102 Contribution
     {
         dataitem(INPS; Contributions)
         {
-            DataItemTableView = sorting("Social Security Code", "Vendor No.") order(Ascending);
+            DataItemTableView = sorting("Social Security Code", "Vendor No.") order(ascending);
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
@@ -301,7 +301,7 @@ report 12102 Contribution
         }
         dataitem(INAIL; Contributions)
         {
-            DataItemTableView = sorting("INAIL Code", "Vendor No.") order(Ascending);
+            DataItemTableView = sorting("INAIL Code", "Vendor No.") order(ascending);
             column(COMPANYNAME_Control98; COMPANYPROPERTY.DisplayName())
             {
             }

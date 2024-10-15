@@ -1610,21 +1610,19 @@ codeunit 144143 "ERM FA Deprciation"
         AccumulatedDepr: Decimal;
         BookValue: Decimal;
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FADepreciationBook."FA No.");
-            SetRange("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
-            SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            SetRange("Reclassification Entry", true);
-            FindFirst();
-            AdditionInPeriod := Amount;
-            SetRange("Reclassification Entry");
-            FindFirst();
-            AmountAtEndDate := Amount + AdditionInPeriod;
-            SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-            CalcSums(Amount);
-            AccumulatedDepr := Abs(Amount);
-            BookValue := AmountAtEndDate - AccumulatedDepr;
-        end;
+        FALedgerEntry.SetRange("FA No.", FADepreciationBook."FA No.");
+        FALedgerEntry.SetRange("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
+        FALedgerEntry.SetRange("Reclassification Entry", true);
+        FALedgerEntry.FindFirst();
+        AdditionInPeriod := FALedgerEntry.Amount;
+        FALedgerEntry.SetRange("Reclassification Entry");
+        FALedgerEntry.FindFirst();
+        AmountAtEndDate := FALedgerEntry.Amount + AdditionInPeriod;
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
+        FALedgerEntry.CalcSums(Amount);
+        AccumulatedDepr := Abs(FALedgerEntry.Amount);
+        BookValue := AmountAtEndDate - AccumulatedDepr;
         VerifyValuesOnDepreciationBookReport(
           true, 'ReclassAmount_1_', 'TotalClass_4_', 'ABS_TotalClass_13__', 'BookValueAtEndingDate',
           AdditionInPeriod, AmountAtEndDate, AccumulatedDepr, BookValue);

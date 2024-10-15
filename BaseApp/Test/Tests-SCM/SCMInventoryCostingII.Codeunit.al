@@ -1293,7 +1293,7 @@ codeunit 137287 "SCM Inventory Costing II"
     procedure PurchOrderPartialAssignItemChargeReceiveInvoiceTwice()
     var
         PurchaseLine: Record "Purchase Line";
-        ExpdAssignableAmount: Variant;
+        ExpdAssignableAmount: Decimal;
     begin
         // Verify that partial assignment of Item Charge is correct: first assign, then receive full/invoice part, then assign again.
 
@@ -1631,15 +1631,12 @@ codeunit 137287 "SCM Inventory Costing II"
         // [WHEN] Generate Revaluation Journal Line from Standard Cost Worksheet with new Standard Cost "Y", which has more than "P" decimal digits (i.e. "Y" = 15.1268).
         NewStandardCost := LibraryRandom.RandDecInRange(20, 50, 3) + LibraryRandom.RandInt(9) / 10000; // make sure there is 4 decimal digits
         ImplementStandardCostChanges(Item, NewStandardCost);
-
         // [THEN] Inventory Value (Revalued) in Revaluation Journal is equal to "Q" * ("Y" rounded to "P" digits) (i.e. 196 * 15.127 = 2964.89).
-        with ItemJournalLine do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField(
-              "Inventory Value (Revalued)",
-              Round(Round(NewStandardCost, GLSetup."Unit-Amount Rounding Precision") * Quantity, GLSetup."Amount Rounding Precision"));
-        end;
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField(
+          "Inventory Value (Revalued)",
+          Round(Round(NewStandardCost, GLSetup."Unit-Amount Rounding Precision") * ItemJournalLine.Quantity, GLSetup."Amount Rounding Precision"));
     end;
 
     [Test]
@@ -2308,40 +2305,38 @@ codeunit 137287 "SCM Inventory Costing II"
 
     local procedure PreparePartialReceiptInvoice(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal; QtyToInvoice: Decimal)
     var
+        Math: Codeunit Math;
         QtyToReceiveCoeff: Decimal;
         QtyToInvoiceCoeff: Decimal;
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type");
-            SetRange("Document No.", "Document No.");
-            QtyToReceiveCoeff := QtyToReceive / Quantity;
-            QtyToInvoiceCoeff := QtyToInvoice / Quantity;
-            FindSet();
-            repeat
-                Validate("Qty. to Receive", Quantity * QtyToReceiveCoeff);
-                Validate("Qty. to Invoice", Quantity * QtyToInvoiceCoeff);
-                Modify(true);
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
+        QtyToReceiveCoeff := QtyToReceive / PurchaseLine.Quantity;
+        QtyToInvoiceCoeff := QtyToInvoice / PurchaseLine.Quantity;
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", Math.Min(PurchaseLine.Quantity * QtyToReceiveCoeff, PurchaseLine.Quantity - PurchaseLine."Quantity Received"));
+            PurchaseLine.Validate("Qty. to Invoice", Math.Min(PurchaseLine.Quantity * QtyToInvoiceCoeff, PurchaseLine.Quantity - PurchaseLine."Quantity Invoiced"));
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure PreparePartialShipInvoice(var SalesLine: Record "Sales Line"; QtyToShip: Decimal; QtyToInvoice: Decimal)
     var
+        Math: Codeunit Math;
         QtyToShipCoeff: Decimal;
         QtyToInvoiceCoeff: Decimal;
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type");
-            SetRange("Document No.", "Document No.");
-            QtyToShipCoeff := QtyToShip / Quantity;
-            QtyToInvoiceCoeff := QtyToInvoice / Quantity;
-            FindSet();
-            repeat
-                Validate("Qty. to Ship", Quantity * QtyToShipCoeff);
-                Validate("Qty. to Invoice", Quantity * QtyToInvoiceCoeff);
-                Modify(true);
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        QtyToShipCoeff := QtyToShip / SalesLine.Quantity;
+        QtyToInvoiceCoeff := QtyToInvoice / SalesLine.Quantity;
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Qty. to Ship", Math.Min(SalesLine.Quantity * QtyToShipCoeff, SalesLine.Quantity - SalesLine."Quantity Shipped"));
+            SalesLine.Validate("Qty. to Invoice", Math.Min(SalesLine.Quantity * QtyToInvoiceCoeff, SalesLine.Quantity - SalesLine."Quantity Invoiced"));
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -2410,11 +2405,9 @@ codeunit 137287 "SCM Inventory Costing II"
         CopyPurchaseDocument.RunModal();
 
         LibraryERM.CreateReasonCode(ReasonCode);
-        with PurchaseHeader do begin
-            Find();
-            Validate("Reason Code", ReasonCode.Code);
-            Modify(true);
-        end;
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
+        PurchaseHeader.Modify(true);
 
         // [WHEN] Post Purchase Credit Memo
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2518,17 +2511,16 @@ codeunit 137287 "SCM Inventory Costing II"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            if IsService then
-                Validate(Type, Type::Service)
-            else
-                Validate(Type, Type::"Non-Inventory");
-            Validate("Unit Cost", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Cost
-            Validate("Unit Price", "Unit Cost" * 2);
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        if IsService then
+            Item.Validate(Type, Item.Type::Service)
+        else
+            Item.Validate(Type, Item.Type::"Non-Inventory");
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        // Using Random value for Unit Cost
+        Item.Validate("Unit Price", Item."Unit Cost" * 2);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -2607,12 +2599,10 @@ codeunit 137287 "SCM Inventory Costing II"
         UpdateItem(Item, VATPostingSetup."VAT Prod. Posting Group");
         UpdateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PricesIncludingVAT);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Modify(true);
 
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.",
           LibraryRandom.RandDec(1000, 5), LibraryRandom.RandDec(1000, 5));
@@ -2672,12 +2662,10 @@ codeunit 137287 "SCM Inventory Costing II"
         UpdateItem(Item, VATPostingSetup."VAT Prod. Posting Group");
         UpdateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group");
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        with SalesHeader do begin
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PricesIncludingVAT);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Prices Including VAT", PricesIncludingVAT);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Modify(true);
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
         GLAccount.Get(CustomerPostingGroup.GetInvRoundingAccount());
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -2746,15 +2734,14 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT %", LibraryRandom.RandInt(10));  // Use Random VAT % because value is not important.
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Validate("Purchase VAT Account", GLAccount."No.");
-            Validate("Purch. VAT Unreal. Account", GLAccount."No.");
-            Validate("Sales VAT Account", GLAccount2."No.");
-            Validate("Sales VAT Unreal. Account", GLAccount2."No.");
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        // Use Random VAT % because value is not important.
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", GLAccount."No.");
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount2."No.");
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", GLAccount2."No.");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateCurrency(var Currency: Record Currency)
@@ -3038,11 +3025,9 @@ codeunit 137287 "SCM Inventory Costing II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Exact Cost Reversing Mandatory", NewValue);
-            Modify();
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", NewValue);
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure AssignItemChargeWithSuggest(ExpdAssignableAmount: Decimal; Menu: Integer)
@@ -3078,31 +3063,28 @@ codeunit 137287 "SCM Inventory Costing II"
         RecRef: RecordRef;
         Cnt: Integer;
     begin
-        for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do
-            with ItemLedgerEntry do begin
-                Init();
-                RecRef.GetTable(ItemLedgerEntry);
-                "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-                "Source Type" := "Source Type"::Customer;
-                "Source No." := CustomerNo;
-                "Global Dimension 1 Code" := DimValue1;
-                "Global Dimension 2 Code" := DimValue2;
-                Insert();
-                ExpectedResult := ExpectedResult + MockValueEntries("Entry No.", "Source Type", "Source No.", DimValue1, DimValue2);
-            end;
+        for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
+            ItemLedgerEntry.Init();
+            RecRef.GetTable(ItemLedgerEntry);
+            ItemLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, ItemLedgerEntry.FieldNo("Entry No."));
+            ItemLedgerEntry."Source Type" := ItemLedgerEntry."Source Type"::Customer;
+            ItemLedgerEntry."Source No." := CustomerNo;
+            ItemLedgerEntry."Global Dimension 1 Code" := DimValue1;
+            ItemLedgerEntry."Global Dimension 2 Code" := DimValue2;
+            ItemLedgerEntry.Insert();
+            ExpectedResult := ExpectedResult + MockValueEntries(ItemLedgerEntry."Entry No.", ItemLedgerEntry."Source Type", ItemLedgerEntry."Source No.", DimValue1, DimValue2);
+        end;
     end;
 
     local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Enum "Res. Journal Line Entry Type"; CustomerNo: Code[20])
     begin
-        with ResLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ResLedgerEntry, FieldNo("Entry No."));
-            "Entry Type" := EntryType;
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := CustomerNo;
-            "Total Cost" := LibraryRandom.RandDec(10, 2);
-            Insert();
-        end;
+        ResLedgerEntry.Init();
+        ResLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ResLedgerEntry, ResLedgerEntry.FieldNo("Entry No."));
+        ResLedgerEntry."Entry Type" := EntryType;
+        ResLedgerEntry."Source Type" := ResLedgerEntry."Source Type"::Customer;
+        ResLedgerEntry."Source No." := CustomerNo;
+        ResLedgerEntry."Total Cost" := LibraryRandom.RandDec(10, 2);
+        ResLedgerEntry.Insert();
     end;
 
     local procedure MockValueEntries(ItemLedgerEntryNo: Integer; SourceType: Enum "Analysis Source Type"; SourceNo: Code[20]; DimValue1: Code[20]; DimValue2: Code[20]) ExpectedResult: Decimal
@@ -3111,20 +3093,19 @@ codeunit 137287 "SCM Inventory Costing II"
         RecRef: RecordRef;
         Cnt: Integer;
     begin
-        with ValueEntry do
-            for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-                Init();
-                RecRef.GetTable(ValueEntry);
-                "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-                "Source Type" := SourceType;
-                "Source No." := SourceNo;
-                "Global Dimension 1 Code" := DimValue1;
-                "Global Dimension 2 Code" := DimValue2;
-                "Cost Amount (Non-Invtbl.)" := LibraryRandom.RandInt(100);
-                ExpectedResult := ExpectedResult + "Cost Amount (Non-Invtbl.)";
-                "Item Ledger Entry No." := ItemLedgerEntryNo;
-                Insert();
-            end;
+        for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
+            ValueEntry.Init();
+            RecRef.GetTable(ValueEntry);
+            ValueEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, ValueEntry.FieldNo("Entry No."));
+            ValueEntry."Source Type" := SourceType;
+            ValueEntry."Source No." := SourceNo;
+            ValueEntry."Global Dimension 1 Code" := DimValue1;
+            ValueEntry."Global Dimension 2 Code" := DimValue2;
+            ValueEntry."Cost Amount (Non-Invtbl.)" := LibraryRandom.RandInt(100);
+            ExpectedResult := ExpectedResult + ValueEntry."Cost Amount (Non-Invtbl.)";
+            ValueEntry."Item Ledger Entry No." := ItemLedgerEntryNo;
+            ValueEntry.Insert();
+        end;
     end;
 
     local procedure VerifyChargeItemAssignment(ItemNo: Code[20]; AmountToAssign: Decimal)
@@ -3252,17 +3233,17 @@ codeunit 137287 "SCM Inventory Costing II"
     procedure SuggstItemChargeAssgntPurchHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     var
         Suggest: Variant;
-        ExpdAssignableAmount: Variant;
-        ActualAssignableAmount: Text;
+        ExpdAssignableAmount: Decimal;
+        ActualAssignableAmount: Decimal;
         RequireSuggest: Boolean;
     begin
         LibraryVariableStorage.Dequeue(Suggest);
-        LibraryVariableStorage.Dequeue(ExpdAssignableAmount);
-        ActualAssignableAmount := ItemChargeAssignmentPurch.AssgntAmount.Value();
+        ExpdAssignableAmount := LibraryVariableStorage.DequeueDecimal();
+        ActualAssignableAmount := ItemChargeAssignmentPurch.AssgntAmount.AsDecimal();
         RequireSuggest := Suggest;
         if RequireSuggest then
             ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
-        Assert.AreEqual(Format(ExpdAssignableAmount), ActualAssignableAmount, AssignableAmountErr);
+        Assert.AreEqual(ExpdAssignableAmount, ActualAssignableAmount, AssignableAmountErr);
         ItemChargeAssignmentPurch.RemAmountToAssign.AssertEquals(0);
         ItemChargeAssignmentPurch.OK().Invoke();
     end;
@@ -3339,9 +3320,7 @@ codeunit 137287 "SCM Inventory Costing II"
             ItemTrackingMode::SelectEntries:
                 ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::CreateThreeLots:
-                begin
-                    CreateLotsOnItemTrackingLines(ItemTrackingLines, 3);
-                end;
+                CreateLotsOnItemTrackingLines(ItemTrackingLines, 3);
         end;
     end;
 

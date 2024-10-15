@@ -26,7 +26,6 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         ErrorUnexpectedNumberOfLines: Label 'Unexpected number of lines.';
         ConfirmApply: Label 'Do you want to post the application';
         ApplicationSuccessfullyPosted: Label 'The application was successfully posted.';
-        ErrorStatusMustBeEqual: Label 'Status must be equal to ''%1''  in VAT Report Header: No.=%2. Current value is ''Released''.';
         ErrorYouCannotRename: Label 'You cannot rename the report because it has been assigned a report number.';
         ErrorThisIsNotAllowed: Label 'This is not allowed because of the setup in the VAT Report Setup window.';
         ErrorEditingIsNotAllowed: Label 'Editing is not allowed because the report is marked as Released.';
@@ -34,7 +33,6 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         ErrorYouCannotSpecifyAnOriginalReport: Label 'You cannot specify an original report for a report of type Standard.';
         ErrorYouCannotSpecifyTheSameReport: Label 'You cannot specify the same report as the reference report.';
         ErrorYouMustSpecifyAnOriginalReportNo: Label 'You must specify an original report for a report of type Cancellation';
-        NonResidentCrMemosNotReportedErr: Label 'The VAT Entry does not exist. Identification fields and values: Entry No.=';
         GJLResidentIndErr: Label 'The Account Type or Bal. Account Type field must be Customer or Vendor when the Resident field';
 
     [Test]
@@ -72,7 +70,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
             ChangeStatus(VATReportHeader, VATReportHeader.Status::Released);
             // Delete VAT Report.
             asserterror VATReportHeader.Delete(true);
-            Assert.ExpectedError(StrSubstNo(ErrorStatusMustBeEqual, VATReportHeader.Status::Open, VATReportHeader."No."));
+            Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption(Status), Format(VATReportHeader.Status::Open));
         end;
 
         // Tear Down.
@@ -407,8 +405,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+        VerifyGetLine(GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, false, GenJournalLine.Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -417,8 +414,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+        VerifyGetLine(GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Sale, false, GenJournalLine.Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -427,10 +423,10 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            asserterror VerifyGetLine(
-                "Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, false, Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
-        Assert.ExpectedError(NonResidentCrMemosNotReportedErr);
+        asserterror VerifyGetLine(
+                GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Sale, false, GenJournalLine.Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
+
+        Assert.ExpectedErrorCannotFind(Database::"VAT Entry");
     end;
 
     [Test]
@@ -439,8 +435,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -449,8 +444,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -459,8 +453,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
+        VerifyGetLine(GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -469,8 +462,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Payment, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -479,8 +471,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -489,8 +480,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Refund, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Refund, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -499,9 +489,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-              "Account Type"::"G/L Account", "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(
+              GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -510,8 +499,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+        VerifyGetLine(GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, false, GenJournalLine.Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -520,9 +508,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-              "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+        VerifyGetLine(
+              GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Purchase, false, GenJournalLine.Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -531,10 +518,10 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            asserterror VerifyGetLine(
-                "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, false, Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
-        Assert.ExpectedError(NonResidentCrMemosNotReportedErr);
+        asserterror VerifyGetLine(
+                GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Purchase, false, GenJournalLine.Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
+
+        Assert.ExpectedErrorCannotFind(Database::"VAT Entry");
     end;
 
     [Test]
@@ -543,9 +530,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-                "Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
+        VerifyGetLine(
+                GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -555,9 +541,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-              "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
+        VerifyGetLine(
+              GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -567,8 +552,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
+        VerifyGetLine(GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -577,9 +561,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-                "Account Type"::"G/L Account", "Document Type"::Payment, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
+        VerifyGetLine(
+                GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -589,9 +572,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-                "Account Type"::"G/L Account", "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
+        VerifyGetLine(
+                GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -601,9 +583,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-                "Account Type"::"G/L Account", "Document Type"::Refund, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
+        VerifyGetLine(
+                GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::Refund, GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -613,9 +594,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGetLine(
-              "Account Type"::"G/L Account", "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+        VerifyGetLine(
+              GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Purchase, true, GenJournalLine.Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     local procedure VerifyGetLine(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
@@ -1679,8 +1659,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Payment, "Gen. Posting Type"::Sale, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1689,8 +1668,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Invoice, "Gen. Posting Type"::Sale, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1699,8 +1677,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Invoice, "Gen. Posting Type"::Sale, Resident::"Non-Resident");
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine.Resident::"Non-Resident");
     end;
 
     [Test]
@@ -1709,8 +1686,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Refund, "Gen. Posting Type"::Sale, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Refund, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1719,8 +1695,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1729,8 +1704,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Payment, "Gen. Posting Type"::Purchase, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1739,8 +1713,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Invoice, "Gen. Posting Type"::Purchase, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1749,8 +1722,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            asserterror VerifyGenJnlGroupingGetLn("Document Type"::Payment, "Gen. Posting Type"::Purchase, Resident::"Non-Resident");
+        asserterror VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::"Non-Resident");
         Assert.ExpectedError(GJLResidentIndErr);
     end;
 
@@ -1760,8 +1732,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            asserterror VerifyGenJnlGroupingGetLn("Document Type"::Invoice, "Gen. Posting Type"::Purchase, Resident::"Non-Resident");
+        asserterror VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::"Non-Resident");
         Assert.ExpectedError(GJLResidentIndErr);
     end;
 
@@ -1771,8 +1742,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::Refund, "Gen. Posting Type"::Purchase, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Refund, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1781,8 +1751,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            VerifyGenJnlGroupingGetLn("Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, Resident::Resident);
+        VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -1791,8 +1760,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            asserterror VerifyGenJnlGroupingGetLn("Document Type"::Refund, "Gen. Posting Type"::Purchase, Resident::"Non-Resident");
+        asserterror VerifyGenJnlGroupingGetLn(GenJournalLine."Document Type"::Refund, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine.Resident::"Non-Resident");
         Assert.ExpectedError(GJLResidentIndErr);
     end;
 
@@ -2931,14 +2899,12 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
     local procedure CreatePostGenJnlLineWithoutFiscCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type")
     begin
-        with GenJournalLine do begin
-            LibraryVATUtils.CreateGenJnlLineWithFiscalCodeAndVATRegNo(
-              GenJournalLine, "Document Type"::"Credit Memo", AccountType, GenPostingType, true, Resident::Resident, false);
-            "Fiscal Code" := '';
-            "VAT Registration No." := '';
-            "Include in VAT Transac. Rep." := false;
-            Modify(true);
-        end;
+        LibraryVATUtils.CreateGenJnlLineWithFiscalCodeAndVATRegNo(
+          GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", AccountType, GenPostingType, true, GenJournalLine.Resident::Resident, false);
+        GenJournalLine."Fiscal Code" := '';
+        GenJournalLine."VAT Registration No." := '';
+        GenJournalLine."Include in VAT Transac. Rep." := false;
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateIncInVATRepOnVATEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
     end;
@@ -2960,9 +2926,8 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVATUtils.UpdateVATPostingSetup(true);
 
         // Create and Post Gen. Journal Line.
-        with GenJournalLine do
-            LibraryVATUtils.CreatePostGenJnlLine(
-              GenJournalLine, "Document Type"::Invoice, "Account Type"::Customer, "Gen. Posting Type"::Sale, true, Resident::Resident, true);
+        LibraryVATUtils.CreatePostGenJnlLine(
+              GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, GenJournalLine."Gen. Posting Type"::Sale, true, GenJournalLine.Resident::Resident, true);
 
         // Create VAT Report.
         LibraryVATUtils.CreateVATReport(
@@ -3015,13 +2980,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindLast();
-            "Include in VAT Transac. Rep." := true;
-            Modify(true);
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.FindLast();
+        VATEntry."Include in VAT Transac. Rep." := true;
+        VATEntry.Modify(true);
     end;
 
     local procedure UpdatePostingDateInPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; PostingDate: Date)
@@ -3036,13 +2999,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        VATReportLine.SetRange("Document Type", DocType);
+        VATReportLine.SetRange("Document No.", DocNo);
+        VATReportLine.FindFirst();
+        VATReportLine.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyVATReportLine2(var VATReportLine: Record "VAT Report Line"; DocumentType: Enum "Gen. Journal Document Type"; AmountInclVAT: Decimal)

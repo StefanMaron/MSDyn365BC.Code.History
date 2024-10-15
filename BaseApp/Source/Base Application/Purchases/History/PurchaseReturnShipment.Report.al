@@ -95,6 +95,9 @@ report 6636 "Purchase - Return Shipment"
                     column(CompanyInfoEmail; CompanyInfo."E-Mail")
                     {
                     }
+                    column(CompanyPicture; DummyCompanyInfo.Picture)
+                    {
+                    }
                     column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
@@ -404,6 +407,10 @@ report 6636 "Purchase - Return Shipment"
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                             TypeInt := Type.AsInteger();
+
+                            if FirstLineHasBeenOutput then
+                                Clear(DummyCompanyInfo.Picture);
+                            FirstLineHasBeenOutput := true;
                         end;
 
                         trigger OnPreDataItem()
@@ -414,6 +421,8 @@ report 6636 "Purchase - Return Shipment"
                             if not MoreLines then
                                 CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
+                            FirstLineHasBeenOutput := false;
+                            DummyCompanyInfo.Picture := CompanyInfo.Picture;
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -477,6 +486,7 @@ report 6636 "Purchase - Return Shipment"
 
                 trigger OnAfterGetRecord()
                 begin
+                    FirstLineHasBeenOutput := false;
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
@@ -502,6 +512,7 @@ report 6636 "Purchase - Return Shipment"
             var
                 Language: Codeunit Language;
             begin
+                FirstLineHasBeenOutput := false;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
@@ -522,6 +533,11 @@ report 6636 "Purchase - Return Shipment"
                 if PayToContact.Get("Pay-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                FirstLineHasBeenOutput := false;
             end;
 
             trigger OnPostDataItem()
@@ -593,6 +609,7 @@ report 6636 "Purchase - Return Shipment"
 
     trigger OnInitReport()
     begin
+        CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
 
         OnAfterInitReport();
@@ -616,8 +633,13 @@ report 6636 "Purchase - Return Shipment"
     end;
 
     var
+#pragma warning disable AA0074
         Text002: Label 'Purchase - Return Shipment %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text003: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        DummyCompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -627,7 +649,6 @@ report 6636 "Purchase - Return Shipment"
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
-        ShptShipToAddr: array[8] of Text[100];
         ShptBuyFromAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
@@ -682,6 +703,8 @@ report 6636 "Purchase - Return Shipment"
 
     protected var
         CompanyInfo: Record "Company Information";
+        FirstLineHasBeenOutput: Boolean;
+        ShptShipToAddr: array[8] of Text[100];
 
     procedure InitializeRequest(NewNoOfCopies: Decimal; NewShowInternalInfo: Boolean; NewShowCorrectionLines: Boolean; NewLogInteraction: Boolean)
     begin

@@ -165,11 +165,9 @@ table 12116 "Withholding Tax"
         {
             Caption = 'Paid';
         }
-        field(52; Reason; Option)
+        field(52; Reason; Enum "Withholding Tax Reason")
         {
             Caption = 'Reason';
-            OptionCaption = ' ,A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K';
-            OptionMembers = " ",A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K;
         }
         field(53; "Non-Taxable Income Type"; Enum "Non-Taxable Income Type")
         {

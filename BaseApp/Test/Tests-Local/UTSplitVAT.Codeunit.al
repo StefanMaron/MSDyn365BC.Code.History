@@ -101,24 +101,21 @@ codeunit 144560 "UT Split VAT"
 
         // Execute
         SplitVATSalesHeader.InitializeTotalingSalesLine(SplitVATSalesLine, TotalingSalesLine, LineNo);
-
         // Verify
-        with TotalingSalesLine do begin
-            Assert.IsTrue("Automatically Generated", FieldCaption("Automatically Generated"));
-            Assert.AreEqual(SplitVATSalesLine.Type::"G/L Account", Type, FieldCaption(Type));
-            Assert.AreEqual(SplitVATSalesLine."Document Type", "Document Type", FieldCaption("Document Type"));
-            Assert.AreEqual(SplitVATSalesLine."Document No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(
-              SplitVATSalesLine."Sell-to Customer No.", "Sell-to Customer No.", FieldCaption("Sell-to Customer No."));
-            Assert.AreEqual(-1, Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(LineNo, "Line No.", FieldCaption("Line No."));
-            Assert.AreEqual(VATPostingSetup."Sales VAT Account", "No.", FieldCaption("No."));
-            Assert.AreEqual(
-              VATPostingSetup."VAT Prod. Posting Group", "VAT Prod. Posting Group", FieldCaption("VAT Prod. Posting Group"));
-            Assert.AreEqual(
-              VATPostingSetup."VAT Bus. Posting Group", "VAT Bus. Posting Group", FieldCaption("VAT Bus. Posting Group"));
-            Assert.AreEqual(VATPostingSetup."VAT Calculation Type", "VAT Calculation Type", FieldCaption("VAT Calculation Type"));
-        end;
+        Assert.IsTrue(TotalingSalesLine."Automatically Generated", TotalingSalesLine.FieldCaption("Automatically Generated"));
+        Assert.AreEqual(SplitVATSalesLine.Type::"G/L Account", TotalingSalesLine.Type, TotalingSalesLine.FieldCaption(Type));
+        Assert.AreEqual(SplitVATSalesLine."Document Type", TotalingSalesLine."Document Type", TotalingSalesLine.FieldCaption("Document Type"));
+        Assert.AreEqual(SplitVATSalesLine."Document No.", TotalingSalesLine."Document No.", TotalingSalesLine.FieldCaption("Document No."));
+        Assert.AreEqual(
+          SplitVATSalesLine."Sell-to Customer No.", TotalingSalesLine."Sell-to Customer No.", TotalingSalesLine.FieldCaption("Sell-to Customer No."));
+        Assert.AreEqual(-1, TotalingSalesLine.Quantity, TotalingSalesLine.FieldCaption(Quantity));
+        Assert.AreEqual(LineNo, TotalingSalesLine."Line No.", TotalingSalesLine.FieldCaption("Line No."));
+        Assert.AreEqual(VATPostingSetup."Sales VAT Account", TotalingSalesLine."No.", TotalingSalesLine.FieldCaption("No."));
+        Assert.AreEqual(
+          VATPostingSetup."VAT Prod. Posting Group", TotalingSalesLine."VAT Prod. Posting Group", TotalingSalesLine.FieldCaption("VAT Prod. Posting Group"));
+        Assert.AreEqual(
+          VATPostingSetup."VAT Bus. Posting Group", TotalingSalesLine."VAT Bus. Posting Group", TotalingSalesLine.FieldCaption("VAT Bus. Posting Group"));
+        Assert.AreEqual(VATPostingSetup."VAT Calculation Type", TotalingSalesLine."VAT Calculation Type", TotalingSalesLine.FieldCaption("VAT Calculation Type"));
     end;
 
     [Test]
@@ -440,22 +437,20 @@ codeunit 144560 "UT Split VAT"
 
     local procedure VerifyTotalingServiceLine(TotalingServiceLine: Record "Service Line"; SplitVATServiceLine: Record "Service Line"; SplitVATPostingSetup: Record "VAT Posting Setup"; ExpectedLineNo: Integer; ExpectedQtyToShip: Decimal)
     begin
-        with TotalingServiceLine do begin
-            Assert.IsTrue("Automatically Generated", FieldCaption("Automatically Generated"));
-            Assert.AreEqual(SplitVATServiceLine.Type::"G/L Account", Type, FieldCaption(Type));
-            Assert.AreEqual(SplitVATServiceLine."Document Type", "Document Type", FieldCaption("Document Type"));
-            Assert.AreEqual(SplitVATServiceLine."Document No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(SplitVATServiceLine."Customer No.", "Customer No.", FieldCaption("Customer No."));
-            Assert.AreEqual(-1, Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(ExpectedQtyToShip, "Qty. to Ship", FieldCaption("Qty. to Ship"));
-            Assert.AreEqual(ExpectedLineNo, "Line No.", FieldCaption("Line No."));
-            Assert.AreEqual(SplitVATPostingSetup."Sales VAT Account", "No.", FieldCaption("No."));
-            Assert.AreEqual(
-              SplitVATPostingSetup."VAT Prod. Posting Group", "VAT Prod. Posting Group", FieldCaption("VAT Prod. Posting Group"));
-            Assert.AreEqual(
-              SplitVATPostingSetup."VAT Bus. Posting Group", "VAT Bus. Posting Group", FieldCaption("VAT Bus. Posting Group"));
-            Assert.AreEqual(SplitVATPostingSetup."VAT Calculation Type", "VAT Calculation Type", FieldCaption("VAT Calculation Type"))
-        end;
+        Assert.IsTrue(TotalingServiceLine."Automatically Generated", TotalingServiceLine.FieldCaption("Automatically Generated"));
+        Assert.AreEqual(SplitVATServiceLine.Type::"G/L Account", TotalingServiceLine.Type, TotalingServiceLine.FieldCaption(Type));
+        Assert.AreEqual(SplitVATServiceLine."Document Type", TotalingServiceLine."Document Type", TotalingServiceLine.FieldCaption("Document Type"));
+        Assert.AreEqual(SplitVATServiceLine."Document No.", TotalingServiceLine."Document No.", TotalingServiceLine.FieldCaption("Document No."));
+        Assert.AreEqual(SplitVATServiceLine."Customer No.", TotalingServiceLine."Customer No.", TotalingServiceLine.FieldCaption("Customer No."));
+        Assert.AreEqual(-1, TotalingServiceLine.Quantity, TotalingServiceLine.FieldCaption(Quantity));
+        Assert.AreEqual(ExpectedQtyToShip, TotalingServiceLine."Qty. to Ship", TotalingServiceLine.FieldCaption("Qty. to Ship"));
+        Assert.AreEqual(ExpectedLineNo, TotalingServiceLine."Line No.", TotalingServiceLine.FieldCaption("Line No."));
+        Assert.AreEqual(SplitVATPostingSetup."Sales VAT Account", TotalingServiceLine."No.", TotalingServiceLine.FieldCaption("No."));
+        Assert.AreEqual(
+          SplitVATPostingSetup."VAT Prod. Posting Group", TotalingServiceLine."VAT Prod. Posting Group", TotalingServiceLine.FieldCaption("VAT Prod. Posting Group"));
+        Assert.AreEqual(
+          SplitVATPostingSetup."VAT Bus. Posting Group", TotalingServiceLine."VAT Bus. Posting Group", TotalingServiceLine.FieldCaption("VAT Bus. Posting Group"));
+        Assert.AreEqual(SplitVATPostingSetup."VAT Calculation Type", TotalingServiceLine."VAT Calculation Type", TotalingServiceLine.FieldCaption("VAT Calculation Type"))
     end;
 }
 

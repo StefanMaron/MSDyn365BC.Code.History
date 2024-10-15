@@ -30,8 +30,12 @@ codeunit 94 "Blnkt Purch Ord. to Ord. (Y/N)"
         PurchOrderHeader: Record "Purchase Header";
         BlanketPurchOrderToOrder: Codeunit "Blanket Purch. Order to Order";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to create an order from the blanket order?';
+#pragma warning disable AA0470
         Text001: Label 'Order %1 has been created from blanket order %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure IsOnRunHandled(var PurchaseHeader: Record "Purchase Header") IsHandled: Boolean
     begin

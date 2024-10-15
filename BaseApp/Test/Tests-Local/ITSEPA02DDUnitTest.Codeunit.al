@@ -21,7 +21,6 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
-        FieldValueErr: Label '%1 must be equal to ''%2''';
         FieldBlankErr: Label 'Mandate ID must have a value in the currently selected record.';
         PartnerTypeErr: Label 'The customer''s %1, %2, must be equal to the %1, %3, specified in the collection.', Comment = '%1 = Partner Type, %2 = Company/Person, %3 = Company/Person.';
         ValueNotFoundErr: Label 'Value not found.';
@@ -297,7 +296,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         asserterror CustomerBillLine.Validate("Cumulative Bank Receipts", true);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(FieldValueErr, CustomerBillLine.FieldCaption("Direct Debit Mandate ID"), ''));
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Direct Debit Mandate ID"), '');
     end;
 
     [Test]
@@ -326,7 +325,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         asserterror CustomerBillLine.Validate("Direct Debit Mandate ID", DDMandateId);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(FieldValueErr, CustomerBillLine.FieldCaption("Cumulative Bank Receipts"), false));
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Cumulative Bank Receipts"), Format(false));
     end;
 
     [Test]
@@ -352,8 +351,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         asserterror CustomerBillLine.Validate("Customer Bank Acc. No.", CustomerBankAccount.Code);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(FieldValueErr, CustomerBillLine.FieldCaption("Customer Bank Acc. No."),
-            CustomerBillLine."Customer Bank Acc. No."));
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Customer Bank Acc. No."), CustomerBillLine."Customer Bank Acc. No.");
     end;
 
     [Test]
@@ -375,7 +373,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         asserterror CustomerBillHeader.ExportToFile();
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(FieldValueErr, Bill.FieldCaption("Bank Receipt"), true));
+        Assert.ExpectedTestFieldError(Bill.FieldCaption("Bank Receipt"), Format(true));
     end;
 
     [Test]
@@ -1375,24 +1373,20 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     var
         CustomerBillLine: Record "Customer Bill Line";
     begin
-        with CustomerBillLine do begin
-            SetRange("Customer Bill No.", CustomerBillNo);
-            FindFirst();
-            "Temporary Cust. Bill No." := NewTemporaryCustBillNo;
-            Modify();
-        end;
+        CustomerBillLine.SetRange("Customer Bill No.", CustomerBillNo);
+        CustomerBillLine.FindFirst();
+        CustomerBillLine."Temporary Cust. Bill No." := NewTemporaryCustBillNo;
+        CustomerBillLine.Modify();
     end;
 
     local procedure UpdateFirstIssuedCustomerBillLineFinalCustBillNo(IssuedCustomerBillNo: Code[20]; NewFinalCustBillNo: Code[20])
     var
         IssuedCustomerBillLine: Record "Issued Customer Bill Line";
     begin
-        with IssuedCustomerBillLine do begin
-            SetRange("Customer Bill No.", IssuedCustomerBillNo);
-            FindFirst();
-            "Final Cust. Bill No." := NewFinalCustBillNo;
-            Modify();
-        end;
+        IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillNo);
+        IssuedCustomerBillLine.FindFirst();
+        IssuedCustomerBillLine."Final Cust. Bill No." := NewFinalCustBillNo;
+        IssuedCustomerBillLine.Modify();
     end;
 
     procedure DequeueFileName(var FileName: Text)

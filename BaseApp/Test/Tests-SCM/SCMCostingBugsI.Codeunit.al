@@ -1029,24 +1029,20 @@ codeunit 137620 "SCM Costing Bugs I"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
-            TestField("Cost Amount (Actual)", 0);
-            TestField("Cost Amount (Expected)", 0);
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+        ValueEntry.TestField("Cost Amount (Expected)", 0);
     end;
 
     local procedure VerifyItemLedgerEntriesToAdjustNotExist(ItemNo: Code[20])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            SetRange("Item No.", ItemNo);
-            SetRange("Applied Entry to Adjust", true);
-            Assert.RecordIsEmpty(ItemLedgerEntry);
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
+        Assert.RecordIsEmpty(ItemLedgerEntry);
     end;
 
     [Normal]

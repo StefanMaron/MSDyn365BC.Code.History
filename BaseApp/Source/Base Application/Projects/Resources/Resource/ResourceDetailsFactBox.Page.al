@@ -3,7 +3,7 @@ namespace Microsoft.Projects.Resources.Resource;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 
@@ -28,7 +28,7 @@ page 9108 "Resource Details FactBox"
                     ShowDetails();
                 end;
             }
-#if not CLEAN23
+#if not CLEAN25
             field(NoOfResourcePrices; NoOfResourcePrices)
             {
                 ApplicationArea = Jobs;
@@ -143,7 +143,7 @@ page 9108 "Resource Details FactBox"
     var
         PriceListLine: Record "Price List Line";
     begin
-#if not CLEAN23
+#if not CLEAN25
         if CalcOldNoOfRecords() then
             exit;
 #endif
@@ -157,7 +157,7 @@ page 9108 "Resource Details FactBox"
         NoOfResourceCosts := PriceListLine.Count();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CalcOldNoOfRecords(): Boolean;
     var
         ResourcePrice: Record "Resource Price";

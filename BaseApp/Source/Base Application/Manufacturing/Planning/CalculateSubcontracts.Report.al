@@ -155,8 +155,12 @@ report 99001015 "Calculate Subcontracts"
         Text1130001: Label 'Work Center %1 skipped because Vendor %2  is blocked';
         PrivacyBlockedMsg: Label 'Work Center %1 skipped because Vendor %2 is blocked for privacy.', Comment = '%1 = work center code, %2 = vendor code.';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing Work Centers   #1##########\';
         Text001: Label 'Processing Orders         #2########## ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
@@ -252,7 +256,7 @@ report 99001015 "Calculate Subcontracts"
             ReqLine."Replenishment System" := ReqLine."Replenishment System"::"Prod. Order";
             ReqLine."Ref. Order No." := ProdOrderLine."Prod. Order No.";
             ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::"Prod. Order";
-            ReqLine."Ref. Order Status" := ProdOrderLine.Status.AsInteger();
+            ReqLine."Ref. Order Status" := ProdOrderLine.Status;
             ReqLine."Ref. Line No." := ProdOrderLine."Line No.";
             ReqLine."Action Message" := ReqLine."Action Message"::New;
             ReqLine."Accept Action Message" := true;

@@ -11,11 +11,10 @@
     var
         Assert: Codeunit Assert;
         LibraryVATUtils: Codeunit "Library - VAT Utils";
-        ReleaseErr: Label 'Status should be Released';
-        ReopenErr: Label 'Status should be Open';
-        MissingSetupErr: Label 'This is not allowed because of the setup in the %1 window.';
-        SubmitErr: Label 'Status should be sumbitted';
-        Submit2Err: Label 'Status must be equal to ''Released''  in %1', Comment = '%1=Table Caption;';
+        StatusReleasedErr: Label 'Status should be Released';
+        StatusOpenErr: Label 'Status should be Open';
+        MissingSetupErr: Label 'This is not allowed because of the setup in the %1 window.', Comment = '%1 - page name';
+        StatusSubmittedErr: Label 'Status should be sumbitted';
 
     [Test]
     [Scope('OnPrem')]
@@ -36,7 +35,8 @@
 
         VATReportReleaseReopen.Release(VATReportHdr);
 
-        Assert.AreEqual(VATReportHdr.Status::Released, VATReportHdr.Status, ReleaseErr);
+        Assert.AreEqual(VATReportHdr.Status::Released, VATReportHdr.Status, StatusReleasedErr);
+
         TearDown();
     end;
 
@@ -52,7 +52,7 @@
         VATReportHdr.Modify();
         VATReportReleaseReopen.Reopen(VATReportHdr);
 
-        Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenErr);
+        Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, StatusOpenErr);
 
         TearDown();
     end;
@@ -94,7 +94,7 @@
         VATReportHdr.Modify();
         VATReportReleaseReopen.Submit(VATReportHdr);
 
-        Assert.AreEqual(VATReportHdr.Status::Submitted, VATReportHdr.Status, SubmitErr);
+        Assert.AreEqual(VATReportHdr.Status::Submitted, VATReportHdr.Status, StatusSubmittedErr);
 
         TearDown();
     end;
@@ -108,7 +108,7 @@
     begin
         CreateVATReportHeaderAndLines(VATReportHdr);
         asserterror VATReportReleaseReopen.Submit(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(Submit2Err, VATReportHdr.TableCaption()));
+        Assert.ExpectedTestFieldError(VATReportHdr.FieldCaption(Status), Format(VATReportHdr.Status::Released));
 
         TearDown();
     end;
@@ -139,7 +139,7 @@
 
     local procedure TearDown()
     var
-        VatReportHdr: Record "VAT Report Header";
+        VATReportHdr: Record "VAT Report Header";
         VATReportLine: Record "VAT Report Line";
         VATReportSetup: Record "VAT Report Setup";
         CompanyInformation: Record "Company Information";
@@ -147,8 +147,8 @@
         VATReportLine.SetRange("VAT Report No.", 'Test');
         VATReportLine.DeleteAll();
 
-        VatReportHdr.SetRange("No.", 'Test');
-        VatReportHdr.DeleteAll();
+        VATReportHdr.SetRange("No.", 'Test');
+        VATReportHdr.DeleteAll();
 
         VATReportSetup.Get();
         VATReportSetup."No. Series" := '';

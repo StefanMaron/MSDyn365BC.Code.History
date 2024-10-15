@@ -30,12 +30,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Pricing;
 using System.Utilities;
-
 
 codeunit 361 MoveEntries
 {
@@ -52,26 +47,31 @@ codeunit 361 MoveEntries
                   TableData "Reminder/Fin. Charge Entry" = rm,
                   TableData "Value Entry" = rm,
                   TableData "Avg. Cost Adjmt. Entry Point" = rd,
-                  TableData "Inventory Adjmt. Entry (Order)" = rm,
-                  TableData "Service Ledger Entry" = rm,
-                  TableData "Warranty Ledger Entry" = rm,
-                  TableData "Service Contract Header" = rm;
+                  TableData "Inventory Adjmt. Entry (Order)" = rm;
 
     trigger OnRun()
     begin
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete %1 %2 because it has ledger entries in a fiscal year that has not been closed yet.';
         Text001: Label 'You cannot delete %1 %2 because there are one or more open ledger entries.';
         Text002: Label 'There are item entries that have not been adjusted for item %1. ';
+#pragma warning restore AA0470
         Text003: Label 'If you delete this item the inventory valuation will be incorrect. ';
+#pragma warning disable AA0470
         Text004: Label 'Use the %2 batch job before deleting the item.';
+#pragma warning restore AA0470
         Text005: Label 'Adjust Cost - Item Entries';
+#pragma warning disable AA0470
         Text006: Label 'You cannot delete %1 %2 because it has ledger entries.';
         Text007: Label 'You cannot delete %1 %2 because there are outstanding purchase order lines.';
         Text008: Label 'There are item entries that have not been completely invoiced for item %1. ';
+#pragma warning restore AA0470
         Text009: Label 'Invoice all item entries before deleting the item.';
+#pragma warning restore AA0074
         AccountingPeriod: Record "Accounting Period";
         GLEntry: Record "G/L Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -85,20 +85,18 @@ codeunit 361 MoveEntries
         ReminderEntry: Record "Reminder/Fin. Charge Entry";
         ValueEntry: Record "Value Entry";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
-        ServLedgEntry: Record "Service Ledger Entry";
-        WarrantyLedgEntry: Record "Warranty Ledger Entry";
-        ServiceItem: Record "Service Item";
-        ServiceItemComponent: Record "Service Item Component";
-        ServContract: Record "Service Contract Header";
         CannotDeleteGLBudgetEntriesErr: Label 'You cannot delete G/L account %1 because it contains budget ledger entries after %2 for G/L budget name %3.', Comment = '%1 - G/L Account No., %2 - Date, %3 - G/L Budget Name. You cannot delete G/L Account 1000 because it has budget ledger entries\ after 25/01/2018 in G/L Budget Name = Budget_2018.';
-        Text013: Label 'You cannot delete %1 %2 because prepaid contract entries exist in %3.';
-        Text014: Label 'You cannot delete %1 %2, because open prepaid contract entries exist in %3.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'You cannot delete %1 %2 because there are outstanding purchase return order lines.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         TimeSheetLinesErr: Label 'You cannot delete project %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete project PROJECT001 because it has open or submitted time sheet lines.';
+#pragma warning restore AA0470
         GLAccDeleteClosedPeriodsQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr: Label 'You cannot delete G/L account %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 - G/L Account No. You cannot delete G/L Account 1000 because it has ledger entries in a fiscal year that has not been closed yet.';
         CannotDeleteGLAccountWithEntriesAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.', Comment = '%1 - G/L Account No., %2 - Date. You cannot delete G/L Account 1000 because it has ledger entries posted after 01-01-2010.';
-        CannotDeleteBecauseServiceContractErr: Label 'You cannot delete customer %1 because there is at least one not cancelled Service Contract for this customer.', Comment = '%1 - Customer No.';
 
     procedure MoveGLEntries(GLAcc: Record "G/L Account")
     var
@@ -126,6 +124,10 @@ codeunit 361 MoveEntries
     procedure MoveCustEntries(Cust: Record Customer)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+#if not CLEAN25
+        ServLedgEntry: Record Microsoft.Service.Ledger."Service Ledger Entry";
+        WarrantyLedgEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
+#endif
         NewCustNo: Code[20];
     begin
         OnBeforeMoveCustEntries(Cust, NewCustNo);
@@ -162,72 +164,14 @@ codeunit 361 MoveEntries
         DetailedCustLedgEntry.SetRange("Customer No.", Cust."No.");
         DetailedCustLedgEntry.ModifyAll("Customer No.", NewCustNo);
 
-        ServLedgEntry.Reset();
+        OnMoveCustEntriesOnAfterModifyCustLedgEntries(Cust, NewCustNo);
+
+#if not CLEAN25
         ServLedgEntry.SetRange("Customer No.", Cust."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Cust.TableCaption(), Cust."No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Cust.TableCaption(), Cust."No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("Customer No.", NewCustNo);
-
-        ServLedgEntry.Reset();
-        ServLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Cust.TableCaption(), Cust."No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Cust.TableCaption(), Cust."No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
-
-        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Customer No.", Cust."No.");
-        WarrantyLedgEntry.ModifyAll("Customer No.", NewCustNo);
-
-        WarrantyLedgEntry.SetRange("Customer No.");
-        WarrantyLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
-        WarrantyLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
-
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Cancelled);
-        ServContract.SetRange("Customer No.", Cust."No.");
-        if not ServContract.IsEmpty() then
-            Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
-
-        ServContract.SetRange(Status);
-        ServContract.ModifyAll("Customer No.", NewCustNo);
-
-        ServContract.Reset();
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Cancelled);
-        ServContract.SetRange("Bill-to Customer No.", Cust."No.");
-        if not ServContract.IsEmpty() then
-            Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
-
-        ServContract.SetRange(Status);
-        ServContract.ModifyAll("Bill-to Customer No.", NewCustNo);
 
         OnAfterMoveCustEntries(Cust, CustLedgEntry, ReminderEntry, ServLedgEntry, WarrantyLedgEntry);
+#endif
     end;
 
     local procedure SetCustLedgEntryFilterByAccPeriod()
@@ -247,6 +191,9 @@ codeunit 361 MoveEntries
     procedure MoveVendorEntries(Vend: Record Vendor)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+#if not CLEAN25
+        WarrantyLedgEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
+#endif
         NewVendNo: Code[20];
     begin
         OnBeforeMoveVendEntries(Vend, NewVendNo);
@@ -276,15 +223,11 @@ codeunit 361 MoveEntries
         DetailedVendorLedgEntry.SetRange("Vendor No.", Vend."No.");
         DetailedVendorLedgEntry.ModifyAll("Vendor No.", NewVendNo);
 
-        WarrantyLedgEntry.LockTable();
+        OnMoveVendEntriesOnAfterModifyVendLedgEntries(Vend, NewVendNo);
+#if not CLEAN25
         WarrantyLedgEntry.SetRange("Vendor No.", Vend."No.");
-        WarrantyLedgEntry.ModifyAll("Vendor No.", NewVendNo);
-
-        ServiceItem.SetRange("Vendor No.", Vend."No.");
-        if not ServiceItem.IsEmpty() then
-            ServiceItem.ModifyAll("Vendor No.", NewVendNo);
-
         OnAfterMoveVendorEntries(Vend, VendLedgEntry, WarrantyLedgEntry);
+#endif
     end;
 
     local procedure SetVendLedgEntryFilterByAccPeriod()
@@ -339,6 +282,10 @@ codeunit 361 MoveEntries
 
     procedure MoveItemEntries(Item: Record Item)
     var
+#if not CLEAN25
+        ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry";
+        WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
+#endif
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         NewItemNo: Code[20];
     begin
@@ -410,73 +357,24 @@ codeunit 361 MoveEntries
         InvtAdjmtEntryOrder.SetRange("Order Type");
         InvtAdjmtEntryOrder.ModifyAll("Item No.", NewItemNo);
 
-        ServLedgEntry.Reset();
-        OnMoveItemEntriesOnAfterResetServLedgEntry(ServLedgEntry);
-        ServLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Item.TableCaption(), Item."No.");
+        OnMoveItemEntriesOnAfterModifyItemLedgerEntries(Item, NewItemNo);
 
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Item.TableCaption(), Item."No.");
+#if not CLEAN25
+        ServiceLedgerEntry.SetRange(Type, ServiceLedgerEntry.Type::Item);
+        ServiceLedgerEntry.SetRange("No.", Item."No.");
+        WarrantyLedgerEntry.SetRange(Type, WarrantyLedgerEntry.Type::Item);
+        WarrantyLedgerEntry.SetRange("No.", Item."No.");
 
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("Item No. (Serviced)", NewItemNo);
-
-        ServLedgEntry.SetRange("Item No. (Serviced)");
-        ServLedgEntry.SetRange(Type, ServLedgEntry.Type::Item);
-        ServLedgEntry.SetRange("No.", Item."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Item.TableCaption(), Item."No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Item.TableCaption(), Item."No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("No.", NewItemNo);
-
-        WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
-        WarrantyLedgEntry.ModifyAll("Item No. (Serviced)", NewItemNo);
-
-        WarrantyLedgEntry.SetRange("Item No. (Serviced)");
-        WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::Item);
-        WarrantyLedgEntry.SetRange("No.", Item."No.");
-        WarrantyLedgEntry.ModifyAll("No.", NewItemNo);
-
-        ServiceItem.Reset();
-        ServiceItem.SetRange("Item No.", Item."No.");
-        if not ServiceItem.IsEmpty() then
-            ServiceItem.ModifyAll("Item No.", NewItemNo, true);
-
-        ServiceItemComponent.Reset();
-        ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
-        ServiceItemComponent.SetRange("No.", Item."No.");
-        if not ServiceItemComponent.IsEmpty() then
-            ServiceItemComponent.ModifyAll("No.", NewItemNo);
-
-        OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServLedgEntry, WarrantyLedgEntry, InvtAdjmtEntryOrder);
+        OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServiceLedgerEntry, WarrantyLedgerEntry, InvtAdjmtEntryOrder);
+#endif
     end;
 
     procedure MoveResEntries(Res: Record Resource)
     var
+#if not CLEAN25
+        ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry";
+        WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
+#endif
         NewResNo: Code[20];
     begin
         OnBeforeMoveResEntries(Res, NewResNo);
@@ -497,38 +395,25 @@ codeunit 361 MoveEntries
         ResLedgEntry.SetRange("Resource No.", Res."No.");
         ResLedgEntry.ModifyAll("Resource No.", NewResNo);
 
-        ServLedgEntry.Reset();
-        ServLedgEntry.SetRange(Type, ServLedgEntry.Type::Resource);
-        ServLedgEntry.SetRange("No.", Res."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Res.TableCaption(), Res."No.");
+        OnMoveResEntriesOnAfterModifyResLedgerEntries(Res, NewResNo);
+#if not CLEAN25
+        ServiceLedgerEntry.Reset();
+        ServiceLedgerEntry.SetRange(Type, ServiceLedgerEntry.Type::Resource);
+        ServiceLedgerEntry.SetRange("No.", Res."No.");
+        WarrantyLedgerEntry.LockTable();
+        WarrantyLedgerEntry.SetRange(Type, WarrantyLedgerEntry.Type::Resource);
+        WarrantyLedgerEntry.SetRange("No.", Res."No.");
 
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Res.TableCaption(), Res."No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("No.", NewResNo);
-
-        WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::Resource);
-        WarrantyLedgEntry.SetRange("No.", Res."No.");
-        WarrantyLedgEntry.ModifyAll("No.", NewResNo);
-
-        OnAfterMoveResEntries(Res, ResLedgEntry, ServLedgEntry, WarrantyLedgEntry);
+        OnAfterMoveResEntries(Res, ResLedgEntry, ServiceLedgerEntry, WarrantyLedgerEntry);
+#endif
     end;
 
     procedure MoveJobEntries(Job: Record Job)
     var
         TimeSheetLine: Record "Time Sheet Line";
+#if not CLEAN25
+        ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry";
+#endif
         NewJobNo: Code[20];
     begin
         OnBeforeMoveJobEntries(Job, NewJobNo);
@@ -559,158 +444,42 @@ codeunit 361 MoveEntries
                 Error(Text015, Job.TableCaption(), Job."No.");
         end;
 
-        ServLedgEntry.Reset();
-        ServLedgEntry.SetRange("Job No.", Job."No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              Job.TableCaption(), Job."No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              Job.TableCaption(), Job."No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("Job No.", NewJobNo);
-
-        OnAfterMoveJobEntries(Job, JobLedgEntry, TimeSheetLine, ServLedgEntry);
+        OnMoveJobEntriesOnAfterModifyJobLedgerEntries(Job, NewJobNo);
+#if not CLEAN25
+        ServiceLedgerEntry.SetRange("Job No.", Job."No.");
+        OnAfterMoveJobEntries(Job, JobLedgEntry, TimeSheetLine, ServiceLedgerEntry);
+#endif
     end;
 
-    procedure MoveServiceItemLedgerEntries(ServiceItem: Record "Service Item")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    procedure MoveServiceItemLedgerEntries(ServiceItem: Record Microsoft.Service.Item."Service Item")
     var
-        ResultDescription: Text;
-        NewServiceItemNo: Code[20];
+        ServMoveEntries: Codeunit "Serv. Move Entries";
     begin
-        OnBeforeMoveServiceItemLedgerEntries(ServiceItem, NewServiceItemNo);
-
-        ServLedgEntry.LockTable();
-
-        ResultDescription := CheckIfServiceItemCanBeDeleted(ServLedgEntry, ServiceItem."No.");
-        if ResultDescription <> '' then
-            Error(ResultDescription);
-
-        ServLedgEntry.ModifyAll("Service Item No. (Serviced)", NewServiceItemNo);
-
-        WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange("Service Item No. (Serviced)", ServiceItem."No.");
-        WarrantyLedgEntry.ModifyAll("Service Item No. (Serviced)", NewServiceItemNo);
-
-        OnAfterMoveServiceItemLedgerEntries(ServiceItem);
+        ServMoveEntries.MoveServiceItemLedgerEntries(ServiceItem);
     end;
+#endif
 
-    procedure MoveServContractLedgerEntries(ServiceContractHeader: Record "Service Contract Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    procedure MoveServContractLedgerEntries(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
     var
-        NewContractNo: Code[20];
+        ServMoveEntries: Codeunit "Serv. Move Entries";
     begin
-        OnBeforeMoveServContractLedgerEntries(ServiceContractHeader, NewContractNo);
-
-        if ServiceContractHeader.Prepaid then begin
-            ServLedgEntry.Reset();
-            ServLedgEntry.SetCurrentKey(Type, "No.");
-            ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
-            ServLedgEntry.SetRange("No.", ServiceContractHeader."Contract No.");
-            ServLedgEntry.SetRange(Prepaid, true);
-            ServLedgEntry.SetRange("Moved from Prepaid Acc.", false);
-            ServLedgEntry.SetRange(Open, false);
-            if not ServLedgEntry.IsEmpty() then
-                Error(
-                  Text013,
-                  ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption());
-            ServLedgEntry.SetRange(Open, true);
-            if not ServLedgEntry.IsEmpty() then
-                Error(
-                  Text014,
-                  ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption());
-        end;
-
-        ServLedgEntry.Reset();
-        ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("Service Contract No.", NewContractNo);
-
-        ServLedgEntry.SetRange("Service Contract No.");
-        ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
-        ServLedgEntry.SetRange("No.", ServiceContractHeader."Contract No.");
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              ServiceContractHeader.TableCaption(), ServiceContractHeader."Contract No.");
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("No.", NewContractNo);
-
-        WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-        WarrantyLedgEntry.ModifyAll("Service Contract No.", NewContractNo);
-
-        OnAfterMoveServContractLedgerEntries(ServiceContractHeader);
+        ServMoveEntries.MoveServContractLedgerEntries(ServiceContractHeader);
     end;
+#endif
 
-    procedure MoveServiceCostLedgerEntries(ServiceCost: Record "Service Cost")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    procedure MoveServiceCostLedgerEntries(ServiceCost: Record Microsoft.Service.Pricing."Service Cost")
     var
-        NewCostCode: Code[10];
+        ServMoveEntries: Codeunit "Serv. Move Entries";
     begin
-        OnBeforeMoveServiceCostLedgerEntries(ServiceCost, NewCostCode);
-
-        ServLedgEntry.Reset();
-        ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Cost");
-        ServLedgEntry.SetRange("No.", ServiceCost.Code);
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text000,
-              ServiceCost.TableCaption(), ServiceCost.Code);
-
-        ServLedgEntry.SetRange("Posting Date");
-        ServLedgEntry.SetRange(Open, true);
-        if not ServLedgEntry.IsEmpty() then
-            Error(
-              Text001,
-              ServiceCost.TableCaption(), ServiceCost.Code);
-
-        ServLedgEntry.SetRange(Open);
-        ServLedgEntry.ModifyAll("No.", NewCostCode);
-
-        WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::"Cost");
-        WarrantyLedgEntry.SetRange("No.", ServiceCost.Code);
-        WarrantyLedgEntry.ModifyAll("No.", NewCostCode);
-
-        OnAfterMoveServiceCostLedgerEntries(ServiceCost);
+        ServMoveEntries.MoveServiceCostLedgerEntries(ServiceCost);
     end;
+#endif
 
     procedure MoveCashFlowEntries(CashFlowAccount: Record "Cash Flow Account")
     var
@@ -758,9 +527,6 @@ codeunit 361 MoveEntries
         if CFSetup."FA Disposal CF Account No." = CashFlowAccount."No." then
             CFSetup.ModifyAll("FA Disposal CF Account No.", '');
 
-        if CFSetup."Service CF Account No." = CashFlowAccount."No." then
-            CFSetup.ModifyAll("Service CF Account No.", '');
-
         CFWorksheetLine.Reset();
         CFWorksheetLine.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         CFWorksheetLine.ModifyAll("Cash Flow Account No.", '');
@@ -770,7 +536,7 @@ codeunit 361 MoveEntries
         CFForecastEntry.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         CFForecastEntry.ModifyAll("Cash Flow Account No.", '');
 
-        OnAfterMoveCashFlowEntries(CashFlowAccount);
+        OnAfterMoveCashFlowEntries(CashFlowAccount, CFSetup);
     end;
 
     procedure MoveDocRelatedEntries(TableNo: Integer; DocNo: Code[20])
@@ -798,27 +564,15 @@ codeunit 361 MoveEntries
         OnAfterMoveDocRelatedEntries(TableNo, DocNo);
     end;
 
-    procedure CheckIfServiceItemCanBeDeleted(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceItemNo: Code[20]): Text
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    procedure CheckIfServiceItemCanBeDeleted(var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry"; ServiceItemNo: Code[20]): Text
     var
-        ServiceItem: Record "Service Item";
+        ServMoveEntries: Codeunit "Serv. Move Entries";
     begin
-        ServiceLedgerEntry.Reset();
-        ServiceLedgerEntry.SetCurrentKey("Service Item No. (Serviced)");
-        ServiceLedgerEntry.SetRange("Service Item No. (Serviced)", ServiceItemNo);
-        AccountingPeriod.SetRange(Closed, false);
-        if AccountingPeriod.FindFirst() then
-            ServiceLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not ServiceLedgerEntry.IsEmpty() then
-            exit(StrSubstNo(Text000, ServiceItem.TableCaption(), ServiceItemNo));
-
-        ServiceLedgerEntry.SetRange("Posting Date");
-        ServiceLedgerEntry.SetRange(Open, true);
-        if not ServiceLedgerEntry.IsEmpty() then
-            exit(StrSubstNo(Text001, ServiceItem.TableCaption(), ServiceItemNo));
-
-        ServiceLedgerEntry.SetRange(Open);
-        exit('');
+        exit(ServMoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, ServiceItemNo));
     end;
+#endif
 
     local procedure CheckGLAccountEntries(GLAccount: Record "G/L Account"; var GeneralLedgerSetup: Record "General Ledger Setup")
     var
@@ -882,53 +636,92 @@ codeunit 361 MoveEntries
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnMoveCustEntriesOnAfterModifyCustLedgEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveCustEntries(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry")
+    local procedure OnAfterMoveCustEntries(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry"; var WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnMoveVendEntriesOnAfterModifyVendLedgEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveVendorEntries(Vendor: Record Vendor; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry")
+    local procedure OnAfterMoveVendorEntries(Vendor: Record Vendor; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveBankAccEntries(BankAccount: Record "Bank Account"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var CheckLedgerEntry: Record "Check Ledger Entry")
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnMoveItemEntriesOnAfterModifyItemLedgEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveItemEntries(Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    local procedure OnAfterMoveItemEntries(Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry"; var WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnMoveResEntriesOnAfterModifyResLedgEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveResEntries(Resource: Record Resource; var ResLedgerEntry: Record "Res. Ledger Entry"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry")
+    local procedure OnAfterMoveResEntries(Resource: Record Resource; var ResLedgerEntry: Record "Res. Ledger Entry"; var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry"; var WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry")
     begin
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnMoveJobEntriesOnAfterModifyJobLedgEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveJobEntries(Job: Record Job; var JobLedgerEntry: Record "Job Ledger Entry"; var TimeSheetLine: Record "Time Sheet Line"; var ServiceLedgerEntry: Record "Service Ledger Entry")
+    local procedure OnAfterMoveJobEntries(Job: Record Job; var JobLedgerEntry: Record "Job Ledger Entry"; var TimeSheetLine: Record "Time Sheet Line"; var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveServiceItemLedgerEntries(ServiceItem: Record "Service Item")
+#if not CLEAN25
+    internal procedure RunOnAfterMoveServiceItemLedgerEntries(ServiceItem: Record Microsoft.Service.Item."Service Item")
     begin
+        OnAfterMoveServiceItemLedgerEntries(ServiceItem);
     end;
 
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveServContractLedgerEntries(ServiceContractHeader: Record "Service Contract Header")
+    local procedure OnAfterMoveServiceItemLedgerEntries(ServiceItem: Record Microsoft.Service.Item."Service Item")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveServiceCostLedgerEntries(ServiceCost: Record "Service Cost")
+#if not CLEAN25
+    internal procedure RunOnAfterMoveServContractLedgerEntries(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
     begin
+        OnAfterMoveServContractLedgerEntries(ServiceContractHeader);
     end;
 
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMoveCashFlowEntries(CashFlowAccount: Record "Cash Flow Account")
+    local procedure OnAfterMoveServContractLedgerEntries(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterMoveServiceCostLedgerEntries(ServiceCost: Record Microsoft.Service.Pricing."Service Cost")
+    begin
+        OnAfterMoveServiceCostLedgerEntries(ServiceCost);
+    end;
+
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMoveServiceCostLedgerEntries(ServiceCost: Record Microsoft.Service.Pricing."Service Cost")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMoveCashFlowEntries(CashFlowAccount: Record "Cash Flow Account"; CashFlowSetup: Record "Cash Flow Setup")
     begin
     end;
 
@@ -987,20 +780,44 @@ codeunit 361 MoveEntries
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeMoveServiceItemLedgerEntries(ServiceItem: Record "Service Item"; var NewServiceItemNo: Code[20])
+#if not CLEAN25
+    internal procedure RunOnBeforeMoveServiceItemLedgerEntries(ServiceItem: Record Microsoft.Service.Item."Service Item"; var NewServiceItemNo: Code[20])
     begin
+        OnBeforeMoveServiceItemLedgerEntries(ServiceItem, NewServiceItemNo);
     end;
 
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMoveServContractLedgerEntries(ServiceContractHeader: Record "Service Contract Header"; var NewContractNo: Code[20])
+    local procedure OnBeforeMoveServiceItemLedgerEntries(ServiceItem: Record Microsoft.Service.Item."Service Item"; var NewServiceItemNo: Code[20])
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeMoveServContractLedgerEntries(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var NewContractNo: Code[20])
+    begin
+        OnBeforeMoveServContractLedgerEntries(ServiceContractHeader, NewContractNo);
     end;
 
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMoveServiceCostLedgerEntries(ServiceCost: Record "Service Cost"; var NewCostCode: Code[10])
+    local procedure OnBeforeMoveServContractLedgerEntries(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var NewContractNo: Code[20])
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeMoveServiceCostLedgerEntries(ServiceCost: Record Microsoft.Service.Pricing."Service Cost"; var NewCostCode: Code[10])
+    begin
+        OnBeforeMoveServiceCostLedgerEntries(ServiceCost, NewCostCode);
+    end;
+
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMoveServiceCostLedgerEntries(ServiceCost: Record Microsoft.Service.Pricing."Service Cost"; var NewCostCode: Code[10])
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMoveCashFlowEntries(CashFlowAccount: Record "Cash Flow Account"; var NewAccountNo: Code[20])
@@ -1022,8 +839,41 @@ codeunit 361 MoveEntries
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnMoveItemEntriesOnAfterResetServLedgEntry(var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry")
+    begin
+        OnMoveItemEntriesOnAfterResetServLedgEntry(ServiceLedgerEntry);
+    end;
+
+    [Obsolete('Moved to codeunit ServMoveEntries', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnMoveItemEntriesOnAfterResetServLedgEntry(var ServiceLedgerEntry: Record "Service Ledger Entry")
+    local procedure OnMoveItemEntriesOnAfterResetServLedgEntry(var ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveCustEntriesOnAfterModifyCustLedgEntries(var Customer: Record Customer; NewCustNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveVendEntriesOnAfterModifyVendLedgEntries(var Vendor: Record Vendor; NewVendNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveItemEntriesOnAfterModifyItemLedgerEntries(var Item: Record Item; NewItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveResEntriesOnAfterModifyResLedgerEntries(var Resource: Record Resource; NewResNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveJobEntriesOnAfterModifyJobLedgerEntries(var Job: Record Job; NewJobNo: Code[20])
     begin
     end;
 }

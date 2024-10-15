@@ -275,9 +275,11 @@ report 8611 "Create Customer Journal Lines"
         TemplateCode: Code[20];
         LineNo: Integer;
         JournalTemplate: Text[10];
+#pragma warning disable AA0074
         Text001: Label 'Gen. Journal Template name is blank.';
         Text002: Label 'Gen. Journal Batch name is blank.';
         Text004: Label 'General journal lines are successfully created.';
+#pragma warning restore AA0074
         PostingDateIsEmptyErr: Label 'The posting date is empty.';
         DocumentNo: Code[20];
 

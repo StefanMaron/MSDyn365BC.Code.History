@@ -19,7 +19,7 @@ report 12116 "Vendor Account Bills List"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(EndingDate; Format(EndingDate))
@@ -67,7 +67,7 @@ report 12116 "Vendor Account Bills List"
             dataitem(VendLedgEntry1; "Vendor Ledger Entry")
             {
                 DataItemLink = "Vendor No." = field("No.");
-                DataItemTableView = sorting(Open, "Due Date") order(Ascending);
+                DataItemTableView = sorting(Open, "Due Date") order(ascending);
                 column(VendLedgEntry1__On_Hold_; "On Hold")
                 {
                 }
@@ -401,7 +401,7 @@ report 12116 "Vendor Account Bills List"
                     SetRange("Date Filter", 0D, EndingDate);
 
                     SetAutoCalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                    IF OnlyOpened THEN
+                    if OnlyOpened then
                         SetFilter("Remaining Amt. (LCY)", '<>0');
 
                     TotalForVendor := 0;

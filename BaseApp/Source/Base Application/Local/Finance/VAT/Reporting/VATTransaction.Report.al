@@ -20,7 +20,7 @@ report 12191 "VAT Transaction"
     {
         dataitem(FiscalCode; "VAT Entry")
         {
-            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), "Individual Person" = const(true), Type = filter(Sale | Purchase));
+            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = filter(Resident), "Individual Person" = const(true), Type = filter(Sale | Purchase));
             RequestFilterFields = "Operation Occurred Date";
             column(USERID; UserId)
             {
@@ -91,7 +91,7 @@ report 12191 "VAT Transaction"
         }
         dataitem(VATRegNo; "VAT Entry")
         {
-            DataItemTableView = sorting("VAT Registration No.", "Operation Occurred Date") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), "Individual Person" = const(false), Type = filter(Purchase | Sale), "VAT Registration No." = filter(<> ''), Resident = const(Resident));
+            DataItemTableView = sorting("VAT Registration No.", "Operation Occurred Date") order(ascending) where("Include in VAT Transac. Rep." = const(true), "Individual Person" = const(false), Type = filter(Purchase | Sale), "VAT Registration No." = filter(<> ''), Resident = const(Resident));
             column(USERID_Control1130086; UserId)
             {
             }
@@ -175,7 +175,7 @@ report 12191 "VAT Transaction"
         }
         dataitem(NonResident; "VAT Entry")
         {
-            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Purchase | Sale), "Individual Person" = const(true));
+            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") order(ascending) where("Include in VAT Transac. Rep." = const(true), Resident = const("Non-Resident"), Type = filter(Purchase | Sale), "Individual Person" = const(true));
             column(USERID_Control1130092; UserId)
             {
             }
@@ -283,7 +283,7 @@ report 12191 "VAT Transaction"
         }
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") ORDER(Ascending) where("Include in VAT Transac. Rep." = const(true), Type = filter(Sale), "Individual Person" = const(false), Resident = const("Non-Resident"), "VAT Registration No." = filter(<> ''));
+            DataItemTableView = sorting("Fiscal Code", "Operation Occurred Date") order(ascending) where("Include in VAT Transac. Rep." = const(true), Type = filter(Sale), "Individual Person" = const(false), Resident = const("Non-Resident"), "VAT Registration No." = filter(<> ''));
             column(VAT_Entry__VAT_Entry___VAT_Registration_No__; "VAT Entry"."VAT Registration No.")
             {
             }

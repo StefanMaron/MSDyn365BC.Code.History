@@ -64,6 +64,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Bank Account" = m,
                   tabledata "Bank Account Ledger Entry" = rim,
                   tabledata "Batch Processing Parameter" = Rimd,
+                  tabledata "Batch Processing Session Map" = Rimd,
                   tabledata "Check Ledger Entry" = rim,
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,

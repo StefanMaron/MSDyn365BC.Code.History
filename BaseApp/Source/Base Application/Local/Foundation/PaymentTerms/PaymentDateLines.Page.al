@@ -8,7 +8,6 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 12171 "Payment Date Lines"
 {
@@ -114,8 +113,6 @@ page 12171 "Payment Date Lines"
     [Scope('OnPrem')]
     procedure UpdateAmount()
     var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -161,22 +158,8 @@ page 12171 "Payment Date Lines"
                             CurrencyCode := Currency.Code;
                             DocumentAmount := PurchaseHeader."Amount Including VAT";
                         end;
-                    Rec."Sales/Purchase"::Service:
-                        if ServiceHeader.Get(DocType, Rec.Code) then begin
-                            if ServiceHeader."Currency Code" = '' then
-                                Currency.InitRoundingPrecision()
-                            else
-                                Currency.Get(ServiceHeader."Currency Code");
-                            CurrencyCode := Currency.Code;
-                            DocumentAmount := 0;
-                            ServiceLine.Reset();
-                            ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-                            ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-                            if ServiceLine.FindSet() then
-                                repeat
-                                    DocumentAmount := DocumentAmount + ServiceLine."Amount Including VAT";
-                                until ServiceLine.Next() = 0;
-                        end;
+                    else
+                        OnUpdateAmount(Rec, CurrencyCode, DocumentAmount, DocType);
                 end;
 
                 CalcUpdateAmount();
@@ -212,6 +195,11 @@ page 12171 "Payment Date Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcUpdateAmount(var PaymentLines: Record "Payment Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAmount(var PaymentLines: Record "Payment Lines"; var CurrencyCode: Code[10]; var DocumentAmount: Decimal; DocType: Option)
     begin
     end;
 }

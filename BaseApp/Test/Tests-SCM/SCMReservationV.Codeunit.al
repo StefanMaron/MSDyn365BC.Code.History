@@ -266,18 +266,15 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct requisition line
+        RequisitionLine."Worksheet Template Name" := LibraryUtility.GenerateGUID();
+        RequisitionLine."Journal Batch Name" := LibraryUtility.GenerateGUID();
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+        RequisitionLine."No." := LibraryUtility.GenerateGUID();
+        RequisitionLine.Insert();
 
-        with RequisitionLine do begin
-            "Worksheet Template Name" := LibraryUtility.GenerateGUID();
-            "Journal Batch Name" := LibraryUtility.GenerateGUID();
-            Type := Type::Item;
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            RequisitionLines.Trap();
-            ReservationManagement.LookupLine(
-              DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Journal Batch Name", 0, "Line No.");
-        end;
+        RequisitionLines.Trap();
+        ReservationManagement.LookupLine(
+          DATABASE::"Requisition Line", 0, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", 0, RequisitionLine."Line No.");
 
         RequisitionLines."No.".AssertEquals(RequisitionLine."No.");
     end;
@@ -336,15 +333,12 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct item ledger entry
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := LibraryUtility.GenerateGUID();
+        ItemLedgerEntry.Insert();
 
-        with ItemLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Item No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            ItemLedgerEntries.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Item Ledger Entry", 0, '', '', 0, "Entry No.");
-        end;
+        ItemLedgerEntries.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Item Ledger Entry", 0, '', '', 0, ItemLedgerEntry."Entry No.");
 
         ItemLedgerEntries."Item No.".AssertEquals(ItemLedgerEntry."Item No.");
     end;
@@ -358,16 +352,13 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct production order line
+        ProdOrderLine.Status := ProdOrderLine.Status::Released;
+        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderLine."Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, ProdOrderLine.FieldNo("Line No."));
+        ProdOrderLine.Insert();
 
-        with ProdOrderLine do begin
-            Status := Status::Released;
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, FieldNo("Line No."));
-            Insert();
-
-            ProdOrderLineList.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", '', "Line No.", 0);
-        end;
+        ProdOrderLineList.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0);
 
         ProdOrderLineList."Item No.".AssertEquals(ProdOrderLine."Item No.");
     end;
@@ -381,19 +372,16 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct production order component
+        ProdOrderComponent.Status := ProdOrderComponent.Status::Released;
+        ProdOrderComponent."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderComponent."Prod. Order Line No." := 1;
+        ProdOrderComponent."Line No." := LibraryUtility.GetNewRecNo(ProdOrderComponent, ProdOrderComponent.FieldNo("Line No."));
+        ProdOrderComponent."Item No." := LibraryUtility.GenerateGUID();
+        ProdOrderComponent.Insert();
 
-        with ProdOrderComponent do begin
-            Status := Status::Released;
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Prod. Order Line No." := 1;
-            "Line No." := LibraryUtility.GetNewRecNo(ProdOrderComponent, FieldNo("Line No."));
-            "Item No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            ProdOrderCompLineList.Trap();
-            ReservationManagement.LookupLine(
-              DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '', "Prod. Order Line No.", "Line No.");
-        end;
+        ProdOrderCompLineList.Trap();
+        ReservationManagement.LookupLine(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", '', ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.");
 
         ProdOrderCompLineList."Item No.".AssertEquals(ProdOrderComponent."Item No.");
     end;
@@ -407,18 +395,15 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct planning component
+        PlanningComponent."Worksheet Template Name" := LibraryUtility.GenerateGUID();
+        PlanningComponent."Worksheet Batch Name" := LibraryUtility.GenerateGUID();
+        PlanningComponent."Worksheet Line No." := LibraryUtility.GetNewRecNo(PlanningComponent, PlanningComponent.FieldNo("Worksheet Line No."));
+        PlanningComponent.Description := LibraryUtility.GenerateGUID();
+        PlanningComponent.Insert();
 
-        with PlanningComponent do begin
-            "Worksheet Template Name" := LibraryUtility.GenerateGUID();
-            "Worksheet Batch Name" := LibraryUtility.GenerateGUID();
-            "Worksheet Line No." := LibraryUtility.GetNewRecNo(PlanningComponent, FieldNo("Worksheet Line No."));
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-
-            PlanningComponentList.Trap();
-            ReservationManagement.LookupLine(
-              DATABASE::"Planning Component", 0, "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Line No.");
-        end;
+        PlanningComponentList.Trap();
+        ReservationManagement.LookupLine(
+          DATABASE::"Planning Component", 0, PlanningComponent."Worksheet Template Name", PlanningComponent."Worksheet Batch Name", PlanningComponent."Worksheet Line No.", PlanningComponent."Line No.");
 
         PlanningComponentList.Description.AssertEquals(PlanningComponent.Description);
     end;
@@ -432,17 +417,14 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct service line
+        ServiceLine."Document Type" := ServiceLine."Document Type"::Order;
+        ServiceLine."Document No." := LibraryUtility.GenerateGUID();
+        ServiceLine."Line No." := LibraryUtility.GetNewRecNo(ServiceLine, ServiceLine.FieldNo("Line No."));
+        ServiceLine."No." := LibraryUtility.GenerateGUID();
+        ServiceLine.Insert();
 
-        with ServiceLine do begin
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryUtility.GetNewRecNo(ServiceLine, FieldNo("Line No."));
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            ServiceLineList.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
-        end;
+        ServiceLineList.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", '', 0, ServiceLine."Line No.");
 
         ServiceLineList."No.".AssertEquals(ServiceLine."No.");
     end;
@@ -456,21 +438,18 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct job planning line
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        if JobPlanningLine.FindLast() then
+            JobPlanningLine."Job Contract Entry No." := JobPlanningLine."Job Contract Entry No." + 1
+        else
+            JobPlanningLine."Job Contract Entry No." := 1;
 
-        with JobPlanningLine do begin
-            SetCurrentKey("Job Contract Entry No.");
-            if FindLast() then
-                "Job Contract Entry No." := "Job Contract Entry No." + 1
-            else
-                "Job Contract Entry No." := 1;
+        JobPlanningLine."Line No." := LibraryUtility.GetNewRecNo(JobPlanningLine, JobPlanningLine.FieldNo("Line No."));
+        JobPlanningLine."No." := LibraryUtility.GenerateGUID();
+        JobPlanningLine.Insert();
 
-            "Line No." := LibraryUtility.GetNewRecNo(JobPlanningLine, FieldNo("Line No."));
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            JobPlanningLines.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Job Planning Line", 0, '', '', 0, "Job Contract Entry No.");
-        end;
+        JobPlanningLines.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Job Planning Line", 0, '', '', 0, JobPlanningLine."Job Contract Entry No.");
 
         JobPlanningLines."No.".AssertEquals(JobPlanningLine."No.");
     end;
@@ -484,16 +463,13 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct assembly header
+        AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader.Insert();
 
-        with AssemblyHeader do begin
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateGUID();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            AssemblyOrders.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", '', 0, 0);
-        end;
+        AssemblyOrders.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0);
 
         AssemblyOrders."No.".AssertEquals(AssemblyHeader."No.");
     end;
@@ -507,17 +483,14 @@ codeunit 137272 "SCM Reservation V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Function "LookupLine" in codeunit "Reservation Management" opens correct assembly line
+        AssemblyLine."Document Type" := AssemblyLine."Document Type"::Order;
+        AssemblyLine."Document No." := LibraryUtility.GenerateGUID();
+        AssemblyLine."Line No." := LibraryUtility.GetNewRecNo(AssemblyLine, AssemblyLine.FieldNo("Line No."));
+        AssemblyLine."No." := LibraryUtility.GenerateGUID();
+        AssemblyLine.Insert();
 
-        with AssemblyLine do begin
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryUtility.GetNewRecNo(AssemblyLine, FieldNo("Line No."));
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            AssemblyLines.Trap();
-            ReservationManagement.LookupLine(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
-        end;
+        AssemblyLines.Trap();
+        ReservationManagement.LookupLine(DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.");
 
         AssemblyLines."No.".AssertEquals(AssemblyLine."No.");
     end;
@@ -1286,11 +1259,9 @@ codeunit 137272 "SCM Reservation V"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
-        with Item do begin
-            Get(ItemNo);
-            Validate("Item Tracking Code", ItemTrackingCode.Code);
-            Modify();
-        end;
+        Item.Get(ItemNo);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify();
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalBatch.FindFirst();
@@ -1374,15 +1345,13 @@ codeunit 137272 "SCM Reservation V"
         FromSalesShptLine.SetRange("Sell-to Customer No.", CustomerNo);
         CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
         CopyDocMgt.CopySalesShptLinesToDoc(SalesHeader, FromSalesShptLine, LinesNotCopied, MissingExCostRevLink);
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::"Return Order");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-            Validate("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-            Validate("Return Qty. to Receive", QtyToReceive);
-            Modify();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+        SalesLine.Validate("VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+        SalesLine.Validate("Return Qty. to Receive", QtyToReceive);
+        SalesLine.Modify();
     end;
 
     local procedure CreatePostSalesReturn(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; QtyToReceive: Decimal; Receive: Boolean; Invoice: Boolean)
@@ -1567,11 +1536,9 @@ codeunit 137272 "SCM Reservation V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Calc. Inv. Discount", NewCalcInvDiscount);
-            Modify();
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Calc. Inv. Discount", NewCalcInvDiscount);
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure VerifyWarehouseActivityLine(ItemNo: Code[20]; Qty: Decimal)
@@ -1633,24 +1600,21 @@ codeunit 137272 "SCM Reservation V"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("No.", No);
-            FindFirst();
-            Assert.AreEqual(ExpectedQty, Quantity, StrSubstNo(WrongQuantityErr, No));
-        end;
+        PurchaseLine.SetRange("No.", No);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(ExpectedQty, PurchaseLine.Quantity, StrSubstNo(WrongQuantityErr, No));
     end;
 
     local procedure VerifyExistenceOfItemTracking(ItemNo: Code[20]; LotNo: Code[10]; ExpectedExistence: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", "Source Subtype"::"5"); // Purchase Return Order
-            Assert.AreNotEqual(ExpectedExistence, IsEmpty, ReservEntryExistenceErr);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Purchase Line");
+        ReservationEntry.SetRange("Source Subtype", ReservationEntry."Source Subtype"::"5");
+        // Purchase Return Order
+        Assert.AreNotEqual(ExpectedExistence, ReservationEntry.IsEmpty, ReservEntryExistenceErr);
     end;
 
     local procedure VerifyItemTrackingQty(ItemNo: Code[20]; LotNo: Code[10]; ExpectedQty: Decimal)
@@ -1658,16 +1622,15 @@ codeunit 137272 "SCM Reservation V"
         ReservationEntry: Record "Reservation Entry";
         TotalQty: Decimal;
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Source Type", DATABASE::"Purchase Line");
-            SetRange("Source Subtype", "Source Subtype"::"5"); // Purchase Return Order
-            FindSet();
-            repeat
-                TotalQty -= Quantity;
-            until Next() = 0;
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.SetRange("Source Type", DATABASE::"Purchase Line");
+        ReservationEntry.SetRange("Source Subtype", ReservationEntry."Source Subtype"::"5");
+        // Purchase Return Order
+        ReservationEntry.FindSet();
+        repeat
+            TotalQty -= ReservationEntry.Quantity;
+        until ReservationEntry.Next() = 0;
         Assert.AreEqual(ExpectedQty, TotalQty, ReservEntryQtyErr);
     end;
 
@@ -1675,27 +1638,23 @@ codeunit 137272 "SCM Reservation V"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", DocumentType);
-            SetRange("Source ID", DocumentNo);
-            FindFirst();
-            TestField("Qty. to Handle (Base)", ExpectedQty);
-            TestField("Appl.-to Item Entry", ApplToItemEntry);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", DocumentType);
+        ReservationEntry.SetRange("Source ID", DocumentNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Qty. to Handle (Base)", ExpectedQty);
+        ReservationEntry.TestField("Appl.-to Item Entry", ApplToItemEntry);
     end;
 
     local procedure VerifySurplusQuantity(ItemNo: Code[20]; ExpectedQty: Decimal)
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Reservation Status", "Reservation Status"::Surplus);
-            CalcSums(Quantity);
-            Assert.AreEqual(ExpectedQty, Quantity, ReservEntryQtyErr);
-        end;
+        ReservEntry.SetRange("Item No.", ItemNo);
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
+        ReservEntry.CalcSums(Quantity);
+        Assert.AreEqual(ExpectedQty, ReservEntry.Quantity, ReservEntryQtyErr);
     end;
 
     local procedure VerifySalesShptDocExists(OrderNo: Code[20])

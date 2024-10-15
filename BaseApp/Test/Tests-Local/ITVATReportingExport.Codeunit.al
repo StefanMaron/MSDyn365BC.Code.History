@@ -3671,16 +3671,14 @@ codeunit 144012 "IT - VAT Reporting - Export"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Get(CreateVATEntry(PostingDate, EntryType, BillToPayToNo));
-            "Document No." := DocumentNo;
-            "External Document No." := DocumentNo;
-            "Document Type" := DocumentType;
-            "VAT Identifier" :=
-              CopyStr(LibraryUtility.GenerateRandomCode(
-                  FieldNo("VAT Identifier"), DATABASE::"VAT Entry"), 1, MaxStrLen("VAT Identifier"));
-            Modify();
-        end;
+        VATEntry.Get(CreateVATEntry(PostingDate, EntryType, BillToPayToNo));
+        VATEntry."Document No." := DocumentNo;
+        VATEntry."External Document No." := DocumentNo;
+        VATEntry."Document Type" := DocumentType;
+        VATEntry."VAT Identifier" :=
+          CopyStr(LibraryUtility.GenerateRandomCode(
+              VATEntry.FieldNo("VAT Identifier"), DATABASE::"VAT Entry"), 1, MaxStrLen(VATEntry."VAT Identifier"));
+        VATEntry.Modify();
     end;
 
     local procedure DeleteVendorLedgerEntry(PostingDate: Date; VendorNo: Code[20])
@@ -3731,7 +3729,6 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("EU Country/Region Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         CountryRegion.Validate("Foreign Country/Region Code", Format(LibraryRandom.RandInt(100)));
         CountryRegion.Modify(true);
@@ -3785,25 +3782,23 @@ codeunit 144012 "IT - VAT Reporting - Export"
     local procedure UpdateReqFldsGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
-        with GenJournalLine do begin
-            if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode());
+        if GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident" then
+            GenJournalLine.Validate("Country/Region Code", GetCountryCode());
 
-            if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
-                Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Last Name", LibraryUtility.GenerateRandomCode(FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
-                Validate("Place of Birth", LibraryUtility.GenerateRandomCode(FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
-            end;
-
-            if "Individual Person" and (Resident = Resident::Resident) and ("Fiscal Code" = '') then
-                "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            if not "Individual Person" and (Resident = Resident::Resident) and ("VAT Registration No." = '') then
-                "VAT Registration No." := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            Modify(true);
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then begin
+            GenJournalLine.Validate("First Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Last Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
+            GenJournalLine.Validate("Place of Birth", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
         end;
+
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) and (GenJournalLine."Fiscal Code" = '') then
+            GenJournalLine."Fiscal Code" := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        if not GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) and (GenJournalLine."VAT Registration No." = '') then
+            GenJournalLine."VAT Registration No." := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        GenJournalLine.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderPostingDates(var PurchaseHeader: Record "Purchase Header"; PostingDate: Date; DocumentDate: Date; OperationOccurredDate: Date)
@@ -3846,11 +3841,9 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         NoSeries: Record "No. Series";
     begin
-        with VATBusinessPostingGroup do begin
-            Get(VATBusPostingGroupCode);
-            Validate("Default Sales Operation Type", CreateNoSeriesWithSpecialSigns(true, true, true, NoSeries."No. Series Type"::Sales));
-            Modify(true);
-        end;
+        VATBusinessPostingGroup.Get(VATBusPostingGroupCode);
+        VATBusinessPostingGroup.Validate("Default Sales Operation Type", CreateNoSeriesWithSpecialSigns(true, true, true, NoSeries."No. Series Type"::Sales));
+        VATBusinessPostingGroup.Modify(true);
     end;
 
     local procedure UpdateVATPostingSetup(VATCalculationType: Enum "Tax Calculation Type"; InclInVATTransRep: Boolean)

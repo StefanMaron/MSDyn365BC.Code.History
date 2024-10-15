@@ -83,7 +83,7 @@ table 741 "VAT Report Line"
             Editable = false;
             TableRelation = if (Type = const(Purchase)) Vendor
             else
-            IF (Type = const(Sale)) Customer;
+            if (Type = const(Sale)) Customer;
         }
         field(13; "EU 3-Party Trade"; Boolean)
         {
@@ -228,7 +228,6 @@ table 741 "VAT Report Line"
         {
         }
     }
-
     fieldgroups
     {
     }

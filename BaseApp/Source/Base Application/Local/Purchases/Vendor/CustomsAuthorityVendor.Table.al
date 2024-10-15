@@ -21,7 +21,7 @@ table 12122 "Customs Authority Vendor"
         }
         field(2; Name; Text[30])
         {
-            CalcFormula = Lookup(Vendor.Name where("No." = field("Vendor No.")));
+            CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;

@@ -34,15 +34,15 @@ codeunit 104010 "Upg Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) then
+            exit;
 
-        IF ApplicationAreaSetup.GET() AND ApplicationAreaSetup.Basic THEN BEGIN
-            ApplicationAreaSetup.VAT := TRUE;
-            ApplicationAreaSetup."Basic EU" := TRUE;
-            ApplicationAreaSetup."Basic IT" := TRUE;
+        if ApplicationAreaSetup.GET() and ApplicationAreaSetup.Basic then begin
+            ApplicationAreaSetup.VAT := true;
+            ApplicationAreaSetup."Basic EU" := true;
+            ApplicationAreaSetup."Basic IT" := true;
             ApplicationAreaSetup.Modify();
-        END;
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
     end;

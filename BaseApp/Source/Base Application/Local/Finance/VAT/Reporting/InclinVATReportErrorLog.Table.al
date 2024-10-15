@@ -44,5 +44,17 @@ table 12196 "Incl. in VAT Report Error Log"
     fieldgroups
     {
     }
+
+    procedure InsertError(RecordNo: Integer; FieldNo: Integer; ErrorText: Text[250]; LineNo: Integer)
+    begin
+        if not FindLast() then;
+        "Entry No." += 1;
+        "Record No." := RecordNo;
+        "Field No." := FieldNo;
+        "Error Message" := ErrorText;
+        "Line No." := LineNo;
+        Insert();
+    end;
 }
+
 

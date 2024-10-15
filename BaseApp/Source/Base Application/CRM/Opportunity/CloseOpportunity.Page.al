@@ -191,7 +191,9 @@ page 5128 "Close Opportunity"
         OptionLostEnable: Boolean;
         IsOnMobile: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
         IsNotAValidSelectionErr: Label '%1 is not a valid selection.', Comment = '%1 - Field Value';
 
     protected var

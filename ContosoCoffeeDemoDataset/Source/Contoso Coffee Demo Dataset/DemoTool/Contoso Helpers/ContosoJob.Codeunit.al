@@ -98,7 +98,8 @@ codeunit 5186 "Contoso Job"
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Validate("Location Code", LocationCode);
-        JobPlanningLine.Validate(Description, LineDescription);
+        if LineDescription <> '' then
+            JobPlanningLine.Validate(Description, LineDescription);
         JobPlanningLine.Insert(true);
     end;
 

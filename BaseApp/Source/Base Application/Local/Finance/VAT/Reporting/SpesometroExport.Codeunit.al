@@ -312,12 +312,11 @@ codeunit 12131 "Spesometro Export"
 
         if ReportType = ReportType::Cancellation then
             WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '00', false)
-        else begin
+        else
             if DetailedExport then
                 WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '01', false)
             else
                 WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '10', false);
-        end;
     end;
 
     local procedure WriteRecordBCompanyInfoValues()
@@ -354,12 +353,11 @@ codeunit 12131 "Spesometro Export"
         FileStart := FlatFileManagement.GetMaxRecordsPerFile() * (ProgressiveTransmissionNo - 1);
         FileEnd := FlatFileManagement.GetMaxRecordsPerFile() * ProgressiveTransmissionNo;
         for Index := 1 to 10 do
-            if CumRecordCount[Index + 1] - CumRecordCount[Index] > 0 then begin
+            if CumRecordCount[Index + 1] - CumRecordCount[Index] > 0 then
                 if ((CumRecordCount[Index] >= FileStart) and (CumRecordCount[Index] < FileEnd)) or
                    ((CumRecordCount[Index] <= FileStart) and (CumRecordCount[Index + 1] > FileStart))
                 then
                     WritePositionalValue(117 + Index + IDFileOffset, 1, ConstFormat::CB, '1', false);
-            end;
         if FlatFileManagement.GetEstimatedNumberOfRecords() > 0 then
             WritePositionalValue(129 + IDFileOffset, 1, ConstFormat::CB, '1', false);
     end;

@@ -49,6 +49,10 @@ page 9007 "Purchasing Agent Role Center"
                 {
                     ApplicationArea = Suite;
                 }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1902476008; "My Vendors")
                 {
                     ApplicationArea = Basic, Suite;

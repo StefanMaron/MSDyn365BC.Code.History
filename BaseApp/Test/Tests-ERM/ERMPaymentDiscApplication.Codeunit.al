@@ -661,12 +661,10 @@ codeunit 134914 "ERM Payment Disc Application"
 
     local procedure CreateApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal; AppliestoDocNo: Code[20])
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", AppliestoDocNo);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDocNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -674,13 +672,11 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -848,11 +844,9 @@ codeunit 134914 "ERM Payment Disc Application"
     local procedure CreateVATPostingSetupWithAdjForPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandIntInRange(10, 20));
-        with VATPostingSetup do begin
-            Validate("Adjust for Payment Discount", true);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreatePostPurchaseInvoice(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; VendorNo: Code[20]; PaymentTermsCode: Code[10])
@@ -861,16 +855,14 @@ codeunit 134914 "ERM Payment Disc Application"
         GLAccount: Record "G/L Account";
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Invoice, "Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase),
-              "Bal. Account Type"::Vendor, VendorNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Payment Terms Code", PaymentTermsCode);
-            Modify(true);
-            UpdateGeneralPostingSetup("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-        end;
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase),
+            GenJournalLine."Bal. Account Type"::Vendor, VendorNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        GenJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
+        GenJournalLine.Modify(true);
+        UpdateGeneralPostingSetup(GenJournalLine."Gen. Bus. Posting Group", GenJournalLine."Gen. Prod. Posting Group");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -883,24 +875,22 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         DocumentNo := LibraryUtility.GenerateGUID();
-        with GenJournalLine do begin
-            for i := 1 to LinesCount do begin
-                LibraryJournals.CreateGenJournalLine(
-                  GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-                  DocumentType, "Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
-                Validate("Posting Date", PostingDate);
-                Validate("Document No.", DocumentNo);
-                Modify(true);
-                TotalAmount += Amount;
-            end;
+        for i := 1 to LinesCount do begin
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              DocumentType, AccountType, AccountNo, "Gen. Journal Account Type"::"G/L Account", '', -TotalAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Document No.", DocumentNo);
-            Validate("Payment Terms Code", PaymentTermsCode);
-            Modify(true);
+              DocumentType, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
+            GenJournalLine.Validate("Posting Date", PostingDate);
+            GenJournalLine.Validate("Document No.", DocumentNo);
+            GenJournalLine.Modify(true);
+            TotalAmount += GenJournalLine.Amount;
         end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          DocumentType, AccountType, AccountNo, "Gen. Journal Account Type"::"G/L Account", '', -TotalAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -908,26 +898,22 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document No.", PaymentNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
+        DetailedVendorLedgEntry.SetRange("Document No.", PaymentNo);
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.FindFirst();
+        exit(DetailedVendorLedgEntry."Transaction No.");
     end;
 
     local procedure GetCustApplTransactionNo(CustomerNo: Code[20]; PaymentNo: Code[20]): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document No.", PaymentNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
+        DetailedCustLedgEntry.SetRange("Document No.", PaymentNo);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.FindFirst();
+        exit(DetailedCustLedgEntry."Transaction No.");
     end;
 
     local procedure FindPurchaseInvoiceHeader(PreAssignedNo: Code[20]): Code[20]
@@ -979,12 +965,10 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
@@ -992,12 +976,10 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
@@ -1049,29 +1031,25 @@ codeunit 134914 "ERM Payment Disc Application"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(StrSubstNo('<%1D>', PmtDiscGracePeriod));
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Adjust for Payment Disc.", true);
-            Validate("Pmt. Disc. Tolerance Warning", false);
-            Validate("Pmt. Disc. Tolerance Posting", "Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
-            Validate("Payment Tolerance Warning", false);
-            Validate("Payment Tolerance Posting", "Payment Tolerance Posting"::"Payment Tolerance Accounts");
-            Validate("Payment Tolerance %", PaymentTolerancePct);
-            Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Adjust for Payment Disc.", true);
+        GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Warning", false);
+        GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Posting", GeneralLedgerSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
+        GeneralLedgerSetup.Validate("Payment Tolerance Warning", false);
+        GeneralLedgerSetup.Validate("Payment Tolerance Posting", GeneralLedgerSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts");
+        GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePct);
+        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyLastRegisterGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -1080,13 +1058,11 @@ codeunit 134914 "ERM Payment Disc Application"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.FindLast();
-        with GLEntry do begin
-            SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            TestField(Amount, ExpectedAmount);
-        end;
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyUnappliedDtldLedgEntry(DocumentNo: Code[20])

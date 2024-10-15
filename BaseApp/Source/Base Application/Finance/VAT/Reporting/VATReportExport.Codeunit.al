@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,7 +13,9 @@ codeunit 743 "VAT Report Export"
 
     var
         VATReportReleaseReopen: Codeunit "VAT Report Release/Reopen";
+#pragma warning disable AA0074
         Text001: Label 'This action will also mark the report as released. Are you sure you want to continue?';
+#pragma warning restore AA0074
 
     procedure Export(VATReportHeader: Record "VAT Report Header")
     begin
@@ -46,12 +48,11 @@ codeunit 743 "VAT Report Export"
     var
         VATReportHeaderLocal: Record "VAT Report Header";
     begin
-        if Validate then begin
+        if Validate then
             if VATReportHeader.isDatifattura() then
                 CODEUNIT.Run(CODEUNIT::"Datifattura Validate", VATReportHeader)
             else
                 CODEUNIT.Run(CODEUNIT::"VAT Report Validate", VATReportHeader);
-        end;
 
         VATReportHeaderLocal.Copy(VATReportHeader);
         VATReportHeaderLocal.SetRange("No.", VATReportHeader."No.");

@@ -527,7 +527,7 @@ page 5907 "Service Item Worksheet Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -539,7 +539,7 @@ page 5907 "Service Item Worksheet Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -551,7 +551,7 @@ page 5907 "Service Item Worksheet Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -564,7 +564,7 @@ page 5907 "Service Item Worksheet Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -587,7 +587,7 @@ page 5907 "Service Item Worksheet Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -636,7 +636,7 @@ page 5907 "Service Item Worksheet Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -699,12 +699,16 @@ page 5907 "Service Item Worksheet Subform"
 
     var
         ServMgtSetup: Record "Service Mgt. Setup";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
         ServItemLineNo: Integer;
         ItemReferenceVisible: Boolean;
         VariantCodeMandatory: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot open the window because %1 is %2 in the %3 table.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -735,14 +739,14 @@ page 5907 "Service Item Worksheet Subform"
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
         OnBeforeInsertExtendedText(Rec);
-        if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
+        if ServiceTransferExtText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
-            TransferExtendedText.InsertServExtText(Rec);
+            ServiceTransferExtText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate() then
+        if ServiceTransferExtText.MakeUpdate() then
             CurrPage.Update();
     end;
 

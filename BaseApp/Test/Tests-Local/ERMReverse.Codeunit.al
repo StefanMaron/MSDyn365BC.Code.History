@@ -47,7 +47,6 @@ codeunit 144176 "ERM Reverse"
         GreaterFilterTxt: Label '>%1';
         InvoiceErr: Label 'You cannot reverse the entry %1 because it''s an Invoice Document.';
         LessFilterTxt: Label '<%1';
-        ProgressiveNoErr: Label 'Progressive No. must be equal to ''0''  in GL Book Entry: Entry No.=%1.';
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -180,6 +179,7 @@ codeunit 144176 "ERM Reverse"
     procedure GLBooKTypeFinalReverseRegisterError()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        GLBookEntry: Record "GL Book Entry";
         GLRegisters: TestPage "G/L Registers";
         ReportType: Option Test,Final,Reprint;
         StartDate: Date;
@@ -197,7 +197,7 @@ codeunit 144176 "ERM Reverse"
         asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(ProgressiveNoErr, GLRegisters."From Entry No.".Value));
+        Assert.ExpectedTestFieldError(GLBookEntry.FieldCaption("Progressive No."), Format(0));
     end;
 
     [Test]
@@ -206,6 +206,7 @@ codeunit 144176 "ERM Reverse"
     procedure GLBooKTypeReprintReverseRegisterError()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        GLBookEntry: Record "GL Book Entry";
         GLRegisters: TestPage "G/L Registers";
         ReportType: Option Test,Final,Reprint;
         StartDate: Date;
@@ -224,7 +225,7 @@ codeunit 144176 "ERM Reverse"
         asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(ProgressiveNoErr, GLRegisters."From Entry No.".Value));
+        Assert.ExpectedTestFieldError(GLBookEntry.FieldCaption("Progressive No."), Format(0));
     end;
 
     [Test]
@@ -801,11 +802,9 @@ codeunit 144176 "ERM Reverse"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Assert.AreEqual(ExpectedNoOfEntries, Count, WrongNoOfVATEntriesErr);
-        end;
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.AreEqual(ExpectedNoOfEntries, VATEntry.Count, WrongNoOfVATEntriesErr);
     end;
 
     [RequestPageHandler]

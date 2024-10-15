@@ -99,12 +99,16 @@ report 5853 "Copy Standard Cost Worksheet"
         NoMessage: Boolean;
         WindowUpdateDateTime: DateTime;
 
+#pragma warning disable AA0074
         Text003: Label 'You must specify a worksheet name to copy to.';
         Text004: Label 'You must specify a worksheet name to copy from.';
         Text007: Label 'Copying worksheet...\\';
+#pragma warning disable AA0470
         Text008: Label 'Type               #1##########\';
         Text009: Label 'No.             #2##########\';
+#pragma warning restore AA0470
         Text010: Label 'The worksheet has been successfully copied.';
+#pragma warning restore AA0074
 
     local procedure InsertStdCostWksh()
     begin

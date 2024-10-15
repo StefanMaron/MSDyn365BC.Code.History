@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
 codeunit 138019 "O365 Item Prices"
 {
@@ -655,27 +655,25 @@ codeunit 138019 "O365 Item Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            ValidateFieldsForLineType_vs_Type(
-              "Line Type"::"Sales Line Discount",
-              "Line Type"::"Sales Price");
+        ValidateFieldsForLineType_vs_Type(
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price");
 
-            ValidateFieldsForLineType_vs_Type(
-              "Line Type"::"Sales Line Discount",
-              Type::"Item Disc. Group".AsInteger());
+        ValidateFieldsForLineType_vs_Type(
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
+          TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group".AsInteger());
 
-            ValidateFieldsForLineType_vs_Type(
-              "Line Type"::"Sales Price",
-              Type::Item.AsInteger());
+        ValidateFieldsForLineType_vs_Type(
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price",
+          TempSalesPriceAndLineDiscBuff.Type::Item.AsInteger());
 
-            Init();
-            "Loaded Item No." := 'LIN';
-            "Line Type" := "Line Type"::"Sales Price";
-            "Loaded Disc. Group" := 'LDG';
-            asserterror
-              Validate(Type, Type::"Item Disc. Group");
-            Assert.ExpectedError('Line Type must be equal to');
-        end;
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Loaded Item No." := 'LIN';
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := 'LDG';
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate(Type, TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
+        Assert.ExpectedTestFieldError(TempSalesPriceAndLineDiscBuff.FieldCaption("Line Type"), '');
     end;
 
     local procedure ValidateFieldsForLineType_vs_Type(NewLineType: Integer; NewType: Integer)
@@ -698,25 +696,23 @@ codeunit 138019 "O365 Item Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            ValidateFieldsForType_vs_LineType(
-              Type::Item,
-              "Line Type"::"Sales Line Discount");
+        ValidateFieldsForType_vs_LineType(
+          TempSalesPriceAndLineDiscBuff.Type::Item,
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
 
-            ValidateFieldsForType_vs_LineType(
-              Type::"Item Disc. Group",
-              "Line Type"::"Sales Line Discount");
+        ValidateFieldsForType_vs_LineType(
+          TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group",
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
 
-            ValidateFieldsForType_vs_LineType(
-              Type::Item,
-              "Line Type"::"Sales Price");
+        ValidateFieldsForType_vs_LineType(
+          TempSalesPriceAndLineDiscBuff.Type::Item,
+          TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price");
 
-            Init();
-            Validate(Type, Type::"Item Disc. Group");
-            asserterror
-              Validate("Line Type", "Line Type"::"Sales Price");
-            Assert.ExpectedError('Type must be equal to ''Item''  in Sales Price and Line Disc Buff');
-        end;
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff.Validate(Type, TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price");
+        Assert.ExpectedTestFieldError(TempSalesPriceAndLineDiscBuff.FieldCaption(Type), Format(TempSalesPriceAndLineDiscBuff.Type::Item));
     end;
 
     local procedure ValidateFieldsForType_vs_LineType(NewType: Enum "Sales Line Discount Type"; NewLineType: Integer)
@@ -1093,183 +1089,171 @@ codeunit 138019 "O365 Item Prices"
 
     local procedure CompareBuffAgainstDiscLines(var SalesLineDiscount: Record "Sales Line Discount"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with SalesLineDiscount do begin
-            FindFirst();
+        SalesLineDiscount.FindFirst();
 
-            repeat
-                TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
-                TempSalesPriceAndLineDiscBuff.SetRange(Type, Type);
-                TempSalesPriceAndLineDiscBuff.SetRange(Code, Code);
-                TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", "Sales Type");
-                TempSalesPriceAndLineDiscBuff.SetRange("Sales Code", "Sales Code");
-                TempSalesPriceAndLineDiscBuff.SetRange("Sales Code", "Sales Code");
-                TempSalesPriceAndLineDiscBuff.SetRange("Currency Code", "Currency Code");
-                TempSalesPriceAndLineDiscBuff.SetRange("Variant Code", "Variant Code");
-                TempSalesPriceAndLineDiscBuff.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                TempSalesPriceAndLineDiscBuff.SetRange("Minimum Quantity", "Minimum Quantity");
-                TempSalesPriceAndLineDiscBuff.FindFirst();
+        repeat
+            TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
+            TempSalesPriceAndLineDiscBuff.SetRange(Type, SalesLineDiscount.Type);
+            TempSalesPriceAndLineDiscBuff.SetRange(Code, SalesLineDiscount.Code);
+            TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", SalesLineDiscount."Sales Type");
+            TempSalesPriceAndLineDiscBuff.SetRange("Sales Code", SalesLineDiscount."Sales Code");
+            TempSalesPriceAndLineDiscBuff.SetRange("Sales Code", SalesLineDiscount."Sales Code");
+            TempSalesPriceAndLineDiscBuff.SetRange("Currency Code", SalesLineDiscount."Currency Code");
+            TempSalesPriceAndLineDiscBuff.SetRange("Variant Code", SalesLineDiscount."Variant Code");
+            TempSalesPriceAndLineDiscBuff.SetRange("Unit of Measure Code", SalesLineDiscount."Unit of Measure Code");
+            TempSalesPriceAndLineDiscBuff.SetRange("Minimum Quantity", SalesLineDiscount."Minimum Quantity");
+            TempSalesPriceAndLineDiscBuff.FindFirst();
 
-                TempSalesPriceAndLineDiscBuff.Get(
-                  TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
-                  Type,
-                  Code,
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity",
-                  TempSalesPriceAndLineDiscBuff."Loaded Item No.",
-                  TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
-                  '',
-                  TempSalesPriceAndLineDiscBuff."Loaded Price Group");
+            TempSalesPriceAndLineDiscBuff.Get(
+              TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
+              SalesLineDiscount.Type,
+              SalesLineDiscount.Code,
+              SalesLineDiscount."Sales Type",
+              SalesLineDiscount."Sales Code",
+              SalesLineDiscount."Starting Date",
+              SalesLineDiscount."Currency Code",
+              SalesLineDiscount."Variant Code",
+              SalesLineDiscount."Unit of Measure Code",
+              SalesLineDiscount."Minimum Quantity",
+              TempSalesPriceAndLineDiscBuff."Loaded Item No.",
+              TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
+              '',
+              TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-                Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
-                Assert.AreEqual("Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
-            until Next() = 0;
-        end;
+            Assert.AreEqual(SalesLineDiscount."Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
+            Assert.AreEqual(SalesLineDiscount."Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
+        until SalesLineDiscount.Next() = 0;
     end;
 
     local procedure CompareBuffAgainstPrices(var SalesPrice: Record "Sales Price"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with SalesPrice do begin
-            FindFirst();
+        SalesPrice.FindFirst();
 
-            repeat
-                TempSalesPriceAndLineDiscBuff.Get(
-                  TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price",
-                  TempSalesPriceAndLineDiscBuff.Type::Item,
-                  "Item No.",
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity",
-                  TempSalesPriceAndLineDiscBuff."Loaded Item No.",
-                  TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
-                  '',
-                  TempSalesPriceAndLineDiscBuff."Loaded Price Group");
+        repeat
+            TempSalesPriceAndLineDiscBuff.Get(
+              TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price",
+              TempSalesPriceAndLineDiscBuff.Type::Item,
+              SalesPrice."Item No.",
+              SalesPrice."Sales Type",
+              SalesPrice."Sales Code",
+              SalesPrice."Starting Date",
+              SalesPrice."Currency Code",
+              SalesPrice."Variant Code",
+              SalesPrice."Unit of Measure Code",
+              SalesPrice."Minimum Quantity",
+              TempSalesPriceAndLineDiscBuff."Loaded Item No.",
+              TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
+              '',
+              TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-                Assert.AreEqual(
-                  "Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
-                Assert.AreEqual("Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
-                Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value in Ending Date');
-                Assert.AreEqual(
-                  "Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong value in Price Includes VAT');
-                Assert.AreEqual("Unit Price", TempSalesPriceAndLineDiscBuff."Unit Price", 'Wrong value in Unit Price');
-                Assert.AreEqual(
-                  "VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
-                  'Wrong value in VAT Bus. Posting Gr. (Price)');
+            Assert.AreEqual(
+              SalesPrice."Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
+            Assert.AreEqual(SalesPrice."Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
+            Assert.AreEqual(SalesPrice."Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value in Ending Date');
+            Assert.AreEqual(
+              SalesPrice."Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong value in Price Includes VAT');
+            Assert.AreEqual(SalesPrice."Unit Price", TempSalesPriceAndLineDiscBuff."Unit Price", 'Wrong value in Unit Price');
+            Assert.AreEqual(
+              SalesPrice."VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
+              'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-            until Next() = 0;
-        end;
+        until SalesPrice.Next() = 0;
     end;
 
     local procedure CompareDiscLinesAgainstBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; var SalesLineDiscount: Record "Sales Line Discount")
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            repeat
-                SalesLineDiscount.Get(
-                  Type,
-                  Code,
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity");
+        repeat
+            SalesLineDiscount.Get(
+              TempSalesPriceAndLineDiscBuff.Type,
+              TempSalesPriceAndLineDiscBuff.Code,
+              TempSalesPriceAndLineDiscBuff."Sales Type",
+              TempSalesPriceAndLineDiscBuff."Sales Code",
+              TempSalesPriceAndLineDiscBuff."Starting Date",
+              TempSalesPriceAndLineDiscBuff."Currency Code",
+              TempSalesPriceAndLineDiscBuff."Variant Code",
+              TempSalesPriceAndLineDiscBuff."Unit of Measure Code",
+              TempSalesPriceAndLineDiscBuff."Minimum Quantity");
 
-                Assert.AreEqual("Ending Date", SalesLineDiscount."Ending Date", 'Wrong value in Ending Date');
-                Assert.AreEqual("Line Discount %", SalesLineDiscount."Line Discount %", 'Wrong value in Line Discount %');
-            until Next() = 0;
-        end;
+            Assert.AreEqual(TempSalesPriceAndLineDiscBuff."Ending Date", SalesLineDiscount."Ending Date", 'Wrong value in Ending Date');
+            Assert.AreEqual(TempSalesPriceAndLineDiscBuff."Line Discount %", SalesLineDiscount."Line Discount %", 'Wrong value in Line Discount %');
+        until TempSalesPriceAndLineDiscBuff.Next() = 0;
     end;
 
     local procedure ComparePricesAgainstBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; var SalesPrice: Record "Sales Price")
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            repeat
-                SalesPrice.Get(
-                  Code,
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity");
+        repeat
+            SalesPrice.Get(
+              TempSalesPriceAndLineDiscBuff.Code,
+              TempSalesPriceAndLineDiscBuff."Sales Type",
+              TempSalesPriceAndLineDiscBuff."Sales Code",
+              TempSalesPriceAndLineDiscBuff."Starting Date",
+              TempSalesPriceAndLineDiscBuff."Currency Code",
+              TempSalesPriceAndLineDiscBuff."Variant Code",
+              TempSalesPriceAndLineDiscBuff."Unit of Measure Code",
+              TempSalesPriceAndLineDiscBuff."Minimum Quantity");
 
-                Assert.AreEqual("Ending Date", SalesPrice."Ending Date", 'Wrong value in Ending Date');
-                Assert.AreEqual("Unit Price", SalesPrice."Unit Price", 'Wrong value in Unit Price');
-                Assert.AreEqual(
-                  "Allow Invoice Disc.", SalesPrice."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
-                Assert.AreEqual("Allow Line Disc.", SalesPrice."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
-                Assert.AreEqual(
-                  "Price Includes VAT", SalesPrice."Price Includes VAT", 'Wrong value in Price Includes VAT');
-                Assert.AreEqual(
-                  "VAT Bus. Posting Gr. (Price)", SalesPrice."VAT Bus. Posting Gr. (Price)",
-                  'Wrong value in VAT Bus. Posting Gr. (Price)');
+            Assert.AreEqual(TempSalesPriceAndLineDiscBuff."Ending Date", SalesPrice."Ending Date", 'Wrong value in Ending Date');
+            Assert.AreEqual(TempSalesPriceAndLineDiscBuff."Unit Price", SalesPrice."Unit Price", 'Wrong value in Unit Price');
+            Assert.AreEqual(
+              TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", SalesPrice."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
+            Assert.AreEqual(TempSalesPriceAndLineDiscBuff."Allow Line Disc.", SalesPrice."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
+            Assert.AreEqual(
+              TempSalesPriceAndLineDiscBuff."Price Includes VAT", SalesPrice."Price Includes VAT", 'Wrong value in Price Includes VAT');
+            Assert.AreEqual(
+              TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)", SalesPrice."VAT Bus. Posting Gr. (Price)",
+              'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-            until Next() = 0;
-        end;
+        until TempSalesPriceAndLineDiscBuff.Next() = 0;
     end;
 
     local procedure CompareSalesPriceRec(ExpectedSalesPrice: Record "Sales Price"; ActualSalesPrice: Record "Sales Price")
     begin
-        with ExpectedSalesPrice do begin
-            Assert.AreEqual(Count, ActualSalesPrice.Count, 'Wrong count before and after for Sales Prices');
-            FindSet();
-            repeat
-                ActualSalesPrice.Get(
-                  "Item No.",
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity");
+        Assert.AreEqual(ExpectedSalesPrice.Count, ActualSalesPrice.Count, 'Wrong count before and after for Sales Prices');
+        ExpectedSalesPrice.FindSet();
+        repeat
+            ActualSalesPrice.Get(
+              ExpectedSalesPrice."Item No.",
+              ExpectedSalesPrice."Sales Type",
+              ExpectedSalesPrice."Sales Code",
+              ExpectedSalesPrice."Starting Date",
+              ExpectedSalesPrice."Currency Code",
+              ExpectedSalesPrice."Variant Code",
+              ExpectedSalesPrice."Unit of Measure Code",
+              ExpectedSalesPrice."Minimum Quantity");
 
-                Assert.AreEqual("Unit Price", ActualSalesPrice."Unit Price", 'Wrong Unit Price');
-                Assert.AreEqual("Ending Date", ActualSalesPrice."Ending Date", 'Wrong Ending Date');
-                Assert.AreEqual("Allow Invoice Disc.", ActualSalesPrice."Allow Invoice Disc.", 'Wrong Allow Invoice Disc.');
-                Assert.AreEqual("Allow Line Disc.", ActualSalesPrice."Allow Line Disc.", 'Wrong Allow Line Disc.');
-                Assert.AreEqual("Price Includes VAT", ActualSalesPrice."Price Includes VAT", 'Wrong Price Includes VAT');
-                Assert.AreEqual(
-                  "VAT Bus. Posting Gr. (Price)", ActualSalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Bus. Posting Gr. (Price)');
-            until Next() = 0;
-        end;
+            Assert.AreEqual(ExpectedSalesPrice."Unit Price", ActualSalesPrice."Unit Price", 'Wrong Unit Price');
+            Assert.AreEqual(ExpectedSalesPrice."Ending Date", ActualSalesPrice."Ending Date", 'Wrong Ending Date');
+            Assert.AreEqual(ExpectedSalesPrice."Allow Invoice Disc.", ActualSalesPrice."Allow Invoice Disc.", 'Wrong Allow Invoice Disc.');
+            Assert.AreEqual(ExpectedSalesPrice."Allow Line Disc.", ActualSalesPrice."Allow Line Disc.", 'Wrong Allow Line Disc.');
+            Assert.AreEqual(ExpectedSalesPrice."Price Includes VAT", ActualSalesPrice."Price Includes VAT", 'Wrong Price Includes VAT');
+            Assert.AreEqual(
+              ExpectedSalesPrice."VAT Bus. Posting Gr. (Price)", ActualSalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Bus. Posting Gr. (Price)');
+        until ExpectedSalesPrice.Next() = 0;
     end;
 
     local procedure CompareSLDiscountsRec(ExpectedSalesLnDisc: Record "Sales Line Discount"; ActualSalesLnDisc: Record "Sales Line Discount")
     begin
-        with ExpectedSalesLnDisc do begin
-            Assert.AreEqual(Count, ActualSalesLnDisc.Count, 'Wrong count before and after for Sales Prices');
-            FindSet();
-            repeat
-                ActualSalesLnDisc.Get(
-                  Type,
-                  Code,
-                  "Sales Type",
-                  "Sales Code",
-                  "Starting Date",
-                  "Currency Code",
-                  "Variant Code",
-                  "Unit of Measure Code",
-                  "Minimum Quantity");
+        Assert.AreEqual(ExpectedSalesLnDisc.Count, ActualSalesLnDisc.Count, 'Wrong count before and after for Sales Prices');
+        ExpectedSalesLnDisc.FindSet();
+        repeat
+            ActualSalesLnDisc.Get(
+              ExpectedSalesLnDisc.Type,
+              ExpectedSalesLnDisc.Code,
+              ExpectedSalesLnDisc."Sales Type",
+              ExpectedSalesLnDisc."Sales Code",
+              ExpectedSalesLnDisc."Starting Date",
+              ExpectedSalesLnDisc."Currency Code",
+              ExpectedSalesLnDisc."Variant Code",
+              ExpectedSalesLnDisc."Unit of Measure Code",
+              ExpectedSalesLnDisc."Minimum Quantity");
 
-                Assert.AreEqual("Line Discount %", ActualSalesLnDisc."Line Discount %", 'Wrong Line Discount %');
-                Assert.AreEqual("Ending Date", ActualSalesLnDisc."Ending Date", 'Wrong Ending Date');
-            until Next() = 0;
-        end;
+            Assert.AreEqual(ExpectedSalesLnDisc."Line Discount %", ActualSalesLnDisc."Line Discount %", 'Wrong Line Discount %');
+            Assert.AreEqual(ExpectedSalesLnDisc."Ending Date", ActualSalesLnDisc."Ending Date", 'Wrong Ending Date');
+        until ExpectedSalesLnDisc.Next() = 0;
     end;
 
     local procedure CreateBlankItem(var Item: Record Item)
@@ -1344,30 +1328,29 @@ codeunit 138019 "O365 Item Prices"
         SalesLineDiscount: Record "Sales Line Discount";
         i: Integer;
     begin
-        for i := 0 to 3 do
-            with SalesLineDiscount do begin
-                Init();
-                "Sales Type" := i;
-                if i = "Sales Type"::"All Customers" then
-                    "Sales Code" := ''
-                else
-                    "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(100));
+        for i := 0 to 3 do begin
+            SalesLineDiscount.Init();
+            SalesLineDiscount."Sales Type" := i;
+            if i = SalesLineDiscount."Sales Type"::"All Customers" then
+                SalesLineDiscount."Sales Code" := ''
+            else
+                SalesLineDiscount."Sales Code" := 'SC' + Format(LibraryRandom.RandInt(100));
 
-                Type := LineType;
-                Code := LineCode;
-                "Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
-                "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 10);
-                "Line Discount %" := LibraryRandom.RandDec(10, 2);
-                "Minimum Quantity" := LibraryRandom.RandInt(100);
-                if InThePast then
-                    "Ending Date" := Today - 1
-                else
-                    "Ending Date" := Today + LibraryRandom.RandInt(100);
-                "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
-                "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount.Type := LineType;
+            SalesLineDiscount.Code := LineCode;
+            SalesLineDiscount."Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 10);
+            SalesLineDiscount."Line Discount %" := LibraryRandom.RandDec(10, 2);
+            SalesLineDiscount."Minimum Quantity" := LibraryRandom.RandInt(100);
+            if InThePast then
+                SalesLineDiscount."Ending Date" := Today - 1
+            else
+                SalesLineDiscount."Ending Date" := Today + LibraryRandom.RandInt(100);
+            SalesLineDiscount."Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount."Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
 
-                Insert();
-            end;
+            SalesLineDiscount.Insert();
+        end;
     end;
 
     local procedure CreateSalesPriceLine(ItemNo: Code[20]; InThePast: Boolean)
@@ -1376,34 +1359,33 @@ codeunit 138019 "O365 Item Prices"
         i: Integer;
     begin
         // what about the Price Groups?
-        for i := 0 to 3 do
-            with SalesPrice do begin
-                Init();
-                "Item No." := ItemNo;
-                "Sales Type" := "Sales Price Type".FromInteger(i);
-                if i = "Sales Type"::"All Customers".AsInteger() then
-                    "Sales Code" := ''
-                else
-                    "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(100));
+        for i := 0 to 3 do begin
+            SalesPrice.Init();
+            SalesPrice."Item No." := ItemNo;
+            SalesPrice."Sales Type" := "Sales Price Type".FromInteger(i);
+            if i = SalesPrice."Sales Type"::"All Customers".AsInteger() then
+                SalesPrice."Sales Code" := ''
+            else
+                SalesPrice."Sales Code" := 'SC' + Format(LibraryRandom.RandInt(100));
 
-                "Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
-                "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
-                "Unit Price" := LibraryRandom.RandDec(100, 2);
-                "Price Includes VAT" := true;
-                "Allow Invoice Disc." := true;
-                "VAT Bus. Posting Gr. (Price)" := 'VAT BPG' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
+            SalesPrice."Unit Price" := LibraryRandom.RandDec(100, 2);
+            SalesPrice."Price Includes VAT" := true;
+            SalesPrice."Allow Invoice Disc." := true;
+            SalesPrice."VAT Bus. Posting Gr. (Price)" := 'VAT BPG' + Format(LibraryRandom.RandInt(100));
 
-                "Minimum Quantity" := LibraryRandom.RandInt(100);
-                if InThePast then
-                    "Ending Date" := Today - 1
-                else
-                    "Ending Date" := Today + LibraryRandom.RandInt(100);
-                "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
-                "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
-                "Allow Line Disc." := true;
+            SalesPrice."Minimum Quantity" := LibraryRandom.RandInt(100);
+            if InThePast then
+                SalesPrice."Ending Date" := Today - 1
+            else
+                SalesPrice."Ending Date" := Today + LibraryRandom.RandInt(100);
+            SalesPrice."Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Allow Line Disc." := true;
 
-                Insert();
-            end;
+            SalesPrice.Insert();
+        end;
     end;
 
     local procedure GetGroupCode(ItemNo: Code[20]): Code[10]
@@ -1444,17 +1426,15 @@ codeunit 138019 "O365 Item Prices"
 
     local procedure GetSLDiscounts(var SalesLineDiscount: Record "Sales Line Discount"; SalesLineDiscountType: Enum "Sales Line Discount Type"; SalesLineDiscountCode: Code[20])
     begin
-        with SalesLineDiscount do begin
-            Reset();
-            SetRange(Type, SalesLineDiscountType);
-            SetRange(Code, SalesLineDiscountCode);
-            SetFilter(
-              "Sales Type", '%1|%2|%3',
-              "Sales Type"::Customer,
-              "Sales Type"::"Customer Disc. Group",
-              "Sales Type"::"All Customers");
-            FindSet();
-        end;
+        SalesLineDiscount.Reset();
+        SalesLineDiscount.SetRange(Type, SalesLineDiscountType);
+        SalesLineDiscount.SetRange(Code, SalesLineDiscountCode);
+        SalesLineDiscount.SetFilter(
+          "Sales Type", '%1|%2|%3',
+          SalesLineDiscount."Sales Type"::Customer,
+          SalesLineDiscount."Sales Type"::"Customer Disc. Group",
+          SalesLineDiscount."Sales Type"::"All Customers");
+        SalesLineDiscount.FindSet();
     end;
 
     local procedure SetFiltersForBufferAndGetFreshSPrices(var SalesPrice: Record "Sales Price"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; ItemNo: Code[20])
@@ -1471,80 +1451,72 @@ codeunit 138019 "O365 Item Prices"
 
     local procedure GetSPrices(var SalesPrice: Record "Sales Price"; ItemNo: Code[20])
     begin
-        with SalesPrice do begin
-            Reset();
-            SetRange("Item No.", ItemNo);
-            SetFilter(
-              "Sales Type", '%1|%2|%3',
-              "Sales Type"::Customer,
-              "Sales Type"::"Customer Price Group",
-              "Sales Type"::"All Customers");
-            FindSet();
-        end;
+        SalesPrice.Reset();
+        SalesPrice.SetRange("Item No.", ItemNo);
+        SalesPrice.SetFilter(
+          "Sales Type", '%1|%2|%3',
+          SalesPrice."Sales Type"::Customer,
+          SalesPrice."Sales Type"::"Customer Price Group",
+          SalesPrice."Sales Type"::"All Customers");
+        SalesPrice.FindSet();
     end;
 
     local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            SetRange(Type, LineDiscType);
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.SetRange(Type, LineDiscType);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            "Minimum Quantity" := LibraryRandom.RandInt(100);
-            "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
-            "Ending Date" := Today + LibraryRandom.RandInt(100);
+        TempSalesPriceAndLineDiscBuff."Minimum Quantity" := LibraryRandom.RandInt(100);
+        TempSalesPriceAndLineDiscBuff."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
+        TempSalesPriceAndLineDiscBuff."Ending Date" := Today + LibraryRandom.RandInt(100);
 
-            if "Line Type" = "Line Type"::"Sales Line Discount" then
-                "Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
-            else begin
-                "Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
-                "Price Includes VAT" := not "Price Includes VAT";
-                "Allow Invoice Disc." := not "Allow Invoice Disc.";
-                "VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
-                "Allow Line Disc." := not "Allow Line Disc.";
-            end;
-
-            Insert(true);
-
-            SetRange(Type);
+        if TempSalesPriceAndLineDiscBuff."Line Type" = TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount" then
+            TempSalesPriceAndLineDiscBuff."Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
+        else begin
+            TempSalesPriceAndLineDiscBuff."Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
+            TempSalesPriceAndLineDiscBuff."Price Includes VAT" := not TempSalesPriceAndLineDiscBuff."Price Includes VAT";
+            TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := not TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.";
+            TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
+            TempSalesPriceAndLineDiscBuff."Allow Line Disc." := not TempSalesPriceAndLineDiscBuff."Allow Line Disc.";
         end;
+
+        TempSalesPriceAndLineDiscBuff.Insert(true);
+
+        TempSalesPriceAndLineDiscBuff.SetRange(Type);
     end;
 
     local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     var
         i: Integer;
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            SetRange(Type, LineDiscType);
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.SetRange(Type, LineDiscType);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            for i := 0 to 1 do begin
-                "Ending Date" := "Ending Date" + LibraryRandom.RandIntInRange(1, 10);
-                if "Line Type" = "Line Type"::"Sales Line Discount" then
-                    "Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
-                else begin
-                    "Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
-                    "Price Includes VAT" := not "Price Includes VAT";
-                    "Allow Invoice Disc." := not "Allow Invoice Disc.";
-                    "VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
-                    "Allow Line Disc." := not "Allow Line Disc.";
-                end;
-
-                Modify(true);
-                Next();
+        for i := 0 to 1 do begin
+            TempSalesPriceAndLineDiscBuff."Ending Date" := TempSalesPriceAndLineDiscBuff."Ending Date" + LibraryRandom.RandIntInRange(1, 10);
+            if TempSalesPriceAndLineDiscBuff."Line Type" = TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount" then
+                TempSalesPriceAndLineDiscBuff."Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
+            else begin
+                TempSalesPriceAndLineDiscBuff."Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
+                TempSalesPriceAndLineDiscBuff."Price Includes VAT" := not TempSalesPriceAndLineDiscBuff."Price Includes VAT";
+                TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := not TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.";
+                TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
+                TempSalesPriceAndLineDiscBuff."Allow Line Disc." := not TempSalesPriceAndLineDiscBuff."Allow Line Disc.";
             end;
+
+            TempSalesPriceAndLineDiscBuff.Modify(true);
+            TempSalesPriceAndLineDiscBuff.Next();
         end;
     end;
 
     local procedure DeleteLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            Delete(true);
-            Next();
-            Delete(true);
-            Next();
-        end;
+        TempSalesPriceAndLineDiscBuff.Delete(true);
+        TempSalesPriceAndLineDiscBuff.Next();
+        TempSalesPriceAndLineDiscBuff.Delete(true);
+        TempSalesPriceAndLineDiscBuff.Next();
     end;
 
     local procedure EditSalesSetupWithVATBusPostGrPrice()

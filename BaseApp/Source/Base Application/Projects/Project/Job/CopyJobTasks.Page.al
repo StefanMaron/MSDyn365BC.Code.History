@@ -194,12 +194,20 @@ page 1041 "Copy Job Tasks"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'The project was successfully copied.';
+#pragma warning disable AA0470
         Text003: Label '%1 %2 does not exist.', Comment = 'Project Task 1000 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PlanningLineTypeEnable: Boolean;
         LedgerEntryLineTypeEnable: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Provide a valid source %1.';
         Text005: Label 'Provide a valid target %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         SourceJob, TargetJob : Record Job;

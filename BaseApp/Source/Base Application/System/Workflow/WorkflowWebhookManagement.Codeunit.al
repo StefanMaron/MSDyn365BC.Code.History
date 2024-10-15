@@ -20,7 +20,9 @@ codeunit 1543 "Workflow Webhook Management"
     var
         ResponseAlreadyReceivedErr: Label 'A response has already been received.';
         ResponseNotExpectedErr: Label 'A response is not expected.';
+#pragma warning disable AA0470
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported.', Comment = 'Record type Customer is not supported by this workflow response.';
+#pragma warning restore AA0470
         UserUnableToCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
         EmailNotAssociatedWithUserErr: Label 'Email %1 is not associated with any user.', Comment = '%1 = an email, for example "test@microsoft.com"';
         EmailNotProvidedErr: Label 'You must specify an email address for the requestor.';

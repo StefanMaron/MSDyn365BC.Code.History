@@ -730,9 +730,6 @@ page 12152 "Subcontracting Order"
                     DocPrint.PrintPurchHeader(Rec);
                 end;
             }
-        }
-        area(creation)
-        {
             action("New Subcontr. Transfer Order")
             {
                 ApplicationArea = Manufacturing;

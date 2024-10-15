@@ -426,28 +426,24 @@ codeunit 144072 "UT COD VAT Exemption"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Init();
-            "Document Date" := DocumentDate;
-            Type := Type::Purchase;
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "Plafond Entry" := true;
-            Base := LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit(Base);
-        end;
+        VATEntry.Init();
+        VATEntry."Document Date" := DocumentDate;
+        VATEntry.Type := VATEntry.Type::Purchase;
+        VATEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Plafond Entry" := true;
+        VATEntry.Base := LibraryRandom.RandDec(100, 2);
+        VATEntry.Insert();
+        exit(VATEntry.Base);
     end;
 
     local procedure VerifyVATPlafondCalculatedAmount(VATPlafondYear: Integer; ExpectedAmount: Decimal)
     var
         VATPlafondPeriod: Record "VAT Plafond Period";
     begin
-        with VATPlafondPeriod do begin
-            Get(VATPlafondYear);
-            CalcFields("Calculated Amount");
-            TestField("Calculated Amount", ExpectedAmount);
-        end;
+        VATPlafondPeriod.Get(VATPlafondYear);
+        VATPlafondPeriod.CalcFields("Calculated Amount");
+        VATPlafondPeriod.TestField("Calculated Amount", ExpectedAmount);
     end;
 }
 

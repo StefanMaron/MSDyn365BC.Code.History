@@ -1167,23 +1167,19 @@ codeunit 137046 "SCM Order Planning - I"
 
     local procedure MockItem(var Item: Record Item)
     begin
-        with Item do begin
-            "No." := LibraryUtility.GenerateGUID();
-            "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
-            "Overhead Rate" := LibraryRandom.RandDec(10, 2);
-            Insert();
-        end;
+        Item."No." := LibraryUtility.GenerateGUID();
+        Item."Indirect Cost %" := LibraryRandom.RandDec(10, 2);
+        Item."Overhead Rate" := LibraryRandom.RandDec(10, 2);
+        Item.Insert();
     end;
 
     local procedure MockProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
-        with ProdOrderLine do begin
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Item No." := ItemNo;
-            "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
-            "Overhead Rate" := LibraryRandom.RandDec(10, 2);
-            Insert();
-        end;
+        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderLine."Item No." := ItemNo;
+        ProdOrderLine."Indirect Cost %" := LibraryRandom.RandDec(10, 2);
+        ProdOrderLine."Overhead Rate" := LibraryRandom.RandDec(10, 2);
+        ProdOrderLine.Insert();
     end;
 
     local procedure UpdateItem(var Item: Record Item; Reserve: Enum "Reserve Method")
@@ -1453,14 +1449,12 @@ codeunit 137046 "SCM Order Planning - I"
         RecRef: RecordRef;
     begin
         RecRef.GetTable(InvtAdjmtEntryOrder);
-        with InvtAdjmtEntryOrder do begin
-            "Order Type" := "Order Type"::Production;
-            "Order No." := LibraryUtility.GenerateGUID();
-            "Order Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Order Line No."));
-            "Item No." := ItemNo;
-            "Cost is Adjusted" := false;
-            Insert();
-        end;
+        InvtAdjmtEntryOrder."Order Type" := InvtAdjmtEntryOrder."Order Type"::Production;
+        InvtAdjmtEntryOrder."Order No." := LibraryUtility.GenerateGUID();
+        InvtAdjmtEntryOrder."Order Line No." := LibraryUtility.GetNewLineNo(RecRef, InvtAdjmtEntryOrder.FieldNo("Order Line No."));
+        InvtAdjmtEntryOrder."Item No." := ItemNo;
+        InvtAdjmtEntryOrder."Cost is Adjusted" := false;
+        InvtAdjmtEntryOrder.Insert();
     end;
 
     local procedure CalculateExpectedQuantity(DocumentType: Enum "Sales Document Type"; OutStandingQuantity: Decimal): Decimal
@@ -1495,14 +1489,12 @@ codeunit 137046 "SCM Order Planning - I"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, Status::Released);
-            SetRange("Prod. Order No.", ProdOrdeNo);
-            FindFirst();
-            OldRoutingNo := "Routing No.";
-            Validate("Routing No.", NewRoutingNo);
-            Modify(true);
-        end;
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrdeNo);
+        ProdOrderLine.FindFirst();
+        OldRoutingNo := ProdOrderLine."Routing No.";
+        ProdOrderLine.Validate("Routing No.", NewRoutingNo);
+        ProdOrderLine.Modify(true);
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]

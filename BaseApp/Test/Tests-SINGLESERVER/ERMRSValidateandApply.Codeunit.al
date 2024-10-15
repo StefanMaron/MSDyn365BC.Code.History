@@ -2254,15 +2254,13 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageData: Record "Config. Package Data";
         FieldRef: FieldRef;
     begin
-        with ConfigPackageData do begin
-            SetRange("Package Code", ConfigPackageCode);
-            SetRange("No.", FromRecordNo);
-            FindSet();
-            repeat
-                FieldRef := RecRef.Field("Field ID");
-                LibraryRapidStart.CreatePackageData("Package Code", "Table ID", NewRecordNo, "Field ID", Format(FieldRef.Value));
-            until Next() = 0;
-        end;
+        ConfigPackageData.SetRange("Package Code", ConfigPackageCode);
+        ConfigPackageData.SetRange("No.", FromRecordNo);
+        ConfigPackageData.FindSet();
+        repeat
+            FieldRef := RecRef.Field(ConfigPackageData."Field ID");
+            LibraryRapidStart.CreatePackageData(ConfigPackageData."Package Code", ConfigPackageData."Table ID", NewRecordNo, ConfigPackageData."Field ID", Format(FieldRef.Value));
+        until ConfigPackageData.Next() = 0;
     end;
 
     local procedure CreateAdditionalGenJnlBatchInPackageData(MasterConfigPackage: Record "Config. Package"; RelatedConfigPackage: Record "Config. Package"; RecNo: Integer)

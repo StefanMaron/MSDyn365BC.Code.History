@@ -21,10 +21,14 @@ codeunit 849 "Cash Flow Account - Indent"
         AccNo: array[10] of Code[20];
         i: Integer;
 
+#pragma warning disable AA0074
         Text1000: Label 'This function updates the indentation of all the cash flow accounts in the chart of cash flow accounts. All accounts between a Begin-Total and the matching End-Total are indented one level. The Totaling for each End-total is also updated.\\';
         Text1003: Label 'Do you want to indent the chart of accounts?';
+#pragma warning disable AA0470
         Text1004: Label 'Indenting the Chart of Accounts #1##########';
         Text1005: Label 'End-Total %1 is missing a matching Begin-Total.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ArrayExceededErr: Label 'You can only indent %1 levels for accounts of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
     local procedure Indentation()

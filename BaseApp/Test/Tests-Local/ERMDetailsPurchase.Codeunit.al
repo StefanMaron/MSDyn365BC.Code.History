@@ -596,22 +596,18 @@ codeunit 144123 "ERM Details Purchase"
         PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTermsIT(PaymentTerms);
-        with PaymentLines do begin
-            LibraryERM.CreatePaymentLines(PaymentLines, "Sales/Purchase"::" ", Type::"Payment Terms", PaymentTerms.Code, '', 0);
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
-            Validate("Due Date Calculation", "Due Date Calculation");
-            Modify(true);
-            exit(Code);
-        end
+        LibraryERM.CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
+        Evaluate(PaymentLines."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
+        PaymentLines.Validate("Due Date Calculation", PaymentLines."Due Date Calculation");
+        PaymentLines.Modify(true);
+        exit(PaymentLines.Code);
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-        end
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure SetupVATBusinessPostingGroup(SeriesCode: Code[20]): Code[20]
@@ -630,11 +626,9 @@ codeunit 144123 "ERM Details Purchase"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorNo);
-        with DetailedVendorLedgEntry do begin
-            SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-            FindLast();
-            Assert.AreEqual(VendorLedgerEntry."Due Date", "Initial Entry Due Date", WrongDueDateDetailedVendorLedgEntryErr);
-        end
+        DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
+        DetailedVendorLedgEntry.FindLast();
+        Assert.AreEqual(VendorLedgerEntry."Due Date", DetailedVendorLedgEntry."Initial Entry Due Date", WrongDueDateDetailedVendorLedgEntryErr);
     end;
 
     [RequestPageHandler]

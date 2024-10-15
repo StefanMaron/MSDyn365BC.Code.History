@@ -1214,7 +1214,6 @@ codeunit 144009 "IT - VAT Reporting - Service"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;

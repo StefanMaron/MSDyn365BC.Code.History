@@ -1,7 +1,6 @@
 namespace System.Email;
 
 using Microsoft.CRM.Contact;
-using Microsoft.CRM.Outlook;
 using Microsoft.Utilities;
 using System;
 using System.Environment;
@@ -16,14 +15,13 @@ codeunit 397 Mail
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'No registered email addresses exist for this %1.', Comment = '%1 = Contact Table Caption (eg. No registered email addresses found for this Contact.)';
-        [RunOnClient]
-        OutlookMessageHelper: DotNet IOutlookMessage;
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure OpenNewMessage(ToName: Text)
     begin
-        Initialize();
         NewMessage(ToName, '', '', '', '', '', true);
     end;
 
@@ -50,72 +48,23 @@ codeunit 397 Mail
         if IsHandled then
             exit(MailSent);
 
-        Initialize();
-
         CreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal);
-        AttachFile(AttachFilename);
         OnCreateAndSendMessageOnAfterAttachFile();
 
-        exit(Send());
+        exit(false);
     end;
 
     procedure CreateMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean)
     var
         IsHandled: Boolean;
     begin
-        Initialize();
-
         IsHandled := false;
         OnBeforeCreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal, IsHandled);
         if IsHandled then
             exit;
 
-        OutlookMessageHelper.Recipients := ToAddresses;
-        OutlookMessageHelper.CarbonCopyRecipients := CcAddresses;
-        OutlookMessageHelper.BlindCarbonCopyRecipients := BccAddresses;
-        OutlookMessageHelper.Subject := Subject;
-        OutlookMessageHelper.BodyFormat := 2;
-        OutlookMessageHelper.ShowNewMailDialogOnSend := ShowNewMailDialogOnSend;
-        OutlookMessageHelper.NewMailDialogIsModal := RunModal;
         IsHandled := false;
         OnCreateMessageOnBeforeClearAttachmentFileNames(IsHandled);
-        if not IsHandled then
-            OutlookMessageHelper.AttachmentFileNames.Clear();
-        AddBodyline(Body);
-    end;
-
-    [Scope('OnPrem')]
-    procedure AddBodyline(TextLine: Text): Boolean
-    begin
-        Initialize();
-
-        if TextLine <> '' then
-            OutlookMessageHelper.Body.Append(FormatTextForHtml(TextLine));
-        exit(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure AttachFile(Filename: Text)
-    begin
-        Initialize();
-
-        if Filename <> '' then
-            OutlookMessageHelper.AttachmentFileNames.Add(Filename);
-    end;
-
-    [Scope('OnPrem')]
-    procedure Send(): Boolean
-    begin
-        Initialize();
-        exit(OutlookMessageHelper.Send());
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetErrorDesc(): Text
-    begin
-        Initialize();
-        if not IsNull(OutlookMessageHelper.LastException) then
-            exit(OutlookMessageHelper.LastException.Message);
     end;
 
     procedure CollectAddresses(ContactNo: Code[20]; var ContactThrough: Record "Communication Method"; ShowAddresses: Boolean): Text[260]
@@ -201,19 +150,10 @@ codeunit 397 Mail
             until ContAltAddrDateRange.Next() = 0;
     end;
 
-    local procedure Initialize()
-    var
-        OutlookMessageFactory: Codeunit "Outlook Message Factory";
-    begin
-        if IsNull(OutlookMessageHelper) then
-            OutlookMessageFactory.CreateOutlookMessage(OutlookMessageHelper);
-    end;
-
     [Scope('OnPrem')]
     procedure TryInitializeOutlook(): Boolean
     begin
-        Initialize();
-        exit(OutlookMessageHelper.CanInitializeOutlook);
+        exit(false);
     end;
 
     procedure CollectCurrentUserEmailAddresses(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)

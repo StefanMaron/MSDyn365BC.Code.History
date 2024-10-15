@@ -253,19 +253,19 @@ table 9054 "Finance Cue"
         }
         field(12100; "Vendor Bills - Open"; Integer)
         {
-            CalcFormula = Count("Vendor Bill Header" where("List Status" = const(Open)));
+            CalcFormula = count("Vendor Bill Header" where("List Status" = const(Open)));
             Caption = 'Vendor Bills - Open';
             FieldClass = FlowField;
         }
         field(12101; "Vendor Bills - Sent"; Integer)
         {
-            CalcFormula = Count("Vendor Bill Header" where("List Status" = const(Sent)));
+            CalcFormula = count("Vendor Bill Header" where("List Status" = const(Sent)));
             Caption = 'Vendor Bills - Sent';
             FieldClass = FlowField;
         }
         field(12102; "Customer Bills"; Integer)
         {
-            CalcFormula = Count("Customer Bill Header");
+            CalcFormula = count("Customer Bill Header");
             Caption = 'Customer Bills';
             FieldClass = FlowField;
         }

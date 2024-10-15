@@ -324,8 +324,8 @@ codeunit 6710 ODataUtility
         EditinExcelFilters: Codeunit "Edit in Excel Filters";
         ObjectId: Integer;
     begin
-        EditinExcelFilters.AddField('Journal_Batch_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
-        EditinExcelFilters.AddField('Journal_Template_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalTemplateName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+        EditinExcelFilters.AddFieldV2('Journal_Batch_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+        EditinExcelFilters.AddFieldV2('Journal_Template_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalTemplateName, Enum::"Edit in Excel Edm Type"::"Edm.String");
 
         Evaluate(ObjectId, CopyStr(PageId, 5));
         EditinExcel.EditPageInExcel(PageCaption, ObjectId, EditinExcelFilters);
@@ -674,12 +674,11 @@ codeunit 6710 ODataUtility
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure CreateMetadataWebRequest(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt."): Boolean
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         UrlHelper: Codeunit "Url Helper";
-        Token: Text;
+        Token: SecretText;
         Endpoint: Text;
         CorrelationId: Guid;
     begin
@@ -687,8 +686,8 @@ codeunit 6710 ODataUtility
             exit(false);
 
         Endpoint := GetUrl(CLIENTTYPE::ODataV4) + '/$metadata';
-        Token := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
-        if Token = '' then begin
+        Token := AzureAdMgt.GetAccessTokenAsSecretText(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
+        if Token.IsEmpty() then begin
             Session.LogMessage('0000E51', NoTokenForMetadataTelemetryErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
             exit(false);
         end;
@@ -698,7 +697,7 @@ codeunit 6710 ODataUtility
 
         HttpWebRequestMgt.Initialize(Endpoint);
         HttpWebRequestMgt.SetMethod('GET');
-        HttpWebRequestMgt.AddHeader('Authorization', StrSubstNo(BearerTokenTemplateTxt, Token));
+        HttpWebRequestMgt.AddHeader('Authorization', SecretStrSubstNo(BearerTokenTemplateTxt, Token));
         HttpWebRequestMgt.AddHeader('x-ms-correlation-id', CorrelationId);
         HttpWebRequestMgt.SetUserAgent('BusinessCentral/cod6170');
         exit(true);

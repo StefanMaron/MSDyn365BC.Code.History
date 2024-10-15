@@ -66,7 +66,11 @@ page 7161 "Analysis Dim. Selection-Level"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This %1 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetDimSelBuf(var AnalysisDimSelBuf: Record "Analysis Dim. Selection Buffer")
     begin

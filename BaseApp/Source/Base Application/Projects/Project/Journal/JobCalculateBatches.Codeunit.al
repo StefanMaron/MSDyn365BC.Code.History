@@ -18,16 +18,24 @@ codeunit 1005 "Job Calculate Batches"
         JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary;
         PeriodLength2: DateFormula;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 lines were successfully transferred to the journal.';
+#pragma warning restore AA0470
         Text001: Label 'There is no remaining usage on the project(s).';
         Text002: Label 'The lines were successfully changed.';
         Text003: Label 'The From Date is later than the To Date.';
+#pragma warning disable AA0470
         Text004: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text005: Label 'There is nothing to invoice.';
         Text006: Label '1 invoice is created.';
+#pragma warning disable AA0470
         Text007: Label '%1 invoices are created.';
+#pragma warning restore AA0470
         Text008: Label 'The selected entries were successfully transferred to planning lines.';
         Text009: Label 'Total Cost,Total Price,Line Discount Amount,Line Amount';
+#pragma warning restore AA0074
 
     procedure SplitLines(var JT2: Record "Job Task"): Integer
     var

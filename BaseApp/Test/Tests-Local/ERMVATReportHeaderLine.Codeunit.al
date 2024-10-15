@@ -1,4 +1,4 @@
-codeunit 134056 "ERM VAT Report Header Line"
+﻿codeunit 134056 "ERM VAT Report Header Line"
 {
     // // [FEATURE] [VAT Report] [UT]
 
@@ -29,7 +29,6 @@ codeunit 134056 "ERM VAT Report Header Line"
         NoOnValidateErr: Label 'No. Series should be blank when manually inserting No.';
         InsertErr: Label 'Wrong no. series code';
         OnModifyErr: Label 'Start Date must have a value in %1';
-        CanBeSubmittedErr: Label 'Status must be equal to ''Released''  in %1';
         StartDateErr: Label 'Start Date must have a value in %1';
         EndDateErr: Label 'End Date must have a value in %1';
         VATReportTypeNotEqualErr: Label 'Setting VAT report header type failed.';
@@ -257,7 +256,7 @@ codeunit 134056 "ERM VAT Report Header Line"
 
         VATReportHdr.Status := VATReportHdr.Status::Open;
         asserterror VATReportHdr.CheckIfCanBeSubmitted();
-        Assert.ExpectedError(StrSubstNo(CanBeSubmittedErr, VATReportHdr.TableCaption()));
+        Assert.ExpectedTestFieldError(VATReportHdr.FieldCaption(Status), Format(VATReportHdr.Status::Released));
     end;
 
     [Test]
@@ -531,14 +530,12 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportLine: Record "VAT Report Line";
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
-        if Line then begin
+        if Line then
             if VATReportLine.FindLast() then
                 exit(VATReportLine."Line No.");
-        end;
-        if LineRelation then begin
+        if LineRelation then
             if VATReportLineRelation.FindLast() then
                 exit(VATReportLineRelation."Line No.");
-        end;
         exit(0);
     end;
 

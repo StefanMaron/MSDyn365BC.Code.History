@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Contract;
 
 using Microsoft.Finance.Dimension;
@@ -75,10 +79,24 @@ page 9322 "Service Contract Quotes"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
+                              "Document Type" = const("Service Contract Quote"),
+                              "No." = field("Contract No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
                               "Document Type" = const("Service Contract Quote"),
                               "No." = field("Contract No.");
@@ -206,9 +224,9 @@ page 9322 "Service Contract Quotes"
 
                 trigger OnAction()
                 var
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
-                    DocumentPrint.PrintServiceContract(Rec);
+                    ServDocumentPrint.PrintServiceContract(Rec);
                 end;
             }
             action(AttachAsPDF)
@@ -222,11 +240,11 @@ page 9322 "Service Contract Quotes"
                 trigger OnAction()
                 var
                     ServiceContractHeader: Record "Service Contract Header";
-                    DocumentPrint: Codeunit "Document-Print";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
                     ServiceContractHeader := Rec;
                     ServiceContractHeader.SetRecFilter();
-                    DocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
+                    ServDocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
                 end;
             }
         }

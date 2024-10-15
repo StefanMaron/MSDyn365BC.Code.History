@@ -8,16 +8,23 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
-using Microsoft.Finance.VAT.Setup;
 
+#pragma warning disable AS0109
 table 290 "VAT Amount Line"
 {
     Caption = 'VAT Amount Line';
     DataClassification = CustomerContent;
+#if not CLEAN25
+    ObsoleteReason = 'Table will be made Temporary.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+#else
+    TableType = Temporary;
+#endif
 
     fields
     {
@@ -223,7 +230,7 @@ table 290 "VAT Amount Line"
         }
         field(12110; "VAT Description"; Text[50])
         {
-            CalcFormula = Lookup("VAT Identifier".Description where(Code = field("VAT Identifier")));
+            CalcFormula = lookup("VAT Identifier".Description where(Code = field("VAT Identifier")));
             Caption = 'VAT Description';
             FieldClass = FlowField;
         }
@@ -249,12 +256,20 @@ table 290 "VAT Amount Line"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1% VAT';
+#pragma warning restore AA0470
         Text001: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text002: Label '%1 must not be negative.';
         Text004: Label '%1 for %2 must not exceed %3 = %4.';
         Text005: Label '%1 must not exceed %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         InvoiceDiscAmtIsGreaterThanBaseAmtErr: Label 'The maximum %1 that you can apply is %2.', Comment = '1 Invoice Discount Amount that should be set 2 Maximum Amount that you can assign';
+#pragma warning restore AA0470
 
     procedure CheckVATDifference(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
     var
@@ -648,6 +663,8 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedures using Source Record.', '25.0')]
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
     begin
         "Line Amount" += LineAmount;
@@ -659,6 +676,7 @@ table 290 "VAT Amount Line"
             "Includes Prepayment" := true;
         Modify();
     end;
+#endif
 
     procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date)
     var
@@ -903,7 +921,9 @@ table 290 "VAT Amount Line"
         OnAfterCopyFromSalesCrMemoLine(Rec, SalesCrMemoLine);
     end;
 
-    procedure CopyFromServInvLine(ServiceInvoiceLine: Record "Service Invoice Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CopyToVATAmountLine in table Service Invoice Line', '25.0')]
+    procedure CopyFromServInvLine(ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line")
     begin
         "VAT Identifier" := ServiceInvoiceLine."VAT Identifier";
         "VAT Calculation Type" := ServiceInvoiceLine."VAT Calculation Type";
@@ -923,8 +943,11 @@ table 290 "VAT Amount Line"
 
         OnAfterCopyFromServInvLine(Rec, ServiceInvoiceLine);
     end;
+#endif
 
-    procedure CopyFromServCrMemoLine(ServiceCrMemoLine: Record "Service Cr.Memo Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CopyToVATAmountLine in table Service Cr.Memo Line', '25.0')]
+    procedure CopyFromServCrMemoLine(ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line")
     begin
         "VAT Identifier" := ServiceCrMemoLine."VAT Identifier";
         "VAT Calculation Type" := ServiceCrMemoLine."VAT Calculation Type";
@@ -944,6 +967,7 @@ table 290 "VAT Amount Line"
 
         OnAfterCopyFromServCrMemoLine(Rec, ServiceCrMemoLine);
     end;
+#endif
 
     local procedure GetVATBaseDiscountPerc(VATBaseDiscountPerc: Decimal) NewVATBaseDiscountPerc: Decimal
     var
@@ -985,15 +1009,31 @@ table 290 "VAT Amount Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromServInvLine(var VATAmountLine: Record "VAT Amount Line"; ServiceInvoiceLine: Record "Service Invoice Line")
+#if not CLEAN25
+    internal procedure RunOnAfterCopyFromServInvLine(var VATAmountLine: Record "VAT Amount Line"; ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line")
     begin
+        OnAfterCopyFromServInvLine(VATAmountLine, ServiceInvoiceLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToVATAmountLine in table Service Invoice Line', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromServCrMemoLine(var VATAmountLine: Record "VAT Amount Line"; ServiceCrMemoLine: Record "Service Cr.Memo Line")
+    local procedure OnAfterCopyFromServInvLine(var VATAmountLine: Record "VAT Amount Line"; ServiceInvoiceLine: Record Microsoft.Service.History."Service Invoice Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyFromServCrMemoLine(var VATAmountLine: Record "VAT Amount Line"; ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line")
+    begin
+        OnAfterCopyFromServCrMemoLine(VATAmountLine, ServiceCrMemoLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterCopyToVATAmountLine in table Service Cr.Memo Line', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromServCrMemoLine(var VATAmountLine: Record "VAT Amount Line"; ServiceCrMemoLine: Record Microsoft.Service.History."Service Cr.Memo Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculateCalculateTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; CurrencyFactor: Decimal)

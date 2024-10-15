@@ -23,7 +23,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
@@ -37,8 +36,10 @@ table 254 "VAT Entry"
     LookupPageID = "VAT Entries";
     Permissions = TableData "Sales Invoice Header" = rm,
                     TableData "Sales Cr.Memo Header" = rm,
-                    TableData "Service Invoice Header" = rm,
-                    TableData "Service Cr.Memo Header" = rm,
+#if not CLEAN25
+                    TableData Microsoft.Service.History."Service Invoice Header" = rm,
+                    TableData Microsoft.Service.History."Service Cr.Memo Header" = rm,
+#endif
                     TableData "Issued Reminder Header" = rm,
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
@@ -626,16 +627,16 @@ table 254 "VAT Entry"
             Caption = 'Blacklisted';
             Editable = false;
             ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(12131; "Blacklist Amount"; Decimal)
         {
             Caption = 'Blacklist Amount';
             Editable = false;
             ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(12132; "Related Entry No."; Integer)
         {
@@ -732,13 +733,13 @@ table 254 "VAT Entry"
         {
             Clustered = true;
         }
-        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "VAT Period", "Operation Occurred Date", "Activity Code", Blacklisted, "Document Type", "VAT Registration No.")
+        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "VAT Period", "Operation Occurred Date", "Activity Code", "Document Type", "VAT Registration No.")
         {
             SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Remaining Unrealized Amount", "Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Amount", "Add.-Curr. Rem. Unreal. Base", "Nondeductible Amount", "Nondeductible Base", "Add. Curr. Nondeductible Amt.", "Add. Curr. Nondeductible Base";
         }
-        key(Key3; Type, Closed, Blacklisted, "Reverse Sales VAT", "EU Service", "Activity Code", "Document Type", "Bill-to/Pay-to No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Period", "Operation Occurred Date", "Document Date", "Refers To Period")
+        key(Key3; Type, Closed, "Reverse Sales VAT", "EU Service", "Activity Code", "Document Type", "Bill-to/Pay-to No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Period", "Operation Occurred Date", "Document Date", "Refers To Period")
         {
-            SumIndexFields = Base, Amount, "Nondeductible Base", "Nondeductible Amount", "Remaining Unrealized Base", "Remaining Unrealized Amount", "Blacklist Amount";
+            SumIndexFields = Base, Amount, "Nondeductible Base", "Nondeductible Amount", "Remaining Unrealized Base", "Remaining Unrealized Amount";
         }
         key(Key4; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "G/L Acc. No.", "VAT Reporting Date")
         {
@@ -772,7 +773,6 @@ table 254 "VAT Entry"
         }
         key(Key12; "Related Entry No.")
         {
-            SumIndexFields = "Blacklist Amount";
         }
         key(Key13; "Plafond Entry", Type, "Operation Occurred Date")
         {
@@ -827,7 +827,11 @@ table 254 "VAT Entry"
         UseAddCurrAmounts: Boolean;
         CalculateSum: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';

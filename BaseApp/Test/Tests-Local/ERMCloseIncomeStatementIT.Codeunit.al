@@ -555,13 +555,11 @@ codeunit 144113 "ERM Close Income Statement IT"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
 
-        with DimSetEntry do begin
-            Init();
-            "Dimension Code" := DimensionCode;
-            "Dimension Value Code" := DimensionValue.Code;
-            "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert();
-        end;
+        DimSetEntry.Init();
+        DimSetEntry."Dimension Code" := DimensionCode;
+        DimSetEntry."Dimension Value Code" := DimensionValue.Code;
+        DimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        DimSetEntry.Insert();
     end;
 
     local procedure CloseOpenBalanceSheetDimScenario(GlobalDimOnly: Boolean)
@@ -664,18 +662,16 @@ codeunit 144113 "ERM Close Income Statement IT"
     var
         SelectedDimension: Record "Selected Dimension";
     begin
-        with SelectedDimension do begin
-            DeleteAll();
+        SelectedDimension.DeleteAll();
 
-            DimSetEntry.FindSet();
-            repeat
-                "User ID" := UserId;
-                "Object Type" := 3;
-                "Object ID" := REPORT::"Close Income Statement";
-                "Dimension Code" := DimSetEntry."Dimension Code";
-                Insert();
-            until DimSetEntry.Next() = 0;
-        end;
+        DimSetEntry.FindSet();
+        repeat
+            SelectedDimension."User ID" := UserId;
+            SelectedDimension."Object Type" := 3;
+            SelectedDimension."Object ID" := REPORT::"Close Income Statement";
+            SelectedDimension."Dimension Code" := DimSetEntry."Dimension Code";
+            SelectedDimension.Insert();
+        until DimSetEntry.Next() = 0;
     end;
 
     local procedure UpdateAddnlReportingCurrencyGeneralLedgerSetup(AdditionalReportingCurrency: Code[10]) OldAdditionalReportingCurrency: Code[10]

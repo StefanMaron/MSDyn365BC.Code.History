@@ -941,29 +941,25 @@ codeunit 144133 "ERM Dishonor"
     var
         RecRef: RecordRef;
     begin
-        with CustLedgerEntry do begin
-            Init();
-            RecRef.GetTable(CustLedgerEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Document Type" := "Document Type"::Dishonored;
-            "Document No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-            "Document Occurrence" := LibraryRandom.RandInt(10);
-            "Customer No." := LibrarySales.CreateCustomerNo();
-            Open := true;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        RecRef.GetTable(CustLedgerEntry);
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Dishonored;
+        CustLedgerEntry."Document No." :=
+          LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
+        CustLedgerEntry."Document Occurrence" := LibraryRandom.RandInt(10);
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure MockDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntryNo: Integer; BankReceiptIssued: Boolean)
     begin
-        with DtldCustLedgEntry do begin
-            Init();
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Bank Receipt Issued" := BankReceiptIssued;
-            Insert();
-        end;
+        DtldCustLedgEntry.Init();
+        DtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DtldCustLedgEntry."Entry Type" := DtldCustLedgEntry."Entry Type"::"Initial Entry";
+        DtldCustLedgEntry."Bank Receipt Issued" := BankReceiptIssued;
+        DtldCustLedgEntry.Insert();
     end;
 
     local procedure MockCustLedgerEntryAndDtldCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; BankReceiptIssued: Boolean)
@@ -996,35 +992,29 @@ codeunit 144133 "ERM Dishonor"
 
     local procedure SetupBlankBankReceiptValueCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgEntry do begin
-            "Bank Receipt Issued" := false;
-            "Bank Receipt Temp. No." := '';
-            "Bank Receipts List No." := '';
-            "Customer Bill No." := '';
-        end;
+        CustLedgEntry."Bank Receipt Issued" := false;
+        CustLedgEntry."Bank Receipt Temp. No." := '';
+        CustLedgEntry."Bank Receipts List No." := '';
+        CustLedgEntry."Customer Bill No." := '';
     end;
 
     local procedure SetupCloseDocumentCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; ApplyCustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            "Document Type to Close" := ApplyCustLedgerEntry."Document Type";
-            "Document No. to Close" := ApplyCustLedgerEntry."Document No.";
-            "Document Occurrence to Close" := ApplyCustLedgerEntry."Document Occurrence";
-            "Customer No." := ApplyCustLedgerEntry."Customer No.";
-        end;
+        CustLedgerEntry."Document Type to Close" := ApplyCustLedgerEntry."Document Type";
+        CustLedgerEntry."Document No. to Close" := ApplyCustLedgerEntry."Document No.";
+        CustLedgerEntry."Document Occurrence to Close" := ApplyCustLedgerEntry."Document Occurrence";
+        CustLedgerEntry."Customer No." := ApplyCustLedgerEntry."Customer No.";
     end;
 
     local procedure SetupRandomBankReceiptValueCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            "Bank Receipt Issued" := true;
-            "Bank Receipt Temp. No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Bank Receipt Temp. No."), DATABASE::"Cust. Ledger Entry");
-            "Bank Receipts List No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Bank Receipt Temp. No."), DATABASE::"Cust. Ledger Entry");
-            "Customer Bill No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Customer Bill No."), DATABASE::"Cust. Ledger Entry");
-        end;
+        CustLedgerEntry."Bank Receipt Issued" := true;
+        CustLedgerEntry."Bank Receipt Temp. No." :=
+          LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Bank Receipt Temp. No."), DATABASE::"Cust. Ledger Entry");
+        CustLedgerEntry."Bank Receipts List No." :=
+          LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Bank Receipt Temp. No."), DATABASE::"Cust. Ledger Entry");
+        CustLedgerEntry."Customer Bill No." :=
+          LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Customer Bill No."), DATABASE::"Cust. Ledger Entry");
     end;
 
     local procedure VerifyAmountOnCustomerLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1098,33 +1088,27 @@ codeunit 144133 "ERM Dishonor"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
-            SetRange("Cust. Ledger Entry No.", EntryNo);
-            SetRange("Entry Type", "Entry Type"::"Initial Entry");
-            FindFirst();
-            Assert.AreEqual(BankReceiptIssued, "Bank Receipt Issued", WrongValueInDtldCustLedgerEntryErr);
-        end;
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::"Initial Entry");
+        DtldCustLedgEntry.FindFirst();
+        Assert.AreEqual(BankReceiptIssued, DtldCustLedgEntry."Bank Receipt Issued", WrongValueInDtldCustLedgerEntryErr);
     end;
 
     local procedure VerifyFillingOfFieldsCustLedgEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; OldCustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            Assert.AreEqual(OldCustLedgerEntry."Bank Receipt Issued", "Bank Receipt Issued", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual(OldCustLedgerEntry."Bank Receipt Temp. No.", "Bank Receipt Temp. No.", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual(OldCustLedgerEntry."Bank Receipts List No.", "Bank Receipts List No.", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual(OldCustLedgerEntry."Customer Bill No.", "Customer Bill No.", WrongValueInCustLedgerEntryErr);
-        end;
+        Assert.AreEqual(OldCustLedgerEntry."Bank Receipt Issued", CustLedgerEntry."Bank Receipt Issued", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual(OldCustLedgerEntry."Bank Receipt Temp. No.", CustLedgerEntry."Bank Receipt Temp. No.", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual(OldCustLedgerEntry."Bank Receipts List No.", CustLedgerEntry."Bank Receipts List No.", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual(OldCustLedgerEntry."Customer Bill No.", CustLedgerEntry."Customer Bill No.", WrongValueInCustLedgerEntryErr);
     end;
 
     local procedure VerifyBlankedFieldsCustLedgEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            Assert.AreEqual(false, "Bank Receipt Issued", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual('', "Bank Receipt Temp. No.", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual('', "Bank Receipts List No.", WrongValueInCustLedgerEntryErr);
-            Assert.AreEqual('', "Customer Bill No.", WrongValueInCustLedgerEntryErr);
-        end;
+        Assert.AreEqual(false, CustLedgerEntry."Bank Receipt Issued", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual('', CustLedgerEntry."Bank Receipt Temp. No.", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual('', CustLedgerEntry."Bank Receipts List No.", WrongValueInCustLedgerEntryErr);
+        Assert.AreEqual('', CustLedgerEntry."Customer Bill No.", WrongValueInCustLedgerEntryErr);
     end;
 
     local procedure CreateAndPostCashReceiptJournalForCustomer(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]

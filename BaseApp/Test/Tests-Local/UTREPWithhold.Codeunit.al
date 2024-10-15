@@ -441,15 +441,12 @@ codeunit 144093 "UT REP Withhold"
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INPS);
         RunContributionReport(ContributionCode."Contribution Type"::INPS);
         RunContributionReport(ContributionCode."Contribution Type"::INAIL);
-
         // Verify
-        with Contributions do begin
-            VerifyContributionPayment(ContributionCode."Contribution Type"::INPS, Year, Month);
-            VerifyContributionPayment(ContributionCode."Contribution Type"::INAIL, Year, Month);
-            Get("Entry No.");
-            Assert.IsTrue("INPS Paid", StrSubstNo(IncorrectValueErr, FieldCaption("INPS Paid")));
-            Assert.IsTrue("INAIL Paid", StrSubstNo(IncorrectValueErr, FieldCaption("INAIL Paid")));
-        end;
+        VerifyContributionPayment(ContributionCode."Contribution Type"::INPS, Contributions.Year, Contributions.Month);
+        VerifyContributionPayment(ContributionCode."Contribution Type"::INAIL, Contributions.Year, Contributions.Month);
+        Contributions.Get(Contributions."Entry No.");
+        Assert.IsTrue(Contributions."INPS Paid", StrSubstNo(IncorrectValueErr, Contributions.FieldCaption("INPS Paid")));
+        Assert.IsTrue(Contributions."INAIL Paid", StrSubstNo(IncorrectValueErr, Contributions.FieldCaption("INAIL Paid")));
     end;
 
 
@@ -535,22 +532,20 @@ codeunit 144093 "UT REP Withhold"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Vendor);
-            Name := LibraryUtility.GenerateGUID();
-            "Name 2" := LibraryUtility.GenerateGUID();
-            Address := LibraryUtility.GenerateGUID();
-            "Individual Person" := IndividualPerson;
-            "First Name" := LibraryUtility.GenerateGUID();
-            "Last Name" := LibraryUtility.GenerateGUID();
-            "Residence Address" := LibraryUtility.GenerateGUID();
-            "Date of Birth" := WorkDate();
-            "Fiscal Code" := Format(LibraryRandom.RandInt(100));
-            "VAT Registration No." := VATRegistrationNo;
-            "Country/Region Code" := CountryRegionCode;
-            Insert();
-            exit("No.");
-        end;
+        Vendor."No." := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor);
+        Vendor.Name := LibraryUtility.GenerateGUID();
+        Vendor."Name 2" := LibraryUtility.GenerateGUID();
+        Vendor.Address := LibraryUtility.GenerateGUID();
+        Vendor."Individual Person" := IndividualPerson;
+        Vendor."First Name" := LibraryUtility.GenerateGUID();
+        Vendor."Last Name" := LibraryUtility.GenerateGUID();
+        Vendor."Residence Address" := LibraryUtility.GenerateGUID();
+        Vendor."Date of Birth" := WorkDate();
+        Vendor."Fiscal Code" := Format(LibraryRandom.RandInt(100));
+        Vendor."VAT Registration No." := VATRegistrationNo;
+        Vendor."Country/Region Code" := CountryRegionCode;
+        Vendor.Insert();
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorAndWithholdingTax(var Vendor: Record Vendor; VATRegistrationNo: Text[20]; CountryRegionCode: Code[10]; IndivisualPerson: Boolean)
@@ -566,11 +561,9 @@ codeunit 144093 "UT REP Withhold"
     var
         WithholdCode: Record "Withhold Code";
     begin
-        with WithholdCode do begin
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Withhold Code");
-            Insert();
-            exit(Code);
-        end;
+        WithholdCode.Code := LibraryUtility.GenerateRandomCode(WithholdCode.FieldNo(Code), DATABASE::"Withhold Code");
+        WithholdCode.Insert();
+        exit(WithholdCode.Code);
     end;
 
     local procedure CreateWithholdingTax(var WithholdingTax: Record "Withholding Tax"; VendorNo: Code[20]; FillInTaxCode: Boolean)
@@ -673,12 +666,10 @@ codeunit 144093 "UT REP Withhold"
     var
         DummyContributionPayment: Record "Contribution Payment";
     begin
-        with DummyContributionPayment do begin
-            SetRange("Contribution Type", ContribType);
-            SetRange(Year, ContribYear);
-            SetRange(Month, ContribMonth);
-            Assert.RecordIsNotEmpty(DummyContributionPayment);
-        end;
+        DummyContributionPayment.SetRange("Contribution Type", ContribType);
+        DummyContributionPayment.SetRange(Year, ContribYear);
+        DummyContributionPayment.SetRange(Month, ContribMonth);
+        Assert.RecordIsNotEmpty(DummyContributionPayment);
     end;
 
     local procedure VerifyVendorNameAndAddress(ExpectedName: Text; ExpectedAddress: Text)

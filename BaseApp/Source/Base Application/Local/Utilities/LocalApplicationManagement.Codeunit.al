@@ -11,8 +11,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
 using System.Utilities;
 
 codeunit 12104 LocalApplicationManagement
@@ -191,12 +189,11 @@ codeunit 12104 LocalApplicationManagement
         if Step5CodeVar <> RemainingVarTxt then begin
             SetValue := SetValue::B;
             ErrorMessage(SetValue, 0, 0, CheckDigitVar);
-        end else begin
+        end else
             if CheckDigitVar <> SelectStr(Pos, Str3) then begin
                 SetValue := SetValue::B;
                 ErrorMessage(SetValue, 0, 0, CheckDigitVar);
             end;
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -457,13 +454,12 @@ codeunit 12104 LocalApplicationManagement
             OccurredDateFieldRef.Validate(PostingDateFieldRef.Value);
     end;
 
-    local procedure GetNotifyOnOccurredDateChangeSetup(RecordRef: RecordRef): Boolean
+    local procedure GetNotifyOnOccurredDateChangeSetup(RecRef: RecordRef) NotifyOnOccirDateChange: Boolean
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        case RecordRef.Number of
+        case RecRef.Number of
             DATABASE::"Sales Header":
                 begin
                     SalesReceivablesSetup.Get();
@@ -474,11 +470,8 @@ codeunit 12104 LocalApplicationManagement
                     PurchasesPayablesSetup.Get();
                     exit(PurchasesPayablesSetup."Notify On Occur. Date Change");
                 end;
-            DATABASE::"Service Header":
-                begin
-                    ServiceMgtSetup.Get();
-                    exit(ServiceMgtSetup."Notify On Occur. Date Change");
-                end;
+            else
+                OnGetNotifyOnOccurredDateChangeSetup(RecRef, NotifyOnOccirDateChange);
         end;
     end;
 
@@ -531,6 +524,11 @@ codeunit 12104 LocalApplicationManagement
                     VendorLedgerEntry.SetFilter("Document Date", FYPeriodFilter);
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNotifyOnOccurredDateChangeSetup(RecRef: RecordRef; var NotifyOnOccirDateChange: Boolean)
+    begin
     end;
 }
 

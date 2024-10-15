@@ -1640,19 +1640,17 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalLine do begin
-            CreateGenJournalBatch(GenJournalBatch);
-            CreateGenJournalLine(
-              GenJournalLine, FADepreciationBook, GenJournalBatch, "FA Posting Type"::"Acquisition Cost",
-              LibraryRandom.RandDec(10000, 2), GLAccount);
-            Validate("Depr. Acquisition Cost", true);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Salvage Value", -Round(Amount / 10));
-            Validate("Document No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit(LibraryERM.ConvertCurrency("Salvage Value", CurrencyCode, '', WorkDate()));
-        end;
+        CreateGenJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, FADepreciationBook, GenJournalBatch, GenJournalLine."FA Posting Type"::"Acquisition Cost",
+          LibraryRandom.RandDec(10000, 2), GLAccount);
+        GenJournalLine.Validate("Depr. Acquisition Cost", true);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Salvage Value", -Round(GenJournalLine.Amount / 10));
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(LibraryERM.ConvertCurrency(GenJournalLine."Salvage Value", CurrencyCode, '', WorkDate()));
     end;
 
     local procedure CreateJnlLineWithBudgetedAsset(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; BudgetedFANo: Code[20]; Maintenance: Record Maintenance; GLAccount: Record "G/L Account")
@@ -1784,12 +1782,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            FindLast();
-            exit(Amount);
-        end;
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
+        FALedgerEntry.FindLast();
+        exit(FALedgerEntry.Amount);
     end;
 
     local procedure MaintenanceCodeGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var Maintenance: Record Maintenance)
@@ -1973,12 +1969,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("FA Posting Type", FAPostingType);
-            FindLast();
-            TestField(Amount, ExpectedAmount);
-        end;
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
+        FALedgerEntry.FindLast();
+        FALedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyGLEntry(SourceNo: Code[20]; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)

@@ -405,23 +405,19 @@ codeunit 134490 "ERM Matrix Management"
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            LibraryERM.CreateCurrency(Currency);
-            "Amount Decimal Places" := Format(Decimals);
-            Modify();
-            exit(Code);
-        end;
+        LibraryERM.CreateCurrency(Currency);
+        Currency."Amount Decimal Places" := Format(Decimals);
+        Currency.Modify();
+        exit(Currency.Code);
     end;
 
     local procedure SetAddCurrency(AddCurrencyCode: Code[10])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Additional Reporting Currency" := AddCurrencyCode;
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := AddCurrencyCode;
+        GeneralLedgerSetup.Modify();
     end;
 }
 

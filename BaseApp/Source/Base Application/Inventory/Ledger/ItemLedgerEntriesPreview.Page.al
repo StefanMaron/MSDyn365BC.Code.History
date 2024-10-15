@@ -1,8 +1,6 @@
 namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Inventory.Item;
 
 page 167 "Item Ledger Entries Preview"
 {
@@ -361,83 +359,11 @@ page 167 "Item Ledger Entries Preview"
                         Rec.SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
-                action("&Value Entries")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    Visible = false;
-
-                    ApplicationArea = Basic, Suite;
-                    Caption = '&Value Entries';
-                    Image = ValueLedger;
-                    RunObject = Page "Value Entries";
-                    RunPageLink = "Item Ledger Entry No." = field("Entry No.");
-                    RunPageView = sorting("Item Ledger Entry No.");
-                    ShortCutKey = 'Ctrl+F7';
-                    ToolTip = 'View the history of posted amounts that affect the value of the item. Value entries are created for every transaction with the item.';
-                    ObsoleteTag = '17.0';
-                }
             }
             group("&Application")
             {
                 Caption = '&Application';
                 Image = Apply;
-                action("Applied E&ntries")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    Visible = false;
-
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Applied E&ntries';
-                    Image = Approve;
-                    ToolTip = 'View the ledger entries that have been applied to this record.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    begin
-                        CODEUNIT.Run(CODEUNIT::"Show Applied Entries", Rec);
-                    end;
-                }
-                action("Reservation Entries")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    Visible = false;
-
-                    AccessByPermission = TableData Item = R;
-                    ApplicationArea = Reservation;
-                    Caption = 'Reservation Entries';
-                    Image = ReservationLedger;
-                    ToolTip = 'View the entries for every reservation that is made, either manually or automatically.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ShowReservationEntries(true);
-                    end;
-                }
-                action("Application Worksheet")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    Visible = false;
-
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Application Worksheet';
-                    Image = ApplicationWorksheet;
-                    ToolTip = 'View item applications that are automatically created between item ledger entries during item transactions.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    var
-                        ApplicationWorksheet: Page "Application Worksheet";
-                    begin
-                        Clear(ApplicationWorksheet);
-                        ApplicationWorksheet.SetRecordToShow(Rec);
-                        ApplicationWorksheet.Run();
-                    end;
-                }
             }
         }
         area(processing)
@@ -446,26 +372,6 @@ page 167 "Item Ledger Entries Preview"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-                action("Order &Tracking")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    Visible = false;
-
-                    ApplicationArea = ItemTracking;
-                    Caption = 'Order &Tracking';
-                    Image = OrderTracking;
-                    ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnAction()
-                    var
-                        OrderTrackingForm: Page "Order Tracking";
-                    begin
-                        OrderTrackingForm.SetItemLedgEntry(Rec);
-                        OrderTrackingForm.RunModal();
-                    end;
-                }
             }
         }
     }

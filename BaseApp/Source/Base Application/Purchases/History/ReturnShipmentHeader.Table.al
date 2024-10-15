@@ -462,6 +462,11 @@ table 6650 "Return Shipment Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -615,12 +620,16 @@ table 6650 "Return Shipment Header"
     var
         ReturnShptHeader: Record "Return Shipment Header";
         PurchCommentLine: Record "Purch. Comment Line";
+        ShipmentMethod: Record "Shipment Method";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Posted Document Dimensions';
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
-        ShipmentMethod: Record "Shipment Method";
+#pragma warning restore AA0074
+#pragma warning restore AA0470
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var

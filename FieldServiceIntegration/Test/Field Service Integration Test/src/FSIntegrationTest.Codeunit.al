@@ -12,6 +12,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Integration.SyncEngine;
 using System.Threading;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Inventory.Setup;
 using Microsoft.Finance.Currency;
 using System.TestLibraries.Environment.Configuration;
 using System.Security.Encryption;
@@ -306,6 +307,32 @@ codeunit 139204 "FS Integration Test"
         Assert.ExpectedMessage(StrSubstNo(SetupSuccessfulMsg, CRMProductName.FSServiceName()), LibraryVariableStorage.DequeueText());
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure EnableLocationMandatoryCreatesLocationMappingForEnabledFieldServiceSetup()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [UI]
+        Initialize();
+
+        // [GIVEN] Connection to CRM established
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryCRMIntegration.ConfigureCRM();
+
+        // [GIVEN] No Integration Table Mapping records
+        IntegrationTableMapping.DeleteAll(true);
+
+        // [GIVEN] Enable FS Connection Setup
+        CreateFSConnectionSetup('', '@@test@@', true);
+
+        // [WHEN] Enable Location Mandatory
+        EnableLocationMandatoryOnInventorySetup();
+
+        // [THEN] Integration Table Mapping for Location is created        
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Expects Location mappings to be created.');
+    end;
+
     local procedure CreateFSConnectionSetup(PrimaryKey: Code[10]; HostName: Text; IsEnabledVar: Boolean)
     var
         FSConnectionSetup: Record "FS Connection Setup";
@@ -548,7 +575,8 @@ codeunit 139204 "FS Integration Test"
     local procedure InitializeCDSConnectionSetup()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        ClientSecret: Text;
+        ClearClientSecret: Text;
+        ClientSecret: SecretText;
     begin
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup."Is Enabled" := true;
@@ -558,7 +586,8 @@ codeunit 139204 "FS Integration Test"
         CDSConnectionSetup."Proxy Version" := LibraryCRMIntegration.GetLastestSDKVersion();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
-        ClientSecret := 'ClientSecret';
+        ClearClientSecret := 'ClientSecret';
+        ClientSecret := ClearClientSecret;
         CDSConnectionSetup.SetClientSecret(ClientSecret);
     end;
 
@@ -770,6 +799,15 @@ codeunit 139204 "FS Integration Test"
         TenantLicenseState."Start Date" := CurrentDateTime;
         TenantLicenseState.State := TenantLicenseState.State::Trial;
         TenantLicenseState.Insert();
+    end;
+
+    local procedure EnableLocationMandatoryOnInventorySetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Location Mandatory", true);
+        InventorySetup.Modify(true);
     end;
 }
 

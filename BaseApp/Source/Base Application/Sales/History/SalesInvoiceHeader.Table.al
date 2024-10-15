@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -41,6 +41,7 @@ using System.Security.AccessControl;
 using System.Security.User;
 using System.Utilities;
 using Microsoft.EServices.EDocument;
+using System.Email;
 
 table 112 "Sales Invoice Header"
 {
@@ -561,6 +562,21 @@ table 112 "Sales Invoice Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
+        field(166; "Alt. VAT Registration No."; Boolean)
+        {
+            Caption = 'Alternative VAT Registration No.';
+            Editable = false;
+        }
+        field(167; "Alt. Gen. Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative Gen. Bus. Posting Group';
+            Editable = false;
+        }
+        field(168; "Alt. VAT Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative VAT Bus. Posting Group';
+            Editable = false;
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -595,9 +611,27 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Payment Reference';
         }
+        field(185; "Last Email Sent Time"; DateTime)
+        {
+            Caption = 'Last Email Sent Time';
+            FieldClass = FlowField;
+            CalcFormula = max("Email Related Record".SystemCreatedAt where("Table Id" = const(Database::"Sales Invoice Header"),
+                                                                           "System Id" = field(SystemId)));
+        }
+        field(186; "Last Email Sent Message Id"; Guid)
+        {
+            Caption = 'Last Email Sent Message Id';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Email Related Record"."Email Message Id" where(SystemCreatedAt = field("Last Email Sent Time")));
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -745,6 +779,11 @@ table 112 "Sales Invoice Header"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
+        field(5794; "Shipping Agent Service Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Service Code';
+            TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
+        }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
@@ -874,7 +913,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount where("Original Document Type" = const(Invoice), "Original Document No." = field("No.")));
+            CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Original Document Type" = const(Invoice), "Original Document No." = field("No.")));
             Caption = 'Document Remaining Amount';
             Editable = false;
             FieldClass = FlowField;

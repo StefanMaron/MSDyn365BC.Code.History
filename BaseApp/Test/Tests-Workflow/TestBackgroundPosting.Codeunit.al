@@ -382,7 +382,7 @@ codeunit 139027 "Test Background Posting"
 
         BackgroundSessionsTestLib.CleanupAll();
 
-        RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
+        RecordLink.SetView('SORTING(Link ID) order(descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
         RecordLink.SetRange(Notify, true);
         asserterror RecordLink.FindFirst();
@@ -443,7 +443,7 @@ codeunit 139027 "Test Background Posting"
 
         BackgroundSessionsTestLib.CleanupAll();
 
-        RecordLink.SetView('SORTING(Link ID) ORDER(Descending)');
+        RecordLink.SetView('SORTING(Link ID) order(descending)');
         RecordLink.SetRange(Type, RecordLink.Type::Note);
         RecordLink.SetRange(Notify, true);
         asserterror RecordLink.FindFirst();
@@ -661,14 +661,12 @@ codeunit 139027 "Test Background Posting"
         NoteInStream: InStream;
         NoteTxt: Text;
     begin
-        with RecordLink do begin
-            SetView('SORTING(Link ID) ORDER(Descending)');
-            SetRange(Type, Type::Note);
-            SetRange(Notify, true);
-            FindFirst();
-            CalcFields(Note);
-            Note.CreateInStream(NoteInStream);
-        end;
+        RecordLink.SetView('SORTING(Link ID) order(descending)');
+        RecordLink.SetRange(Type, RecordLink.Type::Note);
+        RecordLink.SetRange(Notify, true);
+        RecordLink.FindFirst();
+        RecordLink.CalcFields(Note);
+        RecordLink.Note.CreateInStream(NoteInStream);
         NoteInStream.ReadText(NoteTxt);
         Assert.IsTrue(StrPos(NoteTxt, HeaderNo) <> 0, StrSubstNo(HeaderNotFoundErr, HeaderNo, NoteTxt));
         Assert.IsTrue(StrPos(NoteTxt, FinishedSuccessfullyTxt) <> 0, StrSubstNo(TextNotFoundErr, HeaderNo, NoteTxt));

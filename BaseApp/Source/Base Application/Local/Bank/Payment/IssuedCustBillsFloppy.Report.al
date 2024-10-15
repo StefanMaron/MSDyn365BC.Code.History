@@ -24,7 +24,7 @@ report 12173 "Issued Cust Bills Floppy"
             dataitem("Issued Customer Bill Line"; "Issued Customer Bill Line")
             {
                 DataItemLink = "Customer Bill No." = field("No.");
-                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") ORDER(Ascending) where("Recalled by" = filter(''));
+                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") order(ascending) where("Recalled by" = filter(''));
 
                 trigger OnAfterGetRecord()
                 begin

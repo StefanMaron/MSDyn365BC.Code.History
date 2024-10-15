@@ -255,13 +255,17 @@ table 1507 "Workflow Step Buffer"
     end;
 
     var
+#pragma warning disable AA0470
         ThenTextForMultipleResponsesTxt: Label '(+) %1';
+#pragma warning restore AA0470
         SelectResponseTxt: Label '<Select Response>';
         EventNotExistErr: Label 'The workflow event %1 does not exist.', Comment = '%1 = event description (e.g. The workflow event A general journal batch is does not exist.)';
         WhenMissingErr: Label 'You must select a When statement first.';
         ResponseNotExistErr: Label 'The workflow response %1 does not exist.', Comment = '%1 = response description (e.g. The workflow response Remove record does not exist.)';
+#pragma warning disable AA0470
         WhenNextStepDescTxt: Label 'Next when "%1"';
         ThenNextStepDescTxt: Label 'Next then "%1"';
+#pragma warning restore AA0470
         ResponseDeleteLbl: Label 'You are about to change the "When Event". This change will cause the "On Condition" and the "Then Responses" to be deleted. Do you want to continue?';
 
     [Scope('OnPrem')]
@@ -362,11 +366,11 @@ table 1507 "Workflow Step Buffer"
                     "Response Step ID" := TempWorkflowStepBuffer."Response Step ID";
                 end;
             else begin
-                    LastThen := CopyStr(TempWorkflowStepBuffer."Response Description", 1,
-                        MaxStrLen(TempWorkflowStepBuffer."Response Description") - StrLen(ThenTextForMultipleResponsesTxt));
-                    "Response Description" := StrSubstNo(ThenTextForMultipleResponsesTxt, LastThen);
-                    "Response Step ID" := MultipleResponseID();
-                end;
+                LastThen := CopyStr(TempWorkflowStepBuffer."Response Description", 1,
+                    MaxStrLen(TempWorkflowStepBuffer."Response Description") - StrLen(ThenTextForMultipleResponsesTxt));
+                "Response Description" := StrSubstNo(ThenTextForMultipleResponsesTxt, LastThen);
+                "Response Step ID" := MultipleResponseID();
+            end;
         end;
 
         UpdateResponseDescriptionStyle();

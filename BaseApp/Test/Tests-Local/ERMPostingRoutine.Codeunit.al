@@ -1166,12 +1166,10 @@ codeunit 144069 "ERM Posting Routine"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SalesHeader.Find();
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
-            SetRange("Document No.", PostedInvoiceNo);
-            FindLast();
-            Assert.AreEqual("Document Occurrence", SalesHeader."Applies-to Occurrence No.", InvalidAppliesToOccNoErr);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
+        CustLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
+        CustLedgerEntry.FindLast();
+        Assert.AreEqual(CustLedgerEntry."Document Occurrence", SalesHeader."Applies-to Occurrence No.", InvalidAppliesToOccNoErr);
     end;
 
     local procedure VerifyPurchHeaderAppliesToOccurenceNo(var PurchaseHeader: Record "Purchase Header"; PostedInvoiceNo: Code[20])
@@ -1179,12 +1177,10 @@ codeunit 144069 "ERM Posting Routine"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         PurchaseHeader.Find();
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-            SetRange("Document No.", PostedInvoiceNo);
-            FindLast();
-            Assert.AreEqual("Document Occurrence", PurchaseHeader."Applies-to Occurrence No.", InvalidAppliesToOccNoErr);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
+        VendorLedgerEntry.FindLast();
+        Assert.AreEqual(VendorLedgerEntry."Document Occurrence", PurchaseHeader."Applies-to Occurrence No.", InvalidAppliesToOccNoErr);
     end;
 
     local procedure VerifyVATEntryOperationOccuredDateFilteredOnDocNo(PostedDocumentNo: Code[20]; ExpectedDate: Date)

@@ -54,11 +54,15 @@ codeunit 5612 "Calculate Custom 1 Depr."
         Custom1Depr: Decimal;
         ExtraDays: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'A depreciation entry must be posted on %2 = %3 for %1.';
         Text001: Label '%2 is positive on %3 = %4 for %1.';
         Text002: Label '%2 must not be 100 for %1.';
         Text003: Label '%2 is later than %3 for %1.';
         Text004: Label 'You must not specify %2 together with %3 = %4 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Calculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var

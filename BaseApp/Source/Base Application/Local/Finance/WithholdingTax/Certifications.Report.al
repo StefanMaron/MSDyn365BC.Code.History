@@ -21,7 +21,7 @@ report 12106 Certifications
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(SubstituteData_NNC; SubstituteData)
@@ -442,7 +442,7 @@ report 12106 Certifications
             dataitem(Contributions; Contributions)
             {
                 DataItemLink = "Vendor No." = field("No.");
-                DataItemTableView = sorting("Vendor No.", "Social Security Code", "Social Security %") order(Ascending);
+                DataItemTableView = sorting("Vendor No.", "Social Security Code", "Social Security %") order(ascending);
                 column(HeaderText_1___HeaderText_2____HeaderText_3_; HeaderText[1] + HeaderText[2] + HeaderText[3])
                 {
                 }
@@ -585,7 +585,7 @@ report 12106 Certifications
             dataitem(INAIL; Contributions)
             {
                 DataItemLink = "Vendor No." = field("No.");
-                DataItemTableView = sorting("Vendor No.", "INAIL Code", "INAIL Per Mil") order(Ascending);
+                DataItemTableView = sorting("Vendor No.", "INAIL Code", "INAIL Per Mil") order(ascending);
                 column(HeaderText_1___HeaderText_2____HeaderText_3__Control1130096; HeaderText[1] + HeaderText[2] + HeaderText[3])
                 {
                 }

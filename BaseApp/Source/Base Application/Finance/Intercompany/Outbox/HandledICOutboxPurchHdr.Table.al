@@ -148,6 +148,11 @@ table 432 "Handled IC Outbox Purch. Hdr"
             OptionCaption = 'Rejected by Current Company,Created by Current Company';
             OptionMembers = "Rejected by Current Company","Created by Current Company";
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(5790; "Requested Receipt Date"; Date)
         {
             Caption = 'Requested Receipt Date';

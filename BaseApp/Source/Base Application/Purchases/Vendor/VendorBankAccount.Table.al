@@ -450,7 +450,7 @@ table 288 "Vendor Bank Account"
     local procedure OnBeforeValidatePostCode(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetFilters(var VendorBankAccount: Record "Vendor Bank Account"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin

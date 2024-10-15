@@ -42,9 +42,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryITLocalization: Codeunit "Library - IT Localization";
-#if not CLEAN22
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
-#endif
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
@@ -281,63 +278,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryReportDataset.AssertElementWithValueExists(NameCaption, Name);
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure AmountOnIntrastatJnlLineWithSamePostingDate()
-    begin
-        // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on same Posting Date.
-        Initialize();
-        AmountOnIntrastatJnlLineAfterPostPayment();
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure AmountOnIntrastatJnlLineWithDiffPostingDate()
-    begin
-        // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on different Posting Date.
-        Initialize();
-        AmountOnIntrastatJnlLineAfterPostPayment();  // Added random days to WORKDATE for taking different Posting Date..
-    end;
-
-    local procedure AmountOnIntrastatJnlLineAfterPostPayment()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        DocumentNo: Code[20];
-        IntrastatJnlBatchName: Code[10];
-    begin
-        // Setup: Create and post Purchase Invoice.
-        CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", true);  // TRUE for EU Service.
-        CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::Item,
-          CreateEUVendor(VATPostingSetup."VAT Bus. Posting Group"), CreateItem(VATPostingSetup."VAT Prod. Posting Group"), '', 0);  // Value 0 used for Prepayment Percent, blank for Location code..
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
-
-        // Create Intrastat Journal Batch, Create and post Payment Journal.
-        IntrastatJnlBatchName := CreateIntrastatJnlBatch();
-        Commit();  // Commit required.
-        IntrastatJournal.OpenEdit();
-
-        // Exercise.
-        IntrastatJournal.GetEntries.Invoke();
-
-        // Verify:
-        VerifyIntrastatJnlLine(IntrastatJnlBatchName, PurchaseLine."Service Tariff No.", GetPurchaseInvoiceLineAmount(DocumentNo));
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure CheckDigitVATNoError()
@@ -371,14 +311,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     end;
 
     local procedure Initialize()
-#if not CLEAN22
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-#endif
     begin
-#if not CLEAN22
-        IntrastatJnlTemplate.DeleteAll();
-#endif
         LibraryVariableStorage.Clear();
     end;
 
@@ -403,23 +336,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
-#if not CLEAN22
-    local procedure CreateIntrastatJnlBatch(): Code[10]
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-    begin
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate(Type, IntrastatJnlBatch.Type::Purchases);
-        IntrastatJnlBatch.Validate(Periodicity, IntrastatJnlBatch.Periodicity::Month);
-        IntrastatJnlBatch.Validate("EU Service", true);
-        IntrastatJnlBatch.Validate("Corrective Entry", false);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod()));
-        IntrastatJnlBatch.Modify(true);
-        exit(IntrastatJnlBatch.Name);
-    end;
-#endif
+
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -635,17 +552,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;
-#if not CLEAN22
-    local procedure VerifyIntrastatJnlLine(JournalBatchName: Code[10]; ServiceTariffNo: Code[10]; Amount: Decimal)
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
-        IntrastatJnlLine.SetRange("Service Tariff No.", ServiceTariffNo);
-        IntrastatJnlLine.FindFirst();
-        IntrastatJnlLine.TestField(Amount, Amount);
-    end;
-#endif
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
@@ -666,20 +572,6 @@ codeunit 144106 "Miscellaneous Bugs IT"
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountErr);
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), AmountErr);
     end;
-
-#if not CLEAN22
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
-    begin
-        GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
-        GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
-        GetItemLedgerEntries.OK().Invoke();
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

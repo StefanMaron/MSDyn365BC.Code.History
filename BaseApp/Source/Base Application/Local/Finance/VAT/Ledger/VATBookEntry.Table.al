@@ -37,7 +37,7 @@ table 12142 "VAT Book Entry"
         }
         field(6; "Document Type"; enum "Gen. Journal Document Type")
         {
-            CalcFormula = Lookup("VAT Entry"."Document Type" where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."Document Type" where("Document No." = field("Document No."),
                                                                     Type = field(Type),
                                                                     "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                     "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),
@@ -89,7 +89,7 @@ table 12142 "VAT Book Entry"
         }
         field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
-            CalcFormula = Lookup("VAT Entry"."VAT Calculation Type" where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."VAT Calculation Type" where("Document No." = field("Document No."),
                                                                            Type = field(Type),
                                                                            "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                            "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),
@@ -104,7 +104,7 @@ table 12142 "VAT Book Entry"
         }
         field(12; "Sell-to/Buy-from No."; Code[20])
         {
-            CalcFormula = Lookup("VAT Entry"."Bill-to/Pay-to No." where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."Bill-to/Pay-to No." where("Document No." = field("Document No."),
                                                                          Type = field(Type),
                                                                          "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                          "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),
@@ -127,7 +127,7 @@ table 12142 "VAT Book Entry"
         }
         field(26; "External Document No."; Code[35])
         {
-            CalcFormula = Lookup("VAT Entry"."External Document No." where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."External Document No." where("Document No." = field("Document No."),
                                                                             Type = field(Type),
                                                                             "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                             "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),
@@ -142,7 +142,7 @@ table 12142 "VAT Book Entry"
         }
         field(28; "No. Series"; Code[20])
         {
-            CalcFormula = Lookup("VAT Entry"."No. Series" where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."No. Series" where("Document No." = field("Document No."),
                                                                  Type = field(Type),
                                                                  "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                  "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),
@@ -199,7 +199,7 @@ table 12142 "VAT Book Entry"
         }
         field(53; "Document Date"; Date)
         {
-            CalcFormula = Lookup("VAT Entry"."Document Date" where("Document No." = field("Document No."),
+            CalcFormula = lookup("VAT Entry"."Document Date" where("Document No." = field("Document No."),
                                                                     Type = field(Type),
                                                                     "VAT Bus. Posting Group" = field("VAT Bus. Posting Group"),
                                                                     "VAT Prod. Posting Group" = field("VAT Prod. Posting Group"),

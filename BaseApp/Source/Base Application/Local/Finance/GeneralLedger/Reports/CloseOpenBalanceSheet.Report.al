@@ -29,7 +29,7 @@ report 12113 "Close/Open Balance Sheet"
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 .. 2));
+            DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 .. 2));
             dataitem("G/L Account"; "G/L Account")
             {
                 DataItemTableView = sorting("No.") where("Account Type" = const(Posting), "Income/Balance" = const("Balance Sheet"));
@@ -454,10 +454,9 @@ report 12113 "Close/Open Balance Sheet"
 
         SourceCodeSetup.Get();
         GLSetup.Get();
-        if GLSetup."Additional Reporting Currency" <> '' then begin
+        if GLSetup."Additional Reporting Currency" <> '' then
             if not Confirm(AddRepCurrUsageQst, false) then
                 CurrReport.Quit();
-        end;
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Close Income Statement", '', TempSelectedDim);
 

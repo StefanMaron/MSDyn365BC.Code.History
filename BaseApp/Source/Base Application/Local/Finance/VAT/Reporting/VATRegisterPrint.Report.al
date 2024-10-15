@@ -16,7 +16,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Utilities;
 
@@ -116,7 +115,7 @@ report 12120 "VAT Register - Print"
         }
         dataitem("VAT Register"; "VAT Register")
         {
-            DataItemTableView = sorting(Code) order(Ascending);
+            DataItemTableView = sorting(Code) order(ascending);
             PrintOnlyIfDetail = true;
             column(VAT_Register_Code; Code)
             {
@@ -218,7 +217,7 @@ report 12120 "VAT Register - Print"
             {
                 DataItemLink = "VAT Register" = field(Code);
                 DataItemLinkReference = "VAT Register";
-                DataItemTableView = sorting("VAT Reg. Print Priority") order(Ascending);
+                DataItemTableView = sorting("VAT Reg. Print Priority") order(ascending);
                 PrintOnlyIfDetail = true;
                 column(No__Series_Code; Code)
                 {
@@ -231,7 +230,7 @@ report 12120 "VAT Register - Print"
                     CalcFields = "Document Type", Base, Amount, "VAT Calculation Type", "Sell-to/Buy-from No.", "External Document No.", "No. Series", "Nondeductible Amount", "Document Date", "VAT Difference", "Nondeductible Base", "Unrealized Base", "Unrealized Amount";
                     DataItemLink = "No. Series" = field(Code);
                     DataItemLinkReference = "No. Series";
-                    DataItemTableView = sorting("Document No.", "Posting Date") ORDER(Ascending) where(Type = filter(<> Settlement), "Unrealized VAT" = filter(false));
+                    DataItemTableView = sorting("Document No.", "Posting Date") order(ascending) where(Type = filter(<> Settlement), "Unrealized VAT" = filter(false));
                     column(IntraC; IntraC)
                     {
                     }
@@ -522,7 +521,7 @@ report 12120 "VAT Register - Print"
                     CalcFields = "Document Type", Base, Amount, "VAT Calculation Type", "Sell-to/Buy-from No.", "External Document No.", "No. Series", "Nondeductible Amount", "Document Date", "VAT Difference", "Nondeductible Base", "Unrealized Base", "Unrealized Amount";
                     DataItemLink = "No. Series" = field(Code);
                     DataItemLinkReference = "No. Series";
-                    DataItemTableView = sorting("Document No.", "Posting Date") ORDER(Ascending) where(Type = filter(<> Settlement), "Unrealized VAT" = filter(true));
+                    DataItemTableView = sorting("Document No.", "Posting Date") order(ascending) where(Type = filter(<> Settlement), "Unrealized VAT" = filter(true));
                     column(UnrealizedVAT_PageNo_Prefix; StrSubstNo(Text1038, Format(Date2DMY(StartingDate, 3))))
                     {
                     }
@@ -814,7 +813,7 @@ report 12120 "VAT Register - Print"
         }
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = sorting(Number) order(Ascending);
+            DataItemTableView = sorting(Number) order(ascending);
             column(Integer_PageNo_Prefix; StrSubstNo(Text1038, Format(Date2DMY(StartingDate, 3))))
             {
             }
@@ -1486,8 +1485,6 @@ report 12120 "VAT Register - Print"
     var
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         VATReg := GetCustomerVatRegistrationNo(VATBookEntry."Sell-to/Buy-from No.", VATBookEntry."Entry No.");
         Name := GetCustomerName(VATBookEntry."Sell-to/Buy-from No.");
@@ -1497,14 +1494,12 @@ report 12120 "VAT Register - Print"
                 if SalesInvHeader.Get(VATBookEntry."Document No.") then
                     Name := SalesInvHeader."Bill-to Name"
                 else
-                    if ServiceInvHeader.Get(VATBookEntry."Document No.") then
-                        Name := ServiceInvHeader."Bill-to Name";
+                    OnSetDetailsForCustomerInvoice(VATBookEntry, Name);
             VATBookEntry."Document Type"::"Credit Memo":
                 if SalesCrMemoHeader.Get(VATBookEntry."Document No.") then
                     Name := SalesCrMemoHeader."Bill-to Name"
                 else
-                    if ServiceCrMemoHeader.Get(VATBookEntry."Document No.") then
-                        Name := ServiceCrMemoHeader."Bill-to Name";
+                    OnSetDetailsForCustomerCrMemo(VATBookEntry, Name);
         end;
     end;
 
@@ -1617,6 +1612,16 @@ report 12120 "VAT Register - Print"
                     CountryRegionCode := Vendor."Country/Region Code";
         end;
         exit((CountryRegionCode <> '') and (CountryRegionCode <> CompInfo."Country/Region Code"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDetailsForCustomerInvoice(var VATBookEntry: Record "VAT Book Entry"; var Name: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDetailsForCustomerCrMemo(var VATBookEntry: Record "VAT Book Entry"; var Name: Text[100])
+    begin
     end;
 }
 

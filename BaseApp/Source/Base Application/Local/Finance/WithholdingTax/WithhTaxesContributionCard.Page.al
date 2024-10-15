@@ -181,10 +181,9 @@ page 12133 "Withh. Taxes-Contribution Card"
 
                     trigger OnValidate()
                     begin
-                        if xRec."INAIL Non Taxable Amount" <> Rec."INAIL Non Taxable Amount" then begin
+                        if xRec."INAIL Non Taxable Amount" <> Rec."INAIL Non Taxable Amount" then
                             if Rec."INAIL Contribution Base" < 0 then
                                 Error(Text1035, Rec.FieldCaption("INAIL Gross Amount"), Rec.FieldCaption("INAIL Non Taxable Amount"));
-                        end;
                     end;
                 }
                 field("INAIL Contribution Base"; Rec."INAIL Contribution Base")

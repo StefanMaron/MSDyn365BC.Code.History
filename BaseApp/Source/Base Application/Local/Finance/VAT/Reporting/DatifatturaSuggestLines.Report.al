@@ -35,7 +35,7 @@ report 12195 "Datifattura Suggest Lines"
         }
         dataitem(VATInvoices; "VAT Entry")
         {
-            DataItemTableView = sorting(Type, "Bill-to/Pay-to No.") ORDER(Ascending) where("Document Type" = filter(Invoice | "Credit Memo"));
+            DataItemTableView = sorting(Type, "Bill-to/Pay-to No.") order(ascending) where("Document Type" = filter(Invoice | "Credit Memo"));
             RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group";
 
             trigger OnAfterGetRecord()

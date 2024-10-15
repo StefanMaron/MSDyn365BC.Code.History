@@ -1085,7 +1085,7 @@ codeunit 134924 "ERM Cues"
     local procedure VerifySalesCueFields(var SalesCue: Record "Sales Cue")
     begin
         Assert.AreEqual(
-          1, SalesCue."Sales Quotes - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Quotes - Open"), SalesCue.TableCaption));
+  1, SalesCue."Sales Quotes - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Quotes - Open"), SalesCue.TableCaption));
         Assert.AreEqual(
           1, SalesCue."Sales Orders - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Orders - Open"), SalesCue.TableCaption));
         Assert.AreEqual(

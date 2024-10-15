@@ -804,13 +804,11 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     var
         VendorBillLine: Record "Vendor Bill Line";
     begin
-        with VendorBillLine do begin
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            Assert.AreEqual(
-              WithHoldTaxAmount,
-              "Withholding Tax Amount", StrSubstNo(WithHoldTaxAmountErr, FieldCaption("Withholding Tax Amount"), WithHoldTaxAmount));
-        end;
+        VendorBillLine.SetRange("Vendor No.", VendorNo);
+        VendorBillLine.FindFirst();
+        Assert.AreEqual(
+          WithHoldTaxAmount,
+          VendorBillLine."Withholding Tax Amount", StrSubstNo(WithHoldTaxAmountErr, VendorBillLine.FieldCaption("Withholding Tax Amount"), WithHoldTaxAmount));
     end;
 
     [PageHandler]

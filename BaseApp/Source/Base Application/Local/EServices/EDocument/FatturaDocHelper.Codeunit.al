@@ -19,8 +19,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Utilities;
 
@@ -364,8 +362,6 @@ codeunit 12184 "Fattura Doc. Helper"
         PaymentMethod: Record "Payment Method";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         FieldRef: FieldRef;
     begin
@@ -388,17 +384,6 @@ codeunit 12184 "Fattura Doc. Helper"
                     TempFatturaHeader."Document No." := SalesInvoiceHeader."No.";
                     LineRecRef.Open(DATABASE::"Sales Invoice Line");
                 end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    HeaderRecRef.SetTable(ServiceInvoiceHeader);
-                    ServiceInvoiceHeader.CalcFields("Amount Including VAT");
-                    CheckServiceInvHeaderFields(ServiceInvoiceHeader, PaymentMethod);
-                    TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Service;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::Invoice.AsInteger();
-                    TempFatturaHeader."Posting Date" := ServiceInvoiceHeader."Posting Date";
-                    TempFatturaHeader."Document No." := ServiceInvoiceHeader."No.";
-                    LineRecRef.Open(DATABASE::"Service Invoice Line");
-                end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     HeaderRecRef.SetTable(SalesCrMemoHeader);
@@ -410,17 +395,8 @@ codeunit 12184 "Fattura Doc. Helper"
                     TempFatturaHeader."Document No." := SalesCrMemoHeader."No.";
                     LineRecRef.Open(DATABASE::"Sales Cr.Memo Line");
                 end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    HeaderRecRef.SetTable(ServiceCrMemoHeader);
-                    ServiceCrMemoHeader.CalcFields("Amount Including VAT");
-                    CheckServiceCrMemoHeaderFields(ServiceCrMemoHeader, PaymentMethod);
-                    TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Service;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo".AsInteger();
-                    TempFatturaHeader."Posting Date" := ServiceCrMemoHeader."Posting Date";
-                    TempFatturaHeader."Document No." := ServiceCrMemoHeader."No.";
-                    LineRecRef.Open(DATABASE::"Service Cr.Memo Line");
-                end;
+            else
+                OnInitFatturaHeaderWithCheckForTable(HeaderRecRef, LineRecRef, TempFatturaHeader, PaymentMethod);
         end;
 
         FieldRef := LineRecRef.Field(DocNoFieldNo);
@@ -550,42 +526,22 @@ codeunit 12184 "Fattura Doc. Helper"
           SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Payment Terms Code"), ErrorMessage."Message Type"::Warning);
     end;
 
-    local procedure CheckServiceInvHeaderFields(ServiceInvoiceHeader: Record "Service Invoice Header"; PaymentMethod: Record "Payment Method")
-    begin
-        if ErrorMessage.LogIfEmpty(
-             ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Payment Method Code"), ErrorMessage."Message Type"::Warning) = 0
-        then
-            ErrorMessage.LogIfEmpty(
-              PaymentMethod, PaymentMethod.FieldNo("Fattura PA Payment Method"), ErrorMessage."Message Type"::Error);
-
-        ErrorMessage.LogIfEmpty(
-          ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Payment Terms Code"), ErrorMessage."Message Type"::Warning);
-    end;
-
-    local procedure CheckServiceCrMemoHeaderFields(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PaymentMethod: Record "Payment Method")
-    begin
-        if ErrorMessage.LogIfEmpty(
-             ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Payment Method Code"), ErrorMessage."Message Type"::Warning) = 0
-        then
-            ErrorMessage.LogIfEmpty(
-              PaymentMethod, PaymentMethod.FieldNo("Fattura PA Payment Method"), ErrorMessage."Message Type"::Error);
-
-        ErrorMessage.LogIfEmpty(
-          ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Payment Terms Code"), ErrorMessage."Message Type"::Warning);
-    end;
-
     local procedure UpdateFatturaHeaderWithDiscountInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var LineRecRef: RecordRef; HeaderRecRef: RecordRef)
     var
         FieldRef: FieldRef;
     begin
         TempFatturaHeader."Total Amount" := ExchangeToLCYAmount(TempFatturaHeader, GetTotalDocAmount(LineRecRef));
-        if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
-            FieldRef := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo);
-            if FieldRef.Class = FieldClass::FlowField then
-                FieldRef.CalcField();
-            TempFatturaHeader."Total Inv. Discount" := FieldRef.Value();
-        end else
-            TempFatturaHeader."Total Inv. Discount" := CalcServInvDiscAmount(LineRecRef, TempFatturaHeader);
+        case TempFatturaHeader."Entry Type" of
+            TempFatturaHeader."Entry Type"::Sales:
+                begin
+                    FieldRef := HeaderRecRef.Field(InvoiceDiscountAmountFieldNo);
+                    if FieldRef.Class = FieldClass::FlowField then
+                        FieldRef.CalcField();
+                    TempFatturaHeader."Total Inv. Discount" := FieldRef.Value();
+                end;
+            else
+                OnUpdateFatturaHeaderWithDiscountInformation(TempFatturaHeader, LineRecRef, LineInvDiscAmountFieldNo);
+        end;
         TempFatturaHeader."Total Inv. Discount" := ExchangeToLCYAmount(TempFatturaHeader, TempFatturaHeader."Total Inv. Discount");
     end;
 
@@ -827,52 +783,30 @@ codeunit 12184 "Fattura Doc. Helper"
     local procedure FindSourceDocument(var DocRecRef: RecordRef; AppliedCustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        Found: Boolean;
     begin
         case AppliedCustLedgerEntry."Document Type" of
             AppliedCustLedgerEntry."Document Type"::Invoice:
-                begin
-                    if SalesInvoiceHeader.Get(AppliedCustLedgerEntry."Document No.") then
-                        DocRecRef.GetTable(SalesInvoiceHeader)
-                    else
-                        if ServiceInvoiceHeader.Get(AppliedCustLedgerEntry."Document No.") then
-                            DocRecRef.GetTable(ServiceInvoiceHeader)
-                        else
-                            exit(false);
+                if SalesInvoiceHeader.Get(AppliedCustLedgerEntry."Document No.") then
+                    DocRecRef.GetTable(SalesInvoiceHeader)
+                else begin
+                    Found := false;
+                    OnFindSourceDocumentInvoice(AppliedCustLedgerEntry, DocRecRef, Found);
+                    exit(Found);
                 end;
             AppliedCustLedgerEntry."Document Type"::"Credit Memo":
-                begin
-                    if SalesCrMemoHeader.Get(AppliedCustLedgerEntry."Document No.") then
-                        DocRecRef.GetTable(SalesCrMemoHeader)
-                    else
-                        if ServiceCrMemoHeader.Get(AppliedCustLedgerEntry."Document No.") then
-                            DocRecRef.GetTable(ServiceCrMemoHeader)
-                        else
-                            exit(false);
+                if SalesCrMemoHeader.Get(AppliedCustLedgerEntry."Document No.") then
+                    DocRecRef.GetTable(SalesCrMemoHeader)
+                else begin
+                    Found := false;
+                    OnFindSourceDocumentCrMemo(AppliedCustLedgerEntry, DocRecRef, Found);
+                    exit(Found);
                 end;
             else
                 exit(false);
         end;
         exit(true);
-    end;
-
-    local procedure CalcServInvDiscAmount(var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary) ServInvDiscount: Decimal
-    var
-        InvDiscountAmount: Decimal;
-    begin
-        if TempFatturaHeader."Entry Type" <> TempFatturaHeader."Entry Type"::Service then
-            exit;
-
-        if not LineRecRef.FindSet() then
-            exit;
-
-        repeat
-            if Evaluate(InvDiscountAmount, Format(LineRecRef.Field(LineInvDiscAmountFieldNo).Value)) then;
-            ServInvDiscount += InvDiscountAmount;
-        until LineRecRef.Next() = 0;
-        exit(ServInvDiscount);
     end;
 
     [Scope('OnPrem')]
@@ -920,8 +854,6 @@ codeunit 12184 "Fattura Doc. Helper"
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
-        ServiceShipmentHeader: Record "Service Shipment Header";
-        ServiceShipmentLine: Record "Service Shipment Line";
         TempLineNumberBuffer: Record "Line Number Buffer" temporary;
         SalesLine: Record "Sales Line";
         ShptNo: Code[20];
@@ -946,18 +878,18 @@ codeunit 12184 "Fattura Doc. Helper"
                 if (Type = GetOptionCaptionValue(SalesLine.Type::Item.AsInteger())) and
                    (ShptNo <> '')
                 then begin
-                    if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
-                        SalesShipmentHeader.Get(ShptNo);
-                        ShipmentDate := SalesShipmentHeader."Shipment Date";
-                        FatturaProjectCode := SalesShipmentHeader."Fattura Project Code";
-                        FatturaTenderCode := SalesShipmentHeader."Fattura Tender Code";
-                        CustomerPurchOrderNo := SalesShipmentHeader."Customer Purchase Order No.";
-                    end else begin
-                        ServiceShipmentHeader.Get(ShptNo);
-                        ShipmentDate := ServiceShipmentHeader."Posting Date";
-                        FatturaProjectCode := ServiceShipmentHeader."Fattura Project Code";
-                        FatturaTenderCode := ServiceShipmentHeader."Fattura Tender Code";
-                        CustomerPurchOrderNo := ServiceShipmentHeader."Customer Purchase Order No.";
+                    case TempFatturaHeader."Entry Type" of
+                        TempFatturaHeader."Entry Type"::Sales:
+                            begin
+                                SalesShipmentHeader.Get(ShptNo);
+                                ShipmentDate := SalesShipmentHeader."Shipment Date";
+                                FatturaProjectCode := SalesShipmentHeader."Fattura Project Code";
+                                FatturaTenderCode := SalesShipmentHeader."Fattura Tender Code";
+                                CustomerPurchOrderNo := SalesShipmentHeader."Customer Purchase Order No.";
+                            end;
+                        else
+                            OnCollectShipmentInfo(
+                                TempFatturaHeader, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo);
                     end;
                     InsertShipmentBuffer(
                       TempShptFatturaLine, Type, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
@@ -974,28 +906,22 @@ codeunit 12184 "Fattura Doc. Helper"
                 end;
             until LineRecRef.Next() = 0;
         if TempFatturaHeader."Order No." <> '' then
-            if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
-                SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-                SalesShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
-                if SalesShipmentLine.FindSet() then
-                    repeat
-                        i += 1;
-                        TempLineNumberBuffer.Get(SalesShipmentLine."Order Line No.");
-                        InsertShipmentBuffer(
-                          TempShptFatturaLine, Type, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
-                          SalesShipmentLine."Shipment Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
-                    until SalesShipmentLine.Next() = 0;
-            end else begin
-                ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
-                ServiceShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
-                if ServiceShipmentLine.FindSet() then
-                    repeat
-                        i += 1;
-                        TempLineNumberBuffer.Get(ServiceShipmentLine."Order Line No.");
-                        InsertShipmentBuffer(
-                          TempShptFatturaLine, Type, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
-                          ServiceShipmentLine."Posting Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
-                    until ServiceShipmentLine.Next() = 0;
+            case TempFatturaHeader."Entry Type" of
+                TempFatturaHeader."Entry Type"::Sales:
+                    begin
+                        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+                        SalesShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
+                        if SalesShipmentLine.FindSet() then
+                            repeat
+                                i += 1;
+                                TempLineNumberBuffer.Get(SalesShipmentLine."Order Line No.");
+                                InsertShipmentBuffer(
+                                    TempShptFatturaLine, Type, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
+                                    SalesShipmentLine."Shipment Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
+                            until SalesShipmentLine.Next() = 0;
+                    end;
+                else
+                    OnCollectShipmentInfoFromLines(TempFatturaHeader, TempShptFatturaLine, TempLineNumberBuffer, FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, Type);
             end;
     end;
 
@@ -1180,7 +1106,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine := OriginalFatturaLine;
     end;
 
-    local procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; Type: Text[20]; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
+    procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; Type: Text[20]; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
     begin
         if TempShptFatturaLine.FindLast() then;
         TempShptFatturaLine.Init();
@@ -1443,7 +1369,9 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
-    procedure UpdateFatturaDocTypeInServDoc(var ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServFatturaSubscribers', '25.0')]
+    procedure UpdateFatturaDocTypeInServDoc(var ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
         Customer: Record Customer;
     begin
@@ -1463,6 +1391,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 ServiceHeader."Fattura Document Type" := GetCrMemoCode();
         end;
     end;
+#endif
 
     procedure UpdateFatturaDocTypeInVATEntry(EntryNo: Integer; FatturaDocType: Code[20])
     var
@@ -1571,48 +1500,16 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Fattura Subscribers', '25.0')]
     [Scope('OnPrem')]
-    procedure AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(var ServiceHeader: Record "Service Header"; Confirmation: Boolean)
+    procedure AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; Confirmation: Boolean)
     var
-        ServiceLine: Record "Service Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        Stop: Boolean;
-        FatturaDocType: Code[20];
-        FatturaDocTypeIsDifferent: Boolean;
-        FirstLineHandled: Boolean;
+        ServFatturaSubscribers: Codeunit "Serv. Fattura Subscribers";
     begin
-        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindSet() then
-            repeat
-                if (VATPostingSetup."VAT Bus. Posting Group" <> ServiceLine."VAT Bus. Posting Group") or
-                   (VATPostingSetup."VAT Prod. Posting Group" <> ServiceLine."VAT Prod. Posting Group")
-                then
-                    if not VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
-                        VATPostingSetup.Init();
-                if not FirstLineHandled then begin
-                    FatturaDocType := VATPostingSetup."Fattura Document Type";
-                    FirstLineHandled := true;
-                end else
-                    if FatturaDocType <> VATPostingSetup."Fattura Document Type" then begin
-                        FatturaDocTypeIsDifferent := true;
-                        Stop := true;
-                    end;
-                if Stop then
-                    FatturaDocType := '';
-                Stop := Stop or (ServiceLine.Next() = 0);
-            until Stop;
-        if FatturaDocTypeIsDifferent then begin
-            if GuiAllowed() and Confirmation then
-                if not Confirm(StrSubstNo(FatturaDocTypeDiffQst, ServiceHeader."Fattura Document Type"), false) then
-                    Error('');
-            exit;
-        end;
-        if FatturaDocType <> '' then begin
-            ServiceHeader.Validate("Fattura Document Type", FatturaDocType);
-            ServiceHeader.Modify(true);
-        end;
+        ServFatturaSubscribers.AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(ServiceHeader, Confirmation);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]
     local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
@@ -1644,6 +1541,36 @@ codeunit 12184 "Fattura Doc. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBuildAttachedToLinesExtTextBuffer(var TempFatturaLine: Record "Fattura Line" temporary; CurrRecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitFatturaHeaderWithCheckForTable(var HeaderRecRef: RecordRef; var LineRecRef: RecordRef; var TempFatturaHeader: Record "Fattura Header" temporary; PaymentMethod: Record "Payment Method")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFatturaHeaderWithDiscountInformation(var TempFatturaHeader: Record "Fattura Header" temporary; LineRecRef: RecordRef; LineInvDiscAmountFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSourceDocumentInvoice(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; DocRecRef: RecordRef; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSourceDocumentCrMemo(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; DocRecRef: RecordRef; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectShipmentInfo(var TempFatturaHeader: Record "Fattura Header" temporary; ShptNo: Code[20]; var ShipmentDate: Date; var FatturaProjectCode: Code[15]; var FatturaTenderCode: Code[15]; var CustomerPurchOrderNo: Text[35])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectShipmentInfoFromLines(var TempFatturaHeader: Record "Fattura Header" temporary; var TempShptFatturaLine: Record "fattura Line" temporary; var TempLineNumberBuffer: Record "Line Number Buffer" temporary; var FatturaProjectCode: Code[15]; var FatturaTenderCode: Code[15]; var CustomerPurchOrderNo: Text[35]; Type: Text[20])
     begin
     end;
 }

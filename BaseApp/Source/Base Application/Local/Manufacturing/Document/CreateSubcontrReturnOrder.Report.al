@@ -21,11 +21,11 @@ report 12153 "Create Subcontr. Return Order"
     {
         dataitem("Purchase Header"; "Purchase Header")
         {
-            DataItemTableView = sorting("Document Type", "No.") order(Ascending);
+            DataItemTableView = sorting("Document Type", "No.") order(ascending);
             dataitem("Purchase Line"; "Purchase Line")
             {
                 DataItemLink = "Document No." = field("No.");
-                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") ORDER(Ascending) where("Prod. Order No." = filter(<> ''));
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") order(ascending) where("Prod. Order No." = filter(<> ''));
 
                 trigger OnAfterGetRecord()
                 var

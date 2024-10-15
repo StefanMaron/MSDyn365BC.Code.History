@@ -152,12 +152,20 @@ report 299 "Delete Invoiced Sales Orders"
                 if GuiAllowed() then
                     ProgressDialog.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    ProgressDialog.Close();
+            end;
         }
     }
 
     var
-        ProgressDialog: Dialog;
         ProcessingProgressTxt: Label 'Processing sales orders #1##########', Comment = '%1 - Sales Order No.';
+
+    protected var
+        ProgressDialog: Dialog;
 
     local procedure UpdateAssociatedPurchOrder(var SalesOrderLine: Record "Sales Line")
     var

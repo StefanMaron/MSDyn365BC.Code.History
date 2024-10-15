@@ -408,9 +408,13 @@ table 325 "VAT Posting Setup"
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         AccountSuggested: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be entered on the tax jurisdiction line when %2 is %3.';
         Text001: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';
         Text12101: Label 'Before setting %1, you must set %2 .';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         YouCannotDeleteOrModifyErr: Label 'You cannot modify or delete VAT posting setup %1 %2 as it has been used to generate GL entries. Changing the setup now can cause inconsistencies in your financial data.', Comment = '%1 = "VAT Bus. Posting Group"; %2 = "VAT Prod. Posting Group"';
         VATPostingSetupHasVATEntriesErr: Label 'You cannot change the VAT posting setup because it has been used to generate VAT entries. Changing the setup now can cause inconsistencies in your financial data.';
         NoAccountSuggestedMsg: Label 'Cannot suggest G/L accounts as there is nothing to base suggestion on.';
@@ -419,7 +423,7 @@ table 325 "VAT Posting Setup"
     var
         VATEntry: Record "VAT Entry";
     begin
-        
+
         VATEntry.SetRange("VAT Bus. Posting Group", Rec."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
 

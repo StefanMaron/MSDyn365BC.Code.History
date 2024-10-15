@@ -16,7 +16,11 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 = %3 in %4 %5 = %6';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeprBookCodeErr: Label ' in depreciation book code %1', Comment = '%1=value for code, e.g. COMAPNY';
 
     procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean) NumbefOfDeprDays: Integer

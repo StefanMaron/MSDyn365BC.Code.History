@@ -319,7 +319,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            TransferAvailabilityMgt.ShowItemAvailabilityFromTransLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -331,7 +331,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            TransferAvailabilityMgt.ShowItemAvailabilityFromTransLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -343,7 +343,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromTransLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            TransferAvailabilityMgt.ShowItemAvailabilityFromTransLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                 }
@@ -413,7 +413,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
         ShortcutDimCode: array[8] of Code[20];
 
     [Scope('OnPrem')]

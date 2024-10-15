@@ -2680,16 +2680,14 @@ codeunit 144005 "Report Layout - Local"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", GenJournalLine."Account No.");
-            FindSet(true);
-            repeat
-                Validate("Applies-to ID", GenJournalLine."Document No.");
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", "Remaining Amount");
-                Modify(true);
-            until Next() = 0;
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        VendorLedgerEntry.FindSet(true);
+        repeat
+            VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+            VendorLedgerEntry.Modify(true);
+        until VendorLedgerEntry.Next() = 0;
 
         VendorLedgerEntry.CalcSums("Amount to Apply");
         GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
@@ -2718,16 +2716,14 @@ codeunit 144005 "Report Layout - Local"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", GenJournalLine."Account No.");
-            FindSet(true);
-            repeat
-                Validate("Applies-to ID", GenJournalLine."Document No.");
-                CalcFields(Amount);
-                Validate("Amount to Apply", Amount);
-                Modify(true);
-            until Next() = 0;
-        end;
+        CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+        CustLedgerEntry.FindSet(true);
+        repeat
+            CustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
+            CustLedgerEntry.CalcFields(Amount);
+            CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry.Amount);
+            CustLedgerEntry.Modify(true);
+        until CustLedgerEntry.Next() = 0;
 
         CustLedgerEntry.CalcSums("Amount to Apply");
         GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");

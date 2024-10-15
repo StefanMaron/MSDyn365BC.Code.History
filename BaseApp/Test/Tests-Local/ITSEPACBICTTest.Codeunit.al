@@ -19,9 +19,6 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         UnexpectedEmptyNodeErr: Label 'Unexpected empty value for node <%1> of subtree <%2>.';
         JournalLineErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
-        MissingABICodeErr: Label 'ABI must have a value in Bank Account: No.=%1';
-        MissingIBANCodeErr: Label 'IBAN must have a value in Bank Account: No.=%1';
-        MissingVendorIBANCodeErr: Label 'IBAN must have a value in Vendor Bank Account: Vendor No.=%1, Code=%2. It cannot be zero or empty.';
         PostingDateInPastErr: Label 'The earliest possible transfer date is today.';
         CdtrAgtNodeTxt: Label '/CBIPaymentRequest/PmtInf/CdtTrfTxInf/CdtrAgt';
         FinInstnIdBICTxt: Label '/CBIPaymentRequest/PmtInf/CdtTrfTxInf/CdtrAgt/FinInstnId/BIC';
@@ -76,6 +73,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
     var
         VendorBillHeader: Record "Vendor Bill Header";
         TempVendorBillLine: Record "Vendor Bill Line" temporary;
+        VendorBankAcc: Record "Vendor Bank Account";
     begin
         // [SCENARIO CBI22] If Recipient Bank Account has no IBAN then Export File Error is logged
         // [GIVEN] Recipient Bank Account in the Vendor Bill has no IBAN
@@ -85,8 +83,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         // [WHEN] Export to File - CBI Format action is run
         // [THEN] Export File Error is logged
         asserterror ExportVendorBill(VendorBillHeader);
-        Assert.ExpectedError(
-          StrSubstNo(MissingVendorIBANCodeErr, TempVendorBillLine."Vendor No.", TempVendorBillLine."Vendor Bank Acc. No."));
+        Assert.ExpectedTestFieldError(VendorBankAcc.FieldCaption(IBAN), '');
     end;
 
     [Test]
@@ -172,6 +169,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
     var
         VendorBillHeader: Record "Vendor Bill Header";
         TempVendorBillLine: Record "Vendor Bill Line" temporary;
+        BankAccount: Record "Bank Account";
     begin
         // [SCENARIO CBI11] If Sender Bank Account doesn't have ABI filled in, error message is thrown
         // [GIVEN] Sender Bank Account doesn't have ABI filled in
@@ -181,7 +179,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         // [WHEN] Export to File - CBI Format action is run
         // [THEN] Error is thrown stating that ABI filed is mandatory
         asserterror ExportVendorBill(VendorBillHeader);
-        Assert.ExpectedError(StrSubstNo(MissingABICodeErr, VendorBillHeader."Bank Account No."));
+        Assert.ExpectedTestFieldError(BankAccount.FieldCaption(ABI), '');
     end;
 
     [Test]
@@ -191,6 +189,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
     var
         VendorBillHeader: Record "Vendor Bill Header";
         TempVendorBillLine: Record "Vendor Bill Line" temporary;
+        VendorBankAcc: Record "Vendor Bank Account";
     begin
         // [SCENARIO CBI12] If Sender Bank Account has no IBAN then Export File Error is logged
         // [GIVEN] Sender Bank Account used to create Vendor Bill has no IBAN
@@ -200,7 +199,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         // [WHEN] Export to File - CBI Format action is run
         // [THEN] Error is thrown
         asserterror ExportVendorBill(VendorBillHeader);
-        Assert.ExpectedError(StrSubstNo(MissingIBANCodeErr, VendorBillHeader."Bank Account No."));
+        Assert.ExpectedTestFieldError(VendorBankAcc.FieldCaption(IBAN), '');
     end;
 
     [Test]

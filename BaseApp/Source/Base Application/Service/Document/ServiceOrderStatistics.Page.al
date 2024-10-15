@@ -468,7 +468,7 @@ page 5914 "Service Order Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the total cost, in LCY, of the items in the service order, adjusted for any changes in the original costs of these items.';
 
-                            trigger OnLookup(var Text: Text): Boolean
+                            trigger OnDrillDown()
                             begin
                                 Rec.LookupAdjmtValueEntries(1);
                             end;
@@ -1251,12 +1251,18 @@ page 5914 "Service Order Statistics"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Service %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Total';
         Text002: Label 'Amount';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Cust: Record Customer;
         SalesSetup: Record "Sales & Receivables Setup";
         ServAmtsMgt: Codeunit "Serv-Amounts Mgt.";
@@ -1273,7 +1279,9 @@ page 5914 "Service Order Statistics"
         PrevTab: Option General,Details,Shipping;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+#pragma warning disable AA0074
         Text006: Label 'Placeholder';
+#pragma warning restore AA0074
 
     protected var
         TempVATAmountLine1: Record "VAT Amount Line" temporary;

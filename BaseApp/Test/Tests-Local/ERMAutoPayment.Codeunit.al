@@ -119,7 +119,6 @@ codeunit 144050 "ERM Auto Payment"
         LineMustNotExistsErr: Label '%1 Bill Line must not exists.';
         ListDateIssuedCustBillHdrCap: Label 'ListDate_IssuedCustBillHdr';
         NoBankAccountCap: Label 'No_BankAccount';
-        PostCustomerBillErr: Label 'The Bill Posting Group does not exist.';
         VendorBillListErr: Label 'Meanwhile Remaining Amount has been modified for Document No. %1 Document Occurrence 1. New amount is %2. Please recreate the bill list.';
         IncorrectPrepmtPaymentTermsCodeErr: Label 'Incorrect value of Prepmt. Payment Terms Code.';
         PrepmtPaymtTermCodeValidationErr: Label 'The field Prepmt. Payment Terms Code of table Vendor contains a value';
@@ -347,8 +346,7 @@ codeunit 144050 "ERM Auto Payment"
         asserterror PostCustomerBill(CustomerBillHeader);
 
         // Verify: Verify error on while posting Customer Bill.
-        Assert.ExpectedError(
-          StrSubstNo(PostCustomerBillErr, CustomerBillHeader."Payment Method Code", CustomerBillHeader."Bank Account No."));
+        Assert.ExpectedErrorCannotFind(Database::"Bill Posting Group");
     end;
 
 
@@ -1212,13 +1210,11 @@ codeunit 144050 "ERM Auto Payment"
         // [WHEN] Recall second posted invoice
         RecallLastInvoice(DocumentNo);
 
-        with CustLedgerEntry do begin
-            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Document Type"::Invoice, DocumentNo);
-            PaymentEntryNo :=
-                FindCLEDocumentToClose(Customer."No.", "Document Type"::Payment, "Document Type", "Document No.", "Document Occurrence");
-            RecallEntryNo :=
-                FindCLEDocumentToClose(Customer."No.", "Document Type"::" ", "Document Type", "Document No.", "Document Occurrence");
-        end;
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        PaymentEntryNo :=
+            FindCLEDocumentToClose(Customer."No.", CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Document Occurrence");
+        RecallEntryNo :=
+            FindCLEDocumentToClose(Customer."No.", CustLedgerEntry."Document Type"::" ", CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Document Occurrence");
 
         // [THEN] Recall Customer Ledger Entry is applied to the second customer bill issued
         FindAppliedCustLedgerEntry(DetailedCustLedgEntry, RecallEntryNo);
@@ -2130,12 +2126,10 @@ codeunit 144050 "ERM Auto Payment"
         GLAccount: Record "G/L Account";
         BillPostingGroup: Record "Bill Posting Group";
     begin
-        with BillPostingGroup do begin
-            Get(BankAccNo, PaymentMethodCode);
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Bills For Collection Acc. No.", GLAccount."No.");
-            Modify(true);
-        end;
+        BillPostingGroup.Get(BankAccNo, PaymentMethodCode);
+        LibraryERM.CreateGLAccount(GLAccount);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", GLAccount."No.");
+        BillPostingGroup.Modify(true);
     end;
 
     local procedure UpdateBillPostingGroupExpenseBillAccount(No: Code[20]; PaymentMethodCode: Code[10]; GLAccountNo: Code[20])

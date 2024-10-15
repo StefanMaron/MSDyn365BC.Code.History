@@ -14,8 +14,12 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to post the prepayments for %1 %2?';
         Text001: Label 'Do you want to post a credit memo for the prepayments for %1 %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";

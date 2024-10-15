@@ -18,7 +18,7 @@ report 12174 "Issued Cust Bills Report"
     {
         dataitem("Issued Customer Bill Header"; "Issued Customer Bill Header")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(ReportHdr_IssuedCustBillHdr; "Report Header")
@@ -66,7 +66,7 @@ report 12174 "Issued Cust Bills Report"
             dataitem("Issued Customer Bill Line"; "Issued Customer Bill Line")
             {
                 DataItemLink = "Customer Bill No." = field("No.");
-                DataItemTableView = sorting("Customer Bill No.", "Final Cust. Bill No.") ORDER(Ascending) where("Recalled by" = filter(''));
+                DataItemTableView = sorting("Customer Bill No.", "Final Cust. Bill No.") order(ascending) where("Recalled by" = filter(''));
                 column(CustPostCodeCustCity; Customer."Post Code" + ' ' + Customer.City)
                 {
                 }

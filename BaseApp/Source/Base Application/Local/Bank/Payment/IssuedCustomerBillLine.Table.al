@@ -34,7 +34,7 @@ table 12178 "Issued Customer Bill Line"
         }
         field(11; "Customer Name"; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Customer Name';
             Editable = false;
             FieldClass = FlowField;

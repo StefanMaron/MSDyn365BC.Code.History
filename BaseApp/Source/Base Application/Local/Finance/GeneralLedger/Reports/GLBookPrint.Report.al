@@ -86,7 +86,7 @@ report 12121 "G/L Book - Print"
         dataitem("GL Book Entry"; "GL Book Entry")
         {
             CalcFields = "Debit Amount", "Credit Amount", Amount, Description;
-            DataItemTableView = sorting("Official Date") order(Ascending);
+            DataItemTableView = sorting("Official Date") order(ascending);
             column(LastPrintedPageNo; LastPrintedPageNo)
             {
             }
@@ -324,14 +324,13 @@ report 12121 "G/L Book - Print"
 
             trigger OnPostDataItem()
             begin
-                if (not CurrReport.Preview) and (ReportType = ReportType::"Final Print") then begin
+                if (not CurrReport.Preview) and (ReportType = ReportType::"Final Print") then
                     if TempGLBookEntry.FindSet() then
                         repeat
                             GLBookEntry2.Get(TempGLBookEntry."Entry No.");
                             GLBookEntry2."Progressive No." := TempGLBookEntry."Progressive No.";
                             GLBookEntry2.Modify();
                         until TempGLBookEntry.Next() = 0;
-                end;
             end;
 
             trigger OnPreDataItem()

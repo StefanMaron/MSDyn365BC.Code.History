@@ -9,6 +9,7 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
 
 report 952 "Suggest Job Jnl. Lines"
 {
@@ -149,7 +150,7 @@ report 952 "Suggest Job Jnl. Lines"
                                 NextDocNo := IncStr(NextDocNo);
                             end;
                             JobJnlLine."Posting No. Series" := JobJnlBatch."Posting No. Series";
-                            JobJnlLine.Description := TempTimeSheetLine.Description;
+                            SetJobJournalLineDescription(TempTimeSheetLine.Description, TimeSheetDetail);
                             JobJnlLine.Validate(Quantity, QtyToPost);
                             JobJnlLine.Validate(Chargeable, TempTimeSheetLine.Chargeable);
                             JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
@@ -225,6 +226,26 @@ report 952 "Suggest Job Jnl. Lines"
             until TimeSheetHeader.Next() = 0;
     end;
 
+    local procedure SetJobJournalLineDescription(TimeSheetDescription: Text[100]; TimeSheetDetail: Record "Time Sheet Detail")
+    var
+        ResourcesSetup: Record "Resources Setup";
+        IsHandled: Boolean;
+        TimeSheetDescriptionWithDateTok: Label '%1, %2', Locked = true;
+    begin
+        OnBeforeSetJobJournalLineDescription(JobJnlLine, TimeSheetDescription, TimeSheetDetail, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResourcesSetup.ReadIsolation(IsolationLevel::ReadCommitted);
+        ResourcesSetup.SetLoadFields("Incl. Time Sheet Date in Jnl.");
+        ResourcesSetup.Get();
+
+        if ResourcesSetup."Incl. Time Sheet Date in Jnl." then
+            JobJnlLine.Description := CopyStr(StrSubstNo(TimeSheetDescriptionWithDateTok, TimeSheetDetail.Date, TimeSheetDescription), 1, MaxStrLen(JobJnlLine.Description))
+        else
+            JobJnlLine.Description := CopyStr(TimeSheetDescription, 1, MaxStrLen(JobJnlLine.Description));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTempTimeSheetLine(JobJournalLine: Record "Job Journal Line"; TimeSheetHeader: Record "Time Sheet Header"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; var SkipLine: Boolean)
     begin
@@ -237,6 +258,11 @@ report 952 "Suggest Job Jnl. Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnOnPostReportOnTempTimeSheetLineEndLoop(var JobJournalLine: Record "Job Journal Line"; var NextDocNo: Code[20]; var LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetJobJournalLineDescription(var JobJournalLine: Record "Job Journal Line"; TimeSheetDescription: Text[100]; TimeSheetDetail: Record "Time Sheet Detail"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -223,12 +223,10 @@ codeunit 139030 "Test Background Printing"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            Init();
-            "Object Type to Run" := ObjectType;
-            "Report Output Type" := ReportOutputType;
-            Assert.AreEqual(Expected, IsToReportInbox(), WrongToReportInboxValErr);
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := ObjectType;
+        JobQueueEntry."Report Output Type" := ReportOutputType;
+        Assert.AreEqual(Expected, JobQueueEntry.IsToReportInbox(), WrongToReportInboxValErr);
     end;
 
     [Test]

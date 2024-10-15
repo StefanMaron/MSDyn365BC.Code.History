@@ -37,6 +37,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
         FAJnlCheckLine: Codeunit "FA Jnl.-Check Line";
         FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
         NoSeriesBatch: Codeunit "No. Series - Batch";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Window: Dialog;
         LineCount: Integer;
         StartLineNo: Integer;
@@ -48,13 +49,16 @@ codeunit 5633 "FA Jnl.-Post Batch"
         PreviewMode: Boolean;
         SuppressCommit: Boolean;
         CompressDepr: array[2] of Record "Compress Depreciation" temporary;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text12100: Label '%1 compressed entries';
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

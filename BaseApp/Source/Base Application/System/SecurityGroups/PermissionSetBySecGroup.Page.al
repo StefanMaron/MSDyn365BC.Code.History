@@ -333,6 +333,7 @@ page 9874 "Permission Set By Sec. Group"
 
     trigger OnInit()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         AccessControl: Record "Access Control";
     begin
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();

@@ -11,16 +11,10 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
-#if CLEAN22
     TableType = Temporary;
     ObsoleteReason = 'Replaced by Vendor Payment Buffer.';
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    ObsoleteReason = 'This table will be replaced by Vendor Payment Buffer.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

@@ -39,9 +39,6 @@ codeunit 6301 "Power BI Service Mgt."
         ErrorWebResponseTelemetryMsg: Label 'GetData failed with an error. The status code is: %1.', Locked = true;
         DataNotFoundErr: Label 'The report(s) you are trying to load do not exist.';
 #endif
-#if not CLEAN22
-        RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
-#endif
         EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
         ScheduleSyncTelemetryMsg: Label 'Scheduling sync for UTC datetime: %1.', Locked = true;
 
@@ -74,14 +71,13 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 #endif
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure IsUserReadyForPowerBI(): Boolean
     begin
         if not AzureAdMgt.IsAzureADAppSetupDone() then
             exit(false);
 
-        exit(AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false) <> '');
+        exit(not AzureAdMgt.GetAccessTokenAsSecretText(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false).IsEmpty());
     end;
 
     procedure GetPowerBIResourceUrl(): Text
@@ -136,24 +132,7 @@ codeunit 6301 "Power BI Service Mgt."
         exit(PowerBIMyOrgUrlTxt);
     end;
 
-#if not CLEAN22
-    [Scope('OnPrem')]
-    [Obsolete('This function requires now a context parameter.', '23.0')]
-    procedure SynchronizeReportsInBackground()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
-        ScheduledDateTime: DateTime;
-    begin
-        if PowerBIServiceStatusSetup.FindFirst() and (PowerBIServiceStatusSetup."Retry After" > CurrentDateTime()) then
-            ScheduledDateTime := PowerBIServiceStatusSetup."Retry After"
-        else
-            ScheduledDateTime := CurrentDateTime();
-
-        Session.LogMessage('0000FB2', StrSubstNo(ScheduleSyncTelemetryMsg, Format(ScheduledDateTime, 50, 9)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-        JobQueueEntry.ScheduleJobQueueEntryForLater(Codeunit::"Power BI Report Synchronizer", ScheduledDateTime, GetJobQueueCategoryCode(), '')
-    end;
-#elif not CLEAN23
+#if not CLEAN23
     [Scope('OnPrem')]
     [Obsolete('This function requires now a context parameter.', '23.0')]
     procedure SynchronizeReportsInBackground()
@@ -232,26 +211,6 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 #endif
 
-#if not CLEAN22
-    [Scope('OnPrem')]
-    [Obsolete('Power BI service status is no longer cached.', '22.0')]
-    procedure IsPBIServiceAvailable(): Boolean
-    var
-        PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
-    begin
-        // Checks whether the Power BI service is available for deploying default reports, based on
-        // whether previous deployments have failed with a retry date/time that we haven't reached yet.
-        PowerBIServiceStatusSetup.Reset();
-        if PowerBIServiceStatusSetup.FindFirst() then
-            if PowerBIServiceStatusSetup."Retry After" > CurrentDateTime then begin
-                Session.LogMessage('0000B64', StrSubstNo(RetryAfterNotSatisfiedTelemetryMsg, PowerBIServiceStatusSetup."Retry After"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-                exit(false);
-            end;
-
-        exit(true);
-    end;
-#endif
-
 #if not CLEAN23
     [Obsolete('Check "Power BI Report Uploads" table directly', '23.0')]
     [Scope('OnPrem')]
@@ -285,7 +244,6 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     [Obsolete('Use interface "Power BI Service Provider" and its implementations instead.', '23.0')]
     procedure GetDataCatchErrors(var ExceptionMessage: Text; var ExceptionDetails: Text; var ErrorStatusCode: Integer; Url: Text): Text
     var
@@ -295,15 +253,15 @@ codeunit 6301 "Power BI Service Mgt."
         WebException: DotNet WebException;
         Exception: DotNet Exception;
         ResponseText: Text;
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         Clear(ErrorStatusCode);
         Clear(ExceptionMessage);
         Clear(ExceptionDetails);
 
-        AccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
+        AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
 
-        if AccessToken = '' then begin
+        if AccessToken.IsEmpty() then begin
             Session.LogMessage('0000FT6', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             ExceptionMessage := UnauthorizedErr;
             ExceptionDetails := UnauthorizedErr;
@@ -463,6 +421,8 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBIBlob: Record "Power BI Blob";
         PowerBIDefaultSelection: Record "Power BI Default Selection";
         PowerBIContextSettings: Record "Power BI Context Settings";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        PowerBIContextSettings2: Record "Power BI Context Settings";
         PowerBICustomerReports: Record "Power BI Customer Reports";
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
     begin
@@ -474,7 +434,7 @@ codeunit 6301 "Power BI Service Mgt."
         exit(PowerBIBlob.ReadPermission()
             and PowerBIDefaultSelection.ReadPermission()
             and PowerBICustomerReports.ReadPermission()
-            and PowerBIContextSettings.WritePermission() and PowerBIContextSettings.ReadPermission()
+            and PowerBIContextSettings2.WritePermission() and PowerBIContextSettings.ReadPermission()
             and PowerBIDisplayedElement.ReadPermission());
     end;
 
@@ -507,7 +467,7 @@ codeunit 6301 "Power BI Service Mgt."
         HttpUtility: DotNet HttpUtility;
     begin
         AccessToken := HttpUtility.JavaScriptStringEncode(
-            AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false)
+            AzureAdMgt.GetAccessTokenAsSecretText(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false).Unwrap()
             );
 
         if AccessToken = '' then begin
@@ -522,7 +482,7 @@ codeunit 6301 "Power BI Service Mgt."
     var
         PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
         PowerBIRestServiceProvider: Codeunit "Power BI Rest Service Provider";
-        AzureAccessToken: Text;
+        AzureAccessToken: SecretText;
         Handled: Boolean;
     begin
         OnServiceProviderCreate(PowerBIServiceProvider, Handled);
@@ -530,9 +490,9 @@ codeunit 6301 "Power BI Service Mgt."
         if Handled then
             exit;
 
-        AzureAccessToken := AzureAdMgt.GetAccessToken(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
+        AzureAccessToken := AzureAdMgt.GetAccessTokenAsSecretText(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
 
-        if AzureAccessToken = '' then begin
+        if AzureAccessToken.IsEmpty() then begin
             Session.LogMessage('0000B62', EmptyAccessTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             Error(UnauthorizedErr);
         end;

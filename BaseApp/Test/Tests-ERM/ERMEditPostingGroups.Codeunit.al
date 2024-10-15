@@ -18,10 +18,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
-        BlockedTestFieldErr: Label 'Blocked must be equal to ''No''';
-        TestFieldCodeErr: Label 'TestField';
         AccountCategory: Option ,Assets,Liabilities,Equity,Income,"Cost of Goods Sold",Expense;
-        GenProdPostingGroupTestFieldErr: Label 'Gen. Prod. Posting Group must have a value in G/L Account: No.=%1. It cannot be zero or empty.';
         PaymentPercErr: Label 'Payment Percent should be 100';
 
     [Test]
@@ -1124,8 +1121,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         asserterror CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
 
         // [THEN] Error "Blocked must be equal to 'No'"
-        Assert.ExpectedError(BlockedTestFieldErr);
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1149,8 +1145,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         asserterror VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
 
         // [THEN] Error "Blocked must be equal to 'No'"
-        Assert.ExpectedError(BlockedTestFieldErr);
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(GLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1255,6 +1250,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     procedure CustomerPostingGroupInterestAccoutLookupValidates()
     var
         CustomerPostingGroupPage: TestPage "Customer Posting Groups";
+        GlAcc: Record "G/L Account";
         GLAccountNo: Code[20];
     begin
         // [FEATURE] [Customer] [UI]
@@ -1275,8 +1271,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] Error "Gen. Prod. Posting Group must have a value in G/L Account: No.=X.  It cannot be zero or empty." appears
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
-        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupTestFieldErr, GLAccountNo));
+        Assert.ExpectedTestFieldError(GlAcc.FieldCaption("Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -1552,3 +1547,4 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLAccountList.OK().Invoke();
     end;
 }
+

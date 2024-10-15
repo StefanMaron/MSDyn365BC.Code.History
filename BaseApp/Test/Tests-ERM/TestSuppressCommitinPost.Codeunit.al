@@ -462,7 +462,7 @@
         // Verify - After Error
         asserterror Error('');
         asserterror TransferHeader.Get(TransferHeader."No.");
-        Assert.ExpectedError('The Transfer Header does not exist.');
+        Assert.ExpectedErrorCannotFind(Database::"Transfer Header", TransferHeader."No.");
         Assert.AreEqual(OriginalQuantity - TransferQuantity, GetItemInventory(Item, FromLocationCode),
           'The quantity transfered is incorrect');
         Assert.AreEqual(TransferQuantity, GetItemInventory(Item, ToLocationCode), 'The quantity transfered is incorrect');

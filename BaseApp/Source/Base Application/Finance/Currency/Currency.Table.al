@@ -585,10 +585,16 @@ table 4 Currency
         TypeHelper: Codeunit "Type Helper";
         AccountSuggested: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must be rounded to the nearest %1';
         Text001: Label '%1 must be rounded to the nearest %2.';
         Text002: Label 'There is one or more opened entries in the %1 table using %2 %3.', Comment = '1 either customer or vendor ledger entry table 2 name co currency table 3 currencency code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         IncorrectEntryTypeErr: Label 'Incorrect Entry Type %1.';
+#pragma warning restore AA0470
         EuroDescriptionTxt: Label 'Euro', Comment = 'Currency Description';
         CanadiandollarDescriptionTxt: Label 'Canadian dollar', Comment = 'Currency Description';
         BritishpoundDescriptionTxt: Label 'Pound Sterling', Comment = 'Currency Description';

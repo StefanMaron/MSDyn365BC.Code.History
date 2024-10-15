@@ -20,18 +20,17 @@ report 12171 "Closing Bank Receipts"
     {
         dataitem(CustEntry1; "Cust. Ledger Entry")
         {
-            DataItemTableView = sorting("Due Date", "Customer No.", "Bank Receipt", "Bank Receipt Temp. No.", "Customer Bill No.") ORDER(Ascending) where("Document Type" = const(Payment), Open = const(true), "Bank Receipt" = const(true));
+            DataItemTableView = sorting("Due Date", "Customer No.", "Bank Receipt", "Bank Receipt Temp. No.", "Customer Bill No.") order(ascending) where("Document Type" = const(Payment), Open = const(true), "Bank Receipt" = const(true));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Customer No.", "Due Date";
             dataitem(CustEntry2; "Cust. Ledger Entry")
             {
                 DataItemLink = "Document Type" = field("Document Type to Close"), "Document No." = field("Document No. to Close"), "Document Occurrence" = field("Document Occurrence to Close"), "Customer No." = field("Customer No.");
-                DataItemTableView = sorting("Document Type", "Document No.", "Document Occurrence", "Customer No.") ORDER(Ascending) where(Open = const(true), "Bank Receipt Issued" = const(true), "Customer Bill No." = filter(<> ''));
+                DataItemTableView = sorting("Document Type", "Document No.", "Document Occurrence", "Customer No.") order(ascending) where(Open = const(true), "Bank Receipt Issued" = const(true), "Customer Bill No." = filter(<> ''));
 
                 trigger OnAfterGetRecord()
                 var
                     ApplyUnapplyParameters: Record "Apply Unapply Parameters";
-                    ApplyCustomerEntries: Page "Apply Customer Entries";
                     DocumentNo: Code[20];
                 begin
                     CustLedgEntry.SetFilter("Entry No.", '%1|%2', CustEntry1."Entry No.", "Entry No.");
@@ -47,7 +46,7 @@ report 12171 "Closing Bank Receipts"
                     if Confirmation then begin
                         if not Confirm(Text1130000, false, "Document Type", "Document No.") then
                             exit;
-                        ApplyCustomerEntries.AskForDocNoAndApplnDate(DocumentNo, ClosePerDay);
+                        AskForDocNoAndApplnDate(DocumentNo, ClosePerDay);
                     end;
                     ApplyUnapplyParameters."Document No." := DocumentNo;
                     ApplyUnapplyParameters."Posting Date" := ClosePerDay;
@@ -149,8 +148,6 @@ report 12171 "Closing Bank Receipts"
     end;
 
     var
-        Text1033: Label 'Please specify %1 in %2 before running this report.';
-        Text1034: Label 'Posting application...';
         SalesSetup: Record "Sales & Receivables Setup";
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustEntrySetApplId: Codeunit "Cust. Entry-SetAppl.ID";
@@ -163,6 +160,11 @@ report 12171 "Closing Bank Receipts"
         CheckDim: Boolean;
         Text1130000: Label 'Do you want to post the application of %1 %2?';
         Text012: Label 'The application was successfully posted.';
+        Text1033: Label 'Please specify %1 in %2 before running this report.';
+        Text1034: Label 'Posting application...';
+#pragma warning disable AA0470
+        ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
+#pragma warning restore AA0470
 
     [Scope('OnPrem')]
     procedure DoCalcDate()
@@ -171,6 +173,24 @@ report 12171 "Closing Bank Receipts"
     begin
         Evaluate(RiskPeriod2, '-' + Format(RiskPeriod));
         ClosePerDay := CalcDate(RiskPeriod2, WorkDate());
+    end;
+
+    local procedure AskForDocNoAndApplnDate(DocumentNo: Code[20]; var ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        PostApplication: Page "Post Application";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        PostApplication.SetParameters(ApplyUnapplyParameters);
+        if ACTION::OK = PostApplication.RunModal() then begin
+            PostApplication.GetParameters(NewApplyUnapplyParameters);
+            if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
+                Error(ApplicationDateErr, CustLedgEntry.FieldCaption("Posting Date"), ApplicationDate);
+        end else
+            exit;
+        ApplicationDate := NewApplyUnapplyParameters."Posting Date";
     end;
 }
 

@@ -24,7 +24,7 @@ report 12172 "Cust Bills Floppy"
             dataitem("Customer Bill Line"; "Customer Bill Line")
             {
                 DataItemLink = "Customer Bill No." = field("No.");
-                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") order(Ascending);
+                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin

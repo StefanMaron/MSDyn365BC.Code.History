@@ -22,7 +22,6 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Service.Item;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
@@ -890,16 +889,6 @@ table 1382 "Item Templ."
             trigger OnValidate()
             begin
                 ValidateItemField(FieldNo("Purchasing Code"));
-            end;
-        }
-        field(5900; "Service Item Group"; Code[10])
-        {
-            Caption = 'Service Item Group';
-            TableRelation = "Service Item Group".Code;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Service Item Group"));
             end;
         }
         field(6502; "Expiration Calculation"; DateFormula)

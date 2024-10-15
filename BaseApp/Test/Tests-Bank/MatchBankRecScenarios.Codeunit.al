@@ -872,17 +872,15 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPaymentEntry do begin
-            Init();
-            "Statement Type" := BankAccReconLine."Statement Type";
-            "Bank Account No." := BankAccReconLine."Bank Account No.";
-            "Statement No." := BankAccReconLine."Statement No.";
-            "Statement Line No." := BankAccReconLine."Statement Line No.";
-            "Account Type" := BankAccReconLine."Account Type";
-            "Account No." := BankAccReconLine."Account No.";
-            "Applied Amount" := AmountToApply;
-            Insert();
-        end;
+        AppliedPaymentEntry.Init();
+        AppliedPaymentEntry."Statement Type" := BankAccReconLine."Statement Type";
+        AppliedPaymentEntry."Bank Account No." := BankAccReconLine."Bank Account No.";
+        AppliedPaymentEntry."Statement No." := BankAccReconLine."Statement No.";
+        AppliedPaymentEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
+        AppliedPaymentEntry."Account Type" := BankAccReconLine."Account Type";
+        AppliedPaymentEntry."Account No." := BankAccReconLine."Account No.";
+        AppliedPaymentEntry."Applied Amount" := AmountToApply;
+        AppliedPaymentEntry.Insert();
 
         BankAccReconLine.Validate("Applied Amount", AmountToApply);
         BankAccReconLine.Modify();
@@ -896,14 +894,12 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate());
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Validate("Account No.", GLAccountNo);
-            Validate(Description, "Account No.");
-            Validate("Statement Amount", StmtAmount);
-            Modify();
-        end;
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"G/L Account");
+        BankAccReconciliationLine.Validate("Account No.", GLAccountNo);
+        BankAccReconciliationLine.Validate(Description, BankAccReconciliationLine."Account No.");
+        BankAccReconciliationLine.Validate("Statement Amount", StmtAmount);
+        BankAccReconciliationLine.Modify();
     end;
 
     local procedure CreateAndPostVendorPaymentWithCheck(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; BankAccountNo: Code[20]; LineAmount: Decimal): Code[20]
@@ -911,26 +907,24 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GenJournalLine: Record "Gen. Journal Line";
         DocPrint: Codeunit "Document-Print";
     begin
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Payment,
-                "Account Type"::Vendor, VendorNo, "Bal. Account Type"::"Bank Account", BankAccountNo, LineAmount);
-            Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
-            Modify(true);
-            Commit();
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, LineAmount);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Modify(true);
+        Commit();
 
-            GenJournalLine.SetRecFilter();
-            LibraryVariableStorage.Enqueue(BankAccountNo);
-            LibraryVariableStorage.Enqueue(GenJournalLine.GetView());
-            DocPrint.PrintCheck(GenJournalLine);
+        GenJournalLine.SetRecFilter();
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine.GetView());
+        DocPrint.PrintCheck(GenJournalLine);
 
-            Get("Journal Template Name", "Journal Batch Name", "Line No.");
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            DeleteAll();
-            exit("Document No.");
-        end;
+        GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.DeleteAll();
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateBankAccLedgerEntriesWithCheckLedgerEntries(var BankAccLedgerEntryNos: List of [Integer]; var CheckLedgerEntryNos: List of [Integer]; BankAccountNo: Code[20]; EntryCount: Integer)
@@ -984,12 +978,10 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
     local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Document Type", DocumentType);
+        BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
+        BankAccountLedgerEntry.FindFirst();
     end;
 
     local procedure FindCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; BankAccLedgerEntryNo: Integer)
@@ -1150,14 +1142,12 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         CheckLedgerEntry: Record "Check Ledger Entry";
         EntryNo: Integer;
     begin
-        with BankAccReconciliationLine do begin
-            FindSet();
-            repeat
-                TestField("Applied Amount", 0);
-                TestField("Applied Entries", 0);
-                TestField("Check No.", '');
-            until Next() = 0;
-        end;
+        BankAccReconciliationLine.FindSet();
+        repeat
+            BankAccReconciliationLine.TestField("Applied Amount", 0);
+            BankAccReconciliationLine.TestField("Applied Entries", 0);
+            BankAccReconciliationLine.TestField("Check No.", '');
+        until BankAccReconciliationLine.Next() = 0;
 
         foreach EntryNo in CheckLedgerEntryNos do begin
             CheckLedgerEntry.Get(EntryNo);

@@ -401,6 +401,8 @@ table 5950 "Service Order Allocation"
         RepairStatusCode: Code[10];
         Flag: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Only one %1 can be allocated to a %2.';
         Text001: Label '%1 must be filled in when the %2 is %3.';
         Text002: Label 'The %1 %2 has expired.';
@@ -410,6 +412,8 @@ table 5950 "Service Order Allocation"
         Text006: Label '%1 cannot be greater than %2.';
         Text007: Label '%1 with the field %2 selected cannot be found.';
         Text008: Label '%1 and %2 cannot be blank at the same time.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ValidateStartEndTime()
     var

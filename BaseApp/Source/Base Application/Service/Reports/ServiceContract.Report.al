@@ -28,7 +28,7 @@ report 5970 "Service Contract"
     {
         dataitem("Service Contract Header"; "Service Contract Header")
         {
-            CalcFields = "Bill-to Name";
+            CalcFields = "Bill-to Name", "Ship-to Phone No.";
             DataItemTableView = sorting("Contract Type", "Contract No.") where("Contract Type" = const(Contract));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Contract No.", "Customer No.";
@@ -312,6 +312,9 @@ report 5970 "Service Contract"
                     column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                     {
                     }
+                    column(ShipToPhoneNo; "Service Contract Header"."Ship-to Phone No.")
+                    {
+                    }
 
                     trigger OnPreDataItem()
                     begin
@@ -484,9 +487,13 @@ report 5970 "Service Contract"
         OutputNo: Integer;
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'COPY';
+#pragma warning disable AA0470
         Text001: Label 'Service Contract %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NextInvoiceDate_ServContractCaptionLbl: Label 'Next Invoice Date';
         StartingDate_ServContractCaptionLbl: Label 'Starting Date';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
@@ -519,12 +526,14 @@ report 5970 "Service Contract"
     end;
 
     local procedure FormatAddressFields(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceContractHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServContractSellto(CustAddr, ServiceContractHeader);
+        ServiceFormatAddress.ServContractSellto(CustAddr, ServiceContractHeader);
         ShowShippingAddr := ServiceContractHeader."Ship-to Code" <> '';
         if ShowShippingAddr then
-            FormatAddr.ServContractShipto(ShipToAddr, ServiceContractHeader);
+            ServiceFormatAddress.ServContractShipto(ShipToAddr, ServiceContractHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceContractHeader: Record "Service Contract Header")

@@ -85,13 +85,6 @@ page 1382 "Customer Templ. Card"
                     ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
                     Visible = false;
                 }
-                field("Service Zone Code"; Rec."Service Zone Code")
-                {
-                    ApplicationArea = Service;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the code for the service zone that is assigned to the customer.';
-                    Visible = false;
-                }
                 field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;

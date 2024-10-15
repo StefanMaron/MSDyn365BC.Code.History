@@ -650,17 +650,14 @@ codeunit 144000 "IT - Fixed Assets"
 
         // Get Template and Batch from Depreciation Book.
         GetFAJournalLine(FAJournalLine, DepreciationBook);
-
         // Create Line with Acquisition.
-        with FAJournalLine do begin
-            LibraryERM.CreateFAJournalLine(
-              FAJournalLine, GetFilter("Journal Template Name"), GetFilter("Journal Batch Name"), "Document Type"::" ",
-              "FA Posting Type"::"Acquisition Cost", FixedAsset."No.", LibraryRandom.RandInt(10) * 10000);
-            Validate("Depreciation Book Code", DepreciationBook);
-            Validate("FA Posting Group", FAPostingGroup);
-            Validate("Document No.", FixedAsset."No." + '-' + Format(Date2DMY(WorkDate(), 2)) + '-' + Format(Date2DMY(WorkDate(), 3)));
-            Modify(true);
-        end;
+        LibraryERM.CreateFAJournalLine(
+            FAJournalLine, FAJournalLine.GetFilter("Journal Template Name"), FAJournalLine.GetFilter("Journal Batch Name"), FAJournalLine."Document Type"::" ",
+            FAJournalLine."FA Posting Type"::"Acquisition Cost", FixedAsset."No.", LibraryRandom.RandInt(10) * 10000);
+        FAJournalLine.Validate("Depreciation Book Code", DepreciationBook);
+        FAJournalLine.Validate("FA Posting Group", FAPostingGroup);
+        FAJournalLine.Validate("Document No.", FixedAsset."No." + '-' + Format(Date2DMY(WorkDate(), 2)) + '-' + Format(Date2DMY(WorkDate(), 3)));
+        FAJournalLine.Modify(true);
 
         // Post FA Journal Lines.
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);

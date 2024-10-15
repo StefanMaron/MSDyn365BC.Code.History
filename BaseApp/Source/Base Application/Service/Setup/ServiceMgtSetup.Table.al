@@ -8,6 +8,7 @@ using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Setup;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
@@ -336,6 +337,19 @@ table 5911 "Service Mgt. Setup"
         {
             Caption = 'Check Multiple Posting Groups';
             DataClassification = SystemMetadata;
+        }
+        field(185; "Archive Quotes"; Enum "Archive Service Quotes")
+        {
+            Caption = 'Archive Quotes';
+        }
+        field(186; "Archive Orders"; Boolean)
+        {
+            Caption = 'Archive Orders';
+        }
+        field(190; "Del. Filed Cont. w. main Cont."; Boolean)
+        {
+            Caption = 'Delete Filed Contracts with related main Contract';
+            ToolTip = 'Specifies whether to automatically delete all Filed Contracts when related main Contract / Contract Quote is deleted.';
         }
         field(200; "Serv. Inv. Template Name"; Code[10])
         {

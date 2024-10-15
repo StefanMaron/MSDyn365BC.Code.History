@@ -274,6 +274,46 @@ codeunit 144088 "Decl. of Intent Export Test"
         VerifyReportParameters(ExportFlags, false, '', '');
     end;
 
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDeclOfIntentSuggetsDeclarationAmount()
+    var
+        CompanyInformation: Record "Company Information";
+        VendorTaxRepresentative: Record Vendor;
+        Vendor: Record Vendor;
+        VATExemption: Record "VAT Exemption";
+        VendorCard: TestPage "Vendor Card";
+        VATExemptions: TestPage "VAT Exemptions";
+        DeclarationOfIntentExport: TestPage "Declaration of Intent Export";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 483095] When Exporting Declaration of Intent, the "Amount To Declare" field is prefilled with "Tax Exempt Amount"
+
+        // [GIVEN] Initial setup of Company Information and Vendor Tax Representative
+        Setup(CompanyInformation, VendorTaxRepresentative);
+
+        // [GIVEN] Vendor "A" with VAT Exemption ("Int. Registry No." = "X")
+        CreateVendor(Vendor, false);
+        CreateVATExemption(VATExemption, Vendor);
+
+        // [GIVEN] Vendor has a "Tax Exempt Amount" = XXX
+        UpdateTaxExemptAmount(Vendor, LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] "VAT Exemptions" page is open for Vendor "B"
+        VendorCard.OpenView();
+        VendorCard.GotoRecord(Vendor);
+        VATExemptions.Trap();
+        VendorCard."VAT E&xemption".Invoke();
+
+        // [WHEN] "Export Decl. of Intent" on "VAT Exemptions" page is invoked
+        DeclarationOfIntentExport.Trap();
+        VATExemptions."Export Decl. of Intent".Invoke();
+
+        // [THEN] "Amount To Declare" is prefilled with "Tax Exempt Amount"
+        DeclarationOfIntentExport."Amount To Declare".AssertEquals(Vendor."Tax Exempt Amount (LCY)");
+    end;
+
     local procedure VerifyHeader(LineNo: Integer)
     var
         CompanyInformation: Record "Company Information";
@@ -624,6 +664,12 @@ codeunit 144088 "Decl. of Intent Export Test"
                 VendorTaxRepresentativeVATRegNo := VendorTaxRepresentative."VAT Registration No."; // B-57
 
         LibraryReportDataset.AssertElementWithValueExists('VendorTaxRepresentativeVATRegNo_Value', VendorTaxRepresentativeVATRegNo);
+    end;
+
+    local procedure UpdateTaxExemptAmount(var Vendor: Record Vendor; Amount: Decimal)
+    begin
+        Vendor.Validate("Tax Exempt Amount (LCY)", Amount);
+        Vendor.Modify(true);
     end;
 
     local procedure GetVendorGender(Vendor: Record Vendor): Code[1]

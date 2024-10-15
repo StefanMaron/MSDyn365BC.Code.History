@@ -654,22 +654,18 @@ codeunit 144127 "ERM  Miscellaneous"
 
     local procedure CreateCompInfoWithFiscalCodeAndVATRegNo(var CompanyInformation: Record "Company Information"; FiscalCode: Code[20]; VATRegistrationNo: Text[20])
     begin
-        with CompanyInformation do begin
-            Get();
-            "Fiscal Code" := FiscalCode;
-            "VAT Registration No." := VATRegistrationNo;
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation."Fiscal Code" := FiscalCode;
+        CompanyInformation."VAT Registration No." := VATRegistrationNo;
+        CompanyInformation.Modify();
     end;
 
     local procedure CreateVendorWithFiscalCodeAndVATRegNo(var Vendor: Record Vendor; FiscalCode: Code[20]; VATRegistrationNo: Text[20])
     begin
-        with Vendor do begin
-            Init();
-            "Fiscal Code" := FiscalCode;
-            "VAT Registration No." := VATRegistrationNo;
-            Insert();
-        end;
+        Vendor.Init();
+        Vendor."Fiscal Code" := FiscalCode;
+        Vendor."VAT Registration No." := VATRegistrationNo;
+        Vendor.Insert();
     end;
 
     local procedure EnqueueValuesForHandler(PostingDate: Date; No: Code[20])

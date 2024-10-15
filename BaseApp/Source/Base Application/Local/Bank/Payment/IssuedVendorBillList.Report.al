@@ -20,7 +20,7 @@ report 12179 "Issued Vendor Bill List"
     {
         dataitem("Posted Vendor Bill Header"; "Posted Vendor Bill Header")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(CompanyInfoName; CompanyInfo.Name)
@@ -47,7 +47,7 @@ report 12179 "Issued Vendor Bill List"
             dataitem("Posted Vendor Bill Line"; "Posted Vendor Bill Line")
             {
                 DataItemLink = "Vendor Bill No." = field("No.");
-                DataItemTableView = sorting("Vendor No.", "External Document No.", "Document Date") order(Ascending);
+                DataItemTableView = sorting("Vendor No.", "External Document No.", "Document Date") order(ascending);
                 column(VendInfo3VendInfo4; VendInfo[3] + ' ' + VendInfo[4])
                 {
                 }

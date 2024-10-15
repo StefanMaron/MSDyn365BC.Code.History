@@ -24,7 +24,7 @@ report 12115 "Calculate End Year Costs"
     {
         dataitem(Item; Item)
         {
-            DataItemTableView = sorting("Low-Level Code") order(Descending);
+            DataItemTableView = sorting("Low-Level Code") order(descending);
 
             trigger OnAfterGetRecord()
             var
@@ -143,10 +143,9 @@ report 12115 "Calculate End Year Costs"
             Error(Text007, Date2DMY(LastFiscalYearEndDate, 3));
 
         SetItemCostHistFilter(LastFiscalYearEndDate, '<=%1', false);
-        if ItemCostHistory.FindLast() then begin
+        if ItemCostHistory.FindLast() then
             if ItemCostHistory."Competence Year" <> LastFiscalYearEndDate then
                 Error(Text007, Date2DMY(LastFiscalYearEndDate, 3));
-        end;
 
         if DefinitiveCosts and
            (ReferenceDate <> FiscalYearEndDate)
@@ -629,12 +628,11 @@ report 12115 "Calculate End Year Costs"
         LIFOBand."Qty not Invoiced" := NotInvoicedQty;
         if Item."Replenishment System" = Item."Replenishment System"::Purchase then
             LIFOBand."Amount not Invoiced" := NotInvoicedAmt
-        else begin
+        else
             if not ItemCostingSetup."Estimated WIP Consumption" then
                 LIFOBand."Amount not Invoiced" := NotInvAmtForWIP
             else
                 LIFOBand."Amount not Invoiced" := NotInvAmtForEstWIP;
-        end;
         LIFOBand."Closed by Entry No." := ClosedBy;
         LIFOBand."Invoiced Quantity" := TotInvoicedQty;
         if Item."Replenishment System" = Item."Replenishment System"::Purchase then
@@ -767,12 +765,11 @@ report 12115 "Calculate End Year Costs"
                 Cost += UnitCost * Qty
             else
                 Cost += UnitCost * EndYearInv;
-        end else begin
+        end else
             if Qty <= EndYearInv then
                 Cost += UnitCost * Qty
             else
                 Cost += UnitCost * EndYearInv;
-        end;
         EndYearInv -= Qty;
     end;
 
@@ -799,13 +796,6 @@ report 12115 "Calculate End Year Costs"
         BefStartItemCost.Reset();
         BefStartItemCost.SetRange("Item No.", Item."No.");
         BefStartItemCost.SetRange("Starting Date", StartDate, EndDate);
-    end;
-
-    [Obsolete('Replaced by SetItemLedgerEntryFilters().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; StartDate: Date; EndDate: Date; FilterTxt: Text[5]; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output)
-    begin
-        SetItemLedgerEntryFilters(ItemLedgerEntry, StartDate, EndDate, FilterTxt, "Item Ledger Entry Type".FromInteger(EntryType));
     end;
 
     [Scope('OnPrem')]
@@ -886,7 +876,7 @@ report 12115 "Calculate End Year Costs"
         OnUpdateCostsOnAfterGetProdOrdOutput(ProdOrdOutput, IsHandled, ProdAmt);
         if IsHandled then
             exit(ProdAmt);
-        
+
         ItemCompCost := GetComponentCost();
         GetRoutingCost(DirectRtgAmt, SubconAmt, OverheadRtgAmt);
         ProdAmt := (ItemCompCost + DirectRtgAmt + OverheadRtgAmt + SubconAmt) * ItemLedgEntry.Quantity / ProdOrdOutput;
@@ -954,14 +944,13 @@ report 12115 "Calculate End Year Costs"
             ProdOrderLine.SetCurrentKey("Prod. Order No.", "Line No.");
             ProdOrderLine.SetRange("Prod. Order No.", ItemLedgEntry2."Order No.");
             ProdOrderLine.SetRange("Line No.", ItemLedgEntry2."Order Line No.");
-            if ProdOrderLine.FindFirst() then begin
+            if ProdOrderLine.FindFirst() then
                 if (ProdOrderLine.Status = ProdOrderLine.Status::Finished) or
                    (ProdOrderLine."Finished Quantity" >= ProdOrderLine.Quantity)
                 then
                     ProdAmt := UpdateCosts(UpdateItemCostHistory)
                 else
                     ProdAmt := UpdateEstimatedCosts(ProdOrderLine, UpdateItemCostHistory);
-            end;
         end else
             ProdAmt := UpdateCosts(UpdateItemCostHistory);
         exit(ProdAmt);

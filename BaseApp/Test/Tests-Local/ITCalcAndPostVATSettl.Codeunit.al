@@ -470,11 +470,9 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Last Settlement Date" := CalcDate('<1M>', InitialDate);
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Last Settlement Date" := CalcDate('<1M>', InitialDate);
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure SetUseActivityCode(NewValue: Boolean)
@@ -490,14 +488,12 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         VATPlafondPeriod: Record "VAT Plafond Period";
     begin
-        with VATPlafondPeriod do begin
-            DeleteAll();
-            Init();
-            Year := Date2DMY(InitialDate, 3);
-            Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
-            "Calculated Amount" := CalculatedAmount;
-            Insert();
-        end;
+        VATPlafondPeriod.DeleteAll();
+        VATPlafondPeriod.Init();
+        VATPlafondPeriod.Year := Date2DMY(InitialDate, 3);
+        VATPlafondPeriod.Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
+        VATPlafondPeriod."Calculated Amount" := CalculatedAmount;
+        VATPlafondPeriod.Insert();
     end;
 
     local procedure CreateGLAccountWithPostingGroups(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -507,13 +503,11 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         LibraryERM.FindGenProductPostingGroup(GenProdPostingGroup);
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
 
@@ -601,13 +595,11 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
     local procedure FindAndUpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            SetRange("Deductible %", 100);
-            FindLast();
-            if "VAT %" = 0 then begin
-                Validate("VAT %", LibraryRandom.RandInt(10));
-                Modify(true);
-            end;
+        VATPostingSetup.SetRange("Deductible %", 100);
+        VATPostingSetup.FindLast();
+        if VATPostingSetup."VAT %" = 0 then begin
+            VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+            VATPostingSetup.Modify(true);
         end;
     end;
 

@@ -54,11 +54,10 @@ codeunit 144003 "IT - Activity Code"
         AssertError Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
 
         // [THEN] Activity code error appears
-        with GenJournalLine do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                MissingActivityCodeOnJournalErr, FieldCaption("Activity Code"), TableCaption(), FieldCaption("Journal Template Name"),
-                "Journal Template Name", FieldCaption("Journal Batch Name"), "Journal Batch Name", FieldCaption("Line No."), "Line No."));
+                MissingActivityCodeOnJournalErr, GenJournalLine.FieldCaption("Activity Code"), GenJournalLine.TableCaption(), GenJournalLine.FieldCaption("Journal Template Name"),
+                GenJournalLine."Journal Template Name", GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name", GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
     end;
 
     [Test]
@@ -82,11 +81,10 @@ codeunit 144003 "IT - Activity Code"
         AssertError Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
 
         // [THEN] Activity code error appears
-        with PurchaseHeader do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                MissingActivityCodeErr, FieldCaption("Activity Code"), TableCaption(), FieldCaption("Document Type"), "Document Type",
-                FieldCaption("No."), "No."));
+                MissingActivityCodeErr, PurchaseHeader.FieldCaption("Activity Code"), PurchaseHeader.TableCaption(), PurchaseHeader.FieldCaption("Document Type"), PurchaseHeader."Document Type",
+                PurchaseHeader.FieldCaption("No."), PurchaseHeader."No."));
     end;
 
     [Test]
@@ -111,11 +109,10 @@ codeunit 144003 "IT - Activity Code"
         AssertError Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
 
         // [THEN] Activity code error appears
-        with SalesHeader do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                MissingActivityCodeErr, FieldCaption("Activity Code"), TableCaption(), FieldCaption("Document Type"), "Document Type",
-                FieldCaption("No."), "No."));
+                MissingActivityCodeErr, SalesHeader.FieldCaption("Activity Code"), SalesHeader.TableCaption(), SalesHeader.FieldCaption("Document Type"), SalesHeader."Document Type",
+                SalesHeader.FieldCaption("No."), SalesHeader."No."));
     end;
 
     [Test]
@@ -135,11 +132,10 @@ codeunit 144003 "IT - Activity Code"
         AssertError Codeunit.Run(Codeunit::"Service-Post", ServiceHeader);
 
         // [THEN] Activity code error appears
-        with ServiceHeader do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                MissingActivityCodeErr, FieldCaption("Activity Code"), TableCaption(), FieldCaption("Document Type"), "Document Type",
-                FieldCaption("No."), "No."));
+                MissingActivityCodeErr, ServiceHeader.FieldCaption("Activity Code"), ServiceHeader.TableCaption(), ServiceHeader.FieldCaption("Document Type"), ServiceHeader."Document Type",
+                ServiceHeader.FieldCaption("No."), ServiceHeader."No."));
     end;
 
     [Test]

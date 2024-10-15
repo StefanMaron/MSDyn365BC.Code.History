@@ -57,7 +57,7 @@ table 291 "Shipping Agent"
         {
             Caption = 'Shipping Agent No.';
             TableRelation = if ("Shipping Agent Type" = const(Vendor)) Vendor."No."
-            ELSE
+            else
             if ("Shipping Agent Type" = const(Contact)) Contact."No." where(Type = filter(Company));
         }
         field(720; "Coupled to CRM"; Boolean)

@@ -25,7 +25,6 @@ codeunit 134377 "ERM Sales Blanket Order"
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
-        SalesLineError: Label '%1 must be equal to ''0''  in Sales Line: Document Type=%2, Document No.=%3, Line No.=%4. Current value is ''%5''.', Comment = '%1: Field Caption;%2: Document Type;%3:Document No.;%4:Line No.,%5:Actual Line No.';
         NoFilterMsg: Label 'There should be no record within the filter.';
         QuantityShippedMustNotBeGreaterErr: Label 'Quantity Shipped in the associated blanket order must not be greater than Quantity in Sales Line Document Type';
         BlanketOrderErr: Label 'Blanket Order No. must have a value in Sales Line';
@@ -347,10 +346,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         asserterror SalesHeader.Delete(true);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            SalesLineError, SalesLine.FieldCaption("Blanket Order Line No."), SalesHeader."Document Type"::Order,
-            SalesLine."Document No.", SalesLine."Line No.", SalesLine."Blanket Order Line No."));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Blanket Order Line No."), Format(0));
     end;
 
     [Test]
@@ -458,13 +454,11 @@ codeunit 134377 "ERM Sales Blanket Order"
           SalesLine, SalesHeaderBlanket."No.", SalesLineBlanket."Line No.");
 
         // [THEN] Fields "Location Code", "Unit of Measure", "Unit Price", "Line Discount %", "Line Discount Amount" are copied from Blanket Order Line
-        with SalesLine do begin
-            Assert.AreEqual(SalesLineBlanket."Location Code", "Location Code", FieldCaption("Location Code"));
-            Assert.AreEqual(SalesLineBlanket."Unit of Measure", "Unit of Measure", FieldCaption("Unit of Measure"));
-            Assert.AreEqual(SalesLineBlanket."Unit Price", "Unit Price", FieldCaption("Unit Price"));
-            Assert.AreEqual(SalesLineBlanket."Line Discount %", "Line Discount %", FieldCaption("Line Discount %"));
-            Assert.AreEqual(SalesLineBlanket."Line Discount Amount", "Line Discount Amount", FieldCaption("Line Discount Amount"));
-        end;
+        Assert.AreEqual(SalesLineBlanket."Location Code", SalesLine."Location Code", SalesLine.FieldCaption("Location Code"));
+        Assert.AreEqual(SalesLineBlanket."Unit of Measure", SalesLine."Unit of Measure", SalesLine.FieldCaption("Unit of Measure"));
+        Assert.AreEqual(SalesLineBlanket."Unit Price", SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
+        Assert.AreEqual(SalesLineBlanket."Line Discount %", SalesLine."Line Discount %", SalesLine.FieldCaption("Line Discount %"));
+        Assert.AreEqual(SalesLineBlanket."Line Discount Amount", SalesLine."Line Discount Amount", SalesLine.FieldCaption("Line Discount Amount"));
     end;
 
     [Test]
@@ -926,7 +920,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         asserterror SalesLine[2].Validate("Blanket Order Line No.", SalesLine[1]."Line No.");
 
         // [THEN] Error message for location code mismatch is thrown.
-        Assert.ExpectedError('Location Code must be equal');
+        Assert.ExpectedTestFieldError(SalesLine[2].FieldCaption("Location Code"), SalesHeader[1]."Location Code");
     end;
 
     [Test]
@@ -957,7 +951,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         asserterror SalesLine[2].Validate("Blanket Order Line No.", SalesLine[1]."Line No.");
 
         // [THEN] Error message for variant code mismatch is thrown.
-        Assert.ExpectedError('Variant Code must be equal');
+        Assert.ExpectedTestFieldError(SalesLine[2].FieldCaption("Variant Code"), SalesLine[1]."Variant Code");
     end;
 
     [Test]
@@ -988,7 +982,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         asserterror SalesLine[2].Validate("Blanket Order Line No.", SalesLine[1]."Line No.");
 
         // [THEN] Error message for unit of measure code mismatch is thrown.
-        Assert.ExpectedError('Unit of Measure Code must be equal');
+        Assert.ExpectedTestFieldError(SalesLine[2].FieldCaption("Unit of Measure Code"), SalesLine[1]."Unit of Measure Code");
     end;
 
     [Test]
@@ -1494,30 +1488,26 @@ codeunit 134377 "ERM Sales Blanket Order"
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
-        with SalesHeader do begin
-            Init();
-            "Document Type" := DocumentType;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            "Sell-to Customer No." := CustomerNo;
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := DocumentType;
+        SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
+        SalesHeader."Sell-to Customer No." := CustomerNo;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Type := LineType;
-            "No." := LibraryUtility.GenerateGUID();
-            Quantity := LibraryRandom.RandIntInRange(11, 20);
-            "Quantity Invoiced" := LibraryRandom.RandInt(10);
-            "Unit Price" := LibraryRandom.RandDec(10, 2);
-            "Line Amount" := Quantity * "Unit Price";
-            Insert();
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
+        SalesLine.Type := LineType;
+        SalesLine."No." := LibraryUtility.GenerateGUID();
+        SalesLine.Quantity := LibraryRandom.RandIntInRange(11, 20);
+        SalesLine."Quantity Invoiced" := LibraryRandom.RandInt(10);
+        SalesLine."Unit Price" := LibraryRandom.RandDec(10, 2);
+        SalesLine."Line Amount" := SalesLine.Quantity * SalesLine."Unit Price";
+        SalesLine.Insert();
     end;
 
     local procedure CreateCustomerInvDiscount(CustomerNo: Code[20]): Code[20]
@@ -1568,11 +1558,9 @@ codeunit 134377 "ERM Sales Blanket Order"
 
     local procedure FilterOrderLineFromBlanket(var SalesLine: Record "Sales Line"; BlanketSalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
-            SetRange("Blanket Order No.", BlanketSalesHeader."No.");
-            SetRange("Document Type", "Document Type"::Order);
-        end;
+        SalesLine.SetRange("Sell-to Customer No.", BlanketSalesHeader."Sell-to Customer No.");
+        SalesLine.SetRange("Blanket Order No.", BlanketSalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
@@ -1671,13 +1659,11 @@ codeunit 134377 "ERM Sales Blanket Order"
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Document No.", InvoiceNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            TestField("Blanket Order No.", BlanketOrderNo);
-            TestField("Blanket Order Line No.", BlanketOrderLineNo);
-        end;
+        SalesInvoiceLine.SetRange("Document No.", InvoiceNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField("Blanket Order No.", BlanketOrderNo);
+        SalesInvoiceLine.TestField("Blanket Order Line No.", BlanketOrderLineNo);
     end;
 
     local procedure VerifyBlanketOrderDetailsOnSalesCreditMemoLine(BlanketOrderSalesLine: Record "Sales Line"; SalesCreditMemoLine: Record "Sales Line")
@@ -1709,14 +1695,12 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesHeaderNo := LibrarySales.BlanketSalesOrderMakeOrder(BlanketSalesHeader);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeaderNo);
 
-        with SalesHeader do begin
-            PaymentTerms.Get("Prepmt. Payment Terms Code");
-            TestField("Document Date", WorkDate());
-            TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
-            TestField("Prepmt. Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
-            TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", "Document Date"));
-            TestField("Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", "Document Date"));
-        end;
+        PaymentTerms.Get(SalesHeader."Prepmt. Payment Terms Code");
+        SalesHeader.TestField("Document Date", WorkDate());
+        SalesHeader.TestField("Prepayment Due Date", CalcDate(PaymentTerms."Due Date Calculation", SalesHeader."Document Date"));
+        SalesHeader.TestField("Prepmt. Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Document Date"));
+        SalesHeader.TestField("Due Date", CalcDate(PaymentTerms."Due Date Calculation", SalesHeader."Document Date"));
+        SalesHeader.TestField("Pmt. Discount Date", CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Document Date"));
     end;
 
     local procedure UpdateQuantityOnSalesOrderLine(var SalesLine: Record "Sales Line")

@@ -23,7 +23,7 @@ report 12104 "Customer Sheet - Print"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Currency Filter";
             column(CompAddr4; CompAddr[4])
@@ -153,7 +153,7 @@ report 12104 "Customer Sheet - Print"
                 {
                     DataItemLink = "Customer No." = field("No."), "Posting Date" = field("Date Filter"), "Currency Code" = field("Currency Filter");
                     DataItemLinkReference = Customer;
-                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") order(Ascending);
+                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") order(ascending);
                     column(StartOnHandAmountLCY; StartOnHand + AmountLCY)
                     {
                         AutoFormatType = 1;

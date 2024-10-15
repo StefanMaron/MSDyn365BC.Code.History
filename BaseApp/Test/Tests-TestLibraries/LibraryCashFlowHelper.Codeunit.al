@@ -884,13 +884,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        if SalesLine.FindSet() then begin
+        if SalesLine.FindSet() then
             repeat
                 LineAmount := SalesLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until SalesLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
@@ -909,13 +908,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        if PurchaseLine.FindSet() then begin
+        if PurchaseLine.FindSet() then
             repeat
                 LineAmount := PurchaseLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until PurchaseLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
@@ -934,13 +932,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        if ServiceLine.FindSet() then begin
+        if ServiceLine.FindSet() then
             repeat
                 LineAmount := ServiceLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until ServiceLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 

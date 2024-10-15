@@ -337,8 +337,10 @@ page 522 "View Applied Entries"
         ApplQty: Decimal;
         Qty: Decimal;
         TotalApplied: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'Applied Entries';
         Text002: Label 'Unapplied Entries';
+#pragma warning restore AA0074
         RemoveAppButtonVisible: Boolean;
 
     procedure SetRecordToShow(var RecordToSet: Record "Item Ledger Entry"; var ApplyCodeunit: Codeunit "Item Jnl.-Post Line"; newShowApplied: Boolean)

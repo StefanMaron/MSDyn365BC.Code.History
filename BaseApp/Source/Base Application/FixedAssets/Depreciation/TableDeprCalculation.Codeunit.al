@@ -26,12 +26,25 @@ codeunit 5618 "Table Depr. Calculation"
         Year365Days: Boolean;
         DeprType: Option Normal,Custom1,Custom2;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'There are no lines defined for %1 %2 = %3.';
         Text001: Label '%1 = %2 and %3 %4 = %5 must not be different.';
+#pragma warning restore AA0470
         Text002: Label 'must be an unbroken sequence';
+#pragma warning disable AA0470
         Text003: Label 'Period must be specified in %1.';
+#pragma warning restore AA0470
         Text004: Label 'The number of days in an accounting period must not be less than 5.';
+#pragma warning disable AA0470
         Text005: Label 'cannot be %1 when %2 is %3 in %4 %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+
+    procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date): Decimal
+    begin
+        exit(GetTablePercent(DeprBookCode, DeprTableCode, FirstUserDefinedDeprDate, StartingDate, EndingDate, DeprType));
+    end;
 
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date; DeprType2: Option Normal,Custom1,Custom2): Decimal
     var
@@ -187,13 +200,12 @@ codeunit 5618 "Table Depr. Calculation"
         if DeprType = DeprType::Custom2 then
             TempDeprTableBuffer."Period Depreciation %" := DeprTableLine."Accelerated/Reduced %";
 
-        if DeprType = DeprType::Normal then begin
+        if DeprType = DeprType::Normal then
             if DeprTableHeader."Total No. of Units" > 0 then
                 TempDeprTableBuffer."Period Depreciation %" :=
                   DeprTableLine."No. of Units in Period" * 100 / DeprTableHeader."Total No. of Units"
             else
                 TempDeprTableBuffer."Period Depreciation %" := DeprTableLine."Period Depreciation %";
-        end;
         TempDeprTableBuffer.Insert();
     end;
 

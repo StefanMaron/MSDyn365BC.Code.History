@@ -46,7 +46,7 @@ report 12182 "VAT Plafond Period"
             }
             dataitem(Date; Date)
             {
-                DataItemTableView = sorting("Period Type", "Period Start") where("Period Type" = CONST(Month));
+                DataItemTableView = sorting("Period Type", "Period Start") where("Period Type" = const(Month));
                 MaxIteration = 12;
                 column(PeriodNameUpperCased; UpperCase("Period Name"))
                 {

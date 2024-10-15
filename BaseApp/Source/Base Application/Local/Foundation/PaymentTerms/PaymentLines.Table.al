@@ -4,7 +4,6 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 table 12170 "Payment Lines"
 {
@@ -160,9 +159,11 @@ table 12170 "Payment Lines"
 
     [Scope('OnPrem')]
     procedure FindDocument()
-    var
-        ServiceHeader: Record "Service Header";
     begin
+        OnBeforeFindDocument(Rec, DocumentDate);
+        if DocumentDate <> 0D then
+            exit;
+
         case "Sales/Purchase" of
             "Sales/Purchase"::" ":
                 begin
@@ -180,11 +181,6 @@ table 12170 "Payment Lines"
                     PurchaseHeader.Get(Type, Code);
                     DocumentDate := PurchaseHeader."Document Date";
                     PurchaseHeader.CalcFields("Amount Including VAT");
-                end;
-            "Sales/Purchase"::Service:
-                begin
-                    ServiceHeader.Get(Type, Code);
-                    DocumentDate := ServiceHeader."Document Date";
                 end;
             else
                 DocumentDate := "Due Date";
@@ -442,119 +438,22 @@ table 12170 "Payment Lines"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
     [Scope('OnPrem')]
-    procedure CreatePaymentLinesServices(ServiceHeader: Record "Service Header")
+    procedure CreatePaymentLinesServices(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
-        PaymentLines: Record "Payment Lines";
-        PaymentLinesTerms: Record "Payment Lines";
-        DeferringDueDates: Record "Deferring Due Dates";
-        FixedDueDates: Record "Fixed Due Dates";
-        OldDate: Date;
-        PaymentCounter: Integer;
-        Day: Integer;
-        MaximumDay: Integer;
-        Month: Integer;
-        Year: Integer;
+        ServPaymentLinesMgt: Codeunit "Serv. Payment Lines Mgt.";
     begin
-        if ServiceHeader."No." = '' then
-            exit;
-
-        DeletePaymentLines(ServiceHeader);
-
-        if (ServiceHeader."Payment Terms Code" = '') or (ServiceHeader."Document Date" = 0D) then
-            exit;
-
-        PaymentLinesTerms.Reset();
-        PaymentLinesTerms.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::" ");
-        PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
-        PaymentLinesTerms.SetRange(Code, ServiceHeader."Payment Terms Code");
-
-        if PaymentLinesTerms.FindSet() then begin
-            PaymentCounter := 0;
-            DeferringDueDates.SetCurrentKey("No.", "To-Date");
-            DeferringDueDates.SetRange("No.", ServiceHeader."Bill-to Customer No.");
-
-            FixedDueDates.Reset();
-            FixedDueDates.SetRange(Type, FixedDueDates.Type::Customer);
-            FixedDueDates.SetRange(Code, ServiceHeader."Bill-to Customer No.");
-
-            repeat
-                PaymentLines.Init();
-                PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Service;
-                PaymentLines.Type := ServiceHeader."Document Type";
-                PaymentLines.Code := ServiceHeader."No.";
-                PaymentCounter := PaymentCounter + 10000;
-                PaymentLines."Line No." := PaymentCounter;
-                PaymentLines."Payment %" := PaymentLinesTerms."Payment %";
-                PaymentLines."Due Date Calculation" := PaymentLinesTerms."Due Date Calculation";
-                PaymentLines."Discount Date Calculation" := PaymentLinesTerms."Discount Date Calculation";
-                PaymentLines."Discount %" := PaymentLinesTerms."Discount %";
-                PaymentLines."Due Date" := CalcDate(PaymentLinesTerms."Due Date Calculation", ServiceHeader."Document Date");
-
-                repeat
-                    if PaymentLines."Due Date" < ServiceHeader."Document Date" then
-                        PaymentLines."Due Date" := ServiceHeader."Document Date";
-
-                    DeferringDueDates.SetFilter("To-Date", '%1..', PaymentLines."Due Date");
-
-                    if DeferringDueDates.FindFirst() and (PaymentLines."Due Date" >= DeferringDueDates."From-Date") then begin
-                        PaymentLines."Due Date Calculation" := DeferringDueDates."Due Date Calculation";
-                        if Format(DeferringDueDates."Due Date Calculation") = '' then
-                            PaymentLines."Due Date" := DeferringDueDates."To-Date" + 1
-                        else
-                            PaymentLines."Due Date" := CalcDate(DeferringDueDates."Due Date Calculation", DeferringDueDates."To-Date");
-
-                        if PaymentLines."Due Date" < ServiceHeader."Document Date" then
-                            PaymentLines."Due Date" := ServiceHeader."Document Date";
-                    end;
-                    OnCreatePaymentLinesServicesOnAfterSetDueDate(PaymentLines, ServiceHeader, DeferringDueDates);
-
-                    OldDate := PaymentLines."Due Date";
-                    FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
-
-                    if FixedDueDates.FindFirst() then begin
-                        Day := FixedDueDates."Payment Days";
-                        MaximumDay := Date2DMY(CalcDate('<CM>', PaymentLines."Due Date"), 1);
-                        if Day > MaximumDay then
-                            Day := MaximumDay;
-                        Month := Date2DMY(PaymentLines."Due Date", 2);
-                        Year := Date2DMY(PaymentLines."Due Date", 3);
-                        PaymentLines."Due Date" := DMY2Date(Day, Month, Year);
-                    end else begin
-                        FixedDueDates.SetRange("Payment Days");
-                        if FixedDueDates.FindFirst() then begin
-                            Day := FixedDueDates."Payment Days";
-                            MaximumDay := Date2DMY(CalcDate('<CM + 1M>', PaymentLines."Due Date"), 1);
-                            if Day > MaximumDay then
-                                Day := MaximumDay;
-                            Month := Date2DMY(PaymentLines."Due Date", 2) + 1;
-                            Year := Date2DMY(PaymentLines."Due Date", 3);
-                            if Month = 13 then begin
-                                Month := 1;
-                                Year := Year + 1;
-                            end;
-                            PaymentLines."Due Date" := DMY2Date(Day, Month, Year);
-                        end;
-                    end;
-
-                until OldDate = PaymentLines."Due Date";
-
-                PaymentLines."Pmt. Discount Date" := CalcDate(PaymentLinesTerms."Discount Date Calculation", ServiceHeader."Document Date");
-
-                if PaymentLines."Pmt. Discount Date" < ServiceHeader."Document Date" then
-                    PaymentLines."Pmt. Discount Date" := ServiceHeader."Document Date";
-                OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader, PaymentLinesTerms);
-                PaymentLines.Insert();
-            until PaymentLinesTerms.Next() = 0;
-        end;
+        ServPaymentLinesMgt.CreatePaymentLinesServices(ServiceHeader);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure DeletePaymentLines(RecVar: Variant)
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
-        ServiceHeader: Record "Service Header";
         RecRef: RecordRef;
         SalesPurchaseType: Option;
         DocumentType: Option;
@@ -580,15 +479,9 @@ table 12170 "Payment Lines"
                     DocumentNo := PurchaseHeader."No.";
                     IsBlanketOrder := PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Blanket Order";
                 end;
-            DATABASE::"Service Header":
-                begin
-                    SalesPurchaseType := "Sales/Purchase"::Service;
-                    ServiceHeader := RecVar;
-                    DocumentType := ServiceHeader."Document Type".AsInteger();
-                    DocumentNo := ServiceHeader."No.";
-                    IsBlanketOrder := false;
-                end;
         end;
+        OnDeletePaymentLinesOnAfterGetDocument(RecRef, SalesPurchaseType, DocumentType, DocumentNo, IsBlanketOrder);
+
 
         DeletePaymentLinesInternal(SalesPurchaseType, DocumentType, DocumentNo, IsBlanketOrder);
     end;
@@ -630,15 +523,31 @@ table 12170 "Payment Lines"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record "Service Header"; DeferringDueDates: Record "Deferring Due Dates")
+#if not CLEAN25
+    internal procedure RunOnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; DeferringDueDates: Record "Deferring Due Dates")
     begin
+        OnCreatePaymentLinesServicesOnAfterSetDueDate(PaymentLines, ServiceHeader, DeferringDueDates);
     end;
 
+    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record "Service Header"; PaymentLinesTerms: Record "Payment Lines")
+    local procedure OnCreatePaymentLinesServicesOnAfterSetDueDate(var PaymentLines: Record "Payment Lines"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; DeferringDueDates: Record "Deferring Due Dates")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; PaymentLinesTerms: Record "Payment Lines")
+    begin
+        OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(PaymentLines, ServiceHeader, PaymentLinesTerms);
+    end;
+
+    [Obsolete('Moved to codeunit ServPaymentLinesMgt', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentLinesServicesOnBeforePaymentLinesInsert(var PaymentLines: Record "Payment Lines"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; PaymentLinesTerms: Record "Payment Lines")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePaymentLiensPurchasesOnAfterPopulatePaymentLines(var PaymentLines: Record "Payment Lines"; PaymentLinesTerms: Record "Payment Lines"; PurchaseHeader: Record "Purchase Header")
@@ -647,6 +556,16 @@ table 12170 "Payment Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePaymentLinesSalesOnAfterPopulatePaymentLines(var PaymentLines: Record "Payment Lines"; PaymentLinesTerms: Record "Payment Lines"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindDocument(var PaymentLines: Record "Payment Lines"; var DocumentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeletePaymentLinesOnAfterGetDocument(RecRef: RecordRef; var SalesPurchaseType: Option ,Sales,Purchase,Service; var DocumentType: Option; var DocumentNo: Code[20]; IsBlanketOrder: Boolean)
     begin
     end;
 }

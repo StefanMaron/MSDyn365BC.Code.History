@@ -673,14 +673,12 @@ codeunit 144178 "ERM Details Sales"
         PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTermsIT(PaymentTerms);
-        with PaymentLines do begin
-            LibraryERM.CreatePaymentLines(PaymentLines, "Sales/Purchase"::" ", Type::"Payment Terms", PaymentTerms.Code, '', 0);
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
-            Validate("Due Date Calculation", "Due Date Calculation");
-            Validate("Discount %", Discount);
-            Modify(true);
-            exit(Code);
-        end
+        LibraryERM.CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
+        Evaluate(PaymentLines."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
+        PaymentLines.Validate("Due Date Calculation", PaymentLines."Due Date Calculation");
+        PaymentLines.Validate("Discount %", Discount);
+        PaymentLines.Modify(true);
+        exit(PaymentLines.Code);
     end;
 
     local procedure CreateVendorWithPaymentTerms(var Vendor: Record Vendor; Discount: Decimal)
@@ -754,11 +752,9 @@ codeunit 144178 "ERM Details Sales"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            FindFirst();
-            exit("No.");
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.FindFirst();
+        exit(PurchInvHeader."No.");
     end;
 
     local procedure FindPostedVendorBillHeader(BankAccountNo: Code[20]): Code[20]
@@ -772,10 +768,8 @@ codeunit 144178 "ERM Details Sales"
 
     local procedure FindVendorBillLine(var VendorBillLine: Record "Vendor Bill Line"; VendorBillListNo: Code[20])
     begin
-        with VendorBillLine do begin
-            SetRange("Vendor Bill List No.", VendorBillListNo);
-            FindFirst();
-        end;
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillListNo);
+        VendorBillLine.FindFirst();
     end;
 
     local procedure FindSalesLine(ShipmentNo: Code[20]): Code[20]
@@ -877,13 +871,11 @@ codeunit 144178 "ERM Details Sales"
         PaymentLines: Record "Payment Lines";
     begin
         LibraryERM.CreatePaymentTermsIT(PaymentTerms);
-        with PaymentLines do begin
-            LibraryERM.CreatePaymentLines(PaymentLines, "Sales/Purchase"::" ", Type::"Payment Terms", PaymentTerms.Code, '', 0);
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
-            Validate("Due Date Calculation", "Due Date Calculation");
-            Modify(true);
-            exit(Code);
-        end
+        LibraryERM.CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
+        Evaluate(PaymentLines."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
+        PaymentLines.Validate("Due Date Calculation", PaymentLines."Due Date Calculation");
+        PaymentLines.Modify(true);
+        exit(PaymentLines.Code);
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
@@ -921,11 +913,9 @@ codeunit 144178 "ERM Details Sales"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerNo);
-        with DetailedCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-            FindLast();
-            Assert.AreEqual(CustLedgerEntry."Due Date", "Initial Entry Due Date", WrongDueDateDetailedCustLedgEntryErr);
-        end
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.FindLast();
+        Assert.AreEqual(CustLedgerEntry."Due Date", DetailedCustLedgEntry."Initial Entry Due Date", WrongDueDateDetailedCustLedgEntryErr);
     end;
 
     local procedure VerifyVendorLedgerEntryOriginalAmount(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
@@ -942,23 +932,19 @@ codeunit 144178 "ERM Details Sales"
     var
         PostedVendorBillLine: Record "Posted Vendor Bill Line";
     begin
-        with PostedVendorBillLine do begin
-            SetRange("Vendor Bill No.", PostedVendorBillNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedVendorBillNo, "Vendor Bill List No.", FieldCaption("Vendor Bill List No."));
-        end;
+        PostedVendorBillLine.SetRange("Vendor Bill No.", PostedVendorBillNo);
+        PostedVendorBillLine.FindFirst();
+        Assert.AreEqual(ExpectedVendorBillNo, PostedVendorBillLine."Vendor Bill List No.", PostedVendorBillLine.FieldCaption("Vendor Bill List No."));
     end;
 
     local procedure VerifyVendorLedgerEntryDetails(VendorNo: Code[20]; ExpectedDocumentNo: Code[20]; ExpectedPostedVendorBillNo: Code[20]; ExpectedVendorBillNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            FindVendorLedgerEntry(VendorLedgerEntry, "Document Type"::Invoice, VendorNo);
-            Assert.AreEqual(ExpectedDocumentNo, "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(ExpectedPostedVendorBillNo, "Vendor Bill List", FieldCaption("Vendor Bill List"));
-            Assert.AreEqual(ExpectedVendorBillNo, "Vendor Bill No.", FieldCaption("Vendor Bill No."));
-        end;
+        FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorNo);
+        Assert.AreEqual(ExpectedDocumentNo, VendorLedgerEntry."Document No.", VendorLedgerEntry.FieldCaption("Document No."));
+        Assert.AreEqual(ExpectedPostedVendorBillNo, VendorLedgerEntry."Vendor Bill List", VendorLedgerEntry.FieldCaption("Vendor Bill List"));
+        Assert.AreEqual(ExpectedVendorBillNo, VendorLedgerEntry."Vendor Bill No.", VendorLedgerEntry.FieldCaption("Vendor Bill No."));
     end;
 
     [MessageHandler]

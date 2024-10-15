@@ -18,10 +18,14 @@ codeunit 6 "Fiscal Year-Close"
         FiscalYearStartDate: Date;
         FiscalYearEndDate: Date;
 
+#pragma warning disable AA0074
         Text001: Label 'You must create a new fiscal year before you can close the old year.';
+#pragma warning disable AA0470
         Text002: Label 'This function closes the fiscal year from %1 to %2. ';
+#pragma warning restore AA0470
         Text003: Label 'Once the fiscal year is closed it cannot be opened again, and the periods in the fiscal year cannot be changed.\\';
         Text004: Label 'Do you want to close the fiscal year?';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

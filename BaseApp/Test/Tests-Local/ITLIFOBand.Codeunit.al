@@ -151,11 +151,9 @@ codeunit 144194 "IT - LIFO Band"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            FindPurchaseOrderLine(PurchaseLine, PurchaseOrderNo);
-            Validate("Qty. to Invoice", LibraryRandom.RandInt(Quantity div 2));
-            Modify(true);
-        end;
+        FindPurchaseOrderLine(PurchaseLine, PurchaseOrderNo);
+        PurchaseLine.Validate("Qty. to Invoice", LibraryRandom.RandInt(PurchaseLine.Quantity div 2));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateAndPostPartiallyInvoicedPurchaseOrder(var Item: Record Item)
@@ -194,11 +192,9 @@ codeunit 144194 "IT - LIFO Band"
 
     local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; PurchaseOrderNo: Code[20])
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", PurchaseOrderNo);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", PurchaseOrderNo);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure TestItemCostHistoryCalculation(InvoiceOrder: Boolean)

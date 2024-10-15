@@ -9,7 +9,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 12174 "Incl. in VAT Report Validation"
 {
@@ -19,8 +18,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     end;
 
     var
-        Text000: Label 'You must specify a value for the %1 field when the %2 field is selected and the %3 field is set to %4.';
         IncludeinVATReportErrorLog: Record "Incl. in VAT Report Error Log" temporary;
+
+        Text000: Label 'You must specify a value for the %1 field when the %2 field is selected and the %3 field is set to %4.';
         Text001: Label 'You must specify a value for the %1 field when the %2 field is not selected.';
         Text003: Label 'You must specify a value for the %1 field when the %2 field is set to %3.';
         Text005: Label 'You must specify a value for the %1 field in the document header when the %2 field is selected and the %3 field is set to %4.';
@@ -43,8 +43,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
             if not GenJournalLine.CheckincludeInVATSetup() then begin
                 // Temp records needed for correct formatting of "Account Type"
                 TempGenJournalLine."Account Type" := TempGenJournalLine."Account Type"::"G/L Account";
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Include in VAT Transac. Rep."),
-                  StrSubstNo(Text009, GenJournalLine.FieldCaption("Include in VAT Transac. Rep."),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Include in VAT Transac. Rep."),
+                    StrSubstNo(Text009, GenJournalLine.FieldCaption("Include in VAT Transac. Rep."),
                     TempGenJournalLine."Account Type", VATPostingSetup.FieldCaption("Include in VAT Transac. Rep.")), 0);
             end else begin
                 CheckNRBillToPayToNoInGenJnl(GenJournalLine);
@@ -73,8 +74,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
            (GenJournalLine.Resident = GenJournalLine.Resident::Resident)
         then
             if GenJournalLine."Fiscal Code" = '' then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Fiscal Code"),
-                  StrSubstNo(Text000, GenJournalLine.FieldCaption("Fiscal Code"), GenJournalLine.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Fiscal Code"),
+                    StrSubstNo(Text000, GenJournalLine.FieldCaption("Fiscal Code"), GenJournalLine.FieldCaption("Individual Person"),
                     GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
@@ -82,8 +84,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then
             if GenJournalLine."First Name" = '' then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("First Name"),
-                  StrSubstNo(Text000, GenJournalLine.FieldCaption("First Name"), GenJournalLine.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("First Name"),
+                    StrSubstNo(Text000, GenJournalLine.FieldCaption("First Name"), GenJournalLine.FieldCaption("Individual Person"),
                     GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
@@ -91,8 +94,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then
             if GenJournalLine."Last Name" = '' then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Last Name"),
-                  StrSubstNo(Text000, GenJournalLine.FieldCaption("Last Name"), GenJournalLine.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Last Name"),
+                    StrSubstNo(Text000, GenJournalLine.FieldCaption("Last Name"), GenJournalLine.FieldCaption("Individual Person"),
                     GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
@@ -100,8 +104,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then
             if GenJournalLine."Date of Birth" = 0D then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Date of Birth"),
-                  StrSubstNo(Text000, GenJournalLine.FieldCaption("Date of Birth"), GenJournalLine.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Date of Birth"),
+                    StrSubstNo(Text000, GenJournalLine.FieldCaption("Date of Birth"), GenJournalLine.FieldCaption("Individual Person"),
                     GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
@@ -109,8 +114,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then
             if GenJournalLine."Place of Birth" = '' then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Place of Birth"),
-                  StrSubstNo(Text000, GenJournalLine.FieldCaption("Place of Birth"), GenJournalLine.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Place of Birth"),
+                    StrSubstNo(Text000, GenJournalLine.FieldCaption("Place of Birth"), GenJournalLine.FieldCaption("Individual Person"),
                     GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
@@ -118,10 +124,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident" then
             if GenJournalLine."Country/Region Code" = '' then
-                InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Country/Region Code"),
-                  StrSubstNo(
-                    Text003, GenJournalLine.FieldCaption("Country/Region Code"), GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident),
-                  0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Gen. Journal Line", GenJournalLine.FieldNo("Country/Region Code"),
+                    StrSubstNo(Text003, GenJournalLine.FieldCaption("Country/Region Code"), GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident), 0);
     end;
 
     local procedure CheckVATRegistrationNoInGenJnl(GenJournalLine: Record "Gen. Journal Line")
@@ -137,8 +142,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
              GenJournalLine."Country/Region Code", GenJournalLine."Individual Person", GenJournalLine."Tax Representative No.") and
            (GenJournalLine."VAT Registration No." = '')
         then
-            InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("VAT Registration No."),
-              StrSubstNo(Text001, GenJournalLine.FieldCaption("VAT Registration No."), GenJournalLine.FieldCaption("Individual Person")), 0);
+            IncludeinVATReportErrorLog.InsertError(
+                Database::"Gen. Journal Line", GenJournalLine.FieldNo("VAT Registration No."),
+                StrSubstNo(Text001, GenJournalLine.FieldCaption("VAT Registration No."), GenJournalLine.FieldCaption("Individual Person")), 0);
     end;
 
     local procedure CheckNRBillToPayToNoInGenJnl(GenJournalLine: Record "Gen. Journal Line")
@@ -146,8 +152,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
         if (GenJournalLine."Bill-to/Pay-to No." = '') and
            (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") and not GenJournalLine."Individual Person"
         then
-            InsertError(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Account Type"),
-              StrSubstNo(Text013, GenJournalLine.FieldCaption("Account Type"), GenJournalLine.FieldCaption("Bal. Account Type"),
+            IncludeinVATReportErrorLog.InsertError(
+                Database::"Gen. Journal Line", GenJournalLine.FieldNo("Account Type"),
+                StrSubstNo(Text013, GenJournalLine.FieldCaption("Account Type"), GenJournalLine.FieldCaption("Bal. Account Type"),
                 GenJournalLine.FieldCaption(Resident), GenJournalLine.Resident, GenJournalLine.FieldCaption("Individual Person"),
                 GenJournalLine."Individual Person"), 0);
     end;
@@ -198,18 +205,20 @@ codeunit 12174 "Incl. in VAT Report Validation"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         if not VATPostingSetup.IncludeInVATTransReport(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
-            InsertError(DATABASE::"Sales Line", SalesLine.FieldNo("Include in VAT Transac. Rep."),
-              StrSubstNo(Text011, SalesLine.FieldCaption("Include in VAT Transac. Rep."), SalesLine.FieldCaption("VAT Bus. Posting Group"),
+            IncludeinVATReportErrorLog.InsertError(
+                Database::"Sales Line", SalesLine.FieldNo("Include in VAT Transac. Rep."),
+                StrSubstNo(Text011, SalesLine.FieldCaption("Include in VAT Transac. Rep."), SalesLine.FieldCaption("VAT Bus. Posting Group"),
                 SalesLine."VAT Bus. Posting Group", SalesLine.FieldCaption("VAT Prod. Posting Group"), SalesLine."VAT Prod. Posting Group"),
-              SalesLine."Line No.");
+                SalesLine."Line No.");
     end;
 
     local procedure CheckFiscalCodeInSalesHeader(SalesHeader: Record "Sales Header")
     begin
         if SalesHeader."Individual Person" and (SalesHeader.Resident = SalesHeader.Resident::Resident) then
             if SalesHeader."Fiscal Code" = '' then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("Fiscal Code"),
-                  StrSubstNo(Text005, SalesHeader.FieldCaption("Fiscal Code"), SalesHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("Fiscal Code"),
+                    StrSubstNo(Text005, SalesHeader.FieldCaption("Fiscal Code"), SalesHeader.FieldCaption("Individual Person"),
                     SalesHeader.FieldCaption(Resident), SalesHeader.Resident), 0);
     end;
 
@@ -217,9 +226,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if SalesHeader."Individual Person" and (SalesHeader.Resident = SalesHeader.Resident::"Non-Resident") then
             if SalesHeader."First Name" = '' then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("First Name"),
-                  StrSubstNo(
-                    Text005, SalesHeader.FieldCaption("First Name"), SalesHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("First Name"),
+                    StrSubstNo(Text005, SalesHeader.FieldCaption("First Name"), SalesHeader.FieldCaption("Individual Person"),
                     SalesHeader.FieldCaption(Resident), SalesHeader.Resident), 0);
     end;
 
@@ -227,8 +236,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if SalesHeader."Individual Person" and (SalesHeader.Resident = SalesHeader.Resident::"Non-Resident") then
             if SalesHeader."Last Name" = '' then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("Last Name"),
-                  StrSubstNo(Text005, SalesHeader.FieldCaption("Last Name"), SalesHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("Last Name"),
+                    StrSubstNo(Text005, SalesHeader.FieldCaption("Last Name"), SalesHeader.FieldCaption("Individual Person"),
                     SalesHeader.FieldCaption(Resident), SalesHeader.Resident), 0);
     end;
 
@@ -236,8 +246,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if SalesHeader."Individual Person" and (SalesHeader.Resident = SalesHeader.Resident::"Non-Resident") then
             if SalesHeader."Date of Birth" = 0D then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("Date of Birth"),
-                  StrSubstNo(Text005, SalesHeader.FieldCaption("Date of Birth"), SalesHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("Date of Birth"),
+                    StrSubstNo(Text005, SalesHeader.FieldCaption("Date of Birth"), SalesHeader.FieldCaption("Individual Person"),
                     SalesHeader.FieldCaption(Resident), SalesHeader.Resident), 0);
     end;
 
@@ -245,8 +256,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if SalesHeader."Individual Person" and (SalesHeader.Resident = SalesHeader.Resident::"Non-Resident") then
             if SalesHeader."Place of Birth" = '' then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("Place of Birth"),
-                  StrSubstNo(Text005, SalesHeader.FieldCaption("Place of Birth"), SalesHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("Place of Birth"),
+                    StrSubstNo(Text005, SalesHeader.FieldCaption("Place of Birth"), SalesHeader.FieldCaption("Individual Person"),
                     SalesHeader.FieldCaption(Resident), SalesHeader.Resident), 0);
     end;
 
@@ -254,10 +266,11 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if SalesHeader.Resident = SalesHeader.Resident::"Non-Resident" then
             if SalesHeader."Sell-to Country/Region Code" = '' then
-                InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("Sell-to Country/Region Code"),
-                  StrSubstNo(
-                    Text007, SalesHeader.FieldCaption("Sell-to Country/Region Code"), SalesHeader.FieldCaption(Resident), SalesHeader.Resident),
-                  0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Sales Header", SalesHeader.FieldNo("Sell-to Country/Region Code"),
+                    StrSubstNo(
+                        Text007, SalesHeader.FieldCaption("Sell-to Country/Region Code"), SalesHeader.FieldCaption(Resident), SalesHeader.Resident),
+                    0);
     end;
 
     local procedure CheckVATRegistrationNoInSalesHeader(SalesHeader: Record "Sales Header")
@@ -266,8 +279,10 @@ codeunit 12174 "Incl. in VAT Report Validation"
              SalesHeader."Sell-to Country/Region Code", SalesHeader."Individual Person", SalesHeader."Tax Representative No.") and
            (SalesHeader."VAT Registration No." = '')
         then
-            InsertError(DATABASE::"Sales Header", SalesHeader.FieldNo("VAT Registration No."),
-              StrSubstNo(Text006, SalesHeader.FieldCaption("VAT Registration No."), SalesHeader.FieldCaption("Individual Person")), 0);
+            IncludeinVATReportErrorLog.InsertError(
+                Database::"Sales Header", SalesHeader.FieldNo("VAT Registration No."),
+                StrSubstNo(
+                    Text006, SalesHeader.FieldCaption("VAT Registration No."), SalesHeader.FieldCaption("Individual Person")), 0);
     end;
 
     [Scope('OnPrem')]
@@ -310,8 +325,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         if not VATPostingSetup.IncludeInVATTransReport(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then
-            InsertError(DATABASE::"Purchase Line", PurchaseLine.FieldNo("Include in VAT Transac. Rep."),
-              StrSubstNo(
+            IncludeinVATReportErrorLog.InsertError(
+            Database::"Purchase Line", PurchaseLine.FieldNo("Include in VAT Transac. Rep."),
+            StrSubstNo(
                 Text011, PurchaseLine.FieldCaption("Include in VAT Transac. Rep."), PurchaseLine.FieldCaption("VAT Bus. Posting Group"),
                 PurchaseLine."VAT Bus. Posting Group", PurchaseLine.FieldCaption("VAT Prod. Posting Group"),
                 PurchaseLine."VAT Prod. Posting Group"), PurchaseLine."Line No.");
@@ -321,36 +337,42 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if PurchaseHeader."Individual Person" and (PurchaseHeader.Resident = PurchaseHeader.Resident::Resident) then
             if PurchaseHeader."Fiscal Code" = '' then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Fiscal Code"),
-                  StrSubstNo(Text005, PurchaseHeader.FieldCaption("Fiscal Code"), PurchaseHeader.FieldCaption("Individual Person"),
-                    PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("Fiscal Code"),
+                    StrSubstNo(
+                        Text005, PurchaseHeader.FieldCaption("Fiscal Code"), PurchaseHeader.FieldCaption("Individual Person"),
+                        PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
     local procedure CheckNRFirstNameInPurchaseHeader(PurchaseHeader: Record "Purchase Header")
     begin
         if PurchaseHeader."Individual Person" and (PurchaseHeader.Resident = PurchaseHeader.Resident::"Non-Resident") then
             if PurchaseHeader."First Name" = '' then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("First Name"),
-                  StrSubstNo(
-                    Text005, PurchaseHeader.FieldCaption("First Name"), PurchaseHeader.FieldCaption("Individual Person"),
-                    PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("First Name"),
+                    StrSubstNo(
+                        Text005, PurchaseHeader.FieldCaption("First Name"), PurchaseHeader.FieldCaption("Individual Person"),
+                        PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
     local procedure CheckNRLastNameInPurchaseHeader(PurchaseHeader: Record "Purchase Header")
     begin
         if PurchaseHeader."Individual Person" and (PurchaseHeader.Resident = PurchaseHeader.Resident::"Non-Resident") then
             if PurchaseHeader."Last Name" = '' then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Last Name"),
-                  StrSubstNo(Text005, PurchaseHeader.FieldCaption("Last Name"), PurchaseHeader.FieldCaption("Individual Person"),
-                    PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("Last Name"),
+                    StrSubstNo(
+                        Text005, PurchaseHeader.FieldCaption("Last Name"), PurchaseHeader.FieldCaption("Individual Person"),
+                        PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
     local procedure CheckNRDOBInPurchaseHeader(PurchaseHeader: Record "Purchase Header")
     begin
         if PurchaseHeader."Individual Person" and (PurchaseHeader.Resident = PurchaseHeader.Resident::"Non-Resident") then
             if PurchaseHeader."Date of Birth" = 0D then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Date of Birth"),
-                  StrSubstNo(Text005, PurchaseHeader.FieldCaption("Date of Birth"), PurchaseHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("Date of Birth"),
+                    StrSubstNo(Text005, PurchaseHeader.FieldCaption("Date of Birth"), PurchaseHeader.FieldCaption("Individual Person"),
                     PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
@@ -358,8 +380,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if PurchaseHeader."Individual Person" and (PurchaseHeader.Resident = PurchaseHeader.Resident::"Non-Resident") then
             if PurchaseHeader."Birth City" = '' then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Birth City"),
-                  StrSubstNo(Text005, PurchaseHeader.FieldCaption("Birth City"), PurchaseHeader.FieldCaption("Individual Person"),
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("Birth City"),
+                    StrSubstNo(Text005, PurchaseHeader.FieldCaption("Birth City"), PurchaseHeader.FieldCaption("Individual Person"),
                     PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
@@ -367,10 +390,9 @@ codeunit 12174 "Incl. in VAT Report Validation"
     begin
         if PurchaseHeader.Resident = PurchaseHeader.Resident::"Non-Resident" then
             if PurchaseHeader."Buy-from Country/Region Code" = '' then
-                InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Country/Region Code"),
-                  StrSubstNo(
-                    Text007, PurchaseHeader.FieldCaption("Buy-from Country/Region Code"), PurchaseHeader.FieldCaption(Resident),
-                    PurchaseHeader.Resident), 0);
+                IncludeinVATReportErrorLog.InsertError(
+                    Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Country/Region Code"),
+                    StrSubstNo(Text007, PurchaseHeader.FieldCaption("Buy-from Country/Region Code"), PurchaseHeader.FieldCaption(Resident), PurchaseHeader.Resident), 0);
     end;
 
     local procedure CheckVATRegistrationNoInPurchaseHeader(PurchaseHeader: Record "Purchase Header")
@@ -379,132 +401,21 @@ codeunit 12174 "Incl. in VAT Report Validation"
              PurchaseHeader."Buy-from Country/Region Code", PurchaseHeader."Individual Person", PurchaseHeader."Tax Representative No.") and
            (PurchaseHeader."VAT Registration No." = '')
         then
-            InsertError(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."),
-              StrSubstNo(Text006, PurchaseHeader.FieldCaption("VAT Registration No."), PurchaseHeader.FieldCaption("Individual Person")), 0);
+            IncludeinVATReportErrorLog.InsertError(
+                Database::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."),
+                StrSubstNo(Text006, PurchaseHeader.FieldCaption("VAT Registration No."), PurchaseHeader.FieldCaption("Individual Person")), 0);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by codeunit ServVATReportValidation', '25.0')]
     [Scope('OnPrem')]
-    procedure ValidateServiceHeader(ServiceHeader: Record "Service Header"; var IncludeVATReportErrorLogParam: Record "Incl. in VAT Report Error Log" temporary)
+    procedure ValidateServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IncludeVATReportErrorLogParam: Record "Incl. in VAT Report Error Log" temporary)
     var
-        ServiceLine: Record "Service Line";
+        ServVATReportValidation: Codeunit "Serv. VAT Report Validation";
     begin
-        ServiceLine.Reset();
-        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.SetFilter(Quantity, '<>0');
-        ServiceLine.SetRange("Include in VAT Transac. Rep.", true);
-        if ServiceLine.IsEmpty() then
-            exit;
-
-        // Clear Log
-        IncludeinVATReportErrorLog.DeleteAll();
-        CheckFiscalCodeInServiceHeader(ServiceHeader);
-        CheckNRFirstNameInServiceHeader(ServiceHeader);
-        CheckNRLastNameInServiceHeader(ServiceHeader);
-        CheckNRDOBInServiceHeader(ServiceHeader);
-        CheckNRPlaceofBirthInServiceHeader(ServiceHeader);
-        CheckNRCountryCodeInServiceHeader(ServiceHeader);
-        CheckVATRegistrationNoInServiceHeader(ServiceHeader);
-
-        ServiceLine.FindSet();
-        repeat
-            CheckIncludeInVATReportInServiceLine(ServiceLine);
-        until ServiceLine.Next() = 0;
-
-        if IncludeinVATReportErrorLog.FindSet() then
-            repeat
-                IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
-                IncludeVATReportErrorLogParam.Insert();
-            until IncludeinVATReportErrorLog.Next() = 0;
+        ServVATReportValidation.ValidateServiceHeader(ServiceHeader, IncludeVATReportErrorLogParam);
     end;
-
-    local procedure CheckIncludeInVATReportInServiceLine(ServiceLine: Record "Service Line")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        if not VATPostingSetup.IncludeInVATTransReport(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
-            InsertError(DATABASE::"Service Line", ServiceLine.FieldNo("Include in VAT Transac. Rep."),
-              StrSubstNo(
-                Text011, ServiceLine.FieldCaption("Include in VAT Transac. Rep."), ServiceLine.FieldCaption("VAT Bus. Posting Group"),
-                ServiceLine."VAT Bus. Posting Group", ServiceLine.FieldCaption("VAT Prod. Posting Group"),
-                ServiceLine."VAT Prod. Posting Group"), ServiceLine."Line No.");
-    end;
-
-    local procedure CheckFiscalCodeInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader."Individual Person" and (ServiceHeader.Resident = ServiceHeader.Resident::Resident) then
-            if ServiceHeader."Fiscal Code" = '' then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("Fiscal Code"),
-                  StrSubstNo(Text005, ServiceHeader.FieldCaption("Fiscal Code"), ServiceHeader.FieldCaption("Individual Person"),
-                    ServiceHeader.FieldCaption(Resident), ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckNRFirstNameInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader."Individual Person" and (ServiceHeader.Resident = ServiceHeader.Resident::"Non-Resident") then
-            if ServiceHeader."First Name" = '' then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("First Name"),
-                  StrSubstNo(
-                    Text005, ServiceHeader.FieldCaption("First Name"), ServiceHeader.FieldCaption("Individual Person"),
-                    ServiceHeader.FieldCaption(Resident), ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckNRLastNameInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader."Individual Person" and (ServiceHeader.Resident = ServiceHeader.Resident::"Non-Resident") then
-            if ServiceHeader."Last Name" = '' then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("Last Name"),
-                  StrSubstNo(Text005, ServiceHeader.FieldCaption("Last Name"), ServiceHeader.FieldCaption("Individual Person"),
-                    ServiceHeader.FieldCaption(Resident), ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckNRDOBInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader."Individual Person" and (ServiceHeader.Resident = ServiceHeader.Resident::"Non-Resident") then
-            if ServiceHeader."Date of Birth" = 0D then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("Date of Birth"),
-                  StrSubstNo(Text005, ServiceHeader.FieldCaption("Date of Birth"), ServiceHeader.FieldCaption("Individual Person"),
-                    ServiceHeader.FieldCaption(Resident), ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckNRPlaceofBirthInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader."Individual Person" and (ServiceHeader.Resident = ServiceHeader.Resident::"Non-Resident") then
-            if ServiceHeader."Place of Birth" = '' then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("Place of Birth"),
-                  StrSubstNo(Text005, ServiceHeader.FieldCaption("Place of Birth"), ServiceHeader.FieldCaption("Individual Person"),
-                    ServiceHeader.FieldCaption(Resident), ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckNRCountryCodeInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if ServiceHeader.Resident = ServiceHeader.Resident::"Non-Resident" then
-            if ServiceHeader."Country/Region Code" = '' then
-                InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("Country/Region Code"),
-                  StrSubstNo(
-                    Text007, ServiceHeader.FieldCaption("Country/Region Code"), ServiceHeader.FieldCaption(Resident),
-                    ServiceHeader.Resident), 0);
-    end;
-
-    local procedure CheckVATRegistrationNoInServiceHeader(ServiceHeader: Record "Service Header")
-    begin
-        if IsVATRegNoNeeded(ServiceHeader."Country/Region Code", ServiceHeader."Individual Person", ServiceHeader."Tax Representative No.") and
-           (ServiceHeader."VAT Registration No." = '')
-        then
-            InsertError(DATABASE::"Service Header", ServiceHeader.FieldNo("VAT Registration No."),
-              StrSubstNo(Text006, ServiceHeader.FieldCaption("VAT Registration No."), ServiceHeader.FieldCaption("Individual Person")), 0);
-    end;
-
-    local procedure InsertError(RecordNo: Integer; FieldNo: Integer; ErrorText: Text[250]; LineNo: Integer)
-    begin
-        if not IncludeinVATReportErrorLog.FindLast() then;
-        IncludeinVATReportErrorLog."Entry No." += 1;
-        IncludeinVATReportErrorLog."Record No." := RecordNo;
-        IncludeinVATReportErrorLog."Field No." := FieldNo;
-        IncludeinVATReportErrorLog."Error Message" := ErrorText;
-        IncludeinVATReportErrorLog."Line No." := LineNo;
-        IncludeinVATReportErrorLog.Insert();
-    end;
+#endif
 
     [Scope('OnPrem')]
     procedure IsVATRegNoNeeded(CountryCode: Code[10]; IndividualPerson: Boolean; TaxRepresentativeNo: Code[20]): Boolean

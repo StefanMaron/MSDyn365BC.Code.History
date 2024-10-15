@@ -388,27 +388,23 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateGenPostingSetupPmtDisc(GLAccount: Record "G/L Account")
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
-        with GenPostingSetup do begin
-            Get(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group");
-            "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            Modify(true);
-        end;
+        GenPostingSetup.Get(GLAccount."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group");
+        GenPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup.Modify(true);
     end;
 
     local procedure CreateCustomer(GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]): Code[20]
@@ -417,13 +413,11 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        with Customer do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("Payment Terms Code", CreatePaymentTerm());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerm());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendor(GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]): Code[20]
@@ -432,13 +426,11 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         LibraryPurchase.CreateVendor(Vendor);
 
-        with Vendor do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("Payment Terms Code", CreatePaymentTerm());
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTerm());
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreatePaymentTerm(): Code[10]
@@ -457,32 +449,26 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
     local procedure GetPmtVATTransactionNo(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]): Integer
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        exit(VATEntry."Transaction No.");
     end;
 
     local procedure GetCustPmtTransactionNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]): Integer
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        exit(CustLedgerEntry."Transaction No.");
     end;
 
     local procedure GetVendPmtTransactionNo(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]): Integer
     begin
-        with VendLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Payment);
+        VendLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendLedgerEntry.FindFirst();
+        exit(VendLedgerEntry."Transaction No.");
     end;
 
     local procedure ReverseEntry(): Integer
@@ -694,7 +680,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
 
         CreateSalesDocument(SalesHeader, CustNo, GLAccount."No.");
-        SalesHeader.Validate("Payment Terms Code", '');
+        SalesHeader.Validate("Payment Terms Code", ''); // IT
         SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -719,15 +705,13 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
     local procedure ModifyGeneralJournalLine(var GenJnlLine: Record "Gen. Journal Line"; DocNo: Code[20]; DocAmount: Decimal)
     begin
-        with GenJnlLine do begin
-            Validate("Document Type", "Document Type"::Payment);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", DocNo);
-            Validate(Amount, DocAmount);
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Payment);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
+        GenJnlLine.Validate("Applies-to Doc. No.", DocNo);
+        GenJnlLine.Validate(Amount, DocAmount);
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; VendorNo: Code[20]; GLAccountNo: Code[20])
@@ -753,7 +737,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
 
         CreatePurchDocument(PurchHeader, VendNo, GLAccount."No.");
-        PurchHeader.Validate("Payment Terms Code", '');
+        PurchHeader.Validate("Payment Terms Code", ''); // IT
         PurchHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
     end;

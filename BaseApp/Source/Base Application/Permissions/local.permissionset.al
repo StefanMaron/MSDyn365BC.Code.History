@@ -68,9 +68,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Goods Appearance" = RIMD,
                   tabledata "Incl. in VAT Report Error Log" = RIMD,
                   tabledata "Interest on Arrears" = RIMD,
-#if not CLEAN22
-                  tabledata "Intra - form Buffer" = RIMD,
-#endif
                   tabledata "Issued Customer Bill Header" = RIMD,
                   tabledata "Issued Customer Bill Line" = RIMD,
                   tabledata "Item Cost History" = RIMD,

@@ -612,7 +612,7 @@ codeunit 134815 "Item Blocked Test"
         // [WHEN] Adding item to assembly line
         // [THEN] Error 'Blocked must be equal to 'No''
         asserterror LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, BlockedItem."No.", '', 1, 1, '');
-        Assert.ExpectedError(StrSubstNo(BlockedTestFieldErr, BlockedItem.FieldCaption(Blocked), Format(false)));
+        Assert.ExpectedTestFieldError(BlockedItem.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -636,7 +636,7 @@ codeunit 134815 "Item Blocked Test"
 
         // [THEN] Error 'Blocked must be equal to 'No''
         asserterror PlanningComponent.Validate("Item No.", BlockedItem."No.");
-        Assert.ExpectedError(StrSubstNo(BlockedTestFieldErr, BlockedItem.FieldCaption(Blocked), Format(false)));
+        Assert.ExpectedTestFieldError(BlockedItem.FieldCaption(Blocked), Format(false));
     end;
 
     # region Service Blocked

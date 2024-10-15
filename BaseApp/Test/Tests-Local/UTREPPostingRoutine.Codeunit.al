@@ -1289,12 +1289,10 @@ codeunit 144068 "UT REP Posting Routine"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            "No." := LibraryUTUtility.GetNewCode();
-            "Pay-to Name" := BuyFromVendorNo;
-            Insert();
-            exit("No.");
-        end;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Pay-to Name" := BuyFromVendorNo;
+        PurchInvHeader.Insert();
+        exit(PurchInvHeader."No.");
     end;
 
     local procedure CreateReprintInfoFiscalReports()
@@ -1333,12 +1331,10 @@ codeunit 144068 "UT REP Posting Routine"
     var
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvHeader do begin
-            "No." := LibraryUTUtility.GetNewCode();
-            "Bill-to Name" := SellToCustomerNo;
-            Insert();
-            exit("No.");
-        end;
+        SalesInvHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesInvHeader."Bill-to Name" := SellToCustomerNo;
+        SalesInvHeader.Insert();
+        exit(SalesInvHeader."No.");
     end;
 
     local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Enum "General Posting Type"; NoSeries: Code[20]; ReverseVATEntry: Boolean; SellToBuyFromNo: Code[20])

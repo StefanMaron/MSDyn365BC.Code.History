@@ -834,18 +834,16 @@ codeunit 134825 "UT Customer Table"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Modify(true);
     end;
 
     [ModalPageHandler]

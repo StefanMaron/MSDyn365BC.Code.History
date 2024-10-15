@@ -492,6 +492,13 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
@@ -704,11 +711,24 @@ page 138 "Posted Purchase Invoice"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(Database::"Purch. Inv. Header"),
+                SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
                               "No." = field("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -753,9 +773,9 @@ page 138 "Posted Purchase Invoice"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Purch. Comment Sheet";
-                    RunPageLink = "Document Type" = CONST("Posted Invoice"),
+                    RunPageLink = "Document Type" = const("Posted Invoice"),
                                   "No." = field("No."),
-                                  "Document Line No." = CONST(0);
+                                  "Document Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
@@ -793,8 +813,8 @@ page 138 "Posted Purchase Invoice"
                     Caption = 'Pa&yments';
                     Image = Payment;
                     RunObject = Page "Posted Payments";
-                    RunPageLink = "Sales/Purchase" = CONST(Purchase),
-                                  Type = CONST(Invoice),
+                    RunPageLink = "Sales/Purchase" = const(Purchase),
+                                  Type = const(Invoice),
                                   Code = field("No.");
                     ToolTip = 'View the related payments.';
                 }

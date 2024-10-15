@@ -192,6 +192,7 @@ page 12161 "Declaration of Intent Export"
     procedure Initialize(var VATExemption2: Record "VAT Exemption")
     begin
         VATExemption := VATExemption2;
+        AmountToDeclare := VATExemption.GetSuggestedAmountToDeclare();
     end;
 }
 

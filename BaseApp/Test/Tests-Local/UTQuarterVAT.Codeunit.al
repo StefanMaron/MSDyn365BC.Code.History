@@ -496,21 +496,17 @@ codeunit 144174 "UT Quarter VAT"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Last Settlement Date" := NewDate;
-            Modify();
-            exit("Last Settlement Date" + 1);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Last Settlement Date" := NewDate;
+        GeneralLedgerSetup.Modify();
+        exit(GeneralLedgerSetup."Last Settlement Date" + 1);
     end;
 
     local procedure UpdatePriorPeriodIOVAT(var PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry"; InputVAT: Decimal; OutputVAT: Decimal)
     begin
-        with PeriodicSettlementVATEntry do begin
-            "Prior Period Input VAT" := InputVAT;
-            "Prior Period Output VAT" := OutputVAT;
-            Modify();
-        end;
+        PeriodicSettlementVATEntry."Prior Period Input VAT" := InputVAT;
+        PeriodicSettlementVATEntry."Prior Period Output VAT" := OutputVAT;
+        PeriodicSettlementVATEntry.Modify();
     end;
 
     local procedure MockVATEntry(PostingDate: Date; Amount: Decimal; VATEntryType: Enum "General Posting Type"; var VATPostingSetup: Record "VAT Posting Setup")

@@ -79,8 +79,6 @@ codeunit 144055 "UT PAG Auto Payment"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         ValueEqualMsg: Label 'Value must be equal.';
-        MissingBankAccErr: Label 'The Bank Account does not exist.';
-        FieldValueErr: Label '%1 must be equal to ''%2''';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -102,7 +100,7 @@ codeunit 144055 "UT PAG Auto Payment"
         asserterror VendorBillListSentCard.ExportBillListToFile.Invoke();
 
         // Verify: Verify expected error code.
-        Assert.ExpectedError(MissingBankAccErr);
+        Assert.ExpectedErrorCannotFind(Database::"Bank Account");
     end;
 
     [Test]
@@ -385,7 +383,7 @@ codeunit 144055 "UT PAG Auto Payment"
         asserterror CODEUNIT.Run(CODEUNIT::"Customer Bills Floppy", DirectDebitCollectionEntry);
 
         // Verify: Verify expected error code, actual error:"You cannot create BR Floppy for Payment Method Code XXXX."
-        Assert.ExpectedError(StrSubstNo(FieldValueErr, Bill.FieldCaption("Bank Receipt"), Format(true)));
+        Assert.ExpectedTestFieldError(Bill.FieldCaption("Bank Receipt"), Format(true));
         CustomerBillCard.Close();
     end;
 

@@ -50,7 +50,7 @@ table 12144 "GL Book Entry"
         }
         field(7; Description; Text[100])
         {
-            CalcFormula = Lookup("G/L Entry".Description where("Transaction No." = field("Transaction No."),
+            CalcFormula = lookup("G/L Entry".Description where("Transaction No." = field("Transaction No."),
                                                                 "G/L Account No." = field("G/L Account No."),
                                                                 "Document No." = field("Document No."),
                                                                 Positive = field(Positive),

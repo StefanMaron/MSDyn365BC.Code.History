@@ -400,11 +400,15 @@ report 5704 "Transfer Shipment"
         ShippingAgentAddr: array[8] of Text[100];
         LoaderAddr: array[8] of Text[100];
 
+#pragma warning disable AA0074
         Text000: Label 'COPY';
+#pragma warning disable AA0470
         Text001: Label 'Transfer Shipment %1';
         Text002: Label 'Page %1';
         Text12100: Label 'Contractor/Goods Owner';
         Text12101: Label 'Transport Delivery Document';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TDDDocument: Boolean;
         ShipmenNoCaptionLbl: Label 'Shipment No.';
         ShipmentDateCaptionLbl: Label 'Shipment Date';

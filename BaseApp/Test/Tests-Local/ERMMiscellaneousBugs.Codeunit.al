@@ -50,10 +50,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PreviousDatesErr: Label 'There are entries in the previous period that were not printed.';
         NameTok: Label 'Name';
         SuggestedLinesCountMismatchErr: Label 'The number of sugested lines did not match the expected';
-#if not CLEAN22
-        CorrectedIntrastatReportNoMsg: Label 'Corrected Intrastat Report No. must have a value in Intrastat Jnl. Line';
-        StatisticsPeriodErr: Label 'Statistics Period must have a value in Intrastat Jnl. Batch';
-#endif
         LibraryJournals: Codeunit "Library - Journals";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
@@ -566,84 +562,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PostedPurchaseCreditMemo.OK().Invoke();
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure DocumentNoOnSalesInvoiceIntrastatJournal()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Sales Invoice Intrastat Journal use the Reverse Charge VAT Serial No. as Document No.
-        GetEntriesFromIntrastatJournalForSale(SalesHeader."Document Type"::Invoice, false);  // Corrected Entry - FALSE.
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure DocumentNoOnSalesCreditMemoIntrastatJournal()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Sales Credit Memo Intrastat Journal use the Reverse Charge VAT Serial No. as Document No.
-        GetEntriesFromIntrastatJournalForSale(SalesHeader."Document Type"::"Credit Memo", false);  // Corrected Entry - FALSE.
-    end;
-
-    local procedure GetEntriesFromIntrastatJournalForSale(DocumentType: Enum "Sales Document Type"; CorrectedEntry: Boolean)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        CustomerNo: Code[20];
-        ServiceTariffNo: Code[10];
-    begin
-        // Setup: Create And Post Sales invoice With Tariff No.
-        Initialize();
-        CustomerNo := CreateCustomer(FindShipmentMethod(), CreateVATRegistrationNoFormat(), LibraryUtility.GenerateGUID());  // Generate GUID as VAT Registration Number.
-        ServiceTariffNo := CreateAndPostSalesDocumentWithServiceTariffNumber(CustomerNo, DocumentType);
-        CreateIntrastatJnlLine(IntrastatJnlBatch.Type::Sales, CorrectedEntry);
-
-        // Exercise: Get Entries from Intrastat Journal Page.
-        RunIntrastatJournalGetEntries(IntrastatJournal);
-
-        // Verify: Verify Sales Intrastat Journal use the Reverse Charge VAT serial No. as Document No.
-        VerifyDocNoOnIntrastatJournalLine(IntrastatJournal, CustomerNo, ServiceTariffNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure DocumentNoOnPurchaseInvoiceIntrastatJournal()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        PurchaseHeader: Record "Purchase Header";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        VendorNo: Code[20];
-    begin
-        // Verify Purchase Invoice Intrastat Journal use the Reverse Charge VAT Serial No. as Document No.
-
-        // Setup: Create And Post Purchase Invoice With Tariff No.
-        Initialize();
-        VendorNo := CreateEUVendor();
-        CreateAndPostPurchaseDocument(PurchaseHeader, VendorNo, PurchaseHeader."Document Type"::Invoice);
-        CreateIntrastatJnlLine(IntrastatJnlBatch.Type::Purchases, false);
-
-        // Exercise: Get Entries from Intrastat Journal Page.
-        RunIntrastatJournalGetEntries(IntrastatJournal);
-
-        // Verify: Verify Purchases Intrastat journal use the Reverse Charge VAT serial No. as Document No.
-        VerifyDocNoOnIntrastatJournalLine(IntrastatJournal, VendorNo, PurchaseHeader."Service Tariff No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure OperationOccurredDateOnServiceInvoice()
@@ -799,93 +717,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryReportDataSet.AssertElementWithValueExists(NonTaxAmountTok, NonTaxableAmount);
         LibraryReportDataSet.AssertElementWithValueExists(WithholdTaxAmountTok, WithholdingTaxAmount);
     end;
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure AmountOnSalesInvoiceWithChargeItemIntrastatJournal()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Amount on Sales Invoice Intrastat Journal Lines with Item Charged Amount.
-        AmountOnSalesDocumentWithChargeItemIntrastatJournal(SalesHeader."Document Type"::Invoice, false);  // Corrected Entry as False.
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure AmountOnSalesCreditMemoWithChargeItemIntrastatJournal()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Verify Amount on Sales Credit Memo Intrastat Journal Lines with Item Charged Amount.
-        AmountOnSalesDocumentWithChargeItemIntrastatJournal(SalesHeader."Document Type"::"Credit Memo", false);  // Corrected Entry as False.
-    end;
-
-    local procedure AmountOnSalesDocumentWithChargeItemIntrastatJournal(DocumentType: Enum "Sales Document Type"; CorrectedEntry: Boolean)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        Amount: Decimal;
-        DocumentNo: Code[20];
-    begin
-        // Setup: Create and Post Sales Document With Charge Item.
-        Initialize();
-        CreateSalesDocumentWithServiceTariffNumber(
-          SalesHeader, CreateCustomer(FindShipmentMethod(), CreateVATRegistrationNoFormat(), LibraryUtility.GenerateGUID()), DocumentType);  // Generate GUID as VAT Registration Number.
-        FindSalesLine(SalesLine, DocumentType, SalesLine.Type::Item, SalesHeader."No.");
-        Amount := SalesLine.Amount + CreateSalesLineItemChargeAssignment(SalesHeader, SalesLine);
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        CreateIntrastatJnlLine(IntrastatJnlBatch.Type::Sales, CorrectedEntry);
-
-        // Exercise: Get Entries from Intrastat Journal Page.
-        RunIntrastatJournalGetEntries(IntrastatJournal);
-
-        // Verify: Verify Amount on Sales Intrastat Journal Page.
-        VerifyAmountOnIntrastatJournalPage(IntrastatJournal, FindLineAmount(SalesHeader."Document Type", -Amount), DocumentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure AmountOnPurchaseInvoiceWithChargeItemIntrastatJournal()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        Amount: Decimal;
-        DocumentNo: Code[20];
-    begin
-        // Verify Amount on Purchase Invoice Intrastat Journal Lines with Item Charged Amount.
-
-        // Setup: Create and Post Purchase Document With Charge Item.
-        Initialize();
-        CreatePurchaseDocumentWithServiceTariffNumber(PurchaseHeader, CreateEUVendor(), PurchaseHeader."Document Type"::Invoice);
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseLine.Type::Item, PurchaseHeader."No.");
-        Amount := PurchaseLine.Amount + CreatePurchaseLineItemChargeAssignment(PurchaseHeader, PurchaseLine);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        CreateIntrastatJnlLine(IntrastatJnlBatch.Type::Purchases, false);  // Corrected Entry as False.
-
-        // Exercise: Get Entries from Intrastat Journal Page.
-        RunIntrastatJournalGetEntries(IntrastatJournal);
-
-        // Verify: Verify Amount on Purchase Intrastat Journal Page.
-        VerifyAmountOnIntrastatJournalPage(IntrastatJournal, FindLineAmount(PurchaseHeader."Document Type", Amount), DocumentNo);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1196,54 +1027,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // Verify Vendor Name after posting Purchase Credit Memo on the VAT Register - Print Report.
         VendorNameOnVATRegisterPrint(PurchaseHeader."Document Type"::"Credit Memo");
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure BlankReferencePeriod()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatMakeDiskReport: Report "Intrastat - Make Disk Tax Auth";
-    begin
-        // Setup: Create Intrastat Journal Batch without Statistics Period. Create Intrastat Journal Line with Corrected Intrastat Report No.
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine."Corrected Intrastat Report No." := IntrastatJnlBatch.Name;
-
-        // Exercise: Check function CheckCorrectiveStatPeriod with Statistics Period equals blank.
-        asserterror IntrastatMakeDiskReport.CheckCorrectiveStatPeriod(IntrastatJnlLine, IntrastatJnlBatch."Statistics Period");
-
-        // Verify: Verify error message.
-        Assert.ExpectedError(StatisticsPeriodErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure ReferencePeriodNotEqualsStatisticsPeriod()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatMakeDiskReport: Report "Intrastat - Make Disk Tax Auth";
-    begin
-        // Setup: Create Intrastat Journal Batch with Statistics Period.
-        CreateIntrastatJournalBatch(IntrastatJnlBatch, IntrastatJnlBatch.Type::Sales, true);
-
-        // Exercise: Check function CheckCorrectiveStatPeriod with Statistics Period not equals Reference Period.
-        asserterror IntrastatMakeDiskReport.CheckCorrectiveStatPeriod(IntrastatJnlLine, IntrastatJnlBatch."Statistics Period");
-
-        // Verify: Verify error message.
-        Assert.ExpectedError(CorrectedIntrastatReportNoMsg);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1707,15 +1490,8 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     end;
 
     local procedure Initialize()
-#if not CLEAN22
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-#endif
     begin
         LibraryVariableStorage.Clear();
-#if not CLEAN22
-        IntrastatJnlTemplate.DeleteAll();
-#endif
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -2077,30 +1853,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Item."No.");
     end;
 
-#if not CLEAN22
-    local procedure CreateIntrastatJournalBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; DocumentType: Option; CorrectiveEntry: Boolean)
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-    begin
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate(Type, DocumentType);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod()));
-        IntrastatJnlBatch.Validate("EU Service", true);
-        IntrastatJnlBatch.Validate("Corrective Entry", CorrectiveEntry);
-        IntrastatJnlBatch.Modify(true);
-    end;
-
-    local procedure CreateIntrastatJnlLine(DocumentType: Option; CorrectiveEntry: Boolean)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        CreateIntrastatJournalBatch(IntrastatJnlBatch, DocumentType, CorrectiveEntry);
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-    end;
-#endif
-
     local procedure CreateItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -2199,14 +1951,12 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryERM.FindPaymentMethod(PaymentMethod);
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Service Tariff No.", ServiceTariffNumber."No.");
-            Validate("Transport Method", TransportMethod.Code);
-            Validate("Payment Method Code", PaymentMethod.Code);
-            Validate("Vendor Cr. Memo No.", "No.");
-            Validate("Refers to Period", "Refers to Period"::Current);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Service Tariff No.", ServiceTariffNumber."No.");
+        PurchaseHeader.Validate("Transport Method", TransportMethod.Code);
+        PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Refers to Period", PurchaseHeader."Refers to Period"::Current);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20])
@@ -2569,17 +2319,15 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DueDate: Date)
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := VendorNo;
-            "Posting Date" := PostingDate;
-            "Due Date" := DueDate;
-            Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
-            "Amount (LCY)" := Amount;
-            Open := true;
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry."Due Date" := DueDate;
+        VendorLedgerEntry.Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        VendorLedgerEntry."Amount (LCY)" := VendorLedgerEntry.Amount;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure MockDtldVendorLedgerEntry(VendorLedgerEntryNo: Integer; EntryAmount: Decimal): Integer
@@ -2587,20 +2335,18 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            VendorLedgerEntry.Get(VendorLedgerEntryNo);
-            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-            "Vendor No." := VendorLedgerEntry."Vendor No.";
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            Amount := EntryAmount;
-            "Amount (LCY)" := EntryAmount;
-            "Posting Date" := VendorLedgerEntry."Posting Date";
-            "Initial Entry Due Date" := VendorLedgerEntry."Due Date";
-            Insert();
-            exit("Entry No.");
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        VendorLedgerEntry.Get(VendorLedgerEntryNo);
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry.Amount := EntryAmount;
+        DetailedVendorLedgEntry."Amount (LCY)" := EntryAmount;
+        DetailedVendorLedgEntry."Posting Date" := VendorLedgerEntry."Posting Date";
+        DetailedVendorLedgEntry."Initial Entry Due Date" := VendorLedgerEntry."Due Date";
+        DetailedVendorLedgEntry.Insert();
+        exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
     local procedure SuggestAndVerifyVATReportLineCount(DocumentNo: Code[20]; ExpectedCount: Integer)
@@ -2614,15 +2360,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATReportLine.SetRange("Document No.", DocumentNo);
         Assert.AreEqual(ExpectedCount, VATReportLine.Count, SuggestedLinesCountMismatchErr);
     end;
-
-#if not CLEAN22
-    local procedure RunIntrastatJournalGetEntries(var IntrastatJournal: TestPage "Intrastat Journal")
-    begin
-        Commit();  // Commit required.
-        IntrastatJournal.OpenEdit();
-        IntrastatJournal.GetEntries.Invoke();
-    end;
-#endif
 
     local procedure RunIssuingCustomerBillReport(CustomerNo: Code[20])
     var
@@ -2646,18 +2383,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SuggestCustomerBills.UseRequestPage(false);
         SuggestCustomerBills.Run();
     end;
-#if not CLEAN22
-    local procedure VerifyDocNoOnIntrastatJournalLine(IntrastatJournal: TestPage "Intrastat Journal"; BillToPayToNo: Code[20]; ServiceTariffNo: Code[10])
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.FindFirst();
-        IntrastatJournal.FILTER.SetFilter("Service Tariff No.", ServiceTariffNo);
-        IntrastatJournal."Document No.".AssertEquals(VATEntry."Document No.");
-        IntrastatJournal.Close();
-    end;
-#endif
 
     local procedure OpenWithholdTaxesContributionCardUsingPurchInvoicePage(PurchaseHeader: Record "Purchase Header")
     var
@@ -2841,13 +2566,11 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
     local procedure UpdateIncludeInVATTransacRepOnSalsesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("Document Type", SalesHeader."Document Type");
-            FindFirst();
-            Validate("Include in VAT Transac. Rep.", true);
-            Modify(true);
-        end;
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Include in VAT Transac. Rep.", true);
+        SalesLine.Modify(true);
     end;
 
     local procedure UnapplyCustLedgerEntry(DocumentNo: Code[20])
@@ -2923,14 +2646,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATReportSubform."Amount Incl. VAT".AssertEquals(AmountIncludingVAT);
         VATReportSubform.Close();
     end;
-#if not CLEAN22
-    local procedure VerifyAmountOnIntrastatJournalPage(IntrastatJournal: TestPage "Intrastat Journal"; Amount: Decimal; DocumentNo: Code[20])
-    begin
-        IntrastatJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        IntrastatJournal.Amount.AssertEquals(Amount);
-        IntrastatJournal.Close();
-    end;
-#endif
+
     local procedure VerifyDetailedCustomerLedgerEntry(DocumentNo: Code[20]; CustomerNo: Code[20]; AmountFilter: Text[30]; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -3164,20 +2880,6 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CustomerBillsList."Ending Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Using random Date.
         CustomerBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName(), LibraryReportDataSet.GetFileName());
     end;
-
-#if not CLEAN22
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
-    begin
-        GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
-        GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
-        GetItemLedgerEntries.OK().Invoke();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

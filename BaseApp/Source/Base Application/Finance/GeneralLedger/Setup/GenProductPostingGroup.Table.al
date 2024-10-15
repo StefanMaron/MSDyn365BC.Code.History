@@ -137,7 +137,11 @@ table 251 "Gen. Product Posting Group"
         ItemCharge: Record "Item Charge";
         ItemCharge2: Record "Item Charge";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Change all occurrences of %1 in %2\where %3 is %4\and %1 is %5.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ValidateVatProdPostingGroup(var GenProdPostingGrp: Record "Gen. Product Posting Group"; EnteredGenProdPostingGroup: Code[20]): Boolean
     begin

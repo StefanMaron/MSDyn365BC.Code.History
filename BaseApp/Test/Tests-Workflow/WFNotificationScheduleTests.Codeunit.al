@@ -278,21 +278,17 @@ codeunit 134314 "WF Notification Schedule Tests"
     begin
         // [GIVEN] An existing monthly schedule set on first workday
         Initialize();
-        with NotificationSchedule do begin
-            CreateMonthlyScheduleForApproval(NotificationSchedule);
-
-            // [WHEN] The Job Queue entry is created after the first workday of the current month
-            // [THEN] The Job Queue entry is scheduled for the first workday of next month at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(1, 6, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
-              'Monthly notification first work day incorrectly calculated');
-
-            // [WHEN] The Job Queue entry is created on the first workday of the month at a time prior to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(1, 7, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(1, 7, 2015), 110000T)),
-              'Monthly notification first work day incorrectly calculated');
-        end;
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        // [WHEN] The Job Queue entry is created after the first workday of the current month
+        // [THEN] The Job Queue entry is scheduled for the first workday of next month at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(1, 6, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
+          'Monthly notification first work day incorrectly calculated');
+        // [WHEN] The Job Queue entry is created on the first workday of the month at a time prior to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(1, 7, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(1, 7, 2015), 110000T)),
+          'Monthly notification first work day incorrectly calculated');
     end;
 
     [Test]
@@ -303,22 +299,18 @@ codeunit 134314 "WF Notification Schedule Tests"
     begin
         // [GIVEN] An existing monthly schedule set on last workday
         Initialize();
-        with NotificationSchedule do begin
-            CreateMonthlyScheduleForApproval(NotificationSchedule);
-            Validate("Monthly Notification Date", "Monthly Notification Date"::"Last Workday");
-
-            // [WHEN] The Job Queue entry is created before the last workday of the current month
-            // [THEN] The Job Queue entry is scheduled for the last workday of the current month at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(29, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
-              'Monthly notification last work day incorrectly calculated');
-
-            // [WHEN] The Job Queue entry is created on the last workday of the month at a time prior to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(30, 6, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(30, 6, 2015), 110000T)),
-              'Monthly notification last work day incorrectly calculated');
-        end;
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationSchedule.Validate("Monthly Notification Date", NotificationSchedule."Monthly Notification Date"::"Last Workday");
+        // [WHEN] The Job Queue entry is created before the last workday of the current month
+        // [THEN] The Job Queue entry is scheduled for the last workday of the current month at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(29, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
+          'Monthly notification last work day incorrectly calculated');
+        // [WHEN] The Job Queue entry is created on the last workday of the month at a time prior to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(30, 6, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(30, 6, 2015), 110000T)),
+          'Monthly notification last work day incorrectly calculated');
     end;
 
     [Test]
@@ -329,29 +321,24 @@ codeunit 134314 "WF Notification Schedule Tests"
     begin
         // [GIVEN] An existing monthly schedule set on a custom date
         Initialize();
-        with NotificationSchedule do begin
-            CreateMonthlyScheduleForApproval(NotificationSchedule);
-            Validate("Monthly Notification Date", "Monthly Notification Date"::Custom);
-            Validate("Date of Month", 31);
-
-            // [WHEN] The Job Queue entry is created before the custom date of the current month
-            // [THEN] The Job Queue entry is scheduled for the given custom date of the current month at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(31, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
-              'Monthly notification custom work day incorrectly calculated');
-
-            // [WHEN] The Job Queue entry is created on the custom date of the month at a time prior to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(30, 4, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(30, 4, 2015), 110000T)),
-              'Monthly notification custom work day incorrectly calculated');
-
-            // [WHEN] The Job Queue entry is created before the custom date and the given custom day is not included in the month (e.g. 31 in June that has only 30 days)
-            // [THEN] The Job Queue entry is scheduled for the last day instead
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(30, 6, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(5, 6, 2015), 110000T)),
-              'Monthly notification custom work day incorrectly calculated');
-        end;
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationSchedule.Validate("Monthly Notification Date", NotificationSchedule."Monthly Notification Date"::Custom);
+        NotificationSchedule.Validate("Date of Month", 31);
+        // [WHEN] The Job Queue entry is created before the custom date of the current month
+        // [THEN] The Job Queue entry is scheduled for the given custom date of the current month at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(31, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(5, 5, 2015), 120000T)),
+          'Monthly notification custom work day incorrectly calculated');
+        // [WHEN] The Job Queue entry is created on the custom date of the month at a time prior to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(30, 4, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(30, 4, 2015), 110000T)),
+          'Monthly notification custom work day incorrectly calculated');
+        // [WHEN] The Job Queue entry is created before the custom date and the given custom day is not included in the month (e.g. 31 in June that has only 30 days)
+        // [THEN] The Job Queue entry is scheduled for the last day instead
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(30, 6, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(5, 6, 2015), 110000T)),
+          'Monthly notification custom work day incorrectly calculated');
     end;
 
     [Test]
@@ -362,23 +349,19 @@ codeunit 134314 "WF Notification Schedule Tests"
     begin
         // [GIVEN] An existing weekly schedule set to workday
         Initialize();
-        with NotificationSchedule do begin
-            CreateNewRecord(LibraryUtility.GenerateGUID(), "Notification Type"::Approval);
-            Validate(Recurrence, Recurrence::Weekly);
-            Validate(Time, 120000T);
-
-            // [WHEN] The Job Queue entry is created on a friday at a time later or equal to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the first workday of the next week
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(11, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 120000T)),
-              'Weekly notification first work day of week incorrectly calculated');
-
-            // [WHEN] The Job Queue entry is created on a workday at a time prior to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(8, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 110000T)),
-              'Monthly notification last work day incorrectly calculated');
-        end;
+        NotificationSchedule.CreateNewRecord(LibraryUtility.GenerateGUID(), NotificationSchedule."Notification Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Weekly);
+        NotificationSchedule.Validate(Time, 120000T);
+        // [WHEN] The Job Queue entry is created on a friday at a time later or equal to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the first workday of the next week
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(11, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 120000T)),
+          'Weekly notification first work day of week incorrectly calculated');
+        // [WHEN] The Job Queue entry is created on a workday at a time prior to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(8, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 110000T)),
+          'Monthly notification last work day incorrectly calculated');
     end;
 
     [Test]
@@ -389,24 +372,78 @@ codeunit 134314 "WF Notification Schedule Tests"
     begin
         // [GIVEN] An existing daily schedule set to weekday (workday)
         Initialize();
-        with NotificationSchedule do begin
-            CreateNewRecord(LibraryUtility.GenerateGUID(), "Notification Type"::Approval);
-            Validate(Recurrence, Recurrence::Daily);
-            Validate("Daily Frequency", "Daily Frequency"::Weekday);
-            Validate(Time, 120000T);
+        NotificationSchedule.CreateNewRecord(LibraryUtility.GenerateGUID(), NotificationSchedule."Notification Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Daily);
+        NotificationSchedule.Validate("Daily Frequency", NotificationSchedule."Daily Frequency"::Weekday);
+        NotificationSchedule.Validate(Time, 120000T);
+        // [WHEN] The Job Queue entry is created on a friday at a time later or equal to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the first workday of the next week
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(11, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 120000T)),
+          'Monthly notification last work day incorrectly calculated');
+        // [WHEN] The Job Queue entry is created on a workday at a time prior to the schedule time
+        // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
+        Assert.AreEqual(
+          CreateDateTime(DMY2Date(8, 5, 2015), 120000T), NotificationSchedule.CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 110000T)),
+          'Monthly notification last work day incorrectly calculated');
+    end;
 
-            // [WHEN] The Job Queue entry is created on a friday at a time later or equal to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the first workday of the next week
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(11, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 120000T)),
-              'Monthly notification last work day incorrectly calculated');
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDailyScheduleWorkDatesInDifferentTimeZone()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        Approver: Record User;
+        ApprovalEntry: Record "Approval Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryPermissions: Codeunit "Library - Permissions";
+        TypeHelper: Codeunit "Type Helper";
+        TempDateTime: DateTime;
+    begin
+        // [SCENARIO] [Bug 523664] The approver is in a different time zone. The job queue entry should be scheduled in the approver's time zone instead of the requester.
+        Initialize();
 
-            // [WHEN] The Job Queue entry is created on a workday at a time prior to the schedule time
-            // [THEN] The Job Queue entry is scheduled for the same day at the given schedule time
-            Assert.AreEqual(
-              CreateDateTime(DMY2Date(8, 5, 2015), 120000T), CalculateExecutionTime(CreateDateTime(DMY2Date(8, 5, 2015), 110000T)),
-              'Monthly notification last work day incorrectly calculated');
+        // [GIVEN] An approver in a different time zone with notification setting "daily" at 7:00 A.M. in the approver's time zone
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryPermissions.CreateUser(Approver, 'Approval', false);
+        LibraryLowerPermissions.SetO365BusFull();
+        SetTimeZone(Approver, 'China Standard Time');
+        AddUserSetup(Approver."User Name");
+
+        // [GIVEN] Calculate the time from the approver's time zone to the client's time zone
+        TempDateTime := CreateDateTime(DMY2Date(8, 5, 2015), 070000T);
+        TempDateTime := TypeHelper.ConvertDateTimeFromInputTimeZoneToClientTimezone(TempDateTime, 'China Standard Time');
+
+        // [GIVEN] The notification setting for this user is "daily", and the time is set as 7:00 A.M. in the Approver's time zone
+        NotificationSchedule.CreateNewRecord(Approver."User Name", "Notification Entry Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Daily);
+        NotificationSchedule.Validate("Daily Frequency", NotificationSchedule."Daily Frequency"::Weekday);
+        NotificationSchedule.Validate(Time, 070000T);
+        NotificationSchedule.Modify(true);
+
+        // [WHEN] The Job Queue entry is created on a workday at a time later or equal to the schedule time
+        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Approval, Approver."User Name", ApprovalEntry, 0, '', '');
+
+        // [THEN] The Job Queue entry is scheduled and the date/time is calculated according to the timezone of the approver (China Standard Time)
+        JobQueueEntry.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'One Scheduled Job Queue Entry exist');
+        Assert.AreEqual(TempDateTime.Time, JobQueueEntry."Earliest Start Date/Time".Time, 'Job Queue Entry is scheduled in the wrong time zone');
+    end;
+
+    local procedure SetTimeZone(User: Record User; TimeZone: Text[180])
+    var
+        UserPersonalization: Record "User Personalization";
+    begin
+        if not UserPersonalization.Get(User."User Security ID") then begin
+            UserPersonalization.Validate("User SID", User."User Security ID");
+            UserPersonalization.Insert();
         end;
+
+        UserPersonalization.Get(User."User Security ID");
+        UserPersonalization.Validate("Time Zone", TimeZone);
+        UserPersonalization.Modify(true);
     end;
 
     [Test]

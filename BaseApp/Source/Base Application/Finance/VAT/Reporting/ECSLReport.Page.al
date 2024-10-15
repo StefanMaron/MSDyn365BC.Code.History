@@ -276,15 +276,6 @@ page 321 "ECSL Report"
                 actionref("Cancel Submission_Promoted"; "Cancel Submission")
                 {
                 }
-#if not CLEAN22
-                actionref(Print_Promoted; Print)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
         }
     }

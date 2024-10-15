@@ -26,7 +26,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         CloseFiscalYearQst: Label 'Do you want to close the fiscal year?';
-        ApplErr: Label 'If the item carries serial or lot numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
+        ApplErr: Label 'If the item carries serial, lot or package numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
     local procedure Initialize()

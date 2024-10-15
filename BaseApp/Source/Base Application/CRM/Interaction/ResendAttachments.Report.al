@@ -147,11 +147,17 @@ report 5183 "Resend Attachments"
         AttachmentManagement: Codeunit AttachmentManagement;
         CorrespondenceType: Option "Same as Entry","Hard Copy",Email,Fax;
         UpdateMergeFields: Boolean;
+#pragma warning disable AA0074
         Text003: Label 'Resend:';
+#pragma warning restore AA0074
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
         Text001: Label 'The interaction log entries must always be from the same %1.';
+#pragma warning restore AA0470
         Text002: Label 'There is nothing to send.\\Only Microsoft Word documents can be resent.';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliverySorterInsert(var TempDeliverySorter: Record "Delivery Sorter" temporary; InteractionLogEntry: Record "Interaction Log Entry")

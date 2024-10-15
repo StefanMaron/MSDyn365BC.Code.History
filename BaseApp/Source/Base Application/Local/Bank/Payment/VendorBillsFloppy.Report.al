@@ -23,7 +23,7 @@ report 12175 "Vendor Bills Floppy"
             dataitem("Vendor Bill Line"; "Vendor Bill Line")
             {
                 DataItemLink = "Vendor Bill List No." = field("No.");
-                DataItemTableView = sorting("Vendor Bill List No.", "Vendor No.", "Due Date", "Vendor Bank Acc. No.", "Cumulative Transfers") order(Ascending);
+                DataItemTableView = sorting("Vendor Bill List No.", "Vendor No.", "Due Date", "Vendor Bank Acc. No.", "Cumulative Transfers") order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin

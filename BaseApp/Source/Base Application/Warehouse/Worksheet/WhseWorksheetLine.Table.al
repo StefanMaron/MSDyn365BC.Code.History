@@ -133,11 +133,11 @@ table 7326 "Whse. Worksheet Line"
         {
             Caption = 'To Bin Code';
             TableRelation = if ("To Zone Code" = filter('')) Bin.Code where("Location Code" = field("Location Code"),
-                                                                           Code = field("To Bin Code"))
+                                                                            Code = field("To Bin Code"))
             else
             if ("To Zone Code" = filter(<> '')) Bin.Code where("Location Code" = field("Location Code"),
-                                                                                                                                 "Zone Code" = field("To Zone Code"),
-                                                                                                                                 Code = field("To Bin Code"));
+                                                               "Zone Code" = field("To Zone Code"),
+                                                               Code = field("To Bin Code"));
 
             trigger OnValidate()
             begin
@@ -464,7 +464,7 @@ table 7326 "Whse. Worksheet Line"
             if ("Whse. Document Type" = const(Production)) "Production Order"."No." where("No." = field("Whse. Document No."))
             else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
-                                                                                                           "No." = field("Whse. Document No."))
+                                                                                       "No." = field("Whse. Document No."))
             else
             if ("Whse. Document Type" = const(Job)) Job."No." where("No." = field("Whse. Document No."));
         }
@@ -474,27 +474,27 @@ table 7326 "Whse. Worksheet Line"
             Caption = 'Whse. Document Line No.';
             Editable = false;
             TableRelation = if ("Whse. Document Type" = const(Receipt)) "Posted Whse. Receipt Line"."Line No." where("No." = field("Whse. Document No."),
-                                                                                                                    "Line No." = field("Whse. Document Line No."))
+                                                                                                                     "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const(Shipment)) "Warehouse Shipment Line"."Line No." where("No." = field("Whse. Document No."),
-                                                                                                                                                                                                                "Line No." = field("Whse. Document Line No."))
+                                                                                                    "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const("Internal Put-away")) "Whse. Internal Put-away Line"."Line No." where("No." = field("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                            "Line No." = field("Whse. Document Line No."))
+                                                                                                                    "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                "Line No." = field("Whse. Document Line No."))
+                                                                                                            "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const(Production)) "Prod. Order Line"."Line No." where(Status = const(Released),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Prod. Order No." = field("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Line No." = field("Line No."))
+                                                                                               "Prod. Order No." = field("Whse. Document No."),
+                                                                                               "Line No." = field("Line No."))
             else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Document No." = field("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Line No." = field("Whse. Document Line No."))
+                                                                                          "Document No." = field("Whse. Document No."),
+                                                                                          "Line No." = field("Whse. Document Line No."))
             else
             if ("Whse. Document Type" = const(Job)) "Job Planning Line"."Job Contract Entry No." where("Job No." = field("Whse. Document No."),
-                                                                                          "Job Contract Entry No." = field("Whse. Document Line No."));
+                                                                                                       "Job Contract Entry No." = field("Whse. Document Line No."));
         }
         field(50; "Qty. Rounding Precision"; Decimal)
         {
@@ -598,20 +598,36 @@ table 7326 "Whse. Worksheet Line"
         OpenFromBatch: Boolean;
         CurrentFieldNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot handle more than the outstanding %1 units.';
         Text001: Label '%1 is set to %2. %3 should be %4.\\';
+#pragma warning restore AA0470
         Text002: Label 'Accept the entered value?';
         Text003: Label 'The update was interrupted to respect the warning.';
+#pragma warning disable AA0470
         Text004: Label 'You cannot handle more than the available %1 units.';
+#pragma warning restore AA0470
         Text005: Label 'DEFAULT';
+#pragma warning disable AA0470
         Text006: Label 'Default %1 Worksheet';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 #if not CLEAN23
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'You must first set up user %1 as a warehouse employee.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 #endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 Worksheet';
         Text009: Label 'The location %1 of %2 %3 is not enabled for user %4.';
         Text010: Label 'must not be less than %1 units';
+#pragma warning restore AA0470
         Text011: Label 'Quantity available to pick is not enough to fill in all the lines.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;
@@ -1050,7 +1066,7 @@ table 7326 "Whse. Worksheet Line"
             1:
                 WhseWkshTemplate.FindFirst();
             else
-                WhseWkshSelected := PAGE.RunModal(0, WhseWkshTemplate) = ACTION::LookupOK;
+                WhseWkshSelected := Page.RunModal(0, WhseWkshTemplate) = Action::LookupOK;
         end;
         if WhseWkshSelected then begin
             WhseWkshLine.FilterGroup := 2;
@@ -1058,7 +1074,7 @@ table 7326 "Whse. Worksheet Line"
             WhseWkshLine.FilterGroup := 0;
             if OpenFromBatch then begin
                 WhseWkshLine."Worksheet Template Name" := '';
-                PAGE.Run(WhseWkshTemplate."Page ID", WhseWkshLine);
+                Page.Run(WhseWkshTemplate."Page ID", WhseWkshLine);
             end;
         end;
     end;
@@ -1080,7 +1096,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWkshLine."Worksheet Template Name" := '';
         WhseWkshLine.Name := WhseWkshName.Name;
         WhseWkshLine."Location Code" := WhseWkshName."Location Code";
-        PAGE.Run(WhseWkshTemplate."Page ID", WhseWkshLine);
+        Page.Run(WhseWkshTemplate."Page ID", WhseWkshLine);
     end;
 
     procedure OpenWhseWksh(var WhseWkshLine: Record "Whse. Worksheet Line"; var CurrentWkshTemplateName: Code[10]; var CurrentWkshName: Code[10]; var CurrentLocationCode: Code[10])
@@ -1132,7 +1148,7 @@ table 7326 "Whse. Worksheet Line"
             1:
                 WhseWkshTemplate.FindFirst();
             else
-                JnlSelected := PAGE.RunModal(0, WhseWkshTemplate) = ACTION::LookupOK;
+                JnlSelected := Page.RunModal(0, WhseWkshTemplate) = Action::LookupOK;
         end;
         if not JnlSelected then
             Error('');
@@ -1250,7 +1266,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWkshName.SetRange("Worksheet Template Name", WhseWkshName."Worksheet Template Name");
         WhseWkshName.FilterGroup(0);
         OnLookupWhseWkshNameOnBeforeRunModal(WhseWkshName);
-        if PAGE.RunModal(0, WhseWkshName) = ACTION::LookupOK then begin
+        if Page.RunModal(0, WhseWkshName) = Action::LookupOK then begin
             CurrentWkshName := WhseWkshName.Name;
             CurrentLocationCode := WhseWkshName."Location Code";
             SetWhseWkshName(CurrentWkshName, WhseWkshName."Location Code", WhseWkshLine);

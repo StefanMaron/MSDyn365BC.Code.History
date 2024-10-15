@@ -66,7 +66,7 @@ report 12170 "List of Bank Receipts"
             dataitem("Customer Bill Line"; "Customer Bill Line")
             {
                 DataItemLink = "Customer Bill No." = field("No.");
-                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") order(Ascending);
+                DataItemTableView = sorting("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts") order(ascending);
                 column(ReceiptNo; ReceiptNo)
                 {
                 }

@@ -571,7 +571,7 @@ codeunit 135022 "Data Migration Facade Tests"
         UnbindSubscription(DataMigrationFacadeTests);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     //[HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]

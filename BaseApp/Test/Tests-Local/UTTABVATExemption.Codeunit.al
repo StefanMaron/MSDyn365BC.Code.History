@@ -26,8 +26,6 @@ codeunit 144070 "UT TAB VAT Exemption"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
-        VATExemptionNosSalesSetupErr: Label 'VAT Exemption Nos. must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty';
-        VATExemptionNosPurchaseSetupErr: Label 'VAT Exemption Nos. must have a value in Purchases & Payables Setup: Primary Key=. It cannot be zero or empty';
 
     [Test]
     [HandlerFunctions('CheckVATExemptionConfirmHandler')]
@@ -590,6 +588,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     [Scope('OnPrem')]
     procedure OnValidateVATExemptIntRegistryNoForVendor()
     var
+        PurchaseSetup: Record "Purchases & Payables Setup";
         VATExemptions: TestPage "VAT Exemptions";
         VendorCard: TestPage "Vendor Card";
     begin
@@ -609,8 +608,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit();
 
         // [THEN] Testfield error was shown
-        Assert.ExpectedError(VATExemptionNosPurchaseSetupErr);
-        Assert.ExpectedErrorCode('TestWrapped:TestField');
+        Assert.ExpectedTestFieldError(PurchaseSetup.FieldCaption("VAT Exemption Nos."), '');
     end;
 
     [Test]
@@ -618,6 +616,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     procedure OnValidateVATExemptIntRegistryNoForCustomer()
     var
         VATExemptions: TestPage "VAT Exemptions";
+        SalesSetup: Record "Sales & Receivables Setup";
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 385036] Change "VAT Exempt. Int. Registry No." in page "VAT Exemptions" unsing assistedit with empty "VAT Exemption Nos." in Sales Setup
@@ -636,8 +635,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit();
 
         // [THEN] Testfield error was shown
-        Assert.ExpectedError(VATExemptionNosSalesSetupErr);
-        Assert.ExpectedErrorCode('TestWrapped:TestField');
+        Assert.ExpectedTestFieldError(SalesSetup.FieldCaption("VAT Exemption Nos."), '');
     end;
 
     local procedure Initialize()
@@ -719,14 +717,12 @@ codeunit 144070 "UT TAB VAT Exemption"
 
     local procedure CreateVATExemptionWithValidation(var VATExemption: Record "VAT Exemption"; No: Code[20]; StartingDate: Date; EndingDate: Date; RunTrigger: Boolean)
     begin
-        with VATExemption do begin
-            Type := Type;
-            "No." := No;
-            "VAT Exempt. Ending Date" := StartingDate;
-            "VAT Exempt. Starting Date" := EndingDate;
-            "VAT Exempt. No." := LibraryUTUtility.GetNewCode();
-            Insert(RunTrigger);
-        end;
+        VATExemption.Type := VATExemption.Type;
+        VATExemption."No." := No;
+        VATExemption."VAT Exempt. Ending Date" := StartingDate;
+        VATExemption."VAT Exempt. Starting Date" := EndingDate;
+        VATExemption."VAT Exempt. No." := LibraryUTUtility.GetNewCode();
+        VATExemption.Insert(RunTrigger);
     end;
 
     local procedure CreateVendor(): Code[20]

@@ -2067,14 +2067,14 @@
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
         CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem, ItemNo);
 
-        TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
-        TransferExtendedText.InsertServExtText(ServiceLine);
+        ServiceTransferExtText.ServCheckIfAnyExtText(ServiceLine, true);
+        ServiceTransferExtText.InsertServExtText(ServiceLine);
 
         CreateStandardText(StandardText);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::" ", StandardText.Code);
@@ -2087,14 +2087,14 @@
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem, ItemNo);
 
-        TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
-        TransferExtendedText.InsertServExtText(ServiceLine);
+        ServiceTransferExtText.ServCheckIfAnyExtText(ServiceLine, true);
+        ServiceTransferExtText.InsertServExtText(ServiceLine);
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 

@@ -12,7 +12,7 @@ codeunit 104152 "UPG.VAT Report IT"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
+
         UpgradeVATReportHeader();
     end;
 
@@ -22,10 +22,10 @@ codeunit 104152 "UPG.VAT Report IT"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetVATReportTaxAuthDocNoUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTags.GetVATReportTaxAuthDocNoUpgradeTag()) then
             exit;
 
-        IF VATReportHeader.FindSet() then
+        if VATReportHeader.FindSet() then
             repeat
                 VATReportHeader."Tax Auth. Document No." := VATReportHeader."Tax Auth. Doc. No.";
                 VATReportHeader.Modify();

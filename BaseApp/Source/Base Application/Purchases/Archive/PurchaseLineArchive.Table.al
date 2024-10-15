@@ -1060,7 +1060,7 @@ table 5110 "Purchase Line Archive"
         }
         field(12182; "WIP Qty at Subc.Loc. (Base)"; Decimal)
         {
-            CalcFormula = Sum("Capacity Ledger Entry"."WIP Item Qty." where("Subcontr. Purch. Order No." = field("Document No."),
+            CalcFormula = sum("Capacity Ledger Entry"."WIP Item Qty." where("Subcontr. Purch. Order No." = field("Document No."),
                                                                              "Subcontr. Purch. Order Line" = field("Line No.")));
             Caption = 'WIP Qty at Subc.Loc. (Base)';
             DecimalPlaces = 0 : 5;

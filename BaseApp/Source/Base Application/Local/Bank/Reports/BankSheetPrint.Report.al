@@ -21,7 +21,7 @@ report 12112 "Bank Sheet - Print"
     {
         dataitem("Bank Account"; "Bank Account")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Date Filter";
             column(CompAddr5; CompAddr[5])
@@ -110,7 +110,7 @@ report 12112 "Bank Sheet - Print"
             }
             dataitem(PageCounter; "Integer")
             {
-                DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+                DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
                 column(MinimumDateFormat; Format(MinimumDate))
                 {
                 }
@@ -132,7 +132,7 @@ report 12112 "Bank Sheet - Print"
                 {
                     DataItemLink = "Bank Account No." = field("No."), "Posting Date" = field("Date Filter");
                     DataItemLinkReference = "Bank Account";
-                    DataItemTableView = sorting("Bank Account No.", "Posting Date") order(Ascending);
+                    DataItemTableView = sorting("Bank Account No.", "Posting Date") order(ascending);
                     column(StartOnHandAmount; StartOnHand + Amount)
                     {
                         AutoFormatExpression = "Currency Code";

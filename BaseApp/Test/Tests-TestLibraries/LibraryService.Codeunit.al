@@ -1,3 +1,26 @@
+namespace Microsoft.Service.Test;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Location;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Posting;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+using Microsoft.Warehouse.Setup;
+
 codeunit 131902 "Library - Service"
 {
     // Contains all utility functions related to Service.
@@ -292,7 +315,7 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceCreditMemoHeaderUsingPage() ServiceCreditMemoNo: Code[20]
     var
-        NoSeries: Record "No. Series";
+        NoSeries: Record Microsoft.Foundation.NoSeries."No. Series";
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
         ServiceCreditMemo.OpenNew();
@@ -460,8 +483,8 @@ codeunit 131902 "Library - Service"
 
     procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20])
     var
-        Item: Record Item;
-        Customer: Record Customer;
+        Item: Record Microsoft.Inventory.Item.Item;
+        Customer: Record Microsoft.Sales.Customer.Customer;
         VATPostingSetup: Record "VAT Posting Setup";
         LibraryJob: Codeunit "Library - Job";
         RecRef: RecordRef;
@@ -866,7 +889,7 @@ codeunit 131902 "Library - Service"
 
     procedure GetServiceHourForDate(var ServiceHour: Record "Service Hour"; OrderDate: Date): Boolean
     var
-        Date: Record Date;
+        Date: Record System.Utilities.Date;
     begin
         // Finds the Service Hour related to the Date and returns a Boolean.
         Date.Get(Date."Period Type"::Date, OrderDate);

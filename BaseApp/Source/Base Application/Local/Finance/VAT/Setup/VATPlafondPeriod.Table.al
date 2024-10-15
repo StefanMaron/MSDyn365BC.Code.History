@@ -29,8 +29,8 @@ table 12187 "VAT Plafond Period"
         }
         field(4; "Calculated Amount"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry".Base where(Type = const(Purchase),
-                                                      "Document Date" = field(FILTER("Date Filter")),
+            CalcFormula = sum("VAT Entry".Base where(Type = const(Purchase),
+                                                      "Document Date" = field(filter("Date Filter")),
                                                       "Plafond Entry" = const(true)));
             Caption = 'Calculated Amount';
             Editable = false;

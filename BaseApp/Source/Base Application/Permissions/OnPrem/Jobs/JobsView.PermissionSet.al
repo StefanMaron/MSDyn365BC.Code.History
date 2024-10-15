@@ -29,6 +29,7 @@ permissionset 5679 "Jobs - View"
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
                   tabledata "Batch Processing Parameter" = Rimd,
+                  tabledata "Batch Processing Session Map" = Rimd,
                   tabledata Currency = R,
                   tabledata "Date Compr. Register" = Rim,
                   tabledata "G/L Account" = R,

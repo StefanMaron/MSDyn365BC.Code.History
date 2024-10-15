@@ -234,9 +234,9 @@ codeunit 138022 "O365 Charts Tests"
             ExpectedTotalSalesForOthers := ExpectedTotalSalesForOthers + TestCustomerSalesLCYs[ColumnIndex];
 
         // Get the last column and test that it matches the total for all other customers. Only if other customers have sales.
-        if ExpectedTotalSalesForOthers = 0 then begin
-            asserterror BusinessChartBuffer.GetValue(SalesLCYYCaptionTxt, TopCostumerCount, CustomerSalesLCY);
-        end else begin
+        if ExpectedTotalSalesForOthers = 0 then
+            asserterror BusinessChartBuffer.GetValue(SalesLCYYCaptionTxt, TopCostumerCount, CustomerSalesLCY)
+        else begin
             BusinessChartBuffer.GetValue(SalesLCYYCaptionTxt, TopCostumerCount, CustomerSalesLCY);
             Assert.AreEqual(Format(ExpectedTotalSalesForOthers), Format(CustomerSalesLCY), UnexpectedSalesLCYTxt);
         end;
@@ -275,24 +275,21 @@ codeunit 138022 "O365 Charts Tests"
 
         SalesByCustGrpChartSetup.DeleteAll();
         SalesByCustGrpChartMgt.OnInitPage();
-        with SalesByCustGrpChartSetup do
-            for "Period Length" := "Period Length"::Day to "Period Length"::Year do begin
-                SetPeriodLength("Period Length");
-                "Start Date" := CalcDate('<CY - 10D>', RefDate);
-                Modify();
-
-                // Exercise on period length with previous
-                SetPeriod(1);
-                SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
-                // Verify
-                VerifyCustPostingGroups(BusChartBuf, "Period Length", Cust, Cust2);
-
-                // Exercise on period length with next
-                SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
-                SetPeriod(2);
-                // Verify
-                VerifyCustPostingGroups(BusChartBuf, "Period Length", Cust, Cust2);
-            end;
+        for SalesByCustGrpChartSetup."Period Length" := SalesByCustGrpChartSetup."Period Length"::Day to SalesByCustGrpChartSetup."Period Length"::Year do begin
+            SalesByCustGrpChartSetup.SetPeriodLength(SalesByCustGrpChartSetup."Period Length");
+            SalesByCustGrpChartSetup."Start Date" := CalcDate('<CY - 10D>', RefDate);
+            SalesByCustGrpChartSetup.Modify();
+            // Exercise on period length with previous
+            SalesByCustGrpChartSetup.SetPeriod(1);
+            SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
+            // Verify
+            VerifyCustPostingGroups(BusChartBuf, SalesByCustGrpChartSetup."Period Length", Cust, Cust2);
+            // Exercise on period length with next
+            SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
+            SalesByCustGrpChartSetup.SetPeriod(2);
+            // Verify
+            VerifyCustPostingGroups(BusChartBuf, SalesByCustGrpChartSetup."Period Length", Cust, Cust2);
+        end;
         WorkDate(RefDate);
     end;
 
@@ -361,25 +358,23 @@ codeunit 138022 "O365 Charts Tests"
             InvoiceCust(Cust2, Item);
         end;
 
-        with BusChartBuf do
-            for "Period Length" := "Period Length"::Day to "Period Length"::Year do begin
-                "Period Filter Start Date" := NewDate;
+        for BusChartBuf."Period Length" := BusChartBuf."Period Length"::Day to BusChartBuf."Period Length"::Year do begin
+            BusChartBuf."Period Filter Start Date" := NewDate;
 
-                Assert.IsTrue(StrPos(AgedAccReceivable.UpdateStatusText(BusChartBuf), Format("Period Length")) > 0, '');
-                // Exercise on period length with previous
-                "Period Filter Start Date" := CalcDate('<-1' + GetPeriodLength() + '>', CalcFromDate("Period Filter Start Date"));
-                WorkDate := "Period Filter Start Date";
-                AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
-                // Verify
-                VerifyCustPostingGroups2(BusChartBuf, "Period Length", Cust, Cust2);
-
-                // Exercise on period length with next
-                "Period Filter Start Date" := CalcDate('<+1' + GetPeriodLength() + '>', CalcFromDate("Period Filter Start Date"));
-                WorkDate := "Period Filter Start Date";
-                AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
-                // Verify
-                VerifyCustPostingGroups2(BusChartBuf, "Period Length", Cust, Cust2);
-            end;
+            Assert.IsTrue(StrPos(AgedAccReceivable.UpdateStatusText(BusChartBuf), Format(BusChartBuf."Period Length")) > 0, '');
+            // Exercise on period length with previous
+            BusChartBuf."Period Filter Start Date" := CalcDate('<-1' + BusChartBuf.GetPeriodLength() + '>', BusChartBuf.CalcFromDate(BusChartBuf."Period Filter Start Date"));
+            WorkDate := BusChartBuf."Period Filter Start Date";
+            AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
+            // Verify
+            VerifyCustPostingGroups2(BusChartBuf, BusChartBuf."Period Length", Cust, Cust2);
+            // Exercise on period length with next
+            BusChartBuf."Period Filter Start Date" := CalcDate('<+1' + BusChartBuf.GetPeriodLength() + '>', BusChartBuf.CalcFromDate(BusChartBuf."Period Filter Start Date"));
+            WorkDate := BusChartBuf."Period Filter Start Date";
+            AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
+            // Verify
+            VerifyCustPostingGroups2(BusChartBuf, BusChartBuf."Period Length", Cust, Cust2);
+        end;
         WorkDate(RefDate);
     end;
 
@@ -571,22 +566,20 @@ codeunit 138022 "O365 Charts Tests"
         FromDate: Date;
         ToDate: Date;
     begin
-        with BusChartBuf do begin
-            "Period Length" := PeriodLength;
-            for "Drill-Down X Index" := 0 to 4 do begin
-                ToDate := GetXValueAsDate("Drill-Down X Index");
-                FromDate := CalcFromDate(ToDate);
+        BusChartBuf."Period Length" := PeriodLength;
+        for BusChartBuf."Drill-Down X Index" := 0 to 4 do begin
+            ToDate := BusChartBuf.GetXValueAsDate(BusChartBuf."Drill-Down X Index");
+            FromDate := BusChartBuf.CalcFromDate(ToDate);
 
-                GetValue(Cust1."Customer Posting Group", "Drill-Down X Index", Result);
-                Cust1.SetRange("Date Filter", FromDate, ToDate);
-                Cust1.CalcFields("Sales (LCY)");
-                Assert.AreEqual(Result, Cust1."Sales (LCY)", '');
+            BusChartBuf.GetValue(Cust1."Customer Posting Group", BusChartBuf."Drill-Down X Index", Result);
+            Cust1.SetRange("Date Filter", FromDate, ToDate);
+            Cust1.CalcFields("Sales (LCY)");
+            Assert.AreEqual(Result, Cust1."Sales (LCY)", '');
 
-                GetValue(Cust2."Customer Posting Group", "Drill-Down X Index", Result);
-                Cust2.SetRange("Date Filter", FromDate, ToDate);
-                Cust2.CalcFields("Sales (LCY)");
-                Assert.AreEqual(Result, Cust2."Sales (LCY)", '');
-            end;
+            BusChartBuf.GetValue(Cust2."Customer Posting Group", BusChartBuf."Drill-Down X Index", Result);
+            Cust2.SetRange("Date Filter", FromDate, ToDate);
+            Cust2.CalcFields("Sales (LCY)");
+            Assert.AreEqual(Result, Cust2."Sales (LCY)", '');
         end;
     end;
 
@@ -598,25 +591,23 @@ codeunit 138022 "O365 Charts Tests"
         ToDate: Date;
         PeriodDF: Text;
     begin
-        with BusChartBuf do begin
-            "Period Length" := PeriodLength;
-            for "Drill-Down X Index" := 1 to 4 do begin
-                GetXValue("Drill-Down X Index", PeriodDFVariant);
-                PeriodDF := PeriodDFVariant;
+        BusChartBuf."Period Length" := PeriodLength;
+        for BusChartBuf."Drill-Down X Index" := 1 to 4 do begin
+            BusChartBuf.GetXValue(BusChartBuf."Drill-Down X Index", PeriodDFVariant);
+            PeriodDF := PeriodDFVariant;
 
-                ToDate := CalcToDate(CalcDate('<-' + PeriodDF + '>', WorkDate()));
-                FromDate := CalcFromDate(ToDate);
+            ToDate := BusChartBuf.CalcToDate(CalcDate('<-' + PeriodDF + '>', WorkDate()));
+            FromDate := BusChartBuf.CalcFromDate(ToDate);
 
-                GetValue(Cust1."Customer Posting Group", "Drill-Down X Index", Result);
-                Cust1.SetRange("Date Filter", FromDate, ToDate);
-                Cust1.CalcFields("Net Change (LCY)");
-                Assert.AreEqual(Result, Cust1."Net Change (LCY)", '');
+            BusChartBuf.GetValue(Cust1."Customer Posting Group", BusChartBuf."Drill-Down X Index", Result);
+            Cust1.SetRange("Date Filter", FromDate, ToDate);
+            Cust1.CalcFields("Net Change (LCY)");
+            Assert.AreEqual(Result, Cust1."Net Change (LCY)", '');
 
-                GetValue(Cust2."Customer Posting Group", "Drill-Down X Index", Result);
-                Cust2.SetRange("Date Filter", FromDate, ToDate);
-                Cust2.CalcFields("Net Change (LCY)");
-                Assert.AreEqual(Result, Cust2."Net Change (LCY)", '');
-            end;
+            BusChartBuf.GetValue(Cust2."Customer Posting Group", BusChartBuf."Drill-Down X Index", Result);
+            Cust2.SetRange("Date Filter", FromDate, ToDate);
+            Cust2.CalcFields("Net Change (LCY)");
+            Assert.AreEqual(Result, Cust2."Net Change (LCY)", '');
         end;
     end;
 

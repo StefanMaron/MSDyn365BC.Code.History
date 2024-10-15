@@ -121,8 +121,13 @@ table 12159 "Company Officials"
             Caption = 'Picture';
             SubType = Bitmap;
             ObsoleteReason = 'If you need a picture field, consider adding your own image field of type Media and use an upgrade codeunit to transfer the value.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
             ObsoleteState = Pending;
             ObsoleteTag = '18.0';
+#endif
         }
         field(25; "Country/Region Code"; Code[10])
         {

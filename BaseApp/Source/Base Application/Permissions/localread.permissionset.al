@@ -68,9 +68,6 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Goods Appearance" = R,
                   tabledata "Incl. in VAT Report Error Log" = R,
                   tabledata "Interest on Arrears" = R,
-#if not CLEAN22
-                  tabledata "Intra - form Buffer" = R,
-#endif
                   tabledata "Issued Customer Bill Header" = R,
                   tabledata "Issued Customer Bill Line" = R,
                   tabledata "Item Cost History" = R,

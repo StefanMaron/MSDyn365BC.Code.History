@@ -379,7 +379,9 @@ report 1127 "Cost Acctg. Analysis"
         NewPage: Boolean;
         LineTypeInt: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Filter:';
+#pragma warning restore AA0074
         CAAnalysisCaptionLbl: Label 'Cost Acctg. Analysis';
         CostTypeCaptionLbl: Label 'Cost Type';
         PageCaptionLbl: Label 'Page';

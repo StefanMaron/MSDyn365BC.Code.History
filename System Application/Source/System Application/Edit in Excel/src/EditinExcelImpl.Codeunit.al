@@ -43,10 +43,12 @@ codeunit 1482 "Edit in Excel Impl."
         CreateEndpointForObjectTxt: Label 'Creating endpoint for %1 %2.', Locked = true;
         EditInExcelHandledTxt: Label 'Edit in excel has been handled.', Locked = true;
         EditInExcelOnlySupportPageWebServicesTxt: Label 'Edit in Excel only support web services created from pages.', Locked = true;
+        EditInExcelInvalidFilterErr: Label 'We had to remove the filters applied to the following fields because they are not available in the Office Add-In. As a result, the number of rows you see in Excel may differ from what you see in Dynamics 365 Business Central.\ \ Removed filters: %1', Comment = '%1 = The field filters we had to remove because they are not exposed through OData';
         DialogTitleTxt: Label 'Export';
         ExcelFileNameTxt: Text;
         XmlByteEncodingTok: Label '_x00%1_%2', Locked = true;
         XmlByteEncoding2Tok: Label '%1_x00%2_%3', Locked = true;
+        XmlByteEncoding3Tok: Label '%1_%2_%3', Locked = true;
 
     procedure EditPageInExcel(PageCaption: Text[240]; PageId: Integer; EditinExcelFilters: Codeunit "Edit in Excel Filters"; FileName: Text)
     var
@@ -141,7 +143,7 @@ codeunit 1482 "Edit in Excel Impl."
             VarFieldRef := VarKeyRef.FieldIndex(KeyFieldNumber);
 
             if not AddedFields.Contains(VarFieldRef.Number) then begin // Make sure we don't add the same field twice
-                // Add missing key fields at the beginning
+                                                                       // Add missing key fields at the beginning
                 EditinExcelWorkbook.InsertColumn(0, VarFieldRef.Caption, ExternalizeODataObjectName(VarFieldRef.Name));
                 AddedFields.Add(VarFieldRef.Number);
             end;
@@ -713,6 +715,7 @@ codeunit 1482 "Edit in Excel Impl."
         StartStr: Text;
         EndStr: Text;
         ByteValue: DotNet Byte;
+        IsByteValueUnderscore: Dictionary of [Integer, Boolean];
     begin
         ConvertedName := Name;
 
@@ -733,17 +736,33 @@ codeunit 1482 "Edit in Excel Impl."
         CurrentPosition := 1;
 
         while CurrentPosition <= StrLen(ConvertedName) do begin
-            if ConvertedName[CurrentPosition] in ['''', '+'] then begin
-                ByteValue := Convert.ToByte(ConvertedName[CurrentPosition]);
-                StartStr := CopyStr(ConvertedName, 1, CurrentPosition - 1);
-                EndStr := CopyStr(ConvertedName, CurrentPosition + 1);
-                ConvertedName := StrSubstNo(XmlByteEncoding2Tok, StartStr, Convert.ToString(ByteValue, 16), EndStr);
+            // Notice in the following line that – (en dash) is not a normal dash (em dash).
+            // We need to handle this here because at least the norwegian translation uses en dash.
+            if ConvertedName[CurrentPosition] in ['''', '+', '–'] then begin
+                if ConvertedName[CurrentPosition] in ['–'] then begin
+                    StartStr := CopyStr(ConvertedName, 1, CurrentPosition - 1);
+                    EndStr := CopyStr(ConvertedName, CurrentPosition + 1);
+                    ConvertedName := StrSubstNo(XmlByteEncoding3Tok, StartStr, 'x2013', EndStr);
+                    // length of _x00nn_ minus one that will be added later
+                end else begin
+                    ByteValue := Convert.ToByte(ConvertedName[CurrentPosition]);
+                    StartStr := CopyStr(ConvertedName, 1, CurrentPosition - 1);
+                    EndStr := CopyStr(ConvertedName, CurrentPosition + 1);
+                    ConvertedName := StrSubstNo(XmlByteEncoding2Tok, StartStr, Convert.ToString(ByteValue, 16), EndStr);
+                end;
                 // length of _x00nn_ minus one that will be added later
                 CurrentPosition += 6;
+
+                IsByteValueUnderscore.Add(CurrentPosition, true);
             end else
                 if ConvertedName[CurrentPosition] in [' ', '\', '/', '"', '.', '(', ')', '-', ':'] then
                     if CurrentPosition > 1 then begin
-                        if ConvertedName[CurrentPosition - 1] = '_' then begin
+                        // The only cases where we allow 2 underscores in succession is when
+                        // we have substituted a symbol with its byte value and when we have an actual underscore
+                        // prefixed with a symbol that should be replaced with underscore.
+                        // This code below removes duplicate underscores but
+                        // needs to not remove underscores that was added via a byte value.
+                        if (ConvertedName[CurrentPosition - 1] = '_') and not IsByteValueUnderscore.ContainsKey(CurrentPosition - 1) then begin
                             ConvertedName := DelStr(ConvertedName, CurrentPosition, 1);
                             CurrentPosition -= 1;
                         end else
@@ -854,6 +873,7 @@ codeunit 1482 "Edit in Excel Impl."
     var
         TenantWebService: Record "Tenant Web Service";
         EditinExcelFilters: Codeunit "Edit in Excel Filters";
+        FilterErrors: Dictionary of [Text, Boolean];
         Handled: Boolean;
     begin
         EditinExcel.OnEditInExcelWithStructuredFilter(ServiceName, Filter, Payload, SearchString, Handled);
@@ -865,13 +885,26 @@ codeunit 1482 "Edit in Excel Impl."
         if not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName) then
             exit;
 
-        EditinExcelFilters.ReadFromJsonFilters(Filter, Payload, TenantWebService."Object ID");
+        EditinExcelFilters.ReadFromJsonFilters(Filter, Payload, TenantWebService."Object ID", FilterErrors);
         EditinExcel.OnEditInExcelWithFilters(ServiceName, EditinExcelFilters, SearchString, Handled);
         if Handled then begin
             Session.LogMessage('0000IG8', EditInExcelHandledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EditInExcelTelemetryCategoryTxt);
             exit;
         end;
-
+        if FilterErrors.Count() > 0 then
+            Message(EditInExcelInvalidFilterErr, FormatFilterErrors(FilterErrors));
         GetEndPointAndCreateWorkbookWStructuredFilter(ServiceName, EditinExcelFilters, SearchString);
+    end;
+
+    local procedure FormatFilterErrors(FilterErrors: Dictionary of [Text, Boolean]): Text
+    var
+        ConcatenatedErrors: Text;
+        ErrorText: Text;
+    begin
+        foreach ErrorText in FilterErrors.Keys() do
+            ConcatenatedErrors := ConcatenatedErrors + ErrorText + ', ';
+        if StrLen(ConcatenatedErrors) > 0 then
+            ConcatenatedErrors := DelStr(ConcatenatedErrors, StrLen(ConcatenatedErrors) - 1);
+        exit(ConcatenatedErrors);
     end;
 }

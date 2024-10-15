@@ -74,7 +74,11 @@ page 564 "Dimension Selection-Level"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This %1 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetDimSelBuf(var TheDimSelectionBuf: Record "Dimension Selection Buffer")
     begin

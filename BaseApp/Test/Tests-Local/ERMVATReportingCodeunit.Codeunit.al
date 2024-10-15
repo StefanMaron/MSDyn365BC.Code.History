@@ -18,9 +18,6 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         IsInitialized: Boolean;
-        StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3. Current value is ''Released''.', Comment = '%1=Table Caption;%2=Field Caption;%3=Field Value;';
-        OriginalReportNoErr: Label 'Original Report No. must have a value in %1: %2=%3. It cannot be zero or empty.', Comment = '%1=Table Caption;%2=Field Caption;%3=Field Value;';
-        VATReportConfigCodeErr: Label '%1 must not be   in %2: %3=%4', Comment = '%1=Field Caption;%2=Field Value;%3=Table Caption;%4=Field Caption;%5=Field Value;';
         SubmittedErr: Label 'This is not allowed because of the setup in the %1 window.', Comment = '%1=Table Caption;';
         EmptyErr: Label '%1 must be empty.', Comment = '%1=Table Caption';
         PrintErr: Label 'The expected and actual error does not match.';
@@ -43,8 +40,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.GetLines(VATReportHeader);
 
         // 3. Verify: Error occurs for Original Report No.
-        Assert.ExpectedError(
-          StrSubstNo(OriginalReportNoErr, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption("Original Report No."), '');
     end;
 
     [Test]
@@ -64,8 +60,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.GetLines(VATReportHeader);
 
         // 3. Verify: Error occurs for status.
-        Assert.ExpectedError(
-          StrSubstNo(StatusErr, VATReportHeader.TableCaption(), VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption(Status), Format(VATReportHeader.Status::Released));
     end;
 
     [Test]
@@ -85,10 +80,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         asserterror VATReportMediator.GetLines(VATReportHeader);
 
         // 3. Verify: Error occurs for VAT Report Config Code.
-        Assert.ExpectedError(
-          StrSubstNo(
-            VATReportConfigCodeErr, VATReportHeader.FieldCaption("VAT Report Config. Code"), VATReportHeader.TableCaption(),
-            VATReportHeader.FieldCaption("No."), VATReportHeader."No."));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption("VAT Report Config. Code"), ' ');
     end;
 
     [Test]

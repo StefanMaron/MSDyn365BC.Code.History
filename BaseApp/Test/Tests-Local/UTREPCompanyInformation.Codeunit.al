@@ -628,43 +628,37 @@ codeunit 144169 "UT REP Company Information"
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Currency);
-            Insert();
-            exit(Code);
-        end;
+        Currency.Init();
+        Currency.Code := LibraryUtility.GenerateRandomCode(Currency.FieldNo(Code), DATABASE::Currency);
+        Currency.Insert();
+        exit(Currency.Code);
     end;
 
     local procedure MockForeignCustomer(CurrencyCode: Code[10]): Code[20]
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
-            "Currency Code" := CurrencyCode;
-            Insert();
-            exit("No.");
-        end;
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
+        Customer."Currency Code" := CurrencyCode;
+        Customer.Insert();
+        exit(Customer."No.");
     end;
 
     local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10])
     var
         LastEntryNo: Integer;
     begin
-        with CustLedgerEntry do begin
-            if FindLast() then
-                LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Customer No." := CustomerNo;
-            "Posting Date" := WorkDate();
-            "Document Type" := DocumentType;
-            "Document No." := CustomerNo;
-            "Currency Code" := CurrencyCode;
-            Insert();
-        end;
+        if CustLedgerEntry.FindLast() then
+            LastEntryNo := CustLedgerEntry."Entry No.";
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LastEntryNo + 1;
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Document Type" := DocumentType;
+        CustLedgerEntry."Document No." := CustomerNo;
+        CustLedgerEntry."Currency Code" := CurrencyCode;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure MockDetailedCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; NewAmount: Decimal; NewAmountLCY: Decimal)
@@ -672,22 +666,20 @@ codeunit 144169 "UT REP Company Information"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastEntryNo: Integer;
     begin
-        with DetailedCustLedgEntry do begin
-            if FindLast() then
-                LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
-            "Entry Type" := EntryType;
-            "Posting Date" := WorkDate();
-            "Document Type" := CustLedgerEntry."Document Type";
-            "Document No." := CustLedgerEntry."Document No.";
-            "Customer No." := CustLedgerEntry."Customer No.";
-            "Currency Code" := CustLedgerEntry."Currency Code";
-            Amount := NewAmount;
-            "Amount (LCY)" := NewAmountLCY;
-            Insert();
-        end;
+        if DetailedCustLedgEntry.FindLast() then
+            LastEntryNo := DetailedCustLedgEntry."Entry No.";
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
+        DetailedCustLedgEntry."Entry Type" := EntryType;
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
+        DetailedCustLedgEntry."Document Type" := CustLedgerEntry."Document Type";
+        DetailedCustLedgEntry."Document No." := CustLedgerEntry."Document No.";
+        DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
+        DetailedCustLedgEntry."Currency Code" := CustLedgerEntry."Currency Code";
+        DetailedCustLedgEntry.Amount := NewAmount;
+        DetailedCustLedgEntry."Amount (LCY)" := NewAmountLCY;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure EnqueueVariablesForGLBookPrintRequestPageHandler(StartingDate: Variant; EndingDate: Variant; ReportType: Variant)

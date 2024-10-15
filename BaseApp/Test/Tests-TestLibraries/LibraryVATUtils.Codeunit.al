@@ -377,7 +377,6 @@ codeunit 143002 "Library - VAT Utils"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetRange("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;

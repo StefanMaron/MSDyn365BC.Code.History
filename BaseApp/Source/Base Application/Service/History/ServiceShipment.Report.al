@@ -676,9 +676,7 @@ report 5913 "Service - Shipment"
             ServiceSetup."Logo Position on Documents"::"No Logo":
                 ;
             ServiceSetup."Logo Position on Documents"::Left:
-                begin
-                    CompanyInfo.CalcFields(Picture);
-                end;
+                CompanyInfo.CalcFields(Picture);
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
                     CompanyInfo1.Get();
@@ -735,8 +733,12 @@ report 5913 "Service - Shipment"
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Service - Shipment %1';
         Text003: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
@@ -812,6 +814,8 @@ report 5913 "Service - Shipment"
     end;
 
     local procedure FormatAddressFields(var ServiceShipmentHeader: Record "Service Shipment Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         if RespCenter.Get(ServiceShipmentHeader."Responsibility Center") then begin
             FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -822,8 +826,8 @@ report 5913 "Service - Shipment"
             if TDDDocument then
                 CompanyInfo.GetTDDAddr(CompanyAddr);
         end;
-        FormatAddr.ServiceShptShipTo(ShipToAddr, ServiceShipmentHeader);
-        ShowCustAddr := FormatAddr.ServiceShptBillTo(CustAddr, ShipToAddr, ServiceShipmentHeader);
+        ServiceFormatAddress.ServiceShptShipTo(ShipToAddr, ServiceShipmentHeader);
+        ShowCustAddr := ServiceFormatAddress.ServiceShptBillTo(CustAddr, ShipToAddr, ServiceShipmentHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceShipmentHeader: Record "Service Shipment Header")

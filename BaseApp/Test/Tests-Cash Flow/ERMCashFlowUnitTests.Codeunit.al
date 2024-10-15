@@ -91,24 +91,21 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedAmount := "Amount (LCY)";
-            ExpectedDate := DocumentDate;
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
+        ExpectedDate := DocumentDate;
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -161,25 +158,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedAmount := "Amount (LCY)";
-            ExpectedDate := "Document Date";
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
+        ExpectedDate := CFWorksheetLine."Document Date";
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -234,25 +228,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedAmount := "Amount (LCY)";
-            ExpectedDate := "Document Date";
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
+        ExpectedDate := CFWorksheetLine."Document Date";
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -306,25 +297,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedAmount := "Amount (LCY)";
-            ExpectedDate := "Document Date";
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
+        ExpectedDate := CFWorksheetLine."Document Date";
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -389,25 +377,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
-            ExpectedAmount := Round("Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", CFWorksheetLine."Document Date");
+        ExpectedAmount := Round(CFWorksheetLine."Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -442,25 +427,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         DocumentDate := CalcDate('<-3D>', WorkDate());
         CFForecast.Modify();
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
-            ExpectedAmount := Round("Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", CFWorksheetLine."Document Date");
+        ExpectedAmount := Round(CFWorksheetLine."Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -495,25 +477,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-            ExpectedAmount := "Amount (LCY)";
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", CFWorksheetLine."Document Date");
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -550,25 +529,22 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         DocumentDate := CalcDate('<-5D>', WorkDate());
         CFForecast.Modify();
 
-        with CFWorksheetLine do begin
-            "Document Date" := DocumentDate;
-            Insert();
-            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-            ExpectedAmount := "Amount (LCY)";
+        CFWorksheetLine."Document Date" := DocumentDate;
+        CFWorksheetLine.Insert();
+        ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", CFWorksheetLine."Document Date");
+        ExpectedAmount := CFWorksheetLine."Amount (LCY)";
 
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date", ExpectedDate,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), ExpectedDate, CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date", ExpectedDate,
-              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)", ExpectedAmount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), ExpectedAmount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)", ExpectedAmount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -589,13 +565,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, '');
 
-        with CFWorksheetLine do begin
-            "Document Date" := 0D;
-            Insert();
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
-            Delete();
-        end;
+        CFWorksheetLine."Document Date" := 0D;
+        CFWorksheetLine.Insert();
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        CFWorksheetLine.Delete();
     end;
 
     [Test]
@@ -624,40 +598,35 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
 
-        with CFWorksheetLine do begin
-            "Document Date" := WorkDate();
-            Insert();
-            Amount := Round("Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
-            CalculateCFAmountAndCFDate("Amount (LCY)");
-            // Modify();
+        CFWorksheetLine."Document Date" := WorkDate();
+        CFWorksheetLine.Insert();
+        Amount := Round(CFWorksheetLine."Amount (LCY)" * (100 - LibraryCFHelper.GetPmtTermsDiscountPercentage(PaymentTerms)) / 100);
+        CFWorksheetLine.CalculateCFAmountAndCFDate(CFWorksheetLine."Amount (LCY)");
+        // Modify();
+        Assert.AreEqual(
+          CFWorksheetLine."Cash Flow Date",
+          CalcDate(PaymentTerms."Due Date Calculation", CFWorksheetLine."Document Date"),
+          StrSubstNo(
+            IncorrectField, CFWorksheetLine.FieldCaption("Cash Flow Date"), CalcDate(PaymentTerms."Due Date Calculation", CFWorksheetLine."Document Date"),
+            CFWorksheetLine."Cash Flow Date"));
 
-            Assert.AreEqual(
-              "Cash Flow Date",
-              CalcDate(PaymentTerms."Due Date Calculation", "Document Date"),
-              StrSubstNo(
-                IncorrectField, FieldCaption("Cash Flow Date"), CalcDate(PaymentTerms."Due Date Calculation", "Document Date"),
-                "Cash Flow Date"));
+        Assert.AreEqual(
+          CFWorksheetLine."Amount (LCY)",
+          Amount,
+          StrSubstNo(IncorrectField, CFWorksheetLine.FieldCaption("Amount (LCY)"), Amount, CFWorksheetLine."Amount (LCY)"));
 
-            Assert.AreEqual(
-              "Amount (LCY)",
-              Amount,
-              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), Amount, "Amount (LCY)"));
-
-            Delete();
-        end;
+        CFWorksheetLine.Delete();
     end;
 
     local procedure PreFillCFWorksheetLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowNo: Code[20]; TestDescription: Text[100]; PaymentTermsCode: Code[10])
     begin
-        with CFWorksheetLine do begin
-            "Line No." := LibraryRandom.RandInt(100000);
+        CFWorksheetLine."Line No." := LibraryRandom.RandInt(100000);
 
-            "Document Type" := "Document Type"::Invoice;
-            "Cash Flow Forecast No." := CashFlowNo;
-            "Amount (LCY)" := LibraryRandom.RandInt(1001);
-            Description := TestDescription;
-            "Payment Terms Code" := PaymentTermsCode;
-        end;
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::Invoice;
+        CFWorksheetLine."Cash Flow Forecast No." := CashFlowNo;
+        CFWorksheetLine."Amount (LCY)" := LibraryRandom.RandInt(1001);
+        CFWorksheetLine.Description := TestDescription;
+        CFWorksheetLine."Payment Terms Code" := PaymentTermsCode;
     end;
 
     local procedure CreateDefaultMatrixCFPT(var PaymentTerms: Record "Payment Terms")
@@ -840,15 +809,13 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        with CashFlowChartSetup do begin
-            if Get(UserId) then
-                Delete();
+        if CashFlowChartSetup.Get(UserId) then
+            CashFlowChartSetup.Delete();
 
-            Init();
-            "User ID" := UserId;
-            "Period Length" := PeriodLength;
-            Insert();
-        end;
+        CashFlowChartSetup.Init();
+        CashFlowChartSetup."User ID" := UserId;
+        CashFlowChartSetup."Period Length" := PeriodLength;
+        CashFlowChartSetup.Insert();
     end;
 
     [Test]
@@ -886,17 +853,15 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize();
 
-        with CashFlowChartSetup do begin
-            if Get(UserId) then
-                Delete();
-            CFChartMgt.OnOpenPage(CashFlowChartSetup);
+        if CashFlowChartSetup.Get(UserId) then
+            CashFlowChartSetup.Delete();
+        CFChartMgt.OnOpenPage(CashFlowChartSetup);
 
-            TestField("Start Date", "Start Date"::"Working Date");
-            TestField("Period Length", "Period Length"::Month);
-            TestField(Show, Show::Combined);
-            TestField("Chart Type", "Chart Type"::"Stacked Column");
-            TestField("Group By", "Group By"::"Source Type");
-        end;
+        CashFlowChartSetup.TestField("Start Date", CashFlowChartSetup."Start Date"::"Working Date");
+        CashFlowChartSetup.TestField("Period Length", CashFlowChartSetup."Period Length"::Month);
+        CashFlowChartSetup.TestField(Show, CashFlowChartSetup.Show::Combined);
+        CashFlowChartSetup.TestField("Chart Type", CashFlowChartSetup."Chart Type"::"Stacked Column");
+        CashFlowChartSetup.TestField("Group By", CashFlowChartSetup."Group By"::"Source Type");
     end;
 
     [Test]
@@ -909,18 +874,16 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize();
 
-        with CashFlowChartSetup do begin
-            SetPeriodLengthInChartSetup("Period Length"::Year);
-            Get(UserId);
-            ExistingCashFlowChartSetup := CashFlowChartSetup;
-            CFChartMgt.OnOpenPage(CashFlowChartSetup);
+        SetPeriodLengthInChartSetup(CashFlowChartSetup."Period Length"::Year);
+        CashFlowChartSetup.Get(UserId);
+        ExistingCashFlowChartSetup := CashFlowChartSetup;
+        CFChartMgt.OnOpenPage(CashFlowChartSetup);
 
-            TestField("Start Date", ExistingCashFlowChartSetup."Start Date");
-            TestField("Period Length", ExistingCashFlowChartSetup."Period Length");
-            TestField(Show, ExistingCashFlowChartSetup.Show);
-            TestField("Chart Type", ExistingCashFlowChartSetup."Chart Type");
-            TestField("Group By", ExistingCashFlowChartSetup."Group By");
-        end;
+        CashFlowChartSetup.TestField("Start Date", ExistingCashFlowChartSetup."Start Date");
+        CashFlowChartSetup.TestField("Period Length", ExistingCashFlowChartSetup."Period Length");
+        CashFlowChartSetup.TestField(Show, ExistingCashFlowChartSetup.Show);
+        CashFlowChartSetup.TestField("Chart Type", ExistingCashFlowChartSetup."Chart Type");
+        CashFlowChartSetup.TestField("Group By", ExistingCashFlowChartSetup."Group By");
     end;
 
     [Test]
@@ -1053,19 +1016,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        with CashFlowChartSetup do begin
-            if Get(UserId) then
-                Delete();
+        if CashFlowChartSetup.Get(UserId) then
+            CashFlowChartSetup.Delete();
 
-            Init();
-            "User ID" := UserId;
-            "Period Length" := "Period Length"::Day;
-            "Start Date" := "Start Date"::"First Entry Date";
-            Show := NewShow;
-            "Group By" := GroupBy;
+        CashFlowChartSetup.Init();
+        CashFlowChartSetup."User ID" := UserId;
+        CashFlowChartSetup."Period Length" := CashFlowChartSetup."Period Length"::Day;
+        CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"First Entry Date";
+        CashFlowChartSetup.Show := NewShow;
+        CashFlowChartSetup."Group By" := GroupBy;
 
-            Insert();
-        end;
+        CashFlowChartSetup.Insert();
     end;
 
     local procedure VerifyDateAndSourceTypeOnChartDrillDown(MeasureIndex: Integer; ExpectedSourceType: Enum "Cash Flow Source Type")
@@ -1254,19 +1215,17 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFAccount: Record "Cash Flow Account";
         CFWkshRegisterLine: Codeunit "Cash Flow Wksh. -Register Line";
     begin
-        with CashFlowWkshLine do begin
-            CashFlowForecast.FindFirst();
-            CFAccount.SetRange(Blocked, false);
-            CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-            CFAccount.FindFirst();
-            Init();
-            "Cash Flow Forecast No." := CashFlowForecast."No.";
-            "Cash Flow Account No." := CFAccount."No.";
-            "Cash Flow Date" := WorkDate();
-            "Amount (LCY)" := Amount;
+        CashFlowForecast.FindFirst();
+        CFAccount.SetRange(Blocked, false);
+        CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
+        CFAccount.FindFirst();
+        CashFlowWkshLine.Init();
+        CashFlowWkshLine."Cash Flow Forecast No." := CashFlowForecast."No.";
+        CashFlowWkshLine."Cash Flow Account No." := CFAccount."No.";
+        CashFlowWkshLine."Cash Flow Date" := WorkDate();
+        CashFlowWkshLine."Amount (LCY)" := Amount;
 
-            CFWkshRegisterLine.RunWithCheck(CashFlowWkshLine);
-        end;
+        CFWkshRegisterLine.RunWithCheck(CashFlowWkshLine);
     end;
 
     [Test]
@@ -1759,8 +1718,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWkshLine."Source Type" :=
             "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, "Cash Flow Source Type"::"G/L Budget".AsInteger() - 1));
         asserterror CFWkshLine.Validate("G/L Budget Name", GLBudgetName.Name);
-        Assert.ExpectedError(
-          StrSubstNo('%1 must be equal to ''%2''', CFWkshLine.FieldCaption("Source Type"), Format(CFWkshLine."Source Type"::"G/L Budget")));
+        Assert.ExpectedTestFieldError(CFWkshLine.FieldCaption("Source Type"), Format(CFWkshLine."Source Type"::"G/L Budget"));
     end;
 
     [Test]
@@ -2050,13 +2008,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure CreateCashFlowChartSetup()
     begin
-        with CashFlowChartSetup do begin
-            if Get(UserId) then
-                Delete();
-            Init();
-            "User ID" := UserId;
-            Insert();
-        end;
+        if CashFlowChartSetup.Get(UserId) then
+            CashFlowChartSetup.Delete();
+        CashFlowChartSetup.Init();
+        CashFlowChartSetup."User ID" := UserId;
+        CashFlowChartSetup.Insert();
     end;
 
     local procedure CreateAndUpdateCashFlowChartSetup(var CashFlowChartSetup: Record "Cash Flow Chart Setup"; StartDate: Option; PeriodLength: Option; Show: Option; GroupBy: Option)
@@ -2077,8 +2033,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFReportSelection: Record "Cash Flow Report Selection";
     begin
         Initialize();
-        with CFReportSelection do
-            DeleteAll();
+        CFReportSelection.DeleteAll();
 
         CashFlowForecast.PrintRecords(); // Can't be completely tested since it has REPORT.RUNMODAL
     end;
@@ -2447,4 +2402,6 @@ codeunit 134557 "ERM Cash Flow UnitTests"
                     InsertCFLedgerEntry(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), WorkDate() - Index, LedgerEntryAmount);
     end;
 }
+
+
 

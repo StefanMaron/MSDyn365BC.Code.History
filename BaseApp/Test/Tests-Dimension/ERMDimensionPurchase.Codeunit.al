@@ -372,12 +372,10 @@
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
         SalesHeader.Get(SalesHeader."Document Type"::Order, RequisitionLine."Sales Order No.");
 
-        with PurchaseHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Buy-from Vendor No.", RequisitionLine."Vendor No.");
-            FindFirst();
-            Modify(true);
-        end;
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", RequisitionLine."Vendor No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Modify(true);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1094,6 +1092,7 @@
 
         InitializeExpectedVATAmounts(ExpectedVATAmount, 5.94, 8.05, 5.93, 5.94, 5.93);
         InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+
         VerifyVATEntriesAmountAndAmountACY(
             VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
     end;
@@ -1147,6 +1146,7 @@
 
         InitializeExpectedVATAmounts(ExpectedVATAmount, 5.93, 8.05, 5.94, 5.93, 5.94);
         InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+
         VerifyVATEntriesAmountAndAmountACY(
             VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
     end;

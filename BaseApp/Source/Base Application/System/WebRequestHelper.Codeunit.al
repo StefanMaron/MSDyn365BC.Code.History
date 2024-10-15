@@ -16,7 +16,9 @@ codeunit 1299 "Web Request Helper"
         InvalidUriErr: Label 'The URI is not valid.';
         NonSecureUriErr: Label 'The URI is not secure.';
         ProcessingWindowMsg: Label 'Please wait while the server is processing your request.\This may take several minutes.';
+#pragma warning disable AA0470
         ServiceURLTxt: Label '\\Service URL: %1.', Comment = 'Example: ServiceURL: http://www.contoso.com/';
+#pragma warning restore AA0470
         GlobalHttpWebResponseError: DotNet HttpWebResponse;
 
     [TryFunction]
@@ -113,11 +115,24 @@ codeunit 1299 "Web Request Helper"
 
         exit('');
     end;
+#if not CLEAN25
 
     [TryFunction]
-    [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Replaced by GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: SecretText; var ResponseText: Text)', '25.0')]
     procedure GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
+    var
+        AccessTokenAsSecretText: SecretText;
+    begin
+        AccessTokenAsSecretText := AccessToken;
+        GetResponseTextUsingCharset(Method, Url, AccessTokenAsSecretText, ResponseText);
+    end;
+#endif
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: SecretText; var ResponseText: Text)
     begin
         GetResponseTextInternal(Method, Url, AccessToken, ResponseText, false);
     end;
@@ -125,7 +140,7 @@ codeunit 1299 "Web Request Helper"
     [TryFunction]
     [NonDebuggable]
     [Scope('OnPrem')]
-    local procedure GetResponseTextInternal(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text; IgnoreCharSet: Boolean)
+    local procedure GetResponseTextInternal(Method: Text; Url: Text; AccessToken: SecretText; var ResponseText: Text; IgnoreCharSet: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
         HttpWebRequest: DotNet HttpWebRequest;
@@ -138,7 +153,7 @@ codeunit 1299 "Web Request Helper"
         HttpWebRequest.Method := Method;
         HttpWebRequest.ContentLength := 0;
         // add the access token to the authorization bearer header
-        HttpWebRequest.Headers().Add('Authorization', 'Bearer ' + AccessToken);
+        HttpWebRequest.Headers().Add('Authorization', SecretStrSubstNo('Bearer %1', AccessToken).Unwrap());
         HttpWebResponse := HttpWebRequest.GetResponse();
 
         // We need to read using the right encoding, unless forced or unless no encoding can be determined

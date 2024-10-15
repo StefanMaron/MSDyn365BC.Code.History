@@ -236,13 +236,11 @@ codeunit 144022 "IT - ERM Cash Flow"
     var
         CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
-        with CashFlowWorksheetLine do begin
-            SetFilter("Cash Flow Forecast No.", '%1', CashFlowNo);
-            SetFilter("Document No.", '%1', DocumentNo);
-            SetFilter("Source Type", '%1', SourceType);
-            SetFilter("Cash Flow Date", '%1', ExpectedCFDate);
-            SetFilter("Amount (LCY)", '%1', ExpectedCFAmount);
-        end;
+        CashFlowWorksheetLine.SetFilter("Cash Flow Forecast No.", '%1', CashFlowNo);
+        CashFlowWorksheetLine.SetFilter("Document No.", '%1', DocumentNo);
+        CashFlowWorksheetLine.SetFilter("Source Type", '%1', SourceType);
+        CashFlowWorksheetLine.SetFilter("Cash Flow Date", '%1', ExpectedCFDate);
+        CashFlowWorksheetLine.SetFilter("Amount (LCY)", '%1', ExpectedCFAmount);
         Assert.RecordIsNotEmpty(CashFlowWorksheetLine);
     end;
 }

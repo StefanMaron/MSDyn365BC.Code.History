@@ -28,6 +28,7 @@ codeunit 149125 "BCPT Create Vendor" implements "BCPT Test Param. Provider"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Vendor Nos.");
@@ -38,9 +39,12 @@ codeunit 149125 "BCPT Create Vendor" implements "BCPT Test Param. Provider"
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, NoSeriesLine.Implementation::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        Commit(); //Commit to avoid deadlocks
+
+        if RecordModified then
+            Commit(); //Commit to avoid deadlocks
 
         if Evaluate(VendorTemplateToUse, BCPTTestContext.GetParameter(VendorTemplateParamLbl)) then;
     end;

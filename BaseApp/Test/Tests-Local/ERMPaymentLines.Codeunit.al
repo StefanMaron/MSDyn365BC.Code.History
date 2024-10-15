@@ -79,7 +79,6 @@ codeunit 144164 "ERM Payment Lines"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
-        PmtTermsDoesNotExistErr: Label 'The Payment Terms does not exist';
         VendorBalanceErr: Label 'Vendor Ledger Entries are not applied.';
 
     [Test]
@@ -760,8 +759,7 @@ codeunit 144164 "ERM Payment Lines"
         PaymentLines.SetRecFilter();
 
         asserterror PaymentLines.Insert(true);
-
-        Assert.ExpectedError(PmtTermsDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Payment Terms");
     end;
 
     [Test]
@@ -1861,37 +1859,31 @@ codeunit 144164 "ERM Payment Lines"
 
     local procedure FilterPaymentLines(var PaymentLines: Record "Payment Lines"; EntryType: Option; DocType: Enum "Payment Lines Document Type"; DocNo: Code[20])
     begin
-        with PaymentLines do begin
-            SetRange("Sales/Purchase", EntryType);
-            SetRange(Type, DocType);
-            SetRange(Code, DocNo);
-        end;
+        PaymentLines.SetRange("Sales/Purchase", EntryType);
+        PaymentLines.SetRange(Type, DocType);
+        PaymentLines.SetRange(Code, DocNo);
     end;
 
     local procedure UpdateQtyToReceiveInPurchLine(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; QtyToReceive: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            Validate("Qty. to Receive", QtyToReceive);
-            Modify(true);
-        end;
+        PurchLine.SetRange("Document Type", DocType);
+        PurchLine.SetRange("Document No.", DocNo);
+        PurchLine.FindFirst();
+        PurchLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchLine.Modify(true);
     end;
 
     local procedure UpdateQtyToShipInSalesLine(DocType: Enum "Sales Document Type"; DocNo: Code[20]; QtyToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            Validate("Qty. to Ship", QtyToShip);
-            Modify(true);
-        end;
+        SalesLine.SetRange("Document Type", DocType);
+        SalesLine.SetRange("Document No.", DocNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
     end;
 
     local procedure GetDueDateCalculationFromPaymentTerms(var FirstDueDateCalculation: DateFormula; "Code": Code[10]): Text

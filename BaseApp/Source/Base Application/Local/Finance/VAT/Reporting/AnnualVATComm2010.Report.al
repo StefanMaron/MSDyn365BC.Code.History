@@ -30,7 +30,7 @@ report 12126 "Annual VAT Comm. - 2010"
             dataitem("VAT Statement Line"; "VAT Statement Line")
             {
                 DataItemLink = "Statement Template Name" = field("Statement Template Name"), "Statement Name" = field(Name);
-                DataItemTableView = sorting("Statement Template Name", "Statement Name") where(Print = CONST(true));
+                DataItemTableView = sorting("Statement Template Name", "Statement Name") where(Print = const(true));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -66,7 +66,7 @@ report 12126 "Annual VAT Comm. - 2010"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = sorting(Number) where(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(CompanyInfo_Name; CompanyInfo.Name)
                 {
                 }

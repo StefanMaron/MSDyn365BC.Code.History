@@ -55,26 +55,25 @@ codeunit 139000 "Test Filter Expr. COD41"
         NoOfElementsInFilter: Integer;
     begin
         // MYCUSTOMERS
-        WITH Customer DO BEGIN
-            NoPrefix := 'UTEST';
-            SETFILTER("No.", 'UTEST' + '*');
-            DeleteAll();
-            MyCustomer.SETRANGE("User ID", USERID);
-            MyCustomer.DeleteAll();
-            ExpectedFilter := '';
-            FOR i := 1 TO 100 DO BEGIN
-                InsertCustomer(Customer, NoPrefix + FORMAT(100000 + i), 'Test Customer ' + FORMAT(i));
-                IF i MOD 3 = 0 THEN BEGIN
-                    InsertMyCustomer(Customer);
-                    ExpectedFilter := AddToFilter(ExpectedFilter, "No.", NoOfElementsInFilter);
-                END;
+        NoPrefix := 'UTEST';
+        Customer.SETFILTER("No.", 'UTEST' + '*');
+        Customer.DeleteAll();
+        MyCustomer.SETRANGE("User ID", USERID);
+        MyCustomer.DeleteAll();
+        ExpectedFilter := '';
+        FOR i := 1 TO 100 DO BEGIN
+            InsertCustomer(Customer, NoPrefix + FORMAT(100000 + i), 'Test Customer ' + FORMAT(i));
+            IF i MOD 3 = 0 THEN BEGIN
+                InsertMyCustomer(Customer);
+                ExpectedFilter := AddToFilter(ExpectedFilter, Customer."No.", NoOfElementsInFilter);
             END;
-            Assert.AreEqual(100, COUNT, 'Check before applying filters to Customer failed.');
-
-            SETFILTER("No.", '%MYCUSTOMERS');  // Raises a message
-            Assert.IsTrue(COUNT <= MyCustomer.COUNT, '%MYCUSTOMERS filter returned too many records.');
-            Assert.IsTrue(COUNT >= STRLEN(GETFILTER("No.")) DIV (STRLEN("No.") + 1), '%MYCUSTOMERS filter returned too few records.');
         END;
+        Assert.AreEqual(100, Customer.COUNT, 'Check before applying filters to Customer failed.');
+
+        Customer.SETFILTER("No.", '%MYCUSTOMERS');
+        // Raises a message
+        Assert.IsTrue(Customer.COUNT <= MyCustomer.COUNT, '%MYCUSTOMERS filter returned too many records.');
+        Assert.IsTrue(Customer.COUNT >= STRLEN(Customer.GETFILTER("No.")) DIV (STRLEN(Customer."No.") + 1), '%MYCUSTOMERS filter returned too few records.');
     end;
 
     [Test]
@@ -90,23 +89,21 @@ codeunit 139000 "Test Filter Expr. COD41"
         NoOfElementsInFilter: Integer;
     begin
         // MYVENDORS
-        WITH Vendor DO BEGIN
-            NoPrefix := 'UTEST';
-            SETFILTER("No.", 'UTEST' + '*');
-            DeleteAll();
-            MyVendor.SETRANGE("User ID", USERID);
-            MyVendor.DeleteAll();
-            ExpectedFilter := '';
-            FOR i := 1 TO 2100 DO BEGIN
-                InsertVendor(Vendor, NoPrefix + FORMAT(100000 + i), 'Test Vendor ' + FORMAT(i));
-                InsertMyVendor(Vendor);
-                ExpectedFilter := AddToFilter(ExpectedFilter, "No.", NoOfElementsInFilter);
-            END;
-            Assert.AreEqual(2100, COUNT, 'Check before applying filters to Vendor failed.');
-
-            SETFILTER("No.", '%MYVENDORS');
-            Assert.IsTrue(COUNT <= MyVendor.COUNT, '%MYVENDORS filter returned too many records.');
+        NoPrefix := 'UTEST';
+        Vendor.SETFILTER("No.", 'UTEST' + '*');
+        Vendor.DeleteAll();
+        MyVendor.SETRANGE("User ID", USERID);
+        MyVendor.DeleteAll();
+        ExpectedFilter := '';
+        FOR i := 1 TO 2100 DO BEGIN
+            InsertVendor(Vendor, NoPrefix + FORMAT(100000 + i), 'Test Vendor ' + FORMAT(i));
+            InsertMyVendor(Vendor);
+            ExpectedFilter := AddToFilter(ExpectedFilter, Vendor."No.", NoOfElementsInFilter);
         END;
+        Assert.AreEqual(2100, Vendor.COUNT, 'Check before applying filters to Vendor failed.');
+
+        Vendor.SETFILTER("No.", '%MYVENDORS');
+        Assert.IsTrue(Vendor.COUNT <= MyVendor.COUNT, '%MYVENDORS filter returned too many records.');
     end;
 
     [Test]
@@ -121,103 +118,87 @@ codeunit 139000 "Test Filter Expr. COD41"
         NoOfElementsInFilter: Integer;
     begin
         // MYITEMS
-        WITH Item DO BEGIN
-            NoPrefix := 'UTEST';
-            SETFILTER("No.", 'UTEST' + '*');
-            DeleteAll();
-            MyItem.SETRANGE("User ID", USERID);
-            MyItem.DeleteAll();
-            ExpectedFilter := '';
-            FOR i := 1 TO 100 DO BEGIN
-                InsertItem(Item, NoPrefix + FORMAT(100000 + i), 'Test Item ' + FORMAT(i));
-                IF i MOD 3 = 0 THEN BEGIN
-                    InsertMyItem(Item);
-                    ExpectedFilter := AddToFilter(ExpectedFilter, "No.", NoOfElementsInFilter);
-                END;
+        NoPrefix := 'UTEST';
+        Item.SETFILTER("No.", 'UTEST' + '*');
+        Item.DeleteAll();
+        MyItem.SETRANGE("User ID", USERID);
+        MyItem.DeleteAll();
+        ExpectedFilter := '';
+        FOR i := 1 TO 100 DO BEGIN
+            InsertItem(Item, NoPrefix + FORMAT(100000 + i), 'Test Item ' + FORMAT(i));
+            IF i MOD 3 = 0 THEN BEGIN
+                InsertMyItem(Item);
+                ExpectedFilter := AddToFilter(ExpectedFilter, Item."No.", NoOfElementsInFilter);
             END;
-            Assert.AreEqual(100, COUNT, 'Check before applying filters to Item failed.');
-
-            SETFILTER("No.", '%MYITEMS');
-            Assert.IsTrue(COUNT <= MyItem.COUNT, '%MYITEMS filter returned too many records.');
-            Assert.IsTrue(COUNT >= STRLEN(GETFILTER("No.")) DIV (STRLEN("No.") + 1), '%MYITEMS filter returned too few records.');
         END;
+        Assert.AreEqual(100, Item.COUNT, 'Check before applying filters to Item failed.');
+
+        Item.SETFILTER("No.", '%MYITEMS');
+        Assert.IsTrue(Item.COUNT <= MyItem.COUNT, '%MYITEMS filter returned too many records.');
+        Assert.IsTrue(Item.COUNT >= STRLEN(Item.GETFILTER("No.")) DIV (STRLEN(Item."No.") + 1), '%MYITEMS filter returned too few records.');
     end;
 
     local procedure InsertCommentLine(var CommentLine: Record "Comment Line"; No: Code[20]; Text: Text[80]; Date2: Date)
     begin
-        WITH CommentLine DO BEGIN
-            Init();
-            "No." := No;
-            Comment := Text;
-            Date := Date2;
-            Insert();
-        END;
+        CommentLine.Init();
+        CommentLine."No." := No;
+        CommentLine.Comment := Text;
+        CommentLine.Date := Date2;
+        CommentLine.Insert();
     end;
 
     local procedure InsertCustomer(var Customer: Record "Customer"; No: Code[20]; Name2: Text[50])
     begin
-        WITH Customer DO BEGIN
-            Init();
-            "No." := No;
-            Name := Name2;
-            Insert();
-        END;
+        Customer.Init();
+        Customer."No." := No;
+        Customer.Name := Name2;
+        Customer.Insert();
     end;
 
     local procedure InsertMyCustomer(var Customer: Record "Customer")
     var
         MyCustomer: Record "My Customer";
     begin
-        WITH MyCustomer DO BEGIN
-            Init();
-            "User ID" := USERID;
-            "Customer No." := Customer."No.";
-            Insert();
-        END;
+        MyCustomer.Init();
+        MyCustomer."User ID" := USERID;
+        MyCustomer."Customer No." := Customer."No.";
+        MyCustomer.Insert();
     end;
 
     local procedure InsertVendor(var Vendor: Record "Vendor"; No: Code[20]; Name2: Text[50])
     begin
-        WITH Vendor DO BEGIN
-            Init();
-            "No." := No;
-            Name := Name2;
-            Insert();
-        END;
+        Vendor.Init();
+        Vendor."No." := No;
+        Vendor.Name := Name2;
+        Vendor.Insert();
     end;
 
     local procedure InsertMyVendor(var Vendor: Record "Vendor")
     var
         MyVendor: Record "My Vendor";
     begin
-        WITH MyVendor DO BEGIN
-            Init();
-            "User ID" := USERID;
-            "Vendor No." := Vendor."No.";
-            Insert();
-        END;
+        MyVendor.Init();
+        MyVendor."User ID" := USERID;
+        MyVendor."Vendor No." := Vendor."No.";
+        MyVendor.Insert();
     end;
 
     local procedure InsertItem(var Item: Record "Item"; No: Code[20]; Description2: Text[50])
     begin
-        WITH Item DO BEGIN
-            Init();
-            "No." := No;
-            Description := Description2;
-            Insert();
-        END;
+        Item.Init();
+        Item."No." := No;
+        Item.Description := Description2;
+        Item.Insert();
     end;
 
     local procedure InsertMyItem(var Item: Record "Item")
     var
         MyItem: Record "My Item";
     begin
-        WITH MyItem DO BEGIN
-            Init();
-            "User ID" := USERID;
-            "Item No." := Item."No.";
-            Insert();
-        END;
+        MyItem.Init();
+        MyItem."User ID" := USERID;
+        MyItem."Item No." := Item."No.";
+        MyItem.Insert();
     end;
 
     local procedure AddToFilter(OldString: Text; NewNo: Text; var CurrElementNo: Integer): Text

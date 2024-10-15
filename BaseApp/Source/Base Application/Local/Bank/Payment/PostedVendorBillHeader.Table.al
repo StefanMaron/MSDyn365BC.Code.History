@@ -78,7 +78,7 @@ table 12183 "Posted Vendor Bill Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Posted Vendor Bill Line"."Amount to Pay" where("Vendor Bill No." = field("No.")));
+            CalcFormula = sum("Posted Vendor Bill Line"."Amount to Pay" where("Vendor Bill No." = field("No.")));
             Caption = 'Total Amount';
             Editable = false;
             FieldClass = FlowField;

@@ -153,7 +153,11 @@ page 475 "VAT Statement Preview Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Drilldown is not possible when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         GLEntry: Record "G/L Entry";

@@ -373,15 +373,21 @@ report 1102 "Resource Journal - Test"
         GetTotalCost: Decimal;
         GetTotalPrice: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 must be specified.';
         Text002: Label '%1 %2 does not exist.';
         Text003: Label '%1 must be %2 for %3 %4.';
         Text004: Label '%1 %2 %3 does not exist.';
         Text005: Label '%1 must not be a closing date.';
+#pragma warning restore AA0470
         Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
         Text008: Label 'There is a gap in the number series.';
+#pragma warning disable AA0470
         Text009: Label '%1 cannot be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PageCaptionLbl: Label 'Page';
         ResJnlTestCaptionLbl: Label 'Resource Journal - Test';
         PostingDateCaptionLbl: Label 'Posting Date';

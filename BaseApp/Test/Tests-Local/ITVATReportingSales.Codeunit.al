@@ -1295,7 +1295,6 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;

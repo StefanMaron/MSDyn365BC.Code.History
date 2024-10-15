@@ -16,9 +16,6 @@ codeunit 134325 "ERM Purchase Quote"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN22
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
-#endif
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
@@ -30,7 +27,6 @@ codeunit 134325 "ERM Purchase Quote"
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         MakeOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderTxt: Label 'The quote has been converted to order', Comment = '%1 - No. of new purchase order.';
-        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
         DocumentDateError: Label '%1 cannot be greater than %2';
 
     [Test]
@@ -452,32 +448,8 @@ codeunit 134325 "ERM Purchase Quote"
         asserterror Codeunit.Run(Codeunit::"Purch.-Quote to Order", PurchaseHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
-        Assert.ExpectedError(BlockedResourceErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderFromPurchaseQuoteWithTransactionType()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [FEATURE] [Order]
-        // [SCENARIO 379229] "Transaction Type" is populated from Intrastat Setup on Purchase Order from Purchase Quote
-        Initialize();
-
-        // [GIVEN] Set Default Transaction Types on Intrastat Setup and created Purchase Quote
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
-        CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor());
-
-        // [WHEN] Create Purchase Order from Purchase Quote.
-        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
-
-        // [THEN] Verify that New Purchase Order created from Purchase Quote has Transaction Type on Header and Line
-        VerifyTransactionTypeOnOrder(PurchaseHeader, PurchaseHeader."No.");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -539,9 +511,6 @@ codeunit 134325 "ERM Purchase Quote"
 
     local procedure Initialize()
     var
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -555,33 +524,10 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-#if not CLEAN22
-        if not IntrastatSetup.Get() then begin
-            IntrastatSetup.Init();
-            IntrastatSetup.Insert();
-        end;
-        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
-#endif
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
     end;
-
-#if not CLEAN22
-    local procedure VerifyTransactionTypeOnOrder(PurchaseHeader: Record "Purchase Header"; QuoteNo: Code[20])
-    var
-        IntrastatSetup: Record "Intrastat Setup";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        IntrastatSetup.Get();
-        PurchaseHeader.SetRange("Quote No.", QuoteNo);
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.FindFirst();
-        PurchaseHeader.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
-        FindPurchaseLine(PurchaseLine, QuoteNo);
-        PurchaseLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
-    end;
-#endif
 
     local procedure CreateVendor(): Code[20]
     var
@@ -676,4 +622,6 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.IsFalse(PurchaseStatistics.VATAmount.Editable(), 'The VAT Amount field should not be editable');
     end;
 }
+
+
 

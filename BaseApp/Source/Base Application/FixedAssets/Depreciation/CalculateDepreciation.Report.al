@@ -594,7 +594,7 @@ report 5692 "Calculate Depreciation"
         FAJnlLineCreatedCount: Integer;
         GenJnlLineCreatedCount: Integer;
         DeprUntilDateModified: Boolean;
-        SuppressCommit: Boolean;	
+        SuppressCommit: Boolean;
 #if CLEAN24
         DocumentNo2: Code[20];
         DocumentNo3: Code[20];
@@ -602,17 +602,25 @@ report 5692 "Calculate Depreciation"
         PostingDescription3: Text[100];
 #endif
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text001: Label 'Force No. of Days must be activated.';
+#pragma warning disable AA0470
         Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
         Text003: Label 'Depreciating fixed asset      #1##########\';
         Text004: Label 'Not depreciating fixed asset  #2##########\';
         Text005: Label 'Inserting journal lines       #3##########';
+#pragma warning restore AA0470
         Text006: Label 'Use Force No. of Days must be activated.';
         CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
+#pragma warning disable AA0470
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         Text1130000: Label 'You must specify %1 for %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         DeprBookCode: Code[10];
@@ -710,8 +718,8 @@ report 5692 "Calculate Depreciation"
 
     procedure SetSuppressCommit(NewSuppressCommmit: Boolean)
     begin
-        SuppressCommit := NewSuppressCommmit;  
-    end;	  
+        SuppressCommit := NewSuppressCommmit;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)

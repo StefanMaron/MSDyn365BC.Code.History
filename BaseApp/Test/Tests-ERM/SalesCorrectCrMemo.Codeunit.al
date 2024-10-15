@@ -1268,13 +1268,11 @@ codeunit 137026 "Sales Correct Cr. Memo"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Entry Type" := EntryType;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DetailedCustLedgEntry."Entry Type" := EntryType;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure BlockCustomer(CustNo: Code[20])
@@ -1325,11 +1323,9 @@ codeunit 137026 "Sales Correct Cr. Memo"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
-        with SalesHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::Invoice);
-            Insert(true);
-        end;
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Insert(true);
         CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
         CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Credit Memo", SalesCrMemoHeader."No.", SalesHeader);
         LibraryERM.FindCustomerLedgerEntry(
@@ -1479,13 +1475,11 @@ codeunit 137026 "Sales Correct Cr. Memo"
     var
         SalesInvLine: Record "Sales Invoice Line";
     begin
-        with SalesInvLine do begin
-            SetRange("No.", SalesInvHeader."No.");
-            SetRange(Type, Type::"G/L Account");
-            SetRange("No.",
-              LibrarySales.GetInvRoundingAccountOfCustPostGroup(SalesInvHeader."Customer Posting Group"));
-            Assert.IsFalse(IsEmpty, InvRoundingLineDoesNotExistErr);
-        end;
+        SalesInvLine.SetRange("No.", SalesInvHeader."No.");
+        SalesInvLine.SetRange(Type, SalesInvLine.Type::"G/L Account");
+        SalesInvLine.SetRange("No.",
+          LibrarySales.GetInvRoundingAccountOfCustPostGroup(SalesInvHeader."Customer Posting Group"));
+        Assert.IsFalse(SalesInvLine.IsEmpty, InvRoundingLineDoesNotExistErr);
     end;
 
     [ModalPageHandler]

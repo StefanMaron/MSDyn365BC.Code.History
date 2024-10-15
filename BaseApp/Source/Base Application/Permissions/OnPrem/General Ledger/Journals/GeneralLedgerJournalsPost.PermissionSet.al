@@ -49,6 +49,7 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Bank Account Ledger Entry" = rim,
                   tabledata "Bank Statement Matching Buffer" = RIMD,
                   tabledata "Batch Processing Parameter" = Rimd,
+                  tabledata "Batch Processing Session Map" = Rimd,
                   tabledata "Check Ledger Entry" = rim,
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,

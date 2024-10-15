@@ -39,6 +39,12 @@ page 193 "Incoming Doc. Attach. FactBox"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the attached file.';
+                    Visible = false;
+                }
+                field("File Extension"; Rec."File Extension")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the file extension of the attached file.';
                 }
                 field("Created Date-Time"; Rec."Created Date-Time")
                 {
@@ -54,42 +60,52 @@ page 193 "Incoming Doc. Attach. FactBox"
     {
         area(processing)
         {
+            action(UploadMainAttachment)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Upload main attachment';
+                Image = Attach;
+                ToolTip = 'Attach a file as the main attachment to the incoming document record.';
+                Enabled = not HasMainAttachment;
+
+                trigger OnAction()
+                begin
+                    UploadSingleAttachment();
+                end;
+            }
+            fileuploadaction(UploadSupportingAttachments)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Upload supporting attachments';
+                AllowMultipleFiles = true;
+                Visible = true;
+                Image = Import;
+                Enabled = HasMainAttachment;
+                ToolTip = 'Attach one or more files as the supporting attachments to the incoming document record.';
+
+                trigger OnAction(files: List of [FileUpload])
+                begin
+                    UploadMultipleAttachments(files);
+                end;
+            }
+#if not CLEAN25
             action(ImportNew)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Action ImportNew is replaced by action UploadMainAttachment and UploadSupportingAttachments.';
+                ObsoleteTag = '25.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach File';
                 Image = Attach;
                 ToolTip = 'Attach a file to the incoming document record.';
+                Visible = false;
 
                 trigger OnAction()
-                var
-                    IncomingDocumentAttachment: Record "Incoming Document Attachment";
-                    IncomingDocument: Record "Incoming Document";
                 begin
-                    IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", Rec."Incoming Document Entry No.");
-                    if GlobalRecordID.TableNo <> 0 then
-                        MainRecordRef := GlobalRecordID.GetRecord()
-                    else begin
-                        if GlobalDocumentNo <> '' then
-                            IncomingDocumentAttachment.SetRange("Document No.", GlobalDocumentNo);
-
-                        if GlobalPostingDate <> 0D then
-                            IncomingDocumentAttachment.SetRange("Posting Date", GlobalPostingDate);
-
-                    end;
-
-                    IncomingDocumentAttachment.SetFiltersFromMainRecord(MainRecordRef, IncomingDocumentAttachment);
-
-                    // check MainRecordRef is initialized
-                    if MainRecordRef.Number <> 0 then
-                        if not MainRecordRef.Get(MainRecordRef.RecordId) then
-                            Error(CreateMainDocumentFirstErr);
-
-                    if IncomingDocumentAttachment.Import(true) then
-                        if IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
-                            LoadDataFromIncomingDocument(IncomingDocument);
+                    UploadSingleAttachment();
                 end;
             }
+#endif
             action(IncomingDoc)
             {
                 ApplicationArea = Basic, Suite;
@@ -189,6 +205,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
         ShareOptionsEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.")) and (DocumentSharing.ShareEnabled());
         DownloadEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No."));
+        HasMainAttachment := Rec.Count() > 0;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -203,6 +220,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
         PreviousViewFilter := Rec.GetView();
         HasAttachments := LoadDataFromOnFindRecord();
+        HasMainAttachment := Rec.Count() > 0;
         exit(HasAttachments);
     end;
 
@@ -219,6 +237,52 @@ page 193 "Incoming Doc. Attach. FactBox"
         PreviousViewFilter: text;
         GlobalDocumentNo: text;
         GlobalPostingDate: Date;
+        HasMainAttachment: Boolean;
+
+    local procedure PrepareIncDocAttachmentBeforeUpload(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", Rec."Incoming Document Entry No.");
+        if GlobalRecordID.TableNo <> 0 then
+            MainRecordRef := GlobalRecordID.GetRecord()
+        else begin
+            if GlobalDocumentNo <> '' then
+                IncomingDocumentAttachment.SetRange("Document No.", GlobalDocumentNo);
+            if GlobalPostingDate <> 0D then
+                IncomingDocumentAttachment.SetRange("Posting Date", GlobalPostingDate);
+        end;
+
+        IncomingDocumentAttachment.SetFiltersFromMainRecord(MainRecordRef, IncomingDocumentAttachment);
+
+        // check MainRecordRef is initialized
+        if MainRecordRef.Number <> 0 then
+            if not MainRecordRef.Get(MainRecordRef.RecordId) then
+                Error(CreateMainDocumentFirstErr);
+    end;
+
+    local procedure UploadSingleAttachment()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocument: Record "Incoming Document";
+    begin
+        PrepareIncDocAttachmentBeforeUpload(IncomingDocumentAttachment);
+
+        if IncomingDocumentAttachment.Import(true) then
+            if IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
+                LoadDataFromIncomingDocument(IncomingDocument);
+    end;
+
+    local procedure UploadMultipleAttachments(Files: List of [FileUpload])
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocument: Record "Incoming Document";
+        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+    begin
+        PrepareIncDocAttachmentBeforeUpload(IncomingDocumentAttachment);
+
+        if ImportAttachmentIncDoc.ImportMultiple(IncomingDocumentAttachment, true, Files) then
+            if IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
+                LoadDataFromIncomingDocument(IncomingDocument);
+    end;
 
     procedure LoadDataFromOnFindRecord(): Boolean
     var

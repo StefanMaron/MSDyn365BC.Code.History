@@ -93,25 +93,21 @@ codeunit 144186 "UT VAT Settlement"
     var
         VATPlafondPeriod: Record "VAT Plafond Period";
     begin
-        with VATPlafondPeriod do begin
-            DeleteAll();
-            Init();
-            Year := Date2DMY(InitialDate, 3);
-            Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
-            "Calculated Amount" := CalculatedAmount;
-            Insert();
-        end;
+        VATPlafondPeriod.DeleteAll();
+        VATPlafondPeriod.Init();
+        VATPlafondPeriod.Year := Date2DMY(InitialDate, 3);
+        VATPlafondPeriod.Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
+        VATPlafondPeriod."Calculated Amount" := CalculatedAmount;
+        VATPlafondPeriod.Insert();
     end;
 
     local procedure InitLastSettlementDate(InitialDate: Date)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Last Settlement Date" := CalcDate('<1M>', InitialDate);
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Last Settlement Date" := CalcDate('<1M>', InitialDate);
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure OnValidateVATPeriodPeriodicSettlement(VATPeriod: Code[10])

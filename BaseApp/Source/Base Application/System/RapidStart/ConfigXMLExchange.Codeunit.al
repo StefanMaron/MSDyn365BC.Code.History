@@ -43,7 +43,9 @@ codeunit 8614 "Config. XML Exchange"
         ExcelMode: Boolean;
         HideDialog: Boolean;
         DataListTxt: Label 'DataList', Locked = true;
+#pragma warning disable AA0470
         TableDoesNotExistErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.';
+#pragma warning restore AA0470
         WrongFileTypeErr: Label 'The specified file could not be imported because it is not a valid RapidStart package file.';
         RecordProgressTxt: Label 'Import %1 records', Comment = '%1=The name of the table being imported.';
         AddPrefixMode: Boolean;

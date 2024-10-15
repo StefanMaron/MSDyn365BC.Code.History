@@ -422,6 +422,7 @@ report 91 "Export Consolidation"
         FOLegalEntityID: Code[4];
         ClientFileName: Text;
 
+#pragma warning disable AA0074
         ProductVersion: Label '4.00';
         FormatVersion: Label '1.00';
         Text000: Label 'Enter the file name.';
@@ -429,11 +430,16 @@ report 91 "Export Consolidation"
         Text002: Label 'Enter the ending date for the consolidation period.';
         Text003: Label 'The export can include a maximum of 500 days.';
         Text004: Label 'Processing the chart of accounts...\\';
+#pragma warning disable AA0470
         Text005: Label 'No.             #1##########\';
         Text006: Label 'Date            #2######';
+#pragma warning restore AA0470
         Text007: Label 'Copy Dimensions';
+#pragma warning disable AA0470
         Text009: Label 'A G/L Entry with posting date on a closing date (%1) was found while exporting nonclosing entries. G/L Account No. = %2.';
+#pragma warning restore AA0470
         Text010: Label 'When using closing dates, the starting and ending dates must be the same.';
+#pragma warning restore AA0074
         LegalEntityIDEmptyErr: Label 'You must provide a value in the F&O Legal Entity ID field.';
 
     local procedure WriteFile(var GLEntry2: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")

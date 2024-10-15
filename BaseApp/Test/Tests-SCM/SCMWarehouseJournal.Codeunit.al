@@ -41,7 +41,6 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContentError: Label 'You cannot delete this Bin Content, because the Bin Content contains items.';
         WarehouseLineMustNotExist: Label 'Warehouse Adjustment Lines must not exist.';
         JournalLinesRegistered: Label 'The journal lines were successfully registered';
-        NewExpirationDateError: Label 'New Expiration Date must be equal to ''''  in Tracking Specification';
         SingleExpirationDateError: Label 'Only one expiration date is allowed per lot number.';
         DirectedPutAwayAndPickErrorNewExpirationDate: Label 'Validation error for Field: New Expiration Date,  Message = ''You cannot change item tracking because the item is set up with warehouse tracking and location %1 is set up with Directed Put-away and Pick.';
         DirectedPutAwayAndPickSerialNo: Label 'Validation error for Field: Serial No.,  Message = ''You cannot change item tracking because it is created from warehouse entries.';
@@ -713,6 +712,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+        TrackingSpec: Record "Tracking Specification";
         DequeueVariable: Variant;
         LotNo: Code[50];
     begin
@@ -745,7 +745,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         if MultipleExpirationDate then
             Assert.IsTrue(StrPos(GetLastErrorText, SingleExpirationDateError) > 0, GetLastErrorText)
         else
-            Assert.IsTrue(StrPos(GetLastErrorText, NewExpirationDateError) > 0, GetLastErrorText);
+            Assert.ExpectedTestFieldError(TrackingSpec.FieldCaption("New Expiration Date"), '''');
     end;
 
     [Test]
@@ -2674,7 +2674,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [THEN] Error is thrown
         asserterror CreateBinCreationWkshName(BinCreationWkshName[1], BinCreationWkshTemplate.Name, Location[1].Code);
-        Assert.ExpectedError('Bin Mandatory must be equal to ');
+        Assert.ExpectedTestFieldError(Location[1].FieldCaption("Bin Mandatory"), Format(false));
 
         // [GIVEN] WorksheetNames for template and location combination
         CreateBinCreationWkshName(BinCreationWkshName[2], BinCreationWkshTemplate.Name, Location[2].Code);
@@ -2896,7 +2896,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         asserterror WarehouseJournalLine.Validate("Bin Code", PickBin.Code);
 
         // [THEN] An error message is thrown, reading that the adjustment bin does not exist at location.
-        Assert.ExpectedError('The Bin does not exist');
+        Assert.ExpectedErrorCannotFind(Database::Bin);
     end;
 
     [Test]
@@ -2942,7 +2942,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         asserterror WarehouseJournalLine.Validate("Bin Code", PickBin.Code);
 
         // [THEN] An error message is thrown, reading that the adjustment bin does not exist at location.
-        Assert.ExpectedError('The Bin does not exist');
+        Assert.ExpectedErrorCannotFind(Database::Bin);
     end;
 
     [Test]
@@ -4672,11 +4672,11 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure CreateWhseJournalLineWithTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; EntryType: Option "Negative Adjmt.","Positive Adjmt.",Movement; ItemNo: Code[20]; Quantity: Decimal)
     begin
-        with LibraryVariableStorage do begin
-            Enqueue(0);  // Set TrackingAction to "0" for WhseItemTrackingLinesHandler.
-            Enqueue(false);  // Set LotNoBlank to "FALSE" for WhseItemTrackingLinesHandler.
-            Enqueue(true);  // Set AssignSerialAndLot to "TRUE" for WhseItemTrackingLinesHandler.
-        end;
+        LibraryVariableStorage.Enqueue(0);
+        // Set TrackingAction to "0" for WhseItemTrackingLinesHandler.
+        LibraryVariableStorage.Enqueue(false);
+        // Set LotNoBlank to "FALSE" for WhseItemTrackingLinesHandler.
+        LibraryVariableStorage.Enqueue(true);  // Set AssignSerialAndLot to "TRUE" for WhseItemTrackingLinesHandler.
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
           Bin."Zone Code", Bin.Code, EntryType, ItemNo, Quantity);
@@ -4687,21 +4687,19 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            Init();
-            "Activity Type" := "Activity Type"::Pick;
-            "No." := LibraryUtility.GenerateGUID();
-            "Line No." := 1000;
-            "Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
-            "Location Code" := BinContent."Location Code";
-            "Bin Code" := BinContent."Bin Code";
-            "Item No." := BinContent."Item No.";
-            "Variant Code" := BinContent."Variant Code";
-            "Unit of Measure Code" := BinContent."Unit of Measure Code";
-            "Action Type" := "Action Type"::Take;
-            "Assemble to Order" := false;
-            Insert();
-        end;
+        WhseActivityLine.Init();
+        WhseActivityLine."Activity Type" := WhseActivityLine."Activity Type"::Pick;
+        WhseActivityLine."No." := LibraryUtility.GenerateGUID();
+        WhseActivityLine."Line No." := 1000;
+        WhseActivityLine."Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
+        WhseActivityLine."Location Code" := BinContent."Location Code";
+        WhseActivityLine."Bin Code" := BinContent."Bin Code";
+        WhseActivityLine."Item No." := BinContent."Item No.";
+        WhseActivityLine."Variant Code" := BinContent."Variant Code";
+        WhseActivityLine."Unit of Measure Code" := BinContent."Unit of Measure Code";
+        WhseActivityLine."Action Type" := WhseActivityLine."Action Type"::Take;
+        WhseActivityLine."Assemble to Order" := false;
+        WhseActivityLine.Insert();
     end;
 
     local procedure CreateWMSLocationWithProductionBin(var Location: Record Location)
@@ -4746,18 +4744,16 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        with WarehouseJournalLine do begin
-            LibraryWarehouse.CreateWhseJournalLine(
-              WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
-              Bin."Zone Code", Bin.Code, "Entry Type"::"Positive Adjmt.", ItemNo, 0);
-            Validate("Unit of Measure Code", UnitOfMeasureCode);
-            Validate(Quantity, Qty);
-            "Qty. (Base)" := QtyBase;
-            "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
-            Modify(true);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, 0);
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseJournalLine.Validate(Quantity, Qty);
+        WarehouseJournalLine."Qty. (Base)" := QtyBase;
+        WarehouseJournalLine."Qty. (Absolute, Base)" := Abs(WarehouseJournalLine."Qty. (Base)");
+        WarehouseJournalLine.Modify(true);
 
-            RegisterWarehouseJournalLine("Journal Template Name", "Journal Batch Name", Bin."Location Code");
-        end;
+        RegisterWarehouseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Bin."Location Code");
     end;
 
     local procedure CreateWarehouseReclassificationJournal(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; Qty: Decimal)
@@ -5707,12 +5703,10 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20])
     begin
-        with WarehouseEntry do begin
-            SetRange("Journal Batch Name", JournalBatchName);
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        WarehouseEntry.SetRange("Journal Batch Name", JournalBatchName);
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.FindFirst();
     end;
 
     local procedure FindReleasedProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
@@ -5724,12 +5718,10 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure FindProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20])
     begin
-        with ProductionBOMLine do begin
-            SetRange("Production BOM No.", ProductionBOMHeaderNo);
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeaderNo);
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", ItemNo);
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure FindLastWarehouseRegisterNo() LastWarehouseRegisterNo: Integer
@@ -5746,14 +5738,12 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", WarehouseActivityHeader.Type::Pick);
-            SetRange("Source No.", AssemblyHeader."No.");
-            SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
-            SetRange("Source Type", DATABASE::"Assembly Line");
-            SetRange("Source Subtype", AssemblyHeader."Document Type");
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type::Pick);
+        WarehouseActivityLine.SetRange("Source No.", AssemblyHeader."No.");
+        WarehouseActivityLine.SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
+        WarehouseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseActivityLine.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentNo(): Code[20]
@@ -5950,12 +5940,10 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            SetRange("Activity Type", Type);
-            ModifyAll("Lot No.", LotNo);
-        end;
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", Type);
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
 
         RegisterWarehouseActivity(SourceDocument, SourceNo, Type);
     end;
@@ -5966,11 +5954,10 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         FindWhseActivityLine(WarehouseActivityLine, AssemblyHeader);
-        with WarehouseActivityLine do
-            repeat
-                Validate("Qty. to Handle", Qty);
-                Modify(true);
-            until Next() = 0;
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
 
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -6114,13 +6101,11 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            SetRange(Status, ProdOrderStatus);
-            SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst();
-            Validate("Quantity per", NewQtyPer);
-            Modify(true);
-        end;
+        ProdOrderComponent.SetRange(Status, ProdOrderStatus);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Validate("Quantity per", NewQtyPer);
+        ProdOrderComponent.Modify(true);
     end;
 
     local procedure UpdateQuantityPhysicalInventoryOnWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; QtyPhysInventory: Decimal)
@@ -6325,16 +6310,14 @@ codeunit 137153 "SCM Warehouse - Journal"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Transfer);
-            SetRange(Positive, true);
-            SetRange("Dimension Set ID", DimSetID);
-            FindFirst();
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange("Dimension Set ID", DimSetID);
+        ItemLedgerEntry.FindFirst();
 
-            TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
-            TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
-        end;
+        ItemLedgerEntry.TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
+        ItemLedgerEntry.TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
     end;
 
     local procedure VerifyValueEntryDimensions(ItemNo: Code[20]; DimSetID: Integer)
@@ -6343,48 +6326,42 @@ codeunit 137153 "SCM Warehouse - Journal"
         ValueEntry: Record "Value Entry";
     begin
         GLSetup.Get();
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Transfer);
-            SetFilter("Item Ledger Entry Quantity", '>0');
-            SetRange("Dimension Set ID", DimSetID);
-            FindFirst();
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Transfer);
+        ValueEntry.SetFilter("Item Ledger Entry Quantity", '>0');
+        ValueEntry.SetRange("Dimension Set ID", DimSetID);
+        ValueEntry.FindFirst();
 
-            TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
-            TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
-        end;
+        ValueEntry.TestField("Global Dimension 1 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 1 Code"));
+        ValueEntry.TestField("Global Dimension 2 Code", FindDimensionSetEntry(DimSetID, GLSetup."Global Dimension 2 Code"));
     end;
 
     local procedure VerifyReservationEntry(ItemNo: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; ReservationStatus: Enum "Reservation Status"; ExpectedQty: Decimal; ExpectedLotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source ID", SourceID);
-            SetRange("Reservation Status", ReservationStatus);
-            FindFirst();
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        ReservationEntry.FindFirst();
 
-            TestField(Quantity, ExpectedQty);
-            TestField("Lot No.", ExpectedLotNo);
-        end;
+        ReservationEntry.TestField(Quantity, ExpectedQty);
+        ReservationEntry.TestField("Lot No.", ExpectedLotNo);
     end;
 
     local procedure VerifyReservationQuantity(ReservationStatus: Enum "Reservation Status"; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; LotNo: Code[50]; ExpectedQty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Reservation Status", ReservationStatus);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source ID", SourceID);
-            SetRange("Lot No.", LotNo);
-            CalcSums(Quantity);
-            TestField(Quantity, ExpectedQty);
-        end;
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, ExpectedQty);
     end;
 
     local procedure VerifyReservationEntryQuantity(ItemNo: Code[20]; LotNo: Code[50]; Qty: Integer)
@@ -6510,13 +6487,11 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Bin Code", BinCode);
-            CalcSums(Quantity, "Qty. (Base)");
-            TestField(Quantity, 0);
-            TestField("Qty. (Base)", 0);
-        end;
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Bin Code", BinCode);
+        WarehouseEntry.CalcSums(Quantity, "Qty. (Base)");
+        WarehouseEntry.TestField(Quantity, 0);
+        WarehouseEntry.TestField("Qty. (Base)", 0);
     end;
 
     local procedure VerifyWarehousePhysicalJournalLine(WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; ItemNo: Code[20])
@@ -6555,21 +6530,25 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        with WarehouseJournalLine do begin
-            SetRange("Zone Code", ZoneCode);
-            SetRange("Bin Code", BinCode);
-            SetRange("Item No.", ItemNo);
-            Assert.IsTrue(FindFirst(), StrSubstNo(WarehouseLineMustExistErr, ZoneCode, BinCode, ItemNo));
-            Assert.AreEqual(QtyCalculated, "Qty. (Calculated)", QtyCalculatedErr);
-        end;
+        WarehouseJournalLine.SetRange("Zone Code", ZoneCode);
+        WarehouseJournalLine.SetRange("Bin Code", BinCode);
+        WarehouseJournalLine.SetRange("Item No.", ItemNo);
+        Assert.IsTrue(WarehouseJournalLine.FindFirst(), StrSubstNo(WarehouseLineMustExistErr, ZoneCode, BinCode, ItemNo));
+        Assert.AreEqual(QtyCalculated, WarehouseJournalLine."Qty. (Calculated)", QtyCalculatedErr);
     end;
 
     local procedure VerifyLastWarehouseRegisterNo(LastWarehouseRegisterNo: Integer)
     var
         WarehouseRegister: Record "Warehouse Register";
+        WarehouseEntry: Record "Warehouse Entry";
     begin
         WarehouseRegister.FindLast();
         WarehouseRegister.TestField("No.", LastWarehouseRegisterNo);
+        if WarehouseRegister."From Entry No." > WarehouseRegister."To Entry No." then
+            exit; // no entries created
+        WarehouseEntry.SetRange("Entry No.", WarehouseRegister."From Entry No.", WarehouseRegister."To Entry No.");
+        WarehouseEntry.FindFirst();
+        Assert.AreEqual(WarehouseRegister."No.", WarehouseEntry."Warehouse Register No.", 'Wrong Warehouse Register No.');
     end;
 
     local procedure CreateBinForPickZone(var Bin: Record Bin; LocationCode: Code[10])
@@ -6593,15 +6572,13 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        with WarehouseJournalLine do begin
-            SetRange("Zone Code", ZoneCode);
-            SetRange("Bin Code", BinCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Package No.", PackageNo);
-            Assert.IsTrue(FindFirst(), StrSubstNo(WarehouseLineMustExistErr, ZoneCode, BinCode, ItemNo));
-            Assert.AreEqual(QtyCalculated, "Qty. (Calculated)", QtyCalculatedErr);
-        end;
+        WarehouseJournalLine.SetRange("Zone Code", ZoneCode);
+        WarehouseJournalLine.SetRange("Bin Code", BinCode);
+        WarehouseJournalLine.SetRange("Item No.", ItemNo);
+        WarehouseJournalLine.SetRange("Lot No.", LotNo);
+        WarehouseJournalLine.SetRange("Package No.", PackageNo);
+        Assert.IsTrue(WarehouseJournalLine.FindFirst(), StrSubstNo(WarehouseLineMustExistErr, ZoneCode, BinCode, ItemNo));
+        Assert.AreEqual(QtyCalculated, WarehouseJournalLine."Qty. (Calculated)", QtyCalculatedErr);
     end;
 
     local procedure EnterTrackingInfo(LotNo: Integer; PackageNo: Integer; Qty: Integer)
@@ -7014,17 +6991,17 @@ codeunit 137153 "SCM Warehouse - Journal"
         TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo;
     begin
         FindBinCodeandZone(WareohuseActivityLine, FromZoneCode, FromBinCode, ToZoneCode, ToBinCode);
-        
+
         LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
         LibraryWarehouse.CreateWhseJournalLine(
-            WarehouseJournalLine, 
-            WarehouseJournalBatch."Journal Template Name", 
+            WarehouseJournalLine,
+            WarehouseJournalBatch."Journal Template Name",
             WarehouseJournalBatch.Name,
-            LocationCode, 
-            FromZoneCode, 
-            FromBinCode, 
-            WarehouseJournalLine."Entry Type"::Movement, 
-            ItemNo, 
+            LocationCode,
+            FromZoneCode,
+            FromBinCode,
+            WarehouseJournalLine."Entry Type"::Movement,
+            ItemNo,
             Qty);
 
         WarehouseJournalLine.Validate("From Zone Code", FromZoneCode);

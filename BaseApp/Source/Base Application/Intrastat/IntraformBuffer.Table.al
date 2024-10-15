@@ -1,19 +1,13 @@
 table 12118 "Intra - form Buffer"
 {
     Caption = 'Intra - form Buffer';
-#if not CLEAN22
-    ObsoleteState = Pending;
-#pragma warning disable AS0072
-    ObsoleteTag = '22.0';
-#pragma warning restore AS0072
-#else
     ObsoleteState = Removed;
 #pragma warning disable AS0072
     ObsoleteTag = '25.0';
 #pragma warning restore AS0072
-#endif
     ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -27,7 +21,7 @@ table 12118 "Intra - form Buffer"
         {
             Caption = 'Journal Batch Name';
             DataClassification = SystemMetadata;
-            TableRelation = "Intrastat Jnl. Batch".Name WHERE("Journal Template Name" = field("Journal Template Name"));
+            TableRelation = "Intrastat Jnl. Batch".Name where("Journal Template Name" = field("Journal Template Name"));
         }
         field(3; "No."; Integer)
         {

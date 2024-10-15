@@ -20,7 +20,7 @@ report 12117 "Customer Bills List"
     {
         dataitem(Customer; Customer)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(EndingDate; Format(EndingDate))
@@ -80,7 +80,7 @@ report 12117 "Customer Bills List"
             dataitem(CustLedgEntry1; "Cust. Ledger Entry")
             {
                 DataItemLink = "Customer No." = field("No.");
-                DataItemTableView = sorting(Open, "Due Date") order(Ascending);
+                DataItemTableView = sorting(Open, "Due Date") order(ascending);
                 column(CustLedgEntry1__Due_Date_; Format("Due Date"))
                 {
                 }
@@ -401,7 +401,7 @@ report 12117 "Customer Bills List"
                     TotalDtldCustLedgrEntries := 0;
                     SetAutoCalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
 
-                    IF OnlyOpened THEN
+                    if OnlyOpened then
                         SetFilter("Remaining Amt. (LCY)", '<>0');
 
                     SetFilter("Document Type", '<>%1&<>%2&<>%3&<>%4',

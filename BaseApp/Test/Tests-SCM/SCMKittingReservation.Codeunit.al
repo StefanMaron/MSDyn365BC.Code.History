@@ -35,7 +35,6 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntryShouldBeBlank: Label 'Reservation Entry should be blank';
         ReleasedProdOrderLine: Label 'Released Prod. Order Line';
         BindingOrderToOrderError: Label 'You cannot state item tracking on a demand when it is linked to a supply by Binding = Order-to-Order.';
-        ReservedQuantityBaseError: Label 'Reserved Qty. (Base) must be equal to ''%1''  in Assembly Header: Document Type=Order, No.=';
         AvailabilityWarningsConfirmMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         NotAffectExistingEntriesMsg: Label 'The change will not affect existing entries.';
         BeforeWorkDateMsg: Label 'is before work date %1 in one or more of the assembly lines';
@@ -253,7 +252,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LotNo: Code[50];
-        LotNo2: Code[20];
+        LotNo2: Code[50];
         OldStockOutWarning: Boolean;
     begin
         // Update Stock Out Warning on Assembly Setup. Create Assembly Order with Tracking. Create and Post Item Journal Line. Create Sales Order.
@@ -559,7 +558,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Exercise.
         EnqueueValuesForReservationEntry(ReservationMode::AvailableToReserve, Quantity, Quantity / 2);  // Value required for Partial Reservation.
-        AssertError AssemblyLine.ShowReservation();
+        asserterror AssemblyLine.ShowReservation();
 
         // Verify: Verification is done in ReservationPageHandler.
 
@@ -658,37 +657,40 @@ codeunit 137099 "SCM Kitting Reservation"
         PurchaseHeader: Record "Purchase Header";
         AssemblyItem: Record Item;
         OldStockOutWarning: Boolean;
-        Quantity: Decimal;
+        Lot1Qty: Decimal;
+        Lot2Qty: Decimal;
+        ComponentQtyPer: Decimal;
+        QtyToAssemble: Decimal;
         ComponentItemNo: Code[20];
         LotNo: Code[50];
-        LotNo2: Code[20];
-        Quantity2: Decimal;
+        LotNo2: Code[50];
     begin
         // Create Purchase Order. Create and post Item Journal Line. Create Assembly Order.
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
-        Quantity := LibraryRandom.RandDec(10, 2);
-        Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);
-        ComponentItemNo :=
-          CreateAssemblyItemWithTrackedComponentItem(AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Order", Quantity);
-        LotNo := CreateAndPostItemJournalLine(ComponentItemNo, Quantity, true);  // UseTracking as True.
-        LotNo2 := CreateAndPostItemJournalLine(ComponentItemNo, Quantity2, true);  // UseTracking as True.
-        CreatePurchaseOrder(PurchaseHeader, ComponentItemNo, Quantity, AssemblyItem."Base Unit of Measure", true);  // UseTracking as True.
-        CreateAndUpdateAssemblyOrder(AssemblyHeader, AssemblyLine, AssemblyItem."No.", ComponentItemNo, Quantity2);
+        QtyToAssemble := LibraryRandom.RandIntInRange(3, 6);
+        ComponentQtyPer := LibraryRandom.RandDecInRange(2, 5, 2);
+        Lot1Qty := LibraryRandom.RandDec(10, 2);
+        Lot2Qty := QtyToAssemble * ComponentQtyPer + LibraryRandom.RandDec(10, 2);
+        ComponentItemNo := CreateAssemblyItemWithTrackedComponentItem(AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Order", ComponentQtyPer);
+        LotNo := CreateAndPostItemJournalLine(ComponentItemNo, Lot1Qty, true);  // UseTracking as True.
+        LotNo2 := CreateAndPostItemJournalLine(ComponentItemNo, Lot2Qty, true);  // UseTracking as True.
+        CreatePurchaseOrder(PurchaseHeader, ComponentItemNo, Lot1Qty, AssemblyItem."Base Unit of Measure", true);  // UseTracking as True.
+        CreateAndUpdateAssemblyOrder(AssemblyHeader, AssemblyLine, AssemblyItem."No.", ComponentItemNo, QtyToAssemble);
 
         // Exercise.
         ApplyItemTrkgAfterReserveQuantityOnAssemblyOrder(AssemblyLine);
 
         // Verify.
         VerifyReservationEntry(
-          ReservationEntry."Reservation Status"::Reservation, ComponentItemNo, DATABASE::"Item Ledger Entry", LotNo, Quantity);
+          ReservationEntry."Reservation Status"::Reservation, ComponentItemNo, DATABASE::"Item Ledger Entry", LotNo, Lot1Qty);
         VerifyReservationEntry(
-          ReservationEntry."Reservation Status"::Reservation, ComponentItemNo, DATABASE::"Assembly Line", LotNo, -Quantity);
+          ReservationEntry."Reservation Status"::Reservation, ComponentItemNo, DATABASE::"Assembly Line", LotNo, -Lot1Qty);
         VerifyReservationEntry(
           ReservationEntry."Reservation Status"::Surplus, ComponentItemNo, DATABASE::"Assembly Line", LotNo2,
-          -(Quantity * Quantity2 - Quantity));  // Calculated value required.
+          -(QtyToAssemble * ComponentQtyPer - Lot1Qty));  // Calculated value required.
 
         if PostAssembly then begin
-            PostAssemblyOrder(AssemblyHeader, AssemblyLine, Quantity);
+            PostAssemblyOrder(AssemblyHeader, AssemblyLine, Lot1Qty);
 
             // Verify.
             VerifyReservationEntryExists(AssemblyHeader."Item No.");
@@ -846,6 +848,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ItemTrackingCode: Record "Item Tracking Code";
+        AssemblyHeader: Record "Assembly Header";
         OldStockOutWarning: Boolean;
         Quantity: Decimal;
         Quantity2: Decimal;
@@ -879,7 +882,7 @@ codeunit 137099 "SCM Kitting Reservation"
             // Verify.
             // Bug 280672 is closed By Design for now. A new deliverable will be implemented in NAV8 covering this scenario.
             // Test code to be updated accordingly when the design will change.
-            Assert.ExpectedError(StrSubstNo(ReservedQuantityBaseError, SalesLine.Quantity));
+            Assert.ExpectedTestFieldError(AssemblyHeader.FieldCaption("Reserved Qty. (Base)"), Format(SalesLine.Quantity));
         end;
 
         // Tear Down.
@@ -896,6 +899,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         PurchaseHeader: Record "Purchase Header";
+        AssemblyHeader: Record "Assembly Header";
         OldStockOutWarning: Boolean;
         Quantity: Decimal;
     begin
@@ -920,7 +924,7 @@ codeunit 137099 "SCM Kitting Reservation"
         // Verify.
         // Bug 280672 is closed By Design for now. A new deliverable will be implemented in NAV8 covering this scenario.
         // Test code to be updated accordingly when the design will change.
-        Assert.ExpectedError(StrSubstNo(ReservedQuantityBaseError, SalesLine.Quantity));
+        Assert.ExpectedTestFieldError(AssemblyHeader.FieldCaption("Reserved Qty. (Base)"), Format(SalesLine.Quantity));
 
         // Tear Down.
         UpdateStockOutWarningOnAssemblySetup(OldStockOutWarning);
@@ -1153,8 +1157,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Assembly Item "I" with a lot-tracked component "C" in stock. Lot No. = "L".
-        LibraryVariableStorage.Enqueue(LotNo);
-        CreateAssemblyItemWithTrackedComponentInStock(AssemblyItem, CompItemNo, 1, Qty);
+        CreateAssemblyItemWithTrackedComponentInStock(AssemblyItem, CompItemNo, 1, Qty, LotNo);
 
         // [GIVEN] Assembly Order for "I" on location set up for directed put-away and pick.
         // [GIVEN] Lot "L" is selected on Assembly Line.
@@ -1193,7 +1196,7 @@ codeunit 137099 "SCM Kitting Reservation"
         CompItem: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LotNos: array[3] of Code[20];
+        LotNos: array[3] of Code[50];
     begin
         // [FEATURE] [Assemble-to-Order] [Item Tracking] [Pick]
         // [SCENARIO 364320] A user can separately reserve component when some quantity of it is reserved and picked for assembly-to-order.
@@ -1478,7 +1481,7 @@ codeunit 137099 "SCM Kitting Reservation"
         UpdateInventoryUsingWhseJournal(Bin, ComponentItem, ComponentItemQtyInStock);
     end;
 
-    local procedure CreateAssemblyItemWithTrackedComponentInStock(var AssemblyItem: Record Item; var ComponentItemNo: Code[20]; QtyPer: Decimal; ComponentItemQtyInStock: Decimal)
+    local procedure CreateAssemblyItemWithTrackedComponentInStock(var AssemblyItem: Record Item; var ComponentItemNo: Code[20]; QtyPer: Decimal; ComponentItemQtyInStock: Decimal; LotNo: Code[50])
     var
         Bin: Record Bin;
         ComponentItem: Record Item;
@@ -1487,7 +1490,7 @@ codeunit 137099 "SCM Kitting Reservation"
           CreateAssemblyItemWithTrackedComponentItem(AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Stock", QtyPer);
         FindBinForPickZone(Bin, LocationWhite.Code);
         ComponentItem.Get(ComponentItemNo);
-        UpdateInventoryForTrackedItemUsingWhseJournal(Bin, ComponentItem, ComponentItemQtyInStock);
+        UpdateInventoryForTrackedItemUsingWhseJournal(Bin, ComponentItem, ComponentItemQtyInStock, LotNo);
     end;
 
     local procedure CreateAssemblyItemWithTrackedComponentItem(var KitItem: Record Item; AssemblyPolicy: Enum "Assembly Policy"; Quantity: Decimal): Code[20]
@@ -1776,13 +1779,12 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), ItemNo, Qty, '', false, false); // Use Reserve and Tracking as FALSE.
-        with SalesLine do begin
-            Validate("Qty. to Assemble to Order", Qty);
-            Validate("Requested Delivery Date", RequestedDeliveryDate);
-            Validate("Promised Delivery Date", PromisedDeliveryDate);
-            Modify(true);
-        end;
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), ItemNo, Qty, '', false, false);
+        // Use Reserve and Tracking as FALSE.
+        SalesLine.Validate("Qty. to Assemble to Order", Qty);
+        SalesLine.Validate("Requested Delivery Date", RequestedDeliveryDate);
+        SalesLine.Validate("Promised Delivery Date", PromisedDeliveryDate);
+        SalesLine.Modify(true);
     end;
 
     local procedure EnqueueValuesForConfirmHandler(ConfirmMessage: Text; ConfirmReply: Boolean)
@@ -2004,15 +2006,16 @@ codeunit 137099 "SCM Kitting Reservation"
         CreateAndPostItemJournalLineFromWhseAdjustment(Item);
     end;
 
-    local procedure UpdateInventoryForTrackedItemUsingWhseJournal(Bin: Record Bin; Item: Record Item; Quantity: Decimal)
+    local procedure UpdateInventoryForTrackedItemUsingWhseJournal(Bin: Record Bin; Item: Record Item; Quantity: Decimal; LotNo: Code[50])
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         CreateWhseJournalLine(WarehouseJournalLine, Bin, Item."No.", Quantity);
-        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
         WarehouseJournalLine.OpenItemTrackingLines();
         LibraryWarehouse.RegisterWhseJournalLine(
-          WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
+            WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
         CreateAndPostItemJournalLineFromWhseAdjustment(Item);
     end;
 
@@ -2020,14 +2023,12 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        with ItemTrackingCode do begin
-            SetRange(Code, TrackingCode);
-            FindFirst();
-            if not "Use Expiration Dates" then
-                Validate("Use Expiration Dates", true);
-            Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
-            Modify(true);
-        end;
+        ItemTrackingCode.SetRange(Code, TrackingCode);
+        ItemTrackingCode.FindFirst();
+        if not ItemTrackingCode."Use Expiration Dates" then
+            ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
+        ItemTrackingCode.Modify(true);
     end;
 
     local procedure UpdateLocationCodeOnAssemblyLine(AssemblyLine: Record "Assembly Line"; LocationCode: Code[10])
@@ -2053,15 +2054,13 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Whse. Document No.", AssemblyOrderNo);
-            SetRange("Whse. Document Type", "Whse. Document Type"::Assembly);
-            if FindSet(true) then
-                repeat
-                    Validate("Qty. to Handle", QtyPicked);
-                    Modify(true);
-                until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Whse. Document No.", AssemblyOrderNo);
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Assembly);
+        if WarehouseActivityLine.FindSet(true) then
+            repeat
+                WarehouseActivityLine.Validate("Qty. to Handle", QtyPicked);
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
     end;
 
@@ -2173,11 +2172,9 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(ExpirationDate, "Expiration Date", StrSubstNo(ReservationEntryErr, FieldCaption("Expiration Date")));
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.FindFirst();
+        Assert.AreEqual(ExpirationDate, ReservationEntry."Expiration Date", StrSubstNo(ReservationEntryErr, ReservationEntry.FieldCaption("Expiration Date")));
     end;
 
     local procedure VerifyWarehouseWorksheetLines(WhseDocumentNo: Code[20]; AsmItemNo: Code[20])

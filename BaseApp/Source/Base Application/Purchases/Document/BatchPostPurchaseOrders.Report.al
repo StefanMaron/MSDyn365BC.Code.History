@@ -193,8 +193,10 @@ report 496 "Batch Post Purchase Orders"
 
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+#pragma warning disable AA0074
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+#pragma warning restore AA0074
 
     protected var
         ReceiveReq: Boolean;
@@ -207,25 +209,6 @@ report 496 "Batch Post Purchase Orders"
         PrintDocVisible: Boolean;
         VATDateEnabled: Boolean;
         PostInvoiceEditable: Boolean;
-
-#if not CLEAN22
-    [Obsolete('Replaced by InitializeRequest with VAT Date parameters.', '22.0')]
-    procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewCalcInvDisc: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        ReceiveReq := NewReceiveReq;
-        InvReq := NewInvReq;
-        PostingDateReq := NewPostingDateReq;
-        ReplacePostingDate := NewReplacePostingDate;
-        ReplaceDocumentDate := NewReplaceDocumentDate;
-        ReplaceVATDateReq := false;
-        if NewCalcInvDisc then
-            PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
-        CalcInvDisc := NewCalcInvDisc;
-    end;
-#endif
 
     procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewVatDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewReplaceVATDate: Boolean; NewCalcInvDisc: Boolean)
     var

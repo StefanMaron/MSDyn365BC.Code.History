@@ -352,8 +352,12 @@ table 5611 "Depreciation Book"
         Text1130000: Label 'The function may post in %1.';
         Text1130001: Label 'The posting was stopped.';
 
+#pragma warning disable AA0074
         Text000: Label 'The book cannot be deleted because it is in use.';
+#pragma warning disable AA0470
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

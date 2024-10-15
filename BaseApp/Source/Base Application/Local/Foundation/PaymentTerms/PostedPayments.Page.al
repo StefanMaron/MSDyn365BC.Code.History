@@ -7,7 +7,6 @@ namespace Microsoft.Foundation.PaymentTerms;
 using Microsoft.Finance.Currency;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 
 page 12172 "Posted Payments"
 {
@@ -109,10 +108,6 @@ page 12172 "Posted Payments"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceInvoiceLine: Record "Service Invoice Line";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         OnBeforeUpdateAmount(Rec);
         ClearAll();
@@ -150,25 +145,8 @@ page 12172 "Posted Payments"
                                     DocumentAmount := PurchCrMemoHdr."Amount Including VAT";
                                 end;
                         end;
-                    Rec."Sales/Purchase"::Service:
-                        if ServiceInvoiceHeader.Get(Rec.Code) then begin
-                            CurrencyCode := ServiceInvoiceHeader."Currency Code";
-                            ServiceInvoiceLine.Reset();
-                            ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-                            if ServiceInvoiceLine.FindSet() then
-                                repeat
-                                    DocumentAmount := DocumentAmount + ServiceInvoiceLine."Amount Including VAT";
-                                until ServiceInvoiceLine.Next() = 0;
-                        end else
-                            if ServiceCrMemoHeader.Get(Rec.Code) then begin
-                                CurrencyCode := ServiceCrMemoHeader."Currency Code";
-                                ServiceCrMemoLine.Reset();
-                                ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                                if ServiceCrMemoLine.FindSet() then
-                                    repeat
-                                        DocumentAmount := DocumentAmount + ServiceCrMemoLine."Amount Including VAT";
-                                    until ServiceCrMemoLine.Next() = 0;
-                            end;
+                    else
+                        OnUpdateAmount(Rec, CurrencyCode, DocumentAmount);
                 end;
 
                 if CurrencyCode = '' then
@@ -212,6 +190,11 @@ page 12172 "Posted Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcUpdateAmount(var PostedPaymentLines: Record "Posted Payment Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAmount(var PostedPaymentLines: Record "Posted Payment Lines"; var CurrencyCode: Code[10]; var DocumentAmount: Decimal)
     begin
     end;
 }

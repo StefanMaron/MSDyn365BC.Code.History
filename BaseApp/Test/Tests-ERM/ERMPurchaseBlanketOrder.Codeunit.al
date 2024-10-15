@@ -34,8 +34,6 @@
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
-        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
-        EmptyBlanketOrderLineNoErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4, Line No.=%5. It cannot be zero or empty.';
         DocumentDateError: Label '%1 cannot be greater than %2';
         DirectCostIsChangedErr: Label 'Direct Cost is changed on Quantity update.';
 
@@ -418,20 +416,17 @@
         // [WHEN] "Blanket Order Line No." is set manually
         UpdatePurchaseLineWithBlanketOrder(
           PurchaseLine, PurchaseHeaderBlanket."No.", PurchaseLineBlanket."Line No.");
-
         // [THEN] Fields "Location Code", "Unit of Measure", "Direct Unit Cost", "Line Discount %", "Line Discount Amount" are copied from Blanket Order Line
-        with PurchaseLine do begin
-            Assert.AreEqual(
-              PurchaseLineBlanket."Location Code", "Location Code", FieldCaption("Location Code"));
-            Assert.AreEqual(
-              PurchaseLineBlanket."Unit of Measure", "Unit of Measure", FieldCaption("Unit of Measure"));
-            Assert.AreEqual(
-              PurchaseLineBlanket."Direct Unit Cost", "Direct Unit Cost", FieldCaption("Direct Unit Cost"));
-            Assert.AreEqual(
-              PurchaseLineBlanket."Line Discount %", "Line Discount %", FieldCaption("Line Discount %"));
-            Assert.AreEqual(
-              PurchaseLineBlanket."Line Discount Amount", "Line Discount Amount", FieldCaption("Line Discount Amount"));
-        end;
+        Assert.AreEqual(
+          PurchaseLineBlanket."Location Code", PurchaseLine."Location Code", PurchaseLine.FieldCaption("Location Code"));
+        Assert.AreEqual(
+          PurchaseLineBlanket."Unit of Measure", PurchaseLine."Unit of Measure", PurchaseLine.FieldCaption("Unit of Measure"));
+        Assert.AreEqual(
+          PurchaseLineBlanket."Direct Unit Cost", PurchaseLine."Direct Unit Cost", PurchaseLine.FieldCaption("Direct Unit Cost"));
+        Assert.AreEqual(
+          PurchaseLineBlanket."Line Discount %", PurchaseLine."Line Discount %", PurchaseLine.FieldCaption("Line Discount %"));
+        Assert.AreEqual(
+          PurchaseLineBlanket."Line Discount Amount", PurchaseLine."Line Discount Amount", PurchaseLine.FieldCaption("Line Discount Amount"));
     end;
 
     [Test]
@@ -940,7 +935,7 @@
         asserterror PurchaseLine[2].Validate("Blanket Order Line No.", PurchaseLine[1]."Line No.");
 
         // [THEN] Error message for location code mismatch is thrown.
-        Assert.ExpectedError('Location Code must be equal');
+        Assert.ExpectedTestFieldError(PurchaseLine[1].FieldCaption("Location Code"), PurchaseLine[1]."Location Code");
     end;
 
     [Test]
@@ -971,7 +966,7 @@
         asserterror PurchaseLine[2].Validate("Blanket Order Line No.", PurchaseLine[1]."Line No.");
 
         // [THEN] Error message for variant code mismatch is thrown.
-        Assert.ExpectedError('Variant Code must be equal');
+        Assert.ExpectedTestFieldError(PurchaseLine[1].FieldCaption("Variant Code"), PurchaseLine[1]."Variant Code");
     end;
 
     [Test]
@@ -1002,9 +997,9 @@
         asserterror PurchaseLine[2].Validate("Blanket Order Line No.", PurchaseLine[1]."Line No.");
 
         // [THEN] Error message for unit of measure code mismatch is thrown.
-        Assert.ExpectedError('Unit of Measure Code must be equal');
+        Assert.ExpectedTestFieldError(PurchaseLine[1].FieldCaption("Unit of Measure Code"), PurchaseLine[1]."Unit of Measure Code");
     end;
-
+    
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderChangePricesInclVATRefreshesPage()
@@ -1102,7 +1097,7 @@
         asserterror Codeunit.Run(Codeunit::"Blanket Purch. Order to Order", PurchaseHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
-        Assert.ExpectedError(BlockedResourceErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1138,10 +1133,7 @@
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The TestField Error was shown
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(EmptyBlanketOrderLineNoErr, PurchaseLine.FieldName("Blanket Order Line No."),
-            PurchaseLine.TableName, PurchaseLine."Document Type", PurchaseLine."Document No.",
-            PurchaseLine."Line No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Blanket Order Line No."), '');
     end;
 
     [Test]
@@ -1474,30 +1466,26 @@
 
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
-        with PurchaseHeader do begin
-            Init();
-            "Document Type" := DocumentType;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Header");
-            "Buy-from Vendor No." := VendorNo;
-            Insert();
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader."Document Type" := DocumentType;
+        PurchaseHeader."No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("No."), DATABASE::"Purchase Header");
+        PurchaseHeader."Buy-from Vendor No." := VendorNo;
+        PurchaseHeader.Insert();
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := PurchaseHeader."Document Type";
-            "Document No." := PurchaseHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
-            Type := LineType;
-            "No." := LibraryUtility.GenerateGUID();
-            Quantity := LibraryRandom.RandIntInRange(11, 20);
-            "Quantity Invoiced" := LibraryRandom.RandInt(10);
-            "Direct Unit Cost" := LibraryRandom.RandDec(10, 2);
-            "Line Amount" := Quantity * "Direct Unit Cost";
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine.Type := LineType;
+        PurchaseLine."No." := LibraryUtility.GenerateGUID();
+        PurchaseLine.Quantity := LibraryRandom.RandIntInRange(11, 20);
+        PurchaseLine."Quantity Invoiced" := LibraryRandom.RandInt(10);
+        PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDec(10, 2);
+        PurchaseLine."Line Amount" := PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost";
+        PurchaseLine.Insert();
     end;
 
     local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; FromDocType: Enum "Purchase Document Type From"; Recalculate: Boolean)
@@ -1562,13 +1550,11 @@
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", InvoiceNo);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            TestField("Blanket Order No.", BlanketOrderNo);
-            TestField("Blanket Order Line No.", BlanketOrderLineNo);
-        end;
+        PurchInvLine.SetRange("Document No.", InvoiceNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+        PurchInvLine.FindFirst();
+        PurchInvLine.TestField("Blanket Order No.", BlanketOrderNo);
+        PurchInvLine.TestField("Blanket Order Line No.", BlanketOrderLineNo);
     end;
 
     local procedure FindOrderLineFromBlanket(var PurchaseLine: Record "Purchase Line"; BlanketPurchaseHeader: Record "Purchase Header")
@@ -1633,4 +1619,5 @@
         Reply := true;
     end;
 }
+
 

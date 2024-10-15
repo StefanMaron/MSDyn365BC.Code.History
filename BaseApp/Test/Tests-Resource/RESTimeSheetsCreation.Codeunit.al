@@ -26,29 +26,9 @@ codeunit 136503 "RES Time Sheets Creation"
         ResourceIsNotDeletedErr: Label 'Resource is not deleted';
         YouCannotDeleteResourceErr: Label 'You cannot delete Resource %1 because unprocessed time sheet lines exist for this resource.';
         FirstWeekDayCannotBeChangedErr: Label 'Time Sheet First Weekday cannot be changed, because there is at least one time sheet.';
-#if not CLEAN22
-        DynamicDayCaptionIsNotCorrectErr: Label 'Dynamic Day Caption Is No Correct';
-#endif
-        TypeMustBeEqualToJobErr: Label 'Type must be equal to ''Project''  in Time Sheet Line: Time Sheet No.=%1, Line No.=0.';
         TimesheetDetailValueIncorrectErr: Label 'Time Sheet Day Time Allocation incorrect';
-#if not CLEAN22
-        StatusMustBeOpenOrRejectedErr: Label 'Status must be Open or Rejected in line with Time Sheet No.=''%1'', Line No.=''10000''.', Comment = 'Status must be Open or Rejected in Time Sheet Line Time Sheet No.=''xxx'', Line No.=''xxx''.';
-        StatusShouldBeSumbittedErr: Label 'Status field value should be Submitted';
-        StatusShouldBeOpenErr: Label 'Status Should be Open';
-        TimesheetLineTypeIsIncorrectErr: Label 'Time Sheet Line Type is incorrect';
-        TimesheetLineStatusIncorrectErr: Label 'Time Sheet Line Status is incorrect';
-        ThereIsNothingToSubmitErr: Label 'There is nothing to submit for line with Time Sheet No.=%1, Line No.=10000.';
-#endif
         LibraryResource: Codeunit "Library - Resource";
-#if not CLEAN22
-        IncorrectPostingDateErr: Label 'Incorrect Posting Date';
-        IncorrectEntryTypeErr: Label 'Incorrect Entry Type';
-        IncorrectUserIDErr: Label 'Incorrect User ID';
-#endif
         IncorrectCostValueErr: Label 'Incorrect Cost Value';
-#if not CLEAN22
-        LibraryHumanResource: Codeunit "Library - Human Resource";
-#endif
         RecRef: RecordRef;
         ThereIsNoEmployeeLinkedWithResErr: Label 'There is no employee linked with resource %1.';
         DayTimeAllocation: array[7] of Decimal;
@@ -61,13 +41,7 @@ codeunit 136503 "RES Time Sheets Creation"
         GlobalTSAllocationValues: array[9] of Decimal;
         GlobalTimeSheetNo: Code[20];
         GlobalTextVariable: Code[20];
-#if not CLEAN22
-        TSLineType: Option " ",Resource,Job,Service,Absence,"Assembly Order";
-#endif
         TimeSheetDoesNotExistErr: Label 'Time Sheet does not exist';
-#if not CLEAN22
-        IncorrectTimeSheetNoOpenedErr: Label 'Incorrect Time Sheet No. opened';
-#endif
         IncorrectTSArchiveNoOpenedErr: Label 'Incorrect Manager Time Sheet Archive No. opened';
         IncorrectPostingEntryOpenedErr: Label 'Incorrect Posting Entry No. page opened';
         IncorrectPostingEntryQuantityErr: Label 'Incorrect Posting Entry Quantity';
@@ -445,146 +419,6 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown();
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('TimeSheetLineJobDetailHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetJobTaskLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        LibraryJob: Codeunit "Library - Job";
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet fields Job No./Job Task No. can be filled in lines
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Create Job
-        LibraryJob.CreateJob(Job);
-        // 3. Set Person Responsible = created Resource
-        Job.Validate("Person Responsible", Resource."No.");
-        Job.Modify();
-        // 4. Create Job Task
-        LibraryJob.CreateJobTask(Job, JobTask);
-        // 5. Add Job Task Custom Description
-        JobTask.Validate(Description, 'Job Task Description Test');
-        JobTask.Modify();
-        // 6. Open Time Sheet and create Job type line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheet.Type.Value := GetTSLineTypeOption(TSLineType::Job);
-
-        GlobalJobNo := Job."No.";
-        GlobalJobTaskNo := JobTask."Job Task No.";
-        TimeSheet.Description.AssistEdit();
-
-        // 7. Validate Description, Job No., Job Task No. fields
-        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindLast();
-        TimeSheetLine.TestField("Job No.", Job."No.");
-        TimeSheetLine.TestField("Job Task No.", JobTask."Job Task No.");
-        TimeSheetLine.TestField(Description, JobTask.Description);
-
-        TimeSheet.OK().Invoke();
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetCheckLeapYear()
-    var
-        UserSetup: Record "User Setup";
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        ResourcesSetup: Record "Resources Setup";
-        TimeSheet: TestPage "Time Sheet";
-        YearMod: Decimal;
-        TempDate: Date;
-        TempText: Text[30];
-    begin
-        // Test case checks that Days represented in one Timesheet for Leap Year are correct
-        Initialize();
-
-        // 1. Create User Setup
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        // 2. Create Resource
-        LibraryTimeSheet.CreateTimeSheetResource(Resource);
-        SetupTSResourceUserID(Resource, UserSetup);
-        // 3. Find next leap year
-        ResourcesSetup.Init();
-        TempDate := WorkDate();
-        repeat
-            TempDate := CalcDate('<+1Y>', TempDate);
-            YearMod := Date2DMY(TempDate, 3) mod 4;
-        until YearMod = 0;
-        TempDate := DMY2Date(29, 2, Date2DMY(TempDate, 3));
-        Date.SetRange("Period Type", Date."Period Type"::Date);
-        TempDate := CalcDate('<-6D>', TempDate);
-        Date.SetFilter("Period Start", '%1..', TempDate);
-        Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst();
-        // 4. Create 1 new Time Sheet
-        TimeSheetCreate(Date."Period Start", 1, Resource, TimeSheetHeader);
-        // 5. Open Time Sheet and create line of Resource Type
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        // 6. Verify Time Sheet table captions are correct
-        TempDate := Date."Period Start";
-        TempText := CopyStr(TimeSheet.Field1.Caption, 1, StrLen(TimeSheet.Field1.Caption) - 4);
-        Assert.AreEqual(Format(Date2DMY(TempDate, 1)), TempText, DynamicDayCaptionIsNotCorrectErr);
-        TempDate := CalcDate('<+1D>', TempDate);
-        TempText := CopyStr(TimeSheet.Field2.Caption, 1, StrLen(TimeSheet.Field2.Caption) - 4);
-        Assert.AreEqual(Format(Date2DMY(TempDate, 1)), TempText, DynamicDayCaptionIsNotCorrectErr);
-        TempDate := CalcDate('<+1D>', TempDate);
-        TempText := CopyStr(TimeSheet.Field3.Caption, 1, StrLen(TimeSheet.Field3.Caption) - 4);
-        Assert.AreEqual(Format(Date2DMY(TempDate, 1)), TempText, DynamicDayCaptionIsNotCorrectErr);
-        TempDate := CalcDate('<+1D>', TempDate);
-        TempText := CopyStr(TimeSheet.Field4.Caption, 1, StrLen(TimeSheet.Field4.Caption) - 4);
-        Assert.AreEqual(Format(Date2DMY(TempDate, 1)), TempText, DynamicDayCaptionIsNotCorrectErr);
-        TempDate := CalcDate('<+1D>', TempDate);
-        TempText := CopyStr(TimeSheet.Field5.Caption, 1, StrLen(TimeSheet.Field5.Caption) - 4);
-        Assert.AreEqual(Format(Date2DMY(TempDate, 1)), TempText, DynamicDayCaptionIsNotCorrectErr);
-        TempDate := CalcDate('<+1D>', TempDate);
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetResourceLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet Line with Type = Resource can be created
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and create Resource Type line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        // 3. Validate Description, Type fields
-        TimeSheet.Type.AssertEquals(GetTSLineTypeOption(TSLineType::Resource));
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TimesheetJobTaskforResource()
@@ -617,733 +451,10 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         asserterror TimeSheetLine.Validate("Job No.", Job."No.");
         // 7. Validate correct error message appeared
-        Assert.ExpectedError(StrSubstNo(TypeMustBeEqualToJobErr, TimeSheetHeader."No."));
+        Assert.ExpectedTestFieldError(TimeSheetLine.FieldCaption(Type), Format(TimeSheetLine.Type::Job));
 
         TearDown();
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetLineEveryDayModify()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheet2: TestPage "Time Sheet";
-        TimeSheet3: TestPage "Time Sheet";
-    begin
-        // Test case to check that values for Time distribution can be modified
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and add Time Sheet line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Reopen Time Sheet, check time allocation and modify time allocation
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet2);
-        ValidateTimeAllocation(DayTimeAllocation, TimeSheet2);
-        // to check trigger for zero value;
-        DayTimeAllocation[3] := 0;
-        GenerateTimeAllocation(DayTimeAllocation, TimeSheet2);
-        TimeSheet2.Field3.Value := Format(DayTimeAllocation[3]);
-        TimeSheet2.OK().Invoke();
-        // 4. Reopen Time Sheet, validate changed values
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet3);
-        ValidateTimeAllocation(DayTimeAllocation, TimeSheet3);
-        TimeSheet3.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetSwitchBetween()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        DayTimeAllocation1: array[5] of Decimal;
-        DayTimeAllocation2: array[5] of Decimal;
-    begin
-        // Test case to check that user can switch between Time Sheets directly from Time Sheet page
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        // 2. Create Time Sheets lines
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 3. Add Time Sheet line
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        GenerateTimeAllocation(DayTimeAllocation1, TimeSheet);
-        // 4. Press Next Period
-        TimeSheet.NextPeriod.Invoke();
-        // 5. Validate correct Time Sheet opened
-        TimeSheetHeader.FindLast();
-        Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
-        // 6. Add Time Sheet Line
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        GenerateTimeAllocation(DayTimeAllocation2, TimeSheet);
-        // 7. Press Previous Period
-        TimeSheet.PreviousPeriod.Invoke();
-        // 8. Verify values on different Time Sheet pages
-        TimeSheetHeader.FindFirst();
-        Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
-        // 9. Validate time allocation values are correct
-        ValidateTimeAllocation(DayTimeAllocation1, TimeSheet);
-        // 10. Press Next Period
-        TimeSheet.NextPeriod.Invoke();
-        TimeSheetHeader.FindLast();
-        Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
-        // 11. Validate time allocation values are correct
-        ValidateTimeAllocation(DayTimeAllocation2, TimeSheet);
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetModifySubmittedLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that user cannot modify sumbitted Time Sheet lines
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and fill Time allocation
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit Time Sheet
-        TimeSheet.Submit.Invoke();
-        // 4. Verify Time Sheet line values cannot be changed
-        asserterror TimeSheet.Field1.Value := Format(GetRandomDecimal());
-        Assert.ExpectedError(StrSubstNo(StatusMustBeOpenOrRejectedErr, TimeSheet.CurrTimeSheetNo.Value));
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetModifyApprovedLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet1: TestPage "Time Sheet";
-        TimeSheetNo: Code[20];
-    begin
-        // Verify that Time Sheet line cannot be edited in Approved state
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and fill Time allocation
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit Time Sheet
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        // 4. Open Manager Time Sheet and Validate correct Time Sheet opened
-        ApproveTimeSheet(TimeSheetNo, 1);
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        // 6. Validate Manager Time Sheet line Status has been changed to 'Approved'
-        Assert.AreEqual(GetTSLineStatusOption(3), ManagerTimeSheet.Status.Value, TimesheetLineStatusIncorrectErr);
-        ManagerTimeSheet.OK().Invoke();
-        // 7. Open created Time Sheet
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet1);
-        // 8. Try to modify Time allocation for first day of week
-        asserterror TimeSheet1.Field1.Value := Format(GetRandomDecimal());
-        // 9. Expecting there was 'Status must not be Approved in Time Sheet Line ...' error message
-        Assert.ExpectedError(StrSubstNo(StatusMustBeOpenOrRejectedErr, TimeSheet1.CurrTimeSheetNo.Value));
-        TimeSheet1.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetSubmitLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that after Time Sheet line was submitted - status has changed
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and add line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit Time Sheet
-        TimeSheet.Submit.Invoke();
-        // 4. Validate Status = Submitted
-        Assert.AreEqual(GetTSLineStatusOption(1), TimeSheet.Status.Value, StatusShouldBeSumbittedErr);
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetSubmitEmptyLine()
-    var
-        Resource: Record Resource;
-        ResourcesSetup: Record "Resources Setup";
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that line with non-distributed time cannot be submitted
-        Initialize();
-
-        // 0. Set Time Sheet Submission Policy = Stop and Show Empty Line Error
-        if ResourcesSetup.Get() then
-            if ResourcesSetup."Time Sheet Submission Policy" <> ResourcesSetup."Time Sheet Submission Policy"::"Stop and Show Empty Line Error" then begin
-                ResourcesSetup."Time Sheet Submission Policy" := ResourcesSetup."Time Sheet Submission Policy"::"Stop and Show Empty Line Error";
-                ResourcesSetup.Modify();
-            end;
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Ppen Time Sheet and add line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        // 3. Submit Time Sheet
-        asserterror TimeSheet.Submit.Invoke();
-        // 4. Verify error message 'There is nothing to submit...'
-        Assert.ExpectedError(StrSubstNo(ThereIsNothingToSubmitErr, TimeSheet.CurrTimeSheetNo.Value));
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetSubmitReopenLine()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that after Time Sheet line was submitted, user can Reopen it
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and create line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit Time Sheet
-        TimeSheet.Submit.Invoke();
-        // 4. Reopen Time Sheet
-        TimeSheet.Reopen.Invoke();
-        // 5. Validate Status = Open value
-        Assert.AreEqual(GetTSLineStatusOption(0), TimeSheet.Status.Value, StatusShouldBeOpenErr);
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('TimeSheetLineResDetailHndl,StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerValidateFields()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TempDate: Date;
-        TimeSheetNo: Code[20];
-    begin
-        // Verify that after Time Sheet line was submitted all the fields values are the same in Manager Time Sheet
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and fill the fields
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        GlobalTextVariable := TimeSheetNo + Format(GetRandomDecimal());
-        TimeSheet.Description.AssistEdit();
-
-        TimeSheet.Submit.Invoke();
-        // 4. Open Manager Time Sheet and Validate common fields
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value,
-          'Time Sheet No. field is incorrect');
-        Assert.AreEqual(TimeSheetHeader."Resource No.", ManagerTimeSheet.ResourceNo.Value,
-          'Time Sheet Resource No. field is incorrect');
-        Evaluate(TempDate, ManagerTimeSheet.StartingDate.Value);
-        Assert.AreEqual(TimeSheetHeader."Starting Date", TempDate, 'Time Sheet Starting Date field is incorrect');
-        Evaluate(TempDate, ManagerTimeSheet.EndingDate.Value);
-        Assert.AreEqual(TimeSheetHeader."Ending Date", TempDate, 'Time Sheet Ending Date field is incorrect');
-        Assert.AreEqual(GlobalTextVariable, ManagerTimeSheet.Description.Value,
-          'Time Sheet line Description is incorrect');
-        Assert.AreEqual(TimeSheet.Status.Value, ManagerTimeSheet.Status.Value,
-          TimesheetLineTypeIsIncorrectErr);
-        Assert.AreEqual(TimeSheet.Field1.Value, ManagerTimeSheet.Field1.Value,
-          'Time Sheet line field value is incorrect');
-        Assert.AreEqual(TimeSheet.Field2.Value, ManagerTimeSheet.Field2.Value,
-          'Time Sheet line field value is incorrect');
-        Assert.AreEqual(TimeSheet.Field3.Value, ManagerTimeSheet.Field3.Value,
-          'Time Sheet line field value is incorrect');
-        Assert.AreEqual(TimeSheet.Field4.Value, ManagerTimeSheet.Field4.Value,
-          'Time Sheet line field value is incorrect');
-        Assert.AreEqual(TimeSheet.Field5.Value, ManagerTimeSheet.Field5.Value,
-          'Time Sheet line field value is incorrect');
-
-        ManagerTimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerRejectLines()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet1: TestPage "Time Sheet";
-        TimeSheetNo: Code[20];
-    begin
-        // Verify that Time Sheet line can be Rejected from Manager Time Sheet
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and create line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        // 4. Open Manager Time Sheet and Reject Time Sheet
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value,
-          'Time Sheet No. is incorrect');
-        ManagerTimeSheet.Reject.Invoke();
-        Assert.AreEqual(GetTSLineStatusOption(2), ManagerTimeSheet.Status.Value, TimesheetLineStatusIncorrectErr);
-        ManagerTimeSheet.OK().Invoke();
-        // 5. Open Time Sheet
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet1);
-        // 6. Validate that Time Sheet line Status has been changed to 'Rejected'
-        Assert.AreEqual(GetTSLineStatusOption(2), TimeSheet1.Status.Value, TimesheetLineStatusIncorrectErr);
-        TimeSheet1.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerApproveLines()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet1: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet line can be Approved from Manager Time Sheet, validate Time Sheet page line status
-        Initialize();
-
-        // 1. Create User Setup, Resource, Time Sheet
-        LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
-        TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
-        Resource.Get(TimeSheetHeader."Resource No.");
-        // 2. Open Manager Time Sheet
-        ApproveTimeSheet(TimeSheetHeader."No.", 1);
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        // 3. Validate Manager Time Sheet line Status has been changed to 'Approved'
-        Assert.AreEqual(GetTSLineStatusOption(3), ManagerTimeSheet.Status.Value, TimesheetLineStatusIncorrectErr);
-        ManagerTimeSheet.OK().Invoke();
-        // 4. Open Time Sheet
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet1);
-        // 5.Validate Time Sheet line Status has been changed to 'Approved'
-        Assert.AreEqual(GetTSLineStatusOption(3), TimeSheet1.Status.Value, TimesheetLineStatusIncorrectErr);
-        TimeSheet1.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerApproveReopen()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet line can be Reopened from Manager Time Sheet, validate Time Sheet page line status
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
-        TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
-        Resource.Get(TimeSheetHeader."Resource No.");
-        // 2. Open Manager Time Sheet
-        ApproveTimeSheet(TimeSheetHeader."No.", 1);
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        Assert.AreEqual(GetTSLineStatusOption(3), ManagerTimeSheet.Status.Value, TimesheetLineTypeIsIncorrectErr);
-        // 3. Reopen
-        ManagerTimeSheet.Reopen.Invoke();
-        // 4. Validate that Manager Time Sheet line Status has been changed to 'Submitted'
-        Assert.AreEqual(GetTSLineStatusOption(1), ManagerTimeSheet.Status.Value, TimesheetLineTypeIsIncorrectErr);
-        ManagerTimeSheet.OK().Invoke();
-        // 5. Open Time Sheet
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 6. Validate that Time Sheet line Status has been changed to 'Submitted'
-        Assert.AreEqual(GetTSLineStatusOption(1), TimeSheet.Status.Value, TimesheetLineTypeIsIncorrectErr);
-        TimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerSwitchBetween()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet1No: Code[20];
-        TimeSheet2No: Code[20];
-        DayTimeAllocation1: array[5] of Decimal;
-        DayTimeAllocation2: array[5] of Decimal;
-        TimeSheetNo: Code[20];
-    begin
-        // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        TimeSheetHeader.FindFirst();
-        TimeSheet1No := TimeSheetHeader."No.";
-        TimeSheetHeader.FindLast();
-        TimeSheet2No := TimeSheetHeader."No.";
-        // 2. Open Time Sheet 1 and fill line
-        TimeSheet.OpenEdit();
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheet1No;
-        TimeSheet.ResourceNo.AssertEquals(Resource."No.");
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        GenerateTimeAllocation(DayTimeAllocation1, TimeSheet);
-        // 8. Switch to Next Time Sheet and fill lines
-        TimeSheet.NextPeriod.Invoke();
-        TimeSheetHeader.FindLast();
-        Assert.AreEqual(TimeSheet2No, TimeSheet.CurrTimeSheetNo.Value, 'Time Sheet No. is not correct');
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        GenerateTimeAllocation(DayTimeAllocation2, TimeSheet);
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.OK().Invoke();
-        // 9. Open Manager Time Sheet
-        ManagerTimeSheet.OpenEdit();
-        // 10. Switch to Previous Period Time Sheet and Validate values
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        ManagerTimeSheet.PreviousPeriod.Invoke();
-        Assert.AreEqual(TimeSheet1No, ManagerTimeSheet.CurrTimeSheetNo.Value,
-          'Time Sheet No. is incorrect');
-        ValidateManagerTimeAllocation(DayTimeAllocation1, ManagerTimeSheet);
-        // 11. Switch to Next Period Time Sheet and Validate values
-        ManagerTimeSheet.NextPeriod.Invoke();
-        Assert.AreEqual(TimeSheet2No, ManagerTimeSheet.CurrTimeSheetNo.Value,
-          'Time Sheet No. is incorrect');
-        ValidateManagerTimeAllocation(DayTimeAllocation2, ManagerTimeSheet);
-        ManagerTimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetManagerDeclineApprove()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet line can be Rejected, then Submitted and approved
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
-        TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
-        Resource.Get(TimeSheetHeader."Resource No.");
-        // 2. Open Manager Time Sheet, Reject
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        ManagerTimeSheet.Reject.Invoke();
-        ManagerTimeSheet.OK().Invoke();
-        // 3. Open Time Sheet and Submit again
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        // 4. Open Manager Time Sheet, approve and validate 'Approved' status
-        ApproveTimeSheet(TimeSheetHeader."No.", 1);
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        Assert.AreEqual(GetTSLineStatusOption(3), ManagerTimeSheet.Status.Value, TimesheetLineStatusIncorrectErr);
-        ManagerTimeSheet.OK().Invoke();
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetResourcePosting()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ResJnlLine: Record "Res. Journal Line";
-    begin
-        // Verify that Approved Time Sheet line with Type = Resource can be suggested to Resource Journal
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        LibraryTimeSheet.InitResourceScenario(TimeSheetHeader, TimeSheetLine, true);
-        Resource.Get(TimeSheetHeader."Resource No.");
-        // 5. Clean Resource Journal and run Suggest Lines from Time Sheet batch Job
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
-        // 6. Validate Resource Journal lines and values
-        ValidateResourceJournal(TimeSheetHeader."Starting Date", DayTimeAllocation, Resource, 5);
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetResourceSuggestByDate()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        ResJnlLine: Record "Res. Journal Line";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetNo: Code[20];
-    begin
-        // Verify that Approved Time Sheet line with Type = Resource can be suggested to Resource Journal,
-        // filtering by Date
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and create Time Sheet line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Submit
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        // 4. Open Manager Time Sheet and Approve line
-        ApproveTimeSheet(TimeSheetNo, 1);
-        // 5. Clean Resource Journal and run Suggest Lines from Time Sheet batch Job -
-        // Ending Date = Time Sheet."Ending Date" - 5 days
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader,
-          CalcDate('<-5D>', TimeSheetHeader."Ending Date"));
-        // 6. Validate Resource Journal lines and values
-        ValidateResourceJournal(TimeSheetHeader."Starting Date", DayTimeAllocation, Resource, 2);
-        // 7. Validate lines not included in Suggest Lines job filter are not created
-        ResJnlLine.Reset();
-        ResJnlLine.SetFilter(Quantity, Format(DayTimeAllocation[3]));
-        Assert.IsFalse(ResJnlLine.FindSet(), 'This line should not be suggested');
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetResMultipleSuggest()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        ResJnlLine: Record "Res. Journal Line";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheet: TestPage "Time Sheet";
-        DayTimeAllocation1: array[11] of Decimal;
-        DayTimeAllocation2: array[5] of Decimal;
-        Counter: Integer;
-    begin
-        // Verify that Approved Time Sheets with can be suggested to Resource Journal,
-        // Multiple Time Sheets
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        // 2. Open Time Sheet and add Time Sheet line with time allocation
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-        GenerateTimeAllocation2(DayTimeAllocation1, TimeSheetHeader, TimeSheetLine);
-        // 3. Submit
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheet.Submit.Invoke();
-        // 4. Switch to Next Time Sheet and add Time Sheet line with time allocation
-        TimeSheet.NextPeriod.Invoke();
-        TimeSheetHeader.FindLast();
-        Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        GenerateTimeAllocation(DayTimeAllocation2, TimeSheet);
-        // 5. Submit
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        // 6. Approve both Time Sheets
-        ApproveTimeSheet(TimeSheetHeader."No.", 1);
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        ApproveTimeSheet(TimeSheetHeader."No.", 1);
-
-        // 7. Delete all exisiting Resource Journal lines
-        PrepareResourceJournal(ResJnlLine);
-        // 8. Create resource journal lines based on approved time sheet line
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader,
-          CalcDate('<+10D>', TimeSheetHeader."Starting Date"));
-
-        for Counter := 1 to 4 do
-            DayTimeAllocation1[Counter + 7] := DayTimeAllocation2[Counter];
-
-        // 9. Validate lines and fields values for both Time Sheets
-        ValidateResourceJournalLines(TimeSheetHeader."Starting Date", DayTimeAllocation1, Resource, 11);
-        // 10. Validate that line out of period was not created
-        ResJnlLine.Reset();
-        ResJnlLine.SetFilter(Quantity, Format(DayTimeAllocation2[5]));
-        Assert.IsFalse(ResJnlLine.FindSet(), 'This line should not be suggested');
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetResPartApproved()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        ResJnlLine: Record "Res. Journal Line";
-        TimeSheet: TestPage "Time Sheet";
-        TempDate: Date;
-        TempDayAllocation: array[2] of Decimal;
-        TimeSheetNo: Code[20];
-    begin
-        // Verify that Approved Time Sheets can be suggested to Resource Journal,
-        // Partialy approved
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        // 2. Open Time Sheet and add line
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-
-        TempDayAllocation[1] := GetRandomDecimal();
-        TimeSheet.Field1.Value := Format(TempDayAllocation[1]);
-        // 3. Submit
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-
-        // 4. Open next period Time Sheet and add line
-        TimeSheet.NextPeriod.Invoke();
-        TimeSheetHeader.FindLast();
-        Assert.AreEqual(TimeSheet.CurrTimeSheetNo.Value, TimeSheetHeader."No.", 'Time Sheet No. is not correct');
-        TimeSheet.New();
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        TempDayAllocation[2] := GetRandomDecimal();
-        TimeSheet.Field1.Value := Format(TempDayAllocation[2]);
-        TimeSheet.Submit.Invoke();
-
-        // 5. Open Manager Time Sheet and Approve line
-        ApproveTimeSheet(TimeSheetNo, 1);
-
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        // 6. Create resource journal lines based on approved time sheet line
-        TempDate := TimeSheetHeader."Starting Date";
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader,
-          CalcDate('<+10D>', TimeSheetHeader."Starting Date"));
-        // 7. Set Filter to show only one line and Validate that
-        ResJnlLine.Reset();
-        ResJnlLine.SetFilter(Quantity, Format(TempDayAllocation[1]));
-        ResJnlLine.FindFirst();
-        Assert.AreEqual(TempDate, ResJnlLine."Posting Date", IncorrectPostingDateErr);
-        Assert.AreEqual(Resource."Unit Price" * TempDayAllocation[1],
-          ResJnlLine."Total Price", IncorrectCostValueErr);
-        ResJnlLine.Reset();
-        ResJnlLine.SetFilter(Quantity, Format(DayTimeAllocation[3]));
-        Assert.IsFalse(ResJnlLine.FindSet(), 'This line should not be suggested');
-        TearDown();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1386,76 +497,53 @@ codeunit 136503 "RES Time Sheets Creation"
         TearDown();
     end;
 
-#if not CLEAN22
     [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure FactBoxActivityDetails()
+    procedure TimesheetJobPostingWithDateInDescription()
     var
         Resource: Record Resource;
         TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheet1: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        PageFieldValue: Decimal;
-        SumFieldValue: Decimal;
-        TempDec: array[4] of Decimal;
-        TimeSheetNo: Code[20];
+        Date: Record Date;
+        Job1, Job2 : Record Job;
+        JobTask1, JobTask2 : Record "Job Task";
+        JobJnlLine: Record "Job Journal Line";
+        RandomDec1, RandomDec2 : Decimal;
     begin
-        // Verify that Time Sheet page Activity FactBox shows correct values
+        // Verify that approved Job Time Sheet lines are correctly suggested for Multiple Jobs
         Initialize();
 
-        // 1. Create Resource and 1 Time Sheet
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
-        // 2. Open Time Sheet and add line, which will be submitted
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TempDec[1] := CreateCustomTimeSheetLine(TimeSheet, TSLineType::Resource, 'To submit');
-        // 3. Submit
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        // 4. Open Time Sheet and add line, which will be rejected later
-        TempDec[2] := CreateCustomTimeSheetLine(TimeSheet, TSLineType::Resource, 'To Reject');
-        // 5. Submit
-        TimeSheet.Submit.Invoke();
-        // 6. Open Time Sheet and add line, which will be approved later
-        TempDec[3] := CreateCustomTimeSheetLine(TimeSheet, TSLineType::Resource, 'To Approve');
-        // 7. Submit
-        TimeSheet.Submit.Invoke();
-        // 8. Open Time Sheet and add line, which will stay opened
-        TempDec[4] := CreateCustomTimeSheetLine(TimeSheet, TSLineType::Resource, 'To be Opened');
-        TimeSheet.OK().Invoke();
-        // 9. Open Manager Time Sheet
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        ManagerTimeSheet.FILTER.SetFilter(Description, 'To Reject');
-        // 10. Reject line
-        ManagerTimeSheet.Reject.Invoke();
-        ManagerTimeSheet.FILTER.SetFilter(Description, 'To Approve');
-        // 11. Approve line
-        ManagerTimeSheet.Approve.Invoke();
-        ManagerTimeSheet.OK().Invoke();
-        // 12. Open Time Sheet page and validate field values of Fact box
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet1);
-        Evaluate(PageFieldValue, TimeSheet1.TimeSheetStatusFactBox.OpenQty.Value);
-        SumFieldValue := PageFieldValue;
-        Assert.AreEqual(TempDec[4], PageFieldValue, 'Open field has wrong value');
-        Evaluate(PageFieldValue, TimeSheet1.TimeSheetStatusFactBox.SubmittedQty.Value);
-        SumFieldValue := SumFieldValue + PageFieldValue;
-        Assert.AreEqual(TempDec[1], PageFieldValue, 'Submitted field has wrong value');
-        Evaluate(PageFieldValue, TimeSheet1.TimeSheetStatusFactBox.RejectedQty.Value);
-        SumFieldValue := SumFieldValue + PageFieldValue;
-        Assert.AreEqual(TempDec[2], PageFieldValue, 'Rejected field has wrong value');
-        Evaluate(PageFieldValue, TimeSheet1.TimeSheetStatusFactBox.ApprovedQty.Value);
-        SumFieldValue := SumFieldValue + PageFieldValue;
-        Assert.AreEqual(TempDec[3], PageFieldValue, 'Approved field has wrong value');
-        Evaluate(PageFieldValue, TimeSheet1.TimeSheetStatusFactBox.TotalQuantity.Value);
-        Assert.AreEqual(SumFieldValue, PageFieldValue, 'Total field has wrong value');
-        TimeSheet1.OK().Invoke();
+        // [GIVEN] User setup, Resource, 1 Time Sheet
+        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
 
+        // [GIVEN] System is configured to include time sheets date in generated journal lines
+        SetIncludeTimeSheetDateInJournal();
+
+        // [GIVEN] Job, Job Task, Job Planning Lines exists
+        CreateJobPlanning(Resource, Job1, JobTask1, Date);
+        CreateJobPlanning(Resource, Job2, JobTask2, Date);
+
+        // [GIVEN] 2 Job type lines exist and are approved
+        RandomDec1 := GetRandomDecimal();
+        CreateJobTSLineApprove(TimeSheetHeader, Job1."No.", JobTask1."Job Task No.", TimeSheetHeader."Starting Date", RandomDec1);
+        RandomDec2 := GetRandomDecimal();
+        CreateJobTSLineApprove(TimeSheetHeader, Job2."No.", JobTask2."Job Task No.", TimeSheetHeader."Starting Date", RandomDec2);
+
+        // [WHEN] Open Job Journal and suggest lines from Time Sheet
+        SuggestJobJournalLines(JobJnlLine, TimeSheetHeader, StrSubstNo('%1|%2', Job1."No.", Job2."No."), StrSubstNo('%1|%2', JobTask1."Job Task No.", JobTask2."Job Task No."));
+
+        // [THEN] Lines are valid and have date in description
+        ValidateJobJournalWithDateInDescription(TimeSheetHeader, JobTask1, RandomDec1);
+        ValidateJobJournalWithDateInDescription(TimeSheetHeader, JobTask2, RandomDec2);
         TearDown();
     end;
-#endif
+
+    local procedure SetIncludeTimeSheetDateInJournal()
+    var
+        ResourcesSetup: Record "Resources Setup";
+    begin
+        ResourcesSetup.Get();
+        ResourcesSetup."Incl. Time Sheet Date in Jnl." := true;
+        ResourcesSetup.Modify();
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -1493,79 +581,6 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown();
     end;
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('TimeSheetLineAbsDetailHndl')]
-    [Scope('OnPrem')]
-    procedure TimesheetAbsenceApprovePost()
-    var
-        UserSetup: Record "User Setup";
-        Resource: Record Resource;
-        AccountingPeriod: Record "Accounting Period";
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        ResourcesSetup: Record "Resources Setup";
-        Employee: Record Employee;
-        CauseOfAbsence: Record "Cause of Absence";
-        EmployeeAbsence: Record "Employee Absence";
-        TimeSheet: TestPage "Time Sheet";
-        DayTimeAllocation: array[7] of Decimal;
-        Counter: Integer;
-        TempDate: Date;
-    begin
-        // Verify that Time Sheet line with Type Absence can be posted. Validate fields.
-        Initialize();
-
-        // 1. Create User Setup
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        // 2. Create Resource
-        LibraryTimeSheet.CreateTimeSheetResource(Resource);
-        SetupTSResourceUserID(Resource, UserSetup);
-        // 4. Create new Employee
-        LibraryHumanResource.CreateEmployee(Employee);
-        // 5. Find random Cause of Absence
-        FindCauseOfAbsence(CauseOfAbsence);
-        // 6. Link Resource to Employee
-        Employee.Validate("Resource No.", Resource."No.");
-        Employee.Modify();
-        // 7. Find first open accounting period
-        LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
-        // 8. Find first DOW after accounting period starting date
-        FindFirstDOW(AccountingPeriod, Date, ResourcesSetup);
-        // 9. Create 1 Time Sheet
-        TimeSheetCreate(Date."Period Start", 1, Resource, TimeSheetHeader);
-        // 10. Open Time Sheet and create Absence type line
-
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Absence, '', '', '', CauseOfAbsence.Code);
-        GenerateTimeAllocation2(DayTimeAllocation, TimeSheetHeader, TimeSheetLine);
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        GlobalTextVariable := CauseOfAbsence.Code;
-        TimeSheet.Description.AssistEdit();
-
-        // 11. Submit and approve
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-        TempDate := CalcDate('<-1D>', Date."Period Start");
-        // 12. Open Employee Absences and validate all lines created
-        EmployeeAbsence.Reset();
-        EmployeeAbsence.SetRange("Employee No.", Employee."No.");
-        for Counter := 1 to 7 do begin
-            TempDate := CalcDate('<+1D>', TempDate);
-            EmployeeAbsence.SetFilter("From Date", Format(TempDate));
-            EmployeeAbsence.FindFirst();
-            Assert.AreEqual(CauseOfAbsence.Code, EmployeeAbsence."Cause of Absence Code",
-              'Employee Absences incorrect Cause of Absence Code');
-            Assert.AreEqual(CauseOfAbsence.Description, EmployeeAbsence.Description, 'Employee Absences incorrect Description');
-            Assert.AreEqual(DayTimeAllocation[Counter], EmployeeAbsence.Quantity, 'Employee Absences incorrect Quantity');
-            Assert.AreEqual(Resource."Base Unit of Measure", EmployeeAbsence."Unit of Measure Code",
-              'Employee Absences incorrect Unit of Measure Code');
-        end;
-
-        TearDown();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1611,288 +626,6 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown();
     end;
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetJobPlanningTSPage()
-    var
-        UserSetup: Record "User Setup";
-        Resource: Record Resource;
-        AccountingPeriod: Record "Accounting Period";
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        ResourcesSetup: Record "Resources Setup";
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Verify that Time Sheet fields Job No./Job Task No. are suggested by report if option Create lines from Job Planning is On
-        Initialize();
-
-        // 1. Create user setup
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        // 2. Create Resource
-        LibraryTimeSheet.CreateTimeSheetResource(Resource);
-        SetupTSResourceUserID(Resource, UserSetup);
-        // 3. Find first open accounting period
-        LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
-        // 4. find first DOW after accounting period starting date
-        FindFirstDOW(AccountingPeriod, Date, ResourcesSetup);
-        // 5. Create Job, Job Task, Job Planning lines
-        CreateJobPlanning(Resource, Job, JobTask, Date);
-        // 6. Create 1 Time Sheet
-        TimeSheetCreate(Date."Period Start", 1, Resource, TimeSheetHeader);
-        // 7. Open Time Sheet and create Job type line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 8. Run CreateLinesFromJobPlanning action
-        TimeSheet.CreateLinesFromJobPlanning.Invoke();
-        // 9. Validate that lines were successfully suggested by report with correct Job No./Job Task No.
-        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindLast();
-        TimeSheetLine.TestField(Type, TimeSheetLine.Type::Job);
-        TimeSheetLine.TestField("Job No.", Job."No.");
-        TimeSheetLine.TestField("Job Task No.", JobTask."Job Task No.");
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('TSArchiveHandlMSG,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetMoveToArchive()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
-        TimeSheetLineArchive: Record "Time Sheet Line Archive";
-        Date: Record Date;
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        JobJnlLine: Record "Job Journal Line";
-        ResJnlLine: Record "Res. Journal Line";
-        MoveTimeSheetsToArchive: Report "Move Time Sheets to Archive";
-        TimeSheet: TestPage "Time Sheet";
-        DayTimeAllocation1: array[7] of Decimal;
-        DayTimeAllocation2: array[7] of Decimal;
-        TimeSheet1No: Code[20];
-        TimeSheetStartingDate: Date;
-        TimeSheetNo: Code[20];
-    begin
-        // Test case to check that Time Sheet can be moved to Archive
-        Initialize();
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Create Job, Job Task, Job Planning lines
-        CreateJobPlanning(Resource, Job, JobTask, Date);
-        // 3. Remember values
-        TimeSheet1No := TimeSheetHeader."No.";
-        TimeSheetStartingDate := TimeSheetHeader."Starting Date";
-        // 4. Create Time Sheets lines
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        // 5. Add Time Sheet line with Type = Resource
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-        GenerateTimeAllocation2(DayTimeAllocation1, TimeSheetHeader, TimeSheetLine);
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-
-        // 6. Add Time Sheet line with Type = Job
-        LibraryTimeSheet.CreateTimeSheetLine(
-          TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.", JobTask."Job Task No.", '', '');
-        GenerateTimeAllocation2(DayTimeAllocation2, TimeSheetHeader, TimeSheetLine);
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-        // 8. Suggest Job Journal Lines
-        SuggestJobJournalLines(JobJnlLine, TimeSheetHeader, Job."No.", JobTask."Job Task No.");
-        // 9. Post Job Journal Lines
-        PostJobJournal(JobJnlLine, TimeSheetHeader);
-        // 10. Suggest Resource Journal Lines
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
-        // 11. Post Resource Journal lines
-        PostResourceJournal(ResJnlLine, TimeSheetHeader);
-        // 12. Move Time Sheets to Archive
-        TimeSheetHeader.SetRange("No.", TimeSheetNo);
-        MoveTimeSheetsToArchive.SetTableView(TimeSheetHeader);
-        MoveTimeSheetsToArchive.UseRequestPage(false);
-        MoveTimeSheetsToArchive.Run();
-        // 13. Validate Time Sheet Archive fields values
-        TimeSheetHeaderArchive.Get(TimeSheet1No);
-        TimeSheetHeaderArchive.TestField("Starting Date", TimeSheetStartingDate);
-        TimeSheetHeaderArchive.TestField("Ending Date", CalcDate('<+6d>', TimeSheetStartingDate));
-        TimeSheetHeaderArchive.TestField("Resource No.", Resource."No.");
-
-        TimeSheetLineArchive.SetRange("Time Sheet No.", TimeSheetHeaderArchive."No.");
-        TimeSheetLineArchive.FindSet();
-        TimeSheetLineArchive.TestField(Type, TimeSheetLineArchive.Type::Resource);
-        ValidateArchiveTimeAllocation(DayTimeAllocation1, TimeSheetHeaderArchive, TimeSheetLineArchive);
-
-        TimeSheetLineArchive.Next();
-        TimeSheetLineArchive.TestField(Type, TimeSheetLineArchive.Type::Job);
-        TimeSheetLineArchive.TestField("Job No.", Job."No.");
-        TimeSheetLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
-        ValidateArchiveTimeAllocation(DayTimeAllocation2, TimeSheetHeaderArchive, TimeSheetLineArchive);
-
-        // 14. Check that Time Sheet moved to Archive no longer exist
-        TimeSheetHeader.Reset();
-        TimeSheetHeader.SetRange("No.", TimeSheet1No);
-        Assert.IsFalse(TimeSheetHeader.FindSet(), 'Time Sheet Header exist but it should not');
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetModifyAfterPost()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        ResJnlLine: Record "Res. Journal Line";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetNo: Code[20];
-    begin
-        // Test case to check that Time Sheet cannot be modified after posting lines
-        Initialize();
-
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Create Time Sheets lines
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 3. Add Time Sheet line with Type = Resource
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 4. Submit Time Sheet
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        TimeSheet.Close();
-        // 5. Approve Time Sheet
-        ApproveTimeSheet(TimeSheetNo, 1);
-        // 6. Suggest Resource Journal Lines
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
-        // 7. Post Resource Journal lines
-        PostResourceJournal(ResJnlLine, TimeSheetHeader);
-        // 8. Try to Modify Time Sheet line and Validate Error message
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        asserterror TimeSheet.Field1.Value := Format(GetRandomDecimal());
-        Assert.ExpectedError(StrSubstNo(StatusMustBeOpenOrRejectedErr, TimeSheetHeader."No."));
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetResourceDimCheck()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        ResJnlLine: Record "Res. Journal Line";
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-        LibraryDimension: Codeunit "Library - Dimension";
-        TimeSheet: TestPage "Time Sheet";
-        DimensionSetID: Integer;
-        Counter: Integer;
-        TimeSheetNo: Code[20];
-    begin
-        // Test case to check that suggested Resource Journal line has Dimension the same as for Resource Card
-        Initialize();
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Create Dimension and Dimension Value for Resource
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        LibraryDimension.CreateDefaultDimensionResource(DefaultDimension, Resource."No.", Dimension.Code, DimensionValue.Code);
-        // 3. Create Time Sheets lines
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 4. Add Time Sheet line with Type = Resource
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 5. Submit Time Sheet
-        TimeSheetNo := TimeSheet.CurrTimeSheetNo.Value();
-        TimeSheet.Submit.Invoke();
-        // 6. Approve Time Sheet
-        ApproveTimeSheet(TimeSheetNo, 1);
-        // 7. Suggest Resource Journal Lines
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
-        // 8. Verify Resource Journal Lines have Dimension Code and Dimension value the same as for Resource
-        ResJnlLine.Reset();
-        ResJnlLine.SetRange("Resource No.", Resource."No.");
-        for Counter := 1 to 5 do begin
-            ResJnlLine.Next();
-            DimensionSetID := ResJnlLine."Dimension Set ID";
-            VerifyDimInJournalDimSet(Dimension.Code, DimensionValue.Code, DimensionSetID);
-        end;
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('JobDimHandlMSG')]
-    [Scope('OnPrem')]
-    procedure TimesheetJobDimensionCheck()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        JobJnlLine: Record "Job Journal Line";
-        LibraryDimension: Codeunit "Library - Dimension";
-        TimeSheet: TestPage "Time Sheet";
-        DimensionSetID: Integer;
-    begin
-        // Test case to check that suggested Job Journal line has Dimension the same as for Job Card
-        Initialize();
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Create Dimension and Dimension Value for Resource
-        LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        // 3. Create Job, Job Task, Job Planning lines
-        CreateJobPlanning(Resource, Job, JobTask, Date);
-        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Job, Job."No.",
-          Dimension.Code, DimensionValue.Code);
-        // 4. Create Time Sheets lines
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        // 5. Add Time Sheet line with Type = Job
-        AddJobTimeSheetLine(TimeSheetHeader, Job, JobTask);
-        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindFirst();
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-
-        // 8. Suggest Resource Journal Lines
-        SuggestJobJournalLines(JobJnlLine, TimeSheetHeader, Job."No.", JobTask."Job Task No.");
-        // 9. Verify Job Journal Lines have Dimension Code and Dimension value the same as for Job
-        JobJnlLine.Reset();
-        JobJnlLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        JobJnlLine.FindFirst();
-        DimensionSetID := JobJnlLine."Dimension Set ID";
-        VerifyDimInJournalDimSet(Dimension.Code, DimensionValue.Code, DimensionSetID);
-        TearDown();
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1948,182 +681,6 @@ codeunit 136503 "RES Time Sheets Creation"
 
         TearDown();
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetActualScheduledSummary()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        TimeSheet: TestPage "Time Sheet";
-        DayTimeAllocation1: array[7] of Decimal;
-        DayTimeAllocation2: array[7] of Decimal;
-        DayTimeAllocationSched: array[7] of Decimal;
-    begin
-        // Test case to check Period Summary Fact box in Time Sheet page
-        Initialize();
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2.1 Create Job, Job Task, Job Planning lines
-        CreateJobPlanning(Resource, Job, JobTask, Date);
-        // 2.2 Generate Resource Capacity values for 5 days, beginning from Time Sheet 1st day
-        GenerateResourceCapacity(Resource, Date."Period Start", 5, DayTimeAllocationSched);
-        // 3. Add Time Sheet line with Type = Resource
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-        GenerateTimeAllocation2(DayTimeAllocation1, TimeSheetHeader, TimeSheetLine);
-
-        // 4. Add Time Sheet line with Type = Job
-        LibraryTimeSheet.CreateTimeSheetLine(
-          TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.", JobTask."Job Task No.", '', '');
-        GenerateTimeAllocation2(DayTimeAllocation2, TimeSheetHeader, TimeSheetLine);
-        // 5. Validate values on Period Summary FactBox
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        ValidateActualSchedSummaryFactBox(TimeSheet, DayTimeAllocation1, DayTimeAllocation2, DayTimeAllocationSched);
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('TimeSheetAllocationHandler')]
-    [Scope('OnPrem')]
-    procedure TimesheetTimeAllocationPage()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        Date: Record Date;
-        ResJnlLine: Record "Res. Journal Line";
-        TimeSheetPage: TestPage "Time Sheet";
-        DayTimeAllocation: array[7] of Decimal;
-    begin
-        // Test case to check that Time Sheet line after posting has Posted = True value
-        Initialize();
-
-        // 1. Create Resource and 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 3. Add Time Sheet line with Type = Resource
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-        GenerateTimeAllocation2(DayTimeAllocation, TimeSheetHeader, TimeSheetLine);
-        // 4. Submit and Approve
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-        // 7. Suggest Resource Journal Lines
-        SuggestResourceJnlLines(ResJnlLine, TimeSheetHeader, TimeSheetHeader."Ending Date");
-        // 8. Post Resource Journal lines
-        PostResourceJournal(ResJnlLine, TimeSheetHeader);
-        // 9. Open Time Sheet and Time Sheet Allocation page
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheetPage);
-        TimeSheetPage."Time Sheet Allocation".Invoke();
-        // 10. Validate values on Time Sheet Allocation page
-        ValidateTSAllocationPageValues(DayTimeAllocation);
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetOpenFromTSList()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetList: TestPage "Time Sheet List";
-    begin
-        // Test case to check that user can switch between Time Sheets directly from Time Sheet page
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        // 6. Open Time Sheet List page
-        TimeSheetList.OpenView();
-        // 7. Set filter to only one Time Sheet
-        TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        TimeSheet.Trap();
-        // 8. Run Edit Time Sheet
-        TimeSheetList.EditTimeSheet.Invoke();
-        // 9. Validate Correct Time Sheet was opened
-        Assert.AreEqual(TimeSheetHeader."No.", TimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetOpenFromList()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        Counter: Integer;
-    begin
-        // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
-        Initialize();
-
-        // 1. Create Resource and 2 Time Sheets
-        CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
-        // 2. Generate Line for both Time Sheets
-        FindFirstTimeSheet(TimeSheetHeader, Resource."No.");
-        for Counter := 1 to 2 do begin
-            LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-            GenerateTimeAllocation2(DayTimeAllocation, TimeSheetHeader, TimeSheetLine);
-            TimeSheetApprovalMgt.Submit(TimeSheetLine);
-            TimeSheetHeader.Next();
-        end;
-        // 3. Open Manager Time Sheet from Manager Time Sheet List
-        ManagerTimeSheetList.OpenView();
-        ManagerTimeSheetList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheet.Trap();
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-        // 4. Validate opened Manager Time Sheet list No. is correct
-        Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
-
-        TearDown();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimesheetTimeAllocModify()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-    begin
-        // Test case to check that values for Time distribution can be modified
-        Initialize();
-
-        // 1. Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // 2. Open Time Sheet and add Time Sheet line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, true);
-        // 3. Modify Time Sheet Allocation for Random day
-        DayTimeAllocation[3] := GetRandomDecimal();
-        TimeSheet.Field3.Value := Format(DayTimeAllocation[3]);
-        TimeSheet.Close();
-        // 4. Reopen Time Sheet, validate changed values
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        ValidateTimeAllocation(DayTimeAllocation, TimeSheet);
-        TimeSheet.Close();
-
-        TearDown();
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('TimeSheetPostingEntryHandler')]
@@ -2210,40 +767,6 @@ codeunit 136503 "RES Time Sheets Creation"
         ManagerTimeSheetArchive."Posting E&ntries".Invoke();
         TearDown();
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetDetailNotCreatedForZeroDayAmount()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        TimeSheet: TestPage "Time Sheet";
-        TimeAllocation: array[5] of Decimal;
-    begin
-        // [SCENARIO 360297] Check Time Sheet Detail Lines are not created for columns(dates) with zero value
-        Initialize();
-
-        // [GIVEN] Time Sheet Document
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        AddTimeSheetLine(TSLineType::Resource, TimeSheet, false);
-        // [WHEN] User set values in columns(dates) of zero/non-zero values on Time Sheet Page
-        TimeAllocation[1] := LibraryRandom.RandInt(8);
-        TimeAllocation[2] := 0;
-        TimeAllocation[3] := LibraryRandom.RandInt(8);
-        TimeAllocation[4] := 0;
-        TimeAllocation[5] := LibraryRandom.RandInt(8);
-
-        AssignTimeSheetDayValues(TimeSheet, TimeAllocation);
-        TimeSheet.OK().Invoke();
-        // [THEN] Time Sheet Detail Lines are not generated for dates with zero values in columns
-        VerifyTimeSheetDetailLinesCount(TimeSheetHeader."No.", 3);
-
-        TearDown();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2341,56 +864,6 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.ExpectedError(StrSubstNo(IncorrectHRUnitOfMeasureTableRelationErr, UnitOfMeasure.Code));
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ValidateTimeSheetLineJobDetailHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure JobWithStatusCompletedNotShowingInTimeSheetJobNoList()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        Date: Record Date;
-        Job: Record Job;
-        JobTask: Record "Job Task";
-        LibraryJob: Codeunit "Library - Job";
-        TimeSheet: TestPage "Time Sheet";
-        JobCard: TestPage "Job Card";
-    begin
-        // [SCENARIO 439193] It is possible to select a Job in the Time Sheet even if the status of the Job is completed.
-        Initialize();
-
-        // [GIVEN] Create User setup, Resource, 1 Time Sheet
-        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
-        // [GIVEN] Create Job
-        LibraryJob.CreateJob(Job);
-        // [GIVEN] Set Person Responsible = created Resource
-        Job.Validate("Person Responsible", Resource."No.");
-        Job.Modify();
-        // [GIVEN] Create Job Task
-        LibraryJob.CreateJobTask(Job, JobTask);
-        // [GIVEN] Add Job Task Custom Description
-        JobTask.Validate(Description, 'Job Task Description Test');
-        JobTask.Modify();
-
-        // [THEN] Update the Job Status to Completed.
-        JobCard.OpenEdit();
-        JobCard.GotoRecord(Job);
-        JobCard.Status.SetValue(Job.Status::Completed);
-        JobCard.Close();
-
-        // [GIVEN] Open TimeSheet and create Job type line
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TimeSheet.Type.Value := GetTSLineTypeOption(TSLineType::Job);
-
-        GlobalJobNo := Job."No.";
-        GlobalJobTaskNo := JobTask."Job Task No.";
-        // [VERIFY] Open TimeSheet LineJob Detail page and validate the Completed job.
-        TimeSheet.Description.AssistEdit();
-
-        TearDown();
-    end;
-#endif
-
     local procedure FindResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch")
     var
         ResJournalTemplate: Record "Res. Journal Template";
@@ -2445,18 +918,6 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryTimeSheet.FindJobJournalBatch(JobJournalBatch, JobJournalTemplate.Name);
     end;
 
-#if not CLEAN22
-    local procedure GenerateTimeAllocation(var DayTimeAllocation: array[5] of Decimal; var TimeSheet: TestPage "Time Sheet")
-    var
-        Counter: Integer;
-    begin
-        for Counter := 1 to 5 do
-            DayTimeAllocation[Counter] := GetRandomDecimal();
-
-        AssignTimeSheetDayValues(TimeSheet, DayTimeAllocation);
-    end;
-#endif
-
     local procedure GenerateTimeAllocation2(var DayTimeAllocation: array[7] of Decimal; TimeSheetHeader: Record "Time Sheet Header"; TimeSheetLine: Record "Time Sheet Line")
     var
         Counter: Integer;
@@ -2466,26 +927,6 @@ codeunit 136503 "RES Time Sheets Creation"
             LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date" + Counter - 1, DayTimeAllocation[Counter]);
         end;
     end;
-
-#if not CLEAN22
-    local procedure ValidateTimeAllocation(DayTimeAllocation: array[5] of Decimal; var TimeSheet: TestPage "Time Sheet")
-    var
-        PageFieldValue: Decimal;
-    begin
-        Evaluate(PageFieldValue, TimeSheet.Field1.Value);
-        Assert.AreEqual(DayTimeAllocation[1], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, TimeSheet.Field2.Value);
-        Assert.AreEqual(DayTimeAllocation[2], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        if TimeSheet.Field3.Value <> '' then begin
-            Evaluate(PageFieldValue, TimeSheet.Field3.Value);
-            Assert.AreEqual(DayTimeAllocation[3], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        end;
-        Evaluate(PageFieldValue, TimeSheet.Field4.Value);
-        Assert.AreEqual(DayTimeAllocation[4], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, TimeSheet.Field5.Value);
-        Assert.AreEqual(DayTimeAllocation[5], PageFieldValue, TimesheetDetailValueIncorrectErr);
-    end;
-#endif
 
     local procedure ValidateManagerTimeAllocation(DayTimeAllocation: array[5] of Decimal; var ManagerTimeSheet: TestPage "Manager Time Sheet")
     var
@@ -2593,22 +1034,12 @@ codeunit 136503 "RES Time Sheets Creation"
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        with CauseOfAbsence do
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst();
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
+        if CauseOfAbsence."Unit of Measure Code" = '' then begin
+            HumanResourceUnitOfMeasure.FindFirst();
+            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            CauseOfAbsence.Modify(true);
+        end;
     end;
-
-#if not CLEAN22
-    local procedure TimeSheetPageOpen(Resource: Record Resource; TimeSheetHeader: Record "Time Sheet Header"; var TimeSheet: TestPage "Time Sheet")
-    begin
-        TimeSheet.OpenEdit();
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheet.ResourceNo.AssertEquals(Resource."No.");
-    end;
-#endif
 
     local procedure GenerateResourceTimeSheet(var Resource: Record Resource; var Date: Record Date; var TimeSheetHeader: Record "Time Sheet Header"; CurrentUser: Boolean)
     var
@@ -2658,65 +1089,6 @@ codeunit 136503 "RES Time Sheets Creation"
         ResJnlLine."Journal Template Name" := ResJnlBatch."Journal Template Name";
         ResJnlLine."Journal Batch Name" := ResJnlBatch.Name;
     end;
-
-#if not CLEAN22
-    local procedure ValidateResourceJournal(Date: Date; DayTimeAllocation: array[5] of Decimal; Resource: Record Resource; ExtCount: Integer)
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ResJournalLine: Record "Res. Journal Line";
-        TimeSheet: TestPage "Time Sheet";
-        Counter: Integer;
-        TempDate: Date;
-    begin
-        // Set Filter to show only one line and validate fields
-        ValidateTimeSheetCreated(TimeSheetHeader, Resource);
-
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TempDate := CalcDate('<-1D>', Date);
-        for Counter := 1 to ExtCount do begin
-            ResJournalLine.Reset();
-            ResJournalLine.SetFilter(Quantity, Format(DayTimeAllocation[Counter]));
-            if ResJournalLine.FindFirst() then begin
-                TempDate := CalcDate('<+1D>', TempDate);
-                Assert.AreEqual(TempDate, ResJournalLine."Posting Date", IncorrectPostingDateErr);
-                Assert.AreEqual(ResJournalLine."Entry Type"::Usage, ResJournalLine."Entry Type", IncorrectEntryTypeErr);
-                Assert.AreEqual(TimeSheetHeader."Resource No.", ResJournalLine."Resource No.", IncorrectUserIDErr);
-                ValidateCostPrice(Resource, DayTimeAllocation[Counter], ResJournalLine);
-            end
-        end;
-    end;
-#endif
-
-#if not CLEAN22
-    local procedure ValidateResourceJournalLines(Date: Date; DayTimeAllocation: array[5] of Decimal; Resource: Record Resource; ExtCount: Integer)
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ResJournalLine: Record "Res. Journal Line";
-        TimeSheet: TestPage "Time Sheet";
-        Counter: Integer;
-        TempDate: Date;
-    begin
-        // Set Filter to show only one line and validate fields
-        ValidateTimeSheetCreated(TimeSheetHeader, Resource);
-
-        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
-        TempDate := CalcDate('<-1D>', Date);
-
-        ResJournalLine.SetRange("Resource No.", Resource."No.");
-        ResJournalLine.FindSet();
-
-        for Counter := 1 to ExtCount do begin
-            TempDate := CalcDate('<+1D>', TempDate);
-            ResJournalLine.TestField(Quantity, DayTimeAllocation[Counter]);
-            Assert.AreEqual(TempDate, ResJournalLine."Posting Date", IncorrectPostingDateErr);
-            Assert.AreEqual(ResJournalLine."Entry Type"::Usage, ResJournalLine."Entry Type", IncorrectEntryTypeErr);
-            Assert.AreEqual(TimeSheetHeader."Resource No.", ResJournalLine."Resource No.", IncorrectUserIDErr);
-            ValidateCostPrice(Resource, DayTimeAllocation[Counter], ResJournalLine);
-
-            ResJournalLine.Next();
-        end;
-    end;
-#endif
 
     local procedure PostResourceJournal(ResJnlLine: Record "Res. Journal Line"; TimeSheetHeader: Record "Time Sheet Header")
     var
@@ -2784,9 +1156,22 @@ codeunit 136503 "RES Time Sheets Creation"
         JobJnlLine."Journal Batch Name" := JobJnlBatch.Name;
     end;
 
+    local procedure ValidateJobJournalWithDateInDescription(TimeSheetHeader: Record "Time Sheet Header"; JobTask: Record "Job Task"; Qty: Decimal)
+    var
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        ValidateJobJournal(JobJournalLine, TimeSheetHeader, JobTask, Qty);
+        Assert.IsTrue(JobJournalLine.Description.StartsWith(Format(JobJournalLine."Time Sheet Date")), 'Description does not start with Time Sheet Date');
+    end;
+
     local procedure ValidateJobJournal(TimeSheetHeader: Record "Time Sheet Header"; JobTask: Record "Job Task"; Qty: Decimal)
     var
         JobJournalLine: Record "Job Journal Line";
+    begin
+        ValidateJobJournal(JobJournalLine, TimeSheetHeader, JobTask, Qty);
+    end;
+
+    local procedure ValidateJobJournal(var JobJournalLine: Record "Job Journal Line"; TimeSheetHeader: Record "Time Sheet Header"; JobTask: Record "Job Task"; Qty: Decimal)
     begin
         JobJournalLine.Reset();
         JobJournalLine.SetFilter("Time Sheet No.", TimeSheetHeader."No.");
@@ -2813,16 +1198,6 @@ codeunit 136503 "RES Time Sheets Creation"
             JobJnlPostLine.Run(JobJnlLine);
         until JobJnlLine.Next() = 0;
     end;
-
-#if not CLEAN22
-    local procedure AddTimeSheetLine(LineType: Integer; var TimeSheet: TestPage "Time Sheet"; GenerateTimeAlloc: Boolean)
-    begin
-        TimeSheet.Type.Value := GetTSLineTypeOption(LineType);
-        TimeSheet.Description.Value := 'Time Sheet Line Description';
-        if GenerateTimeAlloc then
-            GenerateTimeAllocation(DayTimeAllocation, TimeSheet);
-    end;
-#endif
 
     local procedure AddJobTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; Job: Record Job; JobTask: Record "Job Task"): Decimal
     var
@@ -2889,48 +1264,6 @@ codeunit 136503 "RES Time Sheets Creation"
           'Wrong Dimension value on gen. Jnl. line dimension');
     end;
 
-#if not CLEAN22
-    local procedure ValidateActualSchedSummaryFactBox(TimeSheet: TestPage "Time Sheet"; DayTimeAllocation1: array[5] of Decimal; DayTimeAllocation2: array[5] of Decimal; DayTimeAllocationSched: array[5] of Decimal)
-    var
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-    begin
-        Assert.AreEqual(
-          TimeSheetMgt.FormatActualSched(DayTimeAllocation1[1] + DayTimeAllocation2[1], DayTimeAllocationSched[1]),
-          Format(TimeSheet.ActualSchedSummaryFactBox.FirstDaySummary),
-          'Incorrect Period Summary day value');
-        Assert.AreEqual(
-          TimeSheetMgt.FormatActualSched(DayTimeAllocation1[2] + DayTimeAllocation2[2], DayTimeAllocationSched[2]),
-          Format(TimeSheet.ActualSchedSummaryFactBox.SecondDaySummary),
-          'Incorrect Period Summary day value');
-        Assert.AreEqual(
-          TimeSheetMgt.FormatActualSched(DayTimeAllocation1[3] + DayTimeAllocation2[3], DayTimeAllocationSched[3]),
-          Format(TimeSheet.ActualSchedSummaryFactBox.ThirdDaySummary),
-          'Incorrect Period Summary day value');
-        Assert.AreEqual(
-          TimeSheetMgt.FormatActualSched(DayTimeAllocation1[4] + DayTimeAllocation2[4], DayTimeAllocationSched[4]),
-          Format(TimeSheet.ActualSchedSummaryFactBox.ForthDaySummary),
-          'Incorrect Period Summary day value');
-        Assert.AreEqual(
-          TimeSheetMgt.FormatActualSched(DayTimeAllocation1[5] + DayTimeAllocation2[5], DayTimeAllocationSched[5]),
-          Format(TimeSheet.ActualSchedSummaryFactBox.FifthDaySummary),
-          'Incorrect Period Summary day value');
-    end;
-#endif
-
-#if not CLEAN22
-    local procedure CreateCustomTimeSheetLine(TimeSheet: TestPage "Time Sheet"; TypeValue: Integer; Description: Text[30]): Decimal
-    var
-        TempDec: Decimal;
-    begin
-        TimeSheet.FILTER.SetFilter(Status, GetTSLineStatusOption(0));
-        TimeSheet.Type.Value := GetTSLineTypeOption(TypeValue);
-        TimeSheet.Description.Value := Description;
-        TempDec := GetRandomDecimal();
-        TimeSheet.Field1.Value := Format(TempDec);
-        exit(TempDec);
-    end;
-#endif
-
     local procedure GenerateResourceCapacity(Resource: Record Resource; PeriodStart: Date; DaysToGenerate: Integer; var GenerateAllocation: array[14] of Decimal)
     var
         ResCapacityEntry: Record "Res. Capacity Entry";
@@ -2959,17 +1292,6 @@ codeunit 136503 "RES Time Sheets Creation"
         TimeSheetHeader.SetRange("Resource No.", ResourceNo);
         TimeSheetHeader.FindFirst();
     end;
-
-#if not CLEAN22
-    local procedure AssignTimeSheetDayValues(var TimeSheet: TestPage "Time Sheet"; TimeAllocation: array[5] of Decimal)
-    begin
-        TimeSheet.Field1.Value := Format(TimeAllocation[1]);
-        TimeSheet.Field2.Value := Format(TimeAllocation[2]);
-        TimeSheet.Field3.Value := Format(TimeAllocation[3]);
-        TimeSheet.Field4.Value := Format(TimeAllocation[4]);
-        TimeSheet.Field5.Value := Format(TimeAllocation[5]);
-    end;
-#endif
 
     local procedure VerifyTimeSheetDetailLinesCount(TimeSheetHeaderNo: Code[20]; NoOfLines: Integer)
     var

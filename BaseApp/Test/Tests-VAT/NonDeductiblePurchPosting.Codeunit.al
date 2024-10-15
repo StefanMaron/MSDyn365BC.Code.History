@@ -168,12 +168,10 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         // [THEN]
         Assert.RecordCount(TempVATAmountLine, 1);
         asserterror TempVATAmountLine.TestField("Non-Deductible VAT Base", NonDedPurchLine."Non-Deductible VAT Base");
-        Assert.KnownFailure(
-            StrSubstNo('Non-Deductible VAT Base must be equal to ''%1''  in VAT Amount Line', NonDedPurchLine."Non-Deductible VAT Base"), 0);
+        Assert.ExpectedTestFieldError(NonDedPurchLine.FieldCaption("Non-Deductible VAT Base"), Format(0));
         ClearLastError();
         asserterror TempVATAmountLine.TestField("Non-Deductible VAT Amount", NonDedPurchLine."Non-Deductible VAT Amount");
-        Assert.KnownFailure(
-            StrSubstNo('Non-Deductible VAT Amount must be equal to ''%1''  in VAT Amount Line', NonDedPurchLine."Non-Deductible VAT Amount"), 0);
+        Assert.ExpectedTestFieldError(NonDedPurchLine.FieldCaption("Non-Deductible VAT Amount"), Format(0));
     end;
 
     [Test]

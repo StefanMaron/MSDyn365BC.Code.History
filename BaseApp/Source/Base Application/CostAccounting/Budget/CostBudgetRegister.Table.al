@@ -152,7 +152,11 @@ table 1111 "Cost Budget Register"
 
     var
         CostBudgetRegister2: Record "Cost Budget Register";
+#pragma warning disable AA0074
         Text000: Label 'A closed register cannot be reactivated.';
+#pragma warning disable AA0470
         Text001: Label 'All registers up to the current register %1 will be closed and can no longer be deleted.\\Do you want to close the registers?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

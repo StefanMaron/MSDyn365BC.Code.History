@@ -426,14 +426,12 @@ report 740 "VAT Report Print"
                                 if Vendor.Get("Bill-to/Pay-to No.") then
                                     VATEntryCompanyName := Vendor.Name;
                             Type::Sale:
-                                begin
-                                    if "Reverse Sales VAT" then
-                                        if Vendor.Get("Bill-to/Pay-to No.") then
-                                            VATEntryCompanyName := Vendor.Name
-                                        else
-                                            if Customer.Get("Bill-to/Pay-to No.") then
-                                                VATEntryCompanyName := Customer.Name;
-                                end;
+                                if "Reverse Sales VAT" then
+                                    if Vendor.Get("Bill-to/Pay-to No.") then
+                                        VATEntryCompanyName := Vendor.Name
+                                    else
+                                        if Customer.Get("Bill-to/Pay-to No.") then
+                                            VATEntryCompanyName := Customer.Name;
                         end;
                     end;
                 }

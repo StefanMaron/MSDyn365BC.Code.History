@@ -946,14 +946,13 @@ codeunit 134093 "ERM G/L Account Where-Used"
     var
         TableWithLinkToGLAccount: Record "Table With Link To G/L Account";
     begin
-        with GLAccountWhereUsed do
-            case "Table ID" of
-                DATABASE::"Table With Link To G/L Account":
-                    begin
-                        TableWithLinkToGLAccount.Code := CopyStr("Key 1", 1, MaxStrLen(TableWithLinkToGLAccount.Code));
-                        PAGE.Run(0, TableWithLinkToGLAccount);
-                    end;
-            end;
+        case GLAccountWhereUsed."Table ID" of
+            DATABASE::"Table With Link To G/L Account":
+                begin
+                    TableWithLinkToGLAccount.Code := CopyStr(GLAccountWhereUsed."Key 1", 1, MaxStrLen(TableWithLinkToGLAccount.Code));
+                    PAGE.Run(0, TableWithLinkToGLAccount);
+                end;
+        end;
     end;
 }
 

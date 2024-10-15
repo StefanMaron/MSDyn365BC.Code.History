@@ -263,46 +263,34 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchaseReturnOrderTestPage: TestPage "Purchase Return Order";
     begin
         // Verify EDITABLE is TRUE through pages because property is not available through record.
-
         // Purchase Invoice.
-        with PurchaseInvoiceTestPage do begin
-            OpenNew();
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
-            Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable(),
-              'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
-
+        PurchaseInvoiceTestPage.OpenNew();
+        PurchaseInvoiceTestPage."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+        Assert.IsTrue(
+          PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Caption);
+        PurchaseInvoiceTestPage.Close();
         // Purchase Order.
-        with PurchaseOrderTestpage do begin
-            OpenNew();
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
-            Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable(),
-              'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
-
+        PurchaseOrderTestpage.OpenNew();
+        PurchaseOrderTestpage."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+        Assert.IsTrue(
+          PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + PurchaseInvoiceTestPage.PurchLines."Include in VAT Transac. Rep.".Caption);
+        PurchaseOrderTestpage.Close();
         // Purchase Credit Memo.
-        with PurchaseCreditmemoTestPage do begin
-            OpenNew();
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
-            Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable(),
-              'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
-
+        PurchaseCreditmemoTestPage.OpenNew();
+        PurchaseCreditmemoTestPage."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+        Assert.IsTrue(
+          PurchaseCreditmemoTestPage.PurchLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + PurchaseCreditmemoTestPage.PurchLines."Include in VAT Transac. Rep.".Caption);
+        PurchaseCreditmemoTestPage.Close();
         // Purchase Return Order.
-        with PurchaseReturnOrderTestPage do begin
-            OpenNew();
-            "Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
-            Assert.IsTrue(
-              PurchLines."Include in VAT Transac. Rep.".Editable(),
-              'EDITABLE should be TRUE for the field ' + PurchLines."Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
+        PurchaseReturnOrderTestPage.OpenNew();
+        PurchaseReturnOrderTestPage."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
+        Assert.IsTrue(
+          PurchaseReturnOrderTestPage.PurchLines."Include in VAT Transac. Rep.".Editable(),
+          'EDITABLE should be TRUE for the field ' + PurchaseReturnOrderTestPage.PurchLines."Include in VAT Transac. Rep.".Caption);
+        PurchaseReturnOrderTestPage.Close();
     end;
 
     [Test]
@@ -465,7 +453,6 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
         // Line Amount > [Threshold Amount Excl. VAT.]
         // Expected Result: [Include in VAT Transac. Rep.] = Yes.
-        // Expected Result: Error meessage that [Refers to Period] field is blank - due to Blacklisted country implementation.
         VerifyPurchDocRefTo(PurchHeader."Document Type"::"Credit Memo", PurchHeader."Refers to Period"::" ", false);
     end;
 
@@ -1194,7 +1181,6 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;

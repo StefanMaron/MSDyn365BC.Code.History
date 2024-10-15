@@ -540,13 +540,6 @@ codeunit 12101 "Withholding - Contribution"
             Error(ContributionCodeLinesNotSpecifiedErr, SocialSecurityCode);
     end;
 
-    [Obsolete('Replaced by SetSocSecLineFilters().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SocSecLineFilter(var SocSecCodeLine: Record "Contribution Code Line"; SocialSecurityCode: Code[20]; StartingDate: Date; ContributionType: Option INPS,INAIL)
-    begin
-        SetSocSecLineFilters(SocSecCodeLine, SocialSecurityCode, StartingDate, ContributionType);
-    end;
-
     procedure SetSocSecBracketFilters(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; TipoContributo: Option INPS,INAIL; "Code": Code[20])
     begin
         SocSecBracketLine.Reset();
@@ -554,13 +547,6 @@ codeunit 12101 "Withholding - Contribution"
         SocSecBracketLine.SetRange(Code, SocialSecurityBracketCode);
         if not SocSecBracketLine.FindLast() then
             Error(ContributionBracketLinesNotSpecifiedErr, SocialSecurityBracketCode, Code);
-    end;
-
-    [Obsolete('Replaced by SetSocSecBracketFilters()', '17.0')]
-    [Scope('OnPrem')]
-    procedure SocSecBracketFilter(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; ContributionType: Option INPS,INAIL; "Code": Code[20])
-    begin
-        SetSocSecBracketFilters(SocSecBracketLine, SocialSecurityBracketCode, ContributionType, Code);
     end;
 
     procedure GetRemainingWithhTaxAmount(ComputedWithholdingTax: Record "Computed Withholding Tax"; AppliestoOccurrenceNo: Integer): Decimal
@@ -635,14 +621,13 @@ codeunit 12101 "Withholding - Contribution"
         OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(VendLedgEntry, CreateVendLedgEntry, ComputedWithholdingTax, AppliestoOccurrenceNo);
         // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
         RemainingWithhTaxAmount := Abs(ComputedWithholdingTax."Remaining Amount");
-        if VendLedgEntry.FindSet() then begin
+        if VendLedgEntry.FindSet() then
             repeat
                 ComputedWithholdingTax1.Reset();
                 ComputedWithholdingTax1.SetRange("Document No.", VendLedgEntry."Document No.");
                 if ComputedWithholdingTax1.FindFirst() then
                     RemainingWithhTaxAmount -= Abs(ComputedWithholdingTax1."Remaining Amount");
-            until VendLedgEntry.Next() = 0
-        end;
+            until VendLedgEntry.Next() = 0;
 
         exit(RemainingWithhTaxAmount);
     end;

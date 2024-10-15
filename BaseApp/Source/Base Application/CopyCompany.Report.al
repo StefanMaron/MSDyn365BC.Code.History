@@ -91,6 +91,7 @@ report 357 "Copy Company"
             trigger OnPostDataItem()
             var
                 JobQueueManagement: Codeunit "Job Queue Management";
+                CopiedCompanyLbl: Label 'Copied company with the new name %1 by UserSecurityId %2.', Locked = true;
             begin
                 ProgressWindow.Close();
                 SetNewNameToNewCompanyInfo();
@@ -98,6 +99,7 @@ report 357 "Copy Company"
                 OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName, Company);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
+                Session.LogAuditMessage(StrSubstNo(CopiedCompanyLbl, NewCompanyName, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             end;
         }
     }
@@ -216,8 +218,10 @@ report 357 "Copy Company"
         ProgressWindow: Dialog;
         BreakReport: Boolean;
         NewCompanyName: Text[30];
+#pragma warning disable AA0470
         ProgressMsg: Label 'Creating new company %1.', Comment = 'Creating new company Contoso Corporation.';
         CopySuccessMsg: Label 'Company %1 has been copied successfully.', Comment = 'Company CRONUS International Ltd. has been copied successfully.';
+#pragma warning restore AA0470
         ReadMoreSandboxLbl: Label 'Read more about sandboxes';
         ReadMoreDataBackupLbl: Label 'Read more about data backup';
         ConfirmCopyWarning: Boolean;

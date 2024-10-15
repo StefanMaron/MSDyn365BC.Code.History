@@ -24,10 +24,10 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountVLEUpgradeTag()) then
             exit;
 
-        IF VendorLedgerEntry.FindSet() then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
                 DetailedVendorLedgEntry.ModifyAll("Original Document No.", VendorLedgerEntry."Document No.");
@@ -44,10 +44,10 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTags: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTags.GetFixRemainingAmountCLEUpgradeTag()) then
             exit;
 
-        IF CustLedgerEntry.FindSet() then
+        if CustLedgerEntry.FindSet() then
             repeat
                 DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
                 DetailedCustLedgEntry.ModifyAll("Original Document No.", CustLedgerEntry."Document No.");

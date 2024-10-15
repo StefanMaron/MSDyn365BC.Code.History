@@ -765,7 +765,7 @@ report 12136 "Ledger Entry Details"
             dataitem("LIFOCost  BefStart"; "Before Start Item Cost")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Starting Date") order(Ascending);
+                DataItemTableView = sorting("Item No.", "Starting Date") order(ascending);
                 column(LIFOCost__BefStart__Starting_Date_; Format("Starting Date"))
                 {
                 }
@@ -813,7 +813,7 @@ report 12136 "Ledger Entry Details"
             dataitem(LIFO; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Posting Date") ORDER(Ascending) where("Entry Type" = const(Output));
+                DataItemTableView = sorting("Item No.", "Posting Date") order(ascending) where("Entry Type" = const(Output));
                 column(LIFO__Document_No__; "Document No.")
                 {
                 }
@@ -865,7 +865,7 @@ report 12136 "Ledger Entry Details"
             dataitem("LIFO PURCH"; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Posting Date") ORDER(Ascending) where("Entry Type" = const(Purchase));
+                DataItemTableView = sorting("Item No.", "Posting Date") order(ascending) where("Entry Type" = const(Purchase));
                 column(Amount_Control1130117; Amount)
                 {
                 }
@@ -971,7 +971,7 @@ report 12136 "Ledger Entry Details"
             dataitem(FIFO; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Posting Date") ORDER(Descending) where("Entry Type" = const(Output));
+                DataItemTableView = sorting("Item No.", "Posting Date") order(descending) where("Entry Type" = const(Output));
                 column(FIFO__Document_No__; "Document No.")
                 {
                 }
@@ -1018,7 +1018,7 @@ report 12136 "Ledger Entry Details"
             dataitem("FIFO PURCH"; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Posting Date") ORDER(Descending) where("Entry Type" = const(Purchase));
+                DataItemTableView = sorting("Item No.", "Posting Date") order(descending) where("Entry Type" = const(Purchase));
                 column(FIFOAmt_Control1130141; FIFOAmt)
                 {
                 }
@@ -1072,7 +1072,7 @@ report 12136 "Ledger Entry Details"
             dataitem("FIFOCost BefStart"; "Before Start Item Cost")
             {
                 DataItemLink = "Item No." = field("Item No.");
-                DataItemTableView = sorting("Item No.", "Starting Date") order(Descending);
+                DataItemTableView = sorting("Item No.", "Starting Date") order(descending);
                 column(CompetenceQty_Control1130135; CompetenceQty)
                 {
                 }

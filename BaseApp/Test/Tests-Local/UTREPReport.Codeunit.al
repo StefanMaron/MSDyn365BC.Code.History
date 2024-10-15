@@ -343,17 +343,15 @@ codeunit 144149 "UT REP Report"
             NewLineNo := CustomerBillLine."Line No." + 10000
         else
             NewLineNo := 10000;
-        with CustomerBillLine do begin
-            Init();
-            "Customer No." := Customer."No.";
-            "Customer Bill No." := CustomerBillHeader."No.";
-            "Line No." := NewLineNo;
-            Amount := LineAmount;
-            "Due Date" := DueDate;
-            "Cumulative Bank Receipts" := CumulativeBankReceipts;
-            "Customer Bank Acc. No." := CustomerBillHeader."Bank Account No.";
-            Insert();
-        end;
+        CustomerBillLine.Init();
+        CustomerBillLine."Customer No." := Customer."No.";
+        CustomerBillLine."Customer Bill No." := CustomerBillHeader."No.";
+        CustomerBillLine."Line No." := NewLineNo;
+        CustomerBillLine.Amount := LineAmount;
+        CustomerBillLine."Due Date" := DueDate;
+        CustomerBillLine."Cumulative Bank Receipts" := CumulativeBankReceipts;
+        CustomerBillLine."Customer Bank Acc. No." := CustomerBillHeader."Bank Account No.";
+        CustomerBillLine.Insert();
     end;
 
     local procedure MockCustLedgerEntry(TransactionNo: Integer; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Integer

@@ -20,7 +20,10 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         PreviewMode: Boolean;
         PostBatch: Boolean;
         TransferOrderPost: enum "Transfer Order Post";
+#pragma warning disable AA0074
         Text000: Label '&Ship,&Receive';
+#pragma warning restore AA0074
+        ShipReceiveNotEqualErr: Label 'The quantity to ship and quantity to receive must be equal in a direct transfer.';
 
     local procedure "Code"()
     var
@@ -41,10 +44,32 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         OnCodeOnBeforePostTransferOrder(TransHeader, DefaultNumber, Selection, IsHandled, PostBatch, TransferOrderPost, PreviewMode);
         if not IsHandled then begin
             GetPostingOptions(DefaultNumber, Selection, PostShipment, PostReceipt, PostTransfer);
+            CheckTransferHeader(TransHeader);
             PostTransferOrder(PostShipment, PostReceipt, PostTransfer);
         end;
 
         OnAfterPost(TransHeader, Selection);
+    end;
+
+    local procedure CheckTransferHeader(var TransferHeader: Record "Transfer Header")
+    var
+        InventorySetup: Record "Inventory Setup";
+        TransferLine: Record "Transfer Line";
+    begin
+        InventorySetup.Get();
+
+        if TransferHeader."Direct Transfer" and (InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Receipt and Shipment") then begin
+            TransferLine.SetRange("Document No.", TransferHeader."No.");
+            TransferLine.SetLoadFields("Qty. to Ship", "Qty. to Receive", "Qty. to Ship (Base)", "Qty. to Receive (Base)");
+            if TransferLine.FindSet() then
+                repeat
+                    // For 'Direct Transfer', "Qty. to Ship" and "Qty. to Receive" should be the same.
+                    if TransferLine."Qty. to Receive" <> TransferLine."Qty. to Ship" then
+                        Error(ShipReceiveNotEqualErr);
+                    if TransferLine."Qty. to Receive (Base)" <> TransferLine."Qty. to Ship (Base)" then
+                        Error(ShipReceiveNotEqualErr);
+                until TransferLine.Next() = 0;
+        end;
     end;
 
     local procedure GetDefaultNumber() DefaultNumber: Integer

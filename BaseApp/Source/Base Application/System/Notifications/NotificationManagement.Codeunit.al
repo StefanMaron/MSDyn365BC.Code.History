@@ -9,8 +9,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using System.Automation;
 using System.Reflection;
 using System.Security.AccessControl;
@@ -30,10 +28,8 @@ codeunit 1510 "Notification Management"
         OverdueEntriesMsg: Label 'Overdue approval entries have been created.';
         SalesInvoiceTxt: Label 'Sales Invoice';
         PurchaseInvoiceTxt: Label 'Purchase Invoice';
-        ServiceInvoiceTxt: Label 'Service Invoice';
         SalesCreditMemoTxt: Label 'Sales Credit Memo';
         PurchaseCreditMemoTxt: Label 'Purchase Credit Memo';
-        ServiceCreditMemoTxt: Label 'Service Credit Memo';
         ActionNewRecordTxt: Label 'has been created.', Comment = 'E.g. Sales Invoice 10000 has been created.';
         ActionApproveTxt: Label 'requires your approval.', Comment = 'E.g. Sales Invoice 10000 requires your approval.';
         ActionApprovedTxt: Label 'has been approved.', Comment = 'E.g. Sales Invoice 10000 has been approved.';
@@ -150,7 +146,6 @@ codeunit 1510 "Notification Management"
     procedure GetDocumentTypeAndNumber(var RecRef: RecordRef; var DocumentType: Text; var DocumentNo: Text)
     var
         SalesHeader: Record "Sales Header";
-        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
         FieldRef: FieldRef;
         IsHandled: Boolean;
@@ -178,14 +173,6 @@ codeunit 1510 "Notification Management"
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;
-            DATABASE::"Service Header":
-                begin
-                    RecRef.SetTable(ServiceHeader);
-                    DocumentType := ServiceHeader.GetFullDocTypeTxt();
-
-                    FieldRef := RecRef.Field(3);
-                    DocumentNo := Format(FieldRef.Value);
-                end;
             DATABASE::"Sales Invoice Header":
                 begin
                     DocumentType := SalesInvoiceTxt;
@@ -198,12 +185,6 @@ codeunit 1510 "Notification Management"
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    DocumentType := ServiceInvoiceTxt;
-                    FieldRef := RecRef.Field(3);
-                    DocumentNo := Format(FieldRef.Value);
-                end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     DocumentType := SalesCreditMemoTxt;
@@ -213,12 +194,6 @@ codeunit 1510 "Notification Management"
             DATABASE::"Purch. Cr. Memo Hdr.":
                 begin
                     DocumentType := PurchaseCreditMemoTxt;
-                    FieldRef := RecRef.Field(3);
-                    DocumentNo := Format(FieldRef.Value);
-                end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    DocumentType := ServiceCreditMemoTxt;
                     FieldRef := RecRef.Field(3);
                     DocumentNo := Format(FieldRef.Value);
                 end;

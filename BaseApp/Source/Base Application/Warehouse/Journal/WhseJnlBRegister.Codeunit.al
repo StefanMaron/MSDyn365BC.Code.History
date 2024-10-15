@@ -18,10 +18,12 @@ codeunit 7305 "Whse. Jnl.-B.Register"
         WhseJnlRegisterBatch: Codeunit "Whse. Jnl.-Register Batch";
         JnlWithErrors: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to register the journals?';
         Text001: Label 'The journals were successfully registered.';
         Text002: Label 'It was not possible to register all of the journals. ';
         Text003: Label 'The journals that were not successfully registered are now marked.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

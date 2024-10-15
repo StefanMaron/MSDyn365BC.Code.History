@@ -1430,15 +1430,13 @@ codeunit 144192 "IT - Fiscal Reports"
         VATBookEntry: Record "VAT Book Entry";
         NoSeries: Record "No. Series";
     begin
-        with VATBookEntry do begin
-            SetRange("Printing Date", 0D);
-            SetRange(Type, Type::Sale);
-            CalcFields("No. Series");
-            SetFilter("No. Series", '<>''''');
-            FindLast();
-            CalcFields("No. Series");
-            NoSeries.Get("No. Series")
-        end;
+        VATBookEntry.SetRange("Printing Date", 0D);
+        VATBookEntry.SetRange(Type, VATBookEntry.Type::Sale);
+        VATBookEntry.CalcFields("No. Series");
+        VATBookEntry.SetFilter("No. Series", '<>''''');
+        VATBookEntry.FindLast();
+        VATBookEntry.CalcFields("No. Series");
+        NoSeries.Get(VATBookEntry."No. Series");
         VATRegister.Get(NoSeries."VAT Register");
     end;
 
@@ -1534,44 +1532,40 @@ codeunit 144192 "IT - Fiscal Reports"
 
     local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeriesCode: Code[20]; VATBookEntryType: Enum "General Posting Type"; VATCalculationType: Enum "Tax Calculation Type"; PostingDate: Date)
     begin
-        with VATBookEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VATBookEntry, FieldNo("Entry No."));
-            Type := VATBookEntryType;
-            "No. Series" := NoSeriesCode;
-            "Posting Date" := PostingDate;
-            "Sell-to/Buy-from No." := SellToBuyFromNo;
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "VAT Identifier" := CreateVATIdentifier();
-            "Reverse VAT Entry" := true;
-            "VAT Calculation Type" := VATCalculationType;
-            "Unrealized Amount" := LibraryRandom.RandDec(10, 2);
-            "Unrealized Base" := "Unrealized Amount";
-            "Unrealized VAT Entry No." := CreateVATEntry(VATBookEntry, PostingDate);
-            Insert();
-        end;
+        VATBookEntry."Entry No." := LibraryUtility.GetNewRecNo(VATBookEntry, VATBookEntry.FieldNo("Entry No."));
+        VATBookEntry.Type := VATBookEntryType;
+        VATBookEntry."No. Series" := NoSeriesCode;
+        VATBookEntry."Posting Date" := PostingDate;
+        VATBookEntry."Sell-to/Buy-from No." := SellToBuyFromNo;
+        VATBookEntry."Document No." := LibraryUTUtility.GetNewCode();
+        VATBookEntry."VAT Identifier" := CreateVATIdentifier();
+        VATBookEntry."Reverse VAT Entry" := true;
+        VATBookEntry."VAT Calculation Type" := VATCalculationType;
+        VATBookEntry."Unrealized Amount" := LibraryRandom.RandDec(10, 2);
+        VATBookEntry."Unrealized Base" := VATBookEntry."Unrealized Amount";
+        VATBookEntry."Unrealized VAT Entry No." := CreateVATEntry(VATBookEntry, PostingDate);
+        VATBookEntry.Insert();
     end;
 
     local procedure CreateVATEntry(VATBookEntry: Record "VAT Book Entry"; PostingDate: Date): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := VATBookEntry.Type;
-            "No. Series" := VATBookEntry."No. Series";
-            "Posting Date" := PostingDate;
-            "Document No." := VATBookEntry."Document No.";
-            "Bill-to/Pay-to No." := VATBookEntry."Sell-to/Buy-from No.";
-            "VAT Identifier" := VATBookEntry."VAT Identifier";
-            "Document Type" := "Document Type"::Invoice;
-            "VAT Calculation Type" := VATBookEntry."VAT Calculation Type";
-            "Unrealized VAT Entry No." := "Entry No.";
-            "Unrealized Amount" := VATBookEntry."Unrealized Amount";
-            "Unrealized Base" := VATBookEntry."Unrealized Base";
-            Insert();
-            exit("Entry No.");
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATBookEntry.Type;
+        VATEntry."No. Series" := VATBookEntry."No. Series";
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."Document No." := VATBookEntry."Document No.";
+        VATEntry."Bill-to/Pay-to No." := VATBookEntry."Sell-to/Buy-from No.";
+        VATEntry."VAT Identifier" := VATBookEntry."VAT Identifier";
+        VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+        VATEntry."VAT Calculation Type" := VATBookEntry."VAT Calculation Type";
+        VATEntry."Unrealized VAT Entry No." := VATEntry."Entry No.";
+        VATEntry."Unrealized Amount" := VATBookEntry."Unrealized Amount";
+        VATEntry."Unrealized Base" := VATBookEntry."Unrealized Base";
+        VATEntry.Insert();
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure CreateVATIdentifier(): Code[20]
@@ -1632,12 +1626,10 @@ codeunit 144192 "IT - Fiscal Reports"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            GLLastGJPrintingDatePrevValue := "Last Gen. Jour. Printing Date";
-            "Last Gen. Jour. Printing Date" := StartDate - 1;
-            Modify();
-        end;
+        GLSetup.Get();
+        GLLastGJPrintingDatePrevValue := GLSetup."Last Gen. Jour. Printing Date";
+        GLSetup."Last Gen. Jour. Printing Date" := StartDate - 1;
+        GLSetup.Modify();
         exit(GLLastGJPrintingDatePrevValue);
     end;
 

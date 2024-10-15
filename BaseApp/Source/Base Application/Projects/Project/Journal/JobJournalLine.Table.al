@@ -25,7 +25,7 @@ using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -910,7 +910,7 @@ table 210 "Job Journal Line"
                     JobPlanningLine.SetFilter("Unit of Measure Code", Filter);
                 end;
 
-                if PAGE.RunModal(0, JobPlanningLine) = ACTION::LookupOK then
+                if Page.RunModal(0, JobPlanningLine) = Action::LookupOK then
                     Validate("Job Planning Line No.", JobPlanningLine."Line No.");
             end;
 
@@ -1087,14 +1087,6 @@ table 210 "Job Journal Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(5900; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-        }
-        field(5901; "Posted Service Shipment No."; Code[20])
-        {
-            Caption = 'Posted Service Shipment No.';
-        }
         field(6501; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
@@ -1195,13 +1187,19 @@ table 210 "Job Journal Line"
         CurrencyDate: Date;
         CheckedAvailability: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change %1 when %2 is %3.';
         Text001: Label 'cannot be specified without %1';
+#pragma warning restore AA0470
         Text002: Label 'must be positive';
         Text003: Label 'must be negative';
+#pragma warning disable AA0470
         Text004: Label '%1 is only editable when a %2 is defined.';
         Text006: Label '%1 cannot be changed when %2 is set.';
         Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Project Journal Line project DEFAULT 30000 is already linked to Project Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         JobJnlTemplate: Record "Job Journal Template";
@@ -1275,7 +1273,8 @@ table 210 "Job Journal Line"
         IsHandled := false;
         OnCheckDirectedPutawayandPickIsFalseOnBeforeTestField(Location, CallingFieldNo, IsHandled);
         if not IsHandled then
-            Location.TestField("Directed Put-away and Pick", false);
+            if CurrFieldNo <> 0 then
+                Location.TestField("Directed Put-away and Pick", false);
     end;
 
     local procedure CopyFromItem()
@@ -1359,6 +1358,7 @@ table 210 "Job Journal Line"
                 if "Job Planning Line No." = 0 then
                     ItemJnlLine.Quantity := Quantity
                 else begin
+                    JobPlanningLine.SetLoadFields("Remaining Qty.");
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
                     if JobPlanningLine."Remaining Qty." < (Quantity + "Remaining Qty.") then
                         ItemJnlLine.Quantity := (Quantity + "Remaining Qty.") - JobPlanningLine."Remaining Qty."
@@ -1641,7 +1641,7 @@ table 210 "Job Journal Line"
             ItemLedgerEntry.SetRange(Positive, false);
         OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(ItemLedgerEntry, CurrentFieldNo, Rec);
 
-        if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgerEntry) = ACTION::LookupOK then begin
+        if Page.RunModal(Page::"Item Ledger Entries", ItemLedgerEntry) = Action::LookupOK then begin
             JobJournalLine2 := Rec;
             if CurrentFieldNo = FieldNo("Applies-to Entry") then
                 JobJournalLine2.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.")
@@ -1699,7 +1699,7 @@ table 210 "Job Journal Line"
 
     procedure SetReservationEntry(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservationEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservationEntry.SetSource(Database::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
         ReservationEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservationEntry."Expected Receipt Date" := "Posting Date";
         ReservationEntry."Shipment Date" := "Posting Date";
@@ -1707,7 +1707,7 @@ table 210 "Job Journal Line"
 
     procedure SetReservationFilters(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservationEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
+        ReservationEntry.SetSourceFilter(Database::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
         ReservationEntry.SetSourceFilter("Journal Batch Name", 0);
 
         OnAfterSetReservationFilters(ReservationEntry, Rec);
@@ -1879,14 +1879,14 @@ table 210 "Job Journal Line"
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN23
+#if not CLEAN25
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN23
+#if not CLEAN25
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
 #else
         exit(true);
@@ -1958,7 +1958,7 @@ table 210 "Job Journal Line"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -2113,6 +2113,7 @@ table 210 "Job Journal Line"
                ("Journal Batch Name" <> JobJournalLine."Journal Batch Name") or
                ("Line No." <> JobJournalLine."Line No.")
             then begin
+                JobPlanningLine.SetLoadFields("Job No.", "Job Task No.", "Line No.");
                 JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
                 if not Confirm(Text007, false,
                      TableCaption,
@@ -2149,7 +2150,7 @@ table 210 "Job Journal Line"
                 DimMgt.CreateDimSetFromJobTaskDim("Job No.",
                     "Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
                 DimMgt.CreateDimForJobJournalLineWithHigherPriorities(
-                Rec, CurrFieldNo, DimensionSetIDArr[3], "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Source Code", DATABASE::Job);
+                Rec, CurrFieldNo, DimensionSetIDArr[3], "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Source Code", Database::Job);
                 "Dimension Set ID" :=
                 DimMgt.GetCombinedDimensionSetID(
                     DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -2202,7 +2203,7 @@ table 210 "Job Journal Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Job Journal Line", "Entry Type".AsInteger(),
+          ItemTrackingMgt.ComposeRowID(Database::"Job Journal Line", "Entry Type".AsInteger(),
             "Journal Template Name", "Journal Batch Name", 0, "Line No."));
     end;
 
@@ -2357,7 +2358,7 @@ table 210 "Job Journal Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")

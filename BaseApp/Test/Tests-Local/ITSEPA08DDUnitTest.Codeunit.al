@@ -294,6 +294,9 @@ codeunit 144030 "IT - SEPA.08 DD Unit Test"
 
         // Exercise.
         asserterror CustomerBillLine.Validate("Cumulative Bank Receipts", true);
+
+        // Verify.
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Direct Debit Mandate ID"), '');
     end;
 
     [Test]
@@ -320,6 +323,9 @@ codeunit 144030 "IT - SEPA.08 DD Unit Test"
 
         // Exercise.
         asserterror CustomerBillLine.Validate("Direct Debit Mandate ID", DDMandateId);
+
+        // Verify.
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Cumulative Bank Receipts"), Format(false));
     end;
 
     [Test]
@@ -343,6 +349,9 @@ codeunit 144030 "IT - SEPA.08 DD Unit Test"
 
         // Exercise.
         asserterror CustomerBillLine.Validate("Customer Bank Acc. No.", CustomerBankAccount.Code);
+
+        // Verify.
+        Assert.ExpectedTestFieldError(CustomerBillLine.FieldCaption("Customer Bank Acc. No."), CustomerBillLine."Customer Bank Acc. No.");
     end;
 
     [Test]
@@ -352,6 +361,7 @@ codeunit 144030 "IT - SEPA.08 DD Unit Test"
         BankExportImportSetup: Record "Bank Export/Import Setup";
         CustomerBillHeader: Record "Customer Bill Header";
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
+        Bill: Record Bill;
     begin
         Initialize();
 
@@ -361,6 +371,9 @@ codeunit 144030 "IT - SEPA.08 DD Unit Test"
 
         // Exercise.
         asserterror CustomerBillHeader.ExportToFile();
+
+        // Verify.
+        Assert.ExpectedTestFieldError(Bill.FieldCaption("Bank Receipt"), Format(true));
     end;
 
     [Test]

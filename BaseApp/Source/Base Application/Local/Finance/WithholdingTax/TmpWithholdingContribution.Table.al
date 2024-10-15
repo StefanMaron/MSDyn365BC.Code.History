@@ -251,11 +251,9 @@ table 12113 "Tmp Withholding Contribution"
         {
             Caption = 'Payment Line-Company';
         }
-        field(83; Reason; Option)
+        field(83; Reason; Enum "Withholding Tax Reason")
         {
             Caption = 'Reason';
-            OptionCaption = ' ,A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K';
-            OptionMembers = " ",A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K;
         }
         field(100; "Line No."; Integer)
         {

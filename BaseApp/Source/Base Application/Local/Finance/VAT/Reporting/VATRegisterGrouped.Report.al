@@ -88,7 +88,7 @@ report 12108 "VAT Register Grouped"
         }
         dataitem(ForCode; "VAT Register - Buffer")
         {
-            DataItemTableView = sorting("VAT Register Code") order(Ascending);
+            DataItemTableView = sorting("VAT Register Code") order(ascending);
             column(Text10381; Text10381Lbl)
             {
             }
@@ -228,7 +228,7 @@ report 12108 "VAT Register Grouped"
         }
         dataitem(ForType; "VAT Register - Buffer")
         {
-            DataItemTableView = sorting("Register Type", "VAT Prod. Posting Group", "VAT Identifier", "VAT %", "VAT Deductible %") order(Ascending);
+            DataItemTableView = sorting("Register Type", "VAT Prod. Posting Group", "VAT Identifier", "VAT %", "VAT Deductible %") order(ascending);
             column(PrintCompanyInformations2; PrintCompanyInformations)
             {
             }

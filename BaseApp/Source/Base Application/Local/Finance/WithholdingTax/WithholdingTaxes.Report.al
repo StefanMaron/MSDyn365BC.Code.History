@@ -19,7 +19,7 @@ report 12101 "Withholding Taxes"
     {
         dataitem("Withholding Tax"; "Withholding Tax")
         {
-            DataItemTableView = sorting("Tax Code", "Vendor No.") order(Ascending);
+            DataItemTableView = sorting("Tax Code", "Vendor No.") order(ascending);
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
@@ -83,7 +83,7 @@ report 12101 "Withholding Taxes"
             dataitem(WithholdingTax2; "Withholding Tax")
             {
                 DataItemLink = "Tax Code" = field("Tax Code");
-                DataItemTableView = sorting("Tax Code", "Vendor No.") order(Ascending);
+                DataItemTableView = sorting("Tax Code", "Vendor No.") order(ascending);
                 column(VendNoVendName; Vend."No." + ' - ' + Vend.Name)
                 {
                 }

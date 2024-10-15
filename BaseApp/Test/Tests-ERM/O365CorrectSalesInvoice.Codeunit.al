@@ -1389,7 +1389,7 @@
         CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 0, 1, SalesInvoiceHeader);
 
         // [THEN] Invoice is corrected
-        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, FALSE);
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
     end;
 
     [Test]
@@ -1416,7 +1416,7 @@
         CreateItemsWithPrice(Item2, 10);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType::Item, Item1."No.", 1);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType::Item, Item2."No.", 1);
-        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(Salesheader, TRUE, TRUE);
+        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(Salesheader, true, true);
         SalesInvoiceHeader.GET(PostedSalesInvoiceNo);
 
         // [WHEN] Correct Posted Invoice is invoked

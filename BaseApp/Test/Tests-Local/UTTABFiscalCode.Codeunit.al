@@ -474,12 +474,10 @@ codeunit 144145 "UT TAB Fiscal Code"
 
     local procedure CreateCustomer(var Customer: Record Customer; Individual: Boolean; CountryRegionCode: Code[10])
     begin
-        with Customer do begin
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
-            "Individual Person" := Individual;
-            "Country/Region Code" := CountryRegionCode;
-            Insert();
-        end;
+        Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
+        Customer."Individual Person" := Individual;
+        Customer."Country/Region Code" := CountryRegionCode;
+        Customer.Insert();
     end;
 
     local procedure CreateContact(var Contact: Record Contact; ContactType: Enum "Contact Type")
@@ -503,12 +501,10 @@ codeunit 144145 "UT TAB Fiscal Code"
 
     local procedure CreateVendor(var Vendor: Record Vendor; Individual: Boolean; CountryRegionCode: Code[10])
     begin
-        with Vendor do begin
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Vendor);
-            "Individual Person" := Individual;
-            "Country/Region Code" := CountryRegionCode;
-            Insert();
-        end;
+        Vendor."No." := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor);
+        Vendor."Individual Person" := Individual;
+        Vendor."Country/Region Code" := CountryRegionCode;
+        Vendor.Insert();
     end;
 
     local procedure CreateVATRegNoFormat(): Code[10]

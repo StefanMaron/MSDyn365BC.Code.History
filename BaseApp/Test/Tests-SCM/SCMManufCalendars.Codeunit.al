@@ -648,16 +648,14 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure CreateAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; MachineCenterNo: Code[20]; AbsentCapacity: Decimal; AbsenceDate: Date; StartingTime: Time; EndingTime: Time)
     begin
-        with CalendarAbsenceEntry do begin
-            Init();
-            Validate("Capacity Type", "Capacity Type"::"Machine Center");
-            Validate("No.", MachineCenterNo);
-            Validate(Date, AbsenceDate);
-            Validate("Starting Time", StartingTime);
-            Validate("Ending Time", EndingTime);
-            Validate(Capacity, AbsentCapacity);
-            Insert(true);
-        end;
+        CalendarAbsenceEntry.Init();
+        CalendarAbsenceEntry.Validate("Capacity Type", CalendarAbsenceEntry."Capacity Type"::"Machine Center");
+        CalendarAbsenceEntry.Validate("No.", MachineCenterNo);
+        CalendarAbsenceEntry.Validate(Date, AbsenceDate);
+        CalendarAbsenceEntry.Validate("Starting Time", StartingTime);
+        CalendarAbsenceEntry.Validate("Ending Time", EndingTime);
+        CalendarAbsenceEntry.Validate(Capacity, AbsentCapacity);
+        CalendarAbsenceEntry.Insert(true);
     end;
 
     local procedure CreateAndUpdateMachineCenterAbsence(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; MachineCenterNo: Code[20]; AbsenceCapacity: Decimal; AbsenceTimeStartShift: Decimal; AbsenceTimeEndShift: Decimal)
@@ -735,15 +733,13 @@ codeunit 137076 "SCM Manuf Calendars"
         ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
     begin
         CreateWorkCenter(WorkCenter);
-        with ShopCalendarWorkingDays do begin
-            SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
-            FindFirst();
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
+        ShopCalendarWorkingDays.FindFirst();
 
-            LibraryManufacturing.CreateShopCalendarWorkingDays(
-              ShopCalendarWorkingDays, "Shop Calendar Code", Day::Saturday, "Work Shift Code", "Starting Time", "Ending Time");
-            LibraryManufacturing.CreateShopCalendarWorkingDays(
-              ShopCalendarWorkingDays, "Shop Calendar Code", Day::Sunday, "Work Shift Code", "Starting Time", "Ending Time");
-        end;
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarWorkingDays."Shop Calendar Code", ShopCalendarWorkingDays.Day::Saturday, ShopCalendarWorkingDays."Work Shift Code", ShopCalendarWorkingDays."Starting Time", ShopCalendarWorkingDays."Ending Time");
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarWorkingDays."Shop Calendar Code", ShopCalendarWorkingDays.Day::Sunday, ShopCalendarWorkingDays."Work Shift Code", ShopCalendarWorkingDays."Starting Time", ShopCalendarWorkingDays."Ending Time");
     end;
 
     local procedure CreateTime(Hour: Integer; "Min": Integer; Sec: Integer) Result: Time
@@ -798,13 +794,11 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure FindCalendarEntry(var CalendarEntry: Record "Calendar Entry"; CalendarAbsenceEntry: Record "Calendar Absence Entry")
     begin
-        with CalendarEntry do begin
-            SetRange("Capacity Type", "Capacity Type"::"Machine Center");
-            SetRange("No.", CalendarAbsenceEntry."No.");
-            SetRange(Date, CalendarAbsenceEntry.Date);
-            SetRange("Starting Time", CalendarAbsenceEntry."Starting Time");
-            FindFirst();
-        end;
+        CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
+        CalendarEntry.SetRange("No.", CalendarAbsenceEntry."No.");
+        CalendarEntry.SetRange(Date, CalendarAbsenceEntry.Date);
+        CalendarEntry.SetRange("Starting Time", CalendarAbsenceEntry."Starting Time");
+        CalendarEntry.FindFirst();
     end;
 
     local procedure FindCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Enum "Capacity Unit of Measure")
@@ -815,10 +809,8 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure FindFirstWorkDay(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; MachineCenterNo: Code[20])
     begin
-        with ShopCalendarWorkingDays do begin
-            SetRange("Shop Calendar Code", GetMachineCenterShopCalendar(MachineCenterNo));
-            FindFirst();
-        end;
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", GetMachineCenterShopCalendar(MachineCenterNo));
+        ShopCalendarWorkingDays.FindFirst();
     end;
 
     local procedure GetMachineCenterShopCalendar(MachineCenterNo: Code[20]): Code[10]
@@ -883,83 +875,74 @@ codeunit 137076 "SCM Manuf Calendars"
 
     local procedure VerifyProdOrderStartingTime(ProductionOrder: Record "Production Order")
     begin
-        with ProductionOrder do
-            Assert.AreEqual(090700T, "Starting Time", StrSubstNo(WrongFieldValueErr, FieldName("Starting Time"), TableName));
+        Assert.AreEqual(090700T, ProductionOrder."Starting Time", StrSubstNo(WrongFieldValueErr, ProductionOrder.FieldName("Starting Time"), ProductionOrder.TableName));
     end;
 
     local procedure VerifyProdOrderLine(ProductionOrder: Record "Production Order")
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            Assert.AreEqual(1, Count, StrSubstNo(WrongNoOfLinesErr, TableName));
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.AreEqual(1, ProdOrderLine.Count, StrSubstNo(WrongNoOfLinesErr, ProdOrderLine.TableName));
 
-            FindFirst();
-            Assert.AreEqual(CalcDate('<-2D>', "Due Date"), "Ending Date", StrSubstNo(WrongFieldValueErr, FieldName("Ending Date"), TableName));
-            Assert.AreEqual(160000T, "Ending Time", StrSubstNo(WrongFieldValueErr, FieldName("Ending Time"), TableName));
-            Assert.AreEqual(
-              CalcDate('<-4D>', "Due Date"), "Starting Date", StrSubstNo(WrongFieldValueErr, FieldName("Starting Date"), TableName));
-            Assert.AreEqual(090700T, "Starting Time", StrSubstNo(WrongFieldValueErr, FieldName("Starting Time"), TableName));
-        end;
+        ProdOrderLine.FindFirst();
+        Assert.AreEqual(CalcDate('<-2D>', ProdOrderLine."Due Date"), ProdOrderLine."Ending Date", StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldName("Ending Date"), ProdOrderLine.TableName));
+        Assert.AreEqual(160000T, ProdOrderLine."Ending Time", StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldName("Ending Time"), ProdOrderLine.TableName));
+        Assert.AreEqual(
+          CalcDate('<-4D>', ProdOrderLine."Due Date"), ProdOrderLine."Starting Date", StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldName("Starting Date"), ProdOrderLine.TableName));
+        Assert.AreEqual(090700T, ProdOrderLine."Starting Time", StrSubstNo(WrongFieldValueErr, ProdOrderLine.FieldName("Starting Time"), ProdOrderLine.TableName));
     end;
 
     local procedure VerifyProdOrderRouting(ProductionOrder: Record "Production Order")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRoutingLine do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindFirst();
-            Assert.AreEqual(
-              CalcDate('<-2D>', ProductionOrder."Due Date"),
-              "Ending Date", StrSubstNo(WrongFieldValueErr, FieldName("Ending Date"), TableName));
-            Assert.AreEqual(160000T, "Ending Time", StrSubstNo(WrongFieldValueErr, FieldName("Ending Time"), TableName));
-            Assert.AreEqual(
-              CalcDate('<-4D>', ProductionOrder."Due Date"),
-              "Starting Date", StrSubstNo(WrongFieldValueErr, FieldName("Starting Date"), TableName));
-            Assert.AreEqual(090700T, "Starting Time", StrSubstNo(WrongFieldValueErr, FieldName("Starting Time"), TableName));
-        end;
+        ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst();
+        Assert.AreEqual(
+          CalcDate('<-2D>', ProductionOrder."Due Date"),
+          ProdOrderRoutingLine."Ending Date", StrSubstNo(WrongFieldValueErr, ProdOrderRoutingLine.FieldName("Ending Date"), ProdOrderRoutingLine.TableName));
+        Assert.AreEqual(160000T, ProdOrderRoutingLine."Ending Time", StrSubstNo(WrongFieldValueErr, ProdOrderRoutingLine.FieldName("Ending Time"), ProdOrderRoutingLine.TableName));
+        Assert.AreEqual(
+          CalcDate('<-4D>', ProductionOrder."Due Date"),
+          ProdOrderRoutingLine."Starting Date", StrSubstNo(WrongFieldValueErr, ProdOrderRoutingLine.FieldName("Starting Date"), ProdOrderRoutingLine.TableName));
+        Assert.AreEqual(090700T, ProdOrderRoutingLine."Starting Time", StrSubstNo(WrongFieldValueErr, ProdOrderRoutingLine.FieldName("Starting Time"), ProdOrderRoutingLine.TableName));
     end;
 
     local procedure VerifyProdOrderCapacityNeed(ProductionOrder: Record "Production Order")
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
-        with ProdOrderCapacityNeed do begin
-            SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.", "Operation No.", Date, "Starting Time");
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            Assert.AreEqual(3, Count, StrSubstNo(WrongNoOfLinesErr, TableName));
+        ProdOrderCapacityNeed.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.", "Operation No.", Date, "Starting Time");
+        ProdOrderCapacityNeed.SetRange(Status, ProductionOrder.Status);
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.AreEqual(3, ProdOrderCapacityNeed.Count, StrSubstNo(WrongNoOfLinesErr, ProdOrderCapacityNeed.TableName));
 
-            FindSet();
-            // Total time required for machine center setup is 60 minutes * 100 / 75 = 80 min. (as MC efficiency is 75%)
-            VerifyCapacityLine(090700T, 102700T, "Time Type"::"Setup Time", 60, ProdOrderCapacityNeed);
-            Next();
-            // Total run time is 60 min. * 10 pcs * 100 / 75 (75% efficiency) = 800 min.
-            // Allocated time is 600 minutes, as it does not include efficiency multiplicator
-            // Effective run time is 800 minutes
-            VerifyCapacityLine(102700T, 160000T, "Time Type"::"Run Time", 249.75, ProdOrderCapacityNeed);
-            Next();
-            // All times are backward calculated starting from the shift ending time
-            // Move time - 13 minutes: 15:47 - 16:00 (efficiency multiplicator is not applied to move time and wait time)
-            // Production takes 2 days:
-            // Second day: 7 hours 47 minutes (whole work shift time) 08:00 - 15:47, actual allocated time is 467 * 75 / 100 = 350.25 min
-            // First day: 5 hours 33 minutes 10:27 - 16:00 (till the end of the shift), allocated time is 333 * 75 / 100 = 249.75 min
-            VerifyCapacityLine(080000T, 154700T, "Time Type"::"Run Time", 350.25, ProdOrderCapacityNeed);
-        end;
+        ProdOrderCapacityNeed.FindSet();
+        // Total time required for machine center setup is 60 minutes * 100 / 75 = 80 min. (as MC efficiency is 75%)
+        VerifyCapacityLine(090700T, 102700T, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, ProdOrderCapacityNeed);
+        ProdOrderCapacityNeed.Next();
+        // Total run time is 60 min. * 10 pcs * 100 / 75 (75% efficiency) = 800 min.
+        // Allocated time is 600 minutes, as it does not include efficiency multiplicator
+        // Effective run time is 800 minutes
+        VerifyCapacityLine(102700T, 160000T, ProdOrderCapacityNeed."Time Type"::"Run Time", 249.75, ProdOrderCapacityNeed);
+        ProdOrderCapacityNeed.Next();
+        // All times are backward calculated starting from the shift ending time
+        // Move time - 13 minutes: 15:47 - 16:00 (efficiency multiplicator is not applied to move time and wait time)
+        // Production takes 2 days:
+        // Second day: 7 hours 47 minutes (whole work shift time) 08:00 - 15:47, actual allocated time is 467 * 75 / 100 = 350.25 min
+        // First day: 5 hours 33 minutes 10:27 - 16:00 (till the end of the shift), allocated time is 333 * 75 / 100 = 249.75 min
+        VerifyCapacityLine(080000T, 154700T, ProdOrderCapacityNeed."Time Type"::"Run Time", 350.25, ProdOrderCapacityNeed);
     end;
 
     local procedure VerifyCapacityLine(ExpStartingTime: Time; ExpEndingTime: Time; ExpTimeType: Enum "Routing Time Type"; ExpAllocatedTime: Decimal; ProdOrderCapacityNeed: Record "Prod. Order Capacity Need")
     begin
-        with ProdOrderCapacityNeed do begin
-            Assert.AreEqual(ExpStartingTime, "Starting Time", StrSubstNo(WrongFieldValueErr, FieldName("Starting Time"), TableName));
-            Assert.AreEqual(ExpEndingTime, "Ending Time", StrSubstNo(WrongFieldValueErr, FieldName("Ending Time"), TableName));
-            Assert.AreEqual(ExpTimeType, "Time Type", StrSubstNo(WrongFieldValueErr, FieldName("Time Type"), TableName));
-            Assert.AreEqual(ExpAllocatedTime, "Allocated Time", StrSubstNo(WrongFieldValueErr, FieldName("Allocated Time"), TableName));
-        end;
+        Assert.AreEqual(ExpStartingTime, ProdOrderCapacityNeed."Starting Time", StrSubstNo(WrongFieldValueErr, ProdOrderCapacityNeed.FieldName("Starting Time"), ProdOrderCapacityNeed.TableName));
+        Assert.AreEqual(ExpEndingTime, ProdOrderCapacityNeed."Ending Time", StrSubstNo(WrongFieldValueErr, ProdOrderCapacityNeed.FieldName("Ending Time"), ProdOrderCapacityNeed.TableName));
+        Assert.AreEqual(ExpTimeType, ProdOrderCapacityNeed."Time Type", StrSubstNo(WrongFieldValueErr, ProdOrderCapacityNeed.FieldName("Time Type"), ProdOrderCapacityNeed.TableName));
+        Assert.AreEqual(ExpAllocatedTime, ProdOrderCapacityNeed."Allocated Time", StrSubstNo(WrongFieldValueErr, ProdOrderCapacityNeed.FieldName("Allocated Time"), ProdOrderCapacityNeed.TableName));
     end;
 
     local procedure VerifyTimeDeltaAndSubtract(Time1: Time; Time2: Time; Expected: Integer)

@@ -110,6 +110,8 @@ report 714 "Inventory - Vendor Purchases"
 
     requestpage
     {
+        AboutTitle = 'About Inventory - Vendor Purchases';
+        AboutText = 'Analyse your vendor purchases per item to manage inventory procurement and improve supply chain processes. Assess the relationship between discounts, cost amount with volume of item purchases for each vendor/item combination in the given period.';
 
         layout
         {

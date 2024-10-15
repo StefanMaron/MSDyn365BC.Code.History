@@ -2673,15 +2673,13 @@ codeunit 144090 "ERM Withhold"
     var
         ComputedContribution: Record "Computed Contribution";
     begin
-        with ComputedContribution do begin
-            Init();
-            Validate("Vendor No.", VendorNo);
-            Validate("Document Date", PostingDate);
-            Validate("Document No.", LibraryUtility.GenerateRandomCode20(FieldNo("Document No."), DATABASE::"Computed Contribution"));
-            Validate("Posting Date", PostingDate);
-            Validate("Remaining Gross Amount", RemainingGrossAmount);
-            Insert();
-        end;
+        ComputedContribution.Init();
+        ComputedContribution.Validate("Vendor No.", VendorNo);
+        ComputedContribution.Validate("Document Date", PostingDate);
+        ComputedContribution.Validate("Document No.", LibraryUtility.GenerateRandomCode20(ComputedContribution.FieldNo("Document No."), DATABASE::"Computed Contribution"));
+        ComputedContribution.Validate("Posting Date", PostingDate);
+        ComputedContribution.Validate("Remaining Gross Amount", RemainingGrossAmount);
+        ComputedContribution.Insert();
     end;
 
     local procedure CreateVendorWithINPSContributionSetup(var ContributionBracketLine: Record "Contribution Bracket Line"; var VendorNo: Code[20]; TaxableBase: Decimal)
@@ -2690,7 +2688,7 @@ codeunit 144090 "ERM Withhold"
         WithholdingContribution: Codeunit "Withholding - Contribution";
     begin
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INPS);
-        WithholdingContribution.SocSecBracketFilter(
+        WithholdingContribution.SetSocSecBracketFilters(
           ContributionBracketLine, ContributionCodeLine."Social Security Bracket Code", ContributionCodeLine."Contribution Type"::INPS, '');
         ContributionBracketLine.Validate("Taxable Base %", TaxableBase);
         ContributionBracketLine.Modify(true);
@@ -2702,26 +2700,22 @@ codeunit 144090 "ERM Withhold"
         Vendor: Record Vendor;
     begin
         Vendor.Get(VendorNo);
-        with TmpWithholdingContribution do begin
-            Init();
-            Validate("Vendor No.", Vendor."No.");
-            Validate("Withholding Tax Code", Vendor."Withholding Tax Code");
-            Validate("Payment Date", WorkDate());
-            Validate("Social Security Code", Vendor."Social Security Code");
+        TmpWithholdingContribution.Init();
+        TmpWithholdingContribution.Validate("Vendor No.", Vendor."No.");
+        TmpWithholdingContribution.Validate("Withholding Tax Code", Vendor."Withholding Tax Code");
+        TmpWithholdingContribution.Validate("Payment Date", WorkDate());
+        TmpWithholdingContribution.Validate("Social Security Code", Vendor."Social Security Code");
 
-            TestField("Social Security %");
-            TestField("Free-Lance %");
-            TestField("INAIL Code", '');
-        end;
+        TmpWithholdingContribution.TestField("Social Security %");
+        TmpWithholdingContribution.TestField("Free-Lance %");
+        TmpWithholdingContribution.TestField("INAIL Code", '');
     end;
 
     local procedure AddContributionBracketLine(ContributionBracketLine: Record "Contribution Bracket Line"; NewAmount: Decimal; NewTaxableBasePct: Decimal)
     begin
-        with ContributionBracketLine do begin
-            Validate(Amount, NewAmount);
-            Validate("Taxable Base %", NewTaxableBasePct);
-            Insert(true);
-        end;
+        ContributionBracketLine.Validate(Amount, NewAmount);
+        ContributionBracketLine.Validate("Taxable Base %", NewTaxableBasePct);
+        ContributionBracketLine.Insert(true);
     end;
 
     local procedure FindWithholdCodeLine(var WithholdCodeLine: Record "Withhold Code Line"; VendorNo: Code[20])
@@ -2747,13 +2741,11 @@ codeunit 144090 "ERM Withhold"
 
     local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; BalAccountType: enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", JournalTemplateName);
-            SetRange("Journal Batch Name", JournalBatchName);
-            SetRange("Bal. Account Type", BalAccountType);
-            SetRange("Bal. Account No.", BalAccountNo);
-            FindFirst();
-        end;
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.SetRange("Bal. Account Type", BalAccountType);
+        GenJournalLine.SetRange("Bal. Account No.", BalAccountNo);
+        GenJournalLine.FindFirst();
     end;
 
     local procedure FindGenJournalLineForWithholdingTaxAndModifyBalAccNo(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; BalAccountNo: Code[20])
@@ -2779,13 +2771,11 @@ codeunit 144090 "ERM Withhold"
 
     local procedure MockTmpWithholdingContribution(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        with TmpWithholdingContribution do begin
-            Init();
-            "Journal Batch Name" := GenJournalLine."Journal Batch Name";
-            "Journal Template Name" := GenJournalLine."Journal Template Name";
-            "Line No." := GenJournalLine."Line No.";
-            Insert();
-        end;
+        TmpWithholdingContribution.Init();
+        TmpWithholdingContribution."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        TmpWithholdingContribution."Journal Template Name" := GenJournalLine."Journal Template Name";
+        TmpWithholdingContribution."Line No." := GenJournalLine."Line No.";
+        TmpWithholdingContribution.Insert();
     end;
 
     local procedure GetExternalDocNoFromPostedInvoice(VendorNo: Code[20]): Code[35]
@@ -3073,15 +3063,13 @@ codeunit 144090 "ERM Withhold"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Bal. Account Type", BalAccType);
-            SetRange("Bal. Account No.", BalAccNo);
-            FindFirst();
-            CalcFields(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        VendorLedgerEntry.SetRange("Document Type", DocType);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Bal. Account Type", BalAccType);
+        VendorLedgerEntry.SetRange("Bal. Account No.", BalAccNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+        VendorLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyTmpWithholdingContributionNotEmpty(DocumentNo: Code[20])
@@ -3104,14 +3092,12 @@ codeunit 144090 "ERM Withhold"
 
     local procedure VerifyTmpWithholdingContribution_SocSecValues(TmpWithholdingContribution: Record "Tmp Withholding Contribution"; GrossAmount: Decimal; SocSecNonTaxableAmount: Decimal)
     begin
-        with TmpWithholdingContribution do begin
-            TestField("Gross Amount", GrossAmount);
-            TestField("Soc.Sec.Non Taxable Amount", SocSecNonTaxableAmount);
-            TestField("Contribution Base", "Gross Amount" - "Soc.Sec.Non Taxable Amount");
-            TestField("Total Social Security Amount", Round("Contribution Base" * "Social Security %" / 100));
-            TestField("Free-Lance Amount", Round("Total Social Security Amount" * "Free-Lance %" / 100));
-            TestField("Company Amount", "Total Social Security Amount" - "Free-Lance Amount");
-        end;
+        TmpWithholdingContribution.TestField("Gross Amount", GrossAmount);
+        TmpWithholdingContribution.TestField("Soc.Sec.Non Taxable Amount", SocSecNonTaxableAmount);
+        TmpWithholdingContribution.TestField("Contribution Base", TmpWithholdingContribution."Gross Amount" - TmpWithholdingContribution."Soc.Sec.Non Taxable Amount");
+        TmpWithholdingContribution.TestField("Total Social Security Amount", Round(TmpWithholdingContribution."Contribution Base" * TmpWithholdingContribution."Social Security %" / 100));
+        TmpWithholdingContribution.TestField("Free-Lance Amount", Round(TmpWithholdingContribution."Total Social Security Amount" * TmpWithholdingContribution."Free-Lance %" / 100));
+        TmpWithholdingContribution.TestField("Company Amount", TmpWithholdingContribution."Total Social Security Amount" - TmpWithholdingContribution."Free-Lance Amount");
     end;
 
     local procedure VerifyPurchWithContribution(PurchaseHeader: Record "Purchase Header"; InvoiceAmount: Decimal; BracketAmount: Decimal)
@@ -3153,14 +3139,12 @@ codeunit 144090 "ERM Withhold"
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
-        with GenJournalLine2 do begin
-            SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-            SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-            SetRange("System-Created Entry", true);
-            SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
-            FindFirst();
-            Assert.AreEqual(0, Amount, 'Amount in this line must be 0');
-        end;
+        GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine2.SetRange("System-Created Entry", true);
+        GenJournalLine2.SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
+        GenJournalLine2.FindFirst();
+        Assert.AreEqual(0, GenJournalLine2.Amount, 'Amount in this line must be 0');
     end;
 
     local procedure VerifyWithhTaxAndContribExternalDocNo(VendorNo: Code[20]; ExternalDocNo: Code[35]);

@@ -2791,7 +2791,7 @@
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
         Clear(DeferralAmount);
         Period := 0;
-        if DeferralLine.FindSet() then begin
+        if DeferralLine.FindSet() then
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -2802,7 +2802,6 @@
                 DeferralAmount := DeferralAmount + DeferralLine.Amount;
                 Period := Period + 1;
             until DeferralLine.Next() = 0;
-        end;
         DeferralHeader.TestField("Amount to Defer", DeferralAmount);
     end;
 
@@ -3096,7 +3095,7 @@
         RangePostedDeferralLines(PostedDeferralHeader, PostedDeferralLine);
         Clear(DeferralAmount);
         Period := 0;
-        if PostedDeferralLine.FindSet() then begin
+        if PostedDeferralLine.FindSet() then
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -3107,7 +3106,6 @@
                 DeferralAmount := DeferralAmount + PostedDeferralLine.Amount;
                 Period := Period + 1;
             until PostedDeferralLine.Next() = 0;
-        end;
         PostedDeferralHeader.TestField("Amount to Defer", DeferralAmount);
     end;
 
@@ -3125,33 +3123,27 @@
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; AccNo: Code[20]; GenPostType: Enum "General Posting Type")
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", AccNo);
-            SetRange("Gen. Posting Type", GenPostType);
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", AccNo);
+        GLEntry.SetRange("Gen. Posting Type", GenPostType);
     end;
 
     local procedure FilterInvoiceGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Enum "General Posting Type"; PurchInvLine: Record "Purch. Inv. Line")
     begin
-        with GLEntry do begin
-            SetRange("Gen. Posting Type", GenPostingType);
-            SetRange("VAT Bus. Posting Group", PurchInvLine."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", PurchInvLine."VAT Prod. Posting Group");
-            SetRange("Gen. Bus. Posting Group", PurchInvLine."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
-        end;
+        GLEntry.SetRange("Gen. Posting Type", GenPostingType);
+        GLEntry.SetRange("VAT Bus. Posting Group", PurchInvLine."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", PurchInvLine."VAT Prod. Posting Group");
+        GLEntry.SetRange("Gen. Bus. Posting Group", PurchInvLine."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
     end;
 
     local procedure FilterCrMemoGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Enum "General Posting Type"; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
-        with GLEntry do begin
-            SetRange("Gen. Posting Type", GenPostingType);
-            SetRange("VAT Bus. Posting Group", PurchCrMemoLine."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group");
-            SetRange("Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
-        end;
+        GLEntry.SetRange("Gen. Posting Type", GenPostingType);
+        GLEntry.SetRange("VAT Bus. Posting Group", PurchCrMemoLine."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group");
+        GLEntry.SetRange("Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
     end;
 
     local procedure GetDeferralTemplateAccount(DeferralTemplateCode: Code[10]): Code[20]
@@ -3180,15 +3172,13 @@
 
     local procedure GetGLEntryPairAmount(var GLEntry: Record "G/L Entry"; PartialDeferral: Boolean): Decimal
     begin
-        with GLEntry do begin
-            if PartialDeferral then begin
-                SetRange("VAT Amount", 0);
-                Assert.RecordCount(GLEntry, 1);
-            end;
-            FindFirst();
-            SetRange("VAT Amount");
-            exit(Amount);
+        if PartialDeferral then begin
+            GLEntry.SetRange("VAT Amount", 0);
+            Assert.RecordCount(GLEntry, 1);
         end;
+        GLEntry.FindFirst();
+        GLEntry.SetRange("VAT Amount");
+        exit(GLEntry.Amount);
     end;
 
     local procedure GLCalcSum(DocNo: Code[20]; AccNo: Code[20]; StartPostDate: Date; EndPostDate: Date; var RecCount: Integer; var AccAmt: Decimal; var NonDeferralAmt: Decimal)
@@ -3231,7 +3221,7 @@
         DeferralLine.SetRange("Document No.", DocNo);
         DeferralLine.SetRange("Line No.", LineNo);
         Period := 0;
-        if DeferralLine.FindSet() then begin
+        if DeferralLine.FindSet() then
             repeat
                 if Period = 0 then
                     PostingDate := ReturnsDeferralStartDate
@@ -3242,7 +3232,6 @@
                 DeferralAmount := DeferralAmount + DeferralLine.Amount;
                 Period := Period + 1;
             until DeferralLine.Next() = 0;
-        end;
     end;
 
     local procedure SetPostingDate(Day: Integer; StartDate: Date): Date
@@ -3604,25 +3593,22 @@
         DummyPurchInvLine: Record "Purch. Inv. Line";
         PairAmount: Decimal;
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", PurchInvLine."Document No.");
-            SetRange(
-              "G/L Account No.",
-              GetPurchAccountNo(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group"));
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", PurchInvLine."Document No.");
+        GLEntry.SetRange(
+          "G/L Account No.",
+          GetPurchAccountNo(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
-            FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::Purchase, PurchInvLine);
-            Assert.RecordCount(GLEntry, 1);
-
-            // Verify paired GLEntry
-            PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
-            SetFilter(Amount, '<%1', 0);
-            FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchInvLine);
-            Assert.RecordCount(GLEntry, 1);
-            FindFirst();
-            TestField(Amount, -PairAmount);
-        end;
+        GLEntry.SetFilter("VAT Amount", '<>%1', 0);
+        FilterInvoiceGLEntryGroups(GLEntry, GLEntry."Gen. Posting Type"::Purchase, PurchInvLine);
+        Assert.RecordCount(GLEntry, 1);
+        // Verify paired GLEntry
+        PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
+        GLEntry.SetFilter(Amount, '<%1', 0);
+        FilterInvoiceGLEntryGroups(GLEntry, GLEntry."Gen. Posting Type"::" ", DummyPurchInvLine);
+        Assert.RecordCount(GLEntry, 1);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -PairAmount);
     end;
 
     local procedure VerifyCrMemoVATGLEntryForPostingAccount(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; PartialDeferral: Boolean)
@@ -3631,25 +3617,22 @@
         DummyPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         PairAmount: Decimal;
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::"Credit Memo");
-            SetRange("Document No.", PurchCrMemoLine."Document No.");
-            SetRange(
-              "G/L Account No.",
-              GetPurchCrMemoAccountNo(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group"));
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
+        GLEntry.SetRange("Document No.", PurchCrMemoLine."Document No.");
+        GLEntry.SetRange(
+          "G/L Account No.",
+          GetPurchCrMemoAccountNo(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group"));
 
-            SetFilter("VAT Amount", '<>%1', 0);
-            FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::Purchase, PurchCrMemoLine);
-            Assert.RecordCount(GLEntry, 1);
-
-            // Verify paired GLEntry
-            PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
-            SetFilter(Amount, '>%1', 0);
-            FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchCrMemoLine);
-            Assert.RecordCount(GLEntry, 1);
-            FindFirst();
-            TestField(Amount, -PairAmount);
-        end;
+        GLEntry.SetFilter("VAT Amount", '<>%1', 0);
+        FilterCrMemoGLEntryGroups(GLEntry, GLEntry."Gen. Posting Type"::Purchase, PurchCrMemoLine);
+        Assert.RecordCount(GLEntry, 1);
+        // Verify paired GLEntry
+        PairAmount := GetGLEntryPairAmount(GLEntry, PartialDeferral);
+        GLEntry.SetFilter(Amount, '>%1', 0);
+        FilterCrMemoGLEntryGroups(GLEntry, GLEntry."Gen. Posting Type"::" ", DummyPurchCrMemoLine);
+        Assert.RecordCount(GLEntry, 1);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -PairAmount);
     end;
 
     local procedure CreateResourceWithDefaultDeferralCode(var Resource: Record Resource)

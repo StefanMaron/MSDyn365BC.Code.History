@@ -71,7 +71,7 @@ table 3 "Payment Terms"
         }
         field(12170; "Payment Nos."; Integer)
         {
-            CalcFormula = Count("Payment Lines" where("Sales/Purchase" = const(" "),
+            CalcFormula = count("Payment Lines" where("Sales/Purchase" = const(" "),
                                                        Type = const("Payment Terms"),
                                                        Code = field(Code)));
             Caption = 'Payment Nos.';
@@ -80,7 +80,7 @@ table 3 "Payment Terms"
         }
         field(12171; "Payment %"; Decimal)
         {
-            CalcFormula = Sum("Payment Lines"."Payment %" where("Sales/Purchase" = const(" "),
+            CalcFormula = sum("Payment Lines"."Payment %" where("Sales/Purchase" = const(" "),
                                                                  Type = const("Payment Terms"),
                                                                  Code = field(Code)));
             Caption = 'Payment %';

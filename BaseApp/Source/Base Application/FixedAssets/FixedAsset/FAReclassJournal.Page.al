@@ -12,6 +12,8 @@ page 5636 "FA Reclass. Journal"
     SaveValues = true;
     SourceTable = "FA Reclass. Journal Line";
     UsageCategory = Tasks;
+    AboutTitle = 'About FA Reclass Journal';
+    AboutText = 'With the **FA Reclass Journal** you can transfer, split, or combine fixed assets. It is also used to transfer posted entries from one asset to another. The entries are calculated in this journal and then inserted in either the Fixed Asset G/L journal or the Fixed Asset journal.';
 
     layout
     {
@@ -70,6 +72,8 @@ page 5636 "FA Reclass. Journal"
                 field("New FA No."; Rec."New FA No.")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Update FA Numbers';
+                    AboutText = 'Specify the FA and New FA number of the fixed asset you want to reclassify to.';
                     ToolTip = 'Specifies the number of the fixed asset you want to reclassify to.';
 
                     trigger OnValidate()
@@ -96,11 +100,15 @@ page 5636 "FA Reclass. Journal"
                 field("Reclassify Acq. Cost %"; Rec."Reclassify Acq. Cost %")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Reclassify Acq. Cost %';
+                    AboutText = 'Specifies the percentage of the acquisition cost you want to reclassify.';
                     ToolTip = 'Specifies the percentage of the acquisition cost you want to reclassify.';
                 }
                 field("Reclassify Acquisition Cost"; Rec."Reclassify Acquisition Cost")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Reclassify Acquisition Cost';
+                    AboutText = 'Specifies the reclassification of the acquisition cost for the fixed asset entered in the FA No. field, to the fixed asset entered in the New FA No. field.';
                     ToolTip = 'Specifies the reclassification of the acquisition cost for the fixed asset entered in the FA No. field, to the fixed asset entered in the New FA No. field.';
                 }
                 field("Reclassify Depreciation"; Rec."Reclassify Depreciation")
@@ -205,6 +213,8 @@ page 5636 "FA Reclass. Journal"
                 ApplicationArea = FixedAssets;
                 Caption = 'Recl&assify';
                 Image = PostOrder;
+                AboutTitle = 'Reclassify Assets';
+                AboutText = 'Use the Reclassify option to create lines automatically in the fixed asset G/L journal or fixed asset journal.';
                 ToolTip = 'Reclassify the fixed asset information on the journal lines.';
 
                 trigger OnAction()

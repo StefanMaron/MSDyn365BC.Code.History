@@ -188,9 +188,6 @@ codeunit 143000 "Library - IT Localization"
         VATStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATStatementLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::"Blacklist Amount");
-        VATStatementLine.Validate("Blacklist Country Transaction", true);
-        VATStatementLine.Validate("Blacklisted Comm. Field", 'A20');
-        // A certain code required for blacklist functionality
         VATStatementLine.Modify(true);
     end;
 

@@ -918,7 +918,9 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionSales()
     var
@@ -978,7 +980,9 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionPurch()
     var
@@ -1326,13 +1330,11 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
         GLAccount.Get(AccountNo);
-        with GenJournalLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate("Gen. Posting Type", GLAccount."Gen. Posting Type");
-            Validate("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type");
+        GenJournalLine.Validate("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1355,14 +1357,12 @@ codeunit 134043 "ERM Additional Currency"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
-            FindFirst();
-            Validate("Relational Exch. Rate Amount", RelationalExchRateAmt);
-            Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount");
-            Modify(true);
-            exit("Currency Code");
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmt);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+        exit(CurrencyExchangeRate."Currency Code");
     end;
 
     local procedure CreateBankAccountWithCurrency(CurrencyCode: Code[10]): Code[20]
@@ -1555,19 +1555,17 @@ codeunit 134043 "ERM Additional Currency"
 
     local procedure CreateGenJournalLineWithAdditionalCurrencyPosting(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; DocumentAmount: Decimal; CurrencyCode: Code[10])
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", AccountNo, DocumentAmount);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo, DocumentAmount);
 
-            Description := LibraryUtility.GenerateGUID();
-            "Document No." := DocumentNo;
-            "Posting Date" := WorkDate();
-            "Source Code" := LibraryUtility.GenerateGUID();
-            "Additional-Currency Posting" := "Additional-Currency Posting"::"Additional-Currency Amount Only";
-            "Currency Code" := CurrencyCode;
-            "Amount (LCY)" := 0;
-            Modify();
-        end;
+        GenJournalLine.Description := LibraryUtility.GenerateGUID();
+        GenJournalLine."Document No." := DocumentNo;
+        GenJournalLine."Posting Date" := WorkDate();
+        GenJournalLine."Source Code" := LibraryUtility.GenerateGUID();
+        GenJournalLine."Additional-Currency Posting" := GenJournalLine."Additional-Currency Posting"::"Additional-Currency Amount Only";
+        GenJournalLine."Currency Code" := CurrencyCode;
+        GenJournalLine."Amount (LCY)" := 0;
+        GenJournalLine.Modify();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])

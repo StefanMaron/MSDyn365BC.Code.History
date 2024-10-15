@@ -297,9 +297,11 @@ table 7134 "Item Budget Entry"
         InventorySetupRetrieved: Boolean;
         SalesSetupRetrieved: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label '1,5,,Budget Dimension 1 Code';
         Text002: Label '1,5,,Budget Dimension 2 Code';
         Text003: Label '1,5,,Budget Dimension 3 Code';
+#pragma warning restore AA0074
 
     local procedure CheckIfBlocked()
     begin

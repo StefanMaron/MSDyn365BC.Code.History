@@ -963,11 +963,9 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new customer is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with Customer do begin
-            Init();
-            "No." := NewNo;
-            Insert();
-        end;
+        Customer.Init();
+        Customer."No." := NewNo;
+        Customer.Insert();
 
         // [THEN] A new CustomerCard is opened without errors and with NoSeries adjusted.
         CustomerCard.OpenNew();
@@ -1001,11 +999,9 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new vendor is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with Vendor do begin
-            Init();
-            "No." := NewNo;
-            Insert();
-        end;
+        Vendor.Init();
+        Vendor."No." := NewNo;
+        Vendor.Insert();
 
         // [THEN] A new VendorCard is opened without errors and with NoSeries adjusted.
         VendorCard.OpenNew();
@@ -1038,12 +1034,10 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new sales quote is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with SalesHeader do begin
-            Init();
-            "No." := NewNo;
-            "Document Type" := "Document Type"::Quote;
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."No." := NewNo;
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        SalesHeader.Insert();
 
         // [THEN] A new SalesQuoteCard is opened without errors and with NoSeries adjusted.
         SalesQuoteCard.OpenNew();
@@ -1076,12 +1070,10 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new sales invoice is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with SalesHeader do begin
-            Init();
-            "No." := NewNo;
-            "Document Type" := "Document Type"::Invoice;
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."No." := NewNo;
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader.Insert();
 
         // [THEN] A new SalesInvoiceCard is opened without errors and with NoSeries adjusted.
         SalesInvoiceCard.OpenNew();
@@ -1115,12 +1107,10 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new purchase quote is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with PurchaseHeader do begin
-            Init();
-            "No." := NewNo;
-            "Document Type" := "Document Type"::Quote;
-            Insert();
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader."No." := NewNo;
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Quote;
+        PurchaseHeader.Insert();
 
         // [THEN] A new PurchaseQuoteCard is opened without errors and with NoSeries adjusted.
         PurchaseQuoteCard.OpenNew();
@@ -1154,12 +1144,10 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new purchase invoice is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with PurchaseHeader do begin
-            Init();
-            "No." := NewNo;
-            "Document Type" := "Document Type"::Invoice;
-            Insert();
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader."No." := NewNo;
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        PurchaseHeader.Insert();
 
         // [THEN] A new PurchaseInvoiceCard is opened without errors and with NoSeries adjusted.
         PurchaseInvoiceCard.OpenNew();
@@ -1322,11 +1310,9 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [WHEN] A new customer is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesBatch.GetNextNo(NoSeriesCode, 0D, true);
-        with Customer do begin
-            Init();
-            "No." := NewNo;
-            Insert();
-        end;
+        Customer.Init();
+        Customer."No." := NewNo;
+        Customer.Insert();
 
         // [THEN] A new CustomerCard is opened without errors.
         CustomerCard.OpenNew();
@@ -1365,39 +1351,37 @@ codeunit 138100 "Streamline. Autofill No Series"
     begin
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
         DocumentNoVisibility.ClearState();
-        with SalesReceivablesSetup do begin
-            Get();
+        SalesReceivablesSetup.Get();
 
-            "Quote Nos." := GoodNoSeriesCode;
-            "Order Nos." := GoodNoSeriesCode;
-            "Invoice Nos." := GoodNoSeriesCode;
-            "Credit Memo Nos." := GoodNoSeriesCode;
-            "Blanket Order Nos." := GoodNoSeriesCode;
-            "Return Order Nos." := GoodNoSeriesCode;
-            "Reminder Nos." := GoodNoSeriesCode;
-            "Fin. Chrg. Memo Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Quote Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Order Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Invoice Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Credit Memo Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Blanket Order Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Return Order Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Reminder Nos." := GoodNoSeriesCode;
+        SalesReceivablesSetup."Fin. Chrg. Memo Nos." := GoodNoSeriesCode;
 
-            case TargetedSalesSetupDocType of
-                SalesSetupDocType::Quote:
-                    "Quote Nos." := NoSeriesCode;
-                SalesSetupDocType::Order:
-                    "Order Nos." := NoSeriesCode;
-                SalesSetupDocType::Invoice:
-                    "Invoice Nos." := NoSeriesCode;
-                SalesSetupDocType::"Credit Memo":
-                    "Credit Memo Nos." := NoSeriesCode;
-                SalesSetupDocType::"Blanket Order":
-                    "Blanket Order Nos." := NoSeriesCode;
-                SalesSetupDocType::"Return Order":
-                    "Return Order Nos." := NoSeriesCode;
-                SalesSetupDocType::Reminder:
-                    "Reminder Nos." := NoSeriesCode;
-                SalesSetupDocType::FinChMemo:
-                    "Fin. Chrg. Memo Nos." := NoSeriesCode;
-            end;
-
-            Modify();
+        case TargetedSalesSetupDocType of
+            SalesSetupDocType::Quote:
+                SalesReceivablesSetup."Quote Nos." := NoSeriesCode;
+            SalesSetupDocType::Order:
+                SalesReceivablesSetup."Order Nos." := NoSeriesCode;
+            SalesSetupDocType::Invoice:
+                SalesReceivablesSetup."Invoice Nos." := NoSeriesCode;
+            SalesSetupDocType::"Credit Memo":
+                SalesReceivablesSetup."Credit Memo Nos." := NoSeriesCode;
+            SalesSetupDocType::"Blanket Order":
+                SalesReceivablesSetup."Blanket Order Nos." := NoSeriesCode;
+            SalesSetupDocType::"Return Order":
+                SalesReceivablesSetup."Return Order Nos." := NoSeriesCode;
+            SalesSetupDocType::Reminder:
+                SalesReceivablesSetup."Reminder Nos." := NoSeriesCode;
+            SalesSetupDocType::FinChMemo:
+                SalesReceivablesSetup."Fin. Chrg. Memo Nos." := NoSeriesCode;
         end;
+
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdateNoSeriesOnPurchSetup(NoSeriesCode: Code[20])
@@ -1407,33 +1391,31 @@ codeunit 138100 "Streamline. Autofill No Series"
     begin
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
         DocumentNoVisibility.ClearState();
-        with PurchasesPayablesSetup do begin
-            Get();
+        PurchasesPayablesSetup.Get();
 
-            "Quote Nos." := GoodNoSeriesCode;
-            "Order Nos." := GoodNoSeriesCode;
-            "Invoice Nos." := GoodNoSeriesCode;
-            "Credit Memo Nos." := GoodNoSeriesCode;
-            "Blanket Order Nos." := GoodNoSeriesCode;
-            "Return Order Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Quote Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Order Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Invoice Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Credit Memo Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Blanket Order Nos." := GoodNoSeriesCode;
+        PurchasesPayablesSetup."Return Order Nos." := GoodNoSeriesCode;
 
-            case CurrentPurchSetupDocType of
-                PurchSetupDocType::Quote:
-                    "Quote Nos." := NoSeriesCode;
-                PurchSetupDocType::Order:
-                    "Order Nos." := NoSeriesCode;
-                PurchSetupDocType::Invoice:
-                    "Invoice Nos." := NoSeriesCode;
-                PurchSetupDocType::"Credit Memo":
-                    "Credit Memo Nos." := NoSeriesCode;
-                PurchSetupDocType::"Blanket Order":
-                    "Blanket Order Nos." := NoSeriesCode;
-                PurchSetupDocType::"Return Order":
-                    "Return Order Nos." := NoSeriesCode;
-            end;
-
-            Modify();
+        case CurrentPurchSetupDocType of
+            PurchSetupDocType::Quote:
+                PurchasesPayablesSetup."Quote Nos." := NoSeriesCode;
+            PurchSetupDocType::Order:
+                PurchasesPayablesSetup."Order Nos." := NoSeriesCode;
+            PurchSetupDocType::Invoice:
+                PurchasesPayablesSetup."Invoice Nos." := NoSeriesCode;
+            PurchSetupDocType::"Credit Memo":
+                PurchasesPayablesSetup."Credit Memo Nos." := NoSeriesCode;
+            PurchSetupDocType::"Blanket Order":
+                PurchasesPayablesSetup."Blanket Order Nos." := NoSeriesCode;
+            PurchSetupDocType::"Return Order":
+                PurchasesPayablesSetup."Return Order Nos." := NoSeriesCode;
         end;
+
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateSalesSetupPostedNoSeries(var NoSeriesCode: array[2] of Code[20])

@@ -71,6 +71,11 @@ report 99003802 "Copy Production Order Document"
                     StatusType::Released:
                         if FromProdOrder.Get(FromProdOrder.Status::Released, DocNo) then
                             ;
+                    StatusType::Finished:
+                        if FromProdOrder.Get(FromProdOrder.Status::Finished, DocNo) then
+                            ;
+                    else
+                        OnOpenPageOnCaseElse(StatusType, DocNo, FromProdOrder);
                 end;
                 if FromProdOrder."No." = '' then
                     DocNo := '';
@@ -99,8 +104,12 @@ report 99003802 "Copy Production Order Document"
     var
         FromProdOrder: Record "Production Order";
 
+#pragma warning disable AA0074
         Text000: Label 'You must enter a document number. ';
+#pragma warning disable AA0470
         Text002: Label 'The %1 cannot be copied onto itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ToProdOrder: Record "Production Order";
@@ -250,6 +259,11 @@ report 99003802 "Copy Production Order Document"
 
     [IntegrationEvent(true, false)]
     local procedure OnCopyProdLinesOnAfterFilterFromProdOrderLine(var FromProdOrderLine: Record "Prod. Order Line"; StatusType: Enum "Production Order Status"; DocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnCaseElse(StatusType: Enum "Production Order Status"; DocNo: Code[20]; var FromProductionOrder: Record "Production Order")
     begin
     end;
 }

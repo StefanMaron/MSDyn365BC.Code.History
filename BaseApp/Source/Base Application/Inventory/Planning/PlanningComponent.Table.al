@@ -173,17 +173,16 @@ table 99000829 "Planning Component"
                         "Due Time" := PlanningRtngLine."Starting Time";
                         if (PlanningRtngLine.Type = PlanningRtngLine.Type::"Work Center") then
                             if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
-                                if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
+                                if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then
                                     if SubcontractingManagement.GetSubcontractor(PlanningRtngLine."No.", Vendor) then begin
                                         IsHandled := false;
                                         OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(Rec, Vendor, IsHandled);
                                         if not IsHandled then
                                             if Vendor."Subcontractor Procurement" then
                                                 Validate("Location Code", Vendor."Subcontracting Location Code");
-                                    end;					    
-                                end;
+                                    end;
                     end;
-                end else begin
+                end else
                     if xRec."Routing Link Code" <> '' then begin
                         GetPlanningParameters.AtSKU(
                           SKU,
@@ -192,7 +191,6 @@ table 99000829 "Planning Component"
                           "Location Code");
                         Validate("Location Code", SKU."Components at Location");
                     end;
-                end;
                 if Format("Lead-Time Offset") <> '' then begin
                     if "Due Date" = 0D then
                         "Due Date" := ReqLine."Ending Date";
@@ -462,12 +460,10 @@ table 99000829 "Planning Component"
                 Validate("Calculation Formula");
             end;
         }
-        field(46; "Ref. Order Type"; Option)
+        field(46; "Ref. Order Type"; Enum "Requisition Ref. Order Type")
         {
             Caption = 'Ref. Order Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Prod. Order,Transfer,Assembly';
-            OptionMembers = " ",Purchase,"Prod. Order",Transfer,Assembly;
         }
         field(50; "Unit Cost"; Decimal)
         {
@@ -726,8 +722,12 @@ table 99000829 "Planning Component"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
         GLSetup: Record "General Ledger Setup";

@@ -579,7 +579,7 @@ page 12153 "Subcontracting Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -591,7 +591,7 @@ page 12153 "Subcontracting Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -603,7 +603,7 @@ page 12153 "Subcontracting Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                 }
@@ -716,7 +716,7 @@ page 12153 "Subcontracting Order Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ShortcutDimCode: array[8] of Code[20];
 
@@ -764,10 +764,10 @@ page 12153 "Subcontracting Order Subform"
     [Scope('OnPrem')]
     procedure ShowTracking()
     var
-        TrackingForm: Page "Order Tracking";
+        OrderTracking: Page "Order Tracking";
     begin
-        TrackingForm.SetPurchLine(Rec);
-        TrackingForm.RunModal();
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Outstanding Qty. (Base)", Rec."Expected Receipt Date", Rec."Expected Receipt Date");
+        OrderTracking.RunModal();
     end;
 
     [Scope('OnPrem')]

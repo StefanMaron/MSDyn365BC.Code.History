@@ -3268,15 +3268,13 @@ codeunit 139197 DocumentSendingPostTests
         // [SCENARIO] TAB 61 ElectronicDocumentFormat.InsertElectronicFormat() with different Usage options
 
         FormatCode := LibraryUtility.GenerateGUID();
-        with ElectronicDocumentFormat do begin
-            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Job Quote".AsInteger() do begin
-                InsertElectronicFormat(FormatCode, '', 0, 0, UsageOption);
-                Get(FormatCode, UsageOption);
-            end;
-
-            SetRange(Code, FormatCode);
-            DeleteAll();
+        for UsageOption := ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger() to ElectronicDocumentFormat.Usage::"Job Quote".AsInteger() do begin
+            ElectronicDocumentFormat.InsertElectronicFormat(FormatCode, '', 0, 0, UsageOption);
+            ElectronicDocumentFormat.Get(FormatCode, UsageOption);
         end;
+
+        ElectronicDocumentFormat.SetRange(Code, FormatCode);
+        ElectronicDocumentFormat.DeleteAll();
     end;
 
     [Test]
@@ -3959,22 +3957,18 @@ codeunit 139197 DocumentSendingPostTests
 
     local procedure CreatePrintAndEmailDocumentSendingProfiles(var PrintDocumentSendingProfile: Record "Document Sending Profile"; var EmailDocumentSendingProfile: Record "Document Sending Profile")
     begin
-        with PrintDocumentSendingProfile do begin
-            DeleteAll();
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Default := true;
-            Validate(Printer, Printer::"Yes (Prompt for Settings)");
-            Insert(true);
-        end;
+        PrintDocumentSendingProfile.DeleteAll();
+        PrintDocumentSendingProfile.Init();
+        PrintDocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
+        PrintDocumentSendingProfile.Default := true;
+        PrintDocumentSendingProfile.Validate(Printer, PrintDocumentSendingProfile.Printer::"Yes (Prompt for Settings)");
+        PrintDocumentSendingProfile.Insert(true);
 
-        with EmailDocumentSendingProfile do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Default := true;
-            Validate("E-Mail", "E-Mail"::"Yes (Prompt for Settings)");
-            Insert(true);
-        end;
+        EmailDocumentSendingProfile.Init();
+        EmailDocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
+        EmailDocumentSendingProfile.Default := true;
+        EmailDocumentSendingProfile.Validate("E-Mail", EmailDocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+        EmailDocumentSendingProfile.Insert(true);
     end;
 
     local procedure CreateTwoDocumentSendingProfiles(var DefaultDocumentSendingProfile: Record "Document Sending Profile"; var NonDefaultDocumentSendingProfile: Record "Document Sending Profile")
@@ -4016,10 +4010,9 @@ codeunit 139197 DocumentSendingPostTests
 
     local procedure CreateFullDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     begin
-        with DocumentSendingProfile do
-            InitializeDocumentSendingProfile(
-              DocumentSendingProfile, "E-Mail Attachment"::"Electronic Document",
-              Printer::"Yes (Prompt for Settings)", "E-Mail"::"Yes (Prompt for Settings)");
+        InitializeDocumentSendingProfile(
+              DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"Electronic Document",
+              DocumentSendingProfile.Printer::"Yes (Prompt for Settings)", DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
     end;
 
     local procedure CreateElectronicDocumentCustomer(var Customer: Record Customer)
@@ -4048,12 +4041,10 @@ codeunit 139197 DocumentSendingPostTests
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("E-Mail", CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen("E-Mail")));
-            Validate("Document Sending Profile", DocumentSendingProfileCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("E-Mail", CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(Customer."E-Mail")));
+        Customer.Validate("Document Sending Profile", DocumentSendingProfileCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendorWithDocumentProfile(DocumentSendingProfileCode: Code[20]): Code[20]
@@ -4061,12 +4052,10 @@ codeunit 139197 DocumentSendingPostTests
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("E-Mail", CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen("E-Mail")));
-            Validate("Document Sending Profile", DocumentSendingProfileCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("E-Mail", CopyStr(GenerateRandomEmailAddress(), 1, MaxStrLen(Vendor."E-Mail")));
+        Vendor.Validate("Document Sending Profile", DocumentSendingProfileCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateAndPostSalesHeaderAndLine(var PostedDocumentVariant: Variant; var Customer: Record Customer; DocumentType: Enum "Sales Document Type")
@@ -4244,12 +4233,10 @@ codeunit 139197 DocumentSendingPostTests
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        with ServiceInvoiceHeader do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Pre-Assigned No.", CreatePostServiceDoc(ServiceHeader."Document Type"::Invoice, CustomerNo));
-            FindFirst();
-            exit("No.");
-        end;
+        ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(ServiceHeader."Document Type"::Invoice, CustomerNo));
+        ServiceInvoiceHeader.FindFirst();
+        exit(ServiceInvoiceHeader."No.");
     end;
 
     local procedure CreatePostServiceCrMemo(CustomerNo: Code[20]): Code[20]
@@ -4257,12 +4244,10 @@ codeunit 139197 DocumentSendingPostTests
         ServiceHeader: Record "Service Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with ServiceCrMemoHeader do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Pre-Assigned No.", CreatePostServiceDoc(ServiceHeader."Document Type"::"Credit Memo", CustomerNo));
-            FindFirst();
-            exit("No.");
-        end;
+        ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
+        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(ServiceHeader."Document Type"::"Credit Memo", CustomerNo));
+        ServiceCrMemoHeader.FindFirst();
+        exit(ServiceCrMemoHeader."No.");
     end;
 
     local procedure CreatePostSevServiceInvoicesDistinctCustomers(var ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -4461,14 +4446,12 @@ codeunit 139197 DocumentSendingPostTests
           PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"PEPPOL Service Validation", 0,
           ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
 
-        with CountryRegion do begin
-            SetRange("VAT Scheme", '');
-            if FindSet() then
-                repeat
-                    "VAT Scheme" := Code;
-                    Modify();
-                until Next() = 0;
-        end;
+        CountryRegion.SetRange("VAT Scheme", '');
+        if CountryRegion.FindSet() then
+            repeat
+                CountryRegion."VAT Scheme" := CountryRegion.Code;
+                CountryRegion.Modify();
+            until CountryRegion.Next() = 0;
     end;
 
     local procedure ConfigureVATPostingSetup()
@@ -4521,16 +4504,14 @@ codeunit 139197 DocumentSendingPostTests
 
     local procedure VerifyDocumentProfilesAreIdentical(ExpectedDocumentSendingProfile: Record "Document Sending Profile"; ActualDocumentSendingProfile: Record "Document Sending Profile")
     begin
-        with ExpectedDocumentSendingProfile do begin
-            Assert.AreEqual(Printer, ActualDocumentSendingProfile.Printer, FieldCaption(Printer));
-            Assert.AreEqual(Disk, ActualDocumentSendingProfile.Disk, FieldCaption(Disk));
-            Assert.AreEqual("Disk Format", ActualDocumentSendingProfile."Disk Format", FieldCaption("Disk Format"));
-            Assert.AreEqual("E-Mail", ActualDocumentSendingProfile."E-Mail", FieldCaption("E-Mail"));
-            Assert.AreEqual("E-Mail Format", ActualDocumentSendingProfile."E-Mail Format", FieldCaption("E-Mail Format"));
-            Assert.AreEqual("E-Mail Attachment", ActualDocumentSendingProfile."E-Mail Attachment", FieldCaption("E-Mail Attachment"));
-            Assert.AreEqual("Electronic Format", ActualDocumentSendingProfile."Electronic Format", FieldCaption("Electronic Format"));
-            Assert.AreEqual("Electronic Document", ActualDocumentSendingProfile."Electronic Document", FieldCaption("Electronic Document"));
-        end;
+        Assert.AreEqual(ExpectedDocumentSendingProfile.Printer, ActualDocumentSendingProfile.Printer, ExpectedDocumentSendingProfile.FieldCaption(Printer));
+        Assert.AreEqual(ExpectedDocumentSendingProfile.Disk, ActualDocumentSendingProfile.Disk, ExpectedDocumentSendingProfile.FieldCaption(Disk));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."Disk Format", ActualDocumentSendingProfile."Disk Format", ExpectedDocumentSendingProfile.FieldCaption("Disk Format"));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."E-Mail", ActualDocumentSendingProfile."E-Mail", ExpectedDocumentSendingProfile.FieldCaption("E-Mail"));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."E-Mail Format", ActualDocumentSendingProfile."E-Mail Format", ExpectedDocumentSendingProfile.FieldCaption("E-Mail Format"));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."E-Mail Attachment", ActualDocumentSendingProfile."E-Mail Attachment", ExpectedDocumentSendingProfile.FieldCaption("E-Mail Attachment"));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."Electronic Format", ActualDocumentSendingProfile."Electronic Format", ExpectedDocumentSendingProfile.FieldCaption("Electronic Format"));
+        Assert.AreEqual(ExpectedDocumentSendingProfile."Electronic Document", ActualDocumentSendingProfile."Electronic Document", ExpectedDocumentSendingProfile.FieldCaption("Electronic Document"));
     end;
 
     local procedure VerifyDocumentProfilesAreIdenticalOnPage(var SelectSendingOptions: TestPage "Select Sending Options"; DocumentSendingProfile: Record "Document Sending Profile"; ElectronicDocumentVisible: Boolean)

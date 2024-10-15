@@ -959,27 +959,13 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     end;
 
     local procedure VerifyRecordNotFoundSalesValidation()
-    var
-        DummyElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        Assert.ExpectedErrorCode('RecordNotFound');
-        with DummyElectronicDocumentFormat do
-            Assert.ExpectedError(
-              StrSubstNo(
-                '%1=''%2'',%3=''%4''',
-                FieldCaption(Code), UpperCase(FatturaPATxt), FieldCaption(Usage), Usage::"Sales Validation"));
+        Assert.ExpectedErrorCannotFind(Database::"Electronic Document Format");
     end;
 
     local procedure VerifyRecordNotFoundServiceValidation()
-    var
-        DummyElectronicDocumentFormat: Record "Electronic Document Format";
     begin
-        Assert.ExpectedErrorCode('RecordNotFound');
-        with DummyElectronicDocumentFormat do
-            Assert.ExpectedError(
-              StrSubstNo(
-                '%1=''%2'',%3=''%4''',
-                FieldCaption(Code), UpperCase(FatturaPATxt), FieldCaption(Usage), Usage::"Service Validation"));
+        Assert.ExpectedErrorCannotFind(Database::"Electronic Document Format");
     end;
 
     local procedure VerifyServiceInvoiceHeaderExists(ServiceHeader: Record "Service Header")

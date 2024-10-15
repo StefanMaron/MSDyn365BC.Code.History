@@ -9,12 +9,10 @@ using Microsoft.Inventory.Item.Attribute;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Setup;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Pricing;
 #endif
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using System.Environment.Configuration;
 
 codeunit 730 "Copy Item"
@@ -139,10 +137,8 @@ codeunit 730 "Copy Item"
         CopyItemComments(SourceItem."No.", TargetItem."No.");
         CopyBOMComponents(SourceItem."No.", TargetItem."No.");
         CopyItemVendors(SourceItem."No.", TargetItem."No.");
-        CopyTroubleshootingSetup(SourceItem."No.", TargetItem."No.");
-        CopyItemResourceSkills(SourceItem."No.", TargetItem."No.");
         CopyItemPriceListLines(SourceItem."No.", TargetItem."No.");
-#if not CLEAN23
+#if not CLEAN25
         CopyItemSalesPrices(SourceItem."No.", TargetItem."No.");
         CopySalesLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
@@ -353,34 +349,6 @@ codeunit 730 "Copy Item"
         end;
     end;
 
-    local procedure CopyTroubleshootingSetup(FromItemNo: Code[20]; ToItemNo: Code[20])
-    var
-        TroubleshootingSetup: Record "Troubleshooting Setup";
-        RecRef: RecordRef;
-    begin
-        if not TempCopyItemBuffer.Troubleshooting then
-            exit;
-
-        TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::Item);
-
-        RecRef.GetTable(TroubleshootingSetup);
-        CopyItemRelatedTableFromRecRef(RecRef, TroubleshootingSetup.FieldNo("No."), FromItemNo, ToItemNo);
-    end;
-
-    local procedure CopyItemResourceSkills(FromItemNo: Code[20]; ToItemNo: Code[20])
-    var
-        ResourceSkill: Record "Resource Skill";
-        RecRef: RecordRef;
-    begin
-        if not TempCopyItemBuffer."Resource Skills" then
-            exit;
-
-        ResourceSkill.SetRange(Type, ResourceSkill.Type::Item);
-
-        RecRef.GetTable(ResourceSkill);
-        CopyItemRelatedTableFromRecRef(RecRef, ResourceSkill.FieldNo("No."), FromItemNo, ToItemNo);
-    end;
-
     local procedure CopyItemPriceListLines(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         IsHandled: Boolean;
@@ -424,7 +392,7 @@ codeunit 730 "Copy Item"
             until PriceListLine.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the method CopyItemPriceListLines()', '17.0')]
     local procedure CopyItemSalesPrices(FromItemNo: Code[20]; ToItemNo: Code[20])
     var

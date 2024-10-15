@@ -40,7 +40,6 @@ codeunit 137158 "SCM Orders V"
         LibraryResource: Codeunit "Library - Resource";
         LibraryITLocalization: Codeunit "Library - IT Localization";
         isInitialized: Boolean;
-        ShipToCodeErr: Label 'Ship-to Code must be equal to ''%1''  in Purchase Header: Document Type=Order, No.=%2. Current value is ''%3''.', Comment = '%1 = Ship-to Code Value, %2 = PurchaseHeader No.Value';
         UndoReceiptMsg: Label 'Do you really want to undo the selected Receipt lines?';
         AmountMustBeEqualErr: Label 'Amount must be equal.';
         FieldShouldNotBeEditableErr: Label 'Field should not be editable.';
@@ -48,11 +47,8 @@ codeunit 137158 "SCM Orders V"
         ChangeBillToCustomerNoConfirmQst: Label 'Do you want to change';
         QuantityToAssembleErr: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.', Comment = '%1 = Quantity Value';
         AvailabilityWarningsConfirmMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
-        ExternalDocumentMustNotEmptyErr: Label 'External Document No. must have a value in Sales Header: Document Type=Order, No.=%1. It cannot be zero or empty.', Comment = '%1 = Order No.';
         OrderDateOnSalesHeaderMsg: Label 'You have changed the Order Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         NoGLEntryWithinFilterErr: Label 'There is no G/L Entry within the filter';
-        DropShipmentMustBeEqualToNoErr: Label 'Drop Shipment must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';
-        SpecialOrderMustBeEqualToNoErr: Label 'Special Order must be equal to ''No''  in Purchase Line: Document Type=Order, Document No.=%1', Comment = '%1 = Document No.';
         ReservationEntryExistMsg: Label 'One or more reservation entries exist for the item';
         QuantityBaseErr: Label 'Quantity (Base) is not sufficient to complete this action';
         QuantityMustBeSameErr: Label 'Quantity must be same.';
@@ -68,7 +64,6 @@ codeunit 137158 "SCM Orders V"
         MustBeDeletedErr: Label 'Sales order %1 must be deleted';
         ItemTrackingNotMatchErr: Label 'Item Tracking does not match';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
-        ReservedQtyMustBeZeroErr: Label 'Reserved Qty. (Base) must be equal to ''0''  in Purchase Line';
         WrongLotQtyOnPurchaseLineErr: Label 'Wrong lot quantity in Item Tracking on Purchase Line.';
 
     [Test]
@@ -120,7 +115,7 @@ codeunit 137158 "SCM Orders V"
         asserterror LibraryPurchase.GetSpecialOrder(PurchaseHeader);
 
         // [THEN] Verify Different Ship-to Code error message
-        Assert.ExpectedError(StrSubstNo(ShipToCodeErr, SalesShipToCode, PurchaseHeader."No.", PurchaseShipToCode));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Ship-to Code"), '');
     end;
 
     [Test]
@@ -779,7 +774,7 @@ codeunit 137158 "SCM Orders V"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post Ship and Invoice.
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ExternalDocumentMustNotEmptyErr, SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("External Document No."), '');
 
         if WithExternalDocumentNo then begin
             // Exercise.
@@ -982,7 +977,7 @@ codeunit 137158 "SCM Orders V"
         asserterror PurchaseLine.Validate("Job No.", Job."No.");
 
         // Verify: Error message pops up when add the Job No.
-        Assert.ExpectedError(StrSubstNo(DropShipmentMustBeEqualToNoErr, PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Drop Shipment"), Format(false));
     end;
 
     [Test]
@@ -1014,7 +1009,7 @@ codeunit 137158 "SCM Orders V"
         asserterror PurchaseLine.Validate("Job No.", Job."No.");
 
         // Verify: Error message pops up when add the Job No.
-        Assert.ExpectedError(StrSubstNo(SpecialOrderMustBeEqualToNoErr, PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Special Order"), '');
     end;
 
     [Test]
@@ -1426,6 +1421,166 @@ codeunit 137158 "SCM Orders V"
 
         // [THEN] Quantity is updated to default value "0"
         SalesLine.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    procedure SetGLAccountNoOnSalesLine()
+    var
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161630] Quantity is set to "0" after filling in "G/L Account No." in sales line if "Default G/L Account Quantity" is not set in Sales & Receivable Setup
+        Initialize();
+
+        // [GIVEN] Sales & Receivable Setup with "Default G/L Account Quantity" = FALSE
+        UpdateDefaultGLAccountQuantityOnSalesSetup(false);
+	
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] Sales line with type = "G/L Account"
+        MockSalesLineWithGLAccountType(SalesLine);
+
+        // [WHEN] Set "G/L Account No." on sales line to "A"
+        SalesLine.Validate("No.", GLAccount."No.");
+
+        // [THEN] Quantity is "0"
+        SalesLine.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    procedure SetGLAccountNoOnSalesLineWithDefaultGLAccountQuantity()
+    var
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161630] Quantity is set to "1" after filling in "G/L Account No." in sales line if "Default G/L Account Quantity" is set in Sales & Receivable Setup
+        Initialize();
+
+        // [GIVEN] Sales & Receivables Setup with "Default G/L Account Quantity" = TRUE
+        UpdateDefaultGLAccountQuantityOnSalesSetup(true);
+
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] Sales line with type = "G/L Account"
+        MockSalesLineWithGLAccountType(SalesLine);
+
+        // [WHEN] Set "G/L Account No." on sales line to "A"
+        SalesLine.Validate("No.", GLAccount."No.");
+
+        // [THEN] Quantity is updated to default value "1"
+        SalesLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    procedure ClearGLAccountOnSalesLineWithDefaultGLAccountQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161630] Quantity is set to "0" after deleting "G/L Account No." in sales line if "Default G/L Account Quantity" is set in Sales & Receivable Setup
+        Initialize();
+
+        // [GIVEN] Sales & Receivables Setup with "Default G/L Account Quantity" = TRUE
+        UpdateDefaultGLAccountQuantityOnSalesSetup(true);
+
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] Sales line for  G/L Account "A" and Quantity <> 0
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Set "G/L Account No." on sales line to blank
+        SalesLine.Validate("No.", '');
+
+        // [THEN] Quantity is updated to default value "0"
+        SalesLine.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    procedure SetGLAccountNoOnPurchaseLine()
+    var
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161631] Quantity is set to "0" after filling in "G/L Account No." in purchase line if "Default G/L Account Quantity" is not set in Purchases & Payables Setup
+        Initialize();
+
+        // [GIVEN] Purchases & Payables Setup Setup with "Default G/L Account Quantity" = FALSE
+        UpdateDefaultGLAccountQuantityOnPurchaseSetup(false);
+
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] Purchase line with type = "G/L Account"
+        MockPurchaseLineWithGLAccountType(PurchaseLine);
+
+        // [WHEN] Set "G/L Account No." on purchase line to "A"
+        PurchaseLine.Validate("No.", GLAccount."No.");
+
+        // [THEN] Quantity is "0"
+        PurchaseLine.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    procedure SetGLAccountNoOnPurchaseLineWithDefaultGLAccountQuantity()
+    var
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161631] Quantity is set to "1" after filling in "G/L Account No." in purchase line if "Default G/L Account Quantity" is set in Purchases & Payables Setup
+        Initialize();
+
+        // [GIVEN] Purchases & Payables Setup with "Default G/L Account Quantity" = TRUE
+        UpdateDefaultGLAccountQuantityOnPurchaseSetup(true);
+
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] Purchase line with type = "G/L Account"
+        MockPurchaseLineWithGLAccountType(PurchaseLine);
+
+        // [WHEN] Set "G/L Account No." on purchase line to "A"
+        PurchaseLine.Validate("No.", GLAccount."No.");
+
+        // [THEN] Quantity is updated to default value "1"
+        PurchaseLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    procedure ClearGLAccountOnPurchaseLineWithDefaultGLAccountQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase] [Default G/L Account Quantity] [UT]
+        // [SCENARIO 161631] Quantity is set to "0" after deleting "G/L Account No." in purchase line if "Default G/L Account Quantity" is set in Purchases & Payables Setup
+        Initialize();
+
+        // [GIVEN] Purchases & Payables Setup with "Default G/L Account Quantity" = TRUE
+        UpdateDefaultGLAccountQuantityOnPurchaseSetup(true);
+
+        // [GIVEN] G/L Account "A"
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] Purchase line for  G/L Account "A" and Quantity <> 0
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Set "G/L Account No." on purchase line to blank
+        PurchaseLine.Validate("No.", '');
+
+        // [THEN] Quantity is updated to default value "0"
+        PurchaseLine.TestField(Quantity, 0);
     end;
 
     [Test]
@@ -3663,8 +3818,7 @@ codeunit 137158 "SCM Orders V"
 
         asserterror LibraryPurchase.ExplodeBOM(PurchaseLine);
 
-        Assert.ExpectedError(ReservedQtyMustBeZeroErr);
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     [Test]
@@ -4444,18 +4598,14 @@ codeunit 137158 "SCM Orders V"
         SalesHeaderNo: Code[20];
     begin
         CreateSpecialSaleOrderAndPurchaseOrder(PurchaseHeader, SalesHeaderNo);
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("No.", SalesHeaderNo);
-            FindFirst();
-            SalesShipToCode := "Ship-to Code";
-            LibrarySales.CreateShipToAddress(ShipToAddress, "Sell-to Customer No.");
-        end;
-        with PurchaseHeader do begin
-            Validate("Ship-to Code", ShipToAddress.Code);
-            Modify();
-            PurchaseShipToCode := "Ship-to Code";
-        end;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange("No.", SalesHeaderNo);
+        SalesHeader.FindFirst();
+        SalesShipToCode := SalesHeader."Ship-to Code";
+        LibrarySales.CreateShipToAddress(ShipToAddress, SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify();
+        PurchaseShipToCode := PurchaseHeader."Ship-to Code";
     end;
 
     local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
@@ -4758,12 +4908,10 @@ codeunit 137158 "SCM Orders V"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        with SalesLine do begin
-            Init();
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            Type := Type::Item;
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine.Type := SalesLine.Type::Item;
     end;
 
     local procedure EnqueueVariablesForCombineShipments(FromDate: Date; ToDate: Date; OperationType: Code[20]; CustomerNo: Code[20])
@@ -4780,18 +4928,38 @@ codeunit 137158 "SCM Orders V"
         Report.RunModal(Report::"Combine Shipments", true);
     end;
 
+    local procedure MockSalesLineWithGLAccountType(var SalesLine: Record "Sales Line")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+    end;
+
+    local procedure MockPurchaseLineWithGLAccountType(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+    end;
+
     local procedure MockItemInventory(ItemNo: Code[20]; Qty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Item No." := ItemNo;
-            Quantity := Qty;
-            "Remaining Quantity" := Quantity;
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry.Quantity := Qty;
+        ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry.Quantity;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure OpenTaskListPageFromContactCard(ContactNo: Code[20]; Description: Text[50])
@@ -5045,23 +5213,19 @@ codeunit 137158 "SCM Orders V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Stockout Warning", NewStockoutWarning);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Stockout Warning", NewStockoutWarning);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateDefQtyToShipOnSalesReceivableSetup(NewDefQtyToShip: Integer) OldDefQtyToShip: Integer
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            OldDefQtyToShip := "Default Quantity to Ship";
-            Validate("Default Quantity to Ship", NewDefQtyToShip);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        OldDefQtyToShip := SalesReceivablesSetup."Default Quantity to Ship";
+        SalesReceivablesSetup.Validate("Default Quantity to Ship", NewDefQtyToShip);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateExpectedReceiptDateOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; ExpectedReceiptDate: Date)
@@ -5087,6 +5251,24 @@ codeunit 137158 "SCM Orders V"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Default Item Quantity", DefaultItemQuantity);
         SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateDefaultGLAccountQuantityOnSalesSetup(DefaultGLQuantity: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default G/L Account Quantity", DefaultGLQuantity);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateDefaultGLAccountQuantityOnPurchaseSetup(DefaultGLQuantity: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default G/L Account Quantity", DefaultGLQuantity);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure UpdateExternalDocumentNoOnSalesOrder(var SalesHeader: Record "Sales Header"; ExternalDocumentNo: Code[35])
@@ -5379,14 +5561,12 @@ codeunit 137158 "SCM Orders V"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetFilter("Entry No.", '>%1', LastEntryNo);
-            SetRange("Item No.", ItemNo);
-            SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
-            CalcSums("Item Ledger Entry Quantity", "Invoiced Quantity");
-            TestField("Item Ledger Entry Quantity", ItemLedgerEntryQuantity);
-            TestField("Invoiced Quantity", InvoicedQuantity);
-        end;
+        ValueEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Invoiced Quantity");
+        ValueEntry.TestField("Item Ledger Entry Quantity", ItemLedgerEntryQuantity);
+        ValueEntry.TestField("Invoiced Quantity", InvoicedQuantity);
     end;
 
     local procedure VerifySalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; CompItemNo: Code[20]; CompItemNo2: Code[20])
@@ -5452,34 +5632,30 @@ codeunit 137158 "SCM Orders V"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            TestField("Quantity (Base)", QtyBase);
-            TestField("Outstanding Qty. (Base)", QtyBase);
-            TestField("Qty. to Invoice (Base)", QtyBase);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+        SalesLine.TestField("Quantity (Base)", QtyBase);
+        SalesLine.TestField("Outstanding Qty. (Base)", QtyBase);
+        SalesLine.TestField("Qty. to Invoice (Base)", QtyBase);
     end;
 
     local procedure VerifyResourceSalesLine(SalesHeader: Record "Sales Header"; ResourceNo: Code[20]; UnitOfMeasureCode: Code[20]; ExpectedQtyBase: Decimal; ExpectedQuantity: Decimal; ExpectedAmount: Decimal; ExpectedUnitPrice: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Resource);
-            SetRange("No.", ResourceNo);
-            FindFirst();
-            TestField("Unit of Measure Code", UnitOfMeasureCode);
-            TestField("Quantity (Base)", Round(ExpectedQtyBase, 0.00001));
-            TestField(Quantity, Round(ExpectedQuantity, 0.00001));
-            TestField(Amount, Round(ExpectedAmount, 0.01));
-            TestField("Unit Price", Round(ExpectedUnitPrice, 0.00001));
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Resource);
+        SalesLine.SetRange("No.", ResourceNo);
+        SalesLine.FindFirst();
+        SalesLine.TestField("Unit of Measure Code", UnitOfMeasureCode);
+        SalesLine.TestField("Quantity (Base)", Round(ExpectedQtyBase, 0.00001));
+        SalesLine.TestField(Quantity, Round(ExpectedQuantity, 0.00001));
+        SalesLine.TestField(Amount, Round(ExpectedAmount, 0.01));
+        SalesLine.TestField("Unit Price", Round(ExpectedUnitPrice, 0.00001));
     end;
 
     local procedure VerifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; CompItemNo: Code[20]; CompItemNo2: Code[20])
@@ -5508,12 +5684,10 @@ codeunit 137158 "SCM Orders V"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            SetRange("Document No.", PurchHeaderNo);
-            SetRange("Document Type", "Document Type"::Order);
-            FindFirst();
-            Assert.AreEqual(SalesHeaderNo, "Special Order Sales No.", SpecialOrderSalesNoErr);
-        end;
+        PurchLine.SetRange("Document No.", PurchHeaderNo);
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.FindFirst();
+        Assert.AreEqual(SalesHeaderNo, PurchLine."Special Order Sales No.", SpecialOrderSalesNoErr);
     end;
 
     local procedure VerifyPurchLineExtTextBeforeItem(PurchHeader: Record "Purchase Header"; ExtendedText: Text; CompItemNo: Code[20])
@@ -5544,13 +5718,11 @@ codeunit 137158 "SCM Orders V"
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        with TrackingSpecification do begin
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            SetRange("Lot No.", LotNo);
-            CalcSums("Quantity Handled (Base)", "Quantity Invoiced (Base)");
-            TestField("Quantity Handled (Base)", HandledQty);
-            TestField("Quantity Invoiced (Base)", InvoicedQty);
-        end;
+        TrackingSpecification.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+        TrackingSpecification.SetRange("Lot No.", LotNo);
+        TrackingSpecification.CalcSums("Quantity Handled (Base)", "Quantity Invoiced (Base)");
+        TrackingSpecification.TestField("Quantity Handled (Base)", HandledQty);
+        TrackingSpecification.TestField("Quantity Invoiced (Base)", InvoicedQty);
     end;
 
     local procedure VerifyQtyToInvoiceInItemTrackingOnPurchLine(PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal)

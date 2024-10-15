@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;

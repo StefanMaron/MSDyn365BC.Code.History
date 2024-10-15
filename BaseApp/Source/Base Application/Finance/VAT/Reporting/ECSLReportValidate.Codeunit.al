@@ -25,8 +25,10 @@ codeunit 143 "ECSL Report Validate"
         ErrorMessage: Record "Error Message";
 
         NoLineFoundErr: Label 'You cannot release a blank VAT report.';
+#pragma warning disable AA0470
         ZeroTotalValueErr: Label 'You cannot release the report because line No. %1 has zero as the Total Value Of Supplies.', Comment = 'Placeholder 1 holds the line no that cause the error';
         NoVatRegNoErr: Label 'You cannot release the report because line No. %1 is missing a VAT Registration Number. You need to correct this on the sales document and post it again.', Comment = 'Placeholder 1 holds the line no that cause the error';
+#pragma warning restore AA0470
 
     local procedure ValidateVATReportHasLine(VATReportHeader: Record "VAT Report Header")
     var

@@ -348,44 +348,35 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         SalesJournalTestPage: TestPage "Sales Journal";
     begin
         // Verify EDITABLE is TRUE through pages because property is not available through record.
-
         // General Journal.
-        with GeneralJournalTestPage do begin
-            OpenEdit();
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
+        GeneralJournalTestPage.OpenEdit();
+        Assert.IsTrue(GeneralJournalTestPage."Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + GeneralJournalTestPage."Include in VAT Transac. Rep.".Caption);
+        GeneralJournalTestPage.Close();
 
         // Cash Receipt Journal Journal.
-        Commit(); // Required for Cash Receipt Journal.
-        with CashReceiptJournalTestPage do begin
-            OpenEdit();
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
-
+        Commit();
+        // Required for Cash Receipt Journal.
+        CashReceiptJournalTestPage.OpenEdit();
+        Assert.IsTrue(CashReceiptJournalTestPage."Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + CashReceiptJournalTestPage."Include in VAT Transac. Rep.".Caption);
+        CashReceiptJournalTestPage.Close();
         // Payment Journal.
-        with PaymentJournalTestPage do begin
-            OpenEdit();
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
+        PaymentJournalTestPage.OpenEdit();
+        Assert.IsTrue(PaymentJournalTestPage."Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + PaymentJournalTestPage."Include in VAT Transac. Rep.".Caption);
+        PaymentJournalTestPage.Close();
 
         // Purchase Journal.
-        Commit(); // Required for Purchase Journal.
-        with PurchaseJournalTestPage do begin
-            OpenEdit();
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
+        Commit();
+        // Required for Purchase Journal.
+        PurchaseJournalTestPage.OpenEdit();
+        Assert.IsTrue(PurchaseJournalTestPage."Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + PurchaseJournalTestPage."Include in VAT Transac. Rep.".Caption);
+        PurchaseJournalTestPage.Close();
 
         // Sales Journal.
-        Commit(); // Required for Sales Journal.
-        with SalesJournalTestPage do begin
-            OpenEdit();
-            Assert.IsTrue("Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + "Include in VAT Transac. Rep.".Caption);
-            Close();
-        end;
+        Commit();
+        // Required for Sales Journal.
+        SalesJournalTestPage.OpenEdit();
+        Assert.IsTrue(SalesJournalTestPage."Include in VAT Transac. Rep.".Editable(), 'EDITABLE should be TRUE for the field ' + SalesJournalTestPage."Include in VAT Transac. Rep.".Caption);
+        SalesJournalTestPage.Close();
     end;
 
     [Test]
@@ -532,8 +523,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::Resident, FieldNo("Fiscal Code"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::Resident, GenJournalLine.FieldNo("Fiscal Code"));
     end;
 
     [Test]
@@ -548,8 +538,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Country/Region Code"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -564,8 +553,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("First Name"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("First Name"));
     end;
 
     [Test]
@@ -580,8 +568,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Last Name"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Last Name"));
     end;
 
     [Test]
@@ -596,8 +583,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Date of Birth"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Date of Birth"));
     end;
 
     [Test]
@@ -612,8 +598,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Place of Birth"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Place of Birth"));
     end;
 
     [Test]
@@ -628,8 +613,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = No.
         // Resident = Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Invoice, "Gen. Posting Type"::Sale, "Account Type"::Customer, false, Resident::Resident, FieldNo("VAT Registration No."));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::Customer, false, GenJournalLine.Resident::Resident, GenJournalLine.FieldNo("VAT Registration No."));
     end;
 
     [Test]
@@ -644,8 +628,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::Resident, FieldNo("Fiscal Code"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::Resident, GenJournalLine.FieldNo("Fiscal Code"));
     end;
 
     [Test]
@@ -660,8 +643,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Country/Region Code"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -676,8 +658,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("First Name"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("First Name"));
     end;
 
     [Test]
@@ -692,8 +673,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Last Name"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Last Name"));
     end;
 
     [Test]
@@ -708,8 +688,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Date of Birth"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Date of Birth"));
     end;
 
     [Test]
@@ -724,8 +703,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident", FieldNo("Place of Birth"));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident", GenJournalLine.FieldNo("Place of Birth"));
     end;
 
     [Test]
@@ -740,8 +718,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = No.
         // Resident = Resident.
         // Expected Result: posting is aborted with error message.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFields("Document Type"::Invoice, "Gen. Posting Type"::Purchase, "Account Type"::Vendor, false, Resident::Resident, FieldNo("VAT Registration No."));
+        VerifyGenJnlLineReqFields(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::Vendor, false, GenJournalLine.Resident::Resident, GenJournalLine.FieldNo("VAT Registration No."));
     end;
 
     local procedure VerifyGenJnlLineReqFields(DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; IndividualPerson: Boolean; Resident: Option; FieldId: Integer)
@@ -776,8 +753,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
 
         // Try to Post Gen. Journal Line and verify Error Message.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        with GenJournalLine do
-            Assert.ExpectedError(StrSubstNo(ErrorYouMustSpecify, FieldRef.Caption));
+        Assert.ExpectedError(StrSubstNo(ErrorYouMustSpecify, FieldRef.Caption));
 
         // Tear Down.
         TearDown();
@@ -795,8 +771,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::Resident);
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -811,8 +786,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Payment, "Gen. Posting Type"::Sale, "Account Type"::"G/L Account", true, Resident::"Non-Resident");
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident");
     end;
 
     [Test]
@@ -827,8 +801,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = No.
         // Resident = Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Invoice, "Gen. Posting Type"::Sale, "Account Type"::Customer, false, Resident::Resident);
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Sale, GenJournalLine."Account Type"::Customer, false, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -843,8 +816,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::Resident);
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::Resident);
     end;
 
     [Test]
@@ -859,8 +831,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = Yes.
         // Resident = Non-Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Payment, "Gen. Posting Type"::Purchase, "Account Type"::"G/L Account", true, Resident::"Non-Resident");
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", true, GenJournalLine.Resident::"Non-Resident");
     end;
 
     [Test]
@@ -875,8 +846,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // Individual Person = No.
         // Resident = Resident.
         // Expected Result: posting is completed successfully.
-        with GenJournalLine do
-            VerifyGenJnlLineReqFieldsExcl("Document Type"::Invoice, "Gen. Posting Type"::Purchase, "Account Type"::Vendor, false, Resident::Resident);
+        VerifyGenJnlLineReqFieldsExcl(GenJournalLine."Document Type"::Invoice, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::Vendor, false, GenJournalLine.Resident::Resident);
     end;
 
     local procedure VerifyGenJnlLineReqFieldsExcl(DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; IndividualPerson: Boolean; Resident: Option)
@@ -1182,7 +1152,6 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;
@@ -1267,25 +1236,23 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     local procedure UpdateReqFldsGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
-        with GenJournalLine do begin
-            if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode());
+        if GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident" then
+            GenJournalLine.Validate("Country/Region Code", GetCountryCode());
 
-            if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
-                Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Last Name", LibraryUtility.GenerateRandomCode(FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
-                Validate("Place of Birth", LibraryUtility.GenerateRandomCode(FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
-            end;
-
-            if "Individual Person" and (Resident = Resident::Resident) then
-                "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            if not "Individual Person" and (Resident = Resident::Resident) then
-                "VAT Registration No." := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            Modify(true);
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then begin
+            GenJournalLine.Validate("First Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Last Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
+            GenJournalLine.Validate("Place of Birth", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
         end;
+
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) then
+            GenJournalLine."Fiscal Code" := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        if not GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) then
+            GenJournalLine."VAT Registration No." := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        GenJournalLine.Modify(true);
     end;
 
     local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)

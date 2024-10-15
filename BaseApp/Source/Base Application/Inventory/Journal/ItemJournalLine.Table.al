@@ -41,8 +41,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Reports;
 using Microsoft.Warehouse.Request;
@@ -2420,9 +2418,13 @@ table 83 "Item Journal Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 must be reduced.';
         Text002: Label 'You cannot change %1 when %2 is %3.';
         Text006: Label 'You must not enter %1 in a revaluation sum line.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
         Item: Record Item;
@@ -2445,14 +2447,22 @@ table 83 "Item Journal Line"
         ItemReferenceManagement: Codeunit "Item Reference Management";
         GLSetupRead: Boolean;
         MfgSetupRead: Boolean;
+#pragma warning disable AA0074
         Text007: Label 'New ';
+#pragma warning restore AA0074
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text021: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?';
+#pragma warning restore AA0470
         Text029: Label 'must be positive';
         Text030: Label 'must be negative';
+#pragma warning disable AA0470
         Text031: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         Text032: Label 'When posting, the entry %1 will be opened first.';
-        Text033: Label 'If the item carries serial or lot numbers, then you must use the %1 field in the %2 window.';
+        Text033: Label 'If the item carries serial, lot or package numbers, then you must use the %1 field in the %2 window.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
@@ -2467,13 +2477,18 @@ table 83 "Item Journal Line"
         RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
         IncorrectQtyForSNErr: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
-        ItemTrackingExistsErr: Label 'You cannot change %1 because item tracking already exists for this journal line.', Comment = '%1 - Serial or Lot No.';
+        ItemTrackingExistsErr: Label 'You cannot change %1 because item tracking already exists for this journal line.', Comment = '%1 - Serial, Lot or Package No.';
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
         PhysInvtEntered: Boolean;
         UnitCost: Decimal;
 
+    /// <summary>
+    /// Determines if the current item journal line is considered empty based on its quantity, time, item number, 
+    /// and value entry type.
+    /// </summary>
+    /// <returns>True if the item journal line is considered empty, otherwise false.</returns>
     procedure EmptyLine() Result: Boolean
     begin
         Result :=
@@ -2483,6 +2498,11 @@ table 83 "Item Journal Line"
         OnAfterEmptyLine(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if the current item journal line is for a deleted item based on its entry type, value entry type, 
+    /// item number, item charge number, and invoiced quantity.
+    /// </summary>
+    /// <returns>True if the item journal line is for a deleted item, otherwise false.</returns>
     procedure IsValueEntryForDeletedItem(): Boolean
     begin
         exit(
@@ -2510,6 +2530,9 @@ table 83 "Item Journal Line"
         exit(Round(Qty * "Qty. per Cap. Unit of Measure", UOMMgt.TimeRndPrecision()));
     end;
 
+    /// <summary>
+    /// Updates the amount of the current item journal line to reflect changes in quantity and unit amount.
+    /// </summary>
     procedure UpdateAmount()
     var
         IsHandled: Boolean;
@@ -2579,6 +2602,13 @@ table 83 "Item Journal Line"
         OnAfterSelectItemEntry(Rec);
     end;
 
+    /// <summary>
+    /// Checks if the item is available based on the current item journal line. 
+    /// </summary>
+    /// <remarks>
+    /// An error or a notification is raised if the item is out of stock.
+    /// </remarks>
+    /// <param name="CalledByFieldNo">Field number that called the item availability check.</param>
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -2655,6 +2685,10 @@ table 83 "Item Journal Line"
         OnAfterGetItemVariantChange(ItemVariant, Rec);
     end;
 
+    /// <summary>
+    /// Initializes a new item journal line based on the previous item journal line record.
+    /// </summary>
+    /// <param name="LastItemJnlLine">Previous item journal line record.</param>
     procedure SetUpNewLine(LastItemJnlLine: Record "Item Journal Line")
     var
         NoSeries: Codeunit "No. Series";
@@ -2739,6 +2773,13 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets the document-related fields of an item journal line.
+    /// </summary>
+    /// <param name="DocType">Document type to set.</param>
+    /// <param name="DocNo">Document no. to set.</param>
+    /// <param name="ExtDocNo">External document no. to set.</param>
+    /// <param name="PostingNos">Posting no. series to set.</param>
     procedure SetDocNos(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
                                      ExtDocNo: Text[35];
                                      PostingNos: Code[20])
@@ -2762,6 +2803,10 @@ table 83 "Item Journal Line"
             "New Bin Code" := "Bin Code";
     end;
 
+    /// <summary>
+    /// Updates the unit amount of the current item journal line.
+    /// </summary>
+    /// <param name="CalledByFieldNo">Field number that called the unit amount update.</param>
     procedure GetUnitAmount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
@@ -2803,6 +2848,11 @@ table 83 "Item Journal Line"
         OnAfterGetUnitAmount(Rec, UnitCost);
     end;
 
+    /// <summary>
+    /// Updates the price of the item journal line.
+    /// </summary>
+    /// <param name="PriceType">The price type for which the price or discount will be calculated.</param>
+    /// <param name="CalledByFieldNo">Field number that called the price update.</param>
     procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -2818,6 +2868,10 @@ table 83 "Item Journal Line"
         Rec := Line;
     end;
 
+    /// <summary>
+    /// Gets the default or overridden line with price interface implementation.
+    /// </summary>
+    /// <param name="LineWithPrice">Return value: line with price implementation.</param>
     procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     var
         ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
@@ -2826,6 +2880,11 @@ table 83 "Item Journal Line"
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
+    /// <summary>
+    /// Adjusts the sign of the provided value based on the document type of the item journal line.
+    /// </summary>
+    /// <param name="Value">The value to adjust the sign of.</param>
+    /// <returns>Signed value.</returns>
     procedure Signed(Value: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
@@ -2851,21 +2910,47 @@ table 83 "Item Journal Line"
         OnAfterSigned(Rec, Value, Result);
     end;
 
+    /// <summary>
+    /// Determines if the item journal line is inbound based on the quantities.
+    /// </summary>
+    /// <returns>True if item journal line is inbound, otherwise false.</returns>
     procedure IsInbound(): Boolean
     begin
         exit((Signed(Quantity) > 0) or (Signed("Invoiced Quantity") > 0));
     end;
 
+    /// <summary>
+    /// Opens a page for editing item tracking lines for the item journal line.
+    /// </summary>
     procedure OpenItemTrackingLines(IsReclass: Boolean)
     begin
         ItemJnlLineReserve.CallItemTracking(Rec, IsReclass);
     end;
 
+    /// <summary>
+    /// Creates dimensions for the item journal line based on the provided default dimension sources.
+    /// </summary>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         CreateDim(DefaultDimSource, 0, 0);
     end;
 
+    /// <summary>
+    /// Creates dimensions for the item journal line based on the provided default dimension sources, 
+    /// an inherited dimension set ID and an inherited table number.
+    /// </summary>
+    /// <remarks>
+    /// Also updates the shortcut dimension codes and sets the new dimension set ID and new shortcut dimension codes 
+    /// if the entry type is transfer.
+    /// </remarks>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
+    /// <param name="InheritFromDimSetID">Dimension set ID to inherit.</param>
+    /// <param name="InheritFromTableNo">
+    /// Table number to inherit from. This parameter is used to specify the table number for the new temporary 
+    /// dimension buffer that are created based on the dimension set entries associated with InheritFromDimSetID. 
+    /// These temporary records are used later in the procedure to determine the default dimension set ID.
+    /// </param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -2900,6 +2985,10 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets dimensions to the item journal line from the provided dimension set.
+    /// </summary>
+    /// <param name="DimesionSetID">Dimension set ID to copy from.</param>
     procedure CopyDim(DimesionSetID: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
@@ -2925,6 +3014,10 @@ table 83 "Item Journal Line"
             "Shortcut Dimension 2 Code" := '';
     end;
 
+    /// <summary>
+    /// Creates and assigns a dimension set ID to an item journal line record based on the dimensions of the associated 
+    /// production order, production order line, and production order component.
+    /// </summary>
     procedure CreateProdDim()
     var
         ProdOrder: Record "Production Order";
@@ -3009,6 +3102,11 @@ table 83 "Item Journal Line"
         CreateDim(DefaultDimSource, InheritFromDimSetID, Database::Item);
     end;
 
+    /// <summary>
+    /// Verifies whether the provided shortcut dimension code and value are valid.
+    /// </summary>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Value of the shortcut dimension.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -3050,28 +3148,53 @@ table 83 "Item Journal Line"
         UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
     end;
 
+    /// <summary>
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the provided number 
+    /// of the shortcut dimension. 
+    /// </summary>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Return value: Value of the selected shortcut dimension.</param>
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
 
+    /// <summary>
+    /// Gets an array of shortcut dimension values from the dimensions of the item journal line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Return value: The array of shortcut dimension values.</param>
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Verifies whether the provided new shortcut dimension code and value are valid.
+    /// </summary>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="NewShortcutDimCode">Value of the new shortcut dimension.</param>
     procedure ValidateNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
         DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
     end;
 
+    /// <summary>
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of 
+    /// the new shortcut dimension. 
+    /// </summary>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="NewShortcutDimCode">Return value: Value of the selected new shortcut dimension.</param>
     procedure LookupNewShortcutDimCode(FieldNumber: Integer; var NewShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, NewShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, NewShortcutDimCode, "New Dimension Set ID");
     end;
 
+    /// <summary>
+    /// Gets an array of new shortcut dimension values from the dimensions of the item journal line.
+    /// </summary>
+    /// <param name="NewShortcutDimCode">Return value: The array of new shortcut dimension values.</param>
     procedure ShowNewShortcutDimCode(var NewShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions("New Dimension Set ID", NewShortcutDimCode);
@@ -3123,6 +3246,14 @@ table 83 "Item Journal Line"
         OnAfterInitRevalJnlLine(Rec, ItemLedgEntry2);
     end;
 
+    /// <summary>
+    /// Copies provided document-related fields to the current item journal line record.
+    /// </summary>
+    /// <param name="DocType">Document type to set.</param>
+    /// <param name="DocNo">Document no. to set.</param>
+    /// <param name="ExtDocNo">External document no. to set.</param>
+    /// <param name="SourceCode">Source code to set.</param>
+    /// <param name="NoSeriesCode">Posting no. series code to set.</param>
     procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
@@ -3133,6 +3264,10 @@ table 83 "Item Journal Line"
             "Posting No. Series" := NoSeriesCode;
     end;
 
+    /// <summary>
+    /// Copies fields from the provided sales header record to the current item journal line.
+    /// </summary>
+    /// <param name="SalesHeader">Sales header to copy from.</param>
     procedure CopyFromSalesHeader(SalesHeader: Record "Sales Header")
     begin
         "Posting Date" := SalesHeader."Posting Date";
@@ -3149,6 +3284,10 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromSalesHeader(Rec, SalesHeader);
     end;
 
+    /// <summary>
+    /// Copies fields from the provided sales line record to the current item journal line.
+    /// </summary>
+    /// <param name="SalesLine">Sales line to copy from.</param>
     procedure CopyFromSalesLine(SalesLine: Record "Sales Line")
     begin
         "Item No." := SalesLine."No.";
@@ -3195,6 +3334,10 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromSalesLine(Rec, SalesLine);
     end;
 
+    /// <summary>
+    /// Copies fields from the provided purchase header record to the current item journal line.
+    /// </summary>
+    /// <param name="PurchHeader">Purchase header to copy from.</param>
     procedure CopyFromPurchHeader(PurchHeader: Record "Purchase Header")
     begin
         "Posting Date" := PurchHeader."Posting Date";
@@ -3211,6 +3354,10 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromPurchHeader(Rec, PurchHeader);
     end;
 
+    /// <summary>
+    /// Copies fields from the provided purchase line record to the current item journal line.
+    /// </summary>
+    /// <param name="PurchLine">Purchase line to copy from.</param>
     procedure CopyFromPurchLine(PurchLine: Record "Purchase Line")
     begin
         "Item No." := PurchLine."No.";
@@ -3263,149 +3410,70 @@ table 83 "Item Journal Line"
         OnAfterCopyItemJnlLineFromPurchLine(Rec, PurchLine);
     end;
 
-    procedure CopyFromServHeader(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Header', '25.0')]
+    /// <summary>
+    /// Copies fields from the provided service header record to the current item journal line.
+    /// </summary>
+    /// <param name="ServiceHeader">Service header to copy from.</param>
+    procedure CopyFromServHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        "Document Date" := ServiceHeader."Document Date";
-        "Order Date" := ServiceHeader."Order Date";
-        "Source Posting Group" := ServiceHeader."Customer Posting Group";
-        "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
-        "Reason Code" := ServiceHeader."Reason Code";
-        "Source Type" := "Source Type"::Customer;
-        "Source No." := ServiceHeader."Customer No.";
-        "Shpt. Method Code" := ServiceHeader."Shipment Method Code";
-        "Price Calculation Method" := ServiceHeader."Price Calculation Method";
-
-        if ServiceHeader.IsCreditDocType() then
-            "Country/Region Code" := ServiceHeader."Country/Region Code"
-        else
-            if ServiceHeader."Ship-to Country/Region Code" <> '' then
-                "Country/Region Code" := ServiceHeader."Ship-to Country/Region Code"
-            else
-                "Country/Region Code" := ServiceHeader."Country/Region Code";
-
-        OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
+        ServiceHeader.CopyToItemJnlLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServLine(ServiceLine: Record "Service Line")
-    var
-        IsHandled: Boolean;
+#if not CLEAN25
+    [Obsolete('Moved to table Service Line', '25.0')]
+    /// <summary>
+    /// Copies fields from the provided service line record to the current item journal line.
+    /// </summary>
+    /// <param name="ServiceLine">Service line to copy from.</param>
+    procedure CopyFromServLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
-        IsHandled := false;
-        OnBeforeCopyItemJnlLineFromServLine(Rec, ServiceLine, IsHandled);
-        if not IsHandled then begin
-            "Item No." := ServiceLine."No.";
-            "Posting Date" := ServiceLine."Posting Date";
-            Description := ServiceLine.Description;
-            "Shortcut Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := ServiceLine."Dimension Set ID";
-            "Location Code" := ServiceLine."Location Code";
-            "Bin Code" := ServiceLine."Bin Code";
-            "Variant Code" := ServiceLine."Variant Code";
-            "Inventory Posting Group" := ServiceLine."Posting Group";
-            "Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
-            "Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
-            "Applies-to Entry" := ServiceLine."Appl.-to Item Entry";
-            "Transaction Type" := ServiceLine."Transaction Type";
-            "Transport Method" := ServiceLine."Transport Method";
-            "Entry/Exit Point" := ServiceLine."Exit Point";
-            Area := ServiceLine.Area;
-            "Transaction Specification" := ServiceLine."Transaction Specification";
-            "Entry Type" := "Entry Type"::Sale;
-            "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
-            "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
-            "Qty. Rounding Precision" := ServiceLine."Qty. Rounding Precision";
-            "Qty. Rounding Precision (Base)" := ServiceLine."Qty. Rounding Precision (Base)";
-            "Derived from Blanket Order" := false;
-            "Item Category Code" := ServiceLine."Item Category Code";
-            Nonstock := ServiceLine.Nonstock;
-            "Return Reason Code" := ServiceLine."Return Reason Code";
-            "Order Type" := "Order Type"::Service;
-            "Order No." := ServiceLine."Document No.";
-            "Order Line No." := ServiceLine."Line No.";
-            "Job No." := ServiceLine."Job No.";
-            "Job Task No." := ServiceLine."Job Task No.";
-            "Price Calculation Method" := ServiceLine."Price Calculation Method";
-            "Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
-        end;
-        OnAfterCopyItemJnlLineFromServLine(Rec, ServiceLine);
+        ServiceLine.CopyToItemJnlLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServShptHeader(ServShptHeader: Record "Service Shipment Header")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Shipment Header', '25.0')]
+    /// <summary>
+    /// Copies fields from the provided service shipment header record to the current item journal line.
+    /// </summary>
+    /// <param name="ServShptHeader">Service shipment header to copy from.</param>
+    procedure CopyFromServShptHeader(ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
-        "Document Date" := ServShptHeader."Document Date";
-        "Order Date" := ServShptHeader."Order Date";
-        "Country/Region Code" := ServShptHeader."VAT Country/Region Code";
-        "Source Posting Group" := ServShptHeader."Customer Posting Group";
-        "Salespers./Purch. Code" := ServShptHeader."Salesperson Code";
-        "Reason Code" := ServShptHeader."Reason Code";
-
-        OnAfterCopyItemJnlLineFromServShptHeader(Rec, ServShptHeader);
+        ServShptHeader.CopyToItemJnlLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServShptLine(ServShptLine: Record "Service Shipment Line")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Shipment Line', '25.0')]
+    /// <summary>
+    /// Copies fields from the provided service shipment line record to the current item journal line.
+    /// </summary>
+    /// <param name="ServShptLine">Service shipment line to copy from.</param>
+    procedure CopyFromServShptLine(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
-        "Item No." := ServShptLine."No.";
-        Description := ServShptLine.Description;
-        "Gen. Bus. Posting Group" := ServShptLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServShptLine."Gen. Prod. Posting Group";
-        "Inventory Posting Group" := ServShptLine."Posting Group";
-        "Location Code" := ServShptLine."Location Code";
-        "Unit of Measure Code" := ServShptLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServShptLine."Qty. per Unit of Measure";
-        "Variant Code" := ServShptLine."Variant Code";
-        "Bin Code" := ServShptLine."Bin Code";
-        "Shortcut Dimension 1 Code" := ServShptLine."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ServShptLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServShptLine."Dimension Set ID";
-        "Entry/Exit Point" := ServShptLine."Exit Point";
-        "Value Entry Type" := ItemJnlLine."Value Entry Type"::"Direct Cost";
-        "Transaction Type" := ServShptLine."Transaction Type";
-        "Transport Method" := ServShptLine."Transport Method";
-        Area := ServShptLine.Area;
-        "Transaction Specification" := ServShptLine."Transaction Specification";
-        "Qty. per Unit of Measure" := ServShptLine."Qty. per Unit of Measure";
-        "Item Category Code" := ServShptLine."Item Category Code";
-        Nonstock := ServShptLine.Nonstock;
-        "Return Reason Code" := ServShptLine."Return Reason Code";
-
-        OnAfterCopyItemJnlLineFromServShptLine(Rec, ServShptLine);
+        ServShptLine.CopyToItemJnlLine(Rec);
     end;
+#endif
 
-    procedure CopyFromServShptLineUndo(ServShptLine: Record "Service Shipment Line")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Shipment Line', '25.0')]
+    /// <summary>
+    /// Copies fields from the provided service shipment line record to the current item journal line.
+    /// </summary>
+    /// <param name="ServShptLine">Service shipment line to copy from.</param>
+    procedure CopyFromServShptLineUndo(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
-        "Item No." := ServShptLine."No.";
-        "Posting Date" := ServShptLine."Posting Date";
-        "Order Date" := ServShptLine."Order Date";
-        "Inventory Posting Group" := ServShptLine."Posting Group";
-        "Gen. Bus. Posting Group" := ServShptLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServShptLine."Gen. Prod. Posting Group";
-        "Location Code" := ServShptLine."Location Code";
-        "Variant Code" := ServShptLine."Variant Code";
-        "Bin Code" := ServShptLine."Bin Code";
-        "Entry/Exit Point" := ServShptLine."Exit Point";
-        "Shortcut Dimension 1 Code" := ServShptLine."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := ServShptLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServShptLine."Dimension Set ID";
-        "Value Entry Type" := "Value Entry Type"::"Direct Cost";
-        "Item No." := ServShptLine."No.";
-        Description := ServShptLine.Description;
-        "Location Code" := ServShptLine."Location Code";
-        "Variant Code" := ServShptLine."Variant Code";
-        "Transaction Type" := ServShptLine."Transaction Type";
-        "Transport Method" := ServShptLine."Transport Method";
-        Area := ServShptLine.Area;
-        "Transaction Specification" := ServShptLine."Transaction Specification";
-        "Unit of Measure Code" := ServShptLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServShptLine."Qty. per Unit of Measure";
-        "Derived from Blanket Order" := false;
-        "Item Category Code" := ServShptLine."Item Category Code";
-        Nonstock := ServShptLine.Nonstock;
-        "Return Reason Code" := ServShptLine."Return Reason Code";
-
-        OnAfterCopyItemJnlLineFromServShptLineUndo(Rec, ServShptLine);
+        ServShptLine.CopyToItemJnlLineUndo(Rec);
     end;
+#endif
 
+    /// <summary>
+    /// Copies fields from the provided job journal line record to the current item journal line.
+    /// </summary>
+    /// <param name="JobJnlLine">Job journal line to copy from.</param>
     procedure CopyFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
     begin
         "Line No." := JobJnlLine."Line No.";
@@ -3530,6 +3598,12 @@ table 83 "Item Journal Line"
         OnAfterReadGLSetup(GLSetup);
     end;
 
+    /// <summary>
+    /// Retrieves and sets the global UnitCost variable for an item journal line.
+    /// </summary>
+    /// <remarks>
+    /// Global UnitCost variable is used to set and calculate unit cost and unit amount in various places.
+    /// </remarks>
     protected procedure RetrieveCosts()
     var
         IsHandled: Boolean;
@@ -3631,22 +3705,44 @@ table 83 "Item Journal Line"
             ProdOrderRoutingLine.Status::Released, "Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
     end;
 
+    /// <summary>
+    /// Determines if only the stop time field of the current item journal line record is set.
+    /// </summary>
+    /// <remarks>
+    /// In order to return true, setup time and run time fields must not be set.
+    /// </remarks>
+    /// <returns>True if only the stop time is set, otherwise false.</returns>
     procedure OnlyStopTime(): Boolean
     begin
         exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" <> 0));
     end;
 
+    /// <summary>
+    /// Determines if an output value posting should be performed for an item journal line.
+    /// </summary>
+    /// <returns>True if output posting should be performed, otherwise false.</returns>
     procedure OutputValuePosting() Result: Boolean
     begin
         Result := TimeIsEmpty() and ("Invoiced Quantity" <> 0) and not Subcontracting;
         OnAfterOutputValuePosting(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if time related fields of the current item journal line record are empty.
+    /// </summary>
+    /// <remarks>
+    /// Time related fields consists of setup time, run time, and stop time fields.
+    /// </remarks>
+    /// <returns>True if time related fields are empty, otherwise false.</returns>
     procedure TimeIsEmpty(): Boolean
     begin
         exit(("Setup Time" = 0) and ("Run Time" = 0) and ("Stop Time" = 0));
     end;
 
+    /// <summary>
+    /// Generates a unique identifier text for a item journal line record which is used for item tracking.
+    /// </summary>
+    /// <returns>Generated text.</returns>
     procedure RowID1(): Text[250]
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -3676,11 +3772,22 @@ table 83 "Item Journal Line"
                 Bin.Get(LocationCode, BinCode);
     end;
 
+    /// <summary>
+    /// Returns a formatted text that represents the source of an item journal line record.
+    /// </summary>
+    /// <remarks>
+    /// The resulting text consists of the journal template name, journal batch name and item number separated by space.
+    /// </remarks>
+    /// <returns>Formatted text of the journal template name, journal batch name and item number separated by space.</returns>
     procedure GetSourceCaption(): Text
     begin
         exit(StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Item No."));
     end;
 
+    /// <summary>
+    /// Initializes the reservation entries from the item journal line.
+    /// </summary>
+    /// <param name="ReservEntry">Return value: Initialized reservation entry.</param>
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSource(Database::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
@@ -3691,6 +3798,10 @@ table 83 "Item Journal Line"
         OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Filters reservation entry from the item journal line.
+    /// </summary>
+    /// <param name="ReservEntry">Return value: Filtered reservation entry.</param>
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
         SetReservEntrySourceFilters(ReservEntry, false);
@@ -3720,6 +3831,10 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Checks if reservation entry exists for the item journal line.
+    /// </summary>
+    /// <returns>True if reservation entry exists, otherwise false.</returns>
     procedure ReservEntryExist(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -3730,6 +3845,13 @@ table 83 "Item Journal Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Determines if the next operation number on the associated production order routing line exists.
+    /// </summary>
+    /// <remarks>
+    /// If item journal line entry type is not output, it returns true.
+    /// </remarks>
+    /// <returns>True if next operation number does not exists, otherwise false.</returns>
     procedure ItemPosting() Result: Boolean
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -3764,6 +3886,12 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Determines whether the operation specified in the provided item journal line record is the last output operation 
+    /// in the associated production order routing line.
+    /// </summary>
+    /// <param name="ItemJnlLine">Item journal line to check.</param>
+    /// <returns>True if this is the last output operation, otherwise false.</returns>
     procedure LastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
@@ -3798,6 +3926,9 @@ table 83 "Item Journal Line"
         exit(Operation);
     end;
 
+    /// <summary>
+    /// Performs a lookup for the item of an item journal line based on its entry type.
+    /// </summary>
     procedure LookupItemNo()
     var
         ItemList: Page "Item List";
@@ -3886,6 +4017,10 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the unit amount for an item journal line record based on various factors such as the item's 
+    /// indirect cost percentage, overhead rate, quantity per unit of measure, and entry type.
+    /// </summary>
     procedure RecalculateUnitAmount()
     var
         ItemJnlLine1: Record "Item Journal Line";
@@ -3930,14 +4065,18 @@ table 83 "Item Journal Line"
                     "Unit Cost" := UnitCost * "Qty. per Unit of Measure";
         end;
 
-        if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt."] then begin
+        if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt."] then
             if Item."Costing Method" = Item."Costing Method"::Standard then
                 "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
-        end;
 
         OnAfterRecalculateUnitAmount(Rec, xRec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Determines whether an item journal line represents a reclassification.
+    /// </summary>
+    /// <param name="ItemJnlLine">Item journal line to check.</param>
+    /// <returns>True if item journal line represents a reclassification, otherwise false.</returns>
     procedure IsReclass(ItemJnlLine: Record "Item Journal Line"): Boolean
     begin
         if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer) and
@@ -3947,6 +4086,12 @@ table 83 "Item Journal Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Checks warehouse settings for a provided location and adjusts the output quantity 
+    /// for an item journal line record based on these settings and the entry type of the record.
+    /// </summary>
+    /// <param name="LocationCode">Location to check warehouse settings for.</param>
+    /// <param name="QtyToPost">Return value: Output quantity to use.</param>
     procedure CheckWhse(LocationCode: Code[20]; var QtyToPost: Decimal)
     var
         Location: Record Location;
@@ -3964,6 +4109,9 @@ table 83 "Item Journal Line"
                 QtyToPost := 0;
     end;
 
+    /// <summary>
+    /// Opens a page for editing dimensions for the item journal line. 
+    /// </summary>
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -3974,6 +4122,9 @@ table 83 "Item Journal Line"
         OnAfterShowDimensions(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Opens a page for editing the dimension set associated with a reclassification in the current item journal line.
+    /// </summary>
     procedure ShowReclasDimensions()
     begin
         DimMgt.EditReclasDimensionSet(
@@ -3981,6 +4132,14 @@ table 83 "Item Journal Line"
           "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code");
     end;
 
+    /// <summary>
+    /// Toggles the visibility of item journal lines based on whether they have associated error messages. 
+    /// </summary>
+    /// <remarks>
+    /// When the ShowAllLinesEnabled flag is true, all item journal lines are shown. 
+    /// When the flag is false, only item journal lines with associated error messages are shown.
+    /// </remarks>
+    /// <param name="ShowAllLinesEnabled">Return value: Flag to enable or disable item journal lines with errors.</param>
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
     var
         TempErrorMessage: Record "Error Message" temporary;
@@ -4001,6 +4160,10 @@ table 83 "Item Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Posts an item journal line record from a production order.
+    /// </summary>
+    /// <param name="Print">If true, additional functionality of printing documents is executed.</param>
     procedure PostingItemJnlFromProduction(Print: Boolean)
     var
         ProductionOrder: Record "Production Order";
@@ -4031,16 +4194,28 @@ table 83 "Item Journal Line"
         ItemJnlPost.Preview(Rec);
     end;
 
+    /// <summary>
+    /// Determines whether an item journal line represents a resource consumption line for an assembly output.
+    /// </summary>
+    /// <returns>True if the line represents a resource consumption line for an assembly output, otherwise false.</returns>
     procedure IsAssemblyResourceConsumpLine(): Boolean
     begin
         exit(("Entry Type" = "Entry Type"::"Assembly Output") and (Type = Type::Resource));
     end;
 
+    /// <summary>
+    /// Determine whether an item journal line represents an assembly output line.
+    /// </summary>
+    /// <returns>True if the linerepresents an assembly output line, otherwise false.</returns>
     procedure IsAssemblyOutputLine(): Boolean
     begin
         exit(("Entry Type" = "Entry Type"::"Assembly Output") and (Type = Type::" "));
     end;
 
+    /// <summary>
+    /// Determines whether an item journal line represents a correction for an assemble-to-order (ATO) sale.
+    /// </summary>
+    /// <returns>True if theline represents a correction for an assemble-to-order sale, otherwise false.</returns>
     procedure IsATOCorrection(): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -4081,6 +4256,9 @@ table 83 "Item Journal Line"
         exit(ValueEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Clears the tracking information (serial, lot and package number) of an item journal line.
+    /// </summary>
     procedure ClearTracking()
     begin
         "Serial No." := '';
@@ -4089,12 +4267,19 @@ table 83 "Item Journal Line"
         OnAfterClearTracking(Rec);
     end;
 
+    /// <summary>
+    /// Clears the expiration and warranty dates of the item journal line.
+    /// </summary>
     procedure ClearDates()
     begin
         "Expiration Date" := 0D;
         "Warranty Date" := 0D;
     end;
 
+    /// <summary>
+    /// Copies tracking information (serial, lot and package number) from a reservation entry to an item journal line.
+    /// </summary>
+    /// <param name="ReservationEntry">Reservation entry to copy tracking information from.</param>
     procedure CopyTrackingFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
         "Serial No." := ReservationEntry."Serial No.";
@@ -4103,6 +4288,10 @@ table 83 "Item Journal Line"
         OnAfterCopyTrackingFromReservEntry(Rec, ReservationEntry);
     end;
 
+    /// <summary>
+    /// Copies tracking information (serial, lot and package number) from a item ledger entry to an item journal line.
+    /// </summary>
+    /// <param name="ItemLedgEntry">Item ledger entry to copy tracking information from.</param>
     procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
         "Serial No." := ItemLedgEntry."Serial No.";
@@ -4111,6 +4300,10 @@ table 83 "Item Journal Line"
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
 
+    /// <summary>
+    /// Copies tracking information (serial, lot and package number) from a tracking specification to an item journal line.
+    /// </summary>
+    /// <param name="TrackingSpecification">Tracking specification to copy tracking information from.</param>
     procedure CopyTrackingFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         "Serial No." := TrackingSpecification."Serial No.";
@@ -4119,6 +4312,11 @@ table 83 "Item Journal Line"
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
 
+    /// <summary>
+    /// Copies new tracking information (new serial number and new lot number) from a tracking specification
+    /// to an item journal line.
+    /// </summary>
+    /// <param name="TrackingSpecification">Tracking specification to copy tracking information from.</param>
     procedure CopyNewTrackingFromNewSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         "New Serial No." := TrackingSpecification."New Serial No.";
@@ -4127,6 +4325,10 @@ table 83 "Item Journal Line"
         OnAfterCopyNewTrackingFromNewSpec(Rec, TrackingSpecification);
     end;
 
+    /// <summary>
+    /// Copies tracking information (serial, lot and package number) from a item ledger entry to an item journal line.
+    /// </summary>
+    /// <param name="ItemLedgEntry">Item ledger entry to copy tracking information from.</param>
     procedure CopyNewTrackingFromOldItemLedgerEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
         "New Serial No." := ItemLedgEntry."Serial No.";
@@ -4135,6 +4337,10 @@ table 83 "Item Journal Line"
         OnAfterCopyNewTrackingFromOldItemLedgerEntry(Rec, ItemLedgEntry);
     end;
 
+    /// <summary>
+    /// Set tracking information (serial, lot and package number) filter from a item ledger entry to an item journal line.
+    /// </summary>
+    /// <param name="ItemledgerEntry">Item ledger entry to copy tracking information from.</param>
     procedure SetTrackingFilterFromItemLedgerEntry(ItemledgerEntry: Record "Item Ledger Entry")
     begin
         SetRange("Serial No.", ItemLedgerEntry."Serial No.");
@@ -4143,6 +4349,10 @@ table 83 "Item Journal Line"
         OnAfterSetTrackingFilterFromItemLedgerEntry(Rec, ItemLedgerEntry);
     end;
 
+    /// <summary>
+    /// Determines whether tracking information exists for an item journal line.
+    /// </summary>
+    /// <returns>True if the tracking exists, otherwise false.</returns>
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
@@ -4150,6 +4360,11 @@ table 83 "Item Journal Line"
         OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
 
+    /// <summary>
+    /// Determines whether the current item journal line has the same tracking information as the provided item journal line.
+    /// </summary>
+    /// <param name="ItemJournalLine">Item journal line to check the tracking information from.</param>
+    /// <returns>True if the tracking information is the same, otherwise false.</returns>
     procedure HasSameTracking(ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
         exit(
@@ -4158,6 +4373,10 @@ table 83 "Item Journal Line"
           (Rec."Package No." = ItemJournalLine."Package No."));
     end;
 
+    /// <summary>
+    /// Determines whether the current item journal line has the same serial, lot and package numbers as the new serial, lot and package numbers.
+    /// </summary>
+    /// <returns>True if the tracking information is the same, otherwise false.</returns>
     procedure HasSameNewTracking() IsSameTracking: Boolean
     begin
         IsSameTracking := ("Serial No." = "New Serial No.") and ("Lot No." = "New Lot No.");
@@ -4165,6 +4384,12 @@ table 83 "Item Journal Line"
         OnAfterHasSameNewTracking(Rec, IsSameTracking);
     end;
 
+    /// <summary>
+    /// Tests if the item number, variant code and location code in an item journal line are the same as the provided values.
+    /// </summary>
+    /// <param name="ItemNo">Item number to check.</param>
+    /// <param name="VariantCode">Variant code to check.</param>
+    /// <param name="LocationCode">Location code to check.</param>
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         IsHandled: Boolean;
@@ -4179,6 +4404,10 @@ table 83 "Item Journal Line"
         TestField("Location Code", LocationCode);
     end;
 
+    /// <summary>
+    /// Checks if the provided item is blocked and raises an error message if it is.
+    /// </summary>
+    /// <param name="Item">Item to check.</param>
     procedure DisplayErrorIfItemIsBlocked(Item: Record Item)
     var
         IsHandled: Boolean;
@@ -4219,6 +4448,10 @@ table 83 "Item Journal Line"
         OnAfterDisplayErrorIfItemIsBlocked(Item, Rec);
     end;
 
+    /// <summary>
+    /// Checks if the provided item variant is blocked and raises an error message if it is.
+    /// </summary>
+    /// <param name="ItemVariant">Item variant to check.</param>
     procedure DisplayErrorIfItemVariantIsBlocked(ItemVariant: Record "Item Variant")
     var
         IsHandled: Boolean;
@@ -4249,6 +4482,10 @@ table 83 "Item Journal Line"
         OnAfterDisplayErrorIfItemVariantIsBlocked(ItemVariant, Rec);
     end;
 
+    /// <summary>
+    /// Determines whether an item journal line represents a purchase return.
+    /// </summary>
+    /// <returns>True if an item journal line represents a purchase return, otherwise false.</returns>
     procedure IsPurchaseReturn(): Boolean
     begin
         exit(
@@ -4259,6 +4496,13 @@ table 83 "Item Journal Line"
           (Quantity < 0));
     end;
 
+    /// <summary>
+    /// Determines whether the current item journal line record was opened from a batch. 
+    /// </summary>
+    /// <remarks>
+    /// It checks the filters applied to the journal batch name and journal template name fields.
+    /// </remarks>
+    /// <returns>True if the current item journal line record was opened from a batch, otherwise false.</returns>
     procedure IsOpenedFromBatch(): Boolean
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -4277,6 +4521,10 @@ table 83 "Item Journal Line"
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
     end;
 
+    /// <summary>
+    /// Determines whether a subcontracting work center is used in an item journal line.
+    /// </summary>
+    /// <returns>True if a subcontracting work center is used, otherwise false.</returns>
     procedure SubcontractingWorkCenterUsed() Result: Boolean
     var
         WorkCenter: Record "Work Center";
@@ -4299,11 +4547,18 @@ table 83 "Item Journal Line"
             Error(ErrorInfo.Create(StrSubstNo(SubcontractedErr, FieldCaption("Output Quantity"), "Line No."), true));
     end;
 
+    /// <summary>
+    /// Triggers the OnCheckItemJournalLinePostRestrictions event to check any additional restrictions 
+    /// before posting item journal line.
+    /// </summary>
     procedure CheckItemJournalLineRestriction()
     begin
         OnCheckItemJournalLinePostRestrictions();
     end;
 
+    /// <summary>
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is empty.
+    /// </summary>
     procedure CheckTrackingIsEmpty()
     begin
         TestField("Serial No.", '');
@@ -4312,6 +4567,9 @@ table 83 "Item Journal Line"
         OnAfterCheckTrackingisEmpty(Rec);
     end;
 
+    /// <summary>
+    /// Tests if the new tracking information (new serial number and new lot number) in the item journal line is empty.
+    /// </summary>
     procedure CheckNewTrackingIsEmpty()
     begin
         TestField("New Serial No.", '');
@@ -4320,6 +4578,11 @@ table 83 "Item Journal Line"
         OnAfterCheckNewTrackingisEmpty(Rec);
     end;
 
+    /// <summary>
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// tracking information in the provided item ledger entry.
+    /// </summary>
+    /// <param name="ItemLedgerEntry">Item ledger entry to test the tracking information from.</param>
     procedure CheckTrackingEqualItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         TestField("Lot No.", ItemLedgerEntry."Lot No.");
@@ -4328,6 +4591,11 @@ table 83 "Item Journal Line"
         OnAfterCheckTrackingEqualItemLedgEntry(Rec, ItemLedgerEntry);
     end;
 
+    /// <summary>
+    /// Tests if the tracking information (serial, lot and package number) in the item journal line is equal to the 
+    /// tracking information in the provided tracking specifiation.
+    /// </summary>
+    /// <param name="TrackingSpecification">Tracking specification to test the tracking information from.</param>
     procedure CheckTrackingEqualTrackingSpecification(TrackingSpecification: Record "Tracking Specification")
     begin
         TestField("Lot No.", TrackingSpecification."Lot No.");
@@ -4336,6 +4604,11 @@ table 83 "Item Journal Line"
         OnAfterCheckTrackingEqualTrackingSpecification(Rec, TrackingSpecification);
     end;
 
+    /// <summary>
+    /// Tests if the tracking information (serial, lot and package number) of the item journal line are filled if 
+    /// required by the item tracking setup.
+    /// </summary>
+    /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
     procedure CheckTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if ItemTrackingSetup."Serial No. Required" then
@@ -4346,6 +4619,11 @@ table 83 "Item Journal Line"
         OnAfterCheckTrackingIfRequired(Rec, ItemTrackingSetup);
     end;
 
+    /// <summary>
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line are filled 
+    /// if required by the item tracking setup.
+    /// </summary>
+    /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
     procedure CheckNewTrackingIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if ItemTrackingSetup."Serial No. Required" then
@@ -4356,6 +4634,11 @@ table 83 "Item Journal Line"
         OnAfterCheckNewTrackingIfRequired(Rec, ItemTrackingSetup);
     end;
 
+    /// <summary>
+    /// Tests if the new tracking information (new serial number and new lot number) of the item journal line 
+    /// is required and not empty. If the tracking information is required and empty, an error message is raised.
+    /// </summary>
+    /// <param name="ItemTrackingSetup">Item tracking setup to use.</param>
     procedure CheckTrackingIfRequiredNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if ItemTrackingSetup."Serial No. Required" and ("Serial No." = '') then
@@ -4366,6 +4649,12 @@ table 83 "Item Journal Line"
         OnAfterCheckTrackingIfRequiredNotBlank(Rec, ItemTrackingSetup);
     end;
 
+    /// <summary>
+    /// Tests the type of the item journal line based on the type of the associated item.
+    /// </summary>
+    /// <remarks>
+    /// It ensures that service items and non-inventoriable items are used correctly in item journal lines.
+    /// </remarks>
     procedure ValidateTypeWithItemNo()
     var
         IsHandled: Boolean;
@@ -4388,6 +4677,10 @@ table 83 "Item Journal Line"
             Item.TestField(Type, Item.Type::Inventory);
     end;
 
+    /// <summary>
+    /// Determines if the item journal line does not represent an internal warehouse movement.
+    /// </summary>
+    /// <returns>True if the item journal line does not represent an internal warehouse movement, otherwise false.</returns>
     procedure IsNotInternalWhseMovement(): Boolean
     begin
         exit(
@@ -4398,6 +4691,10 @@ table 83 "Item Journal Line"
                not Adjustment));
     end;
 
+    /// <summary>
+    /// Runs the inventory movement report for the item journal lines that have the same journal template name and 
+    /// journal batch name as the current item journal line. 
+    /// </summary>
     procedure PrintInventoryMovement()
     begin
         Rec.SetRange("Journal Template Name", Rec."Journal Template Name");
@@ -4447,6 +4744,10 @@ table 83 "Item Journal Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the item journal line if default dimensions are defined for the related entry.
+    /// </summary>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -4510,6 +4811,14 @@ table 83 "Item Journal Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Renumbers the document number of the current item journal line based on the number series specified in the 
+    /// associated item journal batch.
+    /// </summary>
+    /// <remarks>
+    /// An error will be raised if there is an active filter on the document number field.
+    /// A commit is used during renumbering.
+    /// </remarks>
     procedure RenumberDocumentNo()
     var
         ItemJnlLine2: Record "Item Journal Line";
@@ -4733,6 +5042,11 @@ table 83 "Item Journal Line"
         exit(ItemTrackingManagement.SumUpItemTracking(ReservationEntry, TempTrackingSpecification, false, true));
     end;
 
+    /// <summary>
+    /// Opens the item tracking summary page to update the tracking information for an item journal line 
+    /// based on the specified tracking type.
+    /// </summary>
+    /// <param name="TrackingType">Item tracking type on which tracking information should be assigned.</param>
     procedure LookUpTrackingSummary(TrackingType: Enum "Item Tracking Type")
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
@@ -4740,7 +5054,7 @@ table 83 "Item Journal Line"
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
         Math: Codeunit "Math";
     begin
-        TempTrackingSpecification.InitFromItemJnlLine(Rec);
+        ItemJnlLineReserve.InitFromItemJnlLine(TempTrackingSpecification, Rec);
         GetItem();
         ItemTrackingCode.Get(Item."Item Tracking Code");
         ItemTrackingDataCollection.SetCurrentBinAndItemTrkgCode('', ItemTrackingCode);
@@ -4788,6 +5102,10 @@ table 83 "Item Journal Line"
             Error(IncorrectQtyForSNErr);
     end;
 
+    /// <summary>
+    /// Gets the date required for item journal line calculations.
+    /// </summary>
+    /// <returns>The date for calculations.</returns>
     procedure GetDateForCalculations() CalculationDate: Date;
     begin
         CalculationDate := Rec."Posting Date";
@@ -4876,30 +5194,70 @@ table 83 "Item Journal Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServHeader(var ItemJnlLine: Record "Item Journal Line"; ServHeader: Record "Service Header")
+#if not CLEAN25
+    internal procedure RunOnAfterCopyItemJnlLineFromServHeader(var ItemJnlLine: Record "Item Journal Line"; ServHeader: Record Microsoft.Service.Document."Service Header")
     begin
+        OnAfterCopyItemJnlLineFromServHeader(ItemJnlLine, ServHeader);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServLine(var ItemJnlLine: Record "Item Journal Line"; ServLine: Record "Service Line")
+    local procedure OnAfterCopyItemJnlLineFromServHeader(var ItemJnlLine: Record "Item Journal Line"; ServHeader: Record Microsoft.Service.Document."Service Header")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyItemJnlLineFromServLine(var ItemJnlLine: Record "Item Journal Line"; ServLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnAfterCopyItemJnlLineFromServLine(ItemJnlLine, ServLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Line', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptHeader(var ItemJnlLine: Record "Item Journal Line"; ServShptHeader: Record "Service Shipment Header")
+    local procedure OnAfterCopyItemJnlLineFromServLine(var ItemJnlLine: Record "Item Journal Line"; ServLine: Record Microsoft.Service.Document."Service Line")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyItemJnlLineFromServShptHeader(var ItemJnlLine: Record "Item Journal Line"; ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
+    begin
+        OnAfterCopyItemJnlLineFromServShptHeader(ItemJnlLine, ServShptHeader);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Shipment Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptLine(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record "Service Shipment Line")
+    local procedure OnAfterCopyItemJnlLineFromServShptHeader(var ItemJnlLine: Record "Item Journal Line"; ServShptHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyItemJnlLineFromServShptLine(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
+    begin
+        OnAfterCopyItemJnlLineFromServShptLine(ItemJnlLine, ServShptLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterCopyToItemJnlLine in table Service Shipment Line', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromServShptLineUndo(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record "Service Shipment Line")
+    local procedure OnAfterCopyItemJnlLineFromServShptLine(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterCopyItemJnlLineFromServShptLineUndo(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
+    begin
+        OnAfterCopyItemJnlLineFromServShptLineUndo(ItemJnlLine, ServShptLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterCopyToItemJnlLineUndo in table Service Shipment Line', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyItemJnlLineFromServShptLineUndo(var ItemJnlLine: Record "Item Journal Line"; ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItemJnlLineFromJobJnlLine(var ItemJournalLine: Record "Item Journal Line"; JobJournalLine: Record "Job Journal Line")
@@ -5503,10 +5861,18 @@ table 83 "Item Journal Line"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCopyItemJnlLineFromServLine(ItemJournalLine, ServiceLine, IsHandled);
+    end;
+
+    [Obsolete('Replaced by event OnBeforeCopyToItemJnlLine in table Service Line', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCopyItemJnlLineFromServLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)

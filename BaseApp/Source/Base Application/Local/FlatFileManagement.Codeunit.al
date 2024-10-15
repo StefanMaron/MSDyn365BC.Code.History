@@ -369,10 +369,9 @@ codeunit 12133 "Flat File Management"
     var
         Index: Integer;
     begin
-        for Index := 1 to Length do begin
+        for Index := 1 to Length do
             if Value[Index] <> 0 then
                 OutBuf[Position + Index - 1] := Value[Index];
-        end;
     end;
 
     local procedure GetSeriesFilename(FileName: Text; FileNo: Integer): Text

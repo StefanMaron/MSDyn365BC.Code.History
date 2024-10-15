@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -14,12 +14,14 @@ codeunit 340 VATStmtManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'VAT';
         Text001: Label 'VAT Statement';
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Statement';
         Text1130000: Label 'VAT COMM';
         Text1130001: Label 'Annual VAT Communication';
+#pragma warning restore AA0074
         OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; var VATStmtLine: Record "VAT Statement Line"; var StmtSelected: Boolean)
@@ -42,9 +44,9 @@ codeunit 340 VATStmtManagement
                                 VATStmtTmpl.Description := Text1130001;
                             end;
                         else begin
-                                VATStmtTmpl.Name := Text000;
-                                VATStmtTmpl.Description := Text001;
-                            end;
+                            VATStmtTmpl.Name := Text000;
+                            VATStmtTmpl.Description := Text001;
+                        end;
                     end;
                     VATStmtTmpl.Validate("Page ID", PageID);
                     VATStmtTmpl.Insert();

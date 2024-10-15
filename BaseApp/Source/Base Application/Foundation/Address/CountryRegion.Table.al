@@ -115,8 +115,8 @@ table 9 "Country/Region"
         {
             Caption = 'Blacklisted';
             ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(12102; "Foreign Country/Region Code"; Code[3])
         {
@@ -321,6 +321,8 @@ table 9 "Country/Region"
                     CreateAddressFormatLine(Code, 3, CompanyInformation.FieldNo("Post Code"), LineNo);
                 end;
         end;
+        CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
+
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

@@ -60,8 +60,12 @@ codeunit 5921 "ServComponent-Copy from BOM"
         LineNo: Integer;
         Index: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 for %2 %3 cannot be found.';
         Text001: Label 'You cannot copy the component list for this %1 from BOM. The %2 of one or more BOM components is not a whole number.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ShowBOMComponentNotFoundError()
     var

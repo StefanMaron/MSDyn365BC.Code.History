@@ -270,21 +270,31 @@ table 7152 "Item Analysis View"
         NewItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
         Dim: Record Dimension;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1\You cannot use the same dimension twice in the same analysis view.';
         Text001: Label 'The dimension %1 is used in the analysis view %2 %3.';
+#pragma warning restore AA0470
         Text002: Label ' You must therefore retain the dimension to keep consistency between the analysis view and the Item entries.';
         Text004: Label 'All analysis views must be updated with the latest Item entries and Item budget entries.';
         Text005: Label ' Both blocked and unblocked analysis views must be updated.';
         Text007: Label ' Note, you must remove the checkmark in the blocked field before updating the blocked analysis views.\';
+#pragma warning disable AA0470
         Text008: Label 'Currently, %1 analysis views are not updated.';
+#pragma warning restore AA0470
         Text009: Label ' Do you wish to update these analysis views?';
         Text010: Label 'All analysis views must be updated with the latest Item entries.';
+#pragma warning disable AA0470
         Text011: Label 'If you change the contents of the %1 field, the analysis view entries will be deleted.';
         Text012: Label '\You will have to update again.\\Do you want to enter a new value in the %1 field?';
+#pragma warning restore AA0470
         Text013: Label 'The update has been interrupted in response to the warning.';
+#pragma warning disable AA0470
         Text014: Label 'If you change the contents of the %1 field, the analysis view entries will be changed as well.\\';
         Text015: Label 'Do you want to enter a new value in the %1 field?';
         Text017: Label 'When you enable %1, you need to update the analysis view. Do you want to update the analysis view now?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
     begin

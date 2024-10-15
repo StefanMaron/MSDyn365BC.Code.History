@@ -320,15 +320,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value, %3 - table caption.]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType DimValueNotAllowedForAccountTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2240449890 - NamedType 557899779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Dim. Value per Account does not exist. Identification fields and values: Table ID='%1',No.='%2',Dimension Code='%3',Dimension Value Code='%4']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code]D;]A;(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType ExpectedErrLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2240449890 - NamedType 4139432870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[..]]></Val>
@@ -354,24 +345,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType NoAllowedValuesSelectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2240449890 - NamedType 1649760598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No record expected.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType NoRecordExpected)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2240449890 - NamedType 3316495890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Value Posting must be equal to 'Code Mandatory']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Allowed by Acc. - NamedType ValuePostingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3366958085 - NamedType 2093614520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -912,141 +885,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType UpdateDimensionOnLineMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 276437244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[blank]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType BlankLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 3332340355" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension %1 is blocked.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType BlockDimension)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 247138613" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. Dimension %4 is blocked.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType BlockDimensionOnItemLine)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 1477223758" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2 are invalid. Dimension %3 is blocked.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType BlockDimensionOnServiceHeader)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2316522830" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Set ID is incorrect on Posted Service Shipment Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType DimensionSetIDErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 3622575458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType DimensionValueCodeError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2301312705" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Shortcut Dimension value for %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType IncorrectShortcutDimensionValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2078631007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The combination of dimensions used in %1 %2 is blocked. Dimension combinations %3 - %4 and %5 - %6 can't be used concurrently.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType LimitedDimensionCombination)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 3326890681" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The combination of dimensions used in %1 %2, line no. %3 is blocked. Dimension combinations %4 - %5 and %6 - %7 can't be used concurrently.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType LimitedDimensionItemLine)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 533849419" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2 are invalid. Select a %3 for the %4 %5 for Customer %6.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType MandatoryDimensionOnHeader)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 1288113232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. Select a %4 for the %5 %6 for %7 %8.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType MandatoryDimensionServiceLine)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 1739569211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2 are invalid. The %3 must be %4 for %5 %6 for %7 %8. Currently it's %9.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeOrNoCodeDimHeader)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2097964596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. The %4 must be %5 for %6 %7 for %8 %9. Currently it's %10.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeOrNoCodeDimLine)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2485937228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to create the contract using a contract template?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType ServiceContractConfirmation)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected Error.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

@@ -23,7 +23,7 @@ report 12110 "Vendor Sheet - Print"
     {
         dataitem(Vendor; Vendor)
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Date Filter", "Currency Filter";
             column(TodayFormatted; Format(Today, 0, 4))
@@ -141,7 +141,7 @@ report 12110 "Vendor Sheet - Print"
                 {
                     DataItemLink = "Vendor No." = field("No."), "Posting Date" = field("Date Filter"), "Currency Code" = field("Currency Filter");
                     DataItemLinkReference = Vendor;
-                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") order(Ascending);
+                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") order(ascending);
                     column(StartOnHandAmtLCY; StartOnHand + AmountLCY)
                     {
                         AutoFormatType = 1;

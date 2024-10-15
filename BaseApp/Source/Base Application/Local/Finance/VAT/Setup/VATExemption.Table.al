@@ -30,7 +30,7 @@ table 12186 "VAT Exemption"
             Caption = 'No.';
             TableRelation = if (Type = const(Customer)) Customer
             else
-            IF (Type = const(Vendor)) Vendor;
+            if (Type = const(Vendor)) Vendor;
         }
         field(3; "VAT Exempt. Starting Date"; Date)
         {
@@ -247,6 +247,16 @@ table 12186 "VAT Exemption"
         VATExemption.SetRange("VAT Exempt. Ending Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
         if VATExemption.FindFirst() then
             Error(TwoVATExemptionsInOnePeriodErr);
+    end;
+
+    internal procedure GetSuggestedAmountToDeclare(): Decimal
+    var
+        Vendor: Record "Vendor";
+    begin
+        Rec.TestField(Type, Rec.Type::Vendor);
+        Vendor.SetRange("No.", Rec."No.");
+        if Vendor.FindFirst() then
+            exit(Vendor."Tax Exempt Amount (LCY)");
     end;
 
     [IntegrationEvent(false, false)]

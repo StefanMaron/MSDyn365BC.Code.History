@@ -1843,15 +1843,14 @@ codeunit 144561 "ERM Split VAT"
     local procedure PostServiceDocument(ServiceHeader: Record "Service Header"): Code[20]
     begin
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
-        with ServiceHeader do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    exit(FindServiceInvHeaderNo("No.", "Customer No."));
-                "Document Type"::"Credit Memo":
-                    exit(FindServiceCrMemoHeaderNo("No.", "Customer No."));
-                else
-                    exit('');
-            end;
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Invoice:
+                exit(FindServiceInvHeaderNo(ServiceHeader."No.", ServiceHeader."Customer No."));
+            ServiceHeader."Document Type"::"Credit Memo":
+                exit(FindServiceCrMemoHeaderNo(ServiceHeader."No.", ServiceHeader."Customer No."));
+            else
+                exit('');
+        end;
     end;
 
     local procedure ExecuteLineGenerator(SalesHeader: Record "Sales Header")
@@ -1900,49 +1899,41 @@ codeunit 144561 "ERM Split VAT"
 
     local procedure SetSalesLineFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; AutomaticallyCreated: Boolean)
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            SetRange("Automatically Generated", AutomaticallyCreated);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesLine.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.SetRange("Automatically Generated", AutomaticallyCreated);
     end;
 
     local procedure SetSalesSetupCalcInvDiscount()
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesSetup do begin
-            Get();
-            "Calc. Inv. Discount" := true;
-            "Calc. Inv. Disc. per VAT ID" := true;
-            Modify();
-        end;
+        SalesSetup.Get();
+        SalesSetup."Calc. Inv. Discount" := true;
+        SalesSetup."Calc. Inv. Disc. per VAT ID" := true;
+        SalesSetup.Modify();
     end;
 
     local procedure FindServiceInvHeaderNo(OriginalDocNo: Code[20]; CustomerNo: Code[20]): Code[20]
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        with ServiceInvoiceHeader do begin
-            SetRange("Pre-Assigned No.", OriginalDocNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            exit("No.");
-        end;
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", OriginalDocNo);
+        ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
+        ServiceInvoiceHeader.FindFirst();
+        exit(ServiceInvoiceHeader."No.");
     end;
 
     local procedure FindServiceCrMemoHeaderNo(OriginalDocNo: Code[20]; CustomerNo: Code[20]): Code[20]
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        with ServiceCrMemoHeader do begin
-            SetRange("Pre-Assigned No.", OriginalDocNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            exit("No.");
-        end;
+        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", OriginalDocNo);
+        ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
+        ServiceCrMemoHeader.FindFirst();
+        exit(ServiceCrMemoHeader."No.");
     end;
 
     local procedure FindSplitVATPostingSetupSalesVATAccount(VATBusPostingGroup: Code[20]): Code[20]
@@ -2009,15 +2000,13 @@ codeunit 144561 "ERM Split VAT"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst();
-            TestField(Base, ExpectedBase);
-            TestField(Amount, ExpectedAmount);
-            TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.FindFirst();
+        VATEntry.TestField(Base, ExpectedBase);
+        VATEntry.TestField(Amount, ExpectedAmount);
+        VATEntry.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
     end;
 
     local procedure VerifyReportElementValue(FindElementName: Text; FindElementValue: Decimal; AssertElementName: Text; AssertElementValue: Variant)
@@ -2030,91 +2019,79 @@ codeunit 144561 "ERM Split VAT"
     local procedure VerifySalesDocumentTestReport(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with SalesLine do begin
-            VerifyReportElementValue('Sales_Line__Quantity', Quantity, 'SalesLineHidden', '0');
-            VerifyReportElementValue('Sales_Line__Quantity', -1, 'SalesLineHidden', '1');
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__VAT_Amount_', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__Line_Amount_', Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__Inv__Disc__Base_Amount_', Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__VAT_Amount_', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Line_Amount_', 0);
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Inv__Disc__Base_Amount_', 0);
-        end;
+        VerifyReportElementValue('Sales_Line__Quantity', SalesLine.Quantity, 'SalesLineHidden', '0');
+        VerifyReportElementValue('Sales_Line__Quantity', -1, 'SalesLineHidden', '1');
+        VerifyReportElementValue('VATAmountLine__VAT___', SalesLine."VAT %", 'VATAmountLine__VAT_Amount_', SalesLine."Amount Including VAT" - SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', SalesLine."VAT %", 'VATAmountLine__Line_Amount_', SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', SalesLine."VAT %", 'VATAmountLine__Inv__Disc__Base_Amount_', SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__VAT_Amount_', -(SalesLine."Amount Including VAT" - SalesLine.Amount));
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Line_Amount_', 0);
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Inv__Disc__Base_Amount_', 0);
     end;
 
     local procedure VerifySalesInvoiceReport(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with SalesLine do begin
-            VerifyReportElementValue('Quantity_SalesInvLine', Quantity, 'SalesInvLineHidden', '0');
-            VerifyReportElementValue('Quantity_SalesInvLine', -1, 'SalesInvLineHidden', '1');
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmountLineVATAmount', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmountLineLineAmount', Amount);
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmtLineInvDiscBaseAmt', Amount);
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmountLineVATAmount', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmountLineLineAmount', 0);
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
-        end;
+        VerifyReportElementValue('Quantity_SalesInvLine', SalesLine.Quantity, 'SalesInvLineHidden', '0');
+        VerifyReportElementValue('Quantity_SalesInvLine', -1, 'SalesInvLineHidden', '1');
+        VerifyReportElementValue('VATAmountLineVAT', SalesLine."VAT %", 'VATAmountLineVATAmount', SalesLine."Amount Including VAT" - SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', SalesLine."VAT %", 'VATAmountLineLineAmount', SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', SalesLine."VAT %", 'VATAmtLineInvDiscBaseAmt', SalesLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmountLineVATAmount', -(SalesLine."Amount Including VAT" - SalesLine.Amount));
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmountLineLineAmount', 0);
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
     end;
 
     local procedure VerifySalesCreditMemoReport(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with SalesLine do begin
-            VerifyReportElementValue('Qty_SalesCrMemoLine', Quantity, 'SalesCrMemoLineHidden', '0');
-            VerifyReportElementValue('Qty_SalesCrMemoLine', -1, 'SalesCrMemoLineHidden', '1');
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineVATAmt', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineLineAmt', Amount);
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineInvDiscBaseAmt', Amount);
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineVATAmt', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineLineAmt', 0);
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
-        end;
+        VerifyReportElementValue('Qty_SalesCrMemoLine', SalesLine.Quantity, 'SalesCrMemoLineHidden', '0');
+        VerifyReportElementValue('Qty_SalesCrMemoLine', -1, 'SalesCrMemoLineHidden', '1');
+        VerifyReportElementValue('VATAmtLineVAT', SalesLine."VAT %", 'VATAmtLineVATAmt', SalesLine."Amount Including VAT" - SalesLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', SalesLine."VAT %", 'VATAmtLineLineAmt', SalesLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', SalesLine."VAT %", 'VATAmtLineInvDiscBaseAmt', SalesLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineVATAmt', -(SalesLine."Amount Including VAT" - SalesLine.Amount));
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineLineAmt', 0);
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
     end;
 
     local procedure VerifyServiceDocumentTestReport(ServiceLine: Record "Service Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with ServiceLine do begin
-            VerifyReportElementValue('Service_Line__Quantity', Quantity, 'ServiceLineHidden', '0');
-            VerifyReportElementValue('Service_Line__Quantity', -1, 'ServiceLineHidden', '1');
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__VAT_Amount_', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__Line_Amount_', Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', "VAT %", 'VATAmountLine__Inv__Disc__Base_Amount_', Amount);
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__VAT_Amount_', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Line_Amount_', 0);
-            VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Inv__Disc__Base_Amount_', 0);
-        end;
+        VerifyReportElementValue('Service_Line__Quantity', ServiceLine.Quantity, 'ServiceLineHidden', '0');
+        VerifyReportElementValue('Service_Line__Quantity', -1, 'ServiceLineHidden', '1');
+        VerifyReportElementValue('VATAmountLine__VAT___', ServiceLine."VAT %", 'VATAmountLine__VAT_Amount_', ServiceLine."Amount Including VAT" - ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', ServiceLine."VAT %", 'VATAmountLine__Line_Amount_', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', ServiceLine."VAT %", 'VATAmountLine__Inv__Disc__Base_Amount_', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__VAT_Amount_', -(ServiceLine."Amount Including VAT" - ServiceLine.Amount));
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Line_Amount_', 0);
+        VerifyReportElementValue('VATAmountLine__VAT___', 0, 'VATAmountLine__Inv__Disc__Base_Amount_', 0);
     end;
 
     local procedure VerifyServiceInvoiceReport(ServiceLine: Record "Service Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with ServiceLine do begin
-            VerifyReportElementValue('Qty_ServInvLine', Quantity, 'ServiceLineHidden', '0');
-            VerifyReportElementValue('Qty_ServInvLine', -1, 'ServiceLineHidden', '1');
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineVATAmt', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineLineAmt', Amount);
-            VerifyReportElementValue('VATAmtLineVAT', "VAT %", 'VATAmtLineInvDiscBaseAmt', Amount);
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineVATAmt', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineLineAmt', 0);
-            VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
-        end;
+        VerifyReportElementValue('Qty_ServInvLine', ServiceLine.Quantity, 'ServiceLineHidden', '0');
+        VerifyReportElementValue('Qty_ServInvLine', -1, 'ServiceLineHidden', '1');
+        VerifyReportElementValue('VATAmtLineVAT', ServiceLine."VAT %", 'VATAmtLineVATAmt', ServiceLine."Amount Including VAT" - ServiceLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', ServiceLine."VAT %", 'VATAmtLineLineAmt', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', ServiceLine."VAT %", 'VATAmtLineInvDiscBaseAmt', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineVATAmt', -(ServiceLine."Amount Including VAT" - ServiceLine.Amount));
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineLineAmt', 0);
+        VerifyReportElementValue('VATAmtLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
     end;
 
     local procedure VerifyServiceCreditMemoReport(ServiceLine: Record "Service Line")
     begin
         LibraryReportDataset.LoadDataSetFile();
-        with ServiceLine do begin
-            VerifyReportElementValue('Quantity_ServCrMemoLine', Quantity, 'ServiceLineHidden', '0');
-            VerifyReportElementValue('Quantity_ServCrMemoLine', -1, 'ServiceLineHidden', '1');
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmtLineVATAmt', "Amount Including VAT" - Amount);
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmtLineLineAmt', Amount);
-            VerifyReportElementValue('VATAmountLineVAT', "VAT %", 'VATAmtLineInvDiscBaseAmt', Amount);
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineVATAmt', -("Amount Including VAT" - Amount));
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineLineAmt', 0);
-            VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
-        end;
+        VerifyReportElementValue('Quantity_ServCrMemoLine', ServiceLine.Quantity, 'ServiceLineHidden', '0');
+        VerifyReportElementValue('Quantity_ServCrMemoLine', -1, 'ServiceLineHidden', '1');
+        VerifyReportElementValue('VATAmountLineVAT', ServiceLine."VAT %", 'VATAmtLineVATAmt', ServiceLine."Amount Including VAT" - ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', ServiceLine."VAT %", 'VATAmtLineLineAmt', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', ServiceLine."VAT %", 'VATAmtLineInvDiscBaseAmt', ServiceLine.Amount);
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineVATAmt', -(ServiceLine."Amount Including VAT" - ServiceLine.Amount));
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineLineAmt', 0);
+        VerifyReportElementValue('VATAmountLineVAT', 0, 'VATAmtLineInvDiscBaseAmt', 0);
     end;
 
     local procedure VerifyCopiedSalesLine(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20])

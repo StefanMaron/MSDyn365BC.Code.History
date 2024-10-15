@@ -91,10 +91,10 @@ page 6305 "Power BI Report Dialog"
     [NonDebuggable]
     local procedure InitializeAddIn()
     var
-        LoadReportMessage: Text;
+        LoadReportMessage: SecretText;
     begin
         PowerBIEmbedHelper.TryGetLoadReportMessage(LoadReportMessage);
-        CurrPage.WebPageViewer.PostMessage(LoadReportMessage, PowerBIEmbedHelper.TargetOrigin(), false)
+        CurrPage.WebPageViewer.PostMessage(LoadReportMessage.Unwrap(), PowerBIEmbedHelper.TargetOrigin(), false)
     end;
 }
 

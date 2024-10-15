@@ -268,10 +268,13 @@ page 5974 "Posted Service Shipments"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    RunObject = Page "Service Shipment Statistics";
-                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenStatistics();
+                    end;
                 }
                 action("Co&mments")
                 {

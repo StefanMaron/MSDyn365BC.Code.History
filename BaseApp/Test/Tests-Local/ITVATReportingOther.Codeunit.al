@@ -740,7 +740,6 @@ codeunit 144011 "IT - VAT Reporting - Other"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("Intrastat Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         exit(CountryRegion.Code);
     end;
@@ -851,25 +850,23 @@ codeunit 144011 "IT - VAT Reporting - Other"
     local procedure UpdateReqFldsGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         // Update fields required for posting when Incl. in VAT Transac. Report is TRUE.
-        with GenJournalLine do begin
-            if Resident = Resident::"Non-Resident" then
-                Validate("Country/Region Code", GetCountryCode());
+        if GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident" then
+            GenJournalLine.Validate("Country/Region Code", GetCountryCode());
 
-            if "Individual Person" and (Resident = Resident::"Non-Resident") then begin
-                Validate("First Name", LibraryUtility.GenerateRandomCode(FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Last Name", LibraryUtility.GenerateRandomCode(FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
-                Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
-                Validate("Place of Birth", LibraryUtility.GenerateRandomCode(FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
-            end;
-
-            if "Individual Person" and (Resident = Resident::Resident) then
-                "Fiscal Code" := LibraryUtility.GenerateRandomCode(FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            if not "Individual Person" and (Resident = Resident::Resident) then
-                "VAT Registration No." := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line"); // Validation skipped.
-
-            Modify(true);
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::"Non-Resident") then begin
+            GenJournalLine.Validate("First Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("First Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Last Name", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Last Name"), DATABASE::"Gen. Journal Line"));
+            GenJournalLine.Validate("Date of Birth", CalcDate('<-' + Format(LibraryRandom.RandInt(100)) + 'Y>'));
+            GenJournalLine.Validate("Place of Birth", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Place of Birth"), DATABASE::"Gen. Journal Line"));
         end;
+
+        if GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) then
+            GenJournalLine."Fiscal Code" := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Fiscal Code"), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        if not GenJournalLine."Individual Person" and (GenJournalLine.Resident = GenJournalLine.Resident::Resident) then
+            GenJournalLine."VAT Registration No." := LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("VAT Registration No."), DATABASE::"Gen. Journal Line");
+        // Validation skipped.
+        GenJournalLine.Modify(true);
     end;
 
     local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)

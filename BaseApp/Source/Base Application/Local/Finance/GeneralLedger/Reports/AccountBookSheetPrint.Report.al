@@ -23,7 +23,7 @@ report 12109 "Account Book Sheet - Print"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = sorting("No.") ORDER(Ascending) where("Account Type" = filter(Posting));
+            DataItemTableView = sorting("No.") order(ascending) where("Account Type" = filter(Posting));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Date Filter", "Business Unit Filter";
             column(CompAddr_4_; CompAddr[4])
@@ -228,7 +228,7 @@ report 12109 "Account Book Sheet - Print"
                 {
                     DataItemLink = "G/L Account No." = field("No."), "Posting Date" = field("Date Filter");
                     DataItemLinkReference = "G/L Account";
-                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") ORDER(Ascending) where(Amount = filter(<> 0));
+                    DataItemTableView = sorting("Posting Date", "Transaction No.", "Entry No.") order(ascending) where(Amount = filter(<> 0));
                     column(DecreasesAmnt; DecreasesAmnt)
                     {
                         AutoFormatType = 1;

@@ -704,6 +704,9 @@ report 5911 "Service - Invoice"
                         column(CustNo_ServInvHeaderCaption; "Service Invoice Header".FieldCaption("Customer No."))
                         {
                         }
+                        column(ShipToPhoneNo; "Service Invoice Header"."Ship-to Phone")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -899,12 +902,16 @@ report 5911 "Service - Invoice"
         ServiceLineHidden: Boolean;
         VATExemptionCheck: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
         AmountCaptionLbl: Label 'Amount';
         DiscountPercentCaptionLbl: Label 'Disc. %';
         UnitPriceCaptionLbl: Label 'Unit Price';
         PostedShipmentDateCaptionLbl: Label 'Posted Shipment Date';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
         CompanyInfoVATRegNoCaptionLbl: Label 'VAT Reg. No.';
@@ -922,7 +929,9 @@ report 5911 "Service - Invoice"
         CustomerVATExemptionDateCaptionLbl: Label 'Customer VAT Exemption Date';
         ShipmentCaptionLbl: Label 'Shipment';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
+#pragma warning disable AA0074
         VATClausesCap: Label 'VAT Clause';
+#pragma warning restore AA0074
         VATAmountLineVATCaptionLbl: Label 'VAT %';
         VATBaseCaptionLbl: Label 'VAT Base';
         VATAmountCaptionLbl: Label 'VAT Amount';
@@ -1182,10 +1191,12 @@ report 5911 "Service - Invoice"
     end;
 
     local procedure FormatAddressFields(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceInvoiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceInvBillTo(CustAddr, ServiceInvoiceHeader);
-        ShowShippingAddr := FormatAddr.ServiceInvShipTo(ShipToAddr, CustAddr, ServiceInvoiceHeader);
+        ServiceFormatAddress.ServiceInvBillTo(CustAddr, ServiceInvoiceHeader);
+        ShowShippingAddr := ServiceFormatAddress.ServiceInvShipTo(ShipToAddr, CustAddr, ServiceInvoiceHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceInvoiceHeader: Record "Service Invoice Header")

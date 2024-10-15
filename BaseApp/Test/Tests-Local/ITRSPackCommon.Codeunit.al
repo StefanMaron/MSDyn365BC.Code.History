@@ -20,9 +20,8 @@ codeunit 148500 "IT RS Pack - Common"
     begin
         // [FEATURE] [FatturaPA] [Electronic Document]
         // [SCENARIO 259342] Electronic document format has FatturaPA setup for all Usage options
-        with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Service Validation".AsInteger() do
-                Get(FatturaPATxt, UsageOption);
+        for UsageOption := ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger() to ElectronicDocumentFormat.Usage::"Service Validation".AsInteger() do
+            ElectronicDocumentFormat.Get(FatturaPATxt, UsageOption);
     end;
 
     [Test]
@@ -33,12 +32,10 @@ codeunit 148500 "IT RS Pack - Common"
     begin
         // [FEATURE] [FatturaPA] [Sales]
         // [SCENARIO 259342] Sales Setup has filled "Fattura PA Nos.", "Fattura PA Electronic Format" and "Validate Document On Posting" = FALSE
-        with SalesReceivablesSetup do begin
-            Get();
-            TestField("Fattura PA Nos.");
-            TestField("Fattura PA Electronic Format", FatturaPATxt);
-            TestField("Validate Document On Posting", false);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.TestField("Fattura PA Nos.");
+        SalesReceivablesSetup.TestField("Fattura PA Electronic Format", FatturaPATxt);
+        SalesReceivablesSetup.TestField("Validate Document On Posting", false);
     end;
 
     [Test]
@@ -49,10 +46,8 @@ codeunit 148500 "IT RS Pack - Common"
     begin
         // [FEATURE] [FatturaPA] [Service]
         // [SCENARIO 259342] Service Setup has "Validate Document On Posting" = FALSE
-        with ServiceMgtSetup do begin
-            Get();
-            TestField("Validate Document On Posting", false);
-        end;
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.TestField("Validate Document On Posting", false);
     end;
 }
 

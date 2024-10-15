@@ -27,7 +27,7 @@ table 1223 "Data Exch. Column Def"
         {
             Caption = 'Show';
         }
-        field(5;"Data Type"; Option)
+        field(5; "Data Type"; Option)
         {
             Caption = 'Data Type';
             OptionCaption = 'Text,Date,Decimal,DateTime,Boolean';
@@ -132,7 +132,9 @@ table 1223 "Data Exch. Column Def"
     end;
 
     var
+#pragma warning disable AA0470
         DeleteFieldMappingQst: Label 'The %1 that you are about to delete is used for one or more %2, which will also be deleted. \\Do you want to continue?';
+#pragma warning restore AA0470
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; NewName: Text[250]; NewShow: Boolean; DataType: Option; DataTypeFormatting: Text[100]; DataFormattingCulture: Text[10]; NewDescription: Text[50])
     begin

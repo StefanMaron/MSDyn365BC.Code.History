@@ -41,7 +41,7 @@ table 12184 "Posted Vendor Bill Line"
         }
         field(11; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup(Vendor.Name where("No." = field("Vendor No.")));
+            CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
             Editable = false;
             FieldClass = FlowField;

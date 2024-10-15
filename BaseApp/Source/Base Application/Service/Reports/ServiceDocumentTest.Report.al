@@ -5,6 +5,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Inventory.Item;
@@ -21,7 +22,6 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Security.User;
 using System.Utilities;
-using Microsoft.Finance.VAT.Reporting;
 
 report 5915 "Service Document - Test"
 {
@@ -816,7 +816,7 @@ report 5915 "Service Document - Test"
                                 if ServCost.Get("Service Line"."No.") then
                                     No[1] := ServCost."Account No.";
                             end else begin
-                                TableID[1] := DimMgt.TypeToTableID5("Service Line".Type.AsInteger());
+                                TableID[1] := ServDimMgt.ServiceLineTypeToTableID("Service Line".Type);
                                 No[1] := "Service Line"."No.";
                             end;
                             TableID[2] := Database::Job;
@@ -828,11 +828,11 @@ report 5915 "Service Document - Test"
                                 "Service Line".Type := "Service Line".Type::" ";
                             end;
 
-                            InclInVATReportErrorLogTemp.SetRange("Line No.", "Service Line"."Line No.");
-                            if InclInVATReportErrorLogTemp.FindSet() then
+                            TempInclInVATReportErrorLog.SetRange("Line No.", "Service Line"."Line No.");
+                            if TempInclInVATReportErrorLog.FindSet() then
                                 repeat
-                                    AddError(InclInVATReportErrorLogTemp."Error Message");
-                                until InclInVATReportErrorLogTemp.Next() = 0;
+                                    AddError(TempInclInVATReportErrorLog."Error Message");
+                                until TempInclInVATReportErrorLog.Next() = 0;
 
                             ServiceLineHidden := ("Service Line"."Line No." <= 0) or (("Service Line".Quantity < 0) and ("Service Line"."Unit Price" > 0) and ("Service Line".Amount = 0));
                         end;
@@ -1001,13 +1001,14 @@ report 5915 "Service Document - Test"
 
             trigger OnAfterGetRecord()
             var
+                ServiceFormatAddress: Codeunit "Service Format Address";
                 TableID: array[10] of Integer;
                 No: array[10] of Code[20];
-                InclInVATReportValidation: Codeunit "Incl. in VAT Report Validation";
+                ServVATReportValidation: Codeunit "Serv. VAT Report Validation";
             begin
-                FormatAddr.ServiceHeaderSellTo(SellToAddr, "Service Header");
-                FormatAddr.ServiceHeaderBillTo(BillToAddr, "Service Header");
-                FormatAddr.ServiceHeaderShipTo(ShipToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderSellTo(SellToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderBillTo(BillToAddr, "Service Header");
+                ServiceFormatAddress.ServiceHeaderShipTo(ShipToAddr, "Service Header");
                 if "Currency Code" = '' then begin
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(Text004, GLSetup."LCY Code");
@@ -1126,13 +1127,13 @@ report 5915 "Service Document - Test"
                 FindVATExemption(VATExemption, VATExemptionCheck, true);
 
                 if Invoice then begin
-                    InclInVATReportErrorLogTemp.DeleteAll();
-                    InclInVATReportValidation.ValidateServiceHeader("Service Header", InclInVATReportErrorLogTemp);
-                    InclInVATReportErrorLogTemp.SetRange("Line No.", 0);
-                    if InclInVATReportErrorLogTemp.FindSet() then
+                    TempInclInVATReportErrorLog.DeleteAll();
+                    ServVATReportValidation.ValidateServiceHeader("Service Header", TempInclInVATReportErrorLog);
+                    TempInclInVATReportErrorLog.SetRange("Line No.", 0);
+                    if TempInclInVATReportErrorLog.FindSet() then
                         repeat
-                            AddError(InclInVATReportErrorLogTemp."Error Message");
-                        until InclInVATReportErrorLogTemp.Next() = 0;
+                            AddError(TempInclInVATReportErrorLog."Error Message");
+                        until TempInclInVATReportErrorLog.Next() = 0;
                 end;
             end;
 
@@ -1240,6 +1241,7 @@ report 5915 "Service Document - Test"
         ServiceLine: Record "Service Line";
         ServiceLine2: Record "Service Line";
         TempServiceLine: Record "Service Line" temporary;
+        TempInclInVATReportErrorLog: Record "Incl. in VAT Report Error Log" temporary;
         GLAcc: Record "G/L Account";
         Item: Record Item;
         Res: Record Resource;
@@ -1251,8 +1253,8 @@ report 5915 "Service Document - Test"
         DimSetEntry: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         VATExemption: Record "VAT Exemption";
-        FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
+        ServDimMgt: Codeunit "Serv. Dimension Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
         ServiceHeaderFilter: Text;
@@ -1290,14 +1292,22 @@ report 5915 "Service Document - Test"
         VATExemptionCheck: Boolean;
         ServiceLineHidden: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Ship and Invoice';
         Text001: Label 'Ship';
         Text002: Label 'Invoice';
+#pragma warning disable AA0470
         Text003: Label 'Order Posting: %1';
         Text004: Label 'Total %1';
         Text005: Label 'Total %1 Incl. VAT';
         Text006: Label '%1 must be specified.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         MustBeForErr: Label '%1 must be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text014: Label 'Service Document: %1';
@@ -1315,6 +1325,8 @@ report 5915 "Service Document - Test"
         Text036: Label 'The quantity you are attempting to invoice is greater than the quantity in shipment %1.';
         Text043: Label '%1 must be zero.';
         Text045: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Service_Document___TestCaptionLbl: Label 'Service Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Ship_toCaptionLbl: Label 'Ship-to';
@@ -1356,7 +1368,6 @@ report 5915 "Service Document - Test"
         VATAmountLine__Inv__Disc__Base_Amount__Control171CaptionLbl: Label 'Inv. Disc. Base Amount';
         VATAmountLine__Line_Amount__Control169CaptionLbl: Label 'Line Amount';
         TotalCaptionLbl: Label 'Total';
-        InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
         Text12100: Label '%1 must be specified on header.';
 
     local procedure AddError(Text: Text)

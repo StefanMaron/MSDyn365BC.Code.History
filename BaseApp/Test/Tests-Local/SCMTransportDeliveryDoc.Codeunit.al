@@ -64,7 +64,6 @@ codeunit 144101 "SCM Transport Delivery Doc"
         LibrarySales: Codeunit "Library - Sales";
         PartyLoaderErr: Label '3rd-Party Loader must not be No in Shipment Method Code=''''.';
         ShippingAgentCodeErr: Label ' Shipping Agent Code  must be Vendor/Contact for Shipment Method Code %1 3rd-Party Loader.';
-        ShippingAgentErr: Label 'Shipping Agent No. must have a value in Shipping Agent: Code=%1. It cannot be zero or empty.';
         TDDErr: Label 'TDD Prepared By must have a value in Sales Header: Document Type=%1, No.=%2. It cannot be zero or empty.';
         ThirdPartyLoaderErr: Label '3rd Party Loader Type must not be   in Sales Header: Document Type=%1, No.=%2';
         LibraryService: Codeunit "Library - Service";
@@ -72,6 +71,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        ThirdPartyLoaderNoLbl: Label '3rd Party Loader No.';
         ThirdPartyLoaderNoErr: Label '3rd Party Loader No. must have a value in %1: No.=%2. It cannot be zero or empty.';
         ThirdPartyLoaderTypeErr: Label '3rd Party Loader Type must not be   in Transfer Shipment Header: No.=%1';
 
@@ -81,6 +81,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
+        ShippingAgent: Record "Shipping Agent";
         ShippingAgentCode: Code[10];
     begin
         // Test to verify error on Sales Header when Shipping Agent No is blank on Shipping Agent.
@@ -94,7 +95,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         asserterror SalesHeader.Validate("Shipping Agent Code", ShippingAgentCode);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ShippingAgentErr, ShippingAgentCode));
+        Assert.ExpectedTestFieldError(ShippingAgent.FieldCaption("Shipping Agent No."), '');
     end;
 
     [Test]
@@ -165,7 +166,10 @@ codeunit 144101 "SCM Transport Delivery Doc"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Invoice.
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ErrorTxt, SalesHeader."Document Type"::Order, SalesHeader."No."));
+        if StrPos(ErrorTxt, SalesHeader.FieldCaption("TDD Prepared By")) > 0 then
+            Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("TDD Prepared By"), '')
+        else
+            Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("3rd Party Loader Type"), '');
     end;
 
     [Test]
@@ -173,6 +177,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     procedure SalesShipmentHeaderWithShippingAgentCodeError()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
+        ShippingAgent: Record "Shipping Agent";
         ShippingAgentCode: Code[10];
     begin
         // Test to verify error on Sales Shipment Header when Shipping Agent No is blank on Shipping Agent.
@@ -185,7 +190,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         asserterror SalesShipmentHeader.Validate("Shipping Agent Code", ShippingAgentCode);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ShippingAgentErr, ShippingAgentCode));
+        Assert.ExpectedTestFieldError(ShippingAgent.FieldCaption("Shipping Agent No."), '');
     end;
 
     [Test]
@@ -193,6 +198,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     procedure TransferHeaderWithShippingAgentCodeError()
     var
         TransferHeader: Record "Transfer Header";
+        ShippigAgent: Record "Shipping Agent";
         ShippingAgentCode: Code[10];
     begin
         // Test to verify error on Transfer Header when Shipping Agent No is blank on Shipping Agent.
@@ -205,7 +211,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         asserterror TransferHeader.Validate("Shipping Agent Code", ShippingAgentCode);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ShippingAgentErr, ShippingAgentCode));
+        Assert.ExpectedTestFieldError(ShippigAgent.FieldCaption("Shipping Agent No."), '');
     end;
 
     [Test]
@@ -327,7 +333,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
 
         // Exercise and Verify.
         RunMiscellaneousReportsAndVerifyError(
-          REPORT::"Sales - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, SalesShipmentHeader.TableCaption(), SalesShipmentHeader."No."));
+                  REPORT::"Sales - Shipment", StrSubstNo(ThirdPartyLoaderNoErr, SalesShipmentHeader.TableCaption(), SalesShipmentHeader."No."));
     end;
 
     [Test]
@@ -402,6 +408,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
     var
         PurchaseLine: Record "Purchase Line";
         ReturnShipmentHeader: Record "Return Shipment Header";
+        ShippingAgent: Record "Shipping Agent";
         ShippingAgentCode: Code[10];
     begin
         // Test to verify error on Return Shipment Header when Shipping Agent Code is blank on Shipping Agent.
@@ -414,7 +421,7 @@ codeunit 144101 "SCM Transport Delivery Doc"
         asserterror ReturnShipmentHeader.Validate("Shipping Agent Code", ShippingAgentCode);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ShippingAgentErr, ShippingAgentCode));
+        Assert.ExpectedTestFieldError(ShippingAgent.FieldCaption("Shipping Agent No."), '');
     end;
 
     [Test]
@@ -613,12 +620,17 @@ codeunit 144101 "SCM Transport Delivery Doc"
     end;
 
     local procedure RunMiscellaneousReportsAndVerifyError(ReportID: Integer; ErrorCode: Text)
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // Exercise.
         asserterror REPORT.Run(ReportID);
 
         // Verify.
-        Assert.ExpectedError(ErrorCode);
+        if StrPos(ErrorCode, ThirdPartyLoaderNoLbl) > 0 then
+            Assert.ExpectedTestFieldError(SalesShipmentHeader.FieldCaption("3rd Party Loader No."), '')
+        else
+            Assert.ExpectedTestFieldError(SalesShipmentHeader.FieldCaption("3rd Party Loader Type"), '');
     end;
 
     local procedure RunMiscellaneousReportsAndVerifyXMLValues(ReportID: Integer; Caption: Text; Caption2: Text; Value: Text; Value2: Text)

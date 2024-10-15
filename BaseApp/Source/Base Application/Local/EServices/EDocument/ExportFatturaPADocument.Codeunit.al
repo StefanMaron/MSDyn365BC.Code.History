@@ -56,7 +56,7 @@ codeunit 12179 "Export FatturaPA Document"
         else
             Session.LogMessage('0000CQ7', DocumentValidationErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
-        If TempBlob.HasValue() then begin
+        if TempBlob.HasValue() then begin
             TempBlob.CreateInStream(InStr);
             Rec."File Content".CreateOutStream(OutStr);
             CopyStream(OutStr, InStr);

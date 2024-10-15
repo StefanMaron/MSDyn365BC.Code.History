@@ -8,7 +8,6 @@ using Microsoft.CRM.Contact;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 
 table 12203 "Fattura Header"
 {
@@ -172,8 +171,7 @@ table 12203 "Fattura Header"
     {
     }
 
-    [Scope('OnPrem')]
-    procedure GetTableID(): Integer
+    procedure GetTableID() TableID: Integer
     begin
         case "Entry Type" of
             "Entry Type"::Sales:
@@ -182,12 +180,8 @@ table 12203 "Fattura Header"
                         exit(DATABASE::"Sales Invoice Header");
                     exit(DATABASE::"Sales Cr.Memo Header");
                 end;
-            "Entry Type"::Service:
-                begin
-                    if "Document Type" = "Document Type"::Invoice then
-                        exit(DATABASE::"Service Invoice Header");
-                    exit(DATABASE::"Service Cr.Memo Header");
-                end;
+            else
+                OnGetTableID(Rec, TableID);
         end;
     end;
 
@@ -226,6 +220,11 @@ table 12203 "Fattura Header"
                 end;
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTableID(var FatturaHeader: Record "Fattura Header"; var TableID: Integer)
+    begin
     end;
 }
 

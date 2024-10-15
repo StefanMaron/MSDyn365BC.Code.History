@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Posting;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -11,6 +15,7 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Setup;
@@ -58,18 +63,23 @@ codeunit 5980 "Service-Post"
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         Window: Dialog;
         PostingDate: Date;
+        OrderArchived: Boolean;
         ReplaceDocumentDate: Boolean;
         ReplacePostingDate: Boolean;
         PostingDateExists: Boolean;
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Posting lines              #2######\';
         Text003: Label 'Posting serv. and VAT      #3######\';
         Text004: Label 'Posting to customers       #4######\';
         Text005: Label 'Posting to bal. account    #5######';
         Text006: Label 'Posting lines              #2######';
+#pragma warning restore AA0470
         Text007: Label 'is not within your range of allowed posting dates';
+#pragma warning restore AA0074
         WhseShip: Boolean;
         Text1130004: Label 'To specify the installment to apply to please select the %1 or use the function Apply Entries';
         Text12100: Label 'The error is in line no. %1.';
@@ -94,6 +104,7 @@ codeunit 5980 "Service-Post"
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
         ServDocNo: Code[20];
         ServDocType: Integer;
         ServInvoiceNo: Code[20];
@@ -159,6 +170,12 @@ codeunit 5980 "Service-Post"
 
             ServDocumentsMgt.SetLastNos(ServiceHeader);
             ServiceHeader.Modify();
+
+            if not OrderArchived then begin
+                ServiceDocumentArchiveMgmt.AutoArchiveServiceDocument(ServiceHeader);
+                OrderArchived := true;
+            end;
+
             // handling afterposting modification/deletion of documents
             ServDocumentsMgt.UpdateDocumentLines();
 
@@ -248,10 +265,10 @@ codeunit 5980 "Service-Post"
 
     procedure CheckServiceDocument(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
     var
-        ReportDistributionManagement: Codeunit "Report Distribution Management";
+        ServReportDistributionMgt: Codeunit "Serv. Report Distribution Mgt.";
     begin
         TestMandatoryFields(PassedServiceHeader, PassedServiceLine);
-        ReportDistributionManagement.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
+        ServReportDistributionMgt.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
         ServDocumentsMgt.CheckServiceDocument(PassedServiceHeader, PassedServiceLine);
     end;
 
@@ -470,7 +487,7 @@ codeunit 5980 "Service-Post"
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             OnLockTablesOnBeforeGLEntryFindLast(GLEntry);
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
     end;
 
@@ -563,10 +580,10 @@ codeunit 5980 "Service-Post"
     local procedure ValidateIncludeInVATReport(ServiceHeaderParam: Record "Service Header")
     var
         TempInclInVATReportErrorLog: Record "Incl. in VAT Report Error Log" temporary;
-        InclInVATReportValidation: Codeunit "Incl. in VAT Report Validation";
+        ServVATReportValidation: Codeunit "Serv. VAT Report Validation";
     begin
         TempInclInVATReportErrorLog.DeleteAll();
-        InclInVATReportValidation.ValidateServiceHeader(ServiceHeaderParam, TempInclInVATReportErrorLog);
+        ServVATReportValidation.ValidateServiceHeader(ServiceHeaderParam, TempInclInVATReportErrorLog);
         if TempInclInVATReportErrorLog.FindFirst() then begin
             if TempInclInVATReportErrorLog."Line No." <> 0 then
                 Error(
@@ -793,4 +810,3 @@ codeunit 5980 "Service-Post"
     begin
     end;
 }
-

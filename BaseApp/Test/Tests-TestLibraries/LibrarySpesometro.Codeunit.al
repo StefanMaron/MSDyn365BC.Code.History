@@ -568,7 +568,6 @@ codeunit 143001 "Library - Spesometro"
         CompanyInformation.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
         CountryRegion.SetFilter("EU Country/Region Code", '');
-        CountryRegion.SetRange(Blacklisted, false);
         LibraryERM.FindCountryRegion(CountryRegion);
         CountryRegion.Validate("Foreign Country/Region Code", Format(LibraryRandom.RandInt(100)));
         CountryRegion.Modify(true);

@@ -15,6 +15,8 @@ page 5619 "FA Depreciation Books"
     RefreshOnActivate = true;
     SourceTable = "FA Depreciation Book";
     AnalysisModeEnabled = false;
+    AboutTitle = 'About FA Depreciation Books';
+    AboutText = 'The **FA Depreciation Books** help us to maintain multiple depreciation books for a fixed asset with different Depreciation percentages.';
 
     layout
     {
@@ -31,6 +33,8 @@ page 5619 "FA Depreciation Books"
                 field("Depreciation Book Code"; Rec."Depreciation Book Code")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'FA Depreciation Books configuration';
+                    AboutText = 'Specify the details to update the different depreciation books with different depreciation methods, and percentages for a fixed asset.';
                     ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
                 }
                 field(AddCurrCode; GetACYCode())

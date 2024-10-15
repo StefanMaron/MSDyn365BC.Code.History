@@ -66,7 +66,9 @@ table 869 "Cash Flow Chart Setup"
     var
         CFSetup: Record "Cash Flow Setup";
 
+#pragma warning disable AA0470
         StatusTxt: Label '%1 | %2 | %3 | %4 | %5 (Updated: %6)', Comment = '<"Cash Flow Forecast No."> | <Show> | <"Start Date"> | <"Period Length"> | <"Group By">.  (Updated: <Time>)';
+#pragma warning restore AA0470
 
     procedure GetCurrentSelectionText(): Text
     begin
