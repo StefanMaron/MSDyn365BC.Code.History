@@ -1,4 +1,4 @@
-codeunit 5900 ServOrderManagement
+﻿codeunit 5900 ServOrderManagement
 {
 
     trigger OnRun()
@@ -664,7 +664,7 @@ codeunit 5900 ServOrderManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServItemLine: Record "Service Item Line"; ServItem: Record "Service Item"; ServHeader: Record "Service Header");
+    local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServItemLine: Record "Service Item Line"; var ServItem: Record "Service Item"; ServHeader: Record "Service Header");
     begin
     end;
 }

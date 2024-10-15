@@ -74,7 +74,7 @@ table 7346 "Internal Movement Header"
         }
         field(7; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Movement"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Movement"),
                                                                 Type = CONST(" "),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -260,7 +260,14 @@ table 7346 "Internal Movement Header"
     end;
 
     procedure LookupInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupInternalMovementHeader(InternalMovementHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         Commit();
         InternalMovementHeader.FilterGroup := 2;
         InternalMovementHeader.SetRange("Location Code");
@@ -323,6 +330,11 @@ table 7346 "Internal Movement Header"
             end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeLookupInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

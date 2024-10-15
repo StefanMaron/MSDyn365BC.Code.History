@@ -1,4 +1,4 @@
-codeunit 9998 "Upgrade Tag Definitions"
+﻿codeunit 9998 "Upgrade Tag Definitions"
 {
 
     trigger OnRun()
@@ -361,6 +361,12 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetEmailLoggingUpgradeTag(): Code[250];
     begin
         exit('MS-359086-EmailLogging-20200526');
+    end;
+
+    [Obsolete('Function will be removed in release 19.0', '17.0')]
+    procedure PurchRcptLineOverReceiptCodeUpgradeTag(): Code[250];
+    begin
+        exit('MS-360057-PurchRcptLineOverReceiptCode-20200615');
     end;
 }
 

@@ -916,7 +916,7 @@ page 402 "Sales Order Statistics"
         else
             AdjProfitPct[IndexNo] := Round(100 * AdjProfitLCY[IndexNo] / TotalSalesLineLCY[IndexNo].Amount, 0.01);
 
-        OnAfterUpdateHeaderInfo();
+        OnAfterUpdateHeaderInfo(TotalSalesLineLCY, IndexNo);
     end;
 
     local procedure GetVATSpecification(QtyType: Option General,Invoicing,Shipping)
@@ -1142,7 +1142,7 @@ page 402 "Sales Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterUpdateHeaderInfo()
+    local procedure OnAfterUpdateHeaderInfo(var TotalSalesLineLCY: array[3] of Record "Sales Line"; var IndexNo: Integer)
     begin
     end;
 

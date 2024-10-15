@@ -879,6 +879,7 @@ table 5330 "CRM Connection Setup"
         Validate("User Name", SourceCRMConnectionSetup."User Name");
         SetPassword(PasswordText);
         Validate("Proxy Version", SourceCRMConnectionSetup."Proxy Version");
+        "Is S.Order Integration Enabled" := SourceCRMConnectionSetup."Is S.Order Integration Enabled";
         Modify(true);
     end;
 
@@ -1067,6 +1068,7 @@ table 5330 "CRM Connection Setup"
     procedure RefreshDataFromCRM()
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         ConnectionName: Text;
     begin
         if "Is Enabled" then begin
@@ -1079,7 +1081,8 @@ table 5330 "CRM Connection Setup"
 
             "Is CRM Solution Installed" := CRMIntegrationManagement.IsCRMSolutionInstalled;
             RefreshFromCRMConnectionInformation;
-            if TryRefreshCRMSettings then;
+            if TryRefreshCRMSettings then
+                CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
 
             if ConnectionName <> '' then
                 TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
