@@ -4632,7 +4632,7 @@
 
     local procedure TaxCodeFromTaxRate(TaxRate: Decimal; TaxType: Option Translado,Retencion): Code[10]
     begin
-        if (TaxType = TaxType::Translado) and (TaxRate = 0.16) then
+        if (TaxType = TaxType::Translado) and (TaxRate in [0.16, 0.08]) then
             exit('002'); // IVA
 
         if (TaxType = TaxType::Retencion) and (TaxRate = 0.1) then

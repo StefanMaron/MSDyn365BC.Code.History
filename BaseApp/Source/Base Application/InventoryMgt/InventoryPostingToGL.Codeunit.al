@@ -707,7 +707,7 @@ codeunit 5802 "Inventory Posting To G/L"
             "Posting Date" := ValueEntry."Posting Date";
 
             IsHandled := false;
-            OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled);
+            OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled, InvtPostBuf);
             if not IsHandled then
                 if UseInvtPostSetup() then begin
                     if CalledFromItemPosting then
@@ -1382,7 +1382,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetInvtPostSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Code[10]; InventoryPostingGroup: Code[20]; var GenPostingSetup: Record "General Posting Setup"; var IsHandled: Boolean)
+    local procedure OnBeforeGetInvtPostSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; var LocationCode: Code[10]; InventoryPostingGroup: Code[20]; var GenPostingSetup: Record "General Posting Setup"; var IsHandled: Boolean; var InvtPostingBuffer: Record "Invt. Posting Buffer")
     begin
     end;
 

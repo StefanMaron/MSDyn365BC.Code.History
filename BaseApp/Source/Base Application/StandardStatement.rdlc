@@ -343,6 +343,9 @@ End Function
         <Field Name="OverDueEntries">
           <DataField>OverDueEntries</DataField>
         </Field>
+        <Field Name="CurrencyCode3_CustLedgEntry2">
+          <DataField>CurrencyCode3_CustLedgEntry2</DataField>
+        </Field>
         <Field Name="RemainAmt_CustLedgEntry2">
           <DataField>RemainAmt_CustLedgEntry2</DataField>
         </Field>
@@ -378,9 +381,6 @@ End Function
         </Field>
         <Field Name="Currency2Code_CustLedgEntry2">
           <DataField>Currency2Code_CustLedgEntry2</DataField>
-        </Field>
-        <Field Name="CurrencyCode3_CustLedgEntry2">
-          <DataField>CurrencyCode3_CustLedgEntry2</DataField>
         </Field>
         <Field Name="CustNo_CustLedgEntry2">
           <DataField>CustNo_CustLedgEntry2</DataField>

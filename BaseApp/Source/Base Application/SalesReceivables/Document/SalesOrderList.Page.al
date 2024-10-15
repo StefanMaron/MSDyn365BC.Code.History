@@ -299,7 +299,18 @@ page 9305 "Sales Order List"
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                     Visible = false;
                 }
+#if not CLEAN23
                 field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';

@@ -1779,12 +1779,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFormatAddr(var Country: Record "Country/Region"; CountryCode: Code[10])
+    local procedure OnBeforeFormatAddr(var Country: Record "Country/Region"; var CountryCode: Code[10])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFormatPostCodeCity(var Country: Record "Country/Region"; CountryCode: Code[10])
+    local procedure OnBeforeFormatPostCodeCity(var Country: Record "Country/Region"; var CountryCode: Code[10])
     begin
     end;
 

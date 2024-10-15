@@ -157,7 +157,7 @@ page 10041 "Sales Invoice Stats."
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[1]);
                     Editable = false;
-                    ShowCaption = false;
+                    ToolTip = 'Specifies for the Sales Tax Breakdown: Print Description from Tax Jurisdiction and value';
                 }
                 field("BreakdownAmt[2]"; BreakdownAmt[2])
                 {
@@ -165,7 +165,7 @@ page 10041 "Sales Invoice Stats."
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[2]);
                     Editable = false;
-                    ShowCaption = false;
+                    ToolTip = 'Specifies for the Sales Tax Breakdown: Print Description from Tax Jurisdiction and value';
                 }
                 field("BreakdownAmt[3]"; BreakdownAmt[3])
                 {
@@ -173,7 +173,7 @@ page 10041 "Sales Invoice Stats."
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[3]);
                     Editable = false;
-                    ShowCaption = false;
+                    ToolTip = 'Specifies for the Sales Tax Breakdown: Print Description from Tax Jurisdiction and value';
                 }
                 field("BreakdownAmt[4]"; BreakdownAmt[4])
                 {
@@ -181,7 +181,7 @@ page 10041 "Sales Invoice Stats."
                     BlankZero = true;
                     CaptionClass = Format(BreakdownLabel[4]);
                     Editable = false;
-                    ShowCaption = false;
+                    ToolTip = 'Specifies for the Sales Tax Breakdown: Print Description from Tax Jurisdiction and value';
                 }
             }
             part(Subform; "Sales Tax Lines Subform")

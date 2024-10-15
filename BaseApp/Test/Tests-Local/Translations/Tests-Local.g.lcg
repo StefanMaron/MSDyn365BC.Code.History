@@ -2129,6 +2129,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType RemitAddressShouldExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2223412225 - NamedType 4169967444" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remit-To Code missing on payment journal line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType RemitToCodeMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 1694819398" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No_SalesCrMemoHeader]]></Val>

@@ -1,44 +1,13 @@
 codeunit 2621 "Stat. Acc. Analysis View Mgt."
 {
     [EventSubscriber(ObjectType::Table, Database::"Analysis View", 'OnValidateAccountFilter', '', false, false)]
-    local procedure HandleOnBeforeLookupTotaling(var AnalysisView: Record "Analysis View"; var xRecAnalysisView: Record "Analysis View")
-    var
-        AnalysisViewEntry: Record "Analysis View Entry";
-        StatisticalAccount: Record "Statistical Account";
-        DeleteConfirmed: Boolean;
+    local procedure HandleOnValidateAccountFilter(var AnalysisView: Record "Analysis View"; var xRecAnalysisView: Record "Analysis View")
     begin
         if not VerifyCanHandle(AnalysisView) then
             exit;
 
-        if (AnalysisView."Last Entry No." <> 0) and (xRecAnalysisView."Account Filter" = '') and (AnalysisView."Account Filter" <> '') then begin
-            DeleteConfirmed := ConfirmDeleteChanges();
-            if not DeleteConfirmed then
-                Error('');
-
-            StatisticalAccount.SetFilter("No.", AnalysisView."Account Filter");
-            if StatisticalAccount.Find('-') then
-                repeat
-                    StatisticalAccount.Mark := true;
-                until StatisticalAccount.Next() = 0;
-            StatisticalAccount.SetRange("No.");
-            if StatisticalAccount.Find('-') then
-                repeat
-                    if not StatisticalAccount.Mark() then begin
-                        AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
-                        AnalysisViewEntry.SetRange("Account No.", StatisticalAccount."No.");
-                        AnalysisViewEntry.DeleteAll();
-                    end;
-                until StatisticalAccount.Next() = 0;
-        end;
-        if (AnalysisView."Last Entry No." <> 0) and (AnalysisView."Account Filter" <> xRecAnalysisView."Account Filter") and (xRecAnalysisView."Account Filter" <> '')
-        then begin
-            if not DeleteConfirmed then
-                DeleteConfirmed := ConfirmDeleteChanges();
-            if not DeleteConfirmed then
-                Error('');
-
-            AnalysisView.AnalysisViewReset();
-        end
+        AnalysisView."Statistical Account Filter" := AnalysisView."Account Filter";
+        AnalysisView.UpdateStatisticalAccountFilter(xRecAnalysisView."Account Filter", AnalysisView."Account Filter");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Analysis View", 'OnLookupAccountFilter', '', false, false)]
@@ -82,16 +51,18 @@ codeunit 2621 "Stat. Acc. Analysis View Mgt."
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Analysis by Dimensions", 'OnGetCaptions', '', false, false)]
-    local procedure HandleOnGetAnalysisByDimensionsCaptions(var AnalysisView: Record "Analysis View"; var LineDimCode: Text[30]; var AccountCaption: Text[30]; var UnitCaption: Text[30])
+    local procedure HandleOnGetAnalysisByDimensionsCaptions(var AnalysisView: Record "Analysis View"; var LineDimCode: Text[30]; var AccountCaption: Text[30]; var UnitCaption: Text[30]; OpenPage: Boolean)
     var
         DummyStatisticalAccount: Record "Statistical Account";
     begin
         if not VerifyCanHandle(AnalysisView) then
             exit;
 
-        LineDimCode := CopyStr(DummyStatisticalAccount.TableCaption(), 1, MaxStrLen(LineDimCode));
+        if OpenPage then
+            LineDimCode := CopyStr(DummyStatisticalAccount.TableCaption(), 1, MaxStrLen(LineDimCode));
+
         AccountCaption := CopyStr(DummyStatisticalAccount.TableCaption(), 1, MaxStrLen(AccountCaption));
-        UnitCaption := CopyStr(DummyStatisticalAccount.TableCaption(), 1, MaxStrLen(UnitCaption));
+        UnitCaption := '';
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Analysis by Dimensions", 'OnGetAnalysisViewDimensionOption', '', false, false)]
@@ -178,7 +149,6 @@ codeunit 2621 "Stat. Acc. Analysis View Mgt."
         if not (DimOption = DimOption::"Statistical Account") then
             exit;
 
-        StatisticalAccount."No." := DimCodeBuf.Code;
         if AnalysisByDimParameters."Account Filter" <> '' then
             StatisticalAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
 
@@ -204,13 +174,14 @@ codeunit 2621 "Stat. Acc. Analysis View Mgt."
         NextKey: Integer;
     begin
         AnalysisViewEntry.SetRange("Analysis View Code", AnalysisView.Code);
+        AnalysisViewEntry.SetRange("Account Source", AnalysisViewEntry."Account Source"::"Statistical Account");
         AnalysisViewEntry.DeleteAll();
         AnalysisViewEntry.Reset();
         StatisticalLedgerEntry.FilterGroup(2);
         StatisticalLedgerEntry.SetFilter("Statistical Account No.", '<>%1', '');
         StatisticalLedgerEntry.FilterGroup(0);
-        if AnalysisView."Account Filter" <> '' then
-            StatisticalLedgerEntry.SetFilter("Statistical Account No.", AnalysisView."Account Filter");
+        if AnalysisView."Statistical Account Filter" <> '' then
+            StatisticalLedgerEntry.SetFilter("Statistical Account No.", AnalysisView."Statistical Account Filter");
 
         if GeneralLedgerSetup."Global Dimension 1 Code" <> '' then
             if AnalysisViewFilter.Get(AnalysisView.Code, GeneralLedgerSetup."Global Dimension 1 Code") then
@@ -236,30 +207,19 @@ codeunit 2621 "Stat. Acc. Analysis View Mgt."
                 UpdAnalysisViewEntryBuffer.AccNo := StatisticalLedgerEntry."Statistical Account No.";
                 UpdAnalysisViewEntryBuffer.Amount := StatisticalLedgerEntry.Amount;
                 UpdAnalysisViewEntryBuffer.EntryNo := StatisticalLedgerEntry."Entry No.";
+                UpdAnalysisViewEntryBuffer."Account Source" := UpdAnalysisViewEntryBuffer."Account Source"::"Statistical Account";
                 UpdAnalysisViewEntryBuffer.PostingDate := StatisticalLedgerEntry."Posting Date";
-                UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 1 Code", StatisticalLedgerEntry."Dimension Set ID");
-                UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 2 Code", StatisticalLedgerEntry."Dimension Set ID");
-                UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 3 Code", StatisticalLedgerEntry."Dimension Set ID");
-                UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 4 Code", StatisticalLedgerEntry."Dimension Set ID");
+                UpdAnalysisViewEntryBuffer.DimValue1 := UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 1 Code", StatisticalLedgerEntry."Dimension Set ID");
+                UpdAnalysisViewEntryBuffer.DimValue2 := UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 2 Code", StatisticalLedgerEntry."Dimension Set ID");
+                UpdAnalysisViewEntryBuffer.DimValue3 := UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 3 Code", StatisticalLedgerEntry."Dimension Set ID");
+                UpdAnalysisViewEntryBuffer.DimValue4 := UpdateAnalysisView.GetDimVal(AnalysisView."Dimension 4 Code", StatisticalLedgerEntry."Dimension Set ID");
                 UpdAnalysisViewEntryBuffer.Insert();
             end;
         until StatisticalLedgerEntry.Next() = 0;
     end;
 
-    local procedure ConfirmDeleteChanges(): Boolean
-    begin
-        if not GuiAllowed() then
-            exit(true);
-
-        if not Confirm(UpdateOfAnalysisViewNeededQst, true) then
-            exit(false);
-    end;
-
     local procedure VerifyCanHandle(var AnalysisView: Record "Analysis View"): Boolean
     begin
-        exit(AnalysisView."Account Source" = AnalysisView."Account Source"::"Statistical Account");
+        exit((AnalysisView."Account Source" = AnalysisView."Account Source"::"Statistical Account") or (AnalysisView."Statistical Account Filter" <> ''));
     end;
-
-    var
-        UpdateOfAnalysisViewNeededQst: Label 'Changing the setup values will delete the existing entries.\\You will have to update again.\\Do you want to continue?';
 }

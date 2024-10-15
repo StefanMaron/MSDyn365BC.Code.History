@@ -394,6 +394,7 @@ table 370 "Excel Buffer"
         FileNameServer := FileName;
         FileManagement.IsAllowedPath(FileName, false);
         XlWrkBkWriter := XlWrkBkWriter.Open(FileNameServer);
+        OnUpdateBookExcelOnAfterXlWrkBkWriterOpen(Rec, FileName, SheetName);
         if XlWrkBkWriter.HasWorksheet(SheetName) then begin
             XlWrkShtWriter := XlWrkBkWriter.GetWorksheetByName(SheetName);
             // Set PreserverDataOnUpdate to false if the sheet writer should clear all empty cells
@@ -466,7 +467,7 @@ table 370 "Excel Buffer"
         VmlDrawingPart: DotNet VmlDrawingPart;
         IsHandled: Boolean;
     begin
-        XlWrkShtWriter.AddPageSetup(OrientationValues.Landscape, 9); // 9 - default value for Paper Size - A4
+        XlWrkShtWriter.AddPageSetup(OrientationValues.Landscape, 1); // 1 - default value for Letter Size
         if ReportHeader <> '' then
             XlWrkShtWriter.AddHeader(
               true,
@@ -1085,7 +1086,14 @@ table 370 "Excel Buffer"
     end;
 
     procedure UTgetGlobalValue(globalVariable: Text[30]; var value: Variant)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUTgetGlobalValue(globalVariable, value, IsHandled);
+        if IsHandled then
+            exit;
+
         case globalVariable of
             'CurrentRow':
                 value := CurrentRow;
@@ -1320,12 +1328,22 @@ table 370 "Excel Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUTgetGlobalValue(GlobalVariable: Text[30]; var Variant_Value: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWriteCellFormula(var Rec: Record "Excel Buffer"; var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnParseCellValueOnBeforeRoundDecimal(var ExcelBuffer: Record "Excel Buffer"; DecimalValue: Decimal; var RoundingPrecision: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBookExcelOnAfterXlWrkBkWriterOpen(var ExcelBuffer: Record "Excel Buffer"; FileName: Text; SheetName: Text)
     begin
     end;
 

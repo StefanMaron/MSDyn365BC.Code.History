@@ -62,6 +62,13 @@ page 2014 "Copilot Information"
                         end;
                     }
 
+                    label(HttpCallsLabel)
+                    {
+                        ApplicationArea = All;
+                        Visible = ShowHttpCallsNotice;
+                        CaptionClass = '3,' + HttpCallsNoticeText;
+                    }
+
                     label(ApproveForOrganization)
                     {
                         ApplicationArea = All;
@@ -222,6 +229,9 @@ page 2014 "Copilot Information"
                     if PrivacyNoticeRec.ID <> '' then
                         PrivacyNotice.SetApprovalState(PrivacyNoticeRec.ID, "Privacy Notice Approval State"::Agreed);
 
+                    if ShowHttpCallsNotice then
+                        AllowHttpCallsInModule();
+
                     Step := Step::Enabled;
                 end;
             }
@@ -237,6 +247,8 @@ page 2014 "Copilot Information"
     var
         PrivacyNoticeCodeunit: Codeunit "Privacy Notice";
     begin
+        CheckHttpNoticeVisibility();
+
         if Rec.ID = '' then begin
             if not PrivacyNoticeRec.Get(AzureOpenAiTxt) then begin
                 PrivacyNoticeCodeunit.CreateDefaultPrivacyNotices();
@@ -258,12 +270,46 @@ page 2014 "Copilot Information"
     var
         PrivacyNoticeRec: Record "Privacy Notice";
         PrivacyText: Text;
+        HttpCallsNoticeText: Text;
         Step: Option NotEnabled,Enabled;
         UserCanApproveForOrganization: Boolean;
+        ShowHttpCallsNotice: Boolean;
         PrivacyAndCookiesTxt: Label 'Privacy and Cookies';
         SupplementalTermsTxt: Label 'Supplemental preview terms';
         LearnMoreTxt: Label 'Learn more';
         AzureOpenAiTxt: Label 'Azure OpenAI', Locked = true;
         SupplementalTermsLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2227013', Locked = true;
         ProductDescriptionsLearnMoreLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2226375', Locked = true;
+        EnableHttpCallsTxt: Label 'Communication with external services is turned off by default in Sandbox environments. By accepting these terms, you also allow %1 by %2 to communicate with external services. You can always change this from the Extension Management page.', Comment = '%1 = The name of the extension, for example System Application; %2 = the extension publisher, for example Microsoft.';
+
+    local procedure CheckHttpNoticeVisibility()
+    var
+        NavAppSettings: Record "NAV App Setting";
+        EnvironmentInformation: Codeunit "Environment Information";
+        CurrentModuleInfo: ModuleInfo;
+    begin
+        ShowHttpCallsNotice := false;
+
+        if EnvironmentInformation.IsSandbox() then
+            if NavAppSettings.WritePermission() then
+                if NavApp.GetCurrentModuleInfo(CurrentModuleInfo) then
+                    if not NavAppSettings.Get(CurrentModuleInfo.Id()) then
+                        ShowHttpCallsNotice := true;
+
+        HttpCallsNoticeText := StrSubstNo(EnableHttpCallsTxt, CurrentModuleInfo.Name(), CurrentModuleInfo.Publisher());
+    end;
+
+    local procedure AllowHttpCallsInModule()
+    var
+        NavAppSettings: Record "NAV App Setting";
+        CurrentModuleInfo: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+
+        if not NavAppSettings.Get(CurrentModuleInfo.Id()) then begin
+            NavAppSettings."App ID" := CurrentModuleInfo.Id();
+            NavAppSettings."Allow HttpClient Requests" := true;
+            if NavAppSettings.Insert() then;
+        end;
+    end;
 }

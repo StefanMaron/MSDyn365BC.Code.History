@@ -400,7 +400,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         CompanyInformation: Record "Company Information";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        // [SCENARIO 255272] ShipToOption = "Custom Address" when create a new Purchase Invoice from a Vendor card
+        // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Invoice from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Invoice Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
         Initialize();
         CompanyInformation.Get();
@@ -413,12 +413,12 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         NewPurchaseInvoiceFromVendorCard(PurchaseInvoice, Vendor);
 
         // [THEN] Purchase Invoice page has been opened with following values:
-        // [THEN] ShipToOption = "Custom Address"
+        // [THEN] ShipToOption = "Default (Company Address)"
         // [THEN] "Location Code" is not visible
-        // [THEN] "Ship-to Name" = ""
-        PurchaseInvoice.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
+        // [THEN] "Ship-to Name" = <Company.Name>
+        PurchaseInvoice.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Default (Company Address)");
         Assert.IsFalse(PurchaseInvoice."Location Code".Visible, FieldShouldNotBeVisibleTxt);
-        PurchaseInvoice."Ship-to Name".AssertEquals('');
+        PurchaseInvoice."Ship-to Name".AssertEquals(CompanyInformation.Name);
     end;
 
     [Test]
@@ -429,7 +429,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         Location: Record Location;
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        // [SCENARIO 255272] ShipToOption = "Custom Address" when create a new Purchase Invoice from a Vendor card
+        // [SCENARIO 255272] ShipToOption = "Location" when create a new Purchase Invoice from a Vendor card
         // [SCENARIO 255272] in case of Location and Purchase Invoice Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
         Initialize();
         CreateLocation(Location);
@@ -443,12 +443,14 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         NewPurchaseInvoiceFromVendorCard(PurchaseInvoice, Vendor);
 
         // [THEN] Purchase Invoice page has been opened with following values:
-        // [THEN] ShipToOption = "Custom Address"
-        // [THEN] "Location Code" is not visible
-        // [THEN] "Ship-to Name" = ""
-        PurchaseInvoice.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
-        Assert.IsFalse(PurchaseInvoice."Location Code".Visible, FieldShouldBeVisibleTxt);
-        PurchaseInvoice."Ship-to Name".AssertEquals('');
+        // [THEN] ShipToOption = "Location"
+        // [THEN] "Location Code" is visible
+        // [THEN] "Location Code" = "A"
+        // [THEN] "Ship-to Name" = "B"
+        PurchaseInvoice.ShippingOptionWithLocation.AssertEquals(ShipToOptions::Location);
+        Assert.IsTrue(PurchaseInvoice."Location Code".Visible, FieldShouldBeVisibleTxt);
+        PurchaseInvoice."Location Code".AssertEquals(Location.Code);
+        PurchaseInvoice."Ship-to Name".AssertEquals(Location.Name);
     end;
 
     local procedure Initialize()

@@ -157,11 +157,9 @@ codeunit 1514 "Bank Deposit Feature Mgt."
 
         if not GeneralLedgerSetup."Bank Recon. with Auto. Match" then begin
             FeatureDataUpdateStatus."Feature Status" := FeatureDataUpdateStatus."Feature Status"::Disabled;
-            if FeatureKey.WritePermission() then begin
-                FeatureKey.Get(FeatureDataUpdateStatus."Feature Key");
-                FeatureKey.Enabled := FeatureKey.Enabled::None;
-                FeatureKey.Modify();
-            end;
+            FeatureKey.Get(FeatureDataUpdateStatus."Feature Key");
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
             InitializeHandled := true;
         end;
     end;

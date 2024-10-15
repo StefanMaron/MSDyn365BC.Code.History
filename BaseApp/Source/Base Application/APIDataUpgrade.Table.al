@@ -54,7 +54,7 @@ table 9994 "API Data Upgrade"
             end else begin
                 Clear(Rec);
                 Rec."Upgrade Tag" := APIDataUpgradeEntity;
-                Rec.Status := Rec.Status::Completed;
+                Rec.Status := Rec.Status::" ";
                 Rec.Description := APIUpgradeDescription;
                 Rec.Insert();
             end;

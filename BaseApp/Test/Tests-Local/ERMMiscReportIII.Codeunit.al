@@ -189,6 +189,7 @@ codeunit 142062 "ERM Misc. Report III"
         FieldMustBeVisibleInAreaErr: Label 'Field %1 must be visible in %2.';
         TestFieldNotFoundErr: Label 'TestFieldNotFound';
         RemitAddressShouldExistErr: Label 'Remit Address Name should exist in the Positive Pay Export File.';
+        RemitToCodeMissingErr: Label 'Remit-To Code missing on payment journal line.';
 
     [Test]
     [HandlerFunctions('PaymentJournalTestRequestPageHandler')]
@@ -1966,6 +1967,47 @@ codeunit 142062 "ERM Misc. Report III"
 
         // [VERIFY] Verify: Remit Address including Zip Code on Check Report
         VerifyZipCodeOnReport(RemitAddress);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyRemitToCodeOnPaymentJournalLineWhenPostedInvoiceAppliedUsingAppliesToDocNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        RemitAddress: Record "Remit Address";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 467669] Remit-to Code does not default onto Payment Journal line if user clicks on Applies-to Doc. No. field to apply the payment to invoice on which the Remit-to Code exists
+        Initialize();
+
+        // [GIVEN] Create Vendor with Remit Address as Default
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [THEN] Create and post invoice for vendor
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        PurchaseHeader.Modify(true);
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Create Payment Journal with posted vendor invoice
+        CreateGenJournalLineWithBankAccount(
+            GenJournalLine,
+            "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor,
+            Vendor."No.",
+            LibraryRandom.RandDec(500, 0),
+            "Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Modify(true);
+
+        // [VERIFY] Verify: Remit-to Code on payment journal line
+        Assert.AreEqual(RemitAddress.Code, GenJournalLine."Remit-to Code", RemitToCodeMissingErr);
     end;
 
     local procedure Initialize()

@@ -7,7 +7,7 @@ pageextension 2620 "Stat. Acc. BC Role Center" extends "Business Manager Role Ce
             action(StatisticalAccounts)
             {
                 ApplicationArea = All;
-                Caption = 'Statistical account';
+                Caption = 'Statistical Accounts';
                 Image = Ledger;
                 RunObject = page "Statistical Account List";
                 ToolTip = 'Define statistical accounts for tracking non-transactional data.';

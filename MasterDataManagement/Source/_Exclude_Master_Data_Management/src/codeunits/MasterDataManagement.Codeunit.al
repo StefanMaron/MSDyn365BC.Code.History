@@ -59,6 +59,8 @@ codeunit 7233 "Master Data Management"
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.', Comment = '%1 - entity name';
         RescheduledTaskTxt: label 'Rescheduled task %1 for Job Queue Entry %2 (%3) to run not before %4', Locked = true;
         FeatureNameTxt: Label 'Master Data Management', Locked = true;
+        CachedIsSynchronizationRecord: Dictionary of [Text, Boolean];
+        CachedDisableEventDrivenSynchJobReschedule: Dictionary of [Text, Boolean];
 
     internal procedure GetFeatureName(): Text
     begin
@@ -495,15 +497,18 @@ codeunit 7233 "Master Data Management"
         BlankGuid: Guid;
     begin
         MasterDataMgtCoupling.SetRange("Table ID", 0);
-        MasterDataMgtCoupling.SetFilter("Local System ID", '<>%1', BlankGuid);
+        if MasterDataMgtCoupling.IsEmpty() then
+            exit;
+
         if MasterDataMgtCoupling.FindSet() then
             repeat
-                if not MasterDataMgtCoupling.RepairTableIdByLocalRecord() then
-                    if not UseLocalRecordsOnly then
-                        if not MasterDataMgtCoupling.RepairTableIdByIntegrationRecord() then begin
-                            MasterDataMgtCoupling.Delete();
-                            Session.LogMessage('0000J7U', StrSubstNo(DeletedRecordWithZeroTableIdTxt, MasterDataMgtCoupling."Local System ID", MasterDataMgtCoupling."Integration System ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        end;
+                if MasterDataMgtCoupling."Local System ID" <> BlankGuid then
+                    if not MasterDataMgtCoupling.RepairTableIdByLocalRecord() then
+                        if not UseLocalRecordsOnly then
+                            if not MasterDataMgtCoupling.RepairTableIdByIntegrationRecord() then begin
+                                MasterDataMgtCoupling.Delete();
+                                Session.LogMessage('0000J7U', StrSubstNo(DeletedRecordWithZeroTableIdTxt, MasterDataMgtCoupling."Local System ID", MasterDataMgtCoupling."Integration System ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            end;
             until MasterDataMgtCoupling.Next() = 0;
     end;
 
@@ -1364,18 +1369,53 @@ codeunit 7233 "Master Data Management"
         SynchronizeHandled := true;
     end;
 
+    internal procedure IsEventDrivenReschedulingDisabled(TableID: Integer; CompanyName: Text[30]): Boolean
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        isEvtDrivenReschedulingDisabled: Boolean;
+        DictionaryKey: Text;
+    begin
+        DictionaryKey := CompanyName + '.' + Format(TableID);
+        if CachedDisableEventDrivenSynchJobReschedule.ContainsKey(DictionaryKey) then
+            exit(CachedDisableEventDrivenSynchJobReschedule.Get(DictionaryKey));
+
+        IntegrationTableMapping.ChangeCompany(CompanyName);
+        IntegrationTableMapping.ReadIsolation := IsolationLevel::ReadUncommitted;
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::"Master Data Management");
+        IntegrationTableMapping.SetRange(Status, IntegrationTableMapping.Status::Enabled);
+        if IntegrationTableMapping.FindMappingForTable(TableID) then
+            isEvtDrivenReschedulingDisabled := IntegrationTableMapping."Disable Event Job Resch."
+        else
+            isEvtDrivenReschedulingDisabled := true;
+
+        if not CachedDisableEventDrivenSynchJobReschedule.ContainsKey(DictionaryKey) then
+            if not CachedIsSynchronizationRecord.Add(DictionaryKey, isEvtDrivenReschedulingDisabled) then
+                exit(isEvtDrivenReschedulingDisabled);
+        exit(isEvtDrivenReschedulingDisabled);
+    end;
+
     internal procedure IsDataSynchRecord(TableID: Integer; CompanyName: Text[30]): Boolean
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         isIntegrationRecord: Boolean;
+        DictionaryKey: Text;
     begin
+        DictionaryKey := CompanyName + '.' + Format(TableID);
+        if CachedIsSynchronizationRecord.ContainsKey(DictionaryKey) then
+            exit(CachedIsSynchronizationRecord.Get(DictionaryKey));
+
         // this is the new event that partners who have integration to custom entities should subscribe to
         OnIsDataSynchRecord(TableID, isIntegrationRecord);
-        if isIntegrationRecord then
-            exit(true);
+        if not isIntegrationRecord then begin
+            IntegrationTableMapping.ChangeCompany(CompanyName);
+            IntegrationTableMapping.ReadIsolation := IsolationLevel::ReadUncommitted;
+            IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::"Master Data Management");
+            IntegrationTableMapping.SetRange(Status, IntegrationTableMapping.Status::Enabled);
+            isIntegrationRecord := IntegrationTableMapping.FindMappingForTable(TableID);
+        end;
 
-        IntegrationTableMapping.ChangeCompany(CompanyName);
-        exit(IntegrationTableMapping.FindMappingForTable(TableID));
+        CachedIsSynchronizationRecord.Add(DictionaryKey, isIntegrationRecord);
+        exit(isIntegrationRecord);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
@@ -1386,6 +1426,9 @@ codeunit 7233 "Master Data Management"
         Enabled: Boolean;
     begin
         if not MasterDataMgtSubscriber.ReadPermission() then
+            exit;
+
+        if GetExecutionContext() = ExecutionContext::Upgrade then
             exit;
 
         if (OnDatabaseInsert and OnDatabaseModify and OnDatabaseRename) then
@@ -1459,29 +1502,32 @@ codeunit 7233 "Master Data Management"
 
                 if Enabled then
                     if IsDataSynchRecord(TableNo, MasterDataMgtSubscriber."Company Name") then
-                        if not DataUpgradeMgt.IsUpgradeInProgress() then begin
-                            JobQueueEntry.Reset();
-                            JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
-                            JobQueueEntry.SetRange("Recurring Job", true);
-                            if UserCanRescheduleJob() then
-                                if JobQueueEntry.FindSet() then
-                                    repeat
-                                        // The rescheduled task might start while the current transaction is not committed yet.
-                                        // Therefore the task will restart with a delay to lower a risk of use of "old" data.
-                                        NewEarliestStartDateTime := CurrentDateTime() + 2000;
-                                        if ScheduledTask.Get(JobQueueEntry."System Task ID") then
-                                            if (NewEarliestStartDateTime + 5000) < ScheduledTask."Not Before" then
-                                                if DoesJobActOnTable(JobQueueEntry, TableNo, MasterDataMgtSubscriber."Company Name") then
-                                                    if TaskScheduler.SetTaskReady(ScheduledTask.ID, NewEarliestStartDateTime) then
-                                                        if JobQueueEntry.Find() then begin
-                                                            JobQueueEntry.RefreshLocked();
-                                                            JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                                                            JobQueueEntry."Earliest Start Date/Time" := NewEarliestStartDateTime;
-                                                            JobQueueEntry.Modify();
-                                                            Session.LogMessage('0000JB1', StrSubstNo(RescheduledTaskTxt, Format(ScheduledTask.ID), Format(JobQueueEntry.ID), JobQueueEntry.Description, Format(NewEarliestStartDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                                                        end;
-                                    until JobQueueEntry.Next() = 0;
-                        end
+                        if not IsEventDrivenReschedulingDisabled(TableNo, MasterDataMgtSubscriber."Company Name") then
+                            if not DataUpgradeMgt.IsUpgradeInProgress() then begin
+                                JobQueueEntry.Reset();
+                                JobQueueEntry.ReadIsolation := IsolationLevel::ReadUncommitted;
+                                JobQueueEntry.SetFilter(Status, Format(JobQueueEntry.Status::Ready) + '|' + Format(JobQueueEntry.Status::"On Hold with Inactivity Timeout"));
+                                JobQueueEntry.SetRange("Recurring Job", true);
+                                if UserCanRescheduleJob() then
+                                    if JobQueueEntry.FindSet() then
+                                        repeat
+                                            // The rescheduled task might start while the current transaction is not committed yet.
+                                            // Therefore the task will restart with a delay to lower a risk of use of "old" data.
+                                            ScheduledTask.ReadIsolation := IsolationLevel::ReadUncommitted;
+                                            NewEarliestStartDateTime := CurrentDateTime() + 2000;
+                                            if ScheduledTask.Get(JobQueueEntry."System Task ID") then
+                                                if (NewEarliestStartDateTime + 5000) < ScheduledTask."Not Before" then
+                                                    if DoesJobActOnTable(JobQueueEntry, TableNo, MasterDataMgtSubscriber."Company Name") then
+                                                        if TaskScheduler.SetTaskReady(ScheduledTask.ID, NewEarliestStartDateTime) then
+                                                            if JobQueueEntry.Find() then begin
+                                                                JobQueueEntry.RefreshLocked();
+                                                                JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                                                                JobQueueEntry."Earliest Start Date/Time" := NewEarliestStartDateTime;
+                                                                JobQueueEntry.Modify();
+                                                                Session.LogMessage('0000JB1', StrSubstNo(RescheduledTaskTxt, Format(ScheduledTask.ID), Format(JobQueueEntry.ID), JobQueueEntry.Description, Format(NewEarliestStartDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                                            end;
+                                        until JobQueueEntry.Next() = 0;
+                            end
             end
         until MasterDataMgtSubscriber.Next() = 0;
     end;

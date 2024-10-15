@@ -7,11 +7,11 @@ table 6302 "Power BI Report Buffer"
 
     // This table was marked as obsolete before, when its type was changed to temporary. Because of limitations in AppSourceCop, there needs to
     // be a full major release where it is not obsolete, before it can be obsoleted again. Hence the tag 21.0 will be added in 22.0 instead of 21.0.
-#if CLEAN19
     ObsoleteState = Pending;
     ObsoleteReason = 'This table is no longer used. Use table 6313 "Power BI Selection Element" instead.';
+#pragma warning disable AS0072
     ObsoleteTag = '21.0';
-#endif
+#pragma warning restore AS0072
 
     Description = 'This table will be marked as obsolete. Use table 6313 "Power BI Selection Element" instead.';
 

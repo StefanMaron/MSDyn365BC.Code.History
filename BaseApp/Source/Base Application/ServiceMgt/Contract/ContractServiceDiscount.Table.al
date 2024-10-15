@@ -113,9 +113,20 @@ table 5972 "Contract/Service Discount"
     local procedure VerifyContractOpen()
     var
         ServiceContractHeader: Record "Service Contract Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyContractOpen(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceContractHeader.Get("Contract Type", "Contract No.");
         ServiceContractHeader.TestField("Change Status", ServiceContractHeader."Change Status"::Open);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyContractOpen(var ContractServiceDiscount: Record "Contract/Service Discount"; var IsHandled: Boolean)
+    begin
     end;
 }
 
