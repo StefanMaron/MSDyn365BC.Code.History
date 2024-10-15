@@ -40,6 +40,7 @@ table 5964 "Service Contract Line"
                 LastInvoiceDate: Date;
                 NewLastInvoiceDate: Date;
                 InvoicePeriod: DateFormula;
+                ServiceItemNoIsNotEmpty: Boolean;
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
@@ -58,7 +59,9 @@ table 5964 "Service Contract Line"
                 then
                     Error(Text013, FieldCaption("Service Item No."));
 
-                if "Service Item No." <> '' then begin
+                ServiceItemNoIsNotEmpty := "Service Item No." <> '';
+                OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(Rec, ServiceItemNoIsNotEmpty);
+                if ServiceItemNoIsNotEmpty then begin
                     GetServItem;
                     TestField("Customer No.");
 
@@ -123,6 +126,7 @@ table 5964 "Service Contract Line"
                 end;
                 ServContractLine := Rec;
                 Init;
+                OnValidateServiceItemNoOnAfterInit(Rec, ServContractLine);
                 "Starting Date" := ServContractLine."Starting Date";
                 "Contract Expiration Date" := ServContractLine."Contract Expiration Date";
                 "Credit Memo Date" := ServContractLine."Credit Memo Date";
@@ -1035,6 +1039,11 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(var ServiceContractLine: Record "Service Contract Line"; var ServiceItemNoIsNotEmpty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeCheckSameItemExist(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1046,6 +1055,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateServiceItemNoOnBeforeModify(ServItem: Record "Service Item"; ServContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateServiceItemNoOnAfterInit(var ServContractLineRec: Record "Service Contract Line"; ServContractLine: Record "Service Contract Line")
     begin
     end;
 }

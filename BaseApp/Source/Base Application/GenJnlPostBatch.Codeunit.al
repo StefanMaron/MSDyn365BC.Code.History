@@ -1317,6 +1317,7 @@
                     TempGenJnlLine2 := GenJnlLine2;
                     TempGenJnlLine2."Balance (LCY)" := 0;
                     GenJnlLine3.SetUpNewLine(TempGenJnlLine2, 0, true);
+                    OnUpdateAndDeleteLinesOnBeforeModifyNonRecurringLine(GenJnlTemplate, GenJnlLine3, TempGenJnlLine2);
                     GenJnlLine3.Modify();
                 end;
             end;
@@ -1916,6 +1917,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeModifyNonRecurringLine(GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 

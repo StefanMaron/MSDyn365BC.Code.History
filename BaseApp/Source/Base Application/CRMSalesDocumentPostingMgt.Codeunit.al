@@ -34,6 +34,8 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
             exit;
 
+        Codeunit.Run(Codeunit::"CRM Integration Management");
+
         AddPostedSalesDocumentToCRMAccountWall(SalesHeader);
 
         if not IsNullGuid(CRMSalesOrderId) then // Should be set by SetOrderOnSalesHeaderDeletion
@@ -116,6 +118,8 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
+
+        Codeunit.Run(Codeunit::"CRM Integration Management");
 
         if SalesHeaderOrder.FindSet then
             repeat

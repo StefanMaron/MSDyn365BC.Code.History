@@ -33,9 +33,12 @@ report 799 "Delete Empty Item Registers"
             end;
 
             trigger OnPreDataItem()
+            var
+                ConfirmManagement: Codeunit "Confirm Management";
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
+                if not SkipConfirm then
+                    if not ConfirmManagement.GetResponseOrDefault(DeleteRegistersQst, true) then
+                        CurrReport.Break();
 
                 Window.Open(
                   Text001 +
@@ -63,7 +66,7 @@ report 799 "Delete Empty Item Registers"
     }
 
     var
-        Text000: Label 'Do you want to delete the registers?';
+        DeleteRegistersQst: Label 'Do you want to delete the registers?';
         Text001: Label 'Deleting item registers...\\';
         Text002: Label 'No.                      #1######\';
         Text003: Label 'Posted on                #2######\\';
@@ -74,5 +77,11 @@ report 799 "Delete Empty Item Registers"
         Window: Dialog;
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
+        SkipConfirm: Boolean;
+
+    procedure SetSkipConfirm()
+    begin
+        SkipConfirm := true;
+    end;
 }
 

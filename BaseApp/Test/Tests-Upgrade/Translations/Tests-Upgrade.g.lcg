@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Table 3681231878 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UPG - CRM Connection Setup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG - CRM Connection Setup - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3681231878 - Field 221001979 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Last Update Invoice Entry No.]]></Val>
@@ -21,6 +30,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG - CRM Connection Setup - Field Primary Key - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2713367823 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UPG - Upgrade Tag]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG - Upgrade Tag - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2713367823 - Field 3133801257 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -59,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG - Upgrade Tag - Field Tag Timestamp - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1975432253 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UPG-Integration Table Mapping]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG-Integration Table Mapping - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 1975432253 - Field 2961552353 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Name]]></Val>
@@ -75,6 +102,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG-Integration Table Mapping - Field Table Filter - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3766207032 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Upgrade Status]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 3766207032 - Field 2333076789 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">

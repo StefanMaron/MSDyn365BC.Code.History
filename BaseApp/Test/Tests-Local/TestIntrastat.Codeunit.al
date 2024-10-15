@@ -22,9 +22,9 @@ codeunit 134153 "Test Intrastat"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
         ReportedMustBeNoErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
-        FieldMustHaveValueErr: Label '%1 must have a value in %2';
         FileNotCreatedErr: Label 'Intrastat file was not created';
         FileExtenstionTxt: Label '.EDI';
+        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
@@ -90,8 +90,11 @@ codeunit 134153 "Test Intrastat"
         asserterror RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
 
         // Verify
-        Assert.ExpectedError(
-          StrSubstNo(FieldMustHaveValueErr, IntrastatJnlLine.FieldCaption("Transaction Type"), IntrastatJnlLine.TableCaption));
+#if CLEAN19
+        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
+#else
+        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
+#endif
     end;
 
     [Test]
@@ -543,6 +546,35 @@ codeunit 134153 "Test Intrastat"
         end;
     end;
 
+    local procedure VerifyTestfieldChecklistError(FieldName: Text)
+    begin
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(FieldName);
+    end;
+
+    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(AdvChecklistErr);
+        VerifyBatchError(IntrastatJnlLine, FieldName);
+    end;
+
+    local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+    end;
+ 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntriesReqPage: TestRequestPage "Get Item Ledger Entries")

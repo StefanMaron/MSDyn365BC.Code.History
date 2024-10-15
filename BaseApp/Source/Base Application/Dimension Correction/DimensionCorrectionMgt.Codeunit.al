@@ -338,8 +338,8 @@ codeunit 2580 "Dimension Correction Mgt"
             LastEntryNo := TempInteger.Number;
         until TempInteger.Next() = 0;
 
-        if ((LastEntryNo <> StartEntryNo) or (TempInteger.Count() = 1)) then
-            AddedEntries += UpdateDimCorrectionEntryLog(StartEntryNo, LastEntryNo, DimensionCorrection."Entry No.");
+        // Add last entry
+        AddedEntries += UpdateDimCorrectionEntryLog(StartEntryNo, LastEntryNo, DimensionCorrection."Entry No.");
 
         DimensionCorrection."Total Selected Ledger Entries" += AddedEntries;
         DimensionCorrection.Modify();

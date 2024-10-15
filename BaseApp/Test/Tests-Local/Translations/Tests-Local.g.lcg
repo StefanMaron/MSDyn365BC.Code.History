@@ -860,13 +860,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Intrastat XML Export DACH - NamedType FileDoesntExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 2582613147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2]]></Val>
+      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FieldMustHaveValueErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 1768059469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1335,6 +1335,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VATSTAT - NamedType StringContainsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Query 47177653 - Property 2879900210" ItemType=";Query - Query" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Finishable Phys. Invt. Orders]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Query Finishable Phys. Invt. Orders - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>
